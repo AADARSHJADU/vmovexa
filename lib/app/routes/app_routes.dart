@@ -33,6 +33,11 @@ abstract class Routes {
   static const SUPPORT_HISTORY = '/support-history';
   static const PRIVACY_POLICY = '/privacy-policy';
   static const TERMS_CONDITIONS = '/terms-conditions';
+
+  //technician flow routes
+  static const TECHNICIAN_DASHBOARD = '/technician-dashboard';
+  static const REGISTER_DISPLAY_DEVICE = '/register-display-device';
+
 }
 
 

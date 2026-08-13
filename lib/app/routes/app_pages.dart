@@ -1,4 +1,10 @@
 import 'package:get/get.dart';
+import 'package:vmovexa/app/modules/roles/technician/technician_dashboard/bindings/technician_dashboard_bindings.dart';
+import '../modules/roles/technician/display_devices/register_new_device/bindings/register_device_binding.dart';
+import '../modules/roles/technician/display_devices/register_new_device/view/register_device_view.dart';
+import '../modules/roles/technician/home/bindings/home_binding.dart' hide HomeBinding;
+import '../modules/roles/technician/home/view/home_view.dart' hide HomeView;
+import '../modules/roles/technician/technician_dashboard/view/technician_dashboard_view.dart';
 import 'app_routes.dart';
 
 import '../modules/splash/bindings/splash_binding.dart';
@@ -101,7 +107,7 @@ import '../modules/roles/fleet_operator/terms_conditions/views/terms_conditions_
 
 class AppPages {
   // static const INITIAL = Routes.SPLASH;
-  static const INITIAL = Routes.FLEET_OP_DASHBOARD;
+  static const INITIAL = Routes.TECHNICIAN_DASHBOARD;
 
   static final routes = [
     GetPage(
@@ -300,6 +306,24 @@ class AppPages {
       page: () => const TermsConditionsView(),
       binding: TermsConditionsBinding(),
       transition: Transition.rightToLeft,
+    ),
+    //technician flow routes
+
+    GetPage(
+      name: Routes.TECHNICIAN_DASHBOARD,
+      page: () => const TechnicianDashboardView(),
+      binding: TechnicianDashboardBindings(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: '/dashboard',
+      page: () => const HomeView(),
+      binding: HomeBinding(),
+    ),
+    GetPage(
+      name:Routes.REGISTER_DISPLAY_DEVICE,
+      page: () => const RegisterDeviceView(),
+      binding: RegisterDeviceBinding(),
     ),
   ];
 }
