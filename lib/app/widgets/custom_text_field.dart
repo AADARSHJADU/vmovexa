@@ -13,6 +13,7 @@ class CustomTextField extends StatelessWidget {
   final String? dropdownValue;
   final List<String>? dropdownItems;
   final ValueChanged<String?>? onDropdownChanged;
+  final int maxLines;
 
   const CustomTextField({
     super.key,
@@ -27,7 +28,9 @@ class CustomTextField extends StatelessWidget {
     this.dropdownValue,
     this.dropdownItems,
     this.onDropdownChanged,
+    this.maxLines = 1,
   });
+
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +78,7 @@ class CustomTextField extends StatelessWidget {
     }
 
     return Container(
-      height: 56,
+      height: maxLines > 1 ? null : 56,
       decoration: BoxDecoration(
         color: AppColors.inputBg,
         borderRadius: BorderRadius.circular(12),
@@ -85,13 +88,17 @@ class CustomTextField extends StatelessWidget {
         controller: controller,
         obscureText: isPassword ? isObscured : false,
         keyboardType: keyboardType,
+        maxLines: maxLines,
         style: const TextStyle(
           color: AppColors.textPrimary,
           fontSize: 14,
         ),
         decoration: InputDecoration(
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 18),
+          contentPadding: maxLines > 1
+              ? const EdgeInsets.all(16)
+              : const EdgeInsets.symmetric(vertical: 18),
+
           prefixIcon: prefixIcon != null
               ? Icon(
                   prefixIcon,

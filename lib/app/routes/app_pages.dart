@@ -99,9 +99,24 @@ import '../modules/roles/fleet_operator/privacy_policy/views/privacy_policy_view
 import '../modules/roles/fleet_operator/terms_conditions/bindings/terms_conditions_binding.dart';
 import '../modules/roles/fleet_operator/terms_conditions/views/terms_conditions_view.dart';
 
+import '../modules/roles/advertiser/dashboard/bindings/advertiser_dashboard_binding.dart';
+import '../modules/roles/advertiser/dashboard/views/advertiser_dashboard_view.dart';
+
+import '../modules/roles/advertiser/create_campaign/bindings/create_campaign_binding.dart';
+import '../modules/roles/advertiser/create_campaign/views/create_campaign_view.dart';
+
+import '../modules/roles/advertiser/campaign_details/bindings/campaign_details_binding.dart';
+import '../modules/roles/advertiser/campaign_details/views/campaign_details_view.dart';
+
+import '../modules/roles/advertiser/campaign_analytics/bindings/campaign_analytics_binding.dart';
+import '../modules/roles/advertiser/campaign_analytics/views/campaign_analytics_view.dart';
+
+import '../modules/roles/advertiser/profile/bindings/advertiser_profile_binding.dart';
+import '../modules/roles/advertiser/profile/views/advertiser_profile_view.dart';
+
 class AppPages {
   // static const INITIAL = Routes.SPLASH;
-  static const INITIAL = Routes.FLEET_OP_DASHBOARD;
+  static const INITIAL = Routes.ADVERTISER_DASHBOARD;
 
   static final routes = [
     GetPage(
@@ -301,8 +316,41 @@ class AppPages {
       binding: TermsConditionsBinding(),
       transition: Transition.rightToLeft,
     ),
+    GetPage(
+      name: Routes.ADVERTISER_DASHBOARD,
+      page: () => const AdvertiserDashboardView(),
+      binding: AdvertiserDashboardBinding(),
+      transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: Routes.CREATE_CAMPAIGN,
+      page: () => const CreateCampaignView(),
+      binding: CreateCampaignBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.CAMPAIGN_DETAILS,
+      page: () => const CampaignDetailsView(),
+      binding: CampaignDetailsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.CAMPAIGN_ANALYTICS,
+      page: () => const CampaignAnalyticsView(),
+      binding: CampaignAnalyticsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.ADVERTISER_PROFILE,
+      page: () => const AdvertiserProfileView(),
+      binding: AdvertiserProfileBinding(),
+      transition: Transition.rightToLeft,
+    ),
   ];
 }
+
+
+
 
 
 

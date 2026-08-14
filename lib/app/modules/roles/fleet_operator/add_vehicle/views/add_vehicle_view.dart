@@ -272,7 +272,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(color: AppColors.cardBorder, width: 1.2),
                         ),
-                        child: Image.asset('assets/images/bus-image.png'),
+                        child: Image.asset('assets/images/bus-image1.png'),
                         /*CustomPaint(
                           painter: BusLayoutPainter(),
                         ),*/

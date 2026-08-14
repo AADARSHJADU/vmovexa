@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../auth/login/controllers/login_controller.dart';
+
 class AppNotification {
   final String id;
   final String title;
   final String body;
   final String time;
-  final String type; // 'Alerts', 'Maintenance', 'Trips', 'System', 'Updates'
+  final String type; // 'Alerts', 'Maintenance', 'Trips', 'System', 'Updates' or 'Campaigns', 'Payments'
   final RxBool isUnread;
 
   AppNotification({
@@ -81,9 +83,63 @@ class NotificationsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    if (LoginController.currentRole == 'Advertisement') {
+      notifications.assignAll([
+        AppNotification(
+          id: 'adv_1',
+          title: 'Campaign Approved',
+          body: 'Your campaign "Summer Sale 2026" has been approved and is scheduled to go live.',
+          time: 'Today, 10:30 AM',
+          type: 'Campaigns',
+        ),
+        AppNotification(
+          id: 'adv_2',
+          title: 'Campaign is Live',
+          body: 'Your campaign "Summer Sale 2026" is now live and running on 1,182 screens.',
+          time: 'Today, 09:15 AM',
+          type: 'Campaigns',
+        ),
+        AppNotification(
+          id: 'adv_3',
+          title: 'Payment Successful',
+          body: 'Payment of ₹1,48,750 for campaign CMP-2026-000124 was successful.',
+          time: 'Yesterday, 11:22 AM',
+          type: 'Payments',
+        ),
+        AppNotification(
+          id: 'adv_4',
+          title: 'Invoice Generated',
+          body: 'Invoice INV-2026-000124 has been generated for your payment.',
+          time: 'Yesterday, 11:23 AM',
+          type: 'Payments',
+        ),
+        AppNotification(
+          id: 'adv_5',
+          title: 'Budget Alert',
+          body: '80% of your campaign budget has been utilized.',
+          time: 'This Week, 02:45 PM',
+          type: 'System',
+        ),
+        AppNotification(
+          id: 'adv_6',
+          title: 'Weekly Report Ready',
+          body: 'Your weekly performance report is ready to download.',
+          time: 'This Week, 09:00 AM',
+          type: 'System',
+        ),
+        AppNotification(
+          id: 'adv_7',
+          title: 'Campaign Completed',
+          body: 'Your campaign "Spring Collection" has been completed successfully.',
+          time: 'Earlier, 06:30 PM',
+          type: 'Campaigns',
+        ),
+      ]);
+    }
     filteredNotifications.assignAll(notifications);
     ever(activeFilter, (_) => _filterNotifications());
   }
+
 
   void _filterNotifications() {
     String filter = activeFilter.value;

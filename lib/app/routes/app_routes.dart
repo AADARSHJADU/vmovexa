@@ -33,7 +33,15 @@ abstract class Routes {
   static const SUPPORT_HISTORY = '/support-history';
   static const PRIVACY_POLICY = '/privacy-policy';
   static const TERMS_CONDITIONS = '/terms-conditions';
+  static const ADVERTISER_DASHBOARD = '/advertiser-dashboard';
+  static const CREATE_CAMPAIGN = '/create-campaign';
+  static const CAMPAIGN_DETAILS = '/campaign-details';
+  static const CAMPAIGN_ANALYTICS = '/campaign-analytics';
+  static const ADVERTISER_PROFILE = '/advertiser-profile';
 }
+
+
+
 
 
 
