@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/modules/roles/technician/display_devices/view/display_devices_view.dart';
+import '../../../../../routes/app_routes.dart';
 import '../model/home_models.dart';
 
 class HomeController extends GetxController {
@@ -77,21 +79,21 @@ class HomeController extends GetxController {
         subtitle: 'Register & Manage Display Devices',
         icon: Icons.desktop_windows_outlined,
         color: const Color(0xFFB042FF),
-        route: '/display-devices',
+        route: Routes.REGISTER_DISPLAY_DEVICE,
       ),
       QuickAction(
         title: 'Hardware Configuration',
         subtitle: 'Configure Hardware Settings',
         icon: Icons.settings_outlined,
         color: const Color(0xFF3FA9F5),
-        route: '/hardware-configuration',
+        route: Routes.HARDWARE_CONFIGURATION,
       ),
       QuickAction(
         title: 'GPS Installation',
         subtitle: 'Install and Assign GPS Devices',
         icon: Icons.location_on_outlined,
         color: const Color(0xFF2EE6C7),
-        route: '/gps-installation',
+        route: Routes.GPS_INSTALLATION,
       ),
       QuickAction(
         title: 'Device Diagnostics',
@@ -159,6 +161,7 @@ class HomeController extends GetxController {
   }
 
   void onQuickActionTap(QuickAction action) {
+    print('action-=--$action');
     Get.toNamed(action.route);
   }
 

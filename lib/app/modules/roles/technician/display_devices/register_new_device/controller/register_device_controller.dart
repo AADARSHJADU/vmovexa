@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../model/vehicle_details_model.dart';
 import '../view/configuration_view.dart';
+import '../view/register_device_view.dart';
+import '../view/registration_success_view.dart';
+import '../view/review_and_save_view.dart';
 import '../view/vehicle_assignment_view.dart';
-
 class RegisterDeviceController extends GetxController {
   // ---------------- Stepper ----------------
   final RxInt currentStep = 1.obs; // 1 = Device Details, 2 = Vehicle Assignment, 3 = Configuration, 4 = Review & Save
@@ -339,7 +341,221 @@ class RegisterDeviceController extends GetxController {
       return;
     }
     currentStep.value = 4;
-    // TODO: Get.to(() => const ReviewAndSaveView());
+    Get.to(() => const ReviewAndSaveView());
+  }
+
+  // ==========================================================
+  // STEP 4 — Review & Save
+  // ==========================================================
+
+  String get reviewNotesText =>
+      notesCtrl.text.trim().isEmpty ? 'No notes added' : notesCtrl.text.trim();
+
+  /// Wizard nav stack from here: Step1 (base) -> Step2 -> Step3 -> Step4 (this screen).
+  /// So popping N times lands back on the target step's view.
+  void editDeviceDetails() {
+    currentStep.value = 1;
+    Get.close(3);
+  }
+
+  void editVehicleAssignment() {
+    currentStep.value = 2;
+    Get.close(2);
+  }
+
+  void editConfiguration() {
+    currentStep.value = 3;
+    Get.close(1);
+  }
+
+  void onStep4BackPressed() {
+    currentStep.value = 3;
+    Get.back();
+  }
+
+  Future<void> onSaveDevicePressed() async {
+    isSaving.value = true;
+    try {
+      // TODO: replace with real API call to persist the device
+      await Future.delayed(const Duration(seconds: 1));
+      registeredOnDateTime.value = DateTime.now();
+      Get.off(() => const RegistrationSuccessView());
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
+  // ==========================================================
+  // Registration Success screen
+  // ==========================================================
+
+  final Rxn<DateTime> registeredOnDateTime = Rxn<DateTime>();
+
+  static const List<String> _monthNames = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  ];
+
+  String get registeredOnText {
+    final dt = registeredOnDateTime.value;
+    if (dt == null) return '—';
+    final month = _monthNames[dt.month - 1];
+    final hour12 = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+    final minute = dt.minute.toString().padLeft(2, '0');
+    final period = dt.hour >= 12 ? 'PM' : 'AM';
+    return '$month ${dt.day}, ${dt.year}, ${hour12.toString().padLeft(2, '0')}:$minute $period';
+  }
+
+  /// Friendly label for the device type shown on the success card.
+  String get registeredDeviceTypeLabel =>
+      deviceType.value.isEmpty ? 'Passenger Display' : deviceType.value;
+
+  String get registeredVehicleDepot => selectedVehicleDetails.value?.depotLocation ?? '';
+
+  void onGoToDisplayDevices() {
+    Get.until((route) => route.isFirst);
+    Get.toNamed('/display-devices');
+  }
+
+  /// Clears every field so the wizard is fresh, then restarts at Step 1.
+  void resetWizard() {
+    currentStep.value = 1;
+
+    deviceIdCtrl.clear();
+    deviceNameCtrl.clear();
+    hardwareModelCtrl.clear();
+    notesCtrl.clear();
+    deviceType.value = '';
+    screenSize.value = '';
+    resolution.value = '';
+    orientation.value = '';
+    locationDepot.value = '';
+    deviceIdError.value = null;
+    deviceNameError.value = null;
+    deviceTypeError.value = null;
+    locationDepotError.value = null;
+
+    organization.value = '';
+    selectedVehicle.value = '';
+    selectedVehicleDetails.value = null;
+    installationPosition.value = '';
+    powerSource.value = '';
+    vehicleNotesCtrl.clear();
+    organizationError.value = null;
+    vehicleError.value = null;
+
+    screenBrightness.value = 70.0;
+    volumeLevel.value = 60.0;
+    displayOrientation.value = 'Landscape';
+    screenTimeout.value = '5 Minutes';
+    networkType.value = 'Wi-Fi';
+    wifiSsidCtrl.text = 'VMOVEXA_Network';
+    wifiPasswordCtrl.clear();
+    isWifiPasswordVisible.value = false;
+    autoPlayOnBoot.value = true;
+    loopContent.value = true;
+    defaultContentSource.value = 'VMOVEXA CMS';
+    contentUpdateFrequency.value = 'Every 6 Hours';
+    syncTimeWithServer.value = true;
+    remoteMonitoring.value = true;
+    enableAlerts.value = true;
+    rebootSchedule.value = 'Daily at 03:00 AM';
+    timeZone.value = '(GMT +05:30) Asia/Kolkata';
+    configNotesCtrl.clear();
+    ssidError.value = null;
+    wifiPasswordError.value = null;
+
+    registeredOnDateTime.value = null;
+  }
+
+  void onRegisterAnotherDevice() {
+    resetWizard();
+    Get.until((route) => route.isFirst);
+    Get.to(() => const RegisterDeviceView());
+  }
+
+  // ==========================================================
+  // STEP 4 — Review & Save
+  // ==========================================================
+
+  /// Pops [times] routes off the stack — used by "Edit" links to jump
+  /// back to an earlier step in the wizard.
+  void _popSteps(int times) {
+    for (int i = 0; i < times; i++) {
+      Get.back();
+    }
+  }
+
+  // void editDeviceDetails() {
+  //   currentStep.value = 1;
+  //   _popSteps(3); // Step4 -> Step3 -> Step2 -> Step1
+  // }
+  //
+  // void editVehicleAssignment() {
+  //   currentStep.value = 2;
+  //   _popSteps(2); // Step4 -> Step3 -> Step2
+  // }
+  //
+  // void editConfiguration() {
+  //   currentStep.value = 3;
+  //   _popSteps(1); // Step4 -> Step3
+  // }
+
+  void editNotes() => editConfiguration();
+
+  // ---- Review getters (pull data entered across steps 1–3) ----
+  String get reviewDeviceId => deviceIdCtrl.text.trim().isEmpty ? '—' : deviceIdCtrl.text.trim();
+  String get reviewSerialNo => registeredSerialNo.replaceFirst('Serial No: ', '');
+  String get reviewDeviceName => deviceNameCtrl.text.trim().isEmpty ? '—' : deviceNameCtrl.text.trim();
+  String get reviewDeviceType => deviceType.value.isEmpty ? '—' : deviceType.value;
+  String get reviewHardwareModel =>
+      hardwareModelCtrl.text.trim().isEmpty ? '—' : hardwareModelCtrl.text.trim();
+  String get reviewScreenSize => screenSize.value.isEmpty ? '—' : screenSize.value;
+  String get reviewOrientationStep1 => orientation.value.isEmpty ? '—' : orientation.value;
+
+  String get reviewOrganization => organization.value.isEmpty ? '—' : organization.value;
+  String get reviewVehicle => selectedVehicle.value.isEmpty ? '—' : selectedVehicle.value;
+  String get reviewVehicleType => selectedVehicleDetails.value?.vehicleType ?? '—';
+  String get reviewDepotLocation => selectedVehicleDetails.value?.depotLocation ?? '—';
+  String get reviewVehicleStatus => selectedVehicleDetails.value?.status ?? '—';
+
+  String get reviewScreenBrightness => '${screenBrightness.value.round()}%';
+  String get reviewVolumeLevel => '${volumeLevel.value.round()}%';
+  String get reviewDisplayOrientation => displayOrientation.value;
+  String get reviewScreenTimeout => screenTimeout.value;
+  String get reviewNetworkType => networkType.value;
+  String get reviewWifiSsid => wifiSsidCtrl.text.trim().isEmpty ? '—' : wifiSsidCtrl.text.trim();
+  String get reviewContentSource => defaultContentSource.value;
+  String get reviewAutoPlay => autoPlayOnBoot.value ? 'Enabled' : 'Disabled';
+
+  String get reviewFinalNotes {
+    final combined = [configNotesCtrl.text.trim(), notesCtrl.text.trim(), vehicleNotesCtrl.text.trim()]
+        .where((n) => n.isNotEmpty)
+        .join(' | ');
+    return combined.isEmpty ? 'No notes added' : combined;
+  }
+
+  Future<void> onSaveDevice() async {
+    isSaving.value = true;
+    try {
+      // TODO: replace with real API call that submits the full payload:
+      // deviceId, deviceName, deviceType, hardwareModel, screenSize,
+      // orientation, organization, selectedVehicle, configuration fields, notes.
+      await Future.delayed(const Duration(seconds: 1));
+
+      Get.snackbar(
+        'Device Registered',
+        '$reviewDeviceId has been registered and assigned to $reviewVehicle.',
+        backgroundColor: const Color(0xFF15151F),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      // Return all the way back to the Display Devices list.
+      Get.until((route) => route.settings.name == '/display-devices' || route.isFirst);
+    } finally {
+      isSaving.value = false;
+    }
   }
 
   @override

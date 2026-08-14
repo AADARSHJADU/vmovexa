@@ -2,6 +2,10 @@ import 'package:get/get.dart';
 import 'package:vmovexa/app/modules/roles/technician/technician_dashboard/bindings/technician_dashboard_bindings.dart';
 import '../modules/roles/technician/display_devices/register_new_device/bindings/register_device_binding.dart';
 import '../modules/roles/technician/display_devices/register_new_device/view/register_device_view.dart';
+import '../modules/roles/technician/gps_installation/bindings/gps_installation_binding.dart';
+import '../modules/roles/technician/gps_installation/view/gps_installation_view.dart';
+import '../modules/roles/technician/hardware_configuration/bindings/hardware_config_binding.dart';
+import '../modules/roles/technician/hardware_configuration/views/hardware_configuration_view.dart';
 import '../modules/roles/technician/home/bindings/home_binding.dart' hide HomeBinding;
 import '../modules/roles/technician/home/view/home_view.dart' hide HomeView;
 import '../modules/roles/technician/technician_dashboard/view/technician_dashboard_view.dart';
@@ -319,11 +323,25 @@ class AppPages {
       name: '/dashboard',
       page: () => const HomeView(),
       binding: HomeBinding(),
+      transition: Transition.rightToLeft,
     ),
     GetPage(
       name:Routes.REGISTER_DISPLAY_DEVICE,
       page: () => const RegisterDeviceView(),
       binding: RegisterDeviceBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.HARDWARE_CONFIGURATION,
+      page: () => const HardwareConfigurationView(),
+      binding: HardwareConfigBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.GPS_INSTALLATION,
+      page: () => const GpsInstallationView(),
+      binding: GpsInstallationBinding(),
+      transition: Transition.rightToLeft,
     ),
   ];
 }

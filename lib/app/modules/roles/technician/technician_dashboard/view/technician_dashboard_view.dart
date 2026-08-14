@@ -27,7 +27,7 @@ class TechnicianDashboardView extends GetView<TechnicianDashboardController> {
             case 3:
               return _buildPlaceholderView('Hardware Staus');
               case 4:
-              return _buildPlaceholderView('More');
+              return _buildPlaceholderView('Profile');
             default:
               return Placeholder();
           }
@@ -67,8 +67,8 @@ class TechnicianDashboardView extends GetView<TechnicianDashboardController> {
                 label: 'Hardware Status',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.more_horiz),
-                label: 'More',
+                icon: Icon(Icons.person),
+                label: 'Profile',
               ),
             ],
           ),
