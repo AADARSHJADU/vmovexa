@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:vmovexa/app/modules/roles/technician/alert_notification/view/alerts_view.dart';
-import 'package:vmovexa/app/modules/roles/technician/device_diagostics/view/device_diagnostics_view.dart';
-import 'package:vmovexa/app/modules/roles/technician/profile/view/profile_view.dart';
 import '../../../../../widgets/app_logo_header.dart';
 import '../../../../../theme/app_colors.dart';
-import '../../display_devices/view/display_devices_view.dart';
-import '../../home/view/home_view.dart';
-import '../controller/technician_dashboard_controller.dart';
+import '../../home/view/driver_home_view.dart';
+import '../controller/driver_dashboard_controller.dart';
 
 
-class TechnicianDashboardView extends GetView<TechnicianDashboardController> {
-  const TechnicianDashboardView({super.key});
+
+class DriverDashboardView extends GetView<DriverDashboardController> {
+  const DriverDashboardView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,15 +19,15 @@ class TechnicianDashboardView extends GetView<TechnicianDashboardController> {
         child: Obx(() {
           switch (controller.selectedNavIndex.value) {
             case 0:
-              return  HomeView();
+              return  DriverHomeView();
             case 1:
-              return  DisplayDevicesView();
+              return  Placeholder();
             case 2:
-              return  DeviceDiagnosticsView();
+              return  Placeholder();
             case 3:
-              return AlertsView();
+              return Placeholder();
             case 4:
-              return const ProfileView();
+              return const Placeholder();
             default:
               return Placeholder();
           }
@@ -55,19 +52,23 @@ class TechnicianDashboardView extends GetView<TechnicianDashboardController> {
             items: const [
               BottomNavigationBarItem(
                 icon: Icon(Icons.home_outlined),
+                activeIcon: Icon(Icons.home),
                 label: 'Home',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.tv),
-                label: 'Display Device',
+                icon: Icon(Icons.directions_bus_outlined),
+                activeIcon: Icon(Icons.directions_bus),
+                label: 'Routes',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.bar_chart_rounded),
-                label: 'Diagnostics',
+                icon: Icon(Icons.calendar_month_outlined),
+                activeIcon: Icon(Icons.calendar_month),
+                label: 'Schedule',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.notifications_none),
-                label: 'Alerts',
+                icon: Icon(Icons.confirmation_number_outlined),
+                activeIcon: Icon(Icons.confirmation_number),
+                label: 'Report',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person),

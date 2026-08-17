@@ -100,21 +100,21 @@ class HomeController extends GetxController {
         subtitle: 'Run Diagnostics and Check Health',
         icon: Icons.monitor_heart_outlined,
         color: const Color(0xFFFF3D9A),
-        route: '/device-diagnostics',
+        route: Routes.DEVICE_DIAGNOSTICS,
       ),
       QuickAction(
         title: 'Hardware Status',
         subtitle: 'Monitor Hardware Status',
         icon: Icons.insights_outlined,
         color: const Color(0xFFFFA726),
-        route: '/hardware-status',
+        route: Routes.HARDWARE_STATUS,
       ),
       QuickAction(
         title: 'Connectivity Troubleshooting',
         subtitle: 'Troubleshoot Connectivity Issues',
         icon: Icons.wifi_tethering,
         color: const Color(0xFF7C6FF0),
-        route: '/connectivity-troubleshooting',
+        route: Routes.CONNECTIVITY_TROUBLESHOOTING,
       ),
     ]);
   }

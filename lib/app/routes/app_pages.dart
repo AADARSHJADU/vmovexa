@@ -1,13 +1,27 @@
 import 'package:get/get.dart';
 import 'package:vmovexa/app/modules/roles/technician/technician_dashboard/bindings/technician_dashboard_bindings.dart';
+import '../modules/roles/driver/driver_dashboard/bindings/driver_dashboard_bindings.dart';
+import '../modules/roles/driver/driver_dashboard/view/driver_dashboard_view.dart';
+import '../modules/roles/technician/alert_notification/bindings/alerts_binding.dart';
+import '../modules/roles/technician/alert_notification/view/alerts_view.dart';
+import '../modules/roles/technician/connectivity_troubleshooting/bindings/connectivity_troubleshooting_binding.dart';
+import '../modules/roles/technician/connectivity_troubleshooting/view/connectivity_troubleshooting_view.dart';
+import '../modules/roles/technician/device_diagostics/bindings/device_diagnostics_binding.dart';
+import '../modules/roles/technician/device_diagostics/view/device_diagnostics_view.dart';
 import '../modules/roles/technician/display_devices/register_new_device/bindings/register_device_binding.dart';
 import '../modules/roles/technician/display_devices/register_new_device/view/register_device_view.dart';
 import '../modules/roles/technician/gps_installation/bindings/gps_installation_binding.dart';
 import '../modules/roles/technician/gps_installation/view/gps_installation_view.dart';
 import '../modules/roles/technician/hardware_configuration/bindings/hardware_config_binding.dart';
 import '../modules/roles/technician/hardware_configuration/views/hardware_configuration_view.dart';
+import '../modules/roles/technician/hardware_status/bindings/hardware_status_binding.dart';
+import '../modules/roles/technician/hardware_status/view/hardware_status_view.dart';
 import '../modules/roles/technician/home/bindings/home_binding.dart' hide HomeBinding;
 import '../modules/roles/technician/home/view/home_view.dart' hide HomeView;
+import '../modules/roles/technician/profile/bindings/profile_binding.dart';
+import '../modules/roles/technician/profile/view/profile_view.dart';
+import '../modules/roles/technician/edit_profile/bindings/edit_profile_binding.dart';
+import '../modules/roles/technician/edit_profile/view/edit_profile_view.dart';
 import '../modules/roles/technician/technician_dashboard/view/technician_dashboard_view.dart';
 import 'app_routes.dart';
 
@@ -111,7 +125,7 @@ import '../modules/roles/fleet_operator/terms_conditions/views/terms_conditions_
 
 class AppPages {
   // static const INITIAL = Routes.SPLASH;
-  static const INITIAL = Routes.TECHNICIAN_DASHBOARD;
+  static const INITIAL = Routes.DRIVER_DASHBOARD;
 
   static final routes = [
     GetPage(
@@ -341,6 +355,50 @@ class AppPages {
       name: Routes.GPS_INSTALLATION,
       page: () => const GpsInstallationView(),
       binding: GpsInstallationBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DEVICE_DIAGNOSTICS,
+      page: () => const DeviceDiagnosticsView(),
+      binding: DeviceDiagnosticsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.HARDWARE_STATUS,
+      page: () => const HardwareStatusView(),
+      binding: HardwareStatusBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.CONNECTIVITY_TROUBLESHOOTING,
+      page: () => const ConnectivityTroubleshootingView(),
+      binding: ConnectivityTroubleshootingBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.ALERT_NOTIFICATION,
+      page: () => const AlertsView(),
+      binding: AlertsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.TECHNICIAN_PROFILE,
+      page: () => const ProfileView(),
+      binding: ProfileBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.TECHNICIAN_EDIT_PROFILE,
+      page: () => const EditProfileView(),
+      binding: EditProfileBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    //technician flow routes
+
+    GetPage(
+      name: Routes.DRIVER_DASHBOARD,
+      page: () => const DriverDashboardView(),
+      binding: DriverDashboardBindings(),
       transition: Transition.rightToLeft,
     ),
   ];

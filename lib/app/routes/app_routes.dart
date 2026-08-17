@@ -39,6 +39,15 @@ abstract class Routes {
   static const REGISTER_DISPLAY_DEVICE = '/register-display-device';
   static const HARDWARE_CONFIGURATION = '/hardware-configuration';
   static const GPS_INSTALLATION = '/gps-installation';
+  static const DEVICE_DIAGNOSTICS = '/device-diagnostics';
+  static const HARDWARE_STATUS = '/hardware-status';
+  static const CONNECTIVITY_TROUBLESHOOTING = '/connectivity-troubleshooting';
+  static const ALERT_NOTIFICATION = '/alerts-notification';
+  static const TECHNICIAN_PROFILE = '/technician-profile';
+  static const TECHNICIAN_EDIT_PROFILE = '/technician-edit-profile';
+
+  //technician flow routes
+  static const DRIVER_DASHBOARD = '/driver-dashboard';
 
 }
 
