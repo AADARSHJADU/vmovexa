@@ -1,7 +1,15 @@
 import 'package:get/get.dart';
+import 'package:vmovexa/app/modules/roles/driver/profile/bindings/driver_bindings.dart';
+import 'package:vmovexa/app/modules/roles/driver/profile/view/driver_profile_view.dart';
+import 'package:vmovexa/app/modules/roles/driver/report/bindings/report_incident_binding.dart';
+import 'package:vmovexa/app/modules/roles/driver/report/view/incident_details_view.dart';
 import 'package:vmovexa/app/modules/roles/technician/technician_dashboard/bindings/technician_dashboard_bindings.dart';
 import '../modules/roles/driver/driver_dashboard/bindings/driver_dashboard_bindings.dart';
 import '../modules/roles/driver/driver_dashboard/view/driver_dashboard_view.dart';
+import '../modules/roles/driver/notification/bindings/notifications_driver_binding.dart';
+import '../modules/roles/driver/notification/view/notifications_driver_view.dart';
+import '../modules/roles/driver/routes/bindings/my_route_binding.dart';
+import '../modules/roles/driver/routes/view/my_route_view.dart';
 import '../modules/roles/technician/alert_notification/bindings/alerts_binding.dart';
 import '../modules/roles/technician/alert_notification/view/alerts_view.dart';
 import '../modules/roles/technician/connectivity_troubleshooting/bindings/connectivity_troubleshooting_binding.dart';
@@ -125,7 +133,7 @@ import '../modules/roles/fleet_operator/terms_conditions/views/terms_conditions_
 
 class AppPages {
   // static const INITIAL = Routes.SPLASH;
-  static const INITIAL = Routes.DRIVER_DASHBOARD;
+  static const INITIAL = Routes.TECHNICIAN_DASHBOARD;
 
   static final routes = [
     GetPage(
@@ -393,12 +401,36 @@ class AppPages {
       binding: EditProfileBinding(),
       transition: Transition.rightToLeft,
     ),
-    //technician flow routes
+    //Driver flow routes
 
     GetPage(
       name: Routes.DRIVER_DASHBOARD,
       page: () => const DriverDashboardView(),
       binding: DriverDashboardBindings(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.MY_ROUTE,
+      page: () => const MyRouteView(),
+      binding: MyRouteBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name:Routes.DRIVER_NOTIFICATION,
+      page: () => const NotificationsDriverView(),
+      binding: NotificationsDriverBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DRIVER_REPORT_INCIDENT,
+      page: () => const IncidentDetailsView(),
+      binding: ReportIncidentBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DRIVER_PROFILE,
+      page: () => const DriverProfileView(),
+      binding: DriverProfileBinding(),
       transition: Transition.rightToLeft,
     ),
   ];

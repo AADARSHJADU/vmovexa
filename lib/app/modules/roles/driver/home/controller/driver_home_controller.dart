@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../../routes/app_routes.dart';
 import '../model/driver_dashboard_models.dart';
 
 class DriverHomeController extends GetxController {
@@ -134,7 +135,7 @@ class DriverHomeController extends GetxController {
   }
 
   void onNotificationBellTap() {
-    Get.toNamed('/notifications');
+    Get.toNamed(Routes.DRIVER_NOTIFICATION);
   }
 
   void onViewRouteDetails() {
@@ -146,7 +147,7 @@ class DriverHomeController extends GetxController {
   }
 
   void onViewAllNotifications() {
-    Get.toNamed('/notifications');
+    Get.toNamed(Routes.DRIVER_NOTIFICATION);
   }
 
   void onQuickActionTap(DriverQuickAction action) {

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/modules/roles/driver/profile/view/driver_profile_view.dart';
+import 'package:vmovexa/app/modules/roles/driver/schedule/view/schedule_view.dart';
 import '../../../../../widgets/app_logo_header.dart';
 import '../../../../../theme/app_colors.dart';
 import '../../home/view/driver_home_view.dart';
+import '../../report/view/incident_details_view.dart';
+import '../../routes/view/my_route_view.dart';
 import '../controller/driver_dashboard_controller.dart';
 
 
@@ -21,13 +25,13 @@ class DriverDashboardView extends GetView<DriverDashboardController> {
             case 0:
               return  DriverHomeView();
             case 1:
-              return  Placeholder();
+              return  MyRouteView();
             case 2:
-              return  Placeholder();
+              return  ScheduleView();
             case 3:
-              return Placeholder();
+              return IncidentDetailsView();
             case 4:
-              return const Placeholder();
+              return const DriverProfileView();
             default:
               return Placeholder();
           }

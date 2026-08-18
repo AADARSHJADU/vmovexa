@@ -48,7 +48,10 @@ abstract class Routes {
 
   //technician flow routes
   static const DRIVER_DASHBOARD = '/driver-dashboard';
-
+  static const MY_ROUTE = '/my-route';
+  static const DRIVER_NOTIFICATION = '/driver-notifications';
+  static const DRIVER_REPORT_INCIDENT = '/report-incident';
+  static const DRIVER_PROFILE = '/driver-profile';
 }
 
 
