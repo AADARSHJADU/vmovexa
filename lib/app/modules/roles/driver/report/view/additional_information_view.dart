@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/modules/roles/driver/report/controller/report_incident_controller.dart';
 import 'package:vmovexa/app/modules/roles/driver/report/model/incident_type_model.dart';
+import '../../../../../theme/app_theme.dart';
 import 'incident_details_view.dart' show IncidentDetailsView;
 
 class AdditionalInformationView extends GetView<ReportIncidentController> {
@@ -336,7 +337,8 @@ class AdditionalInformationView extends GetView<ReportIncidentController> {
               onTap: controller.onStep2NextPressed,
               child: Container(
                 height: 50,
-                decoration: BoxDecoration(gradient: const LinearGradient(colors: [kBlue, kPurple]), borderRadius: BorderRadius.circular(12)),
+                decoration: BoxDecoration(gradient:AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(12)),
                 alignment: Alignment.center,
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,

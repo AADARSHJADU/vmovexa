@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
+import '../../../../../theme/app_theme.dart';
 import '../controller/edit_profile_controller.dart';
 
 class EditProfileView extends GetView<EditProfileController> {
@@ -297,7 +298,7 @@ class EditProfileView extends GetView<EditProfileController> {
         width: double.infinity,
         height: 52,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [kPurple, kIndigo]),
+          gradient:AppTheme.primaryGradient,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../../../theme/app_theme.dart';
 import '../controller/register_device_controller.dart';
 import 'register_device_view.dart' show RegisterDeviceView;
 
@@ -493,7 +494,7 @@ class ConfigurationView extends GetView<RegisterDeviceController> {
               child: Container(
                 height: 50,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [kBlue, kPurple]),
+                  gradient:AppTheme.primaryGradient,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 alignment: Alignment.center,

@@ -19,4 +19,15 @@ class AppTheme {
       ),
     );
   }
+
+  static const Color gradientBlue = Color(0xff1C68FD);
+  static const Color gradientPink = Color(0xffDA29F4);
+
+  static const LinearGradient primaryGradient = LinearGradient(
+    colors: [
+      gradientBlue,
+      gradientPink,
+    ],
+  );
+
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 
 import '../controller/display_devices_controller.dart';
 import '../model/display_device_model.dart';
@@ -223,7 +224,7 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(colors: [kIndigo, kPurple]),
+              gradient: AppTheme.primaryGradient,
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Row(

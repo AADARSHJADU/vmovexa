@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/modules/roles/driver/profile/model/driver_document.dart';
 
+import '../../../../../routes/app_routes.dart';
+
 class DriverProfileController extends GetxController {
   // ==========================================================
   // Identity
@@ -92,11 +94,11 @@ class DriverProfileController extends GetxController {
   }
 
   void onDocumentTap(DriverDocument document) {
-    Get.toNamed('/document-detail', arguments: {'documentId': document.id});
+    Get.toNamed(Routes.DRIVER_DOCUMENT, arguments: {'documentId': document.id});
   }
 
   void onHelpSupportTap() {
-    Get.toNamed('/help-support');
+    Get.toNamed(Routes.DRIVER_HELP_SUPPORT);
   }
 
   void onAboutTap() {

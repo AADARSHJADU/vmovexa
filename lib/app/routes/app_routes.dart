@@ -52,6 +52,11 @@ abstract class Routes {
   static const DRIVER_NOTIFICATION = '/driver-notifications';
   static const DRIVER_REPORT_INCIDENT = '/report-incident';
   static const DRIVER_PROFILE = '/driver-profile';
+  static const DRIVER_DOCUMENT = '/driver-documents';
+  static const DRIVER_HELP_SUPPORT = '/driver-help-support';
+
+  //Finance flow routes
+  static const FINANCE_DASHBOARD = '/finance-dashboard';
 }
 
 

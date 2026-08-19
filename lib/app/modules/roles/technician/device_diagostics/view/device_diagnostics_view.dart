@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../../theme/app_theme.dart';
 import '../controller/device_diagnostics_controller.dart';
 import '../model/diagnostic_check_model.dart';
 
@@ -168,7 +169,7 @@ class DeviceDiagnosticsView extends GetView<DeviceDiagnosticsController> {
           width: double.infinity,
           height: 52,
           decoration: BoxDecoration(
-            gradient: const LinearGradient(colors: [kPurple, kIndigo]),
+            gradient:AppTheme.primaryGradient,
             borderRadius: BorderRadius.circular(12),
           ),
           alignment: Alignment.center,

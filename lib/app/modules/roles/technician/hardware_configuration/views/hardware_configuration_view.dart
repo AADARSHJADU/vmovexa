@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/modules/roles/technician/hardware_configuration/views/system_settings_tab.dart';
+import '../../../../../theme/app_theme.dart';
 import '../controllers/hardware_config_controller.dart';
 import 'display_settings_tab.dart';
 import 'network_settings_tab.dart';
@@ -254,7 +255,7 @@ class HardwareConfigurationView extends GetView<HardwareConfigController> {
               child: Container(
                 height: 50,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [kBlue, kPurple]),
+                  gradient:AppTheme.primaryGradient,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 alignment: Alignment.center,

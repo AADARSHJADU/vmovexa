@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/theme/app_colors.dart';
 
+import '../../../../../theme/app_theme.dart';
 import '../../../technician/hardware_configuration/views/shared_widgets.dart';
 import '../controller/my_route_controller.dart';
 import '../model/assigned_route_model.dart';
@@ -27,7 +29,7 @@ class MyRouteView extends GetView<MyRouteController> {
               ? const Center(child: CircularProgressIndicator(color: kPurple))
               : controller.route.value == null
                   ? const Center(
-                      child: Text('No route assigned', style: TextStyle(color: Colors.white38, fontSize: 13)))
+                      child: Text('No route assigned', style: TextStyle(color: Colors.white, fontSize: 13)))
                   : RefreshIndicator(
                       color: kPurple,
                       backgroundColor: kCardBg,
@@ -73,7 +75,7 @@ class MyRouteView extends GetView<MyRouteController> {
             children: [
               Text('Assigned Routes', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700)),
               SizedBox(height: 2),
-              Text('View and manage your assigned routes.', style: TextStyle(color: Colors.white54, fontSize: 12)),
+              Text('View and manage your assigned routes.', style: TextStyle(color: Colors.white, fontSize: 12)),
             ],
           ),
         ),
@@ -113,7 +115,7 @@ class MyRouteView extends GetView<MyRouteController> {
                   children: [
                     Text(route.routeName, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700)),
                     const SizedBox(height: 2),
-                    Text('${route.fromDepot} \u2192 ${route.toDepot}', style: const TextStyle(color: Colors.white54, fontSize: 11.5)),
+                    Text('${route.fromDepot} \u2192 ${route.toDepot}', style: const TextStyle(color: Colors.white, fontSize: 11.5)),
                     const SizedBox(height: 4),
                     Text(route.busNumber, style: const TextStyle(color: kPurple, fontSize: 11.5, fontWeight: FontWeight.w600)),
                   ],
@@ -168,9 +170,7 @@ class MyRouteView extends GetView<MyRouteController> {
           width: double.infinity,
           height: 52,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: controller.isRouteStarted.value ? [kGreen, kGreen] : [kBlue, kPurple],
-            ),
+            gradient: AppTheme.primaryGradient,
             borderRadius: BorderRadius.circular(12),
           ),
           alignment: Alignment.center,
@@ -317,7 +317,7 @@ class _SummaryStat extends StatelessWidget {
           children: [
             Icon(icon, color: MyRouteView.kPurple, size: 13),
             const SizedBox(width: 4),
-            Text(label, style: const TextStyle(color: Colors.white38, fontSize: 10)),
+            Text(label, style: const TextStyle(color: Colors.white, fontSize: 10)),
           ],
         ),
         const SizedBox(height: 4),
@@ -362,7 +362,7 @@ class _StopRow extends StatelessWidget {
                         border: Border.all(color: dotColor, width: 2),
                       ),
                     ),
-              if (!isLast) Expanded(child: Container(width: 1.5, color: Colors.white12)),
+              if (!isLast) Expanded(child: Container(width: 1.5, color: Colors.white)),
             ],
           ),
           const SizedBox(width: 12),
@@ -396,12 +396,12 @@ class _StopRow extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 2),
-                        Text(stop.time, style: const TextStyle(color: Colors.white38, fontSize: 10.5)),
+                        Text(stop.time, style: const TextStyle(color: Colors.white, fontSize: 10.5)),
                       ],
                     ),
                   ),
                   if (!isStart)
-                    Text('${stop.distanceKm} km', style: const TextStyle(color: Colors.white54, fontSize: 11)),
+                    Text('${stop.distanceKm} km', style: const TextStyle(color: Colors.white, fontSize: 11)),
                 ],
               ),
             ),
@@ -431,7 +431,7 @@ class _InfoColumn extends StatelessWidget {
           children: [
             Icon(icon, color: MyRouteView.kPurple, size: 13),
             const SizedBox(width: 4),
-            Expanded(child: Text(label, style: const TextStyle(color: Colors.white38, fontSize: 9.5))),
+            Expanded(child: Text(label, style: const TextStyle(color: Colors.white, fontSize: 9.5))),
           ],
         ),
         const SizedBox(height: 5),
@@ -455,7 +455,7 @@ class _PlainInfoColumn extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Colors.white38, fontSize: 9.5)),
+        Text(label, style: const TextStyle(color: Colors.white, fontSize: 9.5)),
         const SizedBox(height: 5),
         Text(value, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700)),
       ],

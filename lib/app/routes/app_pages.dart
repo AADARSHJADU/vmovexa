@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 import 'package:vmovexa/app/modules/roles/driver/profile/bindings/driver_bindings.dart';
+import 'package:vmovexa/app/modules/roles/driver/profile/driver_documents/bindings/driver_documents_binding.dart';
+import 'package:vmovexa/app/modules/roles/driver/profile/driver_documents/view/driver_documents_view.dart';
 import 'package:vmovexa/app/modules/roles/driver/profile/view/driver_profile_view.dart';
 import 'package:vmovexa/app/modules/roles/driver/report/bindings/report_incident_binding.dart';
 import 'package:vmovexa/app/modules/roles/driver/report/view/incident_details_view.dart';
@@ -8,8 +10,12 @@ import '../modules/roles/driver/driver_dashboard/bindings/driver_dashboard_bindi
 import '../modules/roles/driver/driver_dashboard/view/driver_dashboard_view.dart';
 import '../modules/roles/driver/notification/bindings/notifications_driver_binding.dart';
 import '../modules/roles/driver/notification/view/notifications_driver_view.dart';
+import '../modules/roles/driver/profile/help_support/bindings/help_support_binding.dart';
+import '../modules/roles/driver/profile/help_support/view/driver_help_support_view.dart';
 import '../modules/roles/driver/routes/bindings/my_route_binding.dart';
 import '../modules/roles/driver/routes/view/my_route_view.dart';
+import '../modules/roles/finance/finance_dashboard/bindings/finance_dashboard_bindings.dart';
+import '../modules/roles/finance/finance_dashboard/view/finance_dashboard_view.dart';
 import '../modules/roles/technician/alert_notification/bindings/alerts_binding.dart';
 import '../modules/roles/technician/alert_notification/view/alerts_view.dart';
 import '../modules/roles/technician/connectivity_troubleshooting/bindings/connectivity_troubleshooting_binding.dart';
@@ -133,7 +139,7 @@ import '../modules/roles/fleet_operator/terms_conditions/views/terms_conditions_
 
 class AppPages {
   // static const INITIAL = Routes.SPLASH;
-  static const INITIAL = Routes.TECHNICIAN_DASHBOARD;
+  static const INITIAL = Routes.DRIVER_DASHBOARD;
 
   static final routes = [
     GetPage(
@@ -433,6 +439,27 @@ class AppPages {
       binding: DriverProfileBinding(),
       transition: Transition.rightToLeft,
     ),
+    GetPage(
+      name: Routes.DRIVER_DOCUMENT,
+      page: () => const DriverDocumentsView(),
+      binding: DriverDocumentsBinding(),
+    ),
+    GetPage(
+      name:Routes.DRIVER_HELP_SUPPORT,
+      page: () => const DriverHelpSupportView(),
+      binding: DriverHelpSupportBinding(),
+    ),
+
+
+    //Finance flow routes
+
+    GetPage(
+      name: Routes.FINANCE_DASHBOARD,
+      page: () => const FinanceDashboardView(),
+      binding: FinanceDashboardBindings(),
+      transition: Transition.rightToLeft,
+    ),
+
   ];
 }
 

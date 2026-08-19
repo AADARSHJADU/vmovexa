@@ -1,19 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:vmovexa/app/modules/roles/driver/profile/view/driver_profile_view.dart';
-import 'package:vmovexa/app/modules/roles/driver/schedule/view/schedule_view.dart';
+import 'package:vmovexa/app/modules/roles/placeholder/views/role_placeholder_view.dart';
 import '../../../../../widgets/app_logo_header.dart';
 import '../../../../../theme/app_colors.dart';
-import '../../home/view/driver_home_view.dart';
-import '../../report/view/incident_details_view.dart';
-import '../../routes/view/my_route_view.dart';
-import '../controller/driver_dashboard_controller.dart';
+import '../controller/finance_dashboard_controller.dart';
 
 
 
-class DriverDashboardView extends GetView<DriverDashboardController> {
-  const DriverDashboardView({super.key});
+class FinanceDashboardView extends GetView<FinanceDashboardController> {
+  const FinanceDashboardView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -23,17 +19,17 @@ class DriverDashboardView extends GetView<DriverDashboardController> {
         child: Obx(() {
           switch (controller.selectedNavIndex.value) {
             case 0:
-              return  DriverHomeView();
+              return  RolePlaceholderView();
             case 1:
-              return  MyRouteView();
+              return  RolePlaceholderView();
             case 2:
-              return  ScheduleView();
+              return  RolePlaceholderView();
             case 3:
-              return IncidentDetailsView();
+              return RolePlaceholderView();
             case 4:
-              return const DriverProfileView();
+              return RolePlaceholderView();
             default:
-              return Placeholder();
+              return RolePlaceholderView();
           }
         }),
       ),
@@ -49,30 +45,33 @@ class DriverDashboardView extends GetView<DriverDashboardController> {
             onTap: controller.onNavItemTapped,
             backgroundColor: AppColors.cardBg,
             type: BottomNavigationBarType.fixed,
-            selectedItemColor: AppColors.accentPurple,
+            selectedItemColor: const Color(0xFF6366F1),
             unselectedItemColor: AppColors.textMuted,
             selectedFontSize: 11,
             unselectedFontSize: 11,
             items: const [
               BottomNavigationBarItem(
                 icon: Icon(Icons.home_outlined),
-                activeIcon: Icon(Icons.home),
-                label: 'Home',
+                activeIcon: Icon(Icons.home_outlined),
+                label: 'Dashboard',
               ),
+
               BottomNavigationBarItem(
-                icon: Icon(Icons.directions_bus_outlined),
-                activeIcon: Icon(Icons.directions_bus),
-                label: 'Routes',
+                icon: Icon(Icons.receipt_long_outlined),
+                activeIcon: Icon(Icons.receipt_long_outlined),
+                label: 'Subscriptions',
               ),
+
               BottomNavigationBarItem(
-                icon: Icon(Icons.calendar_month_outlined),
-                activeIcon: Icon(Icons.calendar_month),
-                label: 'Schedule',
+                icon: Icon(Icons.description_outlined),
+                activeIcon: Icon(Icons.description_outlined),
+                label: 'Invoices',
               ),
+
               BottomNavigationBarItem(
-                icon: Icon(Icons.confirmation_number_outlined),
-                activeIcon: Icon(Icons.confirmation_number),
-                label: 'Report',
+                icon: Icon(Icons.bar_chart_outlined),
+                activeIcon: Icon(Icons.bar_chart_outlined),
+                label: 'Finance',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person),

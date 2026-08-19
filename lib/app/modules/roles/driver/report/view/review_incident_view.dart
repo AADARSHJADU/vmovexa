@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/modules/roles/driver/report/controller/report_incident_controller.dart';
 import 'package:vmovexa/app/modules/roles/driver/report/model/incident_type_model.dart';
+import '../../../../../theme/app_theme.dart';
 import 'incident_details_view.dart' show IncidentDetailsView;
 
 class ReviewIncidentView extends GetView<ReportIncidentController> {
@@ -286,7 +287,7 @@ class ReviewIncidentView extends GetView<ReportIncidentController> {
                 onTap: controller.isSubmitting.value ? null : controller.onSubmitIncident,
                 child: Container(
                   height: 50,
-                  decoration: BoxDecoration(gradient: const LinearGradient(colors: [kBlue, kPurple]), borderRadius: BorderRadius.circular(12)),
+                  decoration: BoxDecoration(  gradient:AppTheme.primaryGradient, borderRadius: BorderRadius.circular(12)),
                   alignment: Alignment.center,
                   child: controller.isSubmitting.value
                       ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.4))

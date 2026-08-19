@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/theme/app_colors.dart';
+import '../../../../../../theme/app_theme.dart';
 import '../controller/register_device_controller.dart';
 import 'register_device_view.dart' show RegisterDeviceView;
 
@@ -205,7 +207,7 @@ class RegistrationSuccessView extends GetView<RegisterDeviceController> {
         width: double.infinity,
         height: 52,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [kPurple, kIndigo]),
+          gradient:AppTheme.primaryGradient,
           borderRadius: BorderRadius.circular(12),
         ),
         alignment: Alignment.center,
@@ -233,7 +235,7 @@ class RegistrationSuccessView extends GetView<RegisterDeviceController> {
         decoration: BoxDecoration(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: kPurple.withOpacity(0.5)),
+          border: Border.all(color:AppColors.accentPurple),
         ),
         alignment: Alignment.center,
         child: const Row(
@@ -243,7 +245,7 @@ class RegistrationSuccessView extends GetView<RegisterDeviceController> {
             SizedBox(width: 8),
             Text(
               'Register Another Device',
-              style: TextStyle(color: kPurple, fontSize: 14.5, fontWeight: FontWeight.w700),
+              style: TextStyle(color: AppColors.accentPurple, fontSize: 14.5, fontWeight: FontWeight.w700),
             ),
           ],
         ),

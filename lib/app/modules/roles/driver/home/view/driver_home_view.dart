@@ -101,7 +101,7 @@ class DriverHomeView extends GetView<DriverHomeController> {
             style: const TextStyle(color: Colors.white, fontSize: 21, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 4),
-          const Text('Have a safe and smooth journey.', style: TextStyle(color: Colors.white54, fontSize: 12.5)),
+          const Text('Have a safe and smooth journey.', style: TextStyle(color: Colors.white, fontSize: 12.5)),
         ],
       ),
     );
@@ -165,7 +165,7 @@ class DriverHomeView extends GetView<DriverHomeController> {
                     children: [
                       Text(controller.routeName.value, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700)),
                       const SizedBox(height: 2),
-                      Text('${controller.routeFrom.value} \u2192 ${controller.routeTo.value}', style: const TextStyle(color: Colors.white54, fontSize: 11.5)),
+                      Text('${controller.routeFrom.value} \u2192 ${controller.routeTo.value}', style: const TextStyle(color: Colors.white, fontSize: 11.5)),
                       const SizedBox(height: 4),
                       Text(controller.busNumber.value, style: const TextStyle(color: kPurple, fontSize: 11.5, fontWeight: FontWeight.w600)),
                     ],
@@ -213,7 +213,7 @@ class DriverHomeView extends GetView<DriverHomeController> {
               width: double.infinity,
               height: 48,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [kBlue, kPurple]),
+                gradient: const LinearGradient(colors: [Color(0xff1C68FD), Color(0xffDA29F4)]),
                 borderRadius: BorderRadius.circular(12),
               ),
               alignment: Alignment.center,
@@ -386,13 +386,13 @@ class _RouteInfoColumn extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Colors.white38, fontSize: 10)),
+        Text(label, style: const TextStyle(color: Colors.white, fontSize: 10)),
         const SizedBox(height: 4),
         Text(value, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
         const SizedBox(height: 2),
         Text(
           subValue,
-          style: TextStyle(color: subValueColor ?? Colors.white38, fontSize: 10, fontWeight: subValueColor != null ? FontWeight.w600 : FontWeight.w400),
+          style: TextStyle(color: subValueColor ?? Colors.white, fontSize: 10, fontWeight: subValueColor != null ? FontWeight.w600 : FontWeight.w400),
         ),
       ],
     );
@@ -435,7 +435,7 @@ class _ScheduleRow extends StatelessWidget {
                 children: [
                   SizedBox(
                     width: 66,
-                    child: Text(entry.time, style: const TextStyle(color: Colors.white70, fontSize: 11.5, fontWeight: FontWeight.w600)),
+                    child: Text(entry.time, style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w600)),
                   ),
                   Expanded(
                     child: Column(
@@ -443,7 +443,7 @@ class _ScheduleRow extends StatelessWidget {
                       children: [
                         Text(entry.routeName, style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w700)),
                         const SizedBox(height: 2),
-                        Text(entry.routeDescription, style: const TextStyle(color: Colors.white38, fontSize: 10.5)),
+                        Text(entry.routeDescription, style: const TextStyle(color: Colors.white, fontSize: 10.5)),
                       ],
                     ),
                   ),
@@ -495,7 +495,7 @@ class _NotificationRow extends StatelessWidget {
             children: [
               Text(notification.message, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
               const SizedBox(height: 2),
-              Text(notification.subMessage, style: const TextStyle(color: Colors.white38, fontSize: 10.5)),
+              Text(notification.subMessage, style: const TextStyle(color: Colors.white, fontSize: 10.5)),
             ],
           ),
         ),
@@ -503,7 +503,7 @@ class _NotificationRow extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(notification.timeAgo, style: const TextStyle(color: Colors.white38, fontSize: 9.5)),
+            Text(notification.timeAgo, style: const TextStyle(color: Colors.white, fontSize:10)),
             if (notification.isUnread) ...[
               const SizedBox(height: 4),
               Container(width: 6, height: 6, decoration: const BoxDecoration(color: kPurple, shape: BoxShape.circle)),
@@ -559,7 +559,7 @@ class _QuickActionColumn extends StatelessWidget {
           Text(
             action.title,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.w600),
+            style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600),
           ),
         ],
       ),
