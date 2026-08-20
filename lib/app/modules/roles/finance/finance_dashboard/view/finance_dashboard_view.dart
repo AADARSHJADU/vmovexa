@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/modules/roles/finance/home/view/finance_home_view.dart';
+import 'package:vmovexa/app/modules/roles/finance/subscriptions/view/subscriptions_view.dart';
 import 'package:vmovexa/app/modules/roles/placeholder/views/role_placeholder_view.dart';
 import '../../../../../widgets/app_logo_header.dart';
 import '../../../../../theme/app_colors.dart';
+import '../../invoice/view/invoice_view.dart';
 import '../controller/finance_dashboard_controller.dart';
 
 
@@ -19,11 +22,11 @@ class FinanceDashboardView extends GetView<FinanceDashboardController> {
         child: Obx(() {
           switch (controller.selectedNavIndex.value) {
             case 0:
-              return  RolePlaceholderView();
+              return  FinanceHomeView();
             case 1:
-              return  RolePlaceholderView();
+              return  SubscriptionsView();
             case 2:
-              return  RolePlaceholderView();
+              return  InvoiceView();
             case 3:
               return RolePlaceholderView();
             case 4:

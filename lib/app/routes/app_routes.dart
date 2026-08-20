@@ -57,6 +57,10 @@ abstract class Routes {
 
   //Finance flow routes
   static const FINANCE_DASHBOARD = '/finance-dashboard';
+  static const FINANCE_SUBSCRIPTIONS = '/subscriptions';
+  static const FINANCE_INVOICE = '/finance-invoice';
+  static const GENERATE_INVOICE = '/generate-invoice';
+
 }
 
 
