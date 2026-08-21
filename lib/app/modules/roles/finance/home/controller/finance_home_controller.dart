@@ -185,7 +185,7 @@ class FinanceHomeController extends GetxController {
   }
 
   void onNotificationTap() {
-    Get.toNamed('/notifications');
+    Get.toNamed(Routes.FINANCE_NOTIFICATIONS,);
   }
 
   void onProfileTap() {

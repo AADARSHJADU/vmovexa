@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/modules/roles/finance/revenue_reporting/view/report_generated_view.dart';
+import 'package:vmovexa/app/routes/app_routes.dart';
 
 import '../model/report_models.dart';
 
@@ -124,7 +125,7 @@ class RevenueReportingController extends GetxController {
     // TODO: open drawer / navigation menu
   }
 
-  void onNotificationTap() => Get.toNamed('/notifications');
+  void onNotificationTap() => Get.toNamed(Routes.FINANCE_NOTIFICATIONS);
 
   void onBackPressed() => Get.back();
 
@@ -135,8 +136,8 @@ class RevenueReportingController extends GetxController {
     try {
       // TODO: generate/download the actual report file
       await Future.delayed(const Duration(seconds: 1));
-      Get.snackbar('Download Started', '${generatedReportTitle.value} is downloading.',
-          backgroundColor: const Color(0xFF15151F), colorText: Colors.white, snackPosition: SnackPosition.BOTTOM);
+      // Get.snackbar('Download Started', '${generatedReportTitle.value} is downloading.',
+      //     backgroundColor: const Color(0xFF15151F), colorText: Colors.white, snackPosition: SnackPosition.BOTTOM);
     } finally {
       isDownloading.value = false;
     }

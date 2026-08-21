@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/modules/roles/finance/finance_profile/setting/view/finance_settings_view.dart';
 import 'package:vmovexa/app/modules/roles/finance/home/view/finance_home_view.dart';
 import 'package:vmovexa/app/modules/roles/finance/subscriptions/view/subscriptions_view.dart';
 import 'package:vmovexa/app/modules/roles/placeholder/views/role_placeholder_view.dart';
 import '../../../../../widgets/app_logo_header.dart';
 import '../../../../../theme/app_colors.dart';
+import '../../financial reconciliation/view/financial_reconciliation_view.dart';
 import '../../invoice/view/invoice_view.dart';
 import '../controller/finance_dashboard_controller.dart';
 
@@ -28,9 +30,9 @@ class FinanceDashboardView extends GetView<FinanceDashboardController> {
             case 2:
               return  InvoiceView();
             case 3:
-              return RolePlaceholderView();
+              return FinancialReconciliationView();
             case 4:
-              return RolePlaceholderView();
+              return FinanceSettingsView();
             default:
               return RolePlaceholderView();
           }

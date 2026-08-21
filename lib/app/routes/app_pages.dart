@@ -20,6 +20,10 @@ import '../modules/roles/driver/routes/bindings/my_route_binding.dart';
 import '../modules/roles/driver/routes/view/my_route_view.dart';
 import '../modules/roles/finance/finance_dashboard/bindings/finance_dashboard_bindings.dart';
 import '../modules/roles/finance/finance_dashboard/view/finance_dashboard_view.dart';
+import '../modules/roles/finance/finance_profile/profile/bindings/finance_profile_binding.dart';
+import '../modules/roles/finance/finance_profile/profile/view/finance_profile_view.dart';
+import '../modules/roles/finance/finance_profile/setting/bindings/finance_settings_binding.dart';
+import '../modules/roles/finance/finance_profile/setting/view/finance_settings_view.dart' show FinanceSettingsView;
 import '../modules/roles/finance/invoice/bindings/invoice_binding.dart';
 import '../modules/roles/finance/invoice/generate_invoice/bindings/generate_invoice_binding.dart';
 import '../modules/roles/finance/invoice/generate_invoice/view/generate_invoice_view.dart';
@@ -28,6 +32,10 @@ import '../modules/roles/finance/payment_detail/bindings/payment_detail_binding.
 import '../modules/roles/finance/payment_detail/view/payment_detail_view.dart';
 import '../modules/roles/finance/gst_management/bindings/gst_management_binding.dart';
 import '../modules/roles/finance/gst_management/view/gst_management_view.dart';
+import '../modules/roles/finance/financial reconciliation/bindings/financial_reconciliation_binding.dart';
+import '../modules/roles/finance/financial reconciliation/view/financial_reconciliation_view.dart';
+import '../modules/roles/finance/notifications/bindings/finance_notifications_binding.dart';
+import '../modules/roles/finance/notifications/view/finance_notifications_view.dart';
 import '../modules/roles/technician/alert_notification/bindings/alerts_binding.dart';
 import '../modules/roles/technician/alert_notification/view/alerts_view.dart';
 import '../modules/roles/technician/connectivity_troubleshooting/bindings/connectivity_troubleshooting_binding.dart';
@@ -506,6 +514,26 @@ class AppPages {
       binding: GSTManagementBinding(),
       transition: Transition.rightToLeft,
     ),
+    GetPage(
+      name: Routes.FINANCIAL_RECONCILIATION,
+      page: () => const FinancialReconciliationView(),
+      binding: FinancialReconciliationBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.FINANCE_NOTIFICATIONS,
+      page: () => const FinanceNotificationsView(),
+      binding: FinanceNotificationsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(name: Routes.FINANCE_PROFILE,
+        page: () => const FinanceProfileView(),
+        binding: FinanceProfileBinding()),
+    GetPage(name: Routes.FINANCE_SETTINGS,
+        page: () => const FinanceSettingsView(),
+        binding: FinanceSettingsBinding()),
+
+
   ];
 }
 

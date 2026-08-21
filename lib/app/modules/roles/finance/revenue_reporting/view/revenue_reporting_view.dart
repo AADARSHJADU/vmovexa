@@ -55,15 +55,28 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
   Widget _buildHeader() {
     return Row(
       children: [
-        GestureDetector(onTap: controller.onMenuTap, child: const Icon(Icons.menu, color: kPurple)),
-        const SizedBox(width: 12),
+        // GestureDetector(
+        //   onTap: controller.onMenuTap,
+        //   child: const Icon(Icons.menu, color: kPurple),
+        // ),
+        // const SizedBox(width: 12),
         const Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Revenue Reporting', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700)),
+              Text(
+                'Revenue Reporting',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
               SizedBox(height: 2),
-              Text('Generate and export revenue reports', style: TextStyle(color: Colors.white54, fontSize: 11.5)),
+              Text(
+                'Generate and export revenue reports',
+                style: TextStyle(color: Colors.white54, fontSize: 11.5),
+              ),
             ],
           ),
         ),
@@ -73,12 +86,23 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
             () => Stack(
               clipBehavior: Clip.none,
               children: [
-                const Icon(Icons.notifications_none_rounded, color: Colors.white70, size: 22),
+                const Icon(
+                  Icons.notifications_none_rounded,
+                  color: Colors.white70,
+                  size: 22,
+                ),
                 if (controller.notificationCount.value > 0)
                   Positioned(
                     right: -1,
                     top: -1,
-                    child: Container(width: 8, height: 8, decoration: const BoxDecoration(color: kPurple, shape: BoxShape.circle)),
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: kPurple,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
                   ),
               ],
             ),
@@ -92,11 +116,22 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: kCardBg, borderRadius: BorderRadius.circular(14), border: Border.all(color: kBorder)),
+      decoration: BoxDecoration(
+        color: kCardBg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: kBorder),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w700)),
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 13.5,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           const SizedBox(height: 10),
           child,
         ],
@@ -113,13 +148,32 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
-          decoration: BoxDecoration(color: kFieldBg, borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.white.withOpacity(0.08))),
+          decoration: BoxDecoration(
+            color: kFieldBg,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.white.withOpacity(0.08)),
+          ),
           child: Row(
             children: [
-              const Icon(Icons.calendar_today_outlined, color: kPurple, size: 15),
+              const Icon(
+                Icons.calendar_today_outlined,
+                color: kPurple,
+                size: 15,
+              ),
               const SizedBox(width: 8),
-              Expanded(child: Obx(() => Text(controller.reportPeriodText, style: const TextStyle(color: Colors.white, fontSize: 12.5)))),
-              const Icon(Icons.keyboard_arrow_down, color: Colors.white38, size: 18),
+              Expanded(
+                child: Obx(
+                  () => Text(
+                    controller.reportPeriodText,
+                    style: const TextStyle(color: Colors.white, fontSize: 12.5),
+                  ),
+                ),
+              ),
+              const Icon(
+                Icons.keyboard_arrow_down,
+                color: Colors.white38,
+                size: 18,
+              ),
             ],
           ),
         ),
@@ -134,10 +188,38 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
       child: Obx(
         () => Row(
           children: [
-            Expanded(child: _SummaryStat(icon: Icons.account_balance_wallet_outlined, color: kPurple, value: controller.totalRevenue.value, label: 'Total Revenue')),
-            Expanded(child: _SummaryStat(icon: Icons.description_outlined, color: kBlue, value: '${controller.totalInvoices.value}', label: 'Total Invoices')),
-            Expanded(child: _SummaryStat(icon: Icons.check_circle_outline, color: kGreen, value: '${controller.paidInvoices.value}', label: 'Paid Invoices')),
-            Expanded(child: _SummaryStat(icon: Icons.access_time, color: kOrange, value: '${controller.pendingInvoices.value}', label: 'Pending Invoices')),
+            Expanded(
+              child: _SummaryStat(
+                icon: Icons.account_balance_wallet_outlined,
+                color: kPurple,
+                value: controller.totalRevenue.value,
+                label: 'Total Revenue',
+              ),
+            ),
+            Expanded(
+              child: _SummaryStat(
+                icon: Icons.description_outlined,
+                color: kBlue,
+                value: '${controller.totalInvoices.value}',
+                label: 'Total Invoices',
+              ),
+            ),
+            Expanded(
+              child: _SummaryStat(
+                icon: Icons.check_circle_outline,
+                color: kGreen,
+                value: '${controller.paidInvoices.value}',
+                label: 'Paid Invoices',
+              ),
+            ),
+            Expanded(
+              child: _SummaryStat(
+                icon: Icons.access_time,
+                color: kOrange,
+                value: '${controller.pendingInvoices.value}',
+                label: 'Pending Invoices',
+              ),
+            ),
           ],
         ),
       ),
@@ -185,20 +267,43 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
   Widget _buildGenerateReportButton() {
     return Obx(
       () => GestureDetector(
-        onTap: controller.isGenerating.value ? null : controller.onGenerateReport,
+        onTap: controller.isGenerating.value
+            ? null
+            : controller.onGenerateReport,
         child: Container(
           width: double.infinity,
           height: 50,
-          decoration: BoxDecoration(gradient: AppTheme.primaryGradient, borderRadius: BorderRadius.circular(12)),
+          decoration: BoxDecoration(
+            gradient: AppTheme.primaryGradient,
+            borderRadius: BorderRadius.circular(12),
+          ),
           alignment: Alignment.center,
           child: controller.isGenerating.value
-              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.4))
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2.4,
+                  ),
+                )
               : const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.description_outlined, color: Colors.white, size: 17),
+                    Icon(
+                      Icons.description_outlined,
+                      color: Colors.white,
+                      size: 17,
+                    ),
                     SizedBox(width: 8),
-                    Text('Generate Report', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+                    Text(
+                      'Generate Report',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ],
                 ),
         ),
@@ -214,13 +319,27 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Recent Reports', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+            const Text(
+              'Recent Reports',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
             GestureDetector(
               onTap: controller.onViewAllReports,
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('View All', style: TextStyle(color: kPurple, fontSize: 12, fontWeight: FontWeight.w600)),
+                  Text(
+                    'View All',
+                    style: TextStyle(
+                      color: kPurple,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   Icon(Icons.chevron_right, color: kPurple, size: 15),
                 ],
               ),
@@ -231,14 +350,16 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
         Obx(
           () => Column(
             children: controller.recentReports
-                .map((r) => Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: _RecentReportCard(
-                        report: r,
-                        onDownload: () => controller.onDownloadRecentReport(r),
-                        onMoreTap: () => controller.onRecentReportOptionsTap(r),
-                      ),
-                    ))
+                .map(
+                  (r) => Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: _RecentReportCard(
+                      report: r,
+                      onDownload: () => controller.onDownloadRecentReport(r),
+                      onMoreTap: () => controller.onRecentReportOptionsTap(r),
+                    ),
+                  ),
+                )
                 .toList(),
           ),
         ),
@@ -259,7 +380,12 @@ class _SummaryStat extends StatelessWidget {
   final String value;
   final String label;
 
-  const _SummaryStat({required this.icon, required this.color, required this.value, required this.label});
+  const _SummaryStat({
+    required this.icon,
+    required this.color,
+    required this.value,
+    required this.label,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -267,13 +393,27 @@ class _SummaryStat extends StatelessWidget {
       children: [
         Container(
           padding: const EdgeInsets.all(9),
-          decoration: BoxDecoration(color: color.withOpacity(0.15), shape: BoxShape.circle),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.15),
+            shape: BoxShape.circle,
+          ),
           child: Icon(icon, color: color, size: 17),
         ),
         const SizedBox(height: 8),
-        Text(value, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w800)),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 13,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
         const SizedBox(height: 2),
-        Text(label, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white38, fontSize: 8.5)),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: Colors.white38, fontSize: 8.5),
+        ),
       ],
     );
   }
@@ -288,7 +428,12 @@ class _FilterDropdown extends StatelessWidget {
   final List<String> items;
   final ValueChanged<String?> onChanged;
 
-  const _FilterDropdown({required this.icon, required this.value, required this.items, required this.onChanged});
+  const _FilterDropdown({
+    required this.icon,
+    required this.value,
+    required this.items,
+    required this.onChanged,
+  });
 
   static const Color kFieldBg = RevenueReportingView.kFieldBg;
   static const Color kPurple = RevenueReportingView.kPurple;
@@ -297,7 +442,11 @@ class _FilterDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(color: kFieldBg, borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.white.withOpacity(0.08))),
+      decoration: BoxDecoration(
+        color: kFieldBg,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.white.withOpacity(0.08)),
+      ),
       child: Row(
         children: [
           Icon(icon, color: kPurple, size: 15),
@@ -308,9 +457,20 @@ class _FilterDropdown extends StatelessWidget {
                 value: value,
                 isExpanded: true,
                 dropdownColor: kFieldBg,
-                icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white38, size: 18),
+                icon: const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.white38,
+                  size: 18,
+                ),
                 style: const TextStyle(color: Colors.white, fontSize: 12.5),
-                items: items.map((i) => DropdownMenuItem(value: i, child: Text(i, overflow: TextOverflow.ellipsis))).toList(),
+                items: items
+                    .map(
+                      (i) => DropdownMenuItem(
+                        value: i,
+                        child: Text(i, overflow: TextOverflow.ellipsis),
+                      ),
+                    )
+                    .toList(),
                 onChanged: onChanged,
               ),
             ),
@@ -329,7 +489,11 @@ class _RecentReportCard extends StatelessWidget {
   final VoidCallback onDownload;
   final VoidCallback onMoreTap;
 
-  const _RecentReportCard({required this.report, required this.onDownload, required this.onMoreTap});
+  const _RecentReportCard({
+    required this.report,
+    required this.onDownload,
+    required this.onMoreTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -345,18 +509,38 @@ class _RecentReportCard extends StatelessWidget {
           Container(
             width: 38,
             height: 38,
-            decoration: BoxDecoration(color: report.format.color.withOpacity(0.15), borderRadius: BorderRadius.circular(9)),
+            decoration: BoxDecoration(
+              color: report.format.color.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(9),
+            ),
             alignment: Alignment.center,
-            child: Text(report.format.label, style: TextStyle(color: report.format.color, fontSize: 8.5, fontWeight: FontWeight.w800)),
+            child: Text(
+              report.format.label,
+              style: TextStyle(
+                color: report.format.color,
+                fontSize: 8.5,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(report.title, style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w700)),
+                Text(
+                  report.title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text('${report.dateText}  \u2022  ${report.format.label}  \u2022  ${report.fileSizeText}', style: const TextStyle(color: Colors.white38, fontSize: 10)),
+                Text(
+                  '${report.dateText}  \u2022  ${report.format.label}  \u2022  ${report.fileSizeText}',
+                  style: const TextStyle(color: Colors.white38, fontSize: 10),
+                ),
               ],
             ),
           ),
@@ -364,8 +548,15 @@ class _RecentReportCard extends StatelessWidget {
             onTap: onDownload,
             child: Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: RevenueReportingView.kGreen.withOpacity(0.15), shape: BoxShape.circle),
-              child: const Icon(Icons.download_outlined, color: RevenueReportingView.kGreen, size: 16),
+              decoration: BoxDecoration(
+                color: RevenueReportingView.kGreen.withOpacity(0.15),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.download_outlined,
+                color: RevenueReportingView.kGreen,
+                size: 16,
+              ),
             ),
           ),
           const SizedBox(width: 6),

@@ -64,7 +64,9 @@ abstract class Routes {
   static const REVENUE_REPORTING = '/revenue-reporting';
   static const GST_MANAGEMENT = '/gst-management';
   static const FINANCIAL_RECONCILIATION = '/financial-reconciliation';
-
+  static const FINANCE_NOTIFICATIONS = '/finance-notifications';
+  static const FINANCE_PROFILE = '/finance-profile';
+  static const FINANCE_SETTINGS = '/finance-settings';
 }
 
 
