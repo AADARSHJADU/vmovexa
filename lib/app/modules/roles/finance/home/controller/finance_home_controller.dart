@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/modules/roles/finance/payment_detail/example_usage.dart';
 
+import '../../../../../routes/app_routes.dart';
 import '../models/finance_home_models.dart';
 
 class FinanceHomeController extends GetxController {
@@ -81,7 +83,7 @@ class FinanceHomeController extends GetxController {
     ]);
   }
 
-  void _loadQuickActions() {
+  Future<void> _loadQuickActions() async {
     quickActions.assignAll([
       FinanceQuickAction(
         title: 'Manage Subscriptions',
@@ -95,28 +97,28 @@ class FinanceHomeController extends GetxController {
         subtitle: 'Create and manage invoices',
         icon: Icons.receipt_long_outlined,
         color: const Color(0xFF3F7BF5),
-        route: '/invoices/create',
+        route: '/finance-invoice',
       ),
       FinanceQuickAction(
         title: 'Monitor Payments',
         subtitle: 'Track and monitor payments',
         icon: Icons.payments_outlined,
         color: const Color(0xFF2ECC71),
-        route: '/payments',
+        route:Routes.PAYMENT_DETAIL,
       ),
       FinanceQuickAction(
         title: 'Revenue Reporting',
         subtitle: 'View revenue reports and analytics',
         icon: Icons.bar_chart_outlined,
         color: const Color(0xFFFFA726),
-        route: '/revenue-reports',
+        route: Routes.REVENUE_REPORTING,
       ),
       FinanceQuickAction(
         title: 'GST Management',
         subtitle: 'Manage GST filings and returns',
         icon: Icons.request_quote_outlined,
         color: const Color(0xFF2EC4C4),
-        route: '/gst-management',
+        route: Routes.GST_MANAGEMENT,
       ),
       FinanceQuickAction(
         title: 'Financial Reconciliation',

@@ -60,6 +60,10 @@ abstract class Routes {
   static const FINANCE_SUBSCRIPTIONS = '/subscriptions';
   static const FINANCE_INVOICE = '/finance-invoice';
   static const GENERATE_INVOICE = '/generate-invoice';
+  static const PAYMENT_DETAIL = '/payment-detail';
+  static const REVENUE_REPORTING = '/revenue-reporting';
+  static const GST_MANAGEMENT = '/gst-management';
+  static const FINANCIAL_RECONCILIATION = '/financial-reconciliation';
 
 }
 

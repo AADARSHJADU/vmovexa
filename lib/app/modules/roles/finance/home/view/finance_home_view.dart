@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/modules/roles/finance/home/models/finance_home_models.dart';
+import 'package:vmovexa/app/modules/roles/finance/payment_detail/example_usage.dart';
 import '../controller/finance_home_controller.dart';
 
 class FinanceHomeView extends GetView<FinanceHomeController> {
@@ -35,7 +36,14 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
                       const SizedBox(height: 16),
                       _buildFinancialOverviewCard(),
                       const SizedBox(height: 20),
-                      const Text('Quick Actions', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+                      const Text(
+                        'Quick Actions',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                       const SizedBox(height: 10),
                       _buildQuickActionsGrid(),
                       const SizedBox(height: 20),
@@ -63,9 +71,19 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
             () => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Finance Dashboard', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700)),
+                const Text(
+                  'Finance Dashboard',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text('Welcome back, ${controller.userName.value} \ud83d\udc4b', style: const TextStyle(color: Colors.white54, fontSize: 11.5)),
+                Text(
+                  'Welcome back, ${controller.userName.value} \ud83d\udc4b',
+                  style: const TextStyle(color: Colors.white54, fontSize: 11.5),
+                ),
               ],
             ),
           ),
@@ -76,7 +94,11 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
             () => Stack(
               clipBehavior: Clip.none,
               children: [
-                const Icon(Icons.notifications_none_rounded, color: Colors.white70, size: 23),
+                const Icon(
+                  Icons.notifications_none_rounded,
+                  color: Colors.white70,
+                  size: 23,
+                ),
                 if (controller.notificationCount.value > 0)
                   Positioned(
                     right: -1,
@@ -84,7 +106,10 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
                     child: Container(
                       width: 8,
                       height: 8,
-                      decoration: const BoxDecoration(color: kPurple, shape: BoxShape.circle),
+                      decoration: const BoxDecoration(
+                        color: kPurple,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   ),
               ],
@@ -97,10 +122,20 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
           child: Container(
             width: 34,
             height: 34,
-            decoration: const BoxDecoration(gradient: LinearGradient(colors: [kPurple, kIndigo]), shape: BoxShape.circle),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(colors: [kPurple, kIndigo]),
+              shape: BoxShape.circle,
+            ),
             alignment: Alignment.center,
             child: Obx(
-              () => Text(controller.userInitial.value, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+              () => Text(
+                controller.userInitial.value,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
           ),
         ),
@@ -123,11 +158,22 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
         children: [
           Row(
             children: [
-              const Text('Financial Overview', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+              const Text(
+                'Financial Overview',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
               const SizedBox(width: 6),
               GestureDetector(
                 onTap: controller.onOverviewInfoTap,
-                child: const Icon(Icons.info_outline, color: Colors.white38, size: 14),
+                child: const Icon(
+                  Icons.info_outline,
+                  color: Colors.white38,
+                  size: 14,
+                ),
               ),
             ],
           ),
@@ -143,15 +189,28 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.calendar_today_outlined, color: kPurple, size: 13),
+                  const Icon(
+                    Icons.calendar_today_outlined,
+                    color: kPurple,
+                    size: 13,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Obx(
-                      () => Text(controller.dateRangeText.value, style: const TextStyle(color:
-                      Colors.white, fontSize: 11.5)),
+                      () => Text(
+                        controller.dateRangeText.value,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11.5,
+                        ),
+                      ),
                     ),
                   ),
-                  const Icon(Icons.keyboard_arrow_down, color: Colors.white, size: 16),
+                  const Icon(
+                    Icons.keyboard_arrow_down,
+                    color: Colors.white,
+                    size: 16,
+                  ),
                 ],
               ),
             ),
@@ -168,7 +227,8 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
                 crossAxisSpacing: 8,
                 childAspectRatio: 1.55,
               ),
-              itemBuilder: (context, index) => _FinancialStatItem(stat: controller.financialStats[index]),
+              itemBuilder: (context, index) =>
+                  _FinancialStatItem(stat: controller.financialStats[index]),
             ),
           ),
         ],
@@ -191,7 +251,16 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
         ),
         itemBuilder: (context, index) {
           final action = controller.quickActions[index];
-          return _QuickActionCard(action: action, onTap: () => controller.onQuickActionTap(action));
+          return _QuickActionCard(
+            action: action,
+            onTap: () {
+              if (action.title == 'Monitor Payments') {
+                PaymentDetailExample.navigatePaidPayment();
+              } else {
+                controller.onQuickActionTap(action);
+              }
+            },
+          );
         },
       ),
     );
@@ -213,13 +282,27 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Key Insights', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+              const Text(
+                'Key Insights',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
               GestureDetector(
                 onTap: controller.onViewAllInsights,
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('View All', style: TextStyle(color: kPurple, fontSize: 12, fontWeight: FontWeight.w600)),
+                    Text(
+                      'View All',
+                      style: TextStyle(
+                        color: kPurple,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     Icon(Icons.chevron_right, color: kPurple, size: 15),
                   ],
                 ),
@@ -233,7 +316,10 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
                   .map(
                     (insight) => Padding(
                       padding: const EdgeInsets.only(bottom: 14),
-                      child: _KeyInsightRow(insight: insight, onTap: () => controller.onInsightTap(insight)),
+                      child: _KeyInsightRow(
+                        insight: insight,
+                        onTap: () => controller.onInsightTap(insight),
+                      ),
                     ),
                   )
                   .toList(),
@@ -259,26 +345,43 @@ class _FinancialStatItem extends StatelessWidget {
       children: [
         Container(
           padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(color: stat.color.withOpacity(0.18), shape: BoxShape.circle),
+          decoration: BoxDecoration(
+            color: stat.color.withOpacity(0.18),
+            shape: BoxShape.circle,
+          ),
           child: Icon(stat.icon, color: stat.color, size: 16),
         ),
         const SizedBox(height: 8),
-        Text(stat.label, style: const TextStyle(color: Colors.white, fontSize: 9.5)),
+        Text(
+          stat.label,
+          style: const TextStyle(color: Colors.white, fontSize: 9.5),
+        ),
         const SizedBox(height: 3),
-        Text(stat.value, style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w800)),
+        Text(
+          stat.value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 13.5,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
         const SizedBox(height: 3),
         Row(
           children: [
             Icon(
               stat.isPositive ? Icons.arrow_upward : Icons.arrow_downward,
-              color: stat.isPositive ? FinanceHomeView.kGreen : FinanceHomeView.kRed,
+              color: stat.isPositive
+                  ? FinanceHomeView.kGreen
+                  : FinanceHomeView.kRed,
               size: 11,
             ),
             const SizedBox(width: 2),
             Text(
               '${stat.trendPercent}% vs last period',
               style: TextStyle(
-                color: stat.isPositive ? FinanceHomeView.kGreen : FinanceHomeView.kRed,
+                color: stat.isPositive
+                    ? FinanceHomeView.kGreen
+                    : FinanceHomeView.kRed,
                 fontSize: 8.5,
                 fontWeight: FontWeight.w600,
               ),
@@ -315,7 +418,10 @@ class _QuickActionCard extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(9),
-              decoration: BoxDecoration(color: action.color.withOpacity(0.18), shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: action.color.withOpacity(0.18),
+                shape: BoxShape.circle,
+              ),
               child: Icon(action.icon, color: action.color, size: 18),
             ),
             const SizedBox(width: 10),
@@ -323,7 +429,14 @@ class _QuickActionCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(action.title, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700)),
+                  Text(
+                    action.title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                   const SizedBox(height: 3),
                   Text(
                     action.subtitle,
@@ -353,14 +466,19 @@ class _KeyInsightRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final trendColor = insight.isPositive ? FinanceHomeView.kGreen : FinanceHomeView.kRed;
+    final trendColor = insight.isPositive
+        ? FinanceHomeView.kGreen
+        : FinanceHomeView.kRed;
     return GestureDetector(
       onTap: onTap,
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(9),
-            decoration: BoxDecoration(color: insight.color.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
+            decoration: BoxDecoration(
+              color: insight.color.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
             child: Icon(insight.icon, color: insight.color, size: 17),
           ),
           const SizedBox(width: 10),
@@ -368,26 +486,59 @@ class _KeyInsightRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(insight.title, style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w600)),
+                Text(
+                  insight.title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(insight.subtitle, style: const TextStyle(color: Colors.white, fontSize: 10)),
+                Text(
+                  insight.subtitle,
+                  style: const TextStyle(color: Colors.white, fontSize: 10),
+                ),
               ],
             ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(insight.value, style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w700)),
+              Text(
+                insight.value,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
               const SizedBox(height: 4),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                decoration: BoxDecoration(color: trendColor.withOpacity(0.15), borderRadius: BorderRadius.circular(20)),
+                decoration: BoxDecoration(
+                  color: trendColor.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(20),
+                ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(insight.isPositive ? Icons.arrow_upward : Icons.arrow_downward, color: trendColor, size: 10),
+                    Icon(
+                      insight.isPositive
+                          ? Icons.arrow_upward
+                          : Icons.arrow_downward,
+                      color: trendColor,
+                      size: 10,
+                    ),
                     const SizedBox(width: 2),
-                    Text('${insight.trendPercent}%', style: TextStyle(color: trendColor, fontSize: 10, fontWeight: FontWeight.w700)),
+                    Text(
+                      '${insight.trendPercent}%',
+                      style: TextStyle(
+                        color: trendColor,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ],
                 ),
               ),

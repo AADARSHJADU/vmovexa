@@ -5,6 +5,8 @@ import 'package:vmovexa/app/modules/roles/driver/profile/driver_documents/view/d
 import 'package:vmovexa/app/modules/roles/driver/profile/view/driver_profile_view.dart';
 import 'package:vmovexa/app/modules/roles/driver/report/bindings/report_incident_binding.dart';
 import 'package:vmovexa/app/modules/roles/driver/report/view/incident_details_view.dart';
+import 'package:vmovexa/app/modules/roles/finance/revenue_reporting/bindings/revenue_reporting_binding.dart';
+import 'package:vmovexa/app/modules/roles/finance/revenue_reporting/view/revenue_reporting_view.dart';
 import 'package:vmovexa/app/modules/roles/finance/subscriptions/bindings/subscriptions_binding.dart';
 import 'package:vmovexa/app/modules/roles/finance/subscriptions/view/subscriptions_view.dart';
 import 'package:vmovexa/app/modules/roles/technician/technician_dashboard/bindings/technician_dashboard_bindings.dart';
@@ -22,6 +24,10 @@ import '../modules/roles/finance/invoice/bindings/invoice_binding.dart';
 import '../modules/roles/finance/invoice/generate_invoice/bindings/generate_invoice_binding.dart';
 import '../modules/roles/finance/invoice/generate_invoice/view/generate_invoice_view.dart';
 import '../modules/roles/finance/invoice/view/invoice_view.dart';
+import '../modules/roles/finance/payment_detail/bindings/payment_detail_binding.dart';
+import '../modules/roles/finance/payment_detail/view/payment_detail_view.dart';
+import '../modules/roles/finance/gst_management/bindings/gst_management_binding.dart';
+import '../modules/roles/finance/gst_management/view/gst_management_view.dart';
 import '../modules/roles/technician/alert_notification/bindings/alerts_binding.dart';
 import '../modules/roles/technician/alert_notification/view/alerts_view.dart';
 import '../modules/roles/technician/connectivity_troubleshooting/bindings/connectivity_troubleshooting_binding.dart';
@@ -481,6 +487,24 @@ class AppPages {
       name:Routes.GENERATE_INVOICE,
       page: () => const GenerateInvoiceView(),
       binding: GenerateInvoiceBinding(),
+    ),
+    GetPage(
+      name: Routes.PAYMENT_DETAIL,
+      page: () => const PaymentDetailView(),
+      binding: PaymentDetailBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.REVENUE_REPORTING,
+      page: () => const RevenueReportingView(),
+      binding: RevenueReportingBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.GST_MANAGEMENT,
+      page: () => const GSTManagementView(),
+      binding: GSTManagementBinding(),
+      transition: Transition.rightToLeft,
     ),
   ];
 }
