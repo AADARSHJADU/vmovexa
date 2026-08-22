@@ -75,9 +75,16 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
                     const SizedBox(height: 36),
 
                     // Save Button
-                    CustomButton(
-                      text: 'Save Preferences',
-                      onTap: controller.savePreferences,
+                    ElevatedButton.icon(
+                      onPressed: controller.savePreferences,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF3B82F6),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      icon: const Icon(Icons.save_rounded, color: Colors.white, size: 18),
+                      label: const Text('Save Preferences', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(height: 20),
                   ],

@@ -38,6 +38,9 @@ abstract class Routes {
   static const CAMPAIGN_DETAILS = '/campaign-details';
   static const CAMPAIGN_ANALYTICS = '/campaign-analytics';
   static const ADVERTISER_PROFILE = '/advertiser-profile';
+  static const GOVERNMENT_DASHBOARD = '/government-dashboard';
+  static const GOVERNMENT_CREATE_CAMPAIGN = '/government-create-campaign';
+  static const GOV_CAMPAIGN_DETAILS = '/gov-campaign-details';
 }
 
 

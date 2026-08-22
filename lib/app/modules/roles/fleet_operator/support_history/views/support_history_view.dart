@@ -70,8 +70,8 @@ class SupportHistoryView extends GetView<SupportHistoryController> {
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    icon: const Icon(Icons.filter_list_rounded, color: Color(0xFF6366F1), size: 16),
-                    label: const Text('Filter', style: TextStyle(color: Color(0xFF6366F1), fontSize: 12, fontWeight: FontWeight.bold)),
+                    icon: const Icon(Icons.filter_list_rounded, color: Color(0xFF3B82F6), size: 16),
+                    label: const Text('Filter', style: TextStyle(color: Color(0xFF3B82F6), fontSize: 12, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -149,7 +149,7 @@ class SupportHistoryView extends GetView<SupportHistoryController> {
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                color: isSelected ? const Color(0xFF6366F1) : Colors.transparent,
+                color: isSelected ? const Color(0xFF3B82F6) : Colors.transparent,
                 width: 2.0,
               ),
             ),
@@ -157,7 +157,7 @@ class SupportHistoryView extends GetView<SupportHistoryController> {
           child: Text(
             label,
             style: TextStyle(
-              color: isSelected ? Colors.white : AppColors.textSecondary,
+              color: isSelected ? const Color(0xFF3B82F6) : AppColors.textSecondary,
               fontSize: 12,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
@@ -199,10 +199,10 @@ class SupportHistoryView extends GetView<SupportHistoryController> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: t.iconColor.withOpacity(0.08),
+              color: const Color(0xFF6366F1).withOpacity(0.08),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(t.icon, color: t.iconColor, size: 20),
+            child: Icon(t.icon, color: const Color(0xFF6366F1), size: 20),
           ),
           const SizedBox(width: 14),
 

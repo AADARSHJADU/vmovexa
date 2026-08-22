@@ -48,6 +48,19 @@ class AddDriverController extends GetxController {
     status.value = value;
   }
 
+  late final String vehicleName;
+  late final String fleetName;
+  late final String vehicleType;
+
+  @override
+  void onInit() {
+    super.onInit();
+    final args = Get.arguments;
+    vehicleName = (args is Map) ? (args['vehicleName'] ?? 'MH12AB1234') : 'MH12AB1234';
+    fleetName = (args is Map) ? (args['fleetName'] ?? 'City Bus Fleet') : 'City Bus Fleet';
+    vehicleType = (args is Map) ? (args['vehicleType'] ?? 'Bus') : 'Bus';
+  }
+
   void selectDate(BuildContext context, TextEditingController controller) async {
     DateTime? picked = await showDatePicker(
       context: context,

@@ -85,7 +85,8 @@ class AddFleetView extends GetView<AddFleetController> {
                       _buildLabel('Fleet Name *'),
                       CustomTextField(
                         hintText: 'Enter fleet name',
-                        prefixIcon: Icons.home_work_outlined,
+                        //prefixIcon: Icons.home_work_outlined,
+                        prefixSvg: 'assets/icons/building1.svg',
                         controller: controller.nameController,
                       ),
                       const SizedBox(height: 18),
@@ -94,7 +95,8 @@ class AddFleetView extends GetView<AddFleetController> {
                       _buildLabel('Description (Optional)'),
                       CustomTextField(
                         hintText: 'Enter a short description',
-                        prefixIcon: Icons.description_outlined,
+                        //prefixIcon: Icons.description_outlined,
+                        prefixSvg: 'assets/icons/note1.svg',
                         controller: controller.descController,
                       ),
                       const SizedBox(height: 18),
@@ -104,6 +106,7 @@ class AddFleetView extends GetView<AddFleetController> {
                       Obx(
                         () => CustomTextField(
                           hintText: 'Select organization',
+                          prefixSvg: 'assets/icons/building1.svg',
                           isDropdown: true,
                           dropdownValue: controller.selectedOrg.value,
                           dropdownItems: controller.organizations,
@@ -117,6 +120,7 @@ class AddFleetView extends GetView<AddFleetController> {
                       Obx(
                         () => CustomTextField(
                           hintText: 'Select fleet type',
+                          prefixSvg: 'assets/icons/bus.svg',
                           isDropdown: true,
                           dropdownValue: controller.selectedType.value,
                           dropdownItems: controller.fleetTypes,
@@ -154,7 +158,9 @@ class AddFleetView extends GetView<AddFleetController> {
                                 _buildLabel('Contact Person'),
                                 CustomTextField(
                                   hintText: 'Enter contact person',
-                                  prefixIcon: Icons.person_outline_rounded,
+                                  prefixSvg: 'assets/icons/profile.svg',
+                                  prefixWidth: 16,
+                                  prefixHeight: 16,
                                   controller: controller.contactPersonController,
                                 ),
                               ],
@@ -168,7 +174,10 @@ class AddFleetView extends GetView<AddFleetController> {
                                 _buildLabel('Phone Number'),
                                 CustomTextField(
                                   hintText: 'Enter phone number',
-                                  prefixIcon: Icons.phone_outlined,
+                                  //prefixIcon: Icons.phone_outlined,
+                                  prefixAsset: 'assets/icons/phone.png',
+                                  prefixWidth: 24,
+                                  prefixHeight: 24,
                                   keyboardType: TextInputType.phone,
                                   controller: controller.phoneController,
                                 ),
@@ -183,7 +192,10 @@ class AddFleetView extends GetView<AddFleetController> {
                       _buildLabel('Email Address'),
                       CustomTextField(
                         hintText: 'Enter email address',
-                        prefixIcon: Icons.mail_outline_rounded,
+                        //prefixIcon: Icons.mail_outline_rounded,
+                        prefixSvg: 'assets/icons/gmail.svg',
+                        prefixWidth: 16,
+                        prefixHeight: 16,
                         keyboardType: TextInputType.emailAddress,
                         controller: controller.emailController,
                       ),
@@ -219,6 +231,7 @@ class AddFleetView extends GetView<AddFleetController> {
                                 Obx(
                                   () => CustomTextField(
                                     hintText: 'Select location',
+                                    prefixSvg: 'assets/icons/location.svg',
                                     isDropdown: true,
                                     dropdownValue: controller.selectedLocation.value,
                                     dropdownItems: controller.locations,
@@ -237,6 +250,8 @@ class AddFleetView extends GetView<AddFleetController> {
                                 Obx(
                                   () => CustomTextField(
                                     hintText: 'Select time zone',
+                                    //prefixIcon: Icons.public_rounded,
+                                    prefixSvg: 'assets/icons/clock.svg',
                                     isDropdown: true,
                                     dropdownValue: controller.selectedTimeZone.value,
                                     dropdownItems: controller.timeZones,
@@ -255,6 +270,9 @@ class AddFleetView extends GetView<AddFleetController> {
                       Obx(
                         () => CustomTextField(
                           hintText: 'Select working hours',
+                          prefixAsset: 'assets/icons/calendar.png',
+                          prefixWidth: 24,
+                          prefixHeight: 24,
                           isDropdown: true,
                           dropdownValue: controller.selectedHours.value,
                           dropdownItems: controller.workingHours,
@@ -338,9 +356,13 @@ class AddFleetView extends GetView<AddFleetController> {
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.add_photo_alternate_outlined, color: Color(0xFF8B5CF6), size: 24),
-            SizedBox(height: 6),
+          children: [
+            //Icon(Icons.add_photo_alternate_outlined, color: Color(0xFF8B5CF6), size: 24),
+            Image.asset(
+                'assets/icons/gallery_img.png',
+              height: 54,
+              width: 54,
+            ),
             Text(
               'Upload Logo\n(Optional)',
               textAlign: TextAlign.center,

@@ -15,6 +15,7 @@ class NotificationsView extends GetView<NotificationsController> {
         : Get.put(NotificationsController());
 
     final isAdvertiser = LoginController.currentRole == 'Advertisement';
+    final isGovernment = LoginController.currentRole == 'Government';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -73,15 +74,27 @@ class NotificationsView extends GetView<NotificationsController> {
                           const SizedBox(width: 10),
                           _buildFilterCapsule(c, 'System', '${c.notifications.where((n) => n.type == 'System').length}'),
                         ]
-                      : [
-                          _buildFilterCapsule(c, 'All', '${c.notifications.length}'),
-                          const SizedBox(width: 10),
-                          _buildFilterCapsule(c, 'Alerts', '${c.notifications.where((n) => n.type == 'Alerts').length}'),
-                          const SizedBox(width: 10),
-                          _buildFilterCapsule(c, 'Maintenance', '${c.notifications.where((n) => n.type == 'Maintenance').length}'),
-                          const SizedBox(width: 10),
-                          _buildFilterCapsule(c, 'Trips', '${c.notifications.where((n) => n.type == 'Trips').length}'),
-                        ],
+                      : isGovernment
+                          ? [
+                              _buildFilterCapsule(c, 'All', '${c.notifications.length}'),
+                              const SizedBox(width: 10),
+                              _buildFilterCapsule(c, 'Alerts', '${c.notifications.where((n) => n.type == 'Alerts').length}'),
+                              const SizedBox(width: 10),
+                              _buildFilterCapsule(c, 'Updates', '${c.notifications.where((n) => n.type == 'Updates').length}'),
+                              const SizedBox(width: 10),
+                              _buildFilterCapsule(c, 'Reports', '${c.notifications.where((n) => n.type == 'Reports').length}'),
+                              const SizedBox(width: 10),
+                              _buildFilterCapsule(c, 'System', '${c.notifications.where((n) => n.type == 'System').length}'),
+                            ]
+                          : [
+                              _buildFilterCapsule(c, 'All', '${c.notifications.length}'),
+                              const SizedBox(width: 10),
+                              _buildFilterCapsule(c, 'Alerts', '${c.notifications.where((n) => n.type == 'Alerts').length}'),
+                              const SizedBox(width: 10),
+                              _buildFilterCapsule(c, 'Maintenance', '${c.notifications.where((n) => n.type == 'Maintenance').length}'),
+                              const SizedBox(width: 10),
+                              _buildFilterCapsule(c, 'Trips', '${c.notifications.where((n) => n.type == 'Trips').length}'),
+                            ],
                 ),
               ),
             ),
@@ -234,6 +247,28 @@ class NotificationsView extends GetView<NotificationsController> {
     } else if (n.title.contains('Completed')) {
       cardIcon = Icons.outlined_flag_rounded;
       iconColor = const Color(0xFFEF4444);
+    } else if (LoginController.currentRole == 'Government') {
+      switch (n.type) {
+        case 'Alerts':
+          cardIcon = Icons.warning_rounded;
+          iconColor = const Color(0xFFEF4444);
+          break;
+        case 'Updates':
+          cardIcon = Icons.trending_up_rounded;
+          iconColor = const Color(0xFF10B981);
+          break;
+        case 'Reports':
+          cardIcon = Icons.description_outlined;
+          iconColor = const Color(0xFF3B82F6);
+          break;
+        case 'System':
+          cardIcon = Icons.settings_outlined;
+          iconColor = const Color(0xFF64748B);
+          break;
+        default:
+          cardIcon = Icons.notifications_none_rounded;
+          iconColor = Colors.grey;
+      }
     } else {
       // Fleet Operator default fallback
       switch (n.type) {

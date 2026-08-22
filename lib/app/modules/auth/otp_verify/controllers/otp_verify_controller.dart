@@ -85,10 +85,11 @@ class OtpVerifyController extends GetxController {
     // Navigate to role-specific dashboard
     LoginController.currentRole = role;
     if (role == 'Fleet Operator') {
-
        Get.offAllNamed(Routes.FLEET_OP_DASHBOARD);
     } else if (role == 'Advertisement') {
        Get.offAllNamed(Routes.ADVERTISER_DASHBOARD);
+    } else if (role == 'Government') {
+       Get.offAllNamed(Routes.GOVERNMENT_DASHBOARD);
     } else {
        Get.offAllNamed(Routes.ROLE_PLACEHOLDER, arguments: role);
     }

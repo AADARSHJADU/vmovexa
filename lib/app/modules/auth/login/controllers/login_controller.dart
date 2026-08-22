@@ -46,6 +46,8 @@ class LoginController extends GetxController {
       Get.offAllNamed(Routes.FLEET_OP_DASHBOARD);
     } else if (role == 'Advertisement') {
       Get.offAllNamed(Routes.ADVERTISER_DASHBOARD);
+    } else if (role == 'Government') {
+      Get.offAllNamed(Routes.GOVERNMENT_DASHBOARD);
     } else {
       Get.offAllNamed(Routes.ROLE_PLACEHOLDER, arguments: role);
     }

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../../routes/app_routes.dart';
+import '../../dashboard/controllers/advertiser_dashboard_controller.dart';
+
 
 class CreateCampaignController extends GetxController {
-  final currentStep = 1.obs; // Step 1 to 6
-  final RxBool isOnReviewPage = false.obs; // True when showing final review screen
+  final currentStep = 1.obs; // Step 1 to 7
   final RxBool isSubmitted = false.obs; // True when campaign is successfully submitted
+
 
   // Step 1: Campaign Info
   final campaignNameController = TextEditingController(text: 'Summer Sale 2026');
@@ -61,25 +64,21 @@ class CreateCampaignController extends GetxController {
   final RxBool agreeTerms = true.obs;
 
   void nextStep() {
-    if (isOnReviewPage.value) {
-      submitCampaign();
-    } else if (currentStep.value < 6) {
+    if (currentStep.value < 7) {
       currentStep.value++;
     } else {
-      // Step 6 (QR Identity) Next goes to Review Page
-      isOnReviewPage.value = true;
+      submitCampaign();
     }
   }
 
   void previousStep() {
-    if (isOnReviewPage.value) {
-      isOnReviewPage.value = false;
-    } else if (currentStep.value > 1) {
+    if (currentStep.value > 1) {
       currentStep.value--;
     } else {
       Get.back();
     }
   }
+
 
   void selectCampaignType(String type) {
     selectedCampaignType.value = type;
@@ -128,17 +127,35 @@ class CreateCampaignController extends GetxController {
 
   void submitCampaign() {
     isSubmitted.value = true;
-    isOnReviewPage.value = false;
   }
+
 
   void closeWizard() {
     Get.back();
   }
 
+  void onViewCampaigns() {
+    Get.offAndToNamed(
+      Routes.CAMPAIGN_DETAILS,
+      arguments: AdvertiserCampaign(
+        id: 'CMP-2026-000124',
+        title: campaignNameController.text.isNotEmpty ? campaignNameController.text : 'Summer Sale 2026',
+        client: brandNameController.text.isNotEmpty ? brandNameController.text : 'City Mart',
+        dates: '20 May 2026 - 10 Jun 2026',
+        budget: '₹2,50,000',
+        screens: 1250,
+        impressions: '0',
+        status: 'PENDING', // PENDING means "Under Review" state
+        imagePath: 'https://images.unsplash.com/photo-1511556532299-8f662fc26c06?q=80&w=200',
+        themeColor: const Color(0xFF8B5CF6),
+      ),
+    );
+  }
+
+
   void createAnother() {
     // Reset state
     currentStep.value = 1;
-    isOnReviewPage.value = false;
     isSubmitted.value = false;
     campaignNameController.text = '';
     brandNameController.text = '';

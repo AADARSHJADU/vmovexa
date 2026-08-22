@@ -32,7 +32,7 @@ class ProfileView extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.settings_outlined, color: Colors.white, size: 24),
+                  icon: const Icon(Icons.settings_outlined, color: Color(0xFF6366F1), size: 24),
                   onPressed: () => Get.toNamed(Routes.ACCOUNT_SETTINGS),
                 ),
               ],
@@ -42,15 +42,16 @@ class ProfileView extends StatelessWidget {
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              physics: const BouncingScrollPhysics(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Main Header Card
+                  // Main Header Card with Rohan Mehta Photo
                   _buildProfileHeaderCard(),
                   const SizedBox(height: 18),
 
-                  // Stats Strip Grid row
-                  _buildStatsRow(),
+                  // Stats Strip Card with horizontal alignment & vertical dividers (Image 4 style)
+                  _buildStatsCard(),
                   const SizedBox(height: 24),
 
                   // Account & Settings Section
@@ -66,11 +67,10 @@ class ProfileView extends StatelessWidget {
                   const SizedBox(height: 32),
 
                   // Logout Button
-                  OutlinedButton.icon(
+                  ElevatedButton.icon(
                     onPressed: c.logout,
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFF6366F1), width: 1.5),
-                      backgroundColor: Colors.transparent,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF3B82F6),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       minimumSize: const Size(double.infinity, 50),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -98,25 +98,26 @@ class ProfileView extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Avatar photo
+          // Avatar photo - Rohan Mehta Unsplash Profile Image
           Stack(
             children: [
               Container(
                 width: 72,
                 height: 72,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color(0xFF3B82F6),
-                ),
-                child: const Center(
-                  child: Icon(Icons.person_rounded, color: Colors.white, size: 36),
+                  border: Border.all(color: const Color(0xFF3B82F6), width: 1.5),
+                  image: const DecorationImage(
+                    image: NetworkImage('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200'),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
               Positioned(
                 bottom: 0,
                 right: 0,
                 child: Container(
-                  padding: const EdgeInsets.all(4),
+                  padding: const EdgeInsets.all(5),
                   decoration: const BoxDecoration(
                     color: Color(0xFF3B82F6),
                     shape: BoxShape.circle,
@@ -128,23 +129,23 @@ class ProfileView extends StatelessWidget {
           ),
           const SizedBox(width: 16),
 
-          // Title & Org name
+          // Title & Org name (Image 4 style: Rohan Mehta, City Analyst blue tag)
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
+              children: [
+                const Text(
                   'Rohan Mehta',
                   style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 4),
-                Text(
-                  'Fleet Operator',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                const SizedBox(height: 4),
+                const Text(
+                  'City Analyst',
+                  style: TextStyle(color: Color(0xFF3B82F6), fontSize: 12, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 6),
+                const SizedBox(height: 6),
                 Row(
-                  children: [
+                  children: const [
                     Icon(Icons.business_rounded, color: Color(0xFF6366F1), size: 14),
                     SizedBox(width: 6),
                     Expanded(
@@ -157,8 +158,8 @@ class ProfileView extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 2),
-                Text(
+                const SizedBox(height: 4),
+                const Text(
                   'Operator ID: OP987654',
                   style: TextStyle(color: AppColors.textMuted, fontSize: 10),
                 ),
@@ -171,42 +172,49 @@ class ProfileView extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsRow() {
-    return Row(
+  // Redesigned Stats Card strip matching Image 4
+  Widget _buildStatsCard() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+      ),
+      child: Row(
+        children: [
+          Expanded(child: _buildStatsCardSegment('24', 'Fleets Managed', Icons.directions_bus_rounded, const Color(0xFF8B5CF6))),
+          _buildStatsVerticalDivider(),
+          Expanded(child: _buildStatsCardSegment('156', 'Vehicles', Icons.directions_bus_rounded, const Color(0xFF3B82F6))),
+          _buildStatsVerticalDivider(),
+          Expanded(child: _buildStatsCardSegment('178', 'Drivers', Icons.person_rounded, const Color(0xFF8B5CF6))),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatsCardSegment(String value, String label, IconData icon, Color color) {
+    return Column(
       children: [
-        Expanded(child: _buildStatItem('24', 'Fleets Managed', Icons.local_shipping_outlined)),
-        const SizedBox(width: 8),
-        Expanded(child: _buildStatItem('156', 'Vehicles', Icons.directions_car_outlined)),
-        const SizedBox(width: 8),
-        Expanded(child: _buildStatItem('178', 'Drivers', Icons.person_outline_rounded)),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: color, size: 16),
+            const SizedBox(width: 6),
+            Text(value, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5), textAlign: TextAlign.center),
       ],
     );
   }
 
-  Widget _buildStatItem(String value, String label, IconData icon) {
+  Widget _buildStatsVerticalDivider() {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: const Color(0xFF8B5CF6), size: 18),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
+      height: 32,
+      width: 1,
+      color: AppColors.cardBorder,
     );
   }
 
@@ -247,7 +255,6 @@ class ProfileView extends StatelessWidget {
           _buildMenuRow('Privacy Policy', 'Read our privacy policy', Icons.description_outlined, () => Get.toNamed(Routes.PRIVACY_POLICY)),
           const Divider(color: AppColors.cardBorder, height: 16),
           _buildMenuRow('Terms & Conditions', 'Read our terms and conditions', Icons.verified_user_outlined, () => Get.toNamed(Routes.TERMS_CONDITIONS)),
-
           const Divider(color: AppColors.cardBorder, height: 16),
           _buildMenuRow('About VMOVEXA', 'App version 1.0.0', Icons.info_outline_rounded, () {}),
         ],

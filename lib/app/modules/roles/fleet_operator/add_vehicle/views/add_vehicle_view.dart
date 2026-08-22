@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import '../controllers/add_vehicle_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
@@ -48,7 +49,13 @@ class AddVehicleView extends GetView<AddVehicleController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Section 1: Fleet Information
-                      _buildSectionHeader('1. Fleet Information'),
+                      _buildSectionHeader(
+                        '1. Fleet Information',
+                        _buildGradientIcon(
+                          Icons.directions_bus_outlined,
+                          svgAsset: 'assets/icons/bus.svg',
+                        ),
+                      ),
                       const SizedBox(height: 12),
 
                       _buildLabel('Fleet *'),
@@ -165,15 +172,20 @@ class AddVehicleView extends GetView<AddVehicleController> {
                                         width: 1.2,
                                       ),
                                     ),
-                                    child: Center(
-                                      child: Text(
-                                        pill,
-                                        style: TextStyle(
-                                          color: isSelected ? Colors.white : AppColors.textSecondary,
-                                          fontSize: 12,
-                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        _buildPillIcon(pill, isSelected),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          pill,
+                                          style: TextStyle(
+                                            color: isSelected ? Colors.white : AppColors.textSecondary,
+                                            fontSize: 12,
+                                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                          ),
                                         ),
-                                      ),
+                                      ],
                                     ),
                                   ),
                                 );
@@ -185,7 +197,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
                       const SizedBox(height: 28),
 
                       // Section 2: Route Information
-                      _buildSectionHeader('2. Route Information'),
+                      _buildSectionHeader('2. Route Information', Image.asset('assets/icons/fleet_operator_icons/route_hand.png', width: 22, height: 22)),
                       const SizedBox(height: 12),
 
                       _buildLabel('Assigned Route *'),
@@ -232,7 +244,13 @@ class AddVehicleView extends GetView<AddVehicleController> {
                       const SizedBox(height: 28),
 
                       // Section 3: Vehicle Documents
-                      _buildSectionHeader('3. Vehicle Documents'),
+                      _buildSectionHeader(
+                          '3. Vehicle Documents',
+                          _buildGradientIcon(
+                              Icons.description_outlined,
+                            svgAsset: 'assets/icons/note1.svg',
+                          ),
+                      ),
                       const SizedBox(height: 14),
 
                       GridView.count(
@@ -252,7 +270,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
                       const SizedBox(height: 28),
 
                       // Section 4: Display Screen Configuration
-                      _buildSectionHeader('4. Display Screen Configuration'),
+                      _buildSectionHeader('4. Display Screen Configuration', Image.asset('assets/icons/fleet_operator_icons/monitor.png', width: 22, height: 22)),
                       const SizedBox(height: 6),
                       const Text(
                         'Configure the number of advertising display screens on the vehicle.',
@@ -318,7 +336,13 @@ class AddVehicleView extends GetView<AddVehicleController> {
                       const SizedBox(height: 28),
 
                       // Section 5: GPS Assignment
-                      _buildSectionHeader('5. GPS Assignment'),
+                      _buildSectionHeader(
+                          '5. GPS Assignment',
+                          _buildGradientIcon(
+                              Icons.location_on_outlined,
+                            svgAsset: 'assets/icons/location.svg',
+                          ),
+                      ),
                       const SizedBox(height: 12),
 
                       _buildLabel('GPS Device'),
@@ -345,7 +369,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 padding: const EdgeInsets.symmetric(vertical: 14),
                               ),
-                              icon: const Icon(Icons.qr_code_scanner_rounded, color: Color(0xFF8B5CF6), size: 20),
+                              icon: _buildGradientIcon(Icons.qr_code_scanner_rounded),
                               label: const Text('Scan QR Code', style: TextStyle(color: Colors.white, fontSize: 12)),
                             ),
                           ),
@@ -359,8 +383,8 @@ class AddVehicleView extends GetView<AddVehicleController> {
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 padding: const EdgeInsets.symmetric(vertical: 14),
                               ),
-                              icon: const Icon(Icons.tap_and_play_rounded, color: Color(0xFF8B5CF6), size: 20),
-                              label: const Text('Select Existing', style: TextStyle(color: Colors.white, fontSize: 12)),
+                              icon: _buildGradientIcon(Icons.tap_and_play_rounded),
+                              label: const Text('Select Existing GPS', style: TextStyle(color: Colors.white, fontSize: 12)),
                             ),
                           ),
                         ],
@@ -368,7 +392,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
                       const SizedBox(height: 28),
 
                       // Section 6: Vehicle Status
-                      _buildSectionHeader('6. Vehicle Status'),
+                      _buildSectionHeader('6. Vehicle Status', Image.asset('assets/icons/fleet_operator_icons/shield_check.png', width: 22, height: 22)),
                       const SizedBox(height: 16),
 
                       Obx(
@@ -396,6 +420,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
                           Expanded(
                             child: CustomButton(
                               text: 'Add Vehicle',
+                              prefixIcon: const Icon(Icons.directions_bus_outlined, color: Colors.white, size: 18),
                               onTap: controller.addVehicle,
                             ),
                           ),
@@ -413,14 +438,20 @@ class AddVehicleView extends GetView<AddVehicleController> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-      ),
+  Widget _buildSectionHeader(String title, Widget icon) {
+    return Row(
+      children: [
+        icon,
+        const SizedBox(width: 10),
+        Text(
+          title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
   }
 
@@ -449,7 +480,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.cloud_upload_outlined, color: Color(0xFF6366F1), size: 24),
+          _buildGradientIcon(Icons.cloud_upload_outlined),
           const SizedBox(height: 8),
           Text(
             title,
@@ -475,8 +506,13 @@ class AddVehicleView extends GetView<AddVehicleController> {
         border: Border.all(color: AppColors.cardBorder, width: 1.2),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          Image.asset(
+            'assets/icons/fleet_operator_icons/monitor.png',
+            width: 16,
+            height: 16,
+          ),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               title,
@@ -485,6 +521,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          const SizedBox(width: 8),
           Row(
             children: [
               GestureDetector(
@@ -498,12 +535,12 @@ class AddVehicleView extends GetView<AddVehicleController> {
                   child: const Icon(Icons.remove, color: Colors.white, size: 14),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
               Text(
                 '$count',
-                style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
               GestureDetector(
                 onTap: onInc,
                 child: Container(
@@ -520,6 +557,79 @@ class AddVehicleView extends GetView<AddVehicleController> {
         ],
       ),
     );
+  }
+
+  /*Widget _buildGradientIcon(IconData icon) {
+    return ShaderMask(
+      blendMode: BlendMode.srcIn,
+      shaderCallback: (bounds) => const LinearGradient(
+        colors: [
+          Color(0xFF3B82F6),
+          Color(0xFF8B5CF6),
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ).createShader(bounds),
+      child: Icon(
+        icon,
+        size: 20,
+        color: Colors.white,
+      ),
+    );
+  }*/
+  Widget _buildGradientIcon(
+      IconData icon, {
+        String? svgAsset,
+      }) {
+    if (svgAsset != null && svgAsset.isNotEmpty) {
+      return SvgPicture.asset(
+        svgAsset,
+        width: 20,
+        height: 20,
+      );
+    }
+
+    return ShaderMask(
+      blendMode: BlendMode.srcIn,
+      shaderCallback: (bounds) => const LinearGradient(
+        colors: [
+          Color(0xFF3B82F6),
+          Color(0xFF8B5CF6),
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ).createShader(bounds),
+      child: Icon(
+        icon,
+        size: 20,
+        color: Colors.white,
+      ),
+    );
+  }
+
+  Widget _buildPillIcon(String pill, bool isSelected) {
+    switch (pill) {
+      case 'Sleeper':
+        return _buildGradientIcon(Icons.hotel_outlined);
+      case 'Non-Sleeper':
+        return _buildGradientIcon(Icons.directions_bus_outlined);
+      case 'Mini Bus':
+        return _buildGradientIcon(Icons.airport_shuttle_outlined);
+      case 'AC Bus':
+        return Image.asset(
+          'assets/icons/fleet_operator_icons/snowflake.png',
+          width: 16,
+          height: 16,
+        );
+      case 'Electric Bus':
+        return Image.asset(
+          'assets/icons/fleet_operator_icons/lightning.png',
+          width: 16,
+          height: 16,
+        );
+      default:
+        return const SizedBox.shrink();
+    }
   }
 
   Widget _buildStatusRadioCard(String title, String subtitle, bool isSelected) {

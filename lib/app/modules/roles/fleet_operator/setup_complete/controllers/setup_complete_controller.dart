@@ -19,6 +19,10 @@ class SetupCompleteController extends GetxController {
 
   void viewVehicleDetails() {
     Get.offAllNamed(Routes.FLEET_OP_DASHBOARD);
+    Get.toNamed(Routes.VEHICLE_DETAILS, arguments: {
+      'vehicleName': vehicleName,
+      'fleetName': fleetName,
+    });
   }
 
   void backToFleet() {

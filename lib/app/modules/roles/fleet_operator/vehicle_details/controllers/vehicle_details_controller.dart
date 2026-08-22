@@ -7,8 +7,21 @@ class VehicleDetailsController extends GetxController {
   final RxString fleetName = 'City Bus Fleet'.obs;
   final RxString modelName = 'Volvo 8400 Electric'.obs;
 
+  @override
+  void onInit() {
+    super.onInit();
+    final args = Get.arguments;
+    if (args is Map) {
+      if (args['vehicleName'] != null) vehicleName.value = args['vehicleName'];
+      if (args['fleetName'] != null) fleetName.value = args['fleetName'];
+    }
+  }
+
   void startLiveTracking() {
-    Get.toNamed(Routes.LIVE_TRACKING);
+    Get.toNamed(Routes.LIVE_TRACKING, arguments: {
+      'vehicleName': vehicleName.value,
+      'fleetName': fleetName.value,
+    });
   }
 
   void editVehicle() {

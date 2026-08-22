@@ -72,15 +72,10 @@ class CampaignAnalyticsView extends GetView<CampaignAnalyticsController> {
                       _buildImpressionsReachChart(),
                       const SizedBox(height: 24),
 
-                      // Two lists side-by-side: Cities & Fleet
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(child: _buildPerformingCitiesCard()),
-                          const SizedBox(width: 14),
-                          Expanded(child: _buildPerformingFleetCard()),
-                        ],
-                      ),
+                      // Two lists stacked: Cities & Fleet
+                      _buildPerformingCitiesCard(),
+                      const SizedBox(height: 18),
+                      _buildPerformingFleetCard(),
                       const SizedBox(height: 24),
 
                       // Bottom Specs
@@ -472,56 +467,59 @@ class CampaignAnalyticsView extends GetView<CampaignAnalyticsController> {
   }
 
   Widget _buildActionButtonsRow(bool paused) {
-    return Row(
+    return Column(
       children: [
-        // Pause Button
-        Expanded(
-          child: OutlinedButton.icon(
-            onPressed: controller.togglePauseState,
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.cardBorder),
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            icon: Icon(paused ? Icons.play_arrow_rounded : Icons.pause_rounded, color: Colors.white, size: 16),
-            label: Text(paused ? 'Resume Campaign' : 'Pause Campaign', style: const TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
-          ),
-        ),
-        const SizedBox(width: 10),
-
-        // Duplicate Button
-        Expanded(
-          child: OutlinedButton.icon(
-            onPressed: controller.duplicateCampaign,
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.cardBorder),
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            icon: const Icon(Icons.copy_rounded, color: Colors.white, size: 14),
-            label: const Text('Duplicate Campaign', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
-          ),
-        ),
-        const SizedBox(width: 10),
-
-        // Download Report
-        Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(colors: [Color(0xFF3B82F6), Color(0xFF8B5CF6)]),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: ElevatedButton.icon(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        Row(
+          children: [
+            // Pause Button
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: controller.togglePauseState,
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AppColors.cardBorder),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                icon: Icon(paused ? Icons.play_arrow_rounded : Icons.pause_rounded, color: Colors.white, size: 16),
+                label: Text(paused ? 'Resume Campaign' : 'Pause Campaign', style: const TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
               ),
-              icon: const Icon(Icons.file_download_outlined, color: Colors.white, size: 14),
-              label: const Text('Download Report', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
             ),
+            const SizedBox(width: 12),
+
+            // Duplicate Button
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: controller.duplicateCampaign,
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AppColors.cardBorder),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                icon: const Icon(Icons.copy_rounded, color: Colors.white, size: 14),
+                label: const Text('Duplicate Campaign', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+
+        // Download Report (Full Width)
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(colors: [Color(0xFF3B82F6), Color(0xFF8B5CF6)]),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: ElevatedButton.icon(
+            onPressed: () {},
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              padding: const EdgeInsets.symmetric(vertical: 15),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            icon: const Icon(Icons.file_download_outlined, color: Colors.white, size: 16),
+            label: const Text('Download Report', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
           ),
         ),
       ],

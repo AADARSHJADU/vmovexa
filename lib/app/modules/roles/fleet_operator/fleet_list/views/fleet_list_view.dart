@@ -137,26 +137,49 @@ class FleetListView extends GetView<FleetListController> {
         ),
       ),
       // Add Fleet Floating Action Button
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: controller.goToAddFleet,
-        elevation: 6,
-        backgroundColor: const Color(0xFF6366F1),
-        label: Row(
-          children: const [
-            Icon(Icons.add, color: Colors.white, size: 20),
-            SizedBox(width: 6),
-            Text(
-              'Add Fleet',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xFF4F6EF7),
+              Color(0xFFB645E8),
+            ],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF9333EA).withOpacity(0.25),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: controller.goToAddFleet,
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(Icons.add, color: Colors.white, size: 20),
+                  SizedBox(width: 6),
+                  Text(
+                    'Add Fleet',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -298,24 +321,24 @@ class FleetListView extends GetView<FleetListController> {
                         children: [
                           IntrinsicWidth(
                             child: _buildSubStat(
-                              Icons.directions_car_outlined,
+                              'assets/icons/car.svg',
                               '${fleet.vehiclesCount} Vehicles',
                             ),
                           ),
                           IntrinsicWidth(
                             child: _buildSubStat(
-                              Icons.person_outline_rounded,
+                              'assets/icons/profile.svg',
                               '${fleet.driversCount} Drivers',
                             ),
                           ),
                           IntrinsicWidth(
                             child: _buildSubStat(
-                              Icons.wifi_tethering_rounded,
+                              'assets/icons/hotspot.svg',
                               '${fleet.gpsOnlineCount} GPS Online',
                             ),
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -347,10 +370,15 @@ class FleetListView extends GetView<FleetListController> {
     );
   }
 
-  Widget _buildSubStat(IconData icon, String label) {
+  Widget _buildSubStat(String svgPath, String label) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: const Color(0xFF6366F1), size: 15),
+        SvgPicture.asset(
+          svgPath,
+          height: 12,
+          width: 12,
+        ),
         const SizedBox(width: 4),
         Text(
           label,

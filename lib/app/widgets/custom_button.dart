@@ -8,6 +8,7 @@ class CustomButton extends StatelessWidget {
   final bool isOutlined;
   final double? width;
   final double height;
+  final Widget? prefixIcon;
 
   const CustomButton({
     super.key,
@@ -17,6 +18,7 @@ class CustomButton extends StatelessWidget {
     this.isOutlined = false,
     this.width,
     this.height = 54,
+    this.prefixIcon,
   });
 
   @override
@@ -34,13 +36,22 @@ class CustomButton extends StatelessWidget {
               borderRadius: BorderRadius.circular(14),
             ),
           ),
-          child: Text(
-            text,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (prefixIcon != null) ...[
+                prefixIcon!,
+                const SizedBox(width: 8),
+              ],
+              Text(
+                text,
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -52,19 +63,19 @@ class CustomButton extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: isGradient
             ? const LinearGradient(
-                colors: [
-                  Color(0xFF6366F1),
-                  Color(0xFF2563EB),
-                ],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              )
+          colors: [
+            Color(0xFF4F6EF7),
+            Color(0xFFB645E8),
+          ],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        )
             : null,
         color: isGradient ? null : AppColors.primaryButtonBlue,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF3B82F6).withOpacity(0.25),
+            color: const Color(0xFF9333EA).withOpacity(0.25),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -76,14 +87,23 @@ class CustomButton extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(14),
           child: Center(
-            child: Text(
-              text,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.3,
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (prefixIcon != null) ...[
+                  prefixIcon!,
+                  const SizedBox(width: 8),
+                ],
+                Text(
+                  text,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

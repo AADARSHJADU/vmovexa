@@ -105,6 +105,7 @@ class NotificationsController extends GetxController {
           body: 'Payment of ₹1,48,750 for campaign CMP-2026-000124 was successful.',
           time: 'Yesterday, 11:22 AM',
           type: 'Payments',
+          isUnread: false,
         ),
         AppNotification(
           id: 'adv_4',
@@ -112,6 +113,7 @@ class NotificationsController extends GetxController {
           body: 'Invoice INV-2026-000124 has been generated for your payment.',
           time: 'Yesterday, 11:23 AM',
           type: 'Payments',
+          isUnread: false,
         ),
         AppNotification(
           id: 'adv_5',
@@ -133,6 +135,63 @@ class NotificationsController extends GetxController {
           body: 'Your campaign "Spring Collection" has been completed successfully.',
           time: 'Earlier, 06:30 PM',
           type: 'Campaigns',
+          isUnread: false,
+        ),
+      ]);
+    } else if (LoginController.currentRole == 'Government') {
+      notifications.assignAll([
+        AppNotification(
+          id: 'gov_1',
+          title: 'High Alert: Low Reach Detected',
+          body: 'Campaign "Road Safety Awareness" reach dropped by 32% in Bhopal.',
+          time: 'Today, 2 mins ago',
+          type: 'Alerts',
+        ),
+        AppNotification(
+          id: 'gov_2',
+          title: 'Campaign Performance Improved',
+          body: '"Monsoon Preparedness" campaign reach increased by 18% compared to yesterday.',
+          time: 'Today, 15 mins ago',
+          type: 'Updates',
+        ),
+        AppNotification(
+          id: 'gov_3',
+          title: 'Weekly Report Ready',
+          body: 'Your weekly performance report (12 May - 18 May 2025) is ready to download.',
+          time: 'Today, 1 hour ago',
+          type: 'Reports',
+        ),
+        AppNotification(
+          id: 'gov_4',
+          title: 'New Campaign Approved',
+          body: '"Clean City Initiative" campaign has been approved and is now live.',
+          time: 'Today, 3 hours ago',
+          type: 'Alerts',
+          isUnread: false,
+        ),
+        AppNotification(
+          id: 'gov_5',
+          title: 'Campaign Scheduled',
+          body: '"Dengue Prevention Drive" is scheduled to go live on 22 May 2025.',
+          time: 'Today, 5 hours ago',
+          type: 'Updates',
+          isUnread: false,
+        ),
+        AppNotification(
+          id: 'gov_6',
+          title: 'System Maintenance',
+          body: 'System maintenance is scheduled on 25 May 2025, 12:00 AM - 2:00 AM.',
+          time: 'Yesterday, 12:00 AM',
+          type: 'System',
+          isUnread: false,
+        ),
+        AppNotification(
+          id: 'gov_7',
+          title: 'New User Added',
+          body: 'A new user (City Analyst) has been added to your organization.',
+          time: 'Earlier, 2 days ago',
+          type: 'System',
+          isUnread: false,
         ),
       ]);
     }

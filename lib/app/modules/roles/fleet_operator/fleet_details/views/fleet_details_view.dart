@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../controllers/fleet_details_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
@@ -63,10 +64,26 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildQuickActionItem('Add Vehicle', Icons.directions_car_outlined, controller.goToAddVehicle),
-                        _buildQuickActionItem('Add Driver', Icons.person_add_alt_1_outlined, controller.goToAddDriver),
-                        _buildQuickActionItem('Assign GPS', Icons.wifi_tethering_rounded, controller.goToAssignGps),
-                        _buildQuickActionItem('View Reports', Icons.bar_chart_rounded, () {}),
+                        _buildQuickActionItem(
+                          'Add Vehicle',
+                          'assets/icons/car.svg',
+                          controller.goToAddVehicle,
+                        ),
+                        _buildQuickActionItem(
+                          'Add Driver',
+                          'assets/icons/profile.svg',
+                          controller.goToAddDriver,
+                        ),
+                        _buildQuickActionItem(
+                          'Assign GPS',
+                          'assets/icons/hotspot.svg',
+                          controller.goToAssignGps,
+                        ),
+                        _buildQuickActionItem(
+                          'View Reports',
+                          'assets/icons/neon_bars.svg',
+                              () {},
+                        ),
                       ],
                     ),
                     const SizedBox(height: 24),
@@ -107,6 +124,43 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
     );
   }
 
+  // =====================================================
+  // Reusable icon loader.
+  // Automatically picks SvgPicture.asset() for .svg paths
+  // and Image.asset() for everything else (.png, .jpg, etc).
+  // Just change the path string wherever you call this -
+  // no need to touch the calling widget's code.
+  // =====================================================
+  Widget _buildIcon(
+      String imagePath, {
+        double width = 24,
+        double height = 24,
+        Color? color,
+        BoxFit fit = BoxFit.contain,
+      }) {
+    final isSvg = imagePath.toLowerCase().endsWith('.svg');
+
+    if (isSvg) {
+      return SvgPicture.asset(
+        imagePath,
+        width: width,
+        height: height,
+        fit: fit,
+        colorFilter: color != null
+            ? ColorFilter.mode(color, BlendMode.srcIn)
+            : null,
+      );
+    } else {
+      return Image.asset(
+        imagePath,
+        width: width,
+        height: height,
+        fit: fit,
+        color: color,
+      );
+    }
+  }
+
   Widget _buildMainInfoCard() {
     return Container(
       padding: const EdgeInsets.all(18),
@@ -119,7 +173,7 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Bus Logo Container
               Container(
@@ -130,10 +184,14 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(color: const Color(0xFF6366F1).withOpacity(0.2), width: 1.2),
                 ),
-                child: const Icon(
-                  Icons.directions_bus_rounded,
-                  color: Color(0xFF8B5CF6),
-                  size: 32,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: _buildIcon(
+                    'assets/icons/bus.svg',
+                    width: 32,
+                    height: 32,
+                    color: const Color(0xFF8B5CF6),
+                  ),
                 ),
               ),
               const SizedBox(width: 16),
@@ -141,39 +199,35 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Text(
-                          controller.fleet.name,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF10B981).withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: const Text(
-                            'Active',
-                            style: TextStyle(
-                              color: Color(0xFF10B981),
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
+                    Text(
+                      controller.fleet.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF10B981).withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text(
+                        'Active',
+                        style: TextStyle(
+                          color: Color(0xFF10B981),
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
                     Text(
                       'Fleet ID: ${controller.fleet.id}',
                       style: const TextStyle(
-                        color: AppColors.textMuted,
+                        color: Colors.white60,
                         fontSize: 12,
                       ),
                     ),
@@ -188,15 +242,29 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
           Row(
             children: [
               Expanded(
-                child: _buildDetailsItem('Organization', 'VMOVEXA Transport', Icons.apartment_outlined),
+                child: _buildDetailsItem(
+                  'Organization',
+                  'VMOVEXA Transport',
+                  'assets/icons/building.svg',
+                ),
               ),
               Expanded(
-                child: _buildDetailsItem('Created Date', '21 May 2024, 08:35 AM', Icons.calendar_today_outlined),
+                child: _buildDetailsItem(
+                  'Created Date',
+                  '21 May 2024, 08:35 AM',
+                  'assets/icons/note.svg',
+                ),
               ),
             ],
           ),
           const SizedBox(height: 14),
-          _buildDetailsItem('Description', 'City bus operations for all downtown routes and services.', Icons.description_outlined),
+          _buildDetailsItem(
+            'Description',
+            'City bus operations for all downtown routes and services.',
+            // Example: switched to PNG here just to show it works with
+            // the same _buildIcon() helper without any extra code.
+            'assets/icons/calendar.png',
+          ),
           const SizedBox(height: 20),
           const Divider(color: AppColors.cardBorder, height: 1),
           const SizedBox(height: 16),
@@ -205,11 +273,37 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(child: _buildStatItem('0', 'Vehicles', Icons.directions_car_outlined)),
-              Container(width: 1, height: 36, color: AppColors.cardBorder),
-              Expanded(child: _buildStatItem('0', 'Drivers', Icons.person_outline_rounded)),
-              Container(width: 1, height: 36, color: AppColors.cardBorder),
-              Expanded(child: _buildStatItem('0', 'GPS Devices', Icons.wifi_tethering_rounded)),
+              Expanded(
+                child: _buildStatItem(
+                  '0',
+                  'Vehicles',
+                  'assets/icons/car.svg',
+                ),
+              ),
+              Container(
+                width: 1,
+                height: 36,
+                color: AppColors.cardBorder,
+              ),
+              Expanded(
+                child: _buildStatItem(
+                  '0',
+                  'Drivers',
+                  'assets/icons/profile.svg',
+                ),
+              ),
+              Container(
+                width: 1,
+                height: 36,
+                color: AppColors.cardBorder,
+              ),
+              Expanded(
+                child: _buildStatItem(
+                  '0',
+                  'GPS Devices',
+                  'assets/icons/hotspot.svg',
+                ),
+              ),
             ],
           ),
         ],
@@ -217,11 +311,19 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
     );
   }
 
-  Widget _buildDetailsItem(String title, String value, IconData icon) {
+  Widget _buildDetailsItem(
+      String title,
+      String value,
+      String imagePath,
+      ) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Icon(icon, color: const Color(0xFF6366F1), size: 16),
+        _buildIcon(
+          imagePath,
+          width: 24,
+          height: 24,
+        ),
         const SizedBox(width: 8),
         Expanded(
           child: Column(
@@ -230,16 +332,16 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
               Text(
                 title,
                 style: const TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 10,
+                  color: AppColors.textPrimary,
+                  fontSize: 12,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 value,
                 style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
+                  color: AppColors.textSecondary,
+                  fontSize: 10,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -250,13 +352,21 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
     );
   }
 
-  Widget _buildStatItem(String value, String title, IconData icon) {
+  Widget _buildStatItem(
+      String value,
+      String title,
+      String svgPath,
+      ) {
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: const Color(0xFF6366F1), size: 16),
+            SvgPicture.asset(
+              svgPath,
+              width: 16,
+              height: 16,
+            ),
             const SizedBox(width: 6),
             Text(
               value,
@@ -280,24 +390,66 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
     );
   }
 
-  Widget _buildQuickActionItem(String title, IconData icon, VoidCallback onTap) {
+  Widget _buildQuickActionItem(
+      String title,
+      String svgPath,
+      VoidCallback onTap,
+      ) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
         children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: AppColors.cardBg,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.cardBorder, width: 1.2),
-            ),
-            child: Icon(icon, color: const Color(0xFF8B5CF6), size: 22),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.cardBg,
+                  //gradient: AppColors.primaryGradient,
+                ),
+                child: Center(
+                  child: SvgPicture.asset(
+                    svgPath,
+                    width: 22,
+                    height: 22,
+                  ),
+                ),
+              ),
+
+              Positioned(
+                right: -4,
+                bottom: -4,
+                child: Container(
+                  width: 18,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: AppColors.primaryGradient,
+                    border: Border.all(
+                      color: AppColors.cardBg,
+                      width: 2,
+                    ),
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.add,
+                      color: Colors.white,
+                      size: 10,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
+
           const SizedBox(height: 8),
+
           Text(
             title,
+            textAlign: TextAlign.center,
             style: const TextStyle(
               color: Colors.white,
               fontSize: 10,
@@ -321,25 +473,39 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
       child: Column(
         children: [
           // Bus Icon Illustration
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: const Color(0xFF6366F1).withOpacity(0.04),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.directions_bus_outlined,
-              color: AppColors.textMuted,
-              size: 40,
-            ),
+          Stack(
+            alignment: Alignment.bottomRight,
+            children: [
+              Image.asset(
+                'assets/images/fleet_bus_add.png',
+              ),
+              Positioned(
+                right: 50,
+                bottom: 8,
+                child: Container(
+                  width: 28,
+                  height: 28,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: AppColors.primaryGradient,
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.add,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 20),
           const Text(
             'No Vehicles Added Yet',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 16,
+              fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -365,3 +531,4 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
     );
   }
 }
+

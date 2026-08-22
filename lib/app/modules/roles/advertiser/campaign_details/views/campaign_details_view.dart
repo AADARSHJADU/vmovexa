@@ -77,6 +77,10 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                       ),
                       const SizedBox(height: 18),
 
+                      // QR Tracking Card
+                      _buildQrTrackingCard(),
+                      const SizedBox(height: 18),
+
                       // Timeline
                       _buildCampaignTimelineCard(c),
                       const SizedBox(height: 28),
@@ -85,6 +89,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                       _buildBottomActionsRow(),
                       const SizedBox(height: 16),
                     ],
+
                   );
                 }),
               ),
@@ -131,39 +136,116 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                 children: [
                   const Text('Campaign ID', style: TextStyle(color: AppColors.textMuted, fontSize: 8.5)),
                   const SizedBox(height: 4),
-                  Text(c.id, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                  Row(
+                    children: [
+                      Text(c.id, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                      const SizedBox(width: 4),
+                      GestureDetector(
+                        onTap: () {
+                          Get.snackbar('Copied', 'Campaign ID copied to clipboard');
+                        },
+                        child: const Icon(Icons.copy_rounded, color: Color(0xFF8B5CF6), size: 11),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ],
           ),
           const Divider(color: AppColors.cardBorder, height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildAlertSubCell('Submitted On', '07 Aug 2026, 09:41 AM'),
-              _buildAlertSubCell('Expected Approval', 'Within 24 Hours'),
-              _buildAlertSubCell('Submitted By', 'John Doe\njohn@citymart.com'),
-            ],
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: _buildAlertSubCell(
+                    'Submitted On',
+                    '07 Aug 2026, 09:41 AM',
+                    Icons.access_time_rounded,
+                  ),
+                ),
+
+                const VerticalDivider(
+                  color: Color(0xFF3A3A3A),
+                  thickness: 1,
+                  width: 16,
+                ),
+
+                Expanded(
+                  child: _buildAlertSubCell(
+                    'Expected Approval',
+                    'Within 24 Hours',
+                    Icons.shield_outlined,
+                  ),
+                ),
+
+                const VerticalDivider(
+                  color: Color(0xFF3A3A3A),
+                  thickness: 1,
+                  width: 16,
+                ),
+
+                Expanded(
+                  child: _buildAlertSubCell(
+                    'Submitted By',
+                    'John Doe\njohn@citymart.com',
+                    Icons.person_outline_rounded,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAlertSubCell(String label, String value) {
-    return Column(
+  Widget _buildAlertSubCell(
+      String label,
+      String value,
+      IconData icon,
+      ) {
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 8)),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
-          maxLines: 2,
+        Icon(
+          icon,
+          color: const Color(0xFF8B5CF6),
+          size: 14,
+        ),
+        const SizedBox(width: 6),
+
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 8,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 9,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
+
 
   Widget _buildCampaignInformationCard(dynamic c) {
     return Container(
@@ -481,15 +563,15 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
           const SizedBox(height: 18),
           Row(
             children: [
-              _buildTimelineStep('Submitted', '07 Aug 2026', isChecked: true),
+              _buildTimelineStep('Submitted', '07 Aug 2026\n09:41 AM', isChecked: true, icon: Icons.check_rounded),
               _buildTimelineDivider(true),
-              _buildTimelineStep('Under Review', 'In Progress', isActiveAlert: true),
+              _buildTimelineStep('Under Review', 'In Progress', isActiveAlert: true, icon: Icons.access_time_filled_rounded),
               _buildTimelineDivider(false),
-              _buildTimelineStep('Approved', 'Pending', isPending: true),
+              _buildTimelineStep('Approved', 'Pending', isPending: true, icon: Icons.hourglass_empty_rounded),
               _buildTimelineDivider(false),
-              _buildTimelineStep('Live', 'Pending', isPending: true),
+              _buildTimelineStep('Live', 'Pending', isPending: true, icon: Icons.play_arrow_rounded),
               _buildTimelineDivider(false),
-              _buildTimelineStep('Completed', 'Pending', isPending: true),
+              _buildTimelineStep('Completed', 'Pending', isPending: true, icon: Icons.check_rounded),
             ],
           ),
         ],
@@ -497,41 +579,45 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
     );
   }
 
-  Widget _buildTimelineStep(String title, String sub, {bool isChecked = false, bool isActiveAlert = false, bool isPending = false}) {
+  Widget _buildTimelineStep(String title, String sub, {bool isChecked = false, bool isActiveAlert = false, bool isPending = false, required IconData icon}) {
     Color ringColor = Colors.grey;
     Widget centerNode = Container();
 
     if (isChecked) {
       ringColor = const Color(0xFF10B981);
-      centerNode = const Icon(Icons.check, color: Color(0xFF10B981), size: 8);
+      centerNode = Icon(icon, color: const Color(0xFF10B981), size: 10);
     } else if (isActiveAlert) {
       ringColor = const Color(0xFFF59E0B);
-      centerNode = const Icon(Icons.access_time_filled_rounded, color: Color(0xFFF59E0B), size: 8);
+      centerNode = Icon(icon, color: const Color(0xFFF59E0B), size: 10);
     } else if (isPending) {
       ringColor = AppColors.cardBorder;
-      centerNode = Container();
+      centerNode = Icon(icon, color: AppColors.textMuted, size: 10);
     }
 
     return Expanded(
       child: Column(
         children: [
           Container(
-            width: 18,
-            height: 18,
+            width: 24,
+            height: 24,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
+              color: isChecked
+                  ? const Color(0xFF10B981).withOpacity(0.12)
+                  : (isActiveAlert ? const Color(0xFFF59E0B).withOpacity(0.12) : Colors.transparent),
               border: Border.all(color: ringColor, width: 1.5),
             ),
             child: Center(child: centerNode),
           ),
           const SizedBox(height: 6),
-          Text(title, style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+          Text(title, style: const TextStyle(color: Colors.white, fontSize: 8.5, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
           const SizedBox(height: 2),
           Text(sub, style: TextStyle(color: isActiveAlert ? const Color(0xFFF59E0B) : AppColors.textMuted, fontSize: 7), textAlign: TextAlign.center),
         ],
       ),
     );
   }
+
 
   Widget _buildTimelineDivider(bool isCompleted) {
     return Container(
@@ -543,6 +629,50 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
   }
 
   Widget _buildBottomActionsRow() {
+    final isUnderReview = controller.campaign.value.status == 'PENDING';
+
+    if (isUnderReview) {
+      return Row(
+        children: [
+          // Download Invoice
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: () {
+                Get.snackbar(
+                  'Downloading Invoice',
+                  'Your invoice PDF download has started.',
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: const Color(0xFF8B5CF6),
+                  colorText: Colors.white,
+                );
+              },
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Color(0xFF8B5CF6), width: 1.2),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              icon: const Icon(Icons.file_download_outlined, color: Colors.white, size: 14),
+              label: const Text('Download Invoice', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+            ),
+          ),
+          const SizedBox(width: 14),
+          // Back to Campaigns
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: () => Get.back(),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Color(0xFF8B5CF6), width: 1.2),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 14),
+              label: const Text('Back to Campaigns', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+            ),
+          ),
+        ],
+      );
+    }
+
     return Row(
       children: [
         // Duplicate Campaign
@@ -598,4 +728,190 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
       ],
     );
   }
+
+  Widget _buildQrTrackingCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF10B981).withOpacity(0.3), width: 1.2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: const [
+                  Icon(Icons.qr_code_scanner_rounded, color: Color(0xFF10B981), size: 14),
+                  SizedBox(width: 8),
+                  Text('QR Tracking', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
+                  SizedBox(width: 8),
+                  Text('Enabled', style: TextStyle(color: Color(0xFF10B981), fontSize: 9.5, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              GestureDetector(
+                onTap: () {
+                  Get.snackbar('QR Details', 'Opening QR placement configuration details');
+                },
+                child: Row(
+                  children: const [
+                    Text('View Details', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 9.5, fontWeight: FontWeight.bold)),
+                    SizedBox(width: 2),
+                    Icon(Icons.chevron_right_rounded, color: Color(0xFF8B5CF6), size: 12),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const Divider(color: AppColors.cardBorder, height: 16),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Left: QR Code Preview
+              Container(
+                width: 90,
+                height: 90,
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: CustomPaint(
+                        painter: DummyQrCodePainter(color: Colors.black),
+                      ),
+                    ),
+                    Center(
+                      child: Container(
+                        width: 18,
+                        height: 18,
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            'V',
+                            style: TextStyle(
+                              color: Color(0xFF8B5CF6),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 9,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 14),
+              // Middle: QR details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('QR ID', style: TextStyle(color: AppColors.textMuted, fontSize: 8)),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        const Text('VMX-QR-8F29A7', style: TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                        const SizedBox(width: 4),
+                        GestureDetector(
+                          onTap: () => Get.snackbar('Copied', 'QR ID copied to clipboard'),
+                          child: const Icon(Icons.copy_rounded, color: Color(0xFF8B5CF6), size: 10),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    const Text('Destination URL', style: TextStyle(color: AppColors.textMuted, fontSize: 8)),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        const Expanded(
+                          child: Text(
+                            'https://www.citymart.com/summer-sale',
+                            style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 8.5, fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        GestureDetector(
+                          onTap: () => Get.snackbar('Copied', 'Destination URL copied to clipboard'),
+                          child: const Icon(Icons.copy_rounded, color: Color(0xFF8B5CF6), size: 10),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              // Right: scan details
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Placement', style: TextStyle(color: AppColors.textMuted, fontSize: 8)),
+                  const SizedBox(height: 2),
+                  const Text('Rear Screen', style: TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  const Text('QR Scans', style: TextStyle(color: AppColors.textMuted, fontSize: 8)),
+                  const SizedBox(height: 2),
+                  Obx(() => Text('${controller.qrScans.value}', style: const TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold))),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
+
+class DummyQrCodePainter extends CustomPainter {
+  final Color color;
+  DummyQrCodePainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    double borderSize = size.width / 4;
+
+    void drawFinderPattern(double dx, double dy) {
+      canvas.drawRect(Rect.fromLTWH(dx, dy, borderSize, borderSize), paint);
+      canvas.drawRect(Rect.fromLTWH(dx + 2, dy + 2, borderSize - 4, borderSize - 4), Paint()..color = Colors.white);
+      canvas.drawRect(Rect.fromLTWH(dx + 4, dy + 4, borderSize - 8, borderSize - 8), paint);
+    }
+
+    drawFinderPattern(0, 0);
+    drawFinderPattern(size.width - borderSize, 0);
+    drawFinderPattern(0, size.height - borderSize);
+
+    final randomPixels = [
+      Offset(size.width * 0.5, size.height * 0.1),
+      Offset(size.width * 0.6, size.height * 0.2),
+      Offset(size.width * 0.5, size.height * 0.4),
+      Offset(size.width * 0.4, size.height * 0.5),
+      Offset(size.width * 0.7, size.height * 0.6),
+      Offset(size.width * 0.8, size.height * 0.5),
+      Offset(size.width * 0.5, size.height * 0.8),
+      Offset(size.width * 0.6, size.height * 0.8),
+      Offset(size.width * 0.8, size.height * 0.8),
+    ];
+
+    for (var pos in randomPixels) {
+      canvas.drawRect(Rect.fromCenter(center: pos, width: 4, height: 4), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+

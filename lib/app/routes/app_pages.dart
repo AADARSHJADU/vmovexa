@@ -114,9 +114,16 @@ import '../modules/roles/advertiser/campaign_analytics/views/campaign_analytics_
 import '../modules/roles/advertiser/profile/bindings/advertiser_profile_binding.dart';
 import '../modules/roles/advertiser/profile/views/advertiser_profile_view.dart';
 
+import '../modules/roles/government/dashboard/bindings/government_dashboard_binding.dart';
+import '../modules/roles/government/dashboard/views/government_dashboard_view.dart';
+import '../modules/roles/government/create_campaign/bindings/gov_create_campaign_binding.dart';
+import '../modules/roles/government/create_campaign/views/gov_create_campaign_view.dart';
+import '../modules/roles/government/campaign_details/bindings/gov_campaign_details_binding.dart';
+import '../modules/roles/government/campaign_details/views/gov_campaign_details_view.dart';
+
 class AppPages {
-  // static const INITIAL = Routes.SPLASH;
-  static const INITIAL = Routes.ADVERTISER_DASHBOARD;
+   static const INITIAL = Routes.FLEET_OP_DASHBOARD;
+  //static const INITIAL = Routes.;
 
   static final routes = [
     GetPage(
@@ -344,6 +351,24 @@ class AppPages {
       name: Routes.ADVERTISER_PROFILE,
       page: () => const AdvertiserProfileView(),
       binding: AdvertiserProfileBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.GOVERNMENT_DASHBOARD,
+      page: () => const GovernmentDashboardView(),
+      binding: GovernmentDashboardBinding(),
+      transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: Routes.GOVERNMENT_CREATE_CAMPAIGN,
+      page: () => const GovCreateCampaignView(),
+      binding: GovCreateCampaignBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.GOV_CAMPAIGN_DETAILS,
+      page: () => const GovCampaignDetailsView(),
+      binding: GovCampaignDetailsBinding(),
       transition: Transition.rightToLeft,
     ),
   ];

@@ -80,7 +80,7 @@ class HelpSupportView extends GetView<HelpSupportController> {
 
   Widget _buildHelpBannerCard() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(16),
@@ -89,16 +89,16 @@ class HelpSupportView extends GetView<HelpSupportController> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Left Headphones Graphic
+          // Left Headphones Graphic - beautiful neon purple headphone outline
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFF8B5CF6).withOpacity(0.08),
+              color: const Color(0xFF6366F1).withOpacity(0.08),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.headset_mic_outlined, color: Color(0xFF8B5CF6), size: 36),
+            child: const Icon(Icons.headset_mic_rounded, color: Color(0xFF6366F1), size: 36),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 12),
 
           // Center Text Info
           Expanded(
@@ -107,37 +107,77 @@ class HelpSupportView extends GetView<HelpSupportController> {
               children: [
                 const Text(
                   "We're Here to Help!",
-                  style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 const Text(
                   'Get help, find answers and resolve your issues quickly.',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 10, height: 1.4),
+                  style: TextStyle(color: AppColors.textSecondary, fontSize: 9.5, height: 1.3),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF3B82F6).withOpacity(0.12),
+                    color: const Color(0xFF3B82F6).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: const Color(0xFF3B82F6).withOpacity(0.3),
+                      width: 1,
+                    ),
                   ),
-                  child: const Text(
-                    'Usually replies in a few minutes',
-                    style: TextStyle(color: Color(0xFF3B82F6), fontSize: 9, fontWeight: FontWeight.bold),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 5,
+                        height: 5,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF3B82F6),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          'Usually replies in a few minutes',
+                          style: const TextStyle(
+                            color: Color(0xFF3B82F6),
+                            fontSize: 8.5,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
+          const SizedBox(width: 8),
 
-          // Right Timing details
+          // Right Timing details box
           Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: const [
-              Text('Support Hours', style: TextStyle(color: AppColors.textMuted, fontSize: 9)),
-              SizedBox(height: 4),
-              Text('Mon - Sat', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-              Text('9:00 AM - 7:00 PM', style: TextStyle(color: AppColors.textSecondary, fontSize: 9)),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Support Hours', style: TextStyle(color: AppColors.textMuted, fontSize: 8.5)),
+              const SizedBox(height: 6),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.access_time_filled_rounded, color: Color(0xFF6366F1), size: 12),
+                  const SizedBox(width: 6),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text('Mon - Sat', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
+                      SizedBox(height: 2),
+                      Text('9:00 AM - 7:00 PM', style: TextStyle(color: AppColors.textSecondary, fontSize: 8)),
+                    ],
+                  ),
+                ],
+              ),
             ],
           ),
         ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../../routes/app_routes.dart';
 
 class AddVehicleController extends GetxController {
   final formKey = GlobalKey<FormState>();
@@ -63,6 +64,11 @@ class AddVehicleController extends GetxController {
     }
 
     Get.back();
+    Get.toNamed(Routes.ASSIGN_DRIVER, arguments: {
+      'vehicleName': regNoController.text.trim(),
+      'fleetName': selectedFleet.value,
+      'vehicleType': selectedVehicleType.value,
+    });
     Get.snackbar(
       'Vehicle Added',
       'Vehicle ${regNoController.text.trim()} has been successfully added.',

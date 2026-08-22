@@ -44,9 +44,20 @@ class AddGpsController extends GetxController {
   // Character counter for Notes
   final RxInt notesCharCount = 0.obs;
 
+  late final String vehicleName;
+  late final String fleetName;
+  late final String vehicleType;
+  late final String driverName;
+
   @override
   void onInit() {
     super.onInit();
+    final args = Get.arguments;
+    vehicleName = (args is Map) ? (args['vehicleName'] ?? 'MH12AB1234') : 'MH12AB1234';
+    fleetName = (args is Map) ? (args['fleetName'] ?? 'City Bus Fleet') : 'City Bus Fleet';
+    vehicleType = (args is Map) ? (args['vehicleType'] ?? 'Bus') : 'Bus';
+    driverName = (args is Map) ? (args['driverName'] ?? 'Rajesh Kumar') : 'Rajesh Kumar';
+
     notesController.addListener(() {
       notesCharCount.value = notesController.text.length;
     });

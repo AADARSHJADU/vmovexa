@@ -224,37 +224,125 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
     );
   }
 
-  Widget _buildMetricCard(String label, String value, String subText, IconData icon, Color iconColor, {bool isTrendUp = false}) {
+  Widget _buildMetricCard(
+      String label,
+      String value,
+      String subText,
+      IconData icon,
+      Color iconColor, {
+        bool isTrendUp = false,
+      }) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.cardBorder, width: 1.2),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold)),
-              Icon(icon, color: iconColor, size: 16),
-            ],
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(value, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 2),
-              Text(subText, style: TextStyle(color: isTrendUp ? const Color(0xFF10B981) : AppColors.textSecondary, fontSize: 8)),
-            ],
+          _buildGradientIconRing(icon, iconColor),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  value,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    height: 1.0,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  subText,
+                  style: TextStyle(
+                    color: isTrendUp
+                        ? const Color(0xFF10B981)
+                        : const Color(0xFF60A5FA),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
+
+// Circular ring with gradient border + soft glow + centered icon,
+// matching the pink-to-blue circular outline in the screenshot.
+  Widget _buildGradientIconRing(IconData icon, Color iconColor) {
+    return Container(
+      width: 42,
+      height: 42,
+      padding: const EdgeInsets.all(2), // ring thickness
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFFEC4899),
+            Color(0xFF3B82F6),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: AppColors.cardBg,
+        ),
+        child: Center(
+          child: Icon(
+            icon,
+            color: iconColor,
+            size: 22,
+          ),
+        ),
+      ),
+    );
+  }
+
+// ---------------------------------------------------------------------
+// Example usage with your data:
+//
+// _buildMetricCard(
+//   'Active Campaigns',
+//   '12',
+//   '2 running now',
+//   Icons.campaign_outlined,
+//   const Color(0xFFEC4899),
+//   isTrendUp: false,
+// ),
+// ---------------------------------------------------------------------
 
   Widget _buildBudgetCard() {
     return GestureDetector(
@@ -267,19 +355,13 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           border: Border.all(color: AppColors.cardBorder, width: 1.2),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text('Budget Utilized', style: TextStyle(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold)),
-                Icon(Icons.payment_rounded, color: Color(0xFF8B5CF6), size: 16),
-              ],
-            ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text('Budget Utilized', style: TextStyle(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold)),
                 const Text('₹ 8.75L', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 Row(
@@ -312,6 +394,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
       ),
     );
   }
+
 
   Widget _buildPerformanceChart() {
     return Container(
@@ -473,7 +556,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                   ),
                   const SizedBox(width: 12),
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: AppColors.cardBg,
                       borderRadius: BorderRadius.circular(12),
@@ -546,7 +629,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected ? const Color(0xFF8B5CF6).withOpacity(0.12) : AppColors.cardBg,
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(8),
           border: Border.all(color: isSelected ? const Color(0xFF8B5CF6) : AppColors.cardBorder, width: 1),
         ),
         child: Text(filter, style: TextStyle(color: isSelected ? Colors.white : AppColors.textSecondary, fontSize: 11)),
