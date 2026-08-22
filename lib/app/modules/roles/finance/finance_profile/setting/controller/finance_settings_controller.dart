@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/routes/app_routes.dart';
 
 import '../../model/profile_settings_models.dart';
 
@@ -61,7 +62,7 @@ class FinanceSettingsController extends GetxController {
         icon: Icons.notifications_none_rounded,
         title: 'Notification Preferences',
         subtitle: 'Manage email and in-app notification settings',
-        route: '/notification-settings',
+        route: Routes.FINANCE_NOTIFICATION_SETTINGS,
       ),
       // SettingsMenuItem(
       //   id: 'language',
@@ -110,7 +111,7 @@ class FinanceSettingsController extends GetxController {
         icon: Icons.headset_mic_outlined,
         title: 'Help & Support',
         subtitle: 'Get help and contact support',
-        route: '/help-support',
+        route: Routes.FINANCE_HELP_SUPPORT,
       ),
       SettingsMenuItem(
         id: 'logout',

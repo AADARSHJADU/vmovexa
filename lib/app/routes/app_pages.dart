@@ -20,10 +20,15 @@ import '../modules/roles/driver/routes/bindings/my_route_binding.dart';
 import '../modules/roles/driver/routes/view/my_route_view.dart';
 import '../modules/roles/finance/finance_dashboard/bindings/finance_dashboard_bindings.dart';
 import '../modules/roles/finance/finance_dashboard/view/finance_dashboard_view.dart';
+import '../modules/roles/finance/finance_profile/help-support/bindings/finance_help_support_binding.dart';
+import '../modules/roles/finance/finance_profile/help-support/view/finance_help_support_view.dart';
+import '../modules/roles/finance/finance_profile/notification_preference/bindings/notification_preferences_binding.dart';
+import '../modules/roles/finance/finance_profile/notification_preference/view/notification_preferences_view.dart';
 import '../modules/roles/finance/finance_profile/profile/bindings/finance_profile_binding.dart';
 import '../modules/roles/finance/finance_profile/profile/view/finance_profile_view.dart';
 import '../modules/roles/finance/finance_profile/setting/bindings/finance_settings_binding.dart';
-import '../modules/roles/finance/finance_profile/setting/view/finance_settings_view.dart' show FinanceSettingsView;
+import '../modules/roles/finance/finance_profile/setting/view/finance_settings_view.dart'
+    show FinanceSettingsView;
 import '../modules/roles/finance/invoice/bindings/invoice_binding.dart';
 import '../modules/roles/finance/invoice/generate_invoice/bindings/generate_invoice_binding.dart';
 import '../modules/roles/finance/invoice/generate_invoice/view/generate_invoice_view.dart';
@@ -50,7 +55,8 @@ import '../modules/roles/technician/hardware_configuration/bindings/hardware_con
 import '../modules/roles/technician/hardware_configuration/views/hardware_configuration_view.dart';
 import '../modules/roles/technician/hardware_status/bindings/hardware_status_binding.dart';
 import '../modules/roles/technician/hardware_status/view/hardware_status_view.dart';
-import '../modules/roles/technician/home/bindings/home_binding.dart' hide HomeBinding;
+import '../modules/roles/technician/home/bindings/home_binding.dart'
+    hide HomeBinding;
 import '../modules/roles/technician/home/view/home_view.dart' hide HomeView;
 import '../modules/roles/technician/profile/bindings/profile_binding.dart';
 import '../modules/roles/technician/profile/view/profile_view.dart';
@@ -359,8 +365,8 @@ class AppPages {
       binding: TermsConditionsBinding(),
       transition: Transition.rightToLeft,
     ),
-    //technician flow routes
 
+    //technician flow routes
     GetPage(
       name: Routes.TECHNICIAN_DASHBOARD,
       page: () => const TechnicianDashboardView(),
@@ -374,7 +380,7 @@ class AppPages {
       transition: Transition.rightToLeft,
     ),
     GetPage(
-      name:Routes.REGISTER_DISPLAY_DEVICE,
+      name: Routes.REGISTER_DISPLAY_DEVICE,
       page: () => const RegisterDeviceView(),
       binding: RegisterDeviceBinding(),
       transition: Transition.rightToLeft,
@@ -427,8 +433,8 @@ class AppPages {
       binding: EditProfileBinding(),
       transition: Transition.rightToLeft,
     ),
-    //Driver flow routes
 
+    //Driver flow routes
     GetPage(
       name: Routes.DRIVER_DASHBOARD,
       page: () => const DriverDashboardView(),
@@ -442,7 +448,7 @@ class AppPages {
       transition: Transition.rightToLeft,
     ),
     GetPage(
-      name:Routes.DRIVER_NOTIFICATION,
+      name: Routes.DRIVER_NOTIFICATION,
       page: () => const NotificationsDriverView(),
       binding: NotificationsDriverBinding(),
       transition: Transition.rightToLeft,
@@ -465,14 +471,12 @@ class AppPages {
       binding: DriverDocumentsBinding(),
     ),
     GetPage(
-      name:Routes.DRIVER_HELP_SUPPORT,
+      name: Routes.DRIVER_HELP_SUPPORT,
       page: () => const DriverHelpSupportView(),
       binding: DriverHelpSupportBinding(),
     ),
 
-
     //Finance flow routes
-
     GetPage(
       name: Routes.FINANCE_DASHBOARD,
       page: () => const FinanceDashboardView(),
@@ -492,7 +496,7 @@ class AppPages {
       transition: Transition.rightToLeft,
     ),
     GetPage(
-      name:Routes.GENERATE_INVOICE,
+      name: Routes.GENERATE_INVOICE,
       page: () => const GenerateInvoiceView(),
       binding: GenerateInvoiceBinding(),
     ),
@@ -526,20 +530,30 @@ class AppPages {
       binding: FinanceNotificationsBinding(),
       transition: Transition.rightToLeft,
     ),
-    GetPage(name: Routes.FINANCE_PROFILE,
-        page: () => const FinanceProfileView(),
-        binding: FinanceProfileBinding()),
-    GetPage(name: Routes.FINANCE_SETTINGS,
-        page: () => const FinanceSettingsView(),
-        binding: FinanceSettingsBinding()),
+    GetPage(
+      name: Routes.FINANCE_PROFILE,
+      page: () => const FinanceProfileView(),
+      binding: FinanceProfileBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.FINANCE_SETTINGS,
+      page: () => const FinanceSettingsView(),
+      binding: FinanceSettingsBinding(),
+      transition: Transition.rightToLeft,
+    ),
 
-
+    GetPage(
+      name: Routes.FINANCE_NOTIFICATION_SETTINGS,
+      page: () => const NotificationPreferencesView(),
+      binding: NotificationPreferencesBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.FINANCE_HELP_SUPPORT,
+      page: () => const FinanceHelpSupportView(),
+      binding: FinanceHelpSupportBinding(),
+      transition: Transition.rightToLeft,
+    ),
   ];
 }
-
-
-
-
-
-
-
