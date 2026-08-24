@@ -45,9 +45,18 @@ class AssignDriverController extends GetxController {
 
   final RxList<DriverModel> filteredDrivers = <DriverModel>[].obs;
 
+  late final String vehicleName;
+  late final String fleetName;
+  late final String vehicleType;
+
   @override
   void onInit() {
     super.onInit();
+    final args = Get.arguments;
+    vehicleName = (args is Map) ? (args['vehicleName'] ?? 'MH12AB1234') : 'MH12AB1234';
+    fleetName = (args is Map) ? (args['fleetName'] ?? 'City Bus Fleet') : 'City Bus Fleet';
+    vehicleType = (args is Map) ? (args['vehicleType'] ?? 'Bus') : 'Bus';
+
     filteredDrivers.assignAll(drivers);
     searchController.addListener(() {
       searchPattern.value = searchController.text.trim();
@@ -70,7 +79,11 @@ class AssignDriverController extends GetxController {
   }
 
   void goToAddDriver() async {
-    final newDriverObj = await Get.toNamed(Routes.ADD_DRIVER);
+    final newDriverObj = await Get.toNamed(Routes.ADD_DRIVER, arguments: {
+      'vehicleName': vehicleName,
+      'fleetName': fleetName,
+      'vehicleType': vehicleType,
+    });
     if (newDriverObj != null && newDriverObj is DriverModel) {
       drivers.insert(0, newDriverObj);
       selectedDriver.value = newDriverObj;
@@ -80,6 +93,9 @@ class AssignDriverController extends GetxController {
 
   void skipForNow() {
     Get.toNamed(Routes.ASSIGN_GPS, arguments: {
+      'vehicleName': vehicleName,
+      'fleetName': fleetName,
+      'vehicleType': vehicleType,
       'driverName': 'None Assigned',
     });
   }
@@ -97,6 +113,9 @@ class AssignDriverController extends GetxController {
     }
 
     Get.toNamed(Routes.ASSIGN_GPS, arguments: {
+      'vehicleName': vehicleName,
+      'fleetName': fleetName,
+      'vehicleType': vehicleType,
       'driverName': selectedDriver.value!.name,
     });
   }

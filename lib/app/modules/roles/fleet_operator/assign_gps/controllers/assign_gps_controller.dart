@@ -51,10 +51,17 @@ class AssignGpsController extends GetxController {
 
   final RxList<GpsModel> filteredDevices = <GpsModel>[].obs;
 
+  late final String vehicleName;
+  late final String fleetName;
+  late final String vehicleType;
+
   @override
   void onInit() {
     super.onInit();
     final args = Get.arguments;
+    vehicleName = (args is Map) ? (args['vehicleName'] ?? 'MH12AB1234') : 'MH12AB1234';
+    fleetName = (args is Map) ? (args['fleetName'] ?? 'City Bus Fleet') : 'City Bus Fleet';
+    vehicleType = (args is Map) ? (args['vehicleType'] ?? 'Bus') : 'Bus';
     driverName = (args is Map) ? (args['driverName'] ?? 'Rajesh Kumar') : 'Rajesh Kumar';
 
     filteredDevices.assignAll(gpsDevices);
@@ -79,12 +86,26 @@ class AssignGpsController extends GetxController {
   }
 
   void goToAddGps() async {
-    final newGpsObj = await Get.toNamed(Routes.ADD_GPS);
+    final newGpsObj = await Get.toNamed(Routes.ADD_GPS, arguments: {
+      'vehicleName': vehicleName,
+      'fleetName': fleetName,
+      'vehicleType': vehicleType,
+      'driverName': driverName,
+    });
     if (newGpsObj != null && newGpsObj is GpsModel) {
       gpsDevices.insert(0, newGpsObj);
       selectedGps.value = newGpsObj;
       _filterDevices();
     }
+  }
+
+  void skipForNow() {
+    Get.toNamed(Routes.SETUP_COMPLETE, arguments: {
+      'fleetName': fleetName,
+      'vehicleName': vehicleName,
+      'driverName': driverName,
+      'gpsName': 'None Connected',
+    });
   }
 
   void confirmAssignment() {
@@ -100,8 +121,8 @@ class AssignGpsController extends GetxController {
     }
 
     Get.toNamed(Routes.SETUP_COMPLETE, arguments: {
-      'fleetName': 'City Bus Fleet',
-      'vehicleName': 'MH12AB1234',
+      'fleetName': fleetName,
+      'vehicleName': vehicleName,
       'driverName': driverName,
       'gpsName': selectedGps.value!.id,
     });

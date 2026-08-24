@@ -57,15 +57,29 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
                     const SizedBox(height: 36),
 
                     // Actions
-                    CustomButton(
-                      text: 'Update Password',
-                      onTap: controller.updatePassword,
+                    ElevatedButton.icon(
+                      onPressed: controller.updatePassword,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF3B82F6),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      icon: const Icon(Icons.lock_open_rounded, color: Colors.white, size: 18),
+                      label: const Text('Update Password', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(height: 14),
-                    CustomButton(
-                      text: 'Cancel',
-                      isOutlined: true,
-                      onTap: controller.cancel,
+                    OutlinedButton.icon(
+                      onPressed: controller.cancel,
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Color(0xFF1E293B)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        backgroundColor: Colors.transparent,
+                      ),
+                      icon: const Icon(Icons.cancel_outlined, color: Color(0xFF3B82F6), size: 16),
+                      label: const Text('Cancel', style: TextStyle(color: Color(0xFF3B82F6), fontSize: 13, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(height: 20),
                   ],

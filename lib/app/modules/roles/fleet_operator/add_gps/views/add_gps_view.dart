@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../controllers/add_gps_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
@@ -68,7 +69,10 @@ class AddGpsView extends GetView<AddGpsController> {
                           Expanded(
                             child: CustomTextField(
                               hintText: 'Enter GPS device ID or IMEI',
-                              prefixIcon: Icons.fingerprint_rounded,
+                              prefixAsset: 'assets/icons/fleet_operator_icons/id.png',
+                              prefixWidth: 24,
+                              prefixHeight: 24,
+                              useGradientIcon: true,
                               controller: controller.imeiController,
                             ),
                           ),
@@ -84,10 +88,21 @@ class AddGpsView extends GetView<AddGpsController> {
                                 border: Border.all(color: AppColors.cardBorder, width: 1.2),
                               ),
                               child: Row(
-                                children: const [
-                                  Icon(Icons.qr_code_scanner_rounded, color: Color(0xFF8B5CF6), size: 20),
-                                  SizedBox(width: 8),
-                                  Text(
+                                children: [
+                                  ShaderMask(
+                                    blendMode: BlendMode.srcIn,
+                                    shaderCallback: (bounds) => const LinearGradient(
+                                      colors: [
+                                        Color(0xFF3B82F6),
+                                        Color(0xFF8B5CF6),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ).createShader(bounds),
+                                    child: const Icon(Icons.qr_code_scanner_rounded, color: Colors.white, size: 20),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Text(
                                     'Scan',
                                     style: TextStyle(
                                       color: Colors.white,
@@ -108,6 +123,8 @@ class AddGpsView extends GetView<AddGpsController> {
                       Obx(
                         () => CustomTextField(
                           hintText: 'Select device model',
+                          prefixIcon: Icons.settings_input_composite_outlined,
+                          useGradientIcon: true,
                           isDropdown: true,
                           dropdownValue: controller.selectedModel.value,
                           dropdownItems: controller.models,
@@ -121,6 +138,7 @@ class AddGpsView extends GetView<AddGpsController> {
                       CustomTextField(
                         hintText: 'Enter SIM number',
                         prefixIcon: Icons.sim_card_outlined,
+                        useGradientIcon: true,
                         keyboardType: TextInputType.phone,
                         controller: controller.simNoController,
                       ),
@@ -137,6 +155,8 @@ class AddGpsView extends GetView<AddGpsController> {
                                 Obx(
                                   () => CustomTextField(
                                     hintText: 'Select provider',
+                                    prefixIcon: Icons.cell_tower_outlined,
+                                    useGradientIcon: true,
                                     isDropdown: true,
                                     dropdownValue: controller.selectedProvider.value,
                                     dropdownItems: controller.providers,
@@ -155,6 +175,8 @@ class AddGpsView extends GetView<AddGpsController> {
                                 Obx(
                                   () => CustomTextField(
                                     hintText: 'Select network type',
+                                    prefixIcon: Icons.signal_cellular_alt_rounded,
+                                    useGradientIcon: true,
                                     isDropdown: true,
                                     dropdownValue: controller.selectedNetworkType.value,
                                     dropdownItems: controller.networkTypes,
@@ -178,7 +200,10 @@ class AddGpsView extends GetView<AddGpsController> {
                                 _buildLabel('Battery Capacity (mAh)'),
                                 CustomTextField(
                                   hintText: 'Enter battery capacity',
-                                  prefixIcon: Icons.battery_charging_full_rounded,
+                                  prefixAsset: 'assets/icons/fleet_operator_icons/lightning.png',
+                                  prefixWidth: 22,
+                                  prefixHeight: 22,
+                                  useGradientIcon: true,
                                   keyboardType: TextInputType.number,
                                   controller: controller.batteryController,
                                 ),
@@ -196,7 +221,10 @@ class AddGpsView extends GetView<AddGpsController> {
                                   child: AbsorbPointer(
                                     child: CustomTextField(
                                       hintText: 'Select installation date',
-                                      prefixIcon: Icons.calendar_today_outlined,
+                                      prefixAsset: 'assets/icons/calendar.png',
+                                      prefixWidth: 24,
+                                      prefixHeight: 24,
+                                      useGradientIcon: true,
                                       controller: controller.dateController,
                                     ),
                                   ),
@@ -213,6 +241,7 @@ class AddGpsView extends GetView<AddGpsController> {
                       CustomTextField(
                         hintText: 'Enter device serial number',
                         prefixIcon: Icons.settings_input_composite_outlined,
+                        useGradientIcon: true,
                         controller: controller.serialNoController,
                       ),
                       const SizedBox(height: 28),
@@ -236,6 +265,7 @@ class AddGpsView extends GetView<AddGpsController> {
                                 CustomTextField(
                                   hintText: 'Enter firmware version',
                                   prefixIcon: Icons.code_rounded,
+                                  useGradientIcon: true,
                                   controller: controller.firmwareController,
                                 ),
                               ],
@@ -250,6 +280,7 @@ class AddGpsView extends GetView<AddGpsController> {
                                 CustomTextField(
                                   hintText: 'Enter device name or alias',
                                   prefixIcon: Icons.label_outline_rounded,
+                                  useGradientIcon: true,
                                   controller: controller.aliasController,
                                 ),
                               ],
@@ -274,7 +305,7 @@ class AddGpsView extends GetView<AddGpsController> {
                       ),
                       CustomTextField(
                         hintText: 'Enter any additional notes',
-                        prefixIcon: Icons.note_alt_outlined,
+                        prefixSvg: 'assets/icons/note1.svg',
                         controller: controller.notesController,
                         keyboardType: TextInputType.multiline,
                       ),
@@ -304,6 +335,12 @@ class AddGpsView extends GetView<AddGpsController> {
                       // Actions: Confirm & Cancel
                       CustomButton(
                         text: 'Add GPS Device',
+                        prefixIcon: SvgPicture.asset(
+                          'assets/icons/hotspot.svg',
+                          width: 18,
+                          height: 18,
+                          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                        ),
                         onTap: controller.addGpsDevice,
                       ),
                       const SizedBox(height: 14),
@@ -366,31 +403,76 @@ class AddGpsView extends GetView<AddGpsController> {
               color: const Color(0xFF6366F1).withOpacity(0.08),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.location_on_outlined, color: Color(0xFF6366F1), size: 24),
+            child: Image.asset(
+                'assets/icons/fleet_operator_icons/gps_device.png',
+              height: 28,
+              width: 28,
+            ),
+            /*_buildGradientIcon(
+              Icons.location_on_outlined,
+              svgAsset: 'assets/icons/location.svg',
+              size: 24,
+            ),*/
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
+              children: [
+                const Text(
                   'Assigning to Vehicle',
                   style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  'MH12AB1234',
-                  style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                  controller.vehicleName,
+                  style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  'Fleet: City Bus Fleet  •  Type: Bus\nDriver: Rajesh Kumar',
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 11, height: 1.4),
+                  'Fleet: ${controller.fleetName}  •  Type: ${controller.vehicleType}\nDriver: ${controller.driverName}',
+                  style: const TextStyle(color: AppColors.textMuted, fontSize: 11, height: 1.4),
                 ),
               ],
             ),
           ),
+          /*_buildGradientIcon(
+            Icons.directions_bus_rounded,
+            svgAsset: 'assets/icons/bus.svg',
+            size: 22,
+          ),*/
         ],
+      ),
+    );
+  }
+
+  Widget _buildGradientIcon(
+    IconData icon, {
+    double size = 20,
+    String? svgAsset,
+  }) {
+    if (svgAsset != null && svgAsset.isNotEmpty) {
+      return SvgPicture.asset(
+        svgAsset,
+        width: size,
+        height: size,
+      );
+    }
+
+    return ShaderMask(
+      blendMode: BlendMode.srcIn,
+      shaderCallback: (bounds) => const LinearGradient(
+        colors: [
+          Color(0xFF3B82F6),
+          Color(0xFF8B5CF6),
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ).createShader(bounds),
+      child: Icon(
+        icon,
+        size: size,
+        color: Colors.white,
       ),
     );
   }

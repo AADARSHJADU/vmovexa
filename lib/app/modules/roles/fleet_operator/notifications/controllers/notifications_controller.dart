@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../auth/login/controllers/login_controller.dart';
+
 class AppNotification {
   final String id;
   final String title;
   final String body;
   final String time;
-  final String type; // 'Alerts', 'Maintenance', 'Trips', 'System', 'Updates'
+  final String type; // 'Alerts', 'Maintenance', 'Trips', 'System', 'Updates' or 'Campaigns', 'Payments'
   final RxBool isUnread;
 
   AppNotification({
@@ -81,9 +83,122 @@ class NotificationsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    if (LoginController.currentRole == 'Advertisement') {
+      notifications.assignAll([
+        AppNotification(
+          id: 'adv_1',
+          title: 'Campaign Approved',
+          body: 'Your campaign "Summer Sale 2026" has been approved and is scheduled to go live.',
+          time: 'Today, 10:30 AM',
+          type: 'Campaigns',
+        ),
+        AppNotification(
+          id: 'adv_2',
+          title: 'Campaign is Live',
+          body: 'Your campaign "Summer Sale 2026" is now live and running on 1,182 screens.',
+          time: 'Today, 09:15 AM',
+          type: 'Campaigns',
+        ),
+        AppNotification(
+          id: 'adv_3',
+          title: 'Payment Successful',
+          body: 'Payment of ₹1,48,750 for campaign CMP-2026-000124 was successful.',
+          time: 'Yesterday, 11:22 AM',
+          type: 'Payments',
+          isUnread: false,
+        ),
+        AppNotification(
+          id: 'adv_4',
+          title: 'Invoice Generated',
+          body: 'Invoice INV-2026-000124 has been generated for your payment.',
+          time: 'Yesterday, 11:23 AM',
+          type: 'Payments',
+          isUnread: false,
+        ),
+        AppNotification(
+          id: 'adv_5',
+          title: 'Budget Alert',
+          body: '80% of your campaign budget has been utilized.',
+          time: 'This Week, 02:45 PM',
+          type: 'System',
+        ),
+        AppNotification(
+          id: 'adv_6',
+          title: 'Weekly Report Ready',
+          body: 'Your weekly performance report is ready to download.',
+          time: 'This Week, 09:00 AM',
+          type: 'System',
+        ),
+        AppNotification(
+          id: 'adv_7',
+          title: 'Campaign Completed',
+          body: 'Your campaign "Spring Collection" has been completed successfully.',
+          time: 'Earlier, 06:30 PM',
+          type: 'Campaigns',
+          isUnread: false,
+        ),
+      ]);
+    } else if (LoginController.currentRole == 'Government') {
+      notifications.assignAll([
+        AppNotification(
+          id: 'gov_1',
+          title: 'High Alert: Low Reach Detected',
+          body: 'Campaign "Road Safety Awareness" reach dropped by 32% in Bhopal.',
+          time: 'Today, 2 mins ago',
+          type: 'Alerts',
+        ),
+        AppNotification(
+          id: 'gov_2',
+          title: 'Campaign Performance Improved',
+          body: '"Monsoon Preparedness" campaign reach increased by 18% compared to yesterday.',
+          time: 'Today, 15 mins ago',
+          type: 'Updates',
+        ),
+        AppNotification(
+          id: 'gov_3',
+          title: 'Weekly Report Ready',
+          body: 'Your weekly performance report (12 May - 18 May 2025) is ready to download.',
+          time: 'Today, 1 hour ago',
+          type: 'Reports',
+        ),
+        AppNotification(
+          id: 'gov_4',
+          title: 'New Campaign Approved',
+          body: '"Clean City Initiative" campaign has been approved and is now live.',
+          time: 'Today, 3 hours ago',
+          type: 'Alerts',
+          isUnread: false,
+        ),
+        AppNotification(
+          id: 'gov_5',
+          title: 'Campaign Scheduled',
+          body: '"Dengue Prevention Drive" is scheduled to go live on 22 May 2025.',
+          time: 'Today, 5 hours ago',
+          type: 'Updates',
+          isUnread: false,
+        ),
+        AppNotification(
+          id: 'gov_6',
+          title: 'System Maintenance',
+          body: 'System maintenance is scheduled on 25 May 2025, 12:00 AM - 2:00 AM.',
+          time: 'Yesterday, 12:00 AM',
+          type: 'System',
+          isUnread: false,
+        ),
+        AppNotification(
+          id: 'gov_7',
+          title: 'New User Added',
+          body: 'A new user (City Analyst) has been added to your organization.',
+          time: 'Earlier, 2 days ago',
+          type: 'System',
+          isUnread: false,
+        ),
+      ]);
+    }
     filteredNotifications.assignAll(notifications);
     ever(activeFilter, (_) => _filterNotifications());
   }
+
 
   void _filterNotifications() {
     String filter = activeFilter.value;

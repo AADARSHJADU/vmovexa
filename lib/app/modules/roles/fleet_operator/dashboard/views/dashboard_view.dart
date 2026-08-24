@@ -132,7 +132,7 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                         color: AppColors.socialBtnBg,
                         border: Border.all(color: AppColors.socialBtnBorder, width: 1.2),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.person_outline_rounded,
                         color: Colors.white,
                         size: 20,
@@ -191,7 +191,7 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                         'Fleets',
                         'Active',
                         svgPath: 'assets/icons/truck.svg',
-                        iconColor: const Color(0xFF3B82F6),
+                        //iconColor: const Color(0xFF3B82F6),
                       ),
 
                       _buildStatCard(
@@ -381,10 +381,10 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
               svgPath,
               width: 22,
               height: 22,
-              colorFilter: ColorFilter.mode(
+              /*colorFilter: ColorFilter.mode(
                 iconColor,
                 BlendMode.srcIn,
-              ),
+              ),*/
             )
           else if (icon != null)
             Icon(
@@ -493,10 +493,10 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                 svgPath,
                 width: 22,
                 height: 22,
-                colorFilter: ColorFilter.mode(
+                /*colorFilter: ColorFilter.mode(
                   iconColor,
                   BlendMode.srcIn,
-                ),
+                ),*/
               )
             else if (icon != null)
               Icon(
@@ -521,7 +521,7 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 9,
                   ),

@@ -143,6 +143,7 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
   Widget _buildBusBannerCard() {
     return Container(
       height: 150,
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(16),
@@ -150,31 +151,47 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
       ),
       child: Stack(
         children: [
-          // Graphic layout of bus profile representation
+          // Full-bleed bus photo on the left half
           Positioned(
-            left: 20,
-            top: 20,
-            bottom: 20,
-            right: 150,
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFF3B82F6).withOpacity(0.08),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.directions_bus_rounded,
-                color: Color(0xFF3B82F6),
-                size: 64,
-              ),
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: 170,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.asset(
+                  'assets/images/bus1.png',
+                  fit: BoxFit.cover,
+                ),
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: 40,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: [
+                          AppColors.cardBg.withOpacity(0.0),
+                          AppColors.cardBg,
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
 
           // Specs detail parameters on right
           Positioned(
             right: 20,
-            top: 25,
-            bottom: 25,
-            left: 170,
+            top: 18,
+            bottom: 18,
+            left: 190,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -182,33 +199,66 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                 Row(
                   children: [
                     Container(
-                      width: 6,
-                      height: 6,
+                      width: 7,
+                      height: 7,
                       decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle),
                     ),
                     const SizedBox(width: 6),
-                    const Text('Active', style: TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.bold)),
+                    const Text('Active', style: TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.w600)),
                   ],
                 ),
                 Text(
                   controller.vehicleName.value,
                   style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   controller.fleetName.value,
-                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                  style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 12, fontWeight: FontWeight.w600),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 Row(
                   children: [
-                    const Icon(Icons.directions_bus_outlined, color: AppColors.textMuted, size: 14),
+                    const Icon(Icons.directions_bus_outlined, color: AppColors.textMuted, size: 12),
                     const SizedBox(width: 6),
-                    Text(
-                      controller.modelName.value,
-                      style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+                    Flexible(
+                      child: Text(
+                        controller.modelName.value,
+                        style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
               ],
+            ),
+          ),
+
+          // "Live" badge - top right corner
+          Positioned(
+            top: 14,
+            right: 14,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.5), width: 1),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(Icons.wifi_rounded, color: Color(0xFF60A5FA), size: 10),
+                  SizedBox(width: 4),
+                  Text(
+                    'Live',
+                    style: TextStyle(color: Color(0xFF60A5FA), fontSize: 8, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -532,4 +582,3 @@ class MiniMapPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
-

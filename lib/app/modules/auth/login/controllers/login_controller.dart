@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:vmovexa/app/routes/app_routes.dart';
 
 class LoginController extends GetxController {
+  static String currentRole = 'Fleet Operator';
+
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
@@ -14,6 +16,7 @@ class LoginController extends GetxController {
 
   void login() {
     String email = emailController.text.toLowerCase().trim();
+
     String role = 'Fleet Operator';
     
     if (email.contains('advertisement')) {
@@ -28,8 +31,11 @@ class LoginController extends GetxController {
       role = 'Driver';
     }
 
+    currentRole = role;
+
     Get.snackbar(
       'Login Successful',
+
       'Welcome back to VMOVEXA ($role)!',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: const Color(0xFF10B981),
@@ -38,9 +44,14 @@ class LoginController extends GetxController {
     
     if (role == 'Fleet Operator') {
       Get.offAllNamed(Routes.FLEET_OP_DASHBOARD);
+    } else if (role == 'Advertisement') {
+      Get.offAllNamed(Routes.ADVERTISER_DASHBOARD);
+    } else if (role == 'Government') {
+      Get.offAllNamed(Routes.GOVERNMENT_DASHBOARD);
     } else {
       Get.offAllNamed(Routes.ROLE_PLACEHOLDER, arguments: role);
     }
+
   }
 
 
