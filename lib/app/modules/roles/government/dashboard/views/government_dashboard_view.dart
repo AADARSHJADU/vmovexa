@@ -59,44 +59,76 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 12,
+      ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.menu_rounded, color: Colors.white, size: 24),
-              const SizedBox(width: 14),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          Expanded(
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.menu_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        subtitle,
+                        style: const TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 10,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
-                  ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
-          if (showActions)
+
+          if (showActions) ...[
+            const SizedBox(width: 8),
+
             Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 GestureDetector(
                   onTap: () => Get.toNamed(Routes.NOTIFICATIONS_LIST),
                   child: Stack(
                     children: [
-                      const Icon(Icons.notifications_outlined, color: Colors.white, size: 22),
+                      const Icon(
+                        Icons.notifications_outlined,
+                        color: Colors.white,
+                        size: 22,
+                      ),
                       Positioned(
                         top: 1,
                         right: 1,
                         child: Container(
                           width: 7,
                           height: 7,
-                          decoration: const BoxDecoration(color: Color(0xFFEF4444), shape: BoxShape.circle),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFEF4444),
+                            shape: BoxShape.circle,
+                          ),
                         ),
                       ),
                     ],
@@ -108,12 +140,20 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                   decoration: BoxDecoration(
                     color: const Color(0xFF3B82F6).withOpacity(0.12),
                     shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.3), width: 1.2),
+                    border: Border.all(
+                      color: const Color(0xFF3B82F6).withOpacity(0.3),
+                      width: 1.2,
+                    ),
                   ),
-                  child: const Icon(Icons.gavel_rounded, color: Color(0xFF3B82F6), size: 16), // Dome/gavel Gov Icon
+                  child: const Icon(
+                    Icons.gavel_rounded,
+                    color: Color(0xFF3B82F6),
+                    size: 16,
+                  ),
                 ),
               ],
             ),
+          ],
         ],
       ),
     );
@@ -404,11 +444,13 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
       child: Column(
         children: [
           // Filter Tabs row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildCampaignTabHeader('+ Create Campaign', controller.createNewCampaign),
-            ],
+          // Filter Tabs row
+          SizedBox(
+            width: double.infinity,
+            child: _buildCampaignTabHeader(
+              'Create Campaign',
+              controller.createNewCampaign,
+            ),
           ),
           const SizedBox(height: 14),
 
@@ -1427,31 +1469,92 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
 
   Widget _buildAnalyticsGridCell(String title, String val, String percentage, Color color, IconData icon) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 4,
+      ),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        border: Border.all(
+          color: AppColors.cardBorder,
+          width: 1.2,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(color: color.withOpacity(0.08), shape: BoxShape.circle),
-            child: Icon(icon, color: color, size: 12),
+            padding: const EdgeInsets.all(3),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.08),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: color,
+              size: 11,
+            ),
           ),
-          const SizedBox(height: 8),
-          Text(title, style: const TextStyle(color: AppColors.textMuted, fontSize: 7.5), maxLines: 1, overflow: TextOverflow.ellipsis),
-          const SizedBox(height: 2),
-          Text(val, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 2),
+
+          const SizedBox(height: 3),
+
+          Text(
+            title,
+            style: const TextStyle(
+              color: AppColors.textMuted,
+              fontSize: 7,
+              height: 1,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+
+          const SizedBox(height: 1),
+
+          Text(
+            val,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              height: 1,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+
+          const SizedBox(height: 1),
+
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(percentage, style: TextStyle(color: color, fontSize: 7.5, fontWeight: FontWeight.bold)),
+              Text(
+                percentage,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 7,
+                  fontWeight: FontWeight.bold,
+                  height: 1,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
               const SizedBox(width: 2),
-              const Text('vs last 7d', style: TextStyle(color: AppColors.textMuted, fontSize: 6.5)),
+              Flexible(
+                child: Text(
+                  'vs last 7d',
+                  style: const TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 6,
+                    height: 1,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ],
           ),
         ],

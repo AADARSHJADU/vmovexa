@@ -127,18 +127,44 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        const Icon(Icons.calendar_month_outlined, color: AppColors.textMuted, size: 10),
-                        const SizedBox(width: 4),
-                        Text(
-                          c.dates,
-                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 9.5),
+                        const Icon(
+                          Icons.calendar_month_outlined,
+                          color: AppColors.textMuted,
+                          size: 10,
                         ),
-                        const SizedBox(width: 12),
-                        const Icon(Icons.location_on_outlined, color: AppColors.textMuted, size: 10),
                         const SizedBox(width: 4),
-                        Text(
-                          c.locations,
-                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 9.5),
+
+                        Expanded(
+                          child: Text(
+                            c.dates,
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 9.5,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+
+                        const SizedBox(width: 8),
+
+                        const Icon(
+                          Icons.location_on_outlined,
+                          color: AppColors.textMuted,
+                          size: 10,
+                        ),
+                        const SizedBox(width: 4),
+
+                        Expanded(
+                          child: Text(
+                            c.locations,
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 9.5,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ],
                     ),
