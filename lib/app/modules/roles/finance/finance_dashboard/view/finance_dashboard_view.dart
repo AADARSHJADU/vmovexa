@@ -28,11 +28,9 @@ class FinanceDashboardView extends GetView<FinanceDashboardController> {
             case 2:
               return  InvoiceView();
             case 3:
-              return RolePlaceholderView();
-              // return FinancialReconciliationView();
+              return FinancialReconciliationView();
             case 4:
-              // return FinanceSettingsView();
-              return RolePlaceholderView();
+              return FinanceSettingsView();
             default:
               return RolePlaceholderView();
           }
