@@ -4,6 +4,8 @@ import '../controllers/notification_settings_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
 import '../../../../../widgets/custom_button.dart';
 import '../../../../../theme/app_colors.dart';
+import '../../../../auth/login/controllers/login_controller.dart';
+
 
 class NotificationSettingsView extends GetView<NotificationSettingsController> {
   const NotificationSettingsView({super.key});
@@ -73,9 +75,16 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
                     const SizedBox(height: 36),
 
                     // Save Button
-                    CustomButton(
-                      text: 'Save Preferences',
-                      onTap: controller.savePreferences,
+                    ElevatedButton.icon(
+                      onPressed: controller.savePreferences,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF3B82F6),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      icon: const Icon(Icons.save_rounded, color: Colors.white, size: 18),
+                      label: const Text('Save Preferences', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(height: 20),
                   ],
@@ -139,6 +148,54 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
   }
 
   Widget _buildAlertPreferencesCard() {
+    final isAdvertiser = LoginController.currentRole == 'Advertisement';
+
+    if (isAdvertiser) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        ),
+        child: Column(
+          children: [
+            _buildSwitchRow(
+              'Campaign Updates',
+              'Approval status, campaign publication and live state alerts',
+              controller.vehicleAlerts,
+              Icons.campaign_outlined,
+              const Color(0xFF3B82F6),
+            ),
+            const Divider(color: AppColors.cardBorder, height: 24),
+            _buildSwitchRow(
+              'Payment Notifications',
+              'Budget warnings, invoice receipts, and transaction status alerts',
+              controller.tripUpdates,
+              Icons.account_balance_wallet_outlined,
+              const Color(0xFF8B5CF6),
+            ),
+            const Divider(color: AppColors.cardBorder, height: 24),
+            _buildSwitchRow(
+              'System Updates',
+              'New feature announcements, reports readiness alerts, and performance metrics updates',
+              controller.maintenanceReminders,
+              Icons.notifications_none_rounded,
+              const Color(0xFF10B981),
+            ),
+            const Divider(color: AppColors.cardBorder, height: 24),
+            _buildSwitchRow(
+              'Security Alerts',
+              'Unauthorized access, password changes, and login attempts',
+              controller.securityAlerts,
+              Icons.verified_user_outlined,
+              Colors.redAccent,
+            ),
+          ],
+        ),
+      );
+    }
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -191,6 +248,7 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
       ),
     );
   }
+
 
   Widget _buildSwitchRow(
     String title,

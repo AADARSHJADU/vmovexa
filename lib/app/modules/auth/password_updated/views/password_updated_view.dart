@@ -65,7 +65,7 @@ class PasswordUpdatedView extends StatelessWidget {
                           ],
                         ),
                         child: const Center(
-                          child: Icon(Icons.check_rounded, color: Colors.white, size: 64),
+                          child: Icon(Icons.check_rounded, color: Color(0xFF6366F1), size: 64),
                         ),
                       ),
                     ),
@@ -98,12 +98,19 @@ class PasswordUpdatedView extends StatelessWidget {
                     const SizedBox(height: 48),
 
                     // Redirect Button
-                    CustomButton(
-                      text: 'Back to Profile',
-                      onTap: () {
+                    ElevatedButton.icon(
+                      onPressed: () {
                         // Return to Dashboard and navigate to Profile tab index (4)
                         Get.offAllNamed(Routes.FLEET_OP_DASHBOARD, arguments: {'tab': 4});
                       },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF3B82F6),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 16),
+                      label: const Text('Back to Profile', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),

@@ -16,10 +16,10 @@ class RegisterController extends GetxController {
   final List<String> operatorTypes = [
     'Fleet Operator',
     'Advertisement',
-    'Government',
+    /*'Government',
     'Finance',
-    'Technical',
-    'Driver',
+    'Technician',
+    'Driver',*/
   ];
 
 

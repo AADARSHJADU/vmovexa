@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../auth/login/controllers/login_controller.dart';
+
 
 class SupportTicket {
   final String id;
@@ -78,10 +80,43 @@ class SupportHistoryController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    if (LoginController.currentRole == 'Advertisement') {
+      allTickets.clear();
+      allTickets.addAll([
+        SupportTicket(
+          id: 'CMP-2026-000124',
+          title: 'Campaign not displaying on screens',
+          subtitle: 'Campaign ID: CMP-2026-000124',
+          date: '08 May 2026 • 11:30 AM',
+          status: 'Open',
+          icon: Icons.campaign_outlined,
+          iconColor: const Color(0xFF8B5CF6),
+        ),
+        SupportTicket(
+          id: 'CMP-2026-000089',
+          title: 'Invoice download issue',
+          subtitle: 'Campaign ID: CMP-2026-000089',
+          date: '06 May 2026 • 04:20 PM',
+          status: 'Resolved',
+          icon: Icons.description_outlined,
+          iconColor: const Color(0xFF3B82F6),
+        ),
+        SupportTicket(
+          id: 'CMP-2026-000067',
+          title: 'Payment failed but amount deducted',
+          subtitle: 'Campaign ID: CMP-2026-000067',
+          date: '03 May 2026 • 09:15 AM',
+          status: 'Closed',
+          icon: Icons.payment_outlined,
+          iconColor: Colors.orangeAccent,
+        ),
+      ]);
+    }
     filteredTickets.assignAll(allTickets);
     ever(activeFilter, (_) => _filterTickets());
     searchController.addListener(_filterTickets);
   }
+
 
   void _filterTickets() {
     String query = searchController.text.toLowerCase();

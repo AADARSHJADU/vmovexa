@@ -50,6 +50,7 @@ flutter:
   assets:
     - assets/app_logo/
     - assets/icons/
+    - assets/icons/fleet_operator_icons/
     - assets/images/
 
 

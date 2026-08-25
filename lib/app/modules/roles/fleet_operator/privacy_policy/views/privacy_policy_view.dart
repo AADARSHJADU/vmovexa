@@ -128,50 +128,58 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
       {
         'title': '1. Information We Collect',
         'subtitle': 'We collect information that you provide directly to us and information collected automatically when you use our services.',
+        'details': 'This includes account details (name, email, phone), device data (IP address, OS version), app telemetry logs, and location data of tracked vehicles if you run active transit tracking modules.',
         'icon': Icons.person_outline_rounded,
-        'color': const Color(0xFF3B82F6),
+        'color': const Color(0xFF6366F1),
       },
       {
         'title': '2. How We Use Your Information',
         'subtitle': 'We use the information we collect to provide, maintain and improve our services.',
+        'details': 'We use this data to authorize user access, calibrate transit route metrics, calculate advertiser campaign reach statistics, generate performance charts, and send notification updates.',
         'icon': Icons.settings_outlined,
-        'color': const Color(0xFF8B5CF6),
+        'color': const Color(0xFF6366F1),
       },
       {
         'title': '3. Information Sharing & Disclosure',
         'subtitle': 'We do not sell your personal information. We may share your information in limited circumstances.',
+        'details': 'Data is shared with verified transit authorities (e.g., Government Portal monitoring teams) and partner fleet operators according to service schedules. All transitions are fully encrypted.',
         'icon': Icons.people_outline_rounded,
-        'color': Colors.orangeAccent,
+        'color': const Color(0xFF6366F1),
       },
       {
         'title': '4. Data Security',
         'subtitle': 'We use appropriate technical and organizational measures to protect your data.',
+        'details': 'We implement standard AES-256 database encryption, strict TLS 1.3 transit encryption, automatic security logs, and role-based permissions to guarantee privacy safety.',
         'icon': Icons.verified_user_outlined,
-        'color': const Color(0xFF10B981),
+        'color': const Color(0xFF6366F1),
       },
       {
         'title': '5. Your Choices',
         'subtitle': 'You can update, review or delete your personal information anytime from your account settings.',
+        'details': 'You can configure notifications, change passwords, and request full account details removal by reaching out directly to support teams or using profile dashboards.',
         'icon': Icons.tune_rounded,
-        'color': Colors.redAccent,
+        'color': const Color(0xFF6366F1),
       },
       {
         'title': '6. Data Retention',
         'subtitle': 'We retain your information only for as long as necessary for the purposes stated in this policy.',
+        'details': 'Inactive telemetry data is archived after 12 months, and active campaign records are retained for financial audit standards up to 7 years.',
         'icon': Icons.access_time_rounded,
-        'color': Colors.teal,
+        'color': const Color(0xFF6366F1),
       },
       {
         'title': '7. Children\'s Privacy',
         'subtitle': 'Our services are not intended for children under the age of 13.',
+        'details': 'We do not intentionally gather children\'s records. If any mismatch is discovered, it is immediately deleted from central servers.',
         'icon': Icons.face_unlock_outlined,
-        'color': Colors.purpleAccent,
+        'color': const Color(0xFF6366F1),
       },
       {
         'title': '8. Changes to This Policy',
         'subtitle': 'We may update this Privacy Policy from time to time. We will notify you of any significant changes.',
+        'details': 'Updates are announced via banner alerts or email pushes. Please review revision dates regularly to stay updated.',
         'icon': Icons.description_outlined,
-        'color': Colors.pinkAccent,
+        'color': const Color(0xFF6366F1),
       },
     ];
 
@@ -199,15 +207,34 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                       color: Colors.transparent,
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(item['icon'], color: item['color'], size: 16),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF6366F1).withOpacity(0.08),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(item['icon'] as IconData, color: const Color(0xFF6366F1), size: 16),
+                          ),
                           const SizedBox(width: 14),
                           Expanded(
-                            child: Text(
-                              item['title'],
-                              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item['title'] as String,
+                                  style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  item['subtitle'] as String,
+                                  style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5, height: 1.3),
+                                ),
+                              ],
                             ),
                           ),
+                          const SizedBox(width: 10),
                           Icon(
                             isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
                             color: AppColors.textMuted,
@@ -219,11 +246,11 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
                   ),
                   if (isExpanded)
                     Container(
-                      padding: const EdgeInsets.only(left: 46, right: 16, bottom: 14),
+                      padding: const EdgeInsets.only(left: 48, right: 16, bottom: 14),
                       alignment: Alignment.topLeft,
                       child: Text(
-                        item['subtitle'],
-                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 11, height: 1.4),
+                        item['details'] as String,
+                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 10, height: 1.4),
                       ),
                     ),
                 ],
@@ -250,30 +277,38 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFF8B5CF6).withOpacity(0.08),
+                color: const Color(0xFF6366F1).withOpacity(0.08),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.mail_outline_rounded, color: Color(0xFF8B5CF6), size: 20),
+              child: const Icon(Icons.mail_outline_rounded, color: Color(0xFF6366F1), size: 20),
             ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
+                children: [
+                  const Text(
                     'Questions?',
                     style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 4),
-                  Text(
-                    'If you have any questions about this Privacy Policy, please contact us at support@vmovexa.com',
-                    style: TextStyle(color: AppColors.textSecondary, fontSize: 10, height: 1.4),
+                  const SizedBox(height: 4),
+                  RichText(
+                    text: const TextSpan(
+                      text: 'If you have any questions about this Privacy Policy, please contact us at ',
+                      style: TextStyle(color: AppColors.textSecondary, fontSize: 9.5, height: 1.3),
+                      children: [
+                        TextSpan(
+                          text: 'support@vmovexa.com',
+                          style: TextStyle(color: Color(0xFF3B82F6), fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(width: 10),
-            const Icon(Icons.arrow_forward_rounded, color: Color(0xFF8B5CF6), size: 18),
+            const Icon(Icons.chevron_right_rounded, color: Color(0xFF6366F1), size: 20),
           ],
         ),
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import '../controllers/add_driver_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
@@ -70,7 +71,9 @@ class AddDriverView extends GetView<AddDriverController> {
                                 _buildLabel('Full Name *'),
                                 CustomTextField(
                                   hintText: 'Enter full name',
-                                  prefixIcon: Icons.person_outline_rounded,
+                                  prefixSvg: 'assets/icons/profile.svg',
+                                  prefixHeight: 18,
+                                  prefixWidth: 18,
                                   controller: controller.nameController,
                                 ),
                               ],
@@ -84,7 +87,11 @@ class AddDriverView extends GetView<AddDriverController> {
                                 _buildLabel('Employee ID *'),
                                 CustomTextField(
                                   hintText: 'Enter employee ID',
-                                  prefixIcon: Icons.badge_outlined,
+                                  //prefixIcon: Icons.badge_outlined,
+                                  prefixAsset: 'assets/icons/fleet_operator_icons/id.png',
+                                  prefixWidth: 24,
+                                  prefixHeight: 24,
+                                  useGradientIcon: true,
                                   controller: controller.empIdController,
                                 ),
                               ],
@@ -98,7 +105,11 @@ class AddDriverView extends GetView<AddDriverController> {
                       _buildLabel('Phone Number *'),
                       CustomTextField(
                         hintText: 'Enter phone number',
-                        prefixIcon: Icons.phone_outlined,
+                        //prefixIcon: Icons.phone_outlined,
+                        prefixAsset: 'assets/icons/phone.png',
+                        prefixWidth: 26,
+                        prefixHeight: 26,
+                        useGradientIcon: true,
                         keyboardType: TextInputType.phone,
                         controller: controller.phoneController,
                       ),
@@ -108,7 +119,11 @@ class AddDriverView extends GetView<AddDriverController> {
                       _buildLabel('Email Address (Optional)'),
                       CustomTextField(
                         hintText: 'Enter email address',
-                        prefixIcon: Icons.mail_outline_rounded,
+                        //prefixIcon: Icons.mail_outline_rounded,
+                        prefixSvg: 'assets/icons/gmail.svg',
+                        prefixWidth: 16,
+                        prefixHeight: 16,
+                        useGradientIcon: true,
                         keyboardType: TextInputType.emailAddress,
                         controller: controller.emailController,
                       ),
@@ -127,7 +142,11 @@ class AddDriverView extends GetView<AddDriverController> {
                                   child: AbsorbPointer(
                                     child: CustomTextField(
                                       hintText: 'Select date of birth',
-                                      prefixIcon: Icons.calendar_today_outlined,
+                                      //prefixIcon: Icons.calendar_today_outlined,
+                                      prefixAsset: 'assets/icons/calendar.png',
+                                      prefixWidth: 24,
+                                      prefixHeight: 24,
+                                      useGradientIcon: true,
                                       controller: controller.dobController,
                                     ),
                                   ),
@@ -144,6 +163,11 @@ class AddDriverView extends GetView<AddDriverController> {
                                 Obx(
                                   () => CustomTextField(
                                     hintText: 'Select gender',
+                                    //refixIcon: Icons.person_outline_rounded,
+                                    prefixSvg: 'assets/icons/profile.svg',
+                                    prefixHeight: 18,
+                                    prefixWidth: 18,
+                                    useGradientIcon: true,
                                     isDropdown: true,
                                     dropdownValue: controller.selectedGender.value,
                                     dropdownItems: controller.genders,
@@ -161,7 +185,7 @@ class AddDriverView extends GetView<AddDriverController> {
                       _buildLabel('Address (Optional)'),
                       CustomTextField(
                         hintText: 'Enter complete address',
-                        prefixIcon: Icons.location_on_outlined,
+                        prefixSvg: 'assets/icons/location.svg',
                         controller: controller.addressController,
                       ),
                       const SizedBox(height: 28),
@@ -185,7 +209,8 @@ class AddDriverView extends GetView<AddDriverController> {
                                 _buildLabel('License Number *'),
                                 CustomTextField(
                                   hintText: 'Enter license number',
-                                  prefixIcon: Icons.drive_eta_outlined,
+                                  prefixIcon: Icons.badge_outlined,
+                                  useGradientIcon: true,
                                   controller: controller.licenseNoController,
                                 ),
                               ],
@@ -200,6 +225,8 @@ class AddDriverView extends GetView<AddDriverController> {
                                 Obx(
                                   () => CustomTextField(
                                     hintText: 'Select type',
+                                    prefixIcon: Icons.shield_outlined,
+                                    useGradientIcon: true,
                                     isDropdown: true,
                                     dropdownValue: controller.selectedLicenseType.value,
                                     dropdownItems: controller.licenseTypes,
@@ -227,6 +254,7 @@ class AddDriverView extends GetView<AddDriverController> {
                                     child: CustomTextField(
                                       hintText: 'Select issue date',
                                       prefixIcon: Icons.calendar_today_outlined,
+                                      useGradientIcon: true,
                                       controller: controller.issueDateController,
                                     ),
                                   ),
@@ -246,6 +274,7 @@ class AddDriverView extends GetView<AddDriverController> {
                                     child: CustomTextField(
                                       hintText: 'Select expiry date',
                                       prefixIcon: Icons.calendar_today_outlined,
+                                      useGradientIcon: true,
                                       controller: controller.expiryDateController,
                                     ),
                                   ),
@@ -261,7 +290,7 @@ class AddDriverView extends GetView<AddDriverController> {
                       _buildLabel('Issuing Authority'),
                       CustomTextField(
                         hintText: 'Enter issuing authority',
-                        prefixIcon: Icons.gavel_outlined,
+                        prefixSvg: 'assets/icons/building.svg',
                         controller: controller.authorityController,
                       ),
                       const SizedBox(height: 28),
@@ -286,6 +315,8 @@ class AddDriverView extends GetView<AddDriverController> {
                                 Obx(
                                   () => CustomTextField(
                                     hintText: 'Select blood group',
+                                    prefixIcon: Icons.water_drop_outlined,
+                                    useGradientIcon: true,
                                     isDropdown: true,
                                     dropdownValue: controller.selectedBloodGroup.value,
                                     dropdownItems: controller.bloodGroups,
@@ -303,7 +334,8 @@ class AddDriverView extends GetView<AddDriverController> {
                                 _buildLabel('Emergency Contact'),
                                 CustomTextField(
                                   hintText: 'Enter emergency number',
-                                  prefixIcon: Icons.phone_android_outlined,
+                                  prefixIcon: Icons.phone_outlined,
+                                  useGradientIcon: true,
                                   keyboardType: TextInputType.phone,
                                   controller: controller.emergencyContactController,
                                 ),
@@ -318,7 +350,7 @@ class AddDriverView extends GetView<AddDriverController> {
                       _buildLabel('Notes'),
                       CustomTextField(
                         hintText: 'Enter any additional notes',
-                        prefixIcon: Icons.note_alt_outlined,
+                        prefixSvg: 'assets/icons/note1.svg',
                         controller: controller.notesController,
                       ),
                       const SizedBox(height: 28),
@@ -347,6 +379,7 @@ class AddDriverView extends GetView<AddDriverController> {
                       // Create Driver / Cancel Action Buttons
                       CustomButton(
                         text: 'Add Driver',
+                        prefixIcon: const Icon(Icons.person_add_alt_1_outlined, color: Colors.white, size: 18),
                         onTap: controller.addDriver,
                       ),
                       const SizedBox(height: 14),
@@ -409,32 +442,71 @@ class AddDriverView extends GetView<AddDriverController> {
               color: const Color(0xFF8B5CF6).withOpacity(0.08),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.person_outline_rounded, color: Color(0xFF8B5CF6), size: 24),
+            child: _buildGradientIcon(
+                Icons.person_outline_rounded,
+                svgAsset: 'assets/icons/profile.svg',
+                size: 24
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
+              children: [
+                const Text(
                   'Assigning to Vehicle',
                   style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  'MH12AB1234',
-                  style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                  controller.vehicleName,
+                  style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  'Fleet: City Bus Fleet  •  Type: Bus',
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+                  'Fleet: ${controller.fleetName}  •  Type: ${controller.vehicleType}',
+                  style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                 ),
               ],
             ),
           ),
-          const Icon(Icons.directions_bus_rounded, color: Color(0xFF8B5CF6), size: 22),
+          _buildGradientIcon(
+              Icons.directions_bus_rounded,
+              svgAsset: 'assets/icons/bus.svg',
+              size: 22,
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildGradientIcon(
+      IconData icon, {
+        double size = 20,
+        String? svgAsset,
+      }) {
+    if (svgAsset != null && svgAsset.isNotEmpty) {
+      return SvgPicture.asset(
+        svgAsset,
+        width: size,
+        height: size,
+      );
+    }
+
+    return ShaderMask(
+      blendMode: BlendMode.srcIn,
+      shaderCallback: (bounds) => const LinearGradient(
+        colors: [
+          Color(0xFF3B82F6),
+          Color(0xFF8B5CF6),
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ).createShader(bounds),
+      child: Icon(
+        icon,
+        size: size,
+        color: Colors.white,
       ),
     );
   }

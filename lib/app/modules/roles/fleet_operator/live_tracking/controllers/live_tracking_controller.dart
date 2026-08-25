@@ -15,6 +15,16 @@ class LiveTrackingController extends GetxController {
   final RxString driverName = 'Rajesh Kumar'.obs;
   final RxString driverPhone = '+91 98765 43210'.obs;
 
+  @override
+  void onInit() {
+    super.onInit();
+    final args = Get.arguments;
+    if (args is Map) {
+      if (args['vehicleName'] != null) vehicleName.value = args['vehicleName'];
+      if (args['driverName'] != null) driverName.value = args['driverName'];
+    }
+  }
+
   void callDriver() {
     Get.snackbar(
       'Calling Driver',
