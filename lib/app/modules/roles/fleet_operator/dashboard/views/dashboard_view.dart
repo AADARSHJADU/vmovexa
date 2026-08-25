@@ -48,24 +48,37 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
             unselectedItemColor: AppColors.textMuted,
             selectedFontSize: 11,
             unselectedFontSize: 11,
-            items: const [
-              BottomNavigationBarItem(
+            items: [
+              const BottomNavigationBarItem(
                 icon: Icon(Icons.dashboard_rounded),
                 label: 'Dashboard',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.map_outlined),
+                icon: SvgPicture.asset(
+                  'assets/icons/live_map.svg',
+                  width: 22,
+                  height: 22,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.textMuted,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                activeIcon: SvgPicture.asset(
+                  'assets/icons/live_map.svg',
+                  width: 22,
+                  height: 22,
+                ),
                 label: 'Live Map',
               ),
-              BottomNavigationBarItem(
+              const BottomNavigationBarItem(
                 icon: Icon(Icons.bar_chart_rounded),
                 label: 'Reports',
               ),
-              BottomNavigationBarItem(
+              const BottomNavigationBarItem(
                 icon: Icon(Icons.notifications_none_rounded),
                 label: 'Notifications',
               ),
-              BottomNavigationBarItem(
+              const BottomNavigationBarItem(
                 icon: Icon(Icons.person_outline_rounded),
                 label: 'Profile',
               ),
