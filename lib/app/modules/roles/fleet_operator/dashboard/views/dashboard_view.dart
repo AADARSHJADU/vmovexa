@@ -95,17 +95,22 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                   // Notification Bell with Badge count 5
                   Stack(
                     children: [
-                      IconButton(
+                      /*IconButton(
                         icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 26),
                         onPressed: () {},
+                      ),*/
+                      SvgPicture.asset(
+                          'assets/icons/notification.svg',
+                        width: 24,
+                        height: 24,
                       ),
                       Positioned(
-                        right: 8,
-                        top: 8,
+                        left: 12,
+                        bottom: 10,
                         child: Container(
                           padding: const EdgeInsets.all(4),
                           decoration: const BoxDecoration(
-                            color: Color(0xFFA855F7), // Purple Badge
+                            color: Color(0xFFA855F7),
                             shape: BoxShape.circle,
                           ),
                           child: const Text(
@@ -123,21 +128,8 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                   const SizedBox(width: 8),
                   // Profile Avatar
                   GestureDetector(
-                    onTap: controller.logout,
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.socialBtnBg,
-                        border: Border.all(color: AppColors.socialBtnBorder, width: 1.2),
-                      ),
-                      child: Icon(
-                        Icons.person_outline_rounded,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
+                    //onTap: controller.logout,
+                    child: SvgPicture.asset('assets/icons/profile.svg'),
                   ),
                 ],
               ),

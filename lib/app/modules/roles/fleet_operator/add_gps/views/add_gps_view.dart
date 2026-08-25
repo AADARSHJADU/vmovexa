@@ -69,7 +69,7 @@ class AddGpsView extends GetView<AddGpsController> {
                           Expanded(
                             child: CustomTextField(
                               hintText: 'Enter GPS device ID or IMEI',
-                              prefixAsset: 'assets/icons/fleet_operator_icons/id.png',
+                              prefixSvg: 'assets/icons/lsicon_map.svg',
                               prefixWidth: 24,
                               prefixHeight: 24,
                               useGradientIcon: true,
@@ -99,7 +99,11 @@ class AddGpsView extends GetView<AddGpsController> {
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                     ).createShader(bounds),
-                                    child: const Icon(Icons.qr_code_scanner_rounded, color: Colors.white, size: 20),
+                                    child: SvgPicture.asset(
+                                        'assets/icons/scanner.svg',
+                                      height: 18,
+                                    ),
+                                    //Icon(Icons.qr_code_scanner_rounded, color: Colors.white, size: 20),
                                   ),
                                   const SizedBox(width: 8),
                                   const Text(
@@ -123,7 +127,8 @@ class AddGpsView extends GetView<AddGpsController> {
                       Obx(
                         () => CustomTextField(
                           hintText: 'Select device model',
-                          prefixIcon: Icons.settings_input_composite_outlined,
+                          //prefixIcon: Icons.settings_input_composite_outlined,
+                          prefixSvg: 'assets/icons/solar_cpu.svg',
                           useGradientIcon: true,
                           isDropdown: true,
                           dropdownValue: controller.selectedModel.value,
@@ -137,7 +142,7 @@ class AddGpsView extends GetView<AddGpsController> {
                       _buildLabel('SIM Number *'),
                       CustomTextField(
                         hintText: 'Enter SIM number',
-                        prefixIcon: Icons.sim_card_outlined,
+                        prefixSvg: 'assets/icons/sim.svg',
                         useGradientIcon: true,
                         keyboardType: TextInputType.phone,
                         controller: controller.simNoController,
@@ -155,7 +160,8 @@ class AddGpsView extends GetView<AddGpsController> {
                                 Obx(
                                   () => CustomTextField(
                                     hintText: 'Select provider',
-                                    prefixIcon: Icons.cell_tower_outlined,
+                                    //prefixIcon: Icons.cell_tower_outlined,
+                                    prefixSvg: 'assets/icons/tower.svg',
                                     useGradientIcon: true,
                                     isDropdown: true,
                                     dropdownValue: controller.selectedProvider.value,
@@ -175,7 +181,7 @@ class AddGpsView extends GetView<AddGpsController> {
                                 Obx(
                                   () => CustomTextField(
                                     hintText: 'Select network type',
-                                    prefixIcon: Icons.signal_cellular_alt_rounded,
+                                    prefixSvg: 'assets/icons/signal1.svg',
                                     useGradientIcon: true,
                                     isDropdown: true,
                                     dropdownValue: controller.selectedNetworkType.value,
@@ -200,9 +206,8 @@ class AddGpsView extends GetView<AddGpsController> {
                                 _buildLabel('Battery Capacity (mAh)'),
                                 CustomTextField(
                                   hintText: 'Enter battery capacity',
-                                  prefixAsset: 'assets/icons/fleet_operator_icons/lightning.png',
-                                  prefixWidth: 22,
-                                  prefixHeight: 22,
+                                  //prefixAsset: 'assets/icons/fleet_operator_icons/lightning.png',//assets/icons/current.svg
+                                  prefixSvg: 'assets/icons/current.svg',
                                   useGradientIcon: true,
                                   keyboardType: TextInputType.number,
                                   controller: controller.batteryController,
@@ -221,7 +226,8 @@ class AddGpsView extends GetView<AddGpsController> {
                                   child: AbsorbPointer(
                                     child: CustomTextField(
                                       hintText: 'Select installation date',
-                                      prefixAsset: 'assets/icons/calendar.png',
+                                      //prefixAsset: 'assets/icons/calendar.png',
+                                      prefixSvg: 'assets/icons/calendar.svg',
                                       prefixWidth: 24,
                                       prefixHeight: 24,
                                       useGradientIcon: true,
@@ -240,7 +246,8 @@ class AddGpsView extends GetView<AddGpsController> {
                       _buildLabel('Device Serial Number (Optional)'),
                       CustomTextField(
                         hintText: 'Enter device serial number',
-                        prefixIcon: Icons.settings_input_composite_outlined,
+                        //prefixIcon: Icons.settings_input_composite_outlined,
+                        prefixSvg: 'assets/icons/solar_cpu.svg',
                         useGradientIcon: true,
                         controller: controller.serialNoController,
                       ),
