@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../../dashboard/controllers/dashboard_controller.dart';
 import '../../../../../routes/app_routes.dart';
@@ -30,11 +31,16 @@ class ProfileView extends StatelessWidget {
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.settings_outlined, color: Colors.white, size: 24),
-                  onPressed: () => Get.toNamed(Routes.ACCOUNT_SETTINGS),
-                ),
+                ), 
+                InkWell(
+                    onTap: (){
+                      Get.toNamed(Routes.ACCOUNT_SETTINGS);
+                    },
+                    child: SvgPicture.asset('assets/icons/fleet_operator_icons/profileHeaderSettingA.svg',)),
+                // IconButton(
+                //   icon: const Icon(Icons.settings_outlined, color: Colors.white, size: 24),
+                //   onPressed: () => Get.toNamed(Routes.ACCOUNT_SETTINGS),
+                // ),
               ],
             ),
           ),
@@ -106,7 +112,7 @@ class ProfileView extends StatelessWidget {
                 height: 72,
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color(0xFF3B82F6),
+                  color: Colors.black,
                 ),
                 child: const Center(
                   child: Icon(Icons.person_rounded, color: Colors.white, size: 36),
@@ -116,9 +122,9 @@ class ProfileView extends StatelessWidget {
                 bottom: 0,
                 right: 0,
                 child: Container(
-                  padding: const EdgeInsets.all(4),
+                  padding: const EdgeInsets.all(6),
                   decoration: const BoxDecoration(
-                    color: Color(0xFF3B82F6),
+                    color: Color(0xFF003ed4),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 10),
@@ -132,22 +138,22 @@ class ProfileView extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
+              children: [
+                const Text(
                   'Rohan Mehta',
                   style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 4),
-                Text(
+                const SizedBox(height: 4),
+                const Text(
                   'Fleet Operator',
                   style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
                 ),
-                SizedBox(height: 6),
+                const SizedBox(height: 6),
                 Row(
                   children: [
-                    Icon(Icons.business_rounded, color: Color(0xFF6366F1), size: 14),
-                    SizedBox(width: 6),
-                    Expanded(
+                    SvgPicture.asset('assets/icons/fleet_operator_icons/fleetsManagedA.svg',),
+                    const SizedBox(width: 6),
+                    const Expanded(
                       child: Text(
                         'VMOVEXA Transport Solutions',
                         style: TextStyle(color: AppColors.textMuted, fontSize: 10),
@@ -157,8 +163,8 @@ class ProfileView extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 2),
-                Text(
+                const SizedBox(height: 2),
+                const Text(
                   'Operator ID: OP987654',
                   style: TextStyle(color: AppColors.textMuted, fontSize: 10),
                 ),
