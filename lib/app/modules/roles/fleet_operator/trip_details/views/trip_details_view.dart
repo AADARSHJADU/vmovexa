@@ -177,48 +177,96 @@ class TripDetailsView extends GetView<TripDetailsController> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF8B5CF6).withOpacity(0.12),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: const Text(
                       'Trip Active',
-                      style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 10, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: Color(0xFF8B5CF6),
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
+
                   Row(
                     children: [
-                      Text(
-                        'Trip ID: ${controller.tripId}',
-                        style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                      Flexible(
+                        child: Text(
+                          'Trip ID: ${controller.tripId}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                       const SizedBox(width: 6),
-                      const Icon(Icons.copy_rounded, color: AppColors.textMuted, size: 14),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      const Icon(Icons.directions_bus_rounded, color: Color(0xFF3B82F6), size: 15),
-                      const SizedBox(width: 8),
-                      Text(
-                        controller.vehicleName,
-                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                      const Icon(
+                        Icons.copy_rounded,
+                        color: AppColors.textMuted,
+                        size: 14,
                       ),
                     ],
                   ),
+
                   Row(
                     children: [
-                      const Icon(Icons.person_outline_rounded, color: Color(0xFF10B981), size: 15),
+                      const Icon(
+                        Icons.directions_bus_rounded,
+                        color: Color(0xFF3B82F6),
+                        size: 15,
+                      ),
                       const SizedBox(width: 8),
-                      Text(
-                        controller.driverName,
-                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                      Flexible(
+                        child: Text(
+                          controller.vehicleName,
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.person_outline_rounded,
+                        color: Color(0xFF10B981),
+                        size: 15,
+                      ),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          controller.driverName,
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                       const SizedBox(width: 10),
                       GestureDetector(
                         onTap: controller.callDriver,
-                        child: const Icon(Icons.phone_rounded, color: Color(0xFF10B981), size: 12),
+                        child: const Icon(
+                          Icons.phone_rounded,
+                          color: Color(0xFF10B981),
+                          size: 12,
+                        ),
                       ),
                     ],
                   ),
@@ -429,27 +477,51 @@ class TripDetailsView extends GetView<TripDetailsController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      color: isActive ? const Color(0xFF3B82F6) : Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
+                  Flexible(
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        color: isActive
+                            ? const Color(0xFF3B82F6)
+                            : Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  Text(
-                    time,
-                    style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+
+                  const SizedBox(width: 8),
+
+                  Flexible(
+                    child: Text(
+                      time,
+                      style: const TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 10,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.end,
+                    ),
                   ),
                 ],
               ),
+
               const SizedBox(height: 2),
+
               Text(
                 subtitle,
-                style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 10,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
+
               const SizedBox(height: 12),
             ],
           ),

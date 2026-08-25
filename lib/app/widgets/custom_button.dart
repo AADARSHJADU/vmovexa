@@ -30,7 +30,10 @@ class CustomButton extends StatelessWidget {
         child: OutlinedButton(
           onPressed: onTap,
           style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: AppColors.cardBorder, width: 1.5),
+            side: const BorderSide(
+              color: AppColors.cardBorder,
+              width: 1.5,
+            ),
             backgroundColor: AppColors.inputBg,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
@@ -43,12 +46,17 @@ class CustomButton extends StatelessWidget {
                 prefixIcon!,
                 const SizedBox(width: 8),
               ],
-              Text(
-                text,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+              Flexible(
+                child: Text(
+                  text,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
                 ),
               ),
             ],
