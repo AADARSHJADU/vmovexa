@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../../theme/app_colors.dart';
+import '../../../../../theme/app_theme.dart';
 
 class ReportsView extends StatelessWidget {
   const ReportsView({super.key});
@@ -646,12 +647,7 @@ class ReportsView extends StatelessWidget {
           Container(
             height: 36,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [
-                  Color(0xFF3B82F6),
-                  Color(0xFF8B5CF6),
-                ],
-              ),
+              gradient: AppTheme.primaryGradient,
               borderRadius: BorderRadius.circular(8),
             ),
             child: ElevatedButton.icon(

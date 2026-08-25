@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import '../../../../../theme/app_theme.dart';
 import '../controllers/notification_settings_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
 import '../../../../../widgets/custom_button.dart';
@@ -77,16 +78,24 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
                     const SizedBox(height: 36),
 
                     // Save Button
-                    ElevatedButton.icon(
-                      onPressed: controller.savePreferences,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF3B82F6),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        minimumSize: const Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.primaryGradient,
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      icon: SvgPicture.asset("assets/icons/fleet_operator_icons/saveChangesA.svg",color: CupertinoColors.white,),
-                      label: const Text('Save Preferences', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                      child: ElevatedButton.icon(
+                        onPressed: controller.savePreferences,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          minimumSize: const Size(double.infinity, 50),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        icon: SvgPicture.asset("assets/icons/fleet_operator_icons/saveChangesA.svg",color: CupertinoColors.white,),
+                        label: const Text('Save Preferences', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                      ),
                     ),
                     const SizedBox(height: 20),
                   ],
@@ -131,8 +140,9 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
             () => Switch(
               value: controller.pushNotifications.value,
               onChanged: (val) => controller.pushNotifications.value = val,
-              activeColor: const Color(0xFF6366F1),
-              activeTrackColor: const Color(0xFF6366F1).withOpacity(0.3),
+              activeColor: CupertinoColors.white,
+              activeTrackColor: const Color(0xFF0051f4),
+              // activeTrackColor: const Color(0xFF6366F1).withOpacity(0.3),
               inactiveThumbColor: AppColors.textMuted,
               inactiveTrackColor: AppColors.cardBorder,
             ),

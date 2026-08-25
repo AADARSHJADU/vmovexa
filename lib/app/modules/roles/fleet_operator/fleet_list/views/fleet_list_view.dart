@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import '../../../../../theme/app_theme.dart';
 import '../controllers/fleet_list_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
 import '../../../../../theme/app_colors.dart';
@@ -139,14 +140,7 @@ class FleetListView extends GetView<FleetListController> {
       // Add Fleet Floating Action Button
       floatingActionButton: Container(
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [
-              Color(0xFF4F6EF7),
-              Color(0xFFB645E8),
-            ],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
+          gradient: AppTheme.primaryGradient,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(

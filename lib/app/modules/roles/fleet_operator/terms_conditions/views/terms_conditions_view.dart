@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import '../../../../../theme/app_theme.dart';
 import '../controllers/terms_conditions_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
 import '../../../../../theme/app_colors.dart';
@@ -65,15 +66,23 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
                     const SizedBox(height: 36),
 
                     // I Agree Button
-                    ElevatedButton(
-                      onPressed: controller.agreeTerms,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF174fee),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        minimumSize: const Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.primaryGradient,
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Text('I Agree', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                      child: ElevatedButton(
+                        onPressed: controller.agreeTerms,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          minimumSize: const Size(double.infinity, 50),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        child: const Text('I Agree', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                      ),
                     ),
                     const SizedBox(height: 20),
                   ],

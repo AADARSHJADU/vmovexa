@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import '../../../../../routes/app_routes.dart';
 import '../../live_tracking/views/live_tracking_view.dart';
 import '../../../../../theme/app_colors.dart';
@@ -270,8 +271,8 @@ class LiveMapView extends StatelessWidget {
                   child: Container(
                     height: 40,
                     decoration: BoxDecoration(
-                      gradient: AppColors.primaryGradient,
-                      borderRadius: BorderRadius.circular(10),
+                      gradient: AppTheme.primaryGradient,
+                      borderRadius: BorderRadius.circular(5),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -290,7 +291,7 @@ class LiveMapView extends StatelessWidget {
                   onPressed: () {},
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: AppColors.cardBorder),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                     padding: const EdgeInsets.symmetric(vertical: 10),
                   ),
                   icon: const Icon(Icons.navigation_outlined, color: Colors.white, size: 14),
@@ -303,7 +304,7 @@ class LiveMapView extends StatelessWidget {
                   onPressed: () {},
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: AppColors.cardBorder),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                     padding: const EdgeInsets.symmetric(vertical: 10),
                   ),
                   icon: const Icon(Icons.history_rounded, color: Colors.white, size: 14),

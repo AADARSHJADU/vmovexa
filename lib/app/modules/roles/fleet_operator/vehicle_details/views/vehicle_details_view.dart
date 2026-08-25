@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import '../../../../../theme/app_theme.dart';
 import '../controllers/vehicle_details_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
 import '../../../../../widgets/custom_button.dart';
@@ -386,7 +387,7 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
-                        gradient: AppColors.primaryGradient,
+                        gradient: AppTheme.primaryGradient,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Text(

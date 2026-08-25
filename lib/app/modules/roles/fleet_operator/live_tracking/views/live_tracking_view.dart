@@ -517,7 +517,7 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
               Expanded(
                 child: CustomButton(
                   text: 'View Trip Details',
-                  isOutlined: true,
+                  isGradient: true,
                   onTap: controller.goToTripDetails,
                 ),
               ),
@@ -528,7 +528,7 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Colors.redAccent),
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,

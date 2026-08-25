@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import '../../../../../theme/app_theme.dart';
 import '../controllers/account_settings_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
 import '../../../../../theme/app_colors.dart';
@@ -75,17 +76,48 @@ class AccountSettingsView extends GetView<AccountSettingsController> {
                     const SizedBox(height: 36),
 
                     // Save and Cancel Action buttons (Image 1 style)
-                    ElevatedButton.icon(
-                      onPressed: controller.saveChanges,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF3B82F6),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        minimumSize: const Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.primaryGradient,
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      icon: SvgPicture.asset("assets/icons/fleet_operator_icons/saveChangesA.svg",color: Colors.white,),
-                      label: const Text('Save Changes', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                      child: ElevatedButton.icon(
+                        onPressed: controller.saveChanges,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          minimumSize: const Size(double.infinity, 50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        icon: SvgPicture.asset(
+                          "assets/icons/fleet_operator_icons/saveChangesA.svg",
+                          color: Colors.white,
+                        ),
+                        label: const Text(
+                          'Save Changes',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ),
+                    // ElevatedButton.icon(
+                    //   onPressed: controller.saveChanges,
+                    //   style: ElevatedButton.styleFrom(
+                    //     backgroundColor: const Color(0xFF3B82F6),
+                    //     padding: const EdgeInsets.symmetric(vertical: 14),
+                    //     minimumSize: const Size(double.infinity, 50),
+                    //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    //   ),
+                    //   icon: SvgPicture.asset("assets/icons/fleet_operator_icons/saveChangesA.svg",color: Colors.white,),
+                    //   label: const Text('Save Changes', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                    // ),
                     const SizedBox(height: 14),
                     OutlinedButton.icon(
                       onPressed: controller.cancel,

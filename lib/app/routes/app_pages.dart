@@ -185,7 +185,7 @@ import '../modules/roles/government/campaign_details/bindings/gov_campaign_detai
 import '../modules/roles/government/campaign_details/views/gov_campaign_details_view.dart';
 
 class AppPages {
-   static const INITIAL = Routes.FLEET_OP_DASHBOARD;
+   static const INITIAL = Routes.SPLASH;
   //static const INITIAL = Routes.FINANCE_DASHBOARD;
 
   static final routes = [

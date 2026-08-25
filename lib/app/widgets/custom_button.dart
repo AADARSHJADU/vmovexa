@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import '../theme/app_colors.dart';
 
 class CustomButton extends StatelessWidget {
@@ -70,17 +71,10 @@ class CustomButton extends StatelessWidget {
       height: height,
       decoration: BoxDecoration(
         gradient: isGradient
-            ? const LinearGradient(
-          colors: [
-            Color(0xFF4F6EF7),
-            Color(0xFFB645E8),
-          ],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        )
+            ? AppTheme.primaryGradient
             : null,
         color: isGradient ? null : AppColors.primaryButtonBlue,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF9333EA).withOpacity(0.25),
