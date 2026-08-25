@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../controllers/terms_conditions_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
@@ -67,7 +68,7 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
                     ElevatedButton(
                       onPressed: controller.agreeTerms,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF3B82F6),
+                        backgroundColor: const Color(0xFF174fee),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         minimumSize: const Size(double.infinity, 50),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -143,49 +144,49 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
         'title': '1. Acceptance of Terms',
         'subtitle': 'By using VMOVEXA, you agree to these Terms & Conditions and our policies.',
         'details': 'Using the mobile client, portal, or hardware trackers signifies complete binding contract alignment to the terms and privacy regulations listed inside this document.',
-        'icon': Icons.person_outline_rounded,
+        'icon': "assets/icons/profile.svg",
       },
       {
         'title': '2. Use of Services',
         'subtitle': 'You agree to use our services only for lawful purposes and in accordance with these terms.',
         'details': 'You agree not to bypass device coordinates, send spoofed GPS telemetries, alter advertisement playback schedules maliciously, or perform unauthorized code modifications.',
-        'icon': Icons.verified_user_outlined,
+        'icon': "assets/icons/fleet_operator_icons/securityA.svg",
       },
       {
         'title': '3. User Responsibilities',
         'subtitle': 'You are responsible for maintaining the confidentiality of your account and data.',
         'details': 'Keep dashboard passwords secure. You are liable for any system activities conducted under your employee profile login credentials.',
-        'icon': Icons.remove_circle_outline_rounded,
+        'icon': "assets/icons/fleet_operator_icons/userResponsibilitiesA.svg",
       },
       {
         'title': '4. Intellectual Property',
         'subtitle': 'All content, trademarks and data in the app are the property of VMOVEXA or its licensors.',
         'details': 'VM-QR scanning software algorithms, Bhopal map overlays, metrics collection mechanisms, and UI properties are protected by trademark intellectual standards.',
-        'icon': Icons.article_outlined,
+        'icon':  "assets/icons/fleet_operator_icons/privacyPolicyA.svg",
       },
       {
         'title': '5. Limitation of Liability',
         'subtitle': 'VMOVEXA is not liable for any indirect, incidental or consequential damages.',
         'details': 'VMOVEXA is not responsible for fleet transit delays, signal tracking dropouts, advertiser reach variance, or secondary operational interruptions.',
-        'icon': Icons.credit_card_outlined,
+        'icon':"assets/icons/fleet_operator_icons/cardA.svg",
       },
       {
         'title': '6. Termination',
         'subtitle': 'We may suspend or terminate your access if you violate these terms.',
         'details': 'Severe policy bypasses (e.g., driver coordinate falsification) will result in immediate login cancellation, service locks, and legal query reports.',
-        'icon': Icons.balance_rounded,
+        'icon':"assets/icons/fleet_operator_icons/balanceA.svg",
       },
       {
         'title': '7. Changes to Terms',
         'subtitle': 'We may update these terms from time to time. Continued use means you accept the changes.',
         'details': 'Revisions are published via active app pushes or banners. Utilizing the service post publication is treated as agreement to updated clauses.',
-        'icon': Icons.edit_rounded,
+        'icon': "assets/icons/fleet_operator_icons/editA.svg",
       },
       {
         'title': '8. Governing Law',
         'subtitle': 'These terms are governed by the laws of India, and any disputes shall be subject to its jurisdiction.',
         'details': 'Any dispute, transaction claim, or service issue is handled under local state laws in India with exclusive tribunal jurisdiction.',
-        'icon': Icons.language_rounded,
+        'icon':"assets/icons/fleet_operator_icons/languageA.svg",
       },
     ];
 
@@ -215,14 +216,15 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF6366F1).withOpacity(0.08),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(item['icon'] as IconData, color: const Color(0xFF6366F1), size: 16),
-                          ),
+                          // Container(
+                          //   padding: const EdgeInsets.all(8),
+                          //   decoration: BoxDecoration(
+                          //     color: const Color(0xFF6366F1).withOpacity(0.08),
+                          //     borderRadius: BorderRadius.circular(8),
+                          //   ),
+                          //   child: Icon(item['icon'] as IconData, color: const Color(0xFF6366F1), size: 16),
+                          // ),
+                          SvgPicture.asset(item['icon'],width: 25,height: 25 ),
                           const SizedBox(width: 14),
                           Expanded(
                             child: Column(
@@ -280,14 +282,7 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
         ),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xFF6366F1).withOpacity(0.08),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.headset_mic_rounded, color: Color(0xFF6366F1), size: 20),
-            ),
+           SvgPicture.asset("assets/icons/fleet_operator_icons/helpSupportA.svg",width: 25,height: 25,),
             const SizedBox(width: 14),
             Expanded(
               child: Column(

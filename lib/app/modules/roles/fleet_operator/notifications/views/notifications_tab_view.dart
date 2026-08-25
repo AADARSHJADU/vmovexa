@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../controllers/notifications_controller.dart';
 import '../../../../../theme/app_colors.dart';
@@ -9,89 +10,91 @@ class NotificationsTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Auto-create controller if not already present in the Get tree
-    final c = Get.isRegistered<NotificationsController>() 
-        ? Get.find<NotificationsController>() 
-        : Get.put(NotificationsController());
 
     return Container(
       color: AppColors.background,
-      child: Column(
-        children: [
-          // Top Bar
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.menu_rounded, color: Colors.white, size: 28),
-                  onPressed: () {},
-                ),
-                const Text(
-                  'Notifications',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.more_vert_rounded, color: Colors.white, size: 24),
-                  onPressed: () {},
-                ),
-              ],
-            ),
-          ),
-
-          // Filters Row capsules
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            child: SizedBox(
-              height: 38,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
+      child: Obx((){
+        final c = Get.isRegistered<NotificationsController>()
+            ? Get.find<NotificationsController>()
+            : Get.put(NotificationsController());
+        return Column(
+          children: [
+            // Top Bar
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildTabCapsule(c, 'All', '5', const Color(0xFF3B82F6)),
-                  const SizedBox(width: 10),
-                  _buildTabCapsule(c, 'Alerts', '3', Colors.redAccent),
-                  const SizedBox(width: 10),
-                  _buildTabCapsule(c, 'System', '1', const Color(0xFF3B82F6)),
-                  const SizedBox(width: 10),
-                  _buildTabCapsule(c, 'Updates', '1', const Color(0xFF8B5CF6)),
+                  IconButton(
+                    icon: const Icon(Icons.menu_rounded, color: Colors.white, size: 28),
+                    onPressed: () {},
+                  ),
+                  const Text(
+                    'Notifications',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.more_vert_rounded, color: Colors.white, size: 24),
+                    onPressed: () {},
+                  ),
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: 12),
 
-          // Notifications List
-          Expanded(
-            child: Obx(
-              () {
-                // Return subset of notifications to match Tab counts (5 items)
-                final list = c.notifications.take(5).toList();
-
-                return ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+            // Filters Row capsules
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: SizedBox(
+                height: 38,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   children: [
-                    ...list.map((n) => _buildTabNotificationCard(n)),
-                    const SizedBox(height: 24),
-                    const Center(
-                      child: Text(
-                        'No more notifications',
-                        style: TextStyle(color: AppColors.textMuted, fontSize: 11),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
+                    _buildTabCapsule(c, 'All', '5', const Color(0xFF3B82F6)),
+                    const SizedBox(width: 10),
+                    _buildTabCapsule(c, 'Alerts', '3', Colors.redAccent),
+                    const SizedBox(width: 10),
+                    _buildTabCapsule(c, 'System', '1', const Color(0xFF3B82F6)),
+                    const SizedBox(width: 10),
+                    _buildTabCapsule(c, 'Updates', '1', const Color(0xFF8B5CF6)),
                   ],
-                );
-              },
+                ),
+              ),
             ),
-          ),
-        ],
-      ),
+            const SizedBox(height: 12),
+
+            // Notifications List
+            Expanded(
+              child: Obx(
+                    () {
+                  // Return subset of notifications to match Tab counts (5 items)
+                  final list = c.notifications.take(5).toList();
+
+                  return ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    physics: const BouncingScrollPhysics(),
+                    children: [
+                      ...list.map((n) => _buildTabNotificationCard(n)),
+                      const SizedBox(height: 24),
+                      const Center(
+                        child: Text(
+                          'No more notifications',
+                          style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      }),
     );
   }
 
@@ -139,23 +142,23 @@ class NotificationsTabView extends StatelessWidget {
   }
 
   Widget _buildTabNotificationCard(AppNotification n) {
-    IconData cardIcon;
+    String cardIcon;
     Color iconColor;
     switch (n.type) {
       case 'Maintenance':
-        cardIcon = Icons.build_outlined;
+        cardIcon = "assets/icons/fleet_operator_icons/yoursupportHistoryA.svg";
         iconColor = const Color(0xFF8B5CF6);
         break;
       case 'Trips':
-        cardIcon = Icons.directions_bus_rounded;
+        cardIcon = "assets/icons/fleet_operator_icons/notificationAlertA.svg";
         iconColor = const Color(0xFF3B82F6);
         break;
       case 'Alerts':
-        cardIcon = Icons.warning_amber_rounded;
+        cardIcon = "assets/icons/fleet_operator_icons/yoursupportHistoryA.svg";
         iconColor = Colors.orangeAccent;
         break;
       default:
-        cardIcon = Icons.notifications_none_rounded;
+        cardIcon =  "assets/icons/fleet_operator_icons/yoursupportHistoryA.svg";
         iconColor = Colors.grey;
     }
 
@@ -187,14 +190,15 @@ class NotificationsTabView extends StatelessWidget {
           ),
 
           // Icon box
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(cardIcon, color: iconColor, size: 20),
-          ),
+          // Container(
+          //   padding: const EdgeInsets.all(10),
+          //   decoration: BoxDecoration(
+          //     color: iconColor.withOpacity(0.08),
+          //     borderRadius: BorderRadius.circular(10),
+          //   ),
+          //   child: Icon(cardIcon, color: iconColor, size: 20),
+          // ),
+          SvgPicture.asset(cardIcon),
           const SizedBox(width: 14),
 
           // Message details

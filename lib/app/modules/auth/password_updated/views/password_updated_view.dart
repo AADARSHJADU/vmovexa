@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../../widgets/custom_back_button.dart';
@@ -40,35 +41,13 @@ class PasswordUpdatedView extends StatelessWidget {
 
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                padding:  EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: 20),
                     // Neon Success Checkmark ring
-                    Center(
-                      child: Container(
-                        width: 130,
-                        height: 130,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: const Color(0xFF6366F1),
-                            width: 3.5,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF6366F1).withOpacity(0.2),
-                              blurRadius: 20,
-                              spreadRadius: 2,
-                            )
-                          ],
-                        ),
-                        child: const Center(
-                          child: Icon(Icons.check_rounded, color: Color(0xFF6366F1), size: 64),
-                        ),
-                      ),
-                    ),
+                    SvgPicture.asset("assets/icons/fleet_operator_icons/passwordUpatedA.svg",width: 80,height: 80,fit: BoxFit.fill,),
                     const SizedBox(height: 32),
 
                     // Success Texts
@@ -134,8 +113,8 @@ class PasswordUpdatedView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
-              Icon(Icons.verified_user_outlined, color: Color(0xFF8B5CF6), size: 18),
+            children:  [
+              SvgPicture.asset("assets/icons/fleet_operator_icons/accountSecureA.svg",width: 25,height: 25,),
               SizedBox(width: 10),
               Text(
                 "What's Changed",
@@ -150,8 +129,8 @@ class PasswordUpdatedView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
-                children: const [
-                  Icon(Icons.lock_outline_rounded, color: Color(0xFF8B5CF6), size: 16),
+                children:  [
+                  SvgPicture.asset("assets/icons/fleet_operator_icons/changePasswordA.svg",width: 25,height: 25,),
                   SizedBox(width: 10),
                   Text('Password updated', style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
                 ],
@@ -163,8 +142,8 @@ class PasswordUpdatedView extends StatelessWidget {
 
           // Row 2: Account stays secure
           Row(
-            children: const [
-              Icon(Icons.person_outline_rounded, color: Color(0xFF8B5CF6), size: 16),
+            children:  [
+              SvgPicture.asset("assets/icons/profile.svg",width: 25,height: 25,),
               SizedBox(width: 10),
               Text('Account stays secure', style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
             ],

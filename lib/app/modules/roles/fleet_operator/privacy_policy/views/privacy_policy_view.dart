@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../controllers/privacy_policy_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
@@ -82,14 +83,7 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF6366F1).withOpacity(0.08),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.lock_person_outlined, color: Color(0xFF6366F1), size: 28),
-          ),
+         SvgPicture.asset("assets/icons/fleet_operator_icons/accountSecureA.svg"),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -129,56 +123,56 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
         'title': '1. Information We Collect',
         'subtitle': 'We collect information that you provide directly to us and information collected automatically when you use our services.',
         'details': 'This includes account details (name, email, phone), device data (IP address, OS version), app telemetry logs, and location data of tracked vehicles if you run active transit tracking modules.',
-        'icon': Icons.person_outline_rounded,
+        'icon': "assets/icons/profile.svg",
         'color': const Color(0xFF6366F1),
       },
       {
         'title': '2. How We Use Your Information',
         'subtitle': 'We use the information we collect to provide, maintain and improve our services.',
         'details': 'We use this data to authorize user access, calibrate transit route metrics, calculate advertiser campaign reach statistics, generate performance charts, and send notification updates.',
-        'icon': Icons.settings_outlined,
+        'icon': "assets/icons/fleet_operator_icons/profileHeaderSettingA.svg",
         'color': const Color(0xFF6366F1),
       },
       {
         'title': '3. Information Sharing & Disclosure',
         'subtitle': 'We do not sell your personal information. We may share your information in limited circumstances.',
         'details': 'Data is shared with verified transit authorities (e.g., Government Portal monitoring teams) and partner fleet operators according to service schedules. All transitions are fully encrypted.',
-        'icon': Icons.people_outline_rounded,
+        'icon': "assets/icons/fleet_operator_icons/infoSharingA.svg",
         'color': const Color(0xFF6366F1),
       },
       {
         'title': '4. Data Security',
         'subtitle': 'We use appropriate technical and organizational measures to protect your data.',
         'details': 'We implement standard AES-256 database encryption, strict TLS 1.3 transit encryption, automatic security logs, and role-based permissions to guarantee privacy safety.',
-        'icon': Icons.verified_user_outlined,
+        'icon': "assets/icons/fleet_operator_icons/securityA.svg",
         'color': const Color(0xFF6366F1),
       },
       {
         'title': '5. Your Choices',
         'subtitle': 'You can update, review or delete your personal information anytime from your account settings.',
         'details': 'You can configure notifications, change passwords, and request full account details removal by reaching out directly to support teams or using profile dashboards.',
-        'icon': Icons.tune_rounded,
+        'icon': "assets/icons/fleet_operator_icons/appPreferenceA.svg",
         'color': const Color(0xFF6366F1),
       },
       {
         'title': '6. Data Retention',
         'subtitle': 'We retain your information only for as long as necessary for the purposes stated in this policy.',
         'details': 'Inactive telemetry data is archived after 12 months, and active campaign records are retained for financial audit standards up to 7 years.',
-        'icon': Icons.access_time_rounded,
+        'icon':  "assets/icons/fleet_operator_icons/timeZoneA.svg",
         'color': const Color(0xFF6366F1),
       },
       {
         'title': '7. Children\'s Privacy',
         'subtitle': 'Our services are not intended for children under the age of 13.',
         'details': 'We do not intentionally gather children\'s records. If any mismatch is discovered, it is immediately deleted from central servers.',
-        'icon': Icons.face_unlock_outlined,
+        'icon':  "assets/icons/fleet_operator_icons/childrenPrivacyA.svg",
         'color': const Color(0xFF6366F1),
       },
       {
         'title': '8. Changes to This Policy',
         'subtitle': 'We may update this Privacy Policy from time to time. We will notify you of any significant changes.',
         'details': 'Updates are announced via banner alerts or email pushes. Please review revision dates regularly to stay updated.',
-        'icon': Icons.description_outlined,
+        'icon':  "assets/icons/fleet_operator_icons/privacyPolicyA.svg",
         'color': const Color(0xFF6366F1),
       },
     ];
@@ -209,14 +203,15 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF6366F1).withOpacity(0.08),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(item['icon'] as IconData, color: const Color(0xFF6366F1), size: 16),
-                          ),
+                          // Container(
+                          //   padding: const EdgeInsets.all(8),
+                          //   decoration: BoxDecoration(
+                          //     color: const Color(0xFF6366F1).withOpacity(0.08),
+                          //     borderRadius: BorderRadius.circular(8),
+                          //   ),
+                          //   child: Icon(item['icon'] as IconData, color: const Color(0xFF6366F1), size: 16),
+                          // ),
+                          SvgPicture.asset(item['icon'],width: 20,height: 20,),
                           const SizedBox(width: 14),
                           Expanded(
                             child: Column(
@@ -274,14 +269,7 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
         ),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xFF6366F1).withOpacity(0.08),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.mail_outline_rounded, color: Color(0xFF6366F1), size: 20),
-            ),
+            SvgPicture.asset( "assets/icons/fleet_operator_icons/emailA.svg",width: 20,height: 20,),
             const SizedBox(width: 14),
             Expanded(
               child: Column(

@@ -9,7 +9,7 @@ class SupportTicket {
   final String subtitle;
   final String date;
   final String status; // 'Open', 'Resolved', 'Closed'
-  final IconData icon;
+  final String icon;
   final Color iconColor;
 
   SupportTicket({
@@ -34,7 +34,7 @@ class SupportHistoryController extends GetxController {
       subtitle: 'Vehicle ID: VH-1024',
       date: '20 May 2026 • 10:30 AM',
       status: 'Open',
-      icon: Icons.directions_bus_outlined,
+      icon:"assets/icons/fleet_operator_icons/truck.svg",
       iconColor: const Color(0xFF3B82F6),
     ),
     SupportTicket(
@@ -43,7 +43,7 @@ class SupportHistoryController extends GetxController {
       subtitle: 'Vehicle ID: VH-1003',
       date: '12 May 2026 • 09:15 AM',
       status: 'Resolved',
-      icon: Icons.build_outlined,
+      icon: "assets/icons/fleet_operator_icons/yoursupportHistoryA.svg",
       iconColor: const Color(0xFF8B5CF6),
     ),
     SupportTicket(
@@ -52,7 +52,7 @@ class SupportHistoryController extends GetxController {
       subtitle: 'Vehicle ID: VH-0987',
       date: '05 May 2026 • 04:45 PM',
       status: 'Closed',
-      icon: Icons.local_gas_station_rounded,
+      icon: "assets/icons/fleet_operator_icons/pumpA.svg",
       iconColor: Colors.orangeAccent,
     ),
     SupportTicket(
@@ -61,7 +61,7 @@ class SupportHistoryController extends GetxController {
       subtitle: 'Vehicle ID: VH-0976',
       date: '28 Apr 2026 • 11:20 AM',
       status: 'Resolved',
-      icon: Icons.person_outline_rounded,
+      icon: "assets/icons/profile.svg",
       iconColor: const Color(0xFF10B981),
     ),
     SupportTicket(
@@ -70,7 +70,7 @@ class SupportHistoryController extends GetxController {
       subtitle: 'App client warning log',
       date: '15 Apr 2026 • 02:10 PM',
       status: 'Closed',
-      icon: Icons.verified_user_outlined,
+      icon: "assets/icons/fleet_operator_icons/securityA.svg",
       iconColor: Colors.redAccent,
     ),
   ];
@@ -89,7 +89,7 @@ class SupportHistoryController extends GetxController {
           subtitle: 'Campaign ID: CMP-2026-000124',
           date: '08 May 2026 • 11:30 AM',
           status: 'Open',
-          icon: Icons.campaign_outlined,
+          icon:"assets/icons/fleet_operator_icons/truck.svg",
           iconColor: const Color(0xFF8B5CF6),
         ),
         SupportTicket(
@@ -98,7 +98,7 @@ class SupportHistoryController extends GetxController {
           subtitle: 'Campaign ID: CMP-2026-000089',
           date: '06 May 2026 • 04:20 PM',
           status: 'Resolved',
-          icon: Icons.description_outlined,
+          icon: "assets/icons/fleet_operator_icons/truck.svg",
           iconColor: const Color(0xFF3B82F6),
         ),
         SupportTicket(
@@ -107,7 +107,7 @@ class SupportHistoryController extends GetxController {
           subtitle: 'Campaign ID: CMP-2026-000067',
           date: '03 May 2026 • 09:15 AM',
           status: 'Closed',
-          icon: Icons.payment_outlined,
+          icon:"assets/icons/fleet_operator_icons/truck.svg",
           iconColor: Colors.orangeAccent,
         ),
       ]);
