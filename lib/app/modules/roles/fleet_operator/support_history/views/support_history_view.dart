@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../controllers/support_history_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
@@ -196,14 +197,15 @@ class SupportHistoryView extends GetView<SupportHistoryController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Icon box
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF6366F1).withOpacity(0.08),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(t.icon, color: const Color(0xFF6366F1), size: 20),
-          ),
+          // Container(
+          //   padding: const EdgeInsets.all(10),
+          //   decoration: BoxDecoration(
+          //     color: const Color(0xFF6366F1).withOpacity(0.08),
+          //     borderRadius: BorderRadius.circular(10),
+          //   ),
+          //   child: Icon(t.icon, color: const Color(0xFF6366F1), size: 20),
+          // ),
+          SvgPicture.asset(t.icon),
           const SizedBox(width: 14),
 
           // Message details
@@ -272,14 +274,7 @@ class SupportHistoryView extends GetView<SupportHistoryController> {
       ),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFF6366F1).withOpacity(0.08),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(Icons.headset_mic_outlined, color: Color(0xFF6366F1), size: 20),
-          ),
+          SvgPicture.asset("assets/icons/fleet_operator_icons/helpSupportA.svg"),
           const SizedBox(width: 14),
           Expanded(
             child: Column(

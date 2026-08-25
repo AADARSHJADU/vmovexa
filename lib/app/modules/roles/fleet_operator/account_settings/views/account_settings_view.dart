@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../controllers/account_settings_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
@@ -46,7 +47,7 @@ class AccountSettingsView extends GetView<AccountSettingsController> {
                   children: [
                     // Personal Information Section
                     _buildSectionHeaderWithAction(
-                      Icons.person_outline_rounded,
+                      "assets/icons/profile.svg",
                       'Personal Information',
                       'Change Photo',
                       controller.changePhoto,
@@ -56,19 +57,19 @@ class AccountSettingsView extends GetView<AccountSettingsController> {
                     const SizedBox(height: 24),
 
                     // Organization Information Section
-                    _buildSectionHeader(Icons.business_rounded, 'Organization Information'),
+                    _buildSectionHeader("assets/icons/fleet_operator_icons/fleetsManagedA.svg", 'Organization Information'),
                     const SizedBox(height: 12),
                     _buildOrgCard(),
                     const SizedBox(height: 24),
 
                     // Preferences Section
-                    _buildSectionHeader(Icons.tune_rounded, 'Preferences'),
+                    _buildSectionHeader("assets/icons/fleet_operator_icons/appPreferenceA.svg", 'Preferences'),
                     const SizedBox(height: 12),
                     _buildPreferencesCard(),
                     const SizedBox(height: 24),
 
                     // Security Section
-                    _buildSectionHeader(Icons.security_rounded, 'Security'),
+                    _buildSectionHeader("assets/icons/fleet_operator_icons/securityA.svg", 'Security'),
                     const SizedBox(height: 12),
                     _buildSecurityCard(),
                     const SizedBox(height: 36),
@@ -82,7 +83,7 @@ class AccountSettingsView extends GetView<AccountSettingsController> {
                         minimumSize: const Size(double.infinity, 50),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      icon: const Icon(Icons.save_rounded, color: Colors.white, size: 18),
+                      icon: SvgPicture.asset("assets/icons/fleet_operator_icons/saveChangesA.svg",color: Colors.white,),
                       label: const Text('Save Changes', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(height: 14),
@@ -95,7 +96,7 @@ class AccountSettingsView extends GetView<AccountSettingsController> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         backgroundColor: Colors.transparent,
                       ),
-                      icon: const Icon(Icons.cancel_outlined, color: Color(0xFF3B82F6), size: 16),
+                      icon: SvgPicture.asset("assets/icons/fleet_operator_icons/cancelA.svg",color: Color(0xff017be2),),
                       label: const Text('Cancel', style: TextStyle(color: Color(0xFF3B82F6), fontSize: 13, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(height: 20),
@@ -109,10 +110,10 @@ class AccountSettingsView extends GetView<AccountSettingsController> {
     );
   }
 
-  Widget _buildSectionHeader(IconData icon, String title) {
+  Widget _buildSectionHeader(String icon, String title) {
     return Row(
       children: [
-        Icon(icon, color: const Color(0xFF6366F1), size: 18),
+        SvgPicture.asset(icon),
         const SizedBox(width: 8),
         Text(
           title,
@@ -122,13 +123,13 @@ class AccountSettingsView extends GetView<AccountSettingsController> {
     );
   }
 
-  Widget _buildSectionHeaderWithAction(IconData icon, String title, String actionLabel, VoidCallback onAction) {
+  Widget _buildSectionHeaderWithAction(String icon, String title, String actionLabel, VoidCallback onAction) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           children: [
-            Icon(icon, color: const Color(0xFF6366F1), size: 18),
+            SvgPicture.asset(icon),
             const SizedBox(width: 8),
             Text(
               title,
@@ -178,7 +179,7 @@ class AccountSettingsView extends GetView<AccountSettingsController> {
                 child: Container(
                   padding: const EdgeInsets.all(5),
                   decoration: const BoxDecoration(
-                    color: Color(0xFF3B82F6),
+                    color: Color(0xFF3729e8),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 10),
@@ -192,15 +193,15 @@ class AccountSettingsView extends GetView<AccountSettingsController> {
           Expanded(
             child: Column(
               children: [
-                _buildFieldRow('Full Name', controller.fullName.value, Icons.person_outline_rounded),
+                _buildFieldRow('Full Name', controller.fullName.value,  "assets/icons/profile.svg"),
                 const Divider(color: AppColors.cardBorder, height: 16),
-                _buildFieldRow('Email', controller.email.value, Icons.mail_outline_rounded),
+                _buildFieldRow('Email', controller.email.value, "assets/icons/fleet_operator_icons/emailA.svg"),
                 const Divider(color: AppColors.cardBorder, height: 16),
-                _buildFieldRow('Mobile Number', controller.phone.value, Icons.phone_outlined),
+                _buildFieldRow('Mobile Number', controller.phone.value, "assets/icons/fleet_operator_icons/mobileNumberA.svg"),
                 const Divider(color: AppColors.cardBorder, height: 16),
-                _buildFieldRow('Employee ID', controller.employeeId.value, Icons.badge_outlined),
+                _buildFieldRow('Employee ID', controller.employeeId.value, "assets/icons/fleet_operator_icons/employeeIdA.svg"),
                 const Divider(color: AppColors.cardBorder, height: 16),
-                _buildFieldRow('Role', controller.role.value, Icons.shield_outlined),
+                _buildFieldRow('Role', controller.role.value,  "assets/icons/fleet_operator_icons/securityA.svg"),
               ],
             ),
           ),
@@ -209,10 +210,10 @@ class AccountSettingsView extends GetView<AccountSettingsController> {
     );
   }
 
-  Widget _buildFieldRow(String label, String value, IconData icon) {
+  Widget _buildFieldRow(String label, String value, String icon) {
     return Row(
       children: [
-        Icon(icon, color: const Color(0xFF8B5CF6), size: 18),
+        SvgPicture.asset(icon),
         const SizedBox(width: 14),
         Expanded(
           child: Column(
@@ -244,21 +245,21 @@ class AccountSettingsView extends GetView<AccountSettingsController> {
       ),
       child: Column(
         children: [
-          _buildOrgRow('Company Name', controller.companyName.value, Icons.business_rounded),
+          _buildOrgRow('Company Name', controller.companyName.value, "assets/icons/fleet_operator_icons/fleetsManagedA.svg"),
           const Divider(color: AppColors.cardBorder, height: 16),
-          _buildOrgRow('Branch / Office', controller.branch.value, Icons.location_on_outlined),
+          _buildOrgRow('Branch / Office', controller.branch.value, "assets/icons/fleet_operator_icons/locationA.svg"),
           const Divider(color: AppColors.cardBorder, height: 16),
-          _buildOrgRow('Office Address', controller.officeAddress.value, Icons.map_outlined),
+          _buildOrgRow('Office Address', controller.officeAddress.value, "assets/icons/fleet_operator_icons/officeA.svg"),
         ],
       ),
     );
   }
 
-  Widget _buildOrgRow(String label, String value, IconData icon) {
+  Widget _buildOrgRow(String label, String value, String icon) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: const Color(0xFF8B5CF6), size: 18),
+        SvgPicture.asset(icon),
         const SizedBox(width: 14),
         Expanded(
           child: Column(
@@ -289,18 +290,18 @@ class AccountSettingsView extends GetView<AccountSettingsController> {
       ),
       child: Column(
         children: [
-          _buildPreferenceItem('Language', controller.language.value, Icons.language_rounded),
+          _buildPreferenceItem('Language', controller.language.value, "assets/icons/fleet_operator_icons/languageA.svg"),
           const Divider(color: AppColors.cardBorder, height: 16),
-          _buildPreferenceItem('Time Zone', controller.timezone.value, Icons.access_time_rounded),
+          _buildPreferenceItem('Time Zone', controller.timezone.value, "assets/icons/fleet_operator_icons/timeZoneA.svg"),
         ],
       ),
     );
   }
 
-  Widget _buildPreferenceItem(String label, String value, IconData icon) {
+  Widget _buildPreferenceItem(String label, String value, String icon) {
     return Row(
       children: [
-        Icon(icon, color: const Color(0xFF8B5CF6), size: 18),
+     SvgPicture.asset(icon),
         const SizedBox(width: 14),
         Expanded(
           child: Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold)),
@@ -328,7 +329,7 @@ class AccountSettingsView extends GetView<AccountSettingsController> {
               color: Colors.transparent,
               child: Row(
                 children: [
-                  const Icon(Icons.lock_outline_rounded, color: Color(0xFF8B5CF6), size: 18),
+                  SvgPicture.asset("assets/icons/fleet_operator_icons/changePasswordA.svg"),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
@@ -348,7 +349,7 @@ class AccountSettingsView extends GetView<AccountSettingsController> {
           const Divider(color: AppColors.cardBorder, height: 16),
           Row(
             children: [
-              const Icon(Icons.security_rounded, color: Color(0xFF8B5CF6), size: 18),
+              SvgPicture.asset("assets/icons/fleet_operator_icons/securityA.svg"),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(

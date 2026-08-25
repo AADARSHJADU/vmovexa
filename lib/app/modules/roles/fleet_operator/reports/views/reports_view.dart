@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../../theme/app_colors.dart';
 
 class ReportsView extends StatelessWidget {
@@ -278,8 +279,8 @@ class ReportsView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
-              Icon(Icons.qr_code_2_rounded, color: Color(0xFF8B5CF6), size: 16),
+            children: [
+              SvgPicture.asset('assets/icons/fleet_operator_icons/qr-code-scan.svg'),
               const SizedBox(width: 8),
               Text('QR Reports Overview', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
             ],
@@ -606,18 +607,7 @@ class ReportsView extends StatelessWidget {
           Expanded(
             child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF3B82F6).withOpacity(0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.description_outlined,
-                    color: Color(0xFF3B82F6),
-                    size: 18,
-                  ),
-                ),
+                SvgPicture.asset('assets/icons/fleet_operator_icons/privacyPolicyA.svg'),
                 const SizedBox(width: 12),
 
                 Expanded(

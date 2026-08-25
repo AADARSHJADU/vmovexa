@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import '../controllers/notification_settings_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
@@ -83,7 +85,7 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
                         minimumSize: const Size(double.infinity, 50),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      icon: const Icon(Icons.save_rounded, color: Colors.white, size: 18),
+                      icon: SvgPicture.asset("assets/icons/fleet_operator_icons/saveChangesA.svg",color: CupertinoColors.white,),
                       label: const Text('Save Preferences', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(height: 20),
@@ -107,14 +109,7 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
       ),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF8B5CF6).withOpacity(0.08),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(Icons.notifications_active_outlined, color: Color(0xFF8B5CF6), size: 24),
-          ),
+          SvgPicture.asset("assets/icons/fleet_operator_icons/notificationSettingA.svg",width: 25,height: 25,),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -164,7 +159,7 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
               'Campaign Updates',
               'Approval status, campaign publication and live state alerts',
               controller.vehicleAlerts,
-              Icons.campaign_outlined,
+              "assets/icons/fleet_operator_icons/fleetsManagedA2.svg",
               const Color(0xFF3B82F6),
             ),
             const Divider(color: AppColors.cardBorder, height: 24),
@@ -172,7 +167,7 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
               'Payment Notifications',
               'Budget warnings, invoice receipts, and transaction status alerts',
               controller.tripUpdates,
-              Icons.account_balance_wallet_outlined,
+              "assets/icons/fleet_operator_icons/locationA.svg",
               const Color(0xFF8B5CF6),
             ),
             const Divider(color: AppColors.cardBorder, height: 24),
@@ -180,7 +175,7 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
               'System Updates',
               'New feature announcements, reports readiness alerts, and performance metrics updates',
               controller.maintenanceReminders,
-              Icons.notifications_none_rounded,
+              "assets/icons/fleet_operator_icons/fleetsManagedA2.svg",
               const Color(0xFF10B981),
             ),
             const Divider(color: AppColors.cardBorder, height: 24),
@@ -188,7 +183,7 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
               'Security Alerts',
               'Unauthorized access, password changes, and login attempts',
               controller.securityAlerts,
-              Icons.verified_user_outlined,
+              "assets/icons/fleet_operator_icons/fleetsManagedA2.svg",
               Colors.redAccent,
             ),
           ],
@@ -209,7 +204,7 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
             'Vehicle Alerts',
             'Ignition, geofence, overspeed and other vehicle events',
             controller.vehicleAlerts,
-            Icons.directions_bus_rounded,
+            "assets/icons/fleet_operator_icons/fleetsManagedA2.svg",
             const Color(0xFF3B82F6),
           ),
           const Divider(color: AppColors.cardBorder, height: 24),
@@ -217,7 +212,7 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
             'Trip Updates',
             'Trip start, stop, delays and route changes',
             controller.tripUpdates,
-            Icons.location_on_outlined,
+            "assets/icons/fleet_operator_icons/locationA.svg",
             const Color(0xFF8B5CF6),
           ),
           const Divider(color: AppColors.cardBorder, height: 24),
@@ -225,7 +220,7 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
             'Maintenance Reminders',
             'Service due, overdue and maintenance updates',
             controller.maintenanceReminders,
-            Icons.build_outlined,
+            "assets/icons/fleet_operator_icons/maintainceReminderA.svg",
             Colors.orangeAccent,
           ),
           const Divider(color: AppColors.cardBorder, height: 24),
@@ -233,7 +228,7 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
             'System Notifications',
             'App updates, new features and system messages',
             controller.systemNotifications,
-            Icons.notifications_none_rounded,
+            "assets/icons/fleet_operator_icons/notificationSettingA.svg",
             const Color(0xFF10B981),
           ),
           const Divider(color: AppColors.cardBorder, height: 24),
@@ -241,7 +236,7 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
             'Security Alerts',
             'Unauthorized access and suspicious activity',
             controller.securityAlerts,
-            Icons.verified_user_outlined,
+            "assets/icons/fleet_operator_icons/securityA.svg",
             Colors.redAccent,
           ),
         ],
@@ -254,12 +249,12 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
     String title,
     String subtitle,
     RxBool state,
-    IconData icon,
+    String icon,
     Color iconColor,
   ) {
     return Row(
       children: [
-        Icon(icon, color: iconColor, size: 18),
+      SvgPicture.asset(icon),
         const SizedBox(width: 14),
         Expanded(
           child: Column(
@@ -281,8 +276,8 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
           () => Switch(
             value: state.value,
             onChanged: (val) => state.value = val,
-            activeColor: const Color(0xFF6366F1),
-            activeTrackColor: const Color(0xFF6366F1).withOpacity(0.3),
+            activeColor: Colors.white,
+            activeTrackColor: const Color(0xFF0051f4),
             inactiveThumbColor: AppColors.textMuted,
             inactiveTrackColor: AppColors.cardBorder,
           ),
@@ -301,20 +296,23 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
       ),
       child: Column(
         children: [
-          _buildChannelItem('Push Notifications', 'Instant alerts on this device', controller.pushChannelStatus.value, Icons.phone_android_rounded, const Color(0xFF6366F1)),
+          _buildChannelItem('Push Notifications', 'Instant alerts on this device',
+              controller.pushChannelStatus.value,   "assets/icons/fleet_operator_icons/pushNotificationA.svg", const Color(0xFF6366F1)),
           const Divider(color: AppColors.cardBorder, height: 24),
-          _buildChannelItem('Email Notifications', 'Receive important alerts via email', controller.emailChannelStatus.value, Icons.mail_outline_rounded, const Color(0xFF10B981)),
+          _buildChannelItem('Email Notifications', 'Receive important alerts via email',
+              controller.emailChannelStatus.value, "assets/icons/fleet_operator_icons/emailA.svg", const Color(0xFF10B981)),
           const Divider(color: AppColors.cardBorder, height: 24),
-          _buildChannelItem('SMS Notifications', 'Critical alerts via SMS', controller.smsChannelStatus.value, Icons.chat_bubble_outline_rounded, const Color(0xFF8B5CF6)),
+          _buildChannelItem('SMS Notifications', 'Critical alerts via SMS',
+              controller.smsChannelStatus.value, "assets/icons/fleet_operator_icons/smsNotificationA.svg", const Color(0xFF8B5CF6)),
         ],
       ),
     );
   }
 
-  Widget _buildChannelItem(String label, String subtitle, String status, IconData icon, Color iconColor) {
+  Widget _buildChannelItem(String label, String subtitle, String status, String icon, Color iconColor) {
     return Row(
       children: [
-        Icon(icon, color: iconColor, size: 18),
+       SvgPicture.asset(icon),
         const SizedBox(width: 14),
         Expanded(
           child: Column(

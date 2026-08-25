@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../controllers/change_password_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
@@ -65,7 +66,7 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
                         minimumSize: const Size(double.infinity, 50),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      icon: const Icon(Icons.lock_open_rounded, color: Colors.white, size: 18),
+                      icon:   SvgPicture.asset("assets/icons/fleet_operator_icons/changePasswordA.svg",width: 18,height: 18,color: Colors.white,),
                       label: const Text('Update Password', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(height: 14),
@@ -78,7 +79,7 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         backgroundColor: Colors.transparent,
                       ),
-                      icon: const Icon(Icons.cancel_outlined, color: Color(0xFF3B82F6), size: 16),
+                      icon:   SvgPicture.asset("assets/icons/fleet_operator_icons/cancelA.svg",color:Color(0xFF3B82F6),width: 18,height: 18,),
                       label: const Text('Cancel', style: TextStyle(color: Color(0xFF3B82F6), fontSize: 13, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(height: 20),
@@ -101,16 +102,9 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
         border: Border.all(color: AppColors.cardBorder, width: 1.2),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF6366F1).withOpacity(0.08),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.lock_person_outlined, color: Color(0xFF6366F1), size: 28),
-          ),
+          SvgPicture.asset("assets/icons/fleet_operator_icons/accountSecureA.svg",width: 45,height: 45,),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -211,7 +205,10 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
           hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          prefixIcon: const Icon(Icons.lock_outline_rounded, color: Color(0xFF6366F1), size: 18),
+          prefixIcon:   Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: SvgPicture.asset("assets/icons/fleet_operator_icons/changePasswordA.svg",width: 10,height:10,),
+          ),
           suffixIcon: IconButton(
             icon: Icon(
               obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
@@ -281,8 +278,8 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
-              Icon(Icons.verified_user_outlined, color: Color(0xFF6366F1), size: 16),
+            children:  [
+              SvgPicture.asset("assets/icons/fleet_operator_icons/securityA.svg",width: 18,height: 18,),
               SizedBox(width: 8),
               Text(
                 'Password Requirements',

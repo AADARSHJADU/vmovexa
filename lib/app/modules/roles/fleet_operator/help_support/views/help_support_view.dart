@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../controllers/help_support_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
@@ -90,14 +91,7 @@ class HelpSupportView extends GetView<HelpSupportController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Left Headphones Graphic - beautiful neon purple headphone outline
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF6366F1).withOpacity(0.08),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.headset_mic_rounded, color: Color(0xFF6366F1), size: 36),
-          ),
+          SvgPicture.asset("assets/icons/fleet_operator_icons/helpSupportA.svg",width: 40,height: 40,),
           const SizedBox(width: 12),
 
           // Center Text Info
@@ -166,7 +160,7 @@ class HelpSupportView extends GetView<HelpSupportController> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.access_time_filled_rounded, color: Color(0xFF6366F1), size: 12),
+                SvgPicture.asset("assets/icons/fleet_operator_icons/timeZoneA.svg",width: 15,height: 15,),
                   const SizedBox(width: 6),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,9 +189,9 @@ class HelpSupportView extends GetView<HelpSupportController> {
       ),
       child: Column(
         children: [
-          _buildItemRow('FAQs', 'Find answers to common questions', Icons.description_outlined, () {}),
+          _buildItemRow('FAQs', 'Find answers to common questions', "assets/icons/fleet_operator_icons/privacyPolicyA.svg", () {}),
           const Divider(color: AppColors.cardBorder, height: 16),
-          _buildItemRow('User Guides', 'Step-by-step guides and tutorials', Icons.book_outlined, () {}),
+          _buildItemRow('User Guides', 'Step-by-step guides and tutorials', "assets/icons/fleet_operator_icons/userGuidesA.svg", () {}),
         ],
       ),
     );
@@ -213,11 +207,11 @@ class HelpSupportView extends GetView<HelpSupportController> {
       ),
       child: Column(
         children: [
-          _buildItemRow('Email Support', controller.email, Icons.mail_outline_rounded, controller.openEmail),
+          _buildItemRow('Email Support', controller.email, "assets/icons/fleet_operator_icons/emailA.svg", controller.openEmail),
           const Divider(color: AppColors.cardBorder, height: 16),
-          _buildItemRow('Call Support', controller.phone, Icons.phone_outlined, controller.openCall),
+          _buildItemRow('Call Support', controller.phone, "assets/icons/fleet_operator_icons/mobileNumberA.svg", controller.openCall),
           const Divider(color: AppColors.cardBorder, height: 16),
-          _buildItemRow('WhatsApp Support', controller.phone, Icons.chat_bubble_outline_rounded, controller.openWhatsapp),
+          _buildItemRow('WhatsApp Support', controller.phone, "assets/icons/fleet_operator_icons/whatsappA.svg", controller.openWhatsapp),
         ],
       ),
     );
@@ -231,7 +225,7 @@ class HelpSupportView extends GetView<HelpSupportController> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.cardBorder, width: 1.2),
       ),
-      child: _buildItemRow('Your Support History', 'View your previous support requests', Icons.history_rounded, controller.goToSupportHistory),
+      child: _buildItemRow('Your Support History', 'View your previous support requests',"assets/icons/fleet_operator_icons/supportHistoryA.svg", controller.goToSupportHistory),
     );
   }
 
@@ -245,7 +239,7 @@ class HelpSupportView extends GetView<HelpSupportController> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.verified_user_outlined, color: Color(0xFF6366F1), size: 24),
+         SvgPicture.asset("assets/icons/fleet_operator_icons/securityA.svg"),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -268,7 +262,7 @@ class HelpSupportView extends GetView<HelpSupportController> {
     );
   }
 
-  Widget _buildItemRow(String label, String subtitle, IconData icon, VoidCallback onTap) {
+  Widget _buildItemRow(String label, String subtitle, String icon, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -276,14 +270,7 @@ class HelpSupportView extends GetView<HelpSupportController> {
         padding: const EdgeInsets.symmetric(vertical: 6),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: const Color(0xFF6366F1).withOpacity(0.08),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: const Color(0xFF6366F1), size: 18),
-            ),
+            SvgPicture.asset(icon),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
