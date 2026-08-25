@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../../../../../routes/app_routes.dart';
 import '../../live_tracking/views/live_tracking_view.dart';
@@ -181,7 +182,11 @@ class LiveMapView extends StatelessWidget {
                       color: const Color(0xFF6366F1).withOpacity(0.08),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.directions_bus_rounded, color: Color(0xFF6366F1), size: 20),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SvgPicture.asset('assets/icons/bus.svg'),
+                    ),//Icon(Icons.directions_bus_rounded, color: Color(0xFF6366F1), size: 20),
+
                   ),
                   const SizedBox(width: 12),
                   Column(
@@ -218,17 +223,30 @@ class LiveMapView extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildRowStat('Driver', 'Rajesh Kumar', Icons.person_outline_rounded),
-              _buildRowStat('Speed', '42 km/h', Icons.speed_rounded),
-              _buildRowStat('Last Updated', 'Just now', Icons.access_time_rounded),
+              _buildRowStat(
+                'Driver',
+                'Rajesh Kumar',
+                svgPath: 'assets/icons/profile.svg',
+              ),
+              _buildRowStat(
+                'Speed',
+                '42 km/h',
+                svgPath: 'assets/icons/speed_m.svg',
+              ),
+              _buildRowStat(
+                'Last Updated',
+                'Just now',
+                svgPath: 'assets/icons/clock.svg',
+              ),
             ],
           ),
           const SizedBox(height: 12),
 
           // Address Location field
           Row(
-            children: const [
-              Icon(Icons.location_on_outlined, color: Color(0xFF6366F1), size: 16),
+            children: [
+              //Icon(Icons.location_on_outlined, color: Color(0xFF6366F1), size: 16),
+              SvgPicture.asset('assets/icons/location.svg', height: 16,),
               SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -299,17 +317,48 @@ class LiveMapView extends StatelessWidget {
     );
   }
 
-  Widget _buildRowStat(String label, String value, IconData icon) {
+  Widget _buildRowStat(
+      String label,
+      String value, {
+        String? svgPath,
+        IconData? icon,
+      }) {
     return Row(
       children: [
-        Icon(icon, color: const Color(0xFF6366F1), size: 14),
+        if (svgPath != null)
+          SvgPicture.asset(
+            svgPath,
+            width: 14,
+            height: 14,
+          )
+        else if (icon != null)
+          Icon(
+            icon,
+            color: const Color(0xFF6366F1),
+            size: 14,
+          ),
+
         const SizedBox(width: 6),
+
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 8)),
+            Text(
+              label,
+              style: const TextStyle(
+                color: AppColors.textMuted,
+                fontSize: 8,
+              ),
+            ),
             const SizedBox(height: 2),
-            Text(value, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+            Text(
+              value,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
       ],

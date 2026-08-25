@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import '../controllers/vehicle_details_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
@@ -85,11 +86,40 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                       crossAxisSpacing: 8,
                       childAspectRatio: 0.85,
                       children: [
-                        _buildQuickActionItem('Live Tracking', Icons.location_on_outlined, const Color(0xFF3B82F6), controller.startLiveTracking),
-                        _buildQuickActionItem('Trip History', Icons.history_rounded, const Color(0xFF10B981), () {}),
-                        _buildQuickActionItem('Maintenance', Icons.build_outlined, Colors.orangeAccent, () {}),
-                        _buildQuickActionItem('Documents', Icons.description_outlined, const Color(0xFF8B5CF6), () {}),
-                        _buildQuickActionItem('Edit Vehicle', Icons.edit_outlined, Colors.amber, controller.editVehicle),
+                        _buildQuickActionItem(
+                          'Live Tracking',
+                          const Color(0xFF3B82F6),
+                          controller.startLiveTracking,
+                          svgPath: 'assets/icons/live_map.svg',
+                        ),
+
+                        _buildQuickActionItem(
+                          'Trip History',
+                          const Color(0xFF10B981),
+                              () {},
+                          svgPath: 'assets/icons/live_location.svg',
+                        ),
+
+                        _buildQuickActionItem(
+                          'Maintenance',
+                          Colors.orangeAccent,
+                              () {},
+                          svgPath: 'assets/icons/maintainance.svg',
+                        ),
+
+                        _buildQuickActionItem(
+                          'Documents',
+                          const Color(0xFF8B5CF6),
+                              () {},
+                          svgPath: 'assets/icons/note.svg',
+                        ),
+
+                        _buildQuickActionItem(
+                          'Edit Vehicle',
+                          Colors.amber,
+                          controller.editVehicle,
+                          svgPath: 'assets/icons/edit.svg',
+                        ),
                       ],
                     ),
                     const SizedBox(height: 40),
@@ -221,7 +251,12 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                 ),
                 Row(
                   children: [
-                    const Icon(Icons.directions_bus_outlined, color: AppColors.textMuted, size: 12),
+                    SvgPicture.asset(
+                      'assets/icons/bus.svg',
+                      width: 12,
+                      height: 12,
+                      colorFilter: const ColorFilter.mode(AppColors.textMuted, BlendMode.srcIn),
+                    ),
                     const SizedBox(width: 6),
                     Flexible(
                       child: Text(
@@ -269,18 +304,18 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
   Widget _buildStatsSummaryRow() {
     return Row(
       children: [
-        Expanded(child: _buildSummaryStatItem('Driver', 'Rajesh Kumar', Icons.person_outline_rounded)),
+        Expanded(child: _buildSummaryStatItem('Driver', 'Rajesh Kumar', svgPath: 'assets/icons/profile.svg')),
         const SizedBox(width: 8),
-        Expanded(child: _buildSummaryStatItem('GPS Device', 'GPS-TRK-00123', Icons.wifi_tethering_rounded)),
+        Expanded(child: _buildSummaryStatItem('GPS Device', 'GPS-TRK-00123', svgPath: 'assets/icons/hotspot.svg')),
         const SizedBox(width: 8),
-        Expanded(child: _buildSummaryStatItem('Current Speed', '42 km/h', Icons.speed_rounded)),
+        Expanded(child: _buildSummaryStatItem('Current Speed', '42 km/h', svgPath: 'assets/icons/speed_m.svg')),
         const SizedBox(width: 8),
-        Expanded(child: _buildSummaryStatItem('Last Updated', 'Just now', Icons.calendar_today_outlined)),
+        Expanded(child: _buildSummaryStatItem('Last Updated', 'Just now', svgPath: 'assets/icons/calendar.svg')),
       ],
     );
   }
 
-  Widget _buildSummaryStatItem(String label, String value, IconData icon) {
+  Widget _buildSummaryStatItem(String label, String value, {IconData? icon, String? svgPath}) {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -291,7 +326,15 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: const Color(0xFF6366F1), size: 16),
+          if (svgPath != null)
+            SvgPicture.asset(
+              svgPath,
+              width: 16,
+              height: 16,
+              //colorFilter: const ColorFilter.mode(Color(0xFF6366F1), BlendMode.srcIn),
+            )
+          else if (icon != null)
+            Icon(icon, color: const Color(0xFF6366F1), size: 16),
           const SizedBox(height: 8),
           Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 8), maxLines: 1, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 2),
@@ -321,10 +364,15 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
-                    children: const [
-                      Icon(Icons.location_on_outlined, color: Color(0xFF6366F1), size: 16),
-                      SizedBox(width: 6),
-                      Text('Current Location', style: TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold)),
+                    children: [
+                      SvgPicture.asset(
+                        'assets/icons/location.svg',
+                        width: 16,
+                        height: 16,
+                        //colorFilter: const ColorFilter.mode(Color(0xFF6366F1), BlendMode.srcIn),
+                      ),
+                      const SizedBox(width: 6),
+                      const Text('Current Location', style: TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold)),
                     ],
                   ),
                   const Text(
@@ -429,8 +477,14 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
             width: 44,
             height: 44,
             decoration: const BoxDecoration(color: Color(0xFF8B5CF6), shape: BoxShape.circle),
-            child: const Center(
-              child: Icon(Icons.person_rounded, color: Colors.white, size: 20),
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: SvgPicture.asset(
+                  'assets/icons/profile.svg',
+                  colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                ),
+              ),
             ),
           ),
           const SizedBox(width: 14),
@@ -522,7 +576,13 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
     );
   }
 
-  Widget _buildQuickActionItem(String title, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildQuickActionItem(
+      String title,
+      Color color,
+      VoidCallback onTap, {
+        IconData? icon,
+        String? svgPath,
+      }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -530,17 +590,39 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
         decoration: BoxDecoration(
           color: AppColors.cardBg,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+          border: Border.all(
+            color: AppColors.cardBorder,
+            width: 1.2,
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: color, size: 16),
+            if (svgPath != null)
+              SvgPicture.asset(
+                svgPath,
+                width: 16,
+                height: 16,
+              )
+            else if (icon != null)
+              Icon(
+                icon,
+                color: color,
+                size: 16,
+              ),
+
             const SizedBox(height: 6),
+
             Text(
               title,
-              style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 8,
+                fontWeight: FontWeight.bold,
+              ),
               textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
