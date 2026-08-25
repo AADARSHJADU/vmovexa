@@ -776,7 +776,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Step 3 of 6', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 10, fontWeight: FontWeight.bold)),
+        const Text('Step 4 of 6', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 10, fontWeight: FontWeight.bold)),
         const SizedBox(height: 6),
         const Text('Select Fleet & Screens', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
@@ -1214,7 +1214,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Step 4 of 6', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 10, fontWeight: FontWeight.bold)),
+        const Text('Step 3 of 6', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 10, fontWeight: FontWeight.bold)),
         const SizedBox(height: 6),
         const Text('Schedule Campaign', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),

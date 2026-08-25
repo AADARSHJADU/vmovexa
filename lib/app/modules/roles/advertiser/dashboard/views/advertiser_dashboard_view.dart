@@ -794,6 +794,9 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               _buildPerformanceChart(),
               const SizedBox(height: 20),
 
+              _buildQrAnalyticsCard(),
+              const SizedBox(height: 20),
+
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(color: AppColors.cardBg, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.cardBorder)),
@@ -1619,8 +1622,8 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               const SizedBox(height: 20),
 
               // Contact Support banner
-              _buildContactSupportBanner(),
-              const SizedBox(height: 16),
+              //_buildContactSupportBanner(),
+              //const SizedBox(height: 16),
 
               // Channels
               _buildSupportChannelsGrid(),
@@ -1860,6 +1863,163 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
       ),
     );
   }
+
+  Widget _buildQrAnalyticsCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: const [
+                  Icon(Icons.qr_code_scanner_rounded, color: Color(0xFF8B5CF6), size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    'QR Analytics',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              GestureDetector(
+                onTap: () {},
+                child: Row(
+                  children: const [
+                    Text(
+                      'View QR Details',
+                      style: TextStyle(
+                        color: Color(0xFF8B5CF6),
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(width: 2),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: Color(0xFF8B5CF6),
+                      size: 14,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            child: Row(
+              children: [
+                _buildQrStatItem('Total QR Scans', '1,245', '18.6%', 'vs last 21 days'),
+                _buildQrVerticalDivider(),
+                _buildQrStatItem('Unique Scanners', '1,032', '15.3%', 'vs last 21 days'),
+                _buildQrVerticalDivider(),
+                _buildQrStatItem('Scan Rate', '8.1%', '1.2%', 'vs. Impressions'),
+                _buildQrVerticalDivider(),
+                _buildQrStatItem('Leads Generated', '256', '20.4%', 'vs last 21 days'),
+                _buildQrVerticalDivider(),
+                _buildQrStatItem('Lead Conversion Rate', '20.6%', null, 'vs QR scans'),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'QR Scans by Day',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 150,
+            child: CustomPaint(
+              size: const Size(double.infinity, 150),
+              painter: QrBarChartPainter(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQrStatItem(String label, String value, String? trendPercent, String comparison) {
+    return SizedBox(
+      width: 110,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.textMuted,
+              fontSize: 8.5,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 4),
+          if (trendPercent != null)
+            Row(
+              children: [
+                const Icon(
+                  Icons.arrow_drop_up_rounded,
+                  color: Color(0xFF10B981),
+                  size: 14,
+                ),
+                Text(
+                  '$trendPercent',
+                  style: const TextStyle(
+                    color: Color(0xFF10B981),
+                    fontSize: 8.5,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            )
+          else
+            const SizedBox(height: 14),
+          const SizedBox(height: 2),
+          Text(
+            comparison,
+            style: const TextStyle(
+              color: AppColors.textMuted,
+              fontSize: 8,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQrVerticalDivider() {
+    return Container(
+      height: 52,
+      width: 1,
+      color: AppColors.cardBorder,
+      margin: const EdgeInsets.symmetric(horizontal: 10),
+    );
+  }
 }
 
 class ChartPainter extends CustomPainter {
@@ -1915,4 +2075,100 @@ class ChartPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
+
+class QrBarChartPainter extends CustomPainter {
+  final List<String> days = ['13 May', '14 May', '15 May', '16 May', '17 May', '18 May', '19 May'];
+  final List<int> values = [120, 150, 165, 130, 180, 220, 280];
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double paddingLeft = 24.0;
+    final double paddingBottom = 16.0;
+    final double paddingTop = 15.0;
+    final double paddingRight = 10.0;
+
+    final double width = size.width - paddingLeft - paddingRight;
+    final double height = size.height - paddingTop - paddingBottom;
+
+    final paintGrid = Paint()
+      ..color = AppColors.cardBorder
+      ..strokeWidth = 0.8;
+
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
+
+    final List<int> yLabels = [0, 100, 200, 300];
+    for (int i = 0; i < yLabels.length; i++) {
+      double val = yLabels[i].toDouble();
+      double y = paddingTop + height - (height * val / 300);
+      
+      canvas.drawLine(Offset(paddingLeft, y), Offset(size.width - paddingRight, y), paintGrid);
+
+      textPainter.text = TextSpan(
+        text: yLabels[i].toString(),
+        style: const TextStyle(color: AppColors.textMuted, fontSize: 8),
+      );
+      textPainter.layout();
+      textPainter.paint(canvas, Offset(paddingLeft - textPainter.width - 6, y - textPainter.height / 2));
+    }
+
+    final double colWidth = width / days.length;
+    final double barWidth = colWidth * 0.45;
+
+    for (int i = 0; i < days.length; i++) {
+      double xCenter = paddingLeft + (colWidth * (i + 0.5));
+      double barHeight = (values[i] / 300) * height;
+      
+      final double left = xCenter - barWidth / 2;
+      final double top = paddingTop + height - barHeight;
+      final double right = xCenter + barWidth / 2;
+      final double bottom = paddingTop + height;
+
+      final RRect rrect = RRect.fromRectAndCorners(
+        Rect.fromLTRB(left, top, right, bottom),
+        topLeft: const Radius.circular(4),
+        topRight: const Radius.circular(4),
+      );
+
+      final barPaint = Paint()
+        ..shader = const LinearGradient(
+          colors: [
+            Color(0xFFC084FC),
+            Color(0xFF8B5CF6),
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ).createShader(Rect.fromLTRB(left, top, right, bottom));
+
+      canvas.drawRRect(rrect, barPaint);
+
+      textPainter.text = TextSpan(
+        text: values[i].toString(),
+        style: const TextStyle(
+          color: Color(0xFFC084FC),
+          fontSize: 8.5,
+          fontWeight: FontWeight.bold,
+        ),
+      );
+      textPainter.layout();
+      textPainter.paint(
+        canvas,
+        Offset(xCenter - textPainter.width / 2, top - textPainter.height - 3),
+      );
+
+      textPainter.text = TextSpan(
+        text: days[i],
+        style: const TextStyle(color: AppColors.textMuted, fontSize: 7.5),
+      );
+      textPainter.layout();
+      textPainter.paint(
+        canvas,
+        Offset(xCenter - textPainter.width / 2, size.height - paddingBottom + 4),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
 
