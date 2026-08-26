@@ -52,6 +52,7 @@ flutter:
     - assets/icons/
     - assets/icons/fleet_operator_icons/
     - assets/images/
+    - assets/icons/advertiser_ic/
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
