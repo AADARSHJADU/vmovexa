@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../controllers/advertiser_profile_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
@@ -131,18 +132,18 @@ class AdvertiserProfileView extends GetView<AdvertiserProfileController> {
         // Status bar cards row
         Row(
           children: [
-            Expanded(child: _buildStatusMiniCell('Member Since', '12 May 2026', Icons.calendar_today_rounded)),
+            Expanded(child: _buildStatusMiniCell('Member Since', '12 May 2026', "assets/icons/fleet_operator_icons/fleetsManagedA.svg")),
             const SizedBox(width: 8),
-            Expanded(child: _buildStatusMiniCell('Account ID', 'ADV-2026-000124', Icons.badge_outlined)),
+            Expanded(child: _buildStatusMiniCell('Account ID', 'ADV-2026-000124', "assets/icons/fleet_operator_icons/fleetsManagedA.svg")),
             const SizedBox(width: 8),
-            Expanded(child: _buildStatusMiniCell('Account Status', 'Active', Icons.check_circle_outline_rounded, isSuccessColor: true)),
+            Expanded(child: _buildStatusMiniCell('Account Status', 'Active', "assets/icons/fleet_operator_icons/fleetsManagedA.svg", isSuccessColor: true)),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildStatusMiniCell(String label, String val, IconData icon, {bool isSuccessColor = false}) {
+  Widget _buildStatusMiniCell(String label, String val, String icon, {bool isSuccessColor = false}) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
       decoration: BoxDecoration(
@@ -152,7 +153,7 @@ class AdvertiserProfileView extends GetView<AdvertiserProfileController> {
       ),
       child: Column(
         children: [
-          Icon(icon, color: const Color(0xFF8B5CF6), size: 14),
+       SvgPicture.asset(icon),
           const SizedBox(height: 6),
           Text(val, style: TextStyle(color: isSuccessColor ? const Color(0xFF10B981) : Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
           const SizedBox(height: 2),

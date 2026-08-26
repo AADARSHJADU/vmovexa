@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../controllers/advertiser_dashboard_controller.dart';
 import '../../../../../theme/app_colors.dart';
@@ -1405,8 +1406,8 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Row(
-            children: const [
-              Icon(Icons.person_outline_rounded, color: Color(0xFF8B5CF6), size: 24),
+            children: [
+              SvgPicture.asset('assets/icons/profile.svg'),
               SizedBox(width: 10),
               Text('Settings', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
             ],
@@ -1420,51 +1421,51 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               // Account Section
               _buildSettingsSectionHeader('Account'),
               _buildSettingsCard([
-                _buildSettingsRow('Personal Information', 'Update your personal details', Icons.person_outline_rounded, onTap: () => Get.toNamed(Routes.ADVERTISER_PROFILE)),
+                _buildSettingsRow('Personal Information', 'Update your personal details','assets/icons/profile.svg', onTap: () => Get.toNamed(Routes.ADVERTISER_PROFILE)),
                 const Divider(color: AppColors.cardBorder, height: 16),
-                _buildSettingsRow('Change Password', 'Update your account password', Icons.lock_outline_rounded, onTap: () => Get.toNamed(Routes.CHANGE_PASSWORD)),
-                const Divider(color: AppColors.cardBorder, height: 16),
-                _buildSettingsRow('Two-Factor Authentication', 'Add an extra layer of security', Icons.verified_user_outlined),
+                _buildSettingsRow('Change Password', 'Update your account password', 'assets/icons/fleet_operator_icons/changePasswordA.svg', onTap: () => Get.toNamed(Routes.CHANGE_PASSWORD)),
+                // const Divider(color: AppColors.cardBorder, height: 16),
+                // _buildSettingsRow('Two-Factor Authentication', 'Add an extra layer of security', 'assets/icons/profile.svg'),
               ]),
               const SizedBox(height: 18),
 
               // Preferences Section
               _buildSettingsSectionHeader('Preferences'),
               _buildSettingsCard([
-                _buildSettingsRow('Notification Settings', 'Manage your notification preferences', Icons.notifications_none_rounded, onTap: () => Get.toNamed(Routes.NOTIFICATION_SETTINGS)),
-                const Divider(color: AppColors.cardBorder, height: 16),
-                _buildSettingsRow('Language', 'Choose your preferred language', Icons.language_rounded, value: 'English'),
-                const Divider(color: AppColors.cardBorder, height: 16),
-                _buildSettingsSwitchRow('Dark Mode', 'Choose your theme preference', Icons.dark_mode_outlined),
+                _buildSettingsRow('Notification Settings', 'Manage your notification preferences', 'assets/icons/fleet_operator_icons/notification.svg', onTap: () => Get.toNamed(Routes.NOTIFICATION_SETTINGS)),
+                // const Divider(color: AppColors.cardBorder, height: 16),
+                // _buildSettingsRow('Language', 'Choose your preferred language','assets/icons/profile.svg', value: 'English'),
+                // const Divider(color: AppColors.cardBorder, height: 16),
+                // _buildSettingsSwitchRow('Dark Mode', 'Choose your theme preference', 'assets/icons/profile.svg'),
               ]),
               const SizedBox(height: 18),
 
               // Security Section
               _buildSettingsSectionHeader('Security'),
               _buildSettingsCard([
-                _buildSettingsRow('Privacy Policy', 'View our privacy policy', Icons.shield_outlined, onTap: () => Get.toNamed(Routes.PRIVACY_POLICY)),
+                _buildSettingsRow('Privacy Policy', 'View our privacy policy', 'assets/icons/fleet_operator_icons/privacyPolicyA.svg', onTap: () => Get.toNamed(Routes.PRIVACY_POLICY)),
                 const Divider(color: AppColors.cardBorder, height: 16),
-                _buildSettingsRow('Terms & Conditions', 'View terms and conditions', Icons.description_outlined, onTap: () => Get.toNamed(Routes.TERMS_CONDITIONS)),
-                const Divider(color: AppColors.cardBorder, height: 16),
-                _buildSettingsRow('Device Sessions', 'Manage your active sessions', Icons.monitor_rounded),
+                _buildSettingsRow('Terms & Conditions', 'View terms and conditions', 'assets/icons/fleet_operator_icons/securityA.svg', onTap: () => Get.toNamed(Routes.TERMS_CONDITIONS)),
+                // const Divider(color: AppColors.cardBorder, height: 16),
+                // _buildSettingsRow('Device Sessions', 'Manage your active sessions', 'assets/icons/profile.svg'),
               ]),
               const SizedBox(height: 18),
 
               // Support Section
               _buildSettingsSectionHeader('Support'),
               _buildSettingsCard([
-                _buildSettingsRow('Help Center', 'Find answers to common questions', Icons.help_outline_rounded, onTap: controller.switchToHelp),
+                _buildSettingsRow('Help Center', 'Find answers to common questions', 'assets/icons/fleet_operator_icons/helpSupportA.svg', onTap: controller.switchToHelp),
                 const Divider(color: AppColors.cardBorder, height: 16),
-                _buildSettingsRow('Contact Support', 'Get in touch with our support team', Icons.support_agent_rounded, onTap: controller.switchToHelp),
+                _buildSettingsRow('Contact Support', 'Get in touch with our support team', 'assets/icons/fleet_operator_icons/supportHistoryA.svg', onTap: controller.switchToHelp),
                 const Divider(color: AppColors.cardBorder, height: 16),
-                _buildSettingsRow('About VMOVEXA', 'Learn more about VMOVEXA', Icons.info_outline_rounded),
+                _buildSettingsRow('About VMOVEXA', 'Learn more about VMOVEXA', 'assets/icons/fleet_operator_icons/AboutA.svg'),
               ]),
               const SizedBox(height: 18),
 
               // App Section
               _buildSettingsSectionHeader('App'),
               _buildSettingsCard([
-                _buildSettingsRow('App Version', 'You are using the latest version', Icons.phone_android_rounded, value: 'v1.0.0'),
+                _buildSettingsRow('App Version', 'You are using the latest version', 'assets/icons/profile.svg', value: 'v1.0.0'),
               ]),
               const SizedBox(height: 24),
 
@@ -1512,12 +1513,12 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
     );
   }
 
-  Widget _buildSettingsRow(String label, String subtitle, IconData icon, {VoidCallback? onTap, String? value}) {
+  Widget _buildSettingsRow(String label, String subtitle, String icon, {VoidCallback? onTap, String? value}) {
     return InkWell(
       onTap: onTap,
       child: Row(
         children: [
-          Icon(icon, color: const Color(0xFF8B5CF6), size: 18),
+       SvgPicture.asset(icon),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -1525,7 +1526,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               children: [
                 Text(label, style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 2),
-                Text(subtitle, style: const TextStyle(color: AppColors.textMuted, fontSize: 8.5)),
+                Text(subtitle, style: const TextStyle(color:Colors.white, fontSize: 8.5)),
               ],
             ),
           ),
@@ -1539,10 +1540,10 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
     );
   }
 
-  Widget _buildSettingsSwitchRow(String label, String subtitle, IconData icon) {
+  Widget _buildSettingsSwitchRow(String label, String subtitle, String icon) {
     return Row(
       children: [
-        Icon(icon, color: const Color(0xFF8B5CF6), size: 18),
+        SvgPicture.asset(icon),
         const SizedBox(width: 14),
         Expanded(
           child: Column(
