@@ -104,16 +104,9 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
         border: Border.all(color: AppColors.cardBorder, width: 1.2),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF6366F1).withOpacity(0.08),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.article_outlined, color: Color(0xFF6366F1), size: 28),
-          ),
+         SvgPicture.asset('assets/icons/advertiser_ic/termConditionHeaderA.svg',width: 70,height: 60,),
           const SizedBox(width: 16),
           Expanded(
             child: Column(

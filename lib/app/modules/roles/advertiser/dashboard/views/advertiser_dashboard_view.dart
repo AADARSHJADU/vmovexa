@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
+import '../../../../../widgets/custom_back_button.dart';
+import '../../../../../widgets/custom_button.dart';
 import '../controllers/advertiser_dashboard_controller.dart';
 import '../../../../../theme/app_colors.dart';
 import '../../../../../widgets/custom_text_field.dart';
@@ -28,66 +32,66 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           }
         }),
       ),
-      bottomNavigationBar: Obx(
-        () {
-          IconData tab4Icon = Icons.person_outline_rounded;
-          String tab4Label = 'Profile';
+      bottomNavigationBar: Obx(() {
+        IconData tab4Icon = Icons.person_outline_rounded;
+        String tab4Label = 'Profile';
 
-          if (controller.tab4Mode.value == 'billing') {
-            tab4Icon = Icons.account_balance_wallet_rounded;
-            tab4Label = 'Billing';
-          } else if (controller.tab4Mode.value == 'help') {
-            tab4Icon = Icons.more_horiz_rounded;
-            tab4Label = 'More';
-          }
+        if (controller.tab4Mode.value == 'billing') {
+          tab4Icon = Icons.account_balance_wallet_rounded;
+          tab4Label = 'Billing';
+        } else if (controller.tab4Mode.value == 'help') {
+          tab4Icon = Icons.more_horiz_rounded;
+          tab4Label = 'More';
+        }
 
-          return Container(
-            decoration: const BoxDecoration(
-              color: AppColors.cardBg,
-              border: Border(top: BorderSide(color: AppColors.cardBorder, width: 1.2)),
+        return Container(
+          decoration: const BoxDecoration(
+            color: AppColors.cardBg,
+            border: Border(
+              top: BorderSide(color: AppColors.cardBorder, width: 1.2),
             ),
-            child: BottomNavigationBar(
-              currentIndex: controller.selectedNavIndex.value,
-              onTap: (index) {
-                if (index == 4) {
-                  // Keep whatever mode it was or let it stick
-                } else {
-                  // If switching away from index 4, reset mode to profile for next click or let it stay
-                }
-                controller.changeTab(index);
-              },
-              backgroundColor: Colors.transparent,
-              type: BottomNavigationBarType.fixed,
-              selectedItemColor: const Color(0xFF8B5CF6),
-              unselectedItemColor: AppColors.textMuted,
-              selectedFontSize: 9.5,
-              unselectedFontSize: 9.5,
-              items: [
-                const BottomNavigationBarItem(
-                  icon: Icon(Icons.home_filled, size: 20),
-                  label: 'Home',
-                ),
-                const BottomNavigationBarItem(
-                  icon: Icon(Icons.campaign_rounded, size: 20),
-                  label: 'Campaigns',
-                ),
-                const BottomNavigationBarItem(
-                  icon: Icon(Icons.bar_chart_rounded, size: 20),
-                  label: 'Analytics',
-                ),
-                const BottomNavigationBarItem(
-                  icon: Icon(Icons.description_outlined, size: 20),
-                  label: 'Reports',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(tab4Icon, size: 20),
-                  label: tab4Label,
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+          ),
+          child: BottomNavigationBar(
+            currentIndex: controller.selectedNavIndex.value,
+            onTap: (index) {
+              if (index == 4) {
+                // Keep whatever mode it was or let it stick
+              } else {
+                // If switching away from index 4, reset mode to profile for next click or let it stay
+              }
+              controller.changeTab(index);
+            },
+            backgroundColor: Colors.transparent,
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: const Color(0xFF8B5CF6),
+            unselectedItemColor: AppColors.textMuted,
+            selectedFontSize: 9.5,
+            unselectedFontSize: 9.5,
+            items: [
+              const BottomNavigationBarItem(
+                icon: Icon(Icons.home_filled, size: 20),
+                label: 'Home',
+              ),
+              const BottomNavigationBarItem(
+                icon: Icon(Icons.campaign_rounded, size: 20),
+                label: 'Campaigns',
+              ),
+              const BottomNavigationBarItem(
+                icon: Icon(Icons.bar_chart_rounded, size: 20),
+                label: 'Analytics',
+              ),
+              const BottomNavigationBarItem(
+                icon: Icon(Icons.description_outlined, size: 20),
+                label: 'Reports',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(tab4Icon, size: 20),
+                label: tab4Label,
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 
@@ -114,19 +118,32 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                icon: const Icon(Icons.menu_rounded, color: Colors.white, size: 24),
+                icon: const Icon(
+                  Icons.menu_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
                 onPressed: () {},
               ),
               const Text(
                 'V M O V E X A',
-                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
+                ),
               ),
               Row(
                 children: [
                   Stack(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 24),
+                        icon: const Icon(
+                          Icons.notifications_none_rounded,
+                          color: Colors.white,
+                          size: 24,
+                        ),
                         onPressed: () => Get.toNamed(Routes.NOTIFICATIONS_LIST),
                       ),
                       Positioned(
@@ -135,7 +152,10 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                         child: Container(
                           width: 8,
                           height: 8,
-                          decoration: const BoxDecoration(color: Color(0xFF8B5CF6), shape: BoxShape.circle),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF8B5CF6),
+                            shape: BoxShape.circle,
+                          ),
                         ),
                       ),
                     ],
@@ -146,8 +166,17 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                     child: Container(
                       width: 32,
                       height: 32,
-                      decoration: const BoxDecoration(color: Color(0xFF8B5CF6), shape: BoxShape.circle),
-                      child: const Center(child: Icon(Icons.person_outline_rounded, color: Colors.white, size: 16)),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF8B5CF6),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.person_outline_rounded,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -163,11 +192,27 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Welcome back,', style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
+                const Text(
+                  'Welcome back,',
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+                ),
                 const SizedBox(height: 4),
-                const Text('Advertiser!', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 22, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Advertiser!',
+                  style: TextStyle(
+                    color: Color(0xFF8B5CF6),
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                const Text("Here's an overview of your campaigns.", style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                const Text(
+                  "Here's an overview of your campaigns.",
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 11,
+                  ),
+                ),
                 const SizedBox(height: 24),
 
                 _buildMetricsGrid(),
@@ -176,10 +221,23 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Campaign Performance (Last 7 Days)', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Campaign Performance (Last 7 Days)',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     TextButton(
                       onPressed: () => controller.changeTab(2),
-                      child: const Text('View All', style: TextStyle(color: Color(0xFF6366F1), fontSize: 11)),
+                      child: const Text(
+                        'View All',
+                        style: TextStyle(
+                          color: Color(0xFF6366F1),
+                          fontSize: 11,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -190,10 +248,23 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Recent Campaigns', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Recent Campaigns',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     TextButton(
                       onPressed: () => controller.changeTab(1),
-                      child: const Text('View All', style: TextStyle(color: Color(0xFF6366F1), fontSize: 11)),
+                      child: const Text(
+                        'View All',
+                        style: TextStyle(
+                          color: Color(0xFF6366F1),
+                          fontSize: 11,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -216,22 +287,41 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
       mainAxisSpacing: 14,
       childAspectRatio: 1.35,
       children: [
-        _buildMetricCard('Active Campaigns', '12', '2 running now', Icons.campaign_outlined, const Color(0xFFEC4899)),
-        _buildMetricCard('Scheduled Campaigns', '8', 'Upcoming', Icons.schedule_rounded, const Color(0xFF3B82F6)),
-        _buildMetricCard('Total Impressions', '2.45M', '▲ 18.6% vs last 7 days', Icons.remove_red_eye_outlined, const Color(0xFF10B981), isTrendUp: true),
+        _buildMetricCard(
+          'Active Campaigns',
+          '12',
+          '2 running now',
+          Icons.campaign_outlined,
+          const Color(0xFFEC4899),
+        ),
+        _buildMetricCard(
+          'Scheduled Campaigns',
+          '8',
+          'Upcoming',
+          Icons.schedule_rounded,
+          const Color(0xFF3B82F6),
+        ),
+        _buildMetricCard(
+          'Total Impressions',
+          '2.45M',
+          '▲ 18.6% vs last 7 days',
+          Icons.remove_red_eye_outlined,
+          const Color(0xFF10B981),
+          isTrendUp: true,
+        ),
         _buildBudgetCard(),
       ],
     );
   }
 
   Widget _buildMetricCard(
-      String label,
-      String value,
-      String subText,
-      IconData icon,
-      Color iconColor, {
-        bool isTrendUp = false,
-      }) {
+    String label,
+    String value,
+    String subText,
+    IconData icon,
+    Color iconColor, {
+    bool isTrendUp = false,
+  }) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -297,8 +387,8 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
     );
   }
 
-// Circular ring with gradient border + soft glow + centered icon,
-// matching the pink-to-blue circular outline in the screenshot.
+  // Circular ring with gradient border + soft glow + centered icon,
+  // matching the pink-to-blue circular outline in the screenshot.
   Widget _buildGradientIconRing(IconData icon, Color iconColor) {
     return Container(
       width: 42,
@@ -307,10 +397,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
       decoration: const BoxDecoration(
         shape: BoxShape.circle,
         gradient: LinearGradient(
-          colors: [
-            Color(0xFFEC4899),
-            Color(0xFF3B82F6),
-          ],
+          colors: [Color(0xFFEC4899), Color(0xFF3B82F6)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -320,29 +407,23 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           shape: BoxShape.circle,
           color: AppColors.cardBg,
         ),
-        child: Center(
-          child: Icon(
-            icon,
-            color: iconColor,
-            size: 22,
-          ),
-        ),
+        child: Center(child: Icon(icon, color: iconColor, size: 22)),
       ),
     );
   }
 
-// ---------------------------------------------------------------------
-// Example usage with your data:
-//
-// _buildMetricCard(
-//   'Active Campaigns',
-//   '12',
-//   '2 running now',
-//   Icons.campaign_outlined,
-//   const Color(0xFFEC4899),
-//   isTrendUp: false,
-// ),
-// ---------------------------------------------------------------------
+  // ---------------------------------------------------------------------
+  // Example usage with your data:
+  //
+  // _buildMetricCard(
+  //   'Active Campaigns',
+  //   '12',
+  //   '2 running now',
+  //   Icons.campaign_outlined,
+  //   const Color(0xFFEC4899),
+  //   isTrendUp: false,
+  // ),
+  // ---------------------------------------------------------------------
 
   Widget _buildBudgetCard() {
     return GestureDetector(
@@ -361,26 +442,51 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Budget Utilized', style: TextStyle(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold)),
-                const Text('₹ 8.75L', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                Text(
+                  'Budget Utilized',
+                  style: TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Text(
+                  '₹ 8.75L',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: const [
-                    Text('65% of total budget', style: TextStyle(color: AppColors.textSecondary, fontSize: 8)),
+                    Text(
+                      '65% of total budget',
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 8,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Container(
                   height: 4,
                   width: double.infinity,
-                  decoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(2)),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E293B),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                   child: Row(
                     children: [
                       Container(
                         width: 70,
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(colors: [Color(0xFFEC4899), Color(0xFF8B5CF6)]),
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFEC4899), Color(0xFF8B5CF6)],
+                          ),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -394,7 +500,6 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
       ),
     );
   }
-
 
   Widget _buildPerformanceChart() {
     return Container(
@@ -436,20 +541,23 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 6),
-        Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 9)),
+        Text(
+          label,
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 9),
+        ),
       ],
     );
   }
 
   Widget _buildRecentCampaignsList() {
     final list = controller.allCampaigns.take(3).toList();
-    return Column(
-      children: list.map((c) => _buildCampaignRowItem(c)).toList(),
-    );
+    return Column(children: list.map((c) => _buildCampaignRowItem(c)).toList());
   }
 
   Widget _buildCampaignRowItem(dynamic c) {
-    Color badgeColor = c.status == 'RUNNING' ? const Color(0xFF10B981) : const Color(0xFFF59E0B);
+    Color badgeColor = c.status == 'RUNNING'
+        ? const Color(0xFF10B981)
+        : const Color(0xFFF59E0B);
     return GestureDetector(
       onTap: () => controller.goToCampaignDetails(c),
       child: Container(
@@ -468,9 +576,18 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               decoration: BoxDecoration(
                 color: c.themeColor.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: c.themeColor.withOpacity(0.3), width: 1),
+                border: Border.all(
+                  color: c.themeColor.withOpacity(0.3),
+                  width: 1,
+                ),
               ),
-              child: Center(child: Icon(Icons.campaign_outlined, color: c.themeColor, size: 22)),
+              child: Center(
+                child: Icon(
+                  Icons.campaign_outlined,
+                  color: c.themeColor,
+                  size: 22,
+                ),
+              ),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -480,32 +597,72 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(c.title, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                      Text(
+                        c.title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: badgeColor.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: Text(c.status, style: TextStyle(color: badgeColor, fontSize: 8, fontWeight: FontWeight.bold)),
+                        child: Text(
+                          c.status,
+                          style: TextStyle(
+                            color: badgeColor,
+                            fontSize: 8,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
-                  Text(c.client, style: const TextStyle(color: AppColors.textSecondary, fontSize: 10)),
+                  Text(
+                    c.client,
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 10,
+                    ),
+                  ),
                   const SizedBox(height: 4),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(c.dates, style: const TextStyle(color: AppColors.textMuted, fontSize: 9)),
-                      Text('Budget: ${c.budget}', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                      Text(
+                        c.dates,
+                        style: const TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 9,
+                        ),
+                      ),
+                      Text(
+                        'Budget: ${c.budget}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
             const SizedBox(width: 10),
-            const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 16),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.textMuted,
+              size: 16,
+            ),
           ],
         ),
       ),
@@ -523,8 +680,9 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(
-                children: const [
-                  Icon(Icons.campaign_rounded, color: Color(0xFF8B5CF6), size: 24),
+                children: [
+                  //Icon(Icons.campaign_rounded, color: Color(0xFF8B5CF6), size: 24),
+                  SvgPicture.asset('assets/icons/advertiser_ic/speaker.svg'),
                   SizedBox(width: 10),
                   Text('Campaigns', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                 ],
@@ -562,7 +720,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: AppColors.cardBorder, width: 1.2),
                     ),
-                    child: const Icon(Icons.tune_rounded, color: Color(0xFF8B5CF6), size: 18),
+                    child: SvgPicture.asset('assets/icons/advertiser_ic/filter.svg'),
                   ),
                 ],
               ),
@@ -572,7 +730,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             SizedBox(
               height: 36,
               child: Obx(
-                () => ListView(
+                    () => ListView(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   children: [
@@ -609,17 +767,21 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
         Positioned(
           bottom: 20,
           right: 20,
-          child: FloatingActionButton.extended(
-            onPressed: controller.goToCreateCampaign,
-            backgroundColor: const Color(0xFF8B5CF6),
-            icon: const Icon(Icons.add, color: Colors.white),
-            label: const Text('Create Campaign', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+          child: CustomButton(
+            width: 180,
+            height: 50,
+            text: 'Create Campaign',
+            onTap: controller.goToCreateCampaign,
+            prefixIcon: const Icon(
+              Icons.add,
+              color: Colors.white,
+              size: 20,
+            ),
           ),
         ),
       ],
     );
   }
-
   Widget _buildFilterPill(String filter) {
     bool isSelected = controller.activeFilter.value == filter;
     return GestureDetector(
@@ -724,6 +886,330 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
       ],
     );
   }
+  /*Widget _buildCampaignsTab() {
+    return Stack(
+      children: [
+        Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: Row(
+                children: const [
+                  Icon(
+                    Icons.campaign_rounded,
+                    color: Color(0xFF8B5CF6),
+                    size: 24,
+                  ),
+                  SizedBox(width: 10),
+                  Text(
+                    'Campaigns',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.inputBg,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.cardBorder,
+                          width: 1.2,
+                        ),
+                      ),
+                      child: const TextField(
+                        style: TextStyle(color: Colors.white, fontSize: 13),
+                        decoration: InputDecoration(
+                          hintText: 'Search Campaigns...',
+                          hintStyle: TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 12,
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          prefixIcon: Icon(
+                            Icons.search_rounded,
+                            color: AppColors.textMuted,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Container(
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.cardBg,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.cardBorder,
+                        width: 1.2,
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.tune_rounded,
+                      color: Color(0xFF8B5CF6),
+                      size: 18,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            SizedBox(
+              height: 36,
+              child: Obx(
+                () => ListView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  children: [
+                    _buildFilterPill('All'),
+                    _buildFilterPill('Running'),
+                    _buildFilterPill('Scheduled'),
+                    _buildFilterPill('Pending'),
+                    _buildFilterPill('Completed'),
+                    _buildFilterPill('Paused'),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            Expanded(
+              child: Obx(() {
+                if (controller.filteredCampaigns.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'No campaigns found',
+                      style: TextStyle(color: AppColors.textMuted),
+                    ),
+                  );
+                }
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: controller.filteredCampaigns.length,
+                  itemBuilder: (context, index) {
+                    final c = controller.filteredCampaigns[index];
+                    return _buildDetailedCampaignCard(c);
+                  },
+                );
+              }),
+            ),
+          ],
+        ),
+        Positioned(
+          bottom: 20,
+          right: 20,
+          child: FloatingActionButton.extended(
+            onPressed: controller.goToCreateCampaign,
+            backgroundColor: const Color(0xFF8B5CF6),
+            icon: const Icon(Icons.add, color: Colors.white),
+            label: const Text(
+              'Create Campaign',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }*/
+
+  /*Widget _buildFilterPill(String filter) {
+    bool isSelected = controller.activeFilter.value == filter;
+    return GestureDetector(
+      onTap: () => controller.filterCampaigns(filter),
+      child: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color(0xFF8B5CF6).withOpacity(0.12)
+              : AppColors.cardBg,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF8B5CF6) : AppColors.cardBorder,
+            width: 1,
+          ),
+        ),
+        child: Text(
+          filter,
+          style: TextStyle(
+            color: isSelected ? Colors.white : AppColors.textSecondary,
+            fontSize: 11,
+          ),
+        ),
+      ),
+    );
+  }*/
+
+/*  Widget _buildDetailedCampaignCard(dynamic c) {
+    Color badgeColor = c.status == 'RUNNING'
+        ? const Color(0xFF10B981)
+        : const Color(0xFFF59E0B);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: c.themeColor.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: c.themeColor.withOpacity(0.2),
+                    width: 1,
+                  ),
+                ),
+                child: Center(
+                  child: Icon(
+                    Icons.photo_library_outlined,
+                    color: c.themeColor,
+                    size: 24,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          c.title,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: badgeColor.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            c.status,
+                            style: TextStyle(
+                              color: badgeColor,
+                              fontSize: 8,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      c.client,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 10,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      c.dates,
+                      style: const TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 9,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const Divider(color: AppColors.cardBorder, height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildCompactStat('Budget', c.budget),
+              _buildCompactStat('Screens', '${c.screens}'),
+              _buildCompactStat('Impressions', c.impressions),
+              GestureDetector(
+                onTap: () => controller.goToCampaignDetails(c),
+                child: Row(
+                  children: const [
+                    Text(
+                      'View Details',
+                      style: TextStyle(
+                        color: Color(0xFF8B5CF6),
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(width: 4),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: Color(0xFF8B5CF6),
+                      size: 14,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCompactStat(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(color: AppColors.textMuted, fontSize: 8),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }*/
 
   // ==========================================
   // ANALYTICS TAB (Index 2)
@@ -734,10 +1220,18 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Row(
-            children: const [
-              Icon(Icons.bar_chart_rounded, color: Color(0xFF8B5CF6), size: 24),
+            children: [
+              SvgPicture.asset('assets/icons/advertiser_ic/campaignAnalytics.svg'),
+              // Icon(Icons.bar_chart_rounded, color: Color(0xFF8B5CF6), size: 24),
               SizedBox(width: 10),
-              Text('Campaign Analytics', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(
+                'Campaign Analytics',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
         ),
@@ -748,10 +1242,24 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             children: [
               Container(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: AppColors.cardBg, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.cardBorder, width: 1)),
+                decoration: BoxDecoration(
+                  color: AppColors.cardBg,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.cardBorder, width: 1),
+                ),
                 child: Row(
                   children: [
-                    Container(width: 60, height: 60, color: const Color(0xFF1E293B), child: const Center(child: Icon(Icons.movie_filter_outlined, color: Color(0xFF8B5CF6)))),
+                    Container(
+                      width: 60,
+                      height: 60,
+                      color: const Color(0xFF1E293B),
+                      child: const Center(
+                        child: Icon(
+                          Icons.movie_filter_outlined,
+                          color: Color(0xFF8B5CF6),
+                        ),
+                      ),
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -760,18 +1268,52 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Summer Sale 2026', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                              const Text(
+                                'Summer Sale 2026',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(color: const Color(0xFF10B981).withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
-                                child: const Text('Live', style: TextStyle(color: Color(0xFF10B981), fontSize: 8, fontWeight: FontWeight.bold)),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(
+                                    0xFF10B981,
+                                  ).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Text(
+                                  'Live',
+                                  style: TextStyle(
+                                    color: Color(0xFF10B981),
+                                    fontSize: 8,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 4),
-                          const Text('Retail • Offer / Promotion', style: TextStyle(color: AppColors.textSecondary, fontSize: 9.5)),
+                          const Text(
+                            'Retail • Offer / Promotion',
+                            style: TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 9.5,
+                            ),
+                          ),
                           const SizedBox(height: 6),
-                          const Text('20 May 2026 - 10 Jun 2026 (21 Days)', style: TextStyle(color: AppColors.textMuted, fontSize: 8.5)),
+                          const Text(
+                            '20 May 2026 - 10 Jun 2026 (21 Days)',
+                            style: TextStyle(
+                              color: AppColors.textMuted,
+                              fontSize: 8.5,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -782,11 +1324,35 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
 
               Row(
                 children: [
-                  Expanded(child: _buildMiniStatBlock('Total Impressions', '15.2M', const Color(0xFF8B5CF6))),
+                  Expanded(
+                    child: _buildMiniStatBlock(
+                      'assets/icons/advertiser_ic/totalEmpression.svg',
+                      Color(0xffcf66f1),
+                      'Total Impressions',
+                      '15.2M',
+                      const Color(0xFF8B5CF6),
+                    ),
+                  ),
                   const SizedBox(width: 8),
-                  Expanded(child: _buildMiniStatBlock('Total Reach', '8.7M', const Color(0xFF3B82F6))),
+                  Expanded(
+                    child: _buildMiniStatBlock(
+                      'assets/icons/advertiser_ic/userTwo.svg',
+                      Color(0xFF3B82F6),
+                      'Total Reach',
+                      '8.7M',
+                      const Color(0xFF3B82F6),
+                    ),
+                  ),
                   const SizedBox(width: 8),
-                  Expanded(child: _buildMiniStatBlock('Active Screens', '1,182', const Color(0xFF10B981))),
+                  Expanded(
+                    child: _buildMiniStatBlock(
+                      'assets/icons/advertiser_ic/monitor.svg',
+                      Color(0xFF10B981),
+                      'Active Screens',
+                      '1,182',
+                      const Color(0xFF10B981),
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 18),
@@ -796,14 +1362,30 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
 
               _buildQrAnalyticsCard(),
               const SizedBox(height: 20),
-
               Container(
                 padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(color: AppColors.cardBg, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.cardBorder)),
+                decoration: BoxDecoration(
+                  color: AppColors.cardBg,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.cardBorder),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Top Performing Cities', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
+                     Row(
+                       children: [
+                         SvgPicture.asset('assets/icons/fleet_operator_icons/locationA.svg'),
+                         SizedBox(width: 5),
+                         Text(
+                          'Top Performing Cities',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.bold,
+                          ),
+                         ),
+                       ],
+                     ),
                     const SizedBox(height: 10),
                     _buildCityBarRow('Delhi (22%)', 0.8),
                     _buildCityBarRow('Mumbai (17%)', 0.65),
@@ -818,15 +1400,31 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
     );
   }
 
-  Widget _buildMiniStatBlock(String label, String val, Color c) {
+  Widget _buildMiniStatBlock(String icon,Color iconColor,String label, String val, Color c) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(color: AppColors.cardBg, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.cardBorder)),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
       child: Column(
         children: [
-          Text(val, style: TextStyle(color: c, fontSize: 14, fontWeight: FontWeight.bold)),
+          SvgPicture.asset(icon,color:iconColor,),
+          // SvgPicture.asset('assets/icons/advertiser_ic/totalEmpression.svg',color: Color(0xffcf66f1),),
+          Text(
+            val,
+            style: TextStyle(
+              color: c,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 8)),
+          Text(
+            label,
+            style: const TextStyle(color: Colors.white, fontSize: 8),
+          ),
         ],
       ),
     );
@@ -838,9 +1436,20 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 9.5)),
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 9.5,
+            ),
+          ),
           const SizedBox(height: 4),
-          LinearProgressIndicator(value: p, backgroundColor: const Color(0xFF1E293B), valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF8B5CF6)), minHeight: 2),
+          LinearProgressIndicator(
+            value: p,
+            backgroundColor: const Color(0xFF1E293B),
+            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF8B5CF6)),
+            minHeight: 2,
+          ),
         ],
       ),
     );
@@ -855,10 +1464,17 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Row(
-            children: const [
-              Icon(Icons.description_outlined, color: Color(0xFF8B5CF6), size: 24),
+            children: [
+             SvgPicture.asset('assets/icons/fleet_operator_icons/privacyPolicyA.svg',),
               SizedBox(width: 10),
-              Text('Reports', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(
+                'Reports',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
         ),
@@ -873,7 +1489,8 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                   isDropdown: true,
                   dropdownValue: controller.selectedReportCampaign.value,
                   dropdownItems: controller.reportCampaigns,
-                  onDropdownChanged: (val) => controller.selectedReportCampaign.value = val!,
+                  onDropdownChanged: (val) =>
+                      controller.selectedReportCampaign.value = val!,
                 ),
               ),
               const SizedBox(width: 12),
@@ -883,7 +1500,8 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                   isDropdown: true,
                   dropdownValue: controller.selectedReportRange.value,
                   dropdownItems: controller.reportRanges,
-                  onDropdownChanged: (val) => controller.selectedReportRange.value = val!,
+                  onDropdownChanged: (val) =>
+                      controller.selectedReportRange.value = val!,
                 ),
               ),
             ],
@@ -896,7 +1514,14 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             physics: const BouncingScrollPhysics(),
             children: [
-              const Text('Report Summary', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+              const Text(
+                'Report Summary',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 12),
 
               _buildReportCard(
@@ -941,7 +1566,14 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               ),
               const SizedBox(height: 24),
 
-              const Text('Export Options', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+              const Text(
+                'Export Options',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 10),
               _buildExportOptionsGrid(),
               const SizedBox(height: 20),
@@ -952,7 +1584,13 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
     );
   }
 
-  Widget _buildReportCard(String title, String desc, IconData icon, List<Widget> stats, String btnText) {
+  Widget _buildReportCard(
+    String title,
+    String desc,
+    IconData icon,
+    List<Widget> stats,
+    String btnText,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -968,16 +1606,38 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             children: [
               Row(
                 children: [
-                  Icon(icon, color: const Color(0xFF8B5CF6), size: 16),
-                  const SizedBox(width: 8),
-                  Text(title, style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
+                  // Icon(icon, color: const Color(0xFF8B5CF6), size: 16),
+                  // const SizedBox(width: 8),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
-              const Text('View Details ›', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 9.5, fontWeight: FontWeight.bold)),
+               InkWell(
+                 onTap: (){
+                   controller.switchToBillingPayment();
+                 },
+                 child: Text(
+                  'View Details ›',
+                  style: TextStyle(
+                    color: Color(0xFF8B5CF6),
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.bold,
+                  ),
+                               ),
+               ),
             ],
           ),
           const SizedBox(height: 4),
-          Text(desc, style: const TextStyle(color: AppColors.textMuted, fontSize: 9)),
+          Text(
+            desc,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
+          ),
           const Divider(color: AppColors.cardBorder, height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -991,10 +1651,15 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.cardBorder),
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
-              icon: const Icon(Icons.file_download_outlined, color: Colors.white, size: 12),
-              label: Text(btnText, style: const TextStyle(color: Colors.white, fontSize: 10)),
+              icon: SvgPicture.asset('assets/icons/advertiser_ic/download.svg',width: 15,height: 15,),
+              label: Text(
+                btnText,
+                style: const TextStyle(color: Colors.white, fontSize: 10),
+              ),
             ),
           ),
         ],
@@ -1006,20 +1671,45 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 7.5)),
+        Text(
+          label,
+          style: const TextStyle(color: AppColors.textMuted, fontSize: 7.5),
+        ),
         const SizedBox(height: 4),
-        Text(value, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         const SizedBox(height: 2),
-        Text(sub, style: const TextStyle(color: Color(0xFF10B981), fontSize: 7)),
+        Text(
+          sub,
+          style: const TextStyle(color: Color(0xFF10B981), fontSize: 7),
+        ),
       ],
     );
   }
 
   Widget _buildExportOptionsGrid() {
     final formats = [
-      {'title': 'PDF', 'desc': 'Download PDF', 'icon': Icons.picture_as_pdf_outlined},
-      {'title': 'Excel', 'desc': 'Download Excel', 'icon': Icons.table_chart_outlined},
-      {'title': 'CSV', 'desc': 'Download CSV', 'icon': Icons.grid_view_outlined},
+      {
+        'title': 'PDF',
+        'desc': 'Download PDF',
+        'icon': 'assets/icons/advertiser_ic/pdf.svg',
+      },
+      {
+        'title': 'Excel',
+        'desc': 'Download Excel',
+        'icon': "assets/icons/advertiser_ic/excel.svg",
+      },
+      {
+        'title': 'CSV',
+        'desc': 'Download CSV',
+        'icon': "assets/icons/advertiser_ic/csv.svg",
+      },
     ];
 
     return Row(
@@ -1035,11 +1725,29 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             ),
             child: Column(
               children: [
-                Icon(f['icon'] as IconData, color: const Color(0xFF8B5CF6), size: 18),
+                // Icon(
+                //   f['icon'] as IconData,
+                //   color: const Color(0xFF8B5CF6),
+                //   size: 18,
+                // ),
+                SvgPicture.asset(f['icon'].toString(),width: 25,height: 25,),
                 const SizedBox(height: 6),
-                Text(f['title'] as String, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                Text(
+                  f['title'] as String,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(f['desc'] as String, style: const TextStyle(color: AppColors.textMuted, fontSize: 8)),
+                Text(
+                  f['desc'] as String,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 8,
+                  ),
+                ),
               ],
             ),
           ),
@@ -1060,16 +1768,32 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
-                children: const [
-                  Icon(Icons.account_balance_wallet_rounded, color: Color(0xFF8B5CF6), size: 24),
+                children: [
+                 SvgPicture.asset('assets/icons/advertiser_ic/billingPayments.svg',width: 25,height: 25,),
                   SizedBox(width: 10),
-                  Text('Billing & Payments', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    'Billing & Payments',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
-              IconButton(
-                icon: const Icon(Icons.settings_outlined, color: Colors.white, size: 20),
-                onPressed: controller.switchToProfile,
-              ),
+              InkWell(
+                  onTap: (){
+                    controller.switchToProfile();
+                  },
+                  child: SvgPicture.asset('assets/icons/fleet_operator_icons/profileHeaderSettingA.svg',width: 25,height: 25,)),
+              // IconButton(
+              //   icon: const Icon(
+              //     Icons.settings_outlined,
+              //     color: Colors.white,
+              //     size: 20,
+              //   ),
+              //   onPressed: controller.switchToProfile,
+              // ),
             ],
           ),
         ),
@@ -1110,21 +1834,40 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Current Balance', style: TextStyle(color: AppColors.textMuted, fontSize: 10)),
+                const Text(
+                  'Current Balance',
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 10),
+                ),
                 const SizedBox(height: 8),
-                const Text('₹1,01,250', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                const Text(
+                  '₹1,01,250',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 6),
-                const Text('40.5% of total budget remaining', style: TextStyle(color: Color(0xFF10B981), fontSize: 9.5)),
+                const Text(
+                  '40.5% of total budget remaining',
+                  style: TextStyle(color: Color(0xFF10B981), fontSize: 9.5),
+                ),
                 const SizedBox(height: 8),
                 Container(
                   height: 4,
                   width: double.infinity,
-                  decoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(2)),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E293B),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                   child: Row(
                     children: [
                       Container(
                         width: 80,
-                        decoration: BoxDecoration(color: const Color(0xFF10B981), borderRadius: BorderRadius.circular(2)),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF10B981),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
                       ),
                     ],
                   ),
@@ -1152,9 +1895,19 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 8.5)),
+          Text(
+            label,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 8.5),
+          ),
           const SizedBox(height: 2),
-          Text(val, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+          Text(
+            val,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -1174,33 +1927,63 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: const [
-              Text('Payment Methods', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-              Text('Manage ›', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 10, fontWeight: FontWeight.bold)),
+              Text(
+                'Payment Methods',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                'Manage ›',
+                style: TextStyle(
+                  color: Color(0xFF8B5CF6),
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
           const Divider(color: AppColors.cardBorder, height: 24),
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                decoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(6)),
-                child: const Text('VISA', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10, fontStyle: FontStyle.italic)),
-              ),
+              SvgPicture.asset("assets/icons/advertiser_ic/visa.svg",width: 25,height: 25,),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
-                    Text('•••• •••• •••• 4567', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                    Text(
+                      '•••• •••• •••• 4567',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     SizedBox(height: 2),
-                    Text('Expires 12/28', style: TextStyle(color: AppColors.textMuted, fontSize: 9)),
+                    Text(
+                      'Expires 12/28',
+                      style: TextStyle(color: AppColors.textMuted, fontSize: 9),
+                    ),
                   ],
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(color: const Color(0xFF10B981).withOpacity(0.12), borderRadius: BorderRadius.circular(4)),
-                child: const Text('Primary', style: TextStyle(color: Color(0xFF10B981), fontSize: 8, fontWeight: FontWeight.bold)),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Text(
+                  'Primary',
+                  style: TextStyle(
+                    color: Color(0xFF10B981),
+                    fontSize: 8,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ],
           ),
@@ -1212,10 +1995,15 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.cardBorder),
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
-              icon: const Icon(Icons.add, color: Colors.white, size: 14),
-              label: const Text('Add New Payment Method', style: TextStyle(color: Colors.white, fontSize: 10.5)),
+              icon:  Icon(Icons.add, color:Color(0xffb864de), size: 14),
+              label: const Text(
+                'Add New Payment Method',
+                style: TextStyle(color: Colors.white, fontSize: 10.5),
+              ),
             ),
           ),
         ],
@@ -1225,10 +2013,34 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
 
   Widget _buildRecentTransactionsSection() {
     final txs = [
-      {'title': 'Payment for Campaign CMP-2026-000124', 'date': '07 Aug 2026, 10:41 AM', 'amt': '₹1,48,750', 'badge': 'Paid', 'col': const Color(0xFF10B981)},
-      {'title': 'Payment for Campaign CMP-2026-000089', 'date': '15 Jul 2026, 11:22 AM', 'amt': '₹75,000', 'badge': 'Paid', 'col': const Color(0xFF10B981)},
-      {'title': 'Payment for Campaign CMP-2026-000067', 'date': '23 Jun 2026, 09:18 AM', 'amt': '₹50,000', 'badge': 'Paid', 'col': const Color(0xFF10B981)},
-      {'title': 'Refund for Campaign CMP-2026-000045', 'date': '10 Jun 2026, 04:35 PM', 'amt': '-₹15,000', 'badge': 'Refunded', 'col': Colors.blueAccent},
+      {
+        'title': 'Payment for Campaign CMP-2026-000124',
+        'date': '07 Aug 2026, 10:41 AM',
+        'amt': '₹1,48,750',
+        'badge': 'Paid',
+        'col': const Color(0xFF10B981),
+      },
+      {
+        'title': 'Payment for Campaign CMP-2026-000089',
+        'date': '15 Jul 2026, 11:22 AM',
+        'amt': '₹75,000',
+        'badge': 'Paid',
+        'col': const Color(0xFF10B981),
+      },
+      {
+        'title': 'Payment for Campaign CMP-2026-000067',
+        'date': '23 Jun 2026, 09:18 AM',
+        'amt': '₹50,000',
+        'badge': 'Paid',
+        'col': const Color(0xFF10B981),
+      },
+      {
+        'title': 'Refund for Campaign CMP-2026-000045',
+        'date': '10 Jun 2026, 04:35 PM',
+        'amt': '-₹15,000',
+        'badge': 'Refunded',
+        'col': Colors.blueAccent,
+      },
     ];
 
     return Container(
@@ -1244,8 +2056,22 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: const [
-              Text('Recent Transactions', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-              Text('View All', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 10, fontWeight: FontWeight.bold)),
+              Text(
+                'Recent Transactions',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                'View All',
+                style: TextStyle(
+                  color: Color(0xFF8B5CF6),
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -1257,17 +2083,49 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(color: (tx['badge'] as String) == 'Refunded' ? Colors.red.withOpacity(0.12) : const Color(0xFF10B981).withOpacity(0.12), shape: BoxShape.circle),
-                      child: Icon((tx['badge'] as String) == 'Refunded' ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded, color: (tx['badge'] as String) == 'Refunded' ? Colors.redAccent : const Color(0xFF10B981), size: 14),
+                      // decoration: BoxDecoration(
+                      //   color: (tx['badge'] as String) == 'Refunded'
+                      //       ? Colors.red.withOpacity(0.12)
+                      //       : const Color(0xFF10B981).withOpacity(0.12),
+                      //   shape: BoxShape.circle,
+                      // ),
+                      child:
+                      (tx['badge'] as String) == 'Refunded' ?
+                      SvgPicture.asset("assets/icons/advertiser_ic/arrowUp.svg",width: 18,height: 18,):
+                      SvgPicture.asset("assets/icons/advertiser_ic/download.svg",width: 18,height: 18,)
+                      // child: Icon(
+                      //   (tx['badge'] as String) == 'Refunded'
+                      //       ? Icons.arrow_upward_rounded
+                      //       : Icons.arrow_downward_rounded,
+                      //   color: (tx['badge'] as String) == 'Refunded'
+                      //       ? Colors.redAccent
+                      //       : const Color(0xFF10B981),
+                      //   size: 14,
+                      // ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(tx['title'] as String, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          Text(
+                            tx['title'] as String,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                           const SizedBox(height: 4),
-                          Text(tx['date'] as String, style: const TextStyle(color: AppColors.textMuted, fontSize: 8.5)),
+                          Text(
+                            tx['date'] as String,
+                            style: const TextStyle(
+                              color: AppColors.textMuted,
+                              fontSize: 8.5,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -1275,12 +2133,32 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(tx['amt'] as String, style: const TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
+                        Text(
+                          tx['amt'] as String,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const SizedBox(height: 4),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(color: (tx['col'] as Color).withOpacity(0.12), borderRadius: BorderRadius.circular(4)),
-                          child: Text(tx['badge'] as String, style: TextStyle(color: tx['col'] as Color, fontSize: 7, fontWeight: FontWeight.bold)),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: (tx['col'] as Color).withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            tx['badge'] as String,
+                            style: TextStyle(
+                              color: tx['col'] as Color,
+                              fontSize: 7,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -1314,8 +2192,22 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: const [
-              Text('Invoices', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-              Text('View All', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 10, fontWeight: FontWeight.bold)),
+              Text(
+                'Invoices',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                'View All',
+                style: TextStyle(
+                  color: Color(0xFF8B5CF6),
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -1325,28 +2217,57 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Row(
                   children: [
-                    const Icon(Icons.picture_as_pdf_outlined, color: Colors.redAccent, size: 20),
+                  SvgPicture.asset("assets/icons/advertiser_ic/pdf.svg",width: 15,height: 15,),
                     const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(inv['title'] as String, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                          Text(
+                            inv['title'] as String,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           const SizedBox(height: 2),
-                          Text(inv['date'] as String, style: const TextStyle(color: AppColors.textMuted, fontSize: 8.5)),
+                          Text(
+                            inv['date'] as String,
+                            style: const TextStyle(
+                              color: AppColors.textMuted,
+                              fontSize: 8.5,
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                    Text(inv['amt'] as String, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                    Text(
+                      inv['amt'] as String,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(width: 14),
                     OutlinedButton.icon(
                       onPressed: () {},
                       style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5)
+                        ),
                         side: const BorderSide(color: AppColors.cardBorder),
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 6,
+                        ),
                       ),
-                      icon: const Icon(Icons.file_download_outlined, color: Colors.white, size: 10),
-                      label: const Text('Download', style: TextStyle(color: Colors.white, fontSize: 8.5)),
+                      icon:SvgPicture.asset("assets/icons/advertiser_ic/download.svg",width: 15,height: 15,),
+                      label: const Text(
+                        'Download',
+                        style: TextStyle(color: Colors.white, fontSize: 8.5),
+                      ),
                     ),
                   ],
                 ),
@@ -1364,12 +2285,24 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
         Expanded(
           child: Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: AppColors.cardBg, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.cardBorder)),
+            decoration: BoxDecoration(
+              color: AppColors.cardBg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.cardBorder),
+            ),
             child: Row(
-              children: const [
-                Icon(Icons.shield_outlined, color: Color(0xFF10B981), size: 18),
+              children:  [
+                SvgPicture.asset("assets/icons/fleet_operator_icons/securityA.svg",width: 20,height: 21,),
                 SizedBox(width: 10),
-                Expanded(child: Text('Secure Payments\nYour payments are encrypted and 100% secure.', style: TextStyle(color: AppColors.textSecondary, fontSize: 8.5))),
+                Expanded(
+                  child: Text(
+                    'Secure Payments\nYour payments are encrypted and 100% secure.',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 8.5,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -1380,13 +2313,29 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             onTap: controller.switchToHelp,
             child: Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: AppColors.cardBg, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.cardBorder)),
+              decoration: BoxDecoration(
+                color: AppColors.cardBg,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.cardBorder),
+              ),
               child: Row(
-                children: const [
-                  Icon(Icons.support_agent_rounded, color: Color(0xFF8B5CF6), size: 18),
+                children: [
+                  SvgPicture.asset("assets/icons/fleet_operator_icons/helpSupportA.svg",width: 20,height: 21,),
                   SizedBox(width: 10),
-                  Expanded(child: Text('Need Help?\nContact Billing Support', style: TextStyle(color: AppColors.textSecondary, fontSize: 8.5))),
-                  Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 12),
+                  Expanded(
+                    child: Text(
+                      'Need Help?\nContact Billing Support',
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 8.5,
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: AppColors.textMuted,
+                    size: 12,
+                  ),
                 ],
               ),
             ),
@@ -1405,10 +2354,17 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Row(
-            children: const [
-              Icon(Icons.person_outline_rounded, color: Color(0xFF8B5CF6), size: 24),
+            children: [
+              SvgPicture.asset('assets/icons/profile.svg'),
               SizedBox(width: 10),
-              Text('Settings', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(
+                'Settings',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
         ),
@@ -1420,51 +2376,95 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               // Account Section
               _buildSettingsSectionHeader('Account'),
               _buildSettingsCard([
-                _buildSettingsRow('Personal Information', 'Update your personal details', Icons.person_outline_rounded, onTap: () => Get.toNamed(Routes.ADVERTISER_PROFILE)),
+                _buildSettingsRow(
+                  'Personal Information',
+                  'Update your personal details',
+                  'assets/icons/profile.svg',
+                  onTap: () => Get.toNamed(Routes.ADVERTISER_PROFILE),
+                ),
                 const Divider(color: AppColors.cardBorder, height: 16),
-                _buildSettingsRow('Change Password', 'Update your account password', Icons.lock_outline_rounded, onTap: () => Get.toNamed(Routes.CHANGE_PASSWORD)),
-                const Divider(color: AppColors.cardBorder, height: 16),
-                _buildSettingsRow('Two-Factor Authentication', 'Add an extra layer of security', Icons.verified_user_outlined),
+                _buildSettingsRow(
+                  'Change Password',
+                  'Update your account password',
+                  'assets/icons/fleet_operator_icons/changePasswordA.svg',
+                  onTap: () => Get.toNamed(Routes.CHANGE_PASSWORD),
+                ),
+                // const Divider(color: AppColors.cardBorder, height: 16),
+                // _buildSettingsRow('Two-Factor Authentication', 'Add an extra layer of security', 'assets/icons/profile.svg'),
               ]),
               const SizedBox(height: 18),
 
               // Preferences Section
               _buildSettingsSectionHeader('Preferences'),
               _buildSettingsCard([
-                _buildSettingsRow('Notification Settings', 'Manage your notification preferences', Icons.notifications_none_rounded, onTap: () => Get.toNamed(Routes.NOTIFICATION_SETTINGS)),
-                const Divider(color: AppColors.cardBorder, height: 16),
-                _buildSettingsRow('Language', 'Choose your preferred language', Icons.language_rounded, value: 'English'),
-                const Divider(color: AppColors.cardBorder, height: 16),
-                _buildSettingsSwitchRow('Dark Mode', 'Choose your theme preference', Icons.dark_mode_outlined),
+                _buildSettingsRow(
+                  'Notification Settings',
+                  'Manage your notification preferences',
+                  'assets/icons/fleet_operator_icons/notification.svg',
+                  onTap: () => Get.toNamed(Routes.NOTIFICATION_SETTINGS),
+                ),
+                // const Divider(color: AppColors.cardBorder, height: 16),
+                // _buildSettingsRow('Language', 'Choose your preferred language','assets/icons/profile.svg', value: 'English'),
+                // const Divider(color: AppColors.cardBorder, height: 16),
+                // _buildSettingsSwitchRow('Dark Mode', 'Choose your theme preference', 'assets/icons/profile.svg'),
               ]),
               const SizedBox(height: 18),
 
               // Security Section
               _buildSettingsSectionHeader('Security'),
               _buildSettingsCard([
-                _buildSettingsRow('Privacy Policy', 'View our privacy policy', Icons.shield_outlined, onTap: () => Get.toNamed(Routes.PRIVACY_POLICY)),
+                _buildSettingsRow(
+                  'Privacy Policy',
+                  'View our privacy policy',
+                  'assets/icons/fleet_operator_icons/privacyPolicyA.svg',
+                  onTap: () => Get.toNamed(Routes.PRIVACY_POLICY),
+                ),
                 const Divider(color: AppColors.cardBorder, height: 16),
-                _buildSettingsRow('Terms & Conditions', 'View terms and conditions', Icons.description_outlined, onTap: () => Get.toNamed(Routes.TERMS_CONDITIONS)),
-                const Divider(color: AppColors.cardBorder, height: 16),
-                _buildSettingsRow('Device Sessions', 'Manage your active sessions', Icons.monitor_rounded),
+                _buildSettingsRow(
+                  'Terms & Conditions',
+                  'View terms and conditions',
+                  'assets/icons/fleet_operator_icons/securityA.svg',
+                  onTap: () => Get.toNamed(Routes.TERMS_CONDITIONS),
+                ),
+                // const Divider(color: AppColors.cardBorder, height: 16),
+                // _buildSettingsRow('Device Sessions', 'Manage your active sessions', 'assets/icons/profile.svg'),
               ]),
               const SizedBox(height: 18),
 
               // Support Section
               _buildSettingsSectionHeader('Support'),
               _buildSettingsCard([
-                _buildSettingsRow('Help Center', 'Find answers to common questions', Icons.help_outline_rounded, onTap: controller.switchToHelp),
+                _buildSettingsRow(
+                  'Help Center',
+                  'Find answers to common questions',
+                  'assets/icons/fleet_operator_icons/helpSupportA.svg',
+                  onTap: controller.switchToHelp,
+                ),
                 const Divider(color: AppColors.cardBorder, height: 16),
-                _buildSettingsRow('Contact Support', 'Get in touch with our support team', Icons.support_agent_rounded, onTap: controller.switchToHelp),
+                _buildSettingsRow(
+                  'Contact Support',
+                  'Get in touch with our support team',
+                  'assets/icons/fleet_operator_icons/supportHistoryA.svg',
+                  onTap: controller.switchToHelp,
+                ),
                 const Divider(color: AppColors.cardBorder, height: 16),
-                _buildSettingsRow('About VMOVEXA', 'Learn more about VMOVEXA', Icons.info_outline_rounded),
+                _buildSettingsRow(
+                  'About VMOVEXA',
+                  'Learn more about VMOVEXA',
+                  'assets/icons/fleet_operator_icons/AboutA.svg',
+                ),
               ]),
               const SizedBox(height: 18),
 
               // App Section
               _buildSettingsSectionHeader('App'),
               _buildSettingsCard([
-                _buildSettingsRow('App Version', 'You are using the latest version', Icons.phone_android_rounded, value: 'v1.0.0'),
+                _buildSettingsRow(
+                  'App Version',
+                  'You are using the latest version',
+                  'assets/icons/profile.svg',
+                  value: 'v1.0.0',
+                ),
               ]),
               const SizedBox(height: 24),
 
@@ -1474,10 +2474,23 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.redAccent, width: 1.5),
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-                icon: const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 16),
-                label: const Text('Logout', style: TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.bold)),
+                icon: const Icon(
+                  Icons.logout_rounded,
+                  color: Colors.redAccent,
+                  size: 16,
+                ),
+                label: const Text(
+                  'Logout',
+                  style: TextStyle(
+                    color: Colors.redAccent,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
               const SizedBox(height: 20),
             ],
@@ -1492,11 +2505,14 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
       padding: const EdgeInsets.only(left: 4, bottom: 8, top: 4),
       child: Text(
         title.toUpperCase(),
-        style: const TextStyle(color: Color(0xFF8B5CF6), fontSize: 11, fontWeight: FontWeight.bold),
+        style: const TextStyle(
+          color: Color(0xFF8B5CF6),
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
-
 
   Widget _buildSettingsCard(List<Widget> children) {
     return Container(
@@ -1506,51 +2522,88 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.cardBorder, width: 1.2),
       ),
-      child: Column(
-        children: children,
-      ),
+      child: Column(children: children),
     );
   }
 
-  Widget _buildSettingsRow(String label, String subtitle, IconData icon, {VoidCallback? onTap, String? value}) {
+  Widget _buildSettingsRow(
+    String label,
+    String subtitle,
+    String icon, {
+    VoidCallback? onTap,
+    String? value,
+  }) {
     return InkWell(
       onTap: onTap,
       child: Row(
         children: [
-          Icon(icon, color: const Color(0xFF8B5CF6), size: 18),
+          SvgPicture.asset(icon),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(subtitle, style: const TextStyle(color: AppColors.textMuted, fontSize: 8.5)),
+                Text(
+                  subtitle,
+                  style: const TextStyle(color: Colors.white, fontSize: 8.5),
+                ),
               ],
             ),
           ),
           if (value != null) ...[
-            Text(value, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+            Text(
+              value,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 11,
+              ),
+            ),
             const SizedBox(width: 8),
           ],
-          const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 18),
+          const Icon(
+            Icons.chevron_right_rounded,
+            color: AppColors.textMuted,
+            size: 18,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildSettingsSwitchRow(String label, String subtitle, IconData icon) {
+  Widget _buildSettingsSwitchRow(String label, String subtitle, String icon) {
     return Row(
       children: [
-        Icon(icon, color: const Color(0xFF8B5CF6), size: 18),
+        SvgPicture.asset(icon),
         const SizedBox(width: 14),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 2),
-              Text(subtitle, style: const TextStyle(color: AppColors.textMuted, fontSize: 8.5)),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 8.5,
+                ),
+              ),
             ],
           ),
         ),
@@ -1576,16 +2629,45 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
-                children: const [
-                  Icon(Icons.help_outline_rounded, color: Color(0xFF8B5CF6), size: 24),
+                children: [
+                  InkWell(
+                    onTap: () {
+                      controller.switchToProfile();
+                    },
+                    child: Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: AppColors.socialBtnBg,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: AppColors.socialBtnBorder,
+                          width: 1.2,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.chevron_left_rounded,
+                        color: AppColors.textPrimary,
+                        size: 26,
+                      ),
+                    ),
+                  ),
                   SizedBox(width: 10),
-                  Text('Help & Support', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    'Help & Support',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
-              IconButton(
-                icon: const Icon(Icons.settings_outlined, color: Colors.white, size: 20),
-                onPressed: controller.switchToProfile,
-              ),
+              SvgPicture.asset('assets/icons/fleet_operator_icons/profileHeaderSettingA.svg')
+              // IconButton(
+              //   icon: const Icon(Icons.settings_outlined, color: Colors.white, size: 20),
+              //   onPressed: controller.switchToProfile,
+              // ),
             ],
           ),
         ),
@@ -1606,17 +2688,34 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                   style: TextStyle(color: Colors.white, fontSize: 13),
                   decoration: InputDecoration(
                     hintText: 'Search for help articles, FAQs...',
-                    hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                    hintStyle: TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 12,
+                    ),
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    prefixIcon: Icon(Icons.search_rounded, color: AppColors.textMuted, size: 18),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    prefixIcon: Icon(
+                      Icons.search_rounded,
+                      color: AppColors.textMuted,
+                      size: 18,
+                    ),
                   ),
                 ),
               ),
               const SizedBox(height: 20),
 
               // Quick Help Grid
-              const Text('Quick Help', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+              const Text(
+                'Quick Help',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 10),
               _buildQuickHelpGrid(),
               const SizedBox(height: 20),
@@ -1633,8 +2732,22 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: const [
-                  Text('My Support Tickets', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                  Text('View All ›', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 10, fontWeight: FontWeight.bold)),
+                  Text(
+                    'My Support Tickets',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'View All ›',
+                    style: TextStyle(
+                      color: Color(0xFF8B5CF6),
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 10),
@@ -1645,8 +2758,22 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: const [
-                  Text('Popular Articles', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                  Text('View All ›', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 10, fontWeight: FontWeight.bold)),
+                  Text(
+                    'Popular Articles',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'View All ›',
+                    style: TextStyle(
+                      color: Color(0xFF8B5CF6),
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 10),
@@ -1661,10 +2788,26 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
 
   Widget _buildQuickHelpGrid() {
     final items = [
-      {'title': 'FAQs', 'desc': 'Find answers to common questions', 'icon': Icons.help_outline_rounded},
-      {'title': 'Guides', 'desc': 'Step-by-step user guides', 'icon': Icons.book_outlined},
-      {'title': 'Video Tutorials', 'desc': 'Watch tutorials and learn', 'icon': Icons.video_library_outlined},
-      {'title': 'Best Practices', 'desc': 'Tips to get the best results', 'icon': Icons.lightbulb_outline_rounded},
+      {
+        'title': 'FAQs',
+        'desc': 'Find answers to common questions',
+        'icon': 'assets/icons/advertiser_ic/faqsA.svg',
+      },
+      {
+        'title': 'Guides',
+        'desc': 'Step-by-step user guides',
+        'icon': 'assets/icons/advertiser_ic/guidesA.svg',
+      },
+      {
+        'title': 'Video Tutorials',
+        'desc': 'Watch tutorials and learn',
+        'icon': 'assets/icons/advertiser_ic/videoTutorial.svg',
+      },
+      {
+        'title': 'Best Practices',
+        'desc': 'Tips to get the best results',
+        'icon': 'assets/icons/advertiser_ic/pratices.svg',
+      },
     ];
 
     return GridView.count(
@@ -1673,7 +2816,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
       physics: const NeverScrollableScrollPhysics(),
       crossAxisSpacing: 10,
       mainAxisSpacing: 10,
-      childAspectRatio: 1.45,
+      childAspectRatio: 1.43,
       children: items.map((i) {
         return Container(
           padding: const EdgeInsets.all(12),
@@ -1686,13 +2829,33 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(i['icon'] as IconData, color: const Color(0xFF8B5CF6), size: 20),
+              // Icon(
+              //   i['icon'] as IconData,
+              //   color: const Color(0xFF8B5CF6),
+              //   size: 20,
+              // ),
+              SvgPicture.asset( i['icon'].toString()),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(i['title'] as String, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                  Text(
+                    i['title'] as String,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 4),
-                  Text(i['desc'] as String, style: const TextStyle(color: AppColors.textMuted, fontSize: 8), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  Text(
+                    i['desc'] as String,
+                    style: const TextStyle(
+                      color:Colors.white,
+                      fontSize: 8,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ),
             ],
@@ -1712,15 +2875,30 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.headset_mic_outlined, color: Color(0xFF8B5CF6), size: 28),
+          const Icon(
+            Icons.headset_mic_outlined,
+            color: Color(0xFF8B5CF6),
+            size: 28,
+          ),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
-                Text('We\'re here to help!', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
+                Text(
+                  'We\'re here to help!',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 SizedBox(height: 4),
-                Text('Our support team is available 24/7 to assist you with any issues.', style: TextStyle(color: AppColors.textMuted, fontSize: 9.5), maxLines: 2),
+                Text(
+                  'Our support team is available 24/7 to assist you with any issues.',
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 9.5),
+                  maxLines: 2,
+                ),
               ],
             ),
           ),
@@ -1729,10 +2907,19 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             onPressed: () {},
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF8B5CF6),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             ),
-            child: const Text('Raise a Ticket ›', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Raise a Ticket ›',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
@@ -1741,9 +2928,27 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
 
   Widget _buildSupportChannelsGrid() {
     final channels = [
-      {'title': 'Live Chat', 'sub': 'Chat with our support team', 'info': 'Available Now', 'icon': Icons.chat_bubble_outline_rounded, 'col': const Color(0xFF10B981)},
-      {'title': 'Call Support', 'sub': 'Speak with our support executive', 'info': '+91 98765 43210', 'icon': Icons.phone_outlined, 'col': const Color(0xFF8B5CF6)},
-      {'title': 'Email Support', 'sub': 'Send us an email anytime', 'info': 'support@vmovexa.com', 'icon': Icons.email_outlined, 'col': Colors.blueAccent},
+      {
+        'title': 'Live Chat',
+        'sub': 'Chat with our support team',
+        'info': 'Available Now',
+        'icon':'assets/icons/fleet_operator_icons/smsNotificationA.svg',
+        'col': const Color(0xFF10B981),
+      },
+      {
+        'title': 'Call Support',
+        'sub': 'Speak with our support executive',
+        'info': '+91 98765 43210',
+        'icon': 'assets/icons/fleet_operator_icons/mobileNumberA.svg',
+        'col': const Color(0xFF8B5CF6),
+      },
+      {
+        'title': 'Email Support',
+        'sub': 'Send us an email anytime',
+        'info': 'support@vmovexa.com',
+        'icon': 'assets/icons/fleet_operator_icons/emailA.svg',
+        'col': Colors.blueAccent,
+      },
     ];
 
     return Row(
@@ -1762,13 +2967,34 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(ch['icon'] as IconData, color: const Color(0xFF8B5CF6), size: 16),
+                // Icon(
+                //   ch['icon'] as IconData,
+                //   color: const Color(0xFF8B5CF6),
+                //   size: 16,
+                // ),
+                SvgPicture.asset(ch['icon'].toString()),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(ch['title'] as String, style: const TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                    Text(
+                      ch['title'] as String,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 2),
-                    Text(ch['info'] as String, style: TextStyle(color: ch['col'] as Color, fontSize: 7.5, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    Text(
+                      ch['info'] as String,
+                      style: TextStyle(
+                        color: ch['col'] as Color,
+                        fontSize: 7.5,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ],
                 ),
               ],
@@ -1781,9 +3007,30 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
 
   Widget _buildTicketsCard() {
     final tickets = [
-      {'id': 'CMP-2026-000124', 'title': 'Campaign not displaying on screens', 'date': '08 May 2026, 11:30 AM', 'badge': 'In Progress', 'col': const Color(0xFFF59E0B)},
-      {'id': 'CMP-2026-000089', 'title': 'Invoice download issue', 'date': '06 May 2026, 04:20 PM', 'badge': 'Resolved', 'col': const Color(0xFF10B981)},
-      {'id': 'CMP-2026-000067', 'title': 'Payment failed but amount deducted', 'date': '03 May 2026, 09:15 AM', 'badge': 'Closed', 'col': AppColors.textMuted},
+      {
+        'id': 'CMP-2026-000124',
+        'title': 'Campaign not displaying on screens',
+        'date': '08 May 2026, 11:30 AM',
+        'badge': 'In Progress',
+        'col': const Color(0xFFF59E0B),
+        'icon':'assets/icons/fleet_operator_icons/privacyPolicyA.svg',
+      },
+      {
+        'id': 'CMP-2026-000089',
+        'title': 'Invoice download issue',
+        'date': '06 May 2026, 04:20 PM',
+        'badge': 'Resolved',
+        'col': const Color(0xFF10B981),
+        'icon':'assets/icons/fleet_operator_icons/privacyPolicyA.svg',
+      },
+      {
+        'id': 'CMP-2026-000067',
+        'title': 'Payment failed but amount deducted',
+        'date': '03 May 2026, 09:15 AM',
+        'badge': 'Closed',
+        'col': AppColors.textMuted,
+        'icon':'assets/icons/fleet_operator_icons/privacyPolicyA.svg',
+      },
     ];
 
     return Container(
@@ -1798,27 +3045,68 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                SvgPicture.asset(t['icon'].toString(),width: 15,height: 15,),
+                SizedBox(width: 10,),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(t['id'] as String, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                      Text(
+                        t['id'] as String,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       const SizedBox(height: 2),
-                      Text(t['title'] as String, style: const TextStyle(color: AppColors.textSecondary, fontSize: 9), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      Text(
+                        t['title'] as String,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 9,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       const SizedBox(height: 2),
-                      Text(t['date'] as String, style: const TextStyle(color: AppColors.textMuted, fontSize: 8)),
+                      Text(
+                        t['date'] as String,
+                        style: const TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 8,
+                        ),
+                      ),
                     ],
                   ),
                 ),
                 const SizedBox(width: 10),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(color: (t['col'] as Color).withOpacity(0.12), borderRadius: BorderRadius.circular(4)),
-                  child: Text(t['badge'] as String, style: TextStyle(color: t['col'] as Color, fontSize: 8, fontWeight: FontWeight.bold)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: (t['col'] as Color).withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    t['badge'] as String,
+                    style: TextStyle(
+                      color: t['col'] as Color,
+                      fontSize: 8,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 8),
-                const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 16),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: AppColors.textMuted,
+                  size: 16,
+                ),
               ],
             ),
           );
@@ -1850,12 +3138,22 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.description_outlined, color: AppColors.textSecondary, size: 14),
+                    SvgPicture.asset('assets/icons/fleet_operator_icons/privacyPolicyA.svg',),
                     const SizedBox(width: 10),
-                    Text(a, style: const TextStyle(color: Colors.white, fontSize: 9.5)),
+                    Text(
+                      a,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 9.5,
+                      ),
+                    ),
                   ],
                 ),
-                const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 16),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: AppColors.textMuted,
+                  size: 16,
+                ),
               ],
             ),
           );
@@ -1879,8 +3177,13 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
-                children: const [
-                  Icon(Icons.qr_code_scanner_rounded, color: Color(0xFF8B5CF6), size: 20),
+                children:  [
+                  // Icon(
+                  //   Icons.qr_code_scanner_rounded,
+                  //   color: Color(0xFF8B5CF6),
+                  //   size: 20,
+                  // ),
+                  SvgPicture.asset('assets/icons/advertiser_ic/qrAnalytics.svg',width: 18,height: 18,),
                   SizedBox(width: 8),
                   Text(
                     'QR Analytics',
@@ -1921,15 +3224,40 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             physics: const BouncingScrollPhysics(),
             child: Row(
               children: [
-                _buildQrStatItem('Total QR Scans', '1,245', '18.6%', 'vs last 21 days'),
+                _buildQrStatItem(
+                  'Total QR Scans',
+                  '1,245',
+                  '18.6%',
+                  'vs last 21 days',
+                ),
                 _buildQrVerticalDivider(),
-                _buildQrStatItem('Unique Scanners', '1,032', '15.3%', 'vs last 21 days'),
+                _buildQrStatItem(
+                  'Unique Scanners',
+                  '1,032',
+                  '15.3%',
+                  'vs last 21 days',
+                ),
                 _buildQrVerticalDivider(),
-                _buildQrStatItem('Scan Rate', '8.1%', '1.2%', 'vs. Impressions'),
+                _buildQrStatItem(
+                  'Scan Rate',
+                  '8.1%',
+                  '1.2%',
+                  'vs. Impressions',
+                ),
                 _buildQrVerticalDivider(),
-                _buildQrStatItem('Leads Generated', '256', '20.4%', 'vs last 21 days'),
+                _buildQrStatItem(
+                  'Leads Generated',
+                  '256',
+                  '20.4%',
+                  'vs last 21 days',
+                ),
                 _buildQrVerticalDivider(),
-                _buildQrStatItem('Lead Conversion Rate', '20.6%', null, 'vs QR scans'),
+                _buildQrStatItem(
+                  'Lead Conversion Rate',
+                  '20.6%',
+                  null,
+                  'vs QR scans',
+                ),
               ],
             ),
           ),
@@ -1955,7 +3283,12 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
     );
   }
 
-  Widget _buildQrStatItem(String label, String value, String? trendPercent, String comparison) {
+  Widget _buildQrStatItem(
+    String label,
+    String value,
+    String? trendPercent,
+    String comparison,
+  ) {
     return SizedBox(
       width: 110,
       child: Column(
@@ -2002,10 +3335,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           const SizedBox(height: 2),
           Text(
             comparison,
-            style: const TextStyle(
-              color: AppColors.textMuted,
-              fontSize: 8,
-            ),
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 8),
           ),
         ],
       ),
@@ -2033,23 +3363,56 @@ class ChartPainter extends CustomPainter {
     final double width = size.width - paddingLeft - paddingRight;
     final double height = size.height - paddingTop - paddingBottom;
 
-    final paintGrid = Paint()..color = AppColors.cardBorder..strokeWidth = 1.0;
+    final paintGrid = Paint()
+      ..color = AppColors.cardBorder
+      ..strokeWidth = 1.0;
 
     for (int i = 0; i < 4; i++) {
       double y = paddingTop + height - (height * i / 3);
-      canvas.drawLine(Offset(paddingLeft, y), Offset(size.width - paddingRight, y), paintGrid);
+      canvas.drawLine(
+        Offset(paddingLeft, y),
+        Offset(size.width - paddingRight, y),
+        paintGrid,
+      );
     }
 
     final List<double> p1 = [0.2, 0.45, 0.35, 0.65, 0.58, 0.85];
     final List<double> p2 = [0.1, 0.3, 0.2, 0.45, 0.38, 0.55];
 
-    _drawSmoothCurve(canvas, paddingLeft, paddingTop, width, height, p1, const Color(0xFFEC4899));
-    _drawSmoothCurve(canvas, paddingLeft, paddingTop, width, height, p2, const Color(0xFF3B82F6));
+    _drawSmoothCurve(
+      canvas,
+      paddingLeft,
+      paddingTop,
+      width,
+      height,
+      p1,
+      const Color(0xFFEC4899),
+    );
+    _drawSmoothCurve(
+      canvas,
+      paddingLeft,
+      paddingTop,
+      width,
+      height,
+      p2,
+      const Color(0xFF3B82F6),
+    );
   }
 
-  void _drawSmoothCurve(Canvas canvas, double ox, double oy, double w, double h, List<double> values, Color color) {
+  void _drawSmoothCurve(
+    Canvas canvas,
+    double ox,
+    double oy,
+    double w,
+    double h,
+    List<double> values,
+    Color color,
+  ) {
     final path = Path();
-    final paintLine = Paint()..color = color..style = PaintingStyle.stroke..strokeWidth = 2.0;
+    final paintLine = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
 
     double px0 = ox;
     double py0 = oy + h - (h * values[0]);
@@ -2077,7 +3440,15 @@ class ChartPainter extends CustomPainter {
 }
 
 class QrBarChartPainter extends CustomPainter {
-  final List<String> days = ['13 May', '14 May', '15 May', '16 May', '17 May', '18 May', '19 May'];
+  final List<String> days = [
+    '13 May',
+    '14 May',
+    '15 May',
+    '16 May',
+    '17 May',
+    '18 May',
+    '19 May',
+  ];
   final List<int> values = [120, 150, 165, 130, 180, 220, 280];
 
   @override
@@ -2100,15 +3471,22 @@ class QrBarChartPainter extends CustomPainter {
     for (int i = 0; i < yLabels.length; i++) {
       double val = yLabels[i].toDouble();
       double y = paddingTop + height - (height * val / 300);
-      
-      canvas.drawLine(Offset(paddingLeft, y), Offset(size.width - paddingRight, y), paintGrid);
+
+      canvas.drawLine(
+        Offset(paddingLeft, y),
+        Offset(size.width - paddingRight, y),
+        paintGrid,
+      );
 
       textPainter.text = TextSpan(
         text: yLabels[i].toString(),
         style: const TextStyle(color: AppColors.textMuted, fontSize: 8),
       );
       textPainter.layout();
-      textPainter.paint(canvas, Offset(paddingLeft - textPainter.width - 6, y - textPainter.height / 2));
+      textPainter.paint(
+        canvas,
+        Offset(paddingLeft - textPainter.width - 6, y - textPainter.height / 2),
+      );
     }
 
     final double colWidth = width / days.length;
@@ -2117,7 +3495,7 @@ class QrBarChartPainter extends CustomPainter {
     for (int i = 0; i < days.length; i++) {
       double xCenter = paddingLeft + (colWidth * (i + 0.5));
       double barHeight = (values[i] / 300) * height;
-      
+
       final double left = xCenter - barWidth / 2;
       final double top = paddingTop + height - barHeight;
       final double right = xCenter + barWidth / 2;
@@ -2131,10 +3509,7 @@ class QrBarChartPainter extends CustomPainter {
 
       final barPaint = Paint()
         ..shader = const LinearGradient(
-          colors: [
-            Color(0xFFC084FC),
-            Color(0xFF8B5CF6),
-          ],
+          colors: [Color(0xFFC084FC), Color(0xFF8B5CF6)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ).createShader(Rect.fromLTRB(left, top, right, bottom));
@@ -2162,7 +3537,10 @@ class QrBarChartPainter extends CustomPainter {
       textPainter.layout();
       textPainter.paint(
         canvas,
-        Offset(xCenter - textPainter.width / 2, size.height - paddingBottom + 4),
+        Offset(
+          xCenter - textPainter.width / 2,
+          size.height - paddingBottom + 4,
+        ),
       );
     }
   }
@@ -2170,5 +3548,3 @@ class QrBarChartPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
-
-
