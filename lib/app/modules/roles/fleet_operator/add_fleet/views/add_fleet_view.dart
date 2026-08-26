@@ -270,7 +270,7 @@ class AddFleetView extends GetView<AddFleetController> {
                       Obx(
                         () => CustomTextField(
                           hintText: 'Select working hours',
-                          prefixAsset: 'assets/icons/calendar.png',
+                          prefixAsset: 'assets/icons/calendar1.png',
                           prefixWidth: 24,
                           prefixHeight: 24,
                           isDropdown: true,

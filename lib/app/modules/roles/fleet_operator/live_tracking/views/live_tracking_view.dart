@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../controllers/live_tracking_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
@@ -139,7 +140,7 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
               color: const Color(0xFF3B82F6).withOpacity(0.12),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.directions_bus_rounded, color: Color(0xFF3B82F6), size: 24),
+            child: Image.asset('assets/images/bus1.png'),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -174,14 +175,18 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.speed_rounded, color: Color(0xFF3B82F6), size: 10),
+                        //Icon(Icons.speed_rounded, color: Color(0xFF3B82F6), size: 10),
+                        SvgPicture.asset('assets/icons/speed_m.svg'),
                         const SizedBox(width: 2),
                         Text('${controller.speed.value} km/h', style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
                       ],
                     ),
                     GestureDetector(
                       onTap: controller.callDriver,
-                      child: const Icon(Icons.phone_rounded, color: Color(0xFF10B981), size: 12),
+                      child: SvgPicture.asset(
+                        'assets/icons/call.svg',
+                        height: 12,
+                      ),
                     ),
                   ],
                 ),
@@ -388,13 +393,53 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
           // Realtime Stats Row: Speed, Battery, Signal, Ignition
           Row(
             children: [
-              Expanded(child: _buildRealtimeStatCard('42 km/h', 'Current Speed', Icons.speed_rounded, const Color(0xFF3B82F6))),
+              Expanded(
+                child: _buildRealtimeStatCard(
+                  '42 km/h',
+                  'Current Speed',
+                  SvgPicture.asset(
+                    'assets/icons/speed_m.svg',
+                    width: 18,
+                    height: 18,
+                  ),
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildRealtimeStatCard('92%', 'Battery', Icons.battery_charging_full_rounded, const Color(0xFF10B981))),
+              Expanded(
+                child: _buildRealtimeStatCard(
+                  '92%',
+                  'Battery',
+                  SvgPicture.asset(
+                    'assets/icons/battery_c.svg',
+                    width: 18,
+                    height: 18,
+                  ),
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildRealtimeStatCard('Strong', 'GPS Signal', Icons.signal_cellular_alt_rounded, const Color(0xFF8B5CF6))),
+              Expanded(
+                child: _buildRealtimeStatCard(
+                  'Strong',
+                  'GPS Signal',
+                  SvgPicture.asset(
+                    'assets/icons/signal.svg',
+                    width: 18,
+                    height: 18,
+                  ),
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildRealtimeStatCard('ON', 'Ignition Status', Icons.vpn_key_outlined, Colors.orangeAccent)),
+              Expanded(
+                child: _buildRealtimeStatCard(
+                  'ON',
+                  'Ignition Status',
+                  SvgPicture.asset(
+                    'assets/icons/key.svg',
+                    width: 18,
+                    height: 18,
+                  ),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 20),
@@ -415,13 +460,53 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
           // Quick Actions Grid Row
           Row(
             children: [
-              Expanded(child: _buildQuickActionItem('Call Driver', Icons.call_outlined, Colors.green, controller.callDriver)),
+              Expanded(
+                child: _buildQuickActionItem(
+                  'Call Driver',
+                  SvgPicture.asset(
+                    'assets/icons/call.svg',
+                    width: 18,
+                    height: 18,
+                  ),
+                  controller.callDriver,
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildQuickActionItem('Navigate', Icons.navigation_outlined, const Color(0xFF3B82F6), () {})),
+              Expanded(
+                child: _buildQuickActionItem(
+                  'Navigate',
+                  SvgPicture.asset(
+                    'assets/icons/nav.svg',
+                    width: 18,
+                    height: 18,
+                  ),
+                      () {},
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildQuickActionItem('Trip History', Icons.history_rounded, const Color(0xFF8B5CF6), () {})),
+              Expanded(
+                child: _buildQuickActionItem(
+                  'Trip History',
+                  SvgPicture.asset(
+                    'assets/icons/note.svg',
+                    width: 18,
+                    height: 18,
+                  ),
+                      () {},
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildQuickActionItem('Emergency Alert', Icons.notifications_active_outlined, Colors.red, () {})),
+              Expanded(
+                child: _buildQuickActionItem(
+                  'Emergency Alert',
+                  SvgPicture.asset(
+                    'assets/icons/notification+.svg',
+                    width: 18,
+                    height: 18,
+                  ),
+                      () {},
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -432,7 +517,7 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
               Expanded(
                 child: CustomButton(
                   text: 'View Trip Details',
-                  isOutlined: true,
+                  isGradient: true,
                   onTap: controller.goToTripDetails,
                 ),
               ),
@@ -443,7 +528,7 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Colors.redAccent),
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -466,28 +551,49 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
     );
   }
 
-  Widget _buildRealtimeStatCard(String value, String label, IconData icon, Color accentColor) {
+  Widget _buildRealtimeStatCard(
+      String value,
+      String label,
+      Widget icon,
+      ) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      padding: const EdgeInsets.symmetric(
+        vertical: 10,
+        horizontal: 8,
+      ),
       decoration: BoxDecoration(
         color: AppColors.background,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.cardBorder, width: 1),
+        border: Border.all(
+          color: AppColors.cardBorder,
+          width: 1,
+        ),
       ),
       child: Column(
         children: [
-          Icon(icon, color: accentColor, size: 18),
+          icon,
+
           const SizedBox(height: 6),
+
           Text(
             value,
-            style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
+
           const SizedBox(height: 2),
+
           Text(
             label,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 8),
+            style: const TextStyle(
+              color: AppColors.textMuted,
+              fontSize: 8,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -496,7 +602,11 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
     );
   }
 
-  Widget _buildQuickActionItem(String title, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildQuickActionItem(
+      String title,
+      Widget icon,
+      VoidCallback onTap,
+      ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -504,17 +614,26 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
         decoration: BoxDecoration(
           color: AppColors.background,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.cardBorder, width: 1),
+          border: Border.all(
+            color: AppColors.cardBorder,
+            width: 1,
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: color, size: 18),
+            icon,
             const SizedBox(height: 6),
             Text(
               title,
-              style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 8,
+                fontWeight: FontWeight.bold,
+              ),
               textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

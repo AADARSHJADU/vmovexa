@@ -176,12 +176,12 @@ class AdvertiserProfileView extends GetView<AdvertiserProfileController> {
         children: [
           const Text('Company Information', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
           const Divider(color: AppColors.cardBorder, height: 20),
-          _buildInfoRow('Company Name', controller.companyName.value),
-          _buildInfoRow('Business Type', controller.businessType.value),
-          _buildInfoRow('GST Number', controller.gstNumber.value),
-          _buildInfoRow('PAN Number', controller.panNumber.value),
-          _buildInfoRow('Registered Address', controller.registeredAddress.value),
-          _buildInfoRow('Business Website', controller.website.value),
+          _buildInfoRow('assets/icons/fleet_operator_icons/fleetsManagedA.svg','Company Name', controller.companyName.value),
+          _buildInfoRow('assets/icons/advertiser_ic/businessTypeA.svg','Business Type', controller.businessType.value),
+          _buildInfoRow('assets/icons/fleet_operator_icons/privacyPolicyA.svg','GST Number', controller.gstNumber.value),
+          _buildInfoRow('assets/icons/advertiser_ic/panNumberA.svg','PAN Number', controller.panNumber.value),
+          _buildInfoRow('assets/icons/fleet_operator_icons/locationA.svg','Registered Address', controller.registeredAddress.value),
+          _buildInfoRow('assets/icons/advertiser_ic/businessWebsiteA.svg','Business Website', controller.website.value),
         ],
       ),
     );
@@ -200,9 +200,9 @@ class AdvertiserProfileView extends GetView<AdvertiserProfileController> {
         children: [
           const Text('Primary Contact', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
           const Divider(color: AppColors.cardBorder, height: 20),
-          _buildInfoRow('Contact Person', controller.contactPerson.value),
-          _buildInfoRow('Email Address', controller.contactEmail.value),
-          _buildInfoRow('Phone Number', controller.contactPhone.value),
+          _buildInfoRow('assets/icons/profile.svg','Contact Person', controller.contactPerson.value),
+          _buildInfoRow('assets/icons/fleet_operator_icons/emailA.svg','Email Address', controller.contactEmail.value),
+          _buildInfoRow('assets/icons/fleet_operator_icons/mobileNumberA.svg','Phone Number', controller.contactPhone.value),
         ],
       ),
     );
@@ -221,9 +221,9 @@ class AdvertiserProfileView extends GetView<AdvertiserProfileController> {
         children: [
           const Text('Billing Information', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
           const Divider(color: AppColors.cardBorder, height: 20),
-          _buildInfoRow('Billing Email', controller.billingEmail.value),
-          _buildInfoRow('Invoices Email', controller.invoicesEmail.value),
-          _buildInfoRow('Payment Terms', controller.paymentTerms.value),
+          _buildInfoRow('assets/icons/fleet_operator_icons/emailA.svg','Billing Email', controller.billingEmail.value),
+          _buildInfoRow('assets/icons/fleet_operator_icons/emailA.svg','Invoices Email', controller.invoicesEmail.value),
+          _buildInfoRow('assets/icons/advertiser_ic/paymentTermsA.svg','Payment Terms', controller.paymentTerms.value),
         ],
       ),
     );
@@ -240,8 +240,8 @@ class AdvertiserProfileView extends GetView<AdvertiserProfileController> {
           border: Border.all(color: AppColors.cardBorder, width: 1.2),
         ),
         child: Row(
-          children: const [
-            Icon(Icons.lock_outline_rounded, color: Color(0xFF8B5CF6), size: 18),
+          children:  [
+           SvgPicture.asset('assets/icons/fleet_operator_icons/changePasswordA.svg',width: 15,height: 15,),
             SizedBox(width: 14),
             Expanded(child: Text('Change Password', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold))),
             Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 16),
@@ -251,12 +251,14 @@ class AdvertiserProfileView extends GetView<AdvertiserProfileController> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildInfoRow(String icon,String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          SvgPicture.asset(icon,width: 15,height: 15,fit: BoxFit.fill,),
+          SizedBox(width: 8,),
           Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 10)),
           const SizedBox(width: 14),
           Expanded(

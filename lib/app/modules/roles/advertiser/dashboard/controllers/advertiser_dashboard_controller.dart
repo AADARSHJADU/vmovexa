@@ -50,6 +50,10 @@ class AdvertiserDashboardController extends GetxController {
     tab4Mode.value = 'help';
     selectedNavIndex.value = 4;
   }
+ void switchToBillingPayment() {
+    tab4Mode.value = 'billing';
+    selectedNavIndex.value = 4;
+  }
 
 
 

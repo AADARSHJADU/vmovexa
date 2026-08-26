@@ -117,6 +117,7 @@ class TripDetailsView extends GetView<TripDetailsController> {
                     CustomButton(
                       text: 'Complete Trip',
                       onTap: controller.completeTrip,
+                      isGradient: true,
                     ),
                     const SizedBox(height: 14),
                     CustomButton(

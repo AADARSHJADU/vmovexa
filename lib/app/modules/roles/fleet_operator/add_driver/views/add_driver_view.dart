@@ -143,7 +143,7 @@ class AddDriverView extends GetView<AddDriverController> {
                                     child: CustomTextField(
                                       hintText: 'Select date of birth',
                                       //prefixIcon: Icons.calendar_today_outlined,
-                                      prefixAsset: 'assets/icons/calendar.png',
+                                      prefixSvg: 'assets/icons/calendar.svg',
                                       prefixWidth: 24,
                                       prefixHeight: 24,
                                       useGradientIcon: true,
@@ -209,7 +209,8 @@ class AddDriverView extends GetView<AddDriverController> {
                                 _buildLabel('License Number *'),
                                 CustomTextField(
                                   hintText: 'Enter license number',
-                                  prefixIcon: Icons.badge_outlined,
+                                  //prefixIcon: Icons.badge_outlined,
+                                  prefixSvg: 'assets/icons/license.svg',
                                   useGradientIcon: true,
                                   controller: controller.licenseNoController,
                                 ),
@@ -225,7 +226,7 @@ class AddDriverView extends GetView<AddDriverController> {
                                 Obx(
                                   () => CustomTextField(
                                     hintText: 'Select type',
-                                    prefixIcon: Icons.shield_outlined,
+                                    prefixSvg: 'assets/icons/shield.svg',
                                     useGradientIcon: true,
                                     isDropdown: true,
                                     dropdownValue: controller.selectedLicenseType.value,
@@ -253,7 +254,7 @@ class AddDriverView extends GetView<AddDriverController> {
                                   child: AbsorbPointer(
                                     child: CustomTextField(
                                       hintText: 'Select issue date',
-                                      prefixIcon: Icons.calendar_today_outlined,
+                                      prefixSvg: 'assets/icons/calendar.svg',
                                       useGradientIcon: true,
                                       controller: controller.issueDateController,
                                     ),
@@ -273,7 +274,7 @@ class AddDriverView extends GetView<AddDriverController> {
                                   child: AbsorbPointer(
                                     child: CustomTextField(
                                       hintText: 'Select expiry date',
-                                      prefixIcon: Icons.calendar_today_outlined,
+                                      prefixSvg: 'assets/icons/calendar.svg',
                                       useGradientIcon: true,
                                       controller: controller.expiryDateController,
                                     ),
@@ -315,7 +316,7 @@ class AddDriverView extends GetView<AddDriverController> {
                                 Obx(
                                   () => CustomTextField(
                                     hintText: 'Select blood group',
-                                    prefixIcon: Icons.water_drop_outlined,
+                                    prefixSvg: 'assets/icons/droplet.svg',
                                     useGradientIcon: true,
                                     isDropdown: true,
                                     dropdownValue: controller.selectedBloodGroup.value,
@@ -334,7 +335,8 @@ class AddDriverView extends GetView<AddDriverController> {
                                 _buildLabel('Emergency Contact'),
                                 CustomTextField(
                                   hintText: 'Enter emergency number',
-                                  prefixIcon: Icons.phone_outlined,
+                                  //prefixIcon: Icons.phone_outlined,
+                                  prefixSvg: 'assets/icons/call.svg',
                                   useGradientIcon: true,
                                   keyboardType: TextInputType.phone,
                                   controller: controller.emergencyContactController,

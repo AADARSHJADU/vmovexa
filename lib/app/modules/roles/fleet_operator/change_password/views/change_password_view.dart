@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import '../../../../../theme/app_theme.dart';
 import '../controllers/change_password_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
 import '../../../../../widgets/custom_button.dart';
@@ -58,16 +59,25 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
                     const SizedBox(height: 36),
 
                     // Actions
-                    ElevatedButton.icon(
-                      onPressed: controller.updatePassword,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF3B82F6),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        minimumSize: const Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.primaryGradient,
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      icon:   SvgPicture.asset("assets/icons/fleet_operator_icons/changePasswordA.svg",width: 18,height: 18,color: Colors.white,),
-                      label: const Text('Update Password', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                      child: ElevatedButton.icon(
+                        onPressed: controller.updatePassword,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          // backgroundndColor: const Color(0xFF3B82F6),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          minimumSize: const Size(double.infinity, 50),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        icon:   SvgPicture.asset("assets/icons/fleet_operator_icons/changePasswordA.svg",width: 18,height: 18,color: Colors.white,),
+                        label: const Text('Update Password', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                      ),
                     ),
                     const SizedBox(height: 14),
                     OutlinedButton.icon(

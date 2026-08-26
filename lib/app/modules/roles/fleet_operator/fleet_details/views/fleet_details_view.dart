@@ -263,7 +263,7 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
             'City bus operations for all downtown routes and services.',
             // Example: switched to PNG here just to show it works with
             // the same _buildIcon() helper without any extra code.
-            'assets/icons/calendar.png',
+            'assets/icons/calendar1.png',
           ),
           const SizedBox(height: 20),
           const Divider(color: AppColors.cardBorder, height: 1),

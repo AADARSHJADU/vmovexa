@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import '../../../../routes/app_routes.dart';
+import '../../../../theme/app_theme.dart';
 import '../../../../widgets/custom_back_button.dart';
 import '../../../../widgets/custom_button.dart';
 import '../../../../theme/app_colors.dart';
@@ -77,19 +78,28 @@ class PasswordUpdatedView extends StatelessWidget {
                     const SizedBox(height: 48),
 
                     // Redirect Button
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        // Return to Dashboard and navigate to Profile tab index (4)
-                        Get.offAllNamed(Routes.FLEET_OP_DASHBOARD, arguments: {'tab': 4});
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF3B82F6),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        minimumSize: const Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.primaryGradient,
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 16),
-                      label: const Text('Back to Profile', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          // Return to Dashboard and navigate to Profile tab index (4)
+                          Get.offAllNamed(Routes.FLEET_OP_DASHBOARD, arguments: {'tab': 4});
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          // backgroundColor: const Color(0xFF3B82F6),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          minimumSize: const Size(double.infinity, 50),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 16),
+                        label: const Text('Back to Profile', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                      ),
                     ),
                   ],
                 ),
