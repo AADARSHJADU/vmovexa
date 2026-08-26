@@ -134,9 +134,9 @@ class AdvertiserProfileView extends GetView<AdvertiserProfileController> {
           children: [
             Expanded(child: _buildStatusMiniCell('Member Since', '12 May 2026', "assets/icons/fleet_operator_icons/fleetsManagedA.svg")),
             const SizedBox(width: 8),
-            Expanded(child: _buildStatusMiniCell('Account ID', 'ADV-2026-000124', "assets/icons/fleet_operator_icons/fleetsManagedA.svg")),
+            Expanded(child: _buildStatusMiniCell('Account ID', 'ADV-2026-000124', "assets/icons/advertiser_ic/accountIdA.svg")),
             const SizedBox(width: 8),
-            Expanded(child: _buildStatusMiniCell('Account Status', 'Active', "assets/icons/fleet_operator_icons/fleetsManagedA.svg", isSuccessColor: true)),
+            Expanded(child: _buildStatusMiniCell('Account Status', 'Active', "assets/icons/fleet_operator_icons/securityA.svg", isSuccessColor: true)),
           ],
         ),
       ],
