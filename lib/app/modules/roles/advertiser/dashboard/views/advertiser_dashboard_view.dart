@@ -109,7 +109,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
   // ==========================================
   // HOME TAB (Index 0)
   // ==========================================
-  Widget _buildHomeTab() {
+/*  Widget _buildHomeTab() {
     return Column(
       children: [
         Padding(
@@ -276,9 +276,226 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
         ),
       ],
     );
+  }*/
+
+  Widget _buildHomeTab() {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              /*IconButton(
+              icon: const Icon(Icons.menu_rounded, color: Colors.white, size: 24),
+              onPressed: () {},
+            ),*/
+              const Text(
+                'V M O V E X A',
+                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2),
+              ),
+              Row(
+                children: [
+                  Stack(
+                    children: [
+                      SvgPicture.asset('assets/icons/notification.svg'),
+                      /*IconButton(
+                      icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 24),
+                      onPressed: () => Get.toNamed(Routes.NOTIFICATIONS_LIST),
+                    ),*/
+                      /*Positioned(
+                      left: 12,
+                      bottom: 12,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(color: Color(0xFF8B5CF6), shape: BoxShape.circle),
+                      ),
+                    ),*/
+                    ],
+                  ),
+                  const SizedBox(width: 10),
+                  GestureDetector(
+                    onTap: controller.switchToProfile,
+                    child: Center(
+                      child: SvgPicture.asset('assets/icons/profile.svg'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Welcome back,', style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
+                const SizedBox(height: 4),
+                const Text('Advertiser!', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 22, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                const Text("Here's an overview of your campaigns.", style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                const SizedBox(height: 24),
+
+                _buildMetricsGrid(),
+                const SizedBox(height: 28),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Campaign Performance (Last 7 Days)', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                    TextButton(
+                      onPressed: () => controller.changeTab(2),
+                      child: const Text('View All', style: TextStyle(color: Color(0xFF6366F1), fontSize: 11)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                _buildPerformanceChart(),
+                const SizedBox(height: 28),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Recent Campaigns', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                    TextButton(
+                      onPressed: () => controller.changeTab(1),
+                      child: const Text('View All', style: TextStyle(color: Color(0xFF6366F1), fontSize: 11)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                _buildRecentCampaignsList(),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildMetricsGrid() {
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisSpacing: 14,
+      mainAxisSpacing: 14,
+      childAspectRatio: 1.35,
+      children: [
+        _buildMetricCard(
+          'Active Campaigns',
+          '12',
+          '2 running now',
+          svgIcon: 'assets/icons/advertiser_ic/speaker.svg',
+        ),
+        _buildMetricCard(
+          'Scheduled Campaigns',
+          '8',
+          'Upcoming',
+          svgIcon: 'assets/icons/advertiser_ic/calender.svg',
+        ),
+        _buildMetricCard(
+          'Total Impressions',
+          '2.45M',
+          '▲ 18.6% vs last 7 days',
+          svgIcon: 'assets/icons/advertiser_ic/eye.svg',
+          isTrendUp: true,
+        ),
+        _buildBudgetCard(),
+      ],
+    );
+  }
+
+  Widget _buildMetricCard(
+      String label,
+      String value,
+      String subText, {
+        String? svgIcon,
+        bool isTrendUp = false,
+      }) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.cardBorder,
+          width: 1.2,
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (svgIcon != null)
+            SvgPicture.asset(
+              svgIcon,
+              height: 40,
+              width: 40,
+            ),
+
+          if (svgIcon != null)
+            const SizedBox(width: 14),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  value,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    height: 1.0,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  subText,
+                  style: TextStyle(
+                    color: isTrendUp
+                        ? const Color(0xFF10B981)
+                        : const Color(0xFF60A5FA),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+  /*Widget _buildMetricsGrid() {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -385,7 +602,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
         ],
       ),
     );
-  }
+  }*/
 
   // Circular ring with gradient border + soft glow + centered icon,
   // matching the pink-to-blue circular outline in the screenshot.
@@ -424,8 +641,105 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
   //   isTrendUp: false,
   // ),
   // ---------------------------------------------------------------------
-
   Widget _buildBudgetCard() {
+    return GestureDetector(
+      onTap: controller.switchToBilling,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: AppColors.cardBorder,
+            width: 1.2,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SvgPicture.asset(
+                  'assets/icons/advertiser_ic/rupees.svg',
+                  width: 40,
+                  height: 40,
+                ),
+
+                const SizedBox(width: 12),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Budget Utilized',
+                        style: TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      const SizedBox(height: 2),
+
+                      const Text(
+                        '₹ 8.75L',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      const SizedBox(height: 4),
+
+                      const Text(
+                        '65% of total budget',
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 8,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 8),
+
+            Container(
+              height: 4,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E293B),
+                borderRadius: BorderRadius.circular(2),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 70,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xFFEC4899),
+                          Color(0xFF8B5CF6),
+                          Color(0xFF3B82F6),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  /*Widget _buildBudgetCard() {
     return GestureDetector(
       onTap: controller.switchToBilling,
       child: Container(
@@ -499,7 +813,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
         ),
       ),
     );
-  }
+  }*/
 
   Widget _buildPerformanceChart() {
     return Container(
