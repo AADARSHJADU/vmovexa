@@ -261,7 +261,6 @@ class LiveMapView extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-
           // Action buttons
           Row(
             children: [
