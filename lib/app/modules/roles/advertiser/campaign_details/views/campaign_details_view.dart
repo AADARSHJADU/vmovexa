@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../controllers/campaign_details_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
@@ -113,7 +114,11 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.access_time_rounded, color: Color(0xFFF59E0B), size: 20),
+              SvgPicture.asset(
+                'assets/icons/clock.svg',
+                width: 20,
+                height: 20,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -161,7 +166,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                   child: _buildAlertSubCell(
                     'Submitted On',
                     '07 Aug 2026, 09:41 AM',
-                    Icons.access_time_rounded,
+                    'assets/icons/clock.svg',
                   ),
                 ),
 
@@ -175,7 +180,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                   child: _buildAlertSubCell(
                     'Expected Approval',
                     'Within 24 Hours',
-                    Icons.shield_outlined,
+                    'assets/icons/shield.svg',
                   ),
                 ),
 
@@ -189,7 +194,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                   child: _buildAlertSubCell(
                     'Submitted By',
                     'John Doe\njohn@citymart.com',
-                    Icons.person_outline_rounded,
+                    'assets/icons/profile.svg',
                   ),
                 ),
               ],
@@ -203,15 +208,15 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
   Widget _buildAlertSubCell(
       String label,
       String value,
-      IconData icon,
+      String svgPath,
       ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(
-          icon,
-          color: const Color(0xFF8B5CF6),
-          size: 14,
+        SvgPicture.asset(
+          svgPath,
+          width: 14,
+          height: 14,
         ),
         const SizedBox(width: 6),
 
@@ -301,10 +306,14 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
-              Icon(Icons.photo_library_outlined, color: Color(0xFF8B5CF6), size: 14),
-              SizedBox(width: 8),
-              Text('Creative Preview', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
+            children: [
+              SvgPicture.asset(
+                'assets/icons/advertiser_ic/gallary.svg',
+                width: 14,
+                height: 14,
+              ),
+              const SizedBox(width: 8),
+              const Text('Creative Preview', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 12),
@@ -322,7 +331,11 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: const BoxDecoration(color: Colors.black38, shape: BoxShape.circle),
-                    child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 24),
+                    child: SvgPicture.asset(
+                      'assets/icons/advertiser_ic/vedio.svg',
+                      width: 24,
+                      height: 24,
+                    ),
                   ),
                 ),
               ),
@@ -371,19 +384,23 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
-              Icon(Icons.directions_bus_rounded, color: Color(0xFF8B5CF6), size: 14),
-              SizedBox(width: 8),
-              Text('Fleet & Screens', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
+            children: [
+              SvgPicture.asset(
+                'assets/icons/bus.svg',
+                width: 14,
+                height: 14,
+              ),
+              const SizedBox(width: 8),
+              const Text('Fleet & Screens', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 14),
           Row(
             children: [
-              Expanded(child: _buildFleetStatItem('3', 'Fleet Operators', Icons.bus_alert_rounded)),
-              Expanded(child: _buildFleetStatItem('1,250', 'Screens', Icons.monitor_rounded)),
-              Expanded(child: _buildFleetStatItem('20', 'Cities', Icons.location_city_rounded)),
-              Expanded(child: _buildFleetStatItem('2.5M', 'Estimated Reach', Icons.people_outline_rounded)),
+              Expanded(child: _buildFleetStatItem('3', 'Fleet Operators', 'assets/icons/bus.svg')),
+              Expanded(child: _buildFleetStatItem('1,250', 'Screens', 'assets/icons/advertiser_ic/tv.svg')),
+              Expanded(child: _buildFleetStatItem('20', 'Cities', 'assets/icons/fleet_operator_icons/officeA.svg')),
+              Expanded(child: _buildFleetStatItem('2.5M', 'Estimated Reach', 'assets/icons/profile.svg')),
             ],
           ),
         ],
@@ -391,10 +408,14 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
     );
   }
 
-  Widget _buildFleetStatItem(String val, String label, IconData icon) {
+  Widget _buildFleetStatItem(String val, String label, String svgPath) {
     return Column(
       children: [
-        Icon(icon, color: const Color(0xFF8B5CF6), size: 16),
+        SvgPicture.asset(
+          svgPath,
+          width: 16,
+          height: 16,
+        ),
         const SizedBox(height: 6),
         Text(val, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
         const SizedBox(height: 2),
@@ -415,10 +436,14 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
-              Icon(Icons.calendar_month_outlined, color: Color(0xFF8B5CF6), size: 14),
-              SizedBox(width: 8),
-              Text('Schedule', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
+            children: [
+              SvgPicture.asset(
+                'assets/icons/advertiser_ic/calender.svg',
+                width: 14,
+                height: 14,
+              ),
+              const SizedBox(width: 8),
+              const Text('Schedule', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
             ],
           ),
           const Divider(color: AppColors.cardBorder, height: 20),
@@ -466,10 +491,14 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
-              Icon(Icons.currency_rupee_rounded, color: Color(0xFF8B5CF6), size: 14),
-              SizedBox(width: 8),
-              Text('Budget Summary', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+            children: [
+              SvgPicture.asset(
+                'assets/icons/advertiser_ic/rupees.svg',
+                width: 14,
+                height: 14,
+              ),
+              const SizedBox(width: 8),
+              const Text('Budget Summary', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
             ],
           ),
           const Divider(color: AppColors.cardBorder, height: 16),
@@ -500,10 +529,14 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
-              Icon(Icons.credit_card_outlined, color: Color(0xFF8B5CF6), size: 14),
-              SizedBox(width: 8),
-              Text('Payment Status', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+            children: [
+              SvgPicture.asset(
+                'assets/icons/fleet_operator_icons/cardA.svg',
+                width: 14,
+                height: 14,
+              ),
+              const SizedBox(width: 8),
+              const Text('Payment Status', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
             ],
           ),
           const Divider(color: AppColors.cardBorder, height: 16),
@@ -554,24 +587,65 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
-              Icon(Icons.timeline_rounded, color: Color(0xFF8B5CF6), size: 14),
-              SizedBox(width: 8),
-              Text('Campaign Timeline', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
+            children: [
+              SvgPicture.asset(
+                'assets/icons/advertiser_ic/route.svg',
+                width: 14,
+                height: 14,
+              ),
+              const SizedBox(width: 8),
+              const Text('Campaign Timeline', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 18),
           Row(
             children: [
-              _buildTimelineStep('Submitted', '07 Aug 2026\n09:41 AM', isChecked: true, icon: Icons.check_rounded),
+              _buildTimelineStep(
+                'Submitted',
+                '07 Aug 2026\n09:41 AM',
+                isChecked: true,
+                icon: const Icon(Icons.check_rounded, color: Color(0xFF10B981), size: 10),
+              ),
               _buildTimelineDivider(true),
-              _buildTimelineStep('Under Review', 'In Progress', isActiveAlert: true, icon: Icons.access_time_filled_rounded),
+              _buildTimelineStep(
+                'Under Review',
+                'In Progress',
+                isActiveAlert: true,
+                icon: SvgPicture.asset(
+                  'assets/icons/clock.svg',
+                  width: 10,
+                  height: 10,
+                ),
+              ),
               _buildTimelineDivider(false),
-              _buildTimelineStep('Approved', 'Pending', isPending: true, icon: Icons.hourglass_empty_rounded),
+              _buildTimelineStep(
+                'Approved',
+                'Pending',
+                isPending: true,
+                icon: SvgPicture.asset(
+                  'assets/icons/clock.svg',
+                  width: 10,
+                  height: 10,
+                ),
+              ),
               _buildTimelineDivider(false),
-              _buildTimelineStep('Live', 'Pending', isPending: true, icon: Icons.play_arrow_rounded),
+              _buildTimelineStep(
+                'Live',
+                'Pending',
+                isPending: true,
+                icon: SvgPicture.asset(
+                  'assets/icons/advertiser_ic/vedio.svg',
+                  width: 10,
+                  height: 10,
+                ),
+              ),
               _buildTimelineDivider(false),
-              _buildTimelineStep('Completed', 'Pending', isPending: true, icon: Icons.check_rounded),
+              _buildTimelineStep(
+                'Completed',
+                'Pending',
+                isPending: true,
+                icon: const Icon(Icons.check_rounded, color: AppColors.textMuted, size: 10),
+              ),
             ],
           ),
         ],
@@ -579,19 +653,22 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
     );
   }
 
-  Widget _buildTimelineStep(String title, String sub, {bool isChecked = false, bool isActiveAlert = false, bool isPending = false, required IconData icon}) {
+  Widget _buildTimelineStep(
+    String title,
+    String sub, {
+    bool isChecked = false,
+    bool isActiveAlert = false,
+    bool isPending = false,
+    required Widget icon,
+  }) {
     Color ringColor = Colors.grey;
-    Widget centerNode = Container();
 
     if (isChecked) {
       ringColor = const Color(0xFF10B981);
-      centerNode = Icon(icon, color: const Color(0xFF10B981), size: 10);
     } else if (isActiveAlert) {
       ringColor = const Color(0xFFF59E0B);
-      centerNode = Icon(icon, color: const Color(0xFFF59E0B), size: 10);
     } else if (isPending) {
       ringColor = AppColors.cardBorder;
-      centerNode = Icon(icon, color: AppColors.textMuted, size: 10);
     }
 
     return Expanded(
@@ -607,7 +684,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                   : (isActiveAlert ? const Color(0xFFF59E0B).withOpacity(0.12) : Colors.transparent),
               border: Border.all(color: ringColor, width: 1.5),
             ),
-            child: Center(child: centerNode),
+            child: Center(child: icon),
           ),
           const SizedBox(height: 6),
           Text(title, style: const TextStyle(color: Colors.white, fontSize: 8.5, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
@@ -651,7 +728,11 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              icon: const Icon(Icons.file_download_outlined, color: Colors.white, size: 14),
+              icon: SvgPicture.asset(
+                'assets/icons/advertiser_ic/note.svg',
+                width: 14,
+                height: 14,
+              ),
               label: const Text('Download Invoice', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
             ),
           ),
@@ -690,7 +771,11 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              icon: const Icon(Icons.copy_rounded, color: Colors.white, size: 14),
+              icon: SvgPicture.asset(
+                'assets/icons/advertiser_ic/layers.svg',
+                width: 14,
+                height: 14,
+              ),
               label: const Text('Duplicate Campaign', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
             ),
           ),
@@ -706,7 +791,11 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            icon: const Icon(Icons.file_download_outlined, color: Colors.white, size: 14),
+            icon: SvgPicture.asset(
+              'assets/icons/advertiser_ic/note.svg',
+              width: 14,
+              height: 14,
+            ),
             label: const Text('Download Invoice', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
           ),
         ),
@@ -744,12 +833,16 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
-                children: const [
-                  Icon(Icons.qr_code_scanner_rounded, color: Color(0xFF10B981), size: 14),
-                  SizedBox(width: 8),
-                  Text('QR Tracking', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
-                  SizedBox(width: 8),
-                  Text('Enabled', style: TextStyle(color: Color(0xFF10B981), fontSize: 9.5, fontWeight: FontWeight.bold)),
+                children: [
+                  SvgPicture.asset(
+                    'assets/icons/fleet_operator_icons/qr-code-scan.svg',
+                    width: 14,
+                    height: 14,
+                  ),
+                  const SizedBox(width: 8),
+                  const Text('QR Tracking', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
+                  const SizedBox(width: 8),
+                  const Text('Enabled', style: TextStyle(color: Color(0xFF10B981), fontSize: 9.5, fontWeight: FontWeight.bold)),
                 ],
               ),
               GestureDetector(

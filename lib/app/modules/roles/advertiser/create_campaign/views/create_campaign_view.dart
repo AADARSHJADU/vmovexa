@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import '../../../fleet_operator/assign_gps/views/assign_gps_view.dart';
 import '../controllers/create_campaign_controller.dart';
@@ -229,11 +230,19 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
         const SizedBox(height: 20),
 
         _buildLabel('Campaign Name *'),
-        CustomTextField(hintText: 'Enter campaign name', controller: controller.campaignNameController),
+        CustomTextField(
+          prefixSvg: 'assets/icons/advertiser_ic/write_note.svg',
+            hintText: 'Enter campaign name',
+            controller: controller.campaignNameController
+        ),
         const SizedBox(height: 16),
 
         _buildLabel('Brand Name'),
-        CustomTextField(hintText: 'Enter brand name (optional)', controller: controller.brandNameController),
+        CustomTextField(
+            prefixSvg: 'assets/icons/advertiser_ic/tag.svg',
+            hintText: 'Enter brand name (optional)',
+            controller: controller.brandNameController,
+        ),
         const SizedBox(height: 16),
 
         _buildLabel('Campaign Type *'),
@@ -242,6 +251,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
 
         _buildLabel('Campaign Description *'),
         CustomTextField(
+          prefixSvg: 'assets/icons/advertiser_ic/note.svg',
           hintText: 'Write a brief description about your campaign',
           controller: controller.campaignDescriptionController,
           maxLines: 3,
@@ -250,6 +260,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
 
         _buildLabel('Objective *'),
         CustomTextField(
+          prefixSvg: 'assets/icons/advertiser_ic/target.svg',
           hintText: 'Select objective',
           isDropdown: true,
           dropdownValue: controller.selectedObjective.value,
@@ -260,6 +271,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
 
         _buildLabel('Category *'),
         CustomTextField(
+          prefixSvg: 'assets/icons/advertiser_ic/layers.svg',
           hintText: 'Select category',
           isDropdown: true,
           dropdownValue: controller.selectedCategory.value,
@@ -272,17 +284,30 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
 
   Widget _buildCampaignTypeSelector() {
     final List<Map<String, dynamic>> options = [
-      {'title': 'Brand Awareness', 'icon': Icons.campaign_rounded},
-      {'title': 'Product Promotion', 'icon': Icons.category_outlined},
-      {'title': 'Event', 'icon': Icons.event_outlined},
-      {'title': 'Offer', 'icon': Icons.sell_outlined},
+      {
+        'title': 'Brand Awareness',
+        'icon': 'assets/icons/advertiser_ic/speaker.svg',
+      },
+      {
+        'title': 'Product Promotion',
+        'icon': 'assets/icons/advertiser_ic/box.svg',
+      },
+      {
+        'title': 'Event',
+        'icon': 'assets/icons/advertiser_ic/calender1.svg',
+      },
+      {
+        'title': 'Offer',
+        'icon': 'assets/icons/advertiser_ic/tag.svg',
+      },
     ];
 
-    return IntrinsicHeight( // forces every card to share the same height
+    return IntrinsicHeight(
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch, // forces every card to share the same width/stretch
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: options.map((opt) {
-          final bool isSelected = controller.selectedCampaignType.value == opt['title'];
+          final bool isSelected =
+              controller.selectedCampaignType.value == opt['title'];
           final bool isLast = opt == options.last;
 
           return Expanded(
@@ -291,45 +316,37 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
               child: GestureDetector(
                 onTap: () => controller.selectCampaignType(opt['title']),
                 child: Container(
-                  // no fixed height here - IntrinsicHeight + stretch above
-                  // already guarantees all 4 boxes match each other exactly
-                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 14,
+                    horizontal: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.cardBg,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: isSelected
-                          ? const Color(0xFF22D3EE) // cyan border like screenshot
+                          ? const Color(0xFF22D3EE)
                           : AppColors.cardBorder,
                       width: 1.4,
                     ),
                   ),
                   child: Stack(
                     clipBehavior: Clip.none,
-                    alignment: Alignment.center, // dead-centers the Column inside the Stack
+                    alignment: Alignment.center,
                     children: [
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          ShaderMask(
-                            blendMode: BlendMode.srcIn,
-                            shaderCallback: (bounds) => const LinearGradient(
-                              colors: [
-                                Color(0xFFEC4899),
-                                Color(0xFF8B5CF6),
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ).createShader(bounds),
-                            child: Icon(
-                              opt['icon'],
-                              color: Colors.white,
-                              size: 24,
-                            ),
+                          SvgPicture.asset(
+                            opt['icon'],
+                            width: 24,
+                            height: 24,
                           ),
+
                           const SizedBox(height: 10),
+
                           Text(
                             opt['title'],
                             textAlign: TextAlign.center,
@@ -345,7 +362,6 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                         ],
                       ),
 
-                      // Green check badge, overlapping the top-right corner
                       if (isSelected)
                         Positioned(
                           top: -14,
@@ -356,7 +372,10 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                             decoration: BoxDecoration(
                               color: const Color(0xFF22C55E),
                               shape: BoxShape.circle,
-                              border: Border.all(color: AppColors.cardBg, width: 1.5),
+                              border: Border.all(
+                                color: AppColors.cardBg,
+                                width: 1.5,
+                              ),
                             ),
                             child: const Icon(
                               Icons.check,
@@ -416,9 +435,9 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ).createShader(bounds),
-                    child: const Icon(Icons.cloud_upload_outlined, color: Colors.white, size: 40),
+                    child: SvgPicture.asset('assets/icons/advertiser_ic/cloud.svg'),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 5),
                   ShaderMask(
                     blendMode: BlendMode.srcIn,
                     shaderCallback: (bounds) => const LinearGradient(
@@ -431,11 +450,11 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                       style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  //const SizedBox(height: 6),
                   const Text('Drag & drop your file here', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
                   const SizedBox(height: 2),
                   const Text('or', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
                     decoration: BoxDecoration(
@@ -447,7 +466,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                       style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 8),
                   const Text(
                     'Supported Formats: JPG, PNG, MP4, HTML5\nMaximum File Size: 50 MB',
                     style: TextStyle(color: AppColors.textMuted, fontSize: 9),
@@ -572,17 +591,24 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
 // equal width & height (fixes the old GridView.count overflow issue too).
   Widget _buildCreativeTypeGrid() {
     final List<Map<String, dynamic>> types = [
-      {'title': 'Image', 'subtitle': 'JPG, PNG', 'icon': Icons.image_outlined},
-      {'title': 'Video', 'subtitle': 'MP4', 'icon': Icons.movie_creation_outlined},
-      {'title': 'HTML5', 'subtitle': 'HTML5', 'icon': Icons.shield_outlined},
-      {'title': 'PDF', 'subtitle': 'PDF', 'icon': Icons.description_outlined},
+      {
+        'title': 'Image',
+        'subtitle': 'JPG, PNG',
+        'icon': 'assets/icons/advertiser_ic/gallary.svg',
+      },
+      {
+        'title': 'Video',
+        'subtitle': 'MP4',
+        'icon': 'assets/icons/advertiser_ic/vedio.svg',
+      },
     ];
 
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: types.map((type) {
-          final bool isSelected = controller.selectedCreativeType.value == type['title'];
+          final bool isSelected =
+              controller.selectedCreativeType.value == type['title'];
           final bool isLast = type == types.last;
 
           return Expanded(
@@ -591,12 +617,17 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
               child: GestureDetector(
                 onTap: () => controller.selectCreativeType(type['title']),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 14,
+                    horizontal: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.cardBg,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: isSelected ? const Color(0xFF8B5CF6) : AppColors.cardBorder,
+                      color: isSelected
+                          ? const Color(0xFF8B5CF6)
+                          : AppColors.cardBorder,
                       width: 1.4,
                     ),
                   ),
@@ -608,29 +639,37 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          ShaderMask(
-                            blendMode: BlendMode.srcIn,
-                            shaderCallback: (bounds) => const LinearGradient(
-                              colors: [Color(0xFF3B82F6), Color(0xFF8B5CF6)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ).createShader(bounds),
-                            child: Icon(type['icon'], color: Colors.white, size: 24),
+                          SvgPicture.asset(
+                            type['icon'],
+                            width: 24,
+                            height: 24,
                           ),
+
                           const SizedBox(height: 10),
+
                           Text(
                             type['title'],
                             textAlign: TextAlign.center,
-                            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
+
                           const SizedBox(height: 2),
+
                           Text(
                             type['subtitle'],
                             textAlign: TextAlign.center,
-                            style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
+                            style: const TextStyle(
+                              color: AppColors.textMuted,
+                              fontSize: 9,
+                            ),
                           ),
                         ],
                       ),
+
                       if (isSelected)
                         Positioned(
                           top: -14,
@@ -641,9 +680,16 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                             decoration: BoxDecoration(
                               color: const Color(0xFF8B5CF6),
                               shape: BoxShape.circle,
-                              border: Border.all(color: AppColors.cardBg, width: 1.5),
+                              border: Border.all(
+                                color: AppColors.cardBg,
+                                width: 1.5,
+                              ),
                             ),
-                            child: const Icon(Icons.check, color: Colors.white, size: 10),
+                            child: const Icon(
+                              Icons.check,
+                              color: Colors.white,
+                              size: 10,
+                            ),
                           ),
                         ),
                     ],
@@ -672,8 +718,9 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
-                children: const [
-                  Icon(Icons.qr_code_scanner_rounded, color: Color(0xFF8B5CF6), size: 18),
+                children: [
+                  //Icon(Icons.qr_code_scanner_rounded, color: Color(0xFF8B5CF6), size: 18),
+                  SvgPicture.asset('assets/icons/fleet_operator_icons/qr-code-scan.svg'),
                   SizedBox(width: 8),
                   Text('VMOVEXA Trackable QR Overlay', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                 ],
@@ -1049,31 +1096,55 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
 // corner, same pattern used for Campaign Type / Creative Type.
   Widget _buildScreenOptionsGrid() {
     final List<Map<String, dynamic>> options = [
-      {'title': 'All Screens', 'subtitle': 'All available screens', 'icon': Icons.directions_bus_rounded},
-      {'title': 'By Location', 'subtitle': 'Choose by city / area', 'icon': Icons.location_on_outlined},
-      {'title': 'By Route', 'subtitle': 'Choose by bus routes', 'icon': Icons.alt_route_rounded},
-      {'title': 'By Screen ID', 'subtitle': 'Select specific screens', 'icon': Icons.monitor_rounded},
+      {
+        'title': 'All Screens',
+        'subtitle': 'All available screens',
+        'icon': 'assets/icons/bus.svg',
+      },
+      {
+        'title': 'By Location',
+        'subtitle': 'Choose by city / area',
+        'icon': 'assets/icons/live_map.svg',
+      },
+      {
+        'title': 'By Route',
+        'subtitle': 'Choose by bus routes',
+        'icon': 'assets/icons/advertiser_ic/route.svg',
+      },
+      {
+        'title': 'By Screen ID',
+        'subtitle': 'Select specific screens',
+        'icon': 'assets/icons/advertiser_ic/tv.svg',
+      },
     ];
 
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: options.map((opt) {
-          final bool isSelected = controller.selectScreenType.value == (opt['title'] as String);
+          final bool isSelected =
+              controller.selectScreenType.value == (opt['title'] as String);
           final bool isLast = opt == options.last;
 
           return Expanded(
             child: Padding(
               padding: EdgeInsets.only(right: isLast ? 0 : 8),
               child: GestureDetector(
-                onTap: () => controller.selectScreenOption(opt['title'] as String),
+                onTap: () => controller.selectScreenOption(
+                  opt['title'] as String,
+                ),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 14,
+                    horizontal: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.cardBg,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: isSelected ? const Color(0xFF6366F1) : AppColors.cardBorder,
+                      color: isSelected
+                          ? const Color(0xFF6366F1)
+                          : AppColors.cardBorder,
                       width: 1.4,
                     ),
                   ),
@@ -1085,23 +1156,39 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(opt['icon'] as IconData, color: const Color(0xFF8B5CF6), size: 22),
+                          SvgPicture.asset(
+                            opt['icon'] as String,
+                            width: 22,
+                            height: 22,
+                          ),
+
                           const SizedBox(height: 8),
+
                           Text(
                             opt['title'] as String,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
+
                           const SizedBox(height: 3),
+
                           Text(
                             opt['subtitle'] as String,
                             textAlign: TextAlign.center,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(color: AppColors.textMuted, fontSize: 7.5),
+                            style: const TextStyle(
+                              color: AppColors.textMuted,
+                              fontSize: 7.5,
+                            ),
                           ),
                         ],
                       ),
+
                       if (isSelected)
                         Positioned(
                           top: -14,
@@ -1112,9 +1199,16 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                             decoration: BoxDecoration(
                               color: const Color(0xFF6366F1),
                               shape: BoxShape.circle,
-                              border: Border.all(color: AppColors.cardBg, width: 1.5),
+                              border: Border.all(
+                                color: AppColors.cardBg,
+                                width: 1.5,
+                              ),
                             ),
-                            child: const Icon(Icons.check, color: Colors.white, size: 10),
+                            child: const Icon(
+                              Icons.check,
+                              color: Colors.white,
+                              size: 10,
+                            ),
                           ),
                         ),
                     ],
@@ -1144,7 +1238,8 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.directions_bus_filled_rounded, color: Color(0xFF8B5CF6), size: 22),
+                //Icon(Icons.directions_bus_filled_rounded, color: Color(0xFF8B5CF6), size: 22),
+                SvgPicture.asset('assets/icons/bus.svg'),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Obx(() {
@@ -1174,8 +1269,12 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Icon(Icons.monitor_rounded, color: Color(0xFF8B5CF6), size: 22),
+              children: [
+                //Icon(Icons.monitor_rounded, color: Color(0xFF8B5CF6), size: 22),
+                SvgPicture.asset(
+                  'assets/icons/advertiser_ic/tv.svg',
+                  height: 20,
+                ),
                 SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -1230,7 +1329,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                 'Start Date & Time',
                 '20 May 2026',
                 '10:00 AM',
-                Icons.calendar_today_rounded,
+                'assets/icons/calendar.svg',
               ),
             ),
             const SizedBox(width: 14),
@@ -1239,7 +1338,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                 'End Date & Time',
                 '10 Jun 2026',
                 '10:00 PM',
-                Icons.calendar_month_rounded,
+                'assets/icons/calendar.svg',
               ),
             ),
           ],
@@ -1271,7 +1370,8 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                   CustomTextField(
                     hintText: '08:00 AM',
                     controller: controller.startTimeController,
-                    prefixIcon: Icons.access_time_rounded,
+                    //prefixIcon: Icons.access_time_rounded,
+                    prefixSvg: 'assets/icons/clock.svg',
                     suffixIcon: Icons.keyboard_arrow_down_rounded,
                     onSuffixTap: () {},
                   ),
@@ -1288,7 +1388,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                   CustomTextField(
                     hintText: '10:00 PM',
                     controller: controller.endTimeController,
-                    prefixIcon: Icons.access_time_rounded,
+                    prefixSvg: 'assets/icons/clock.svg',
                     suffixIcon: Icons.keyboard_arrow_down_rounded,
                     onSuffixTap: () {},
                   ),
@@ -1355,49 +1455,83 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
 
 // Date/time card - icon now sits inside a small gradient rounded box,
 // matching the screenshot instead of a plain flat icon.
-  Widget _buildDateTimeSelectionCard(String label, String date, String time, IconData icon) {
+  Widget _buildDateTimeSelectionCard(
+      String label,
+      String date,
+      String time,
+      String iconPath,
+      ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        border: Border.all(
+          color: AppColors.cardBorder,
+          width: 1.2,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 9)),
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.textMuted,
+              fontSize: 9,
+            ),
+          ),
+
           const SizedBox(height: 10),
+
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
                   Container(
-                    width: 30,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF8B5CF6), Color(0xFF6366F1)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
+                    width: 32,
+                    height: 32,
+                    padding: const EdgeInsets.all(7),
+                    child: SvgPicture.asset(
+                      iconPath,
+                      fit: BoxFit.contain,
                     ),
-                    child: Icon(icon, color: Colors.white, size: 15),
                   ),
-                  const SizedBox(width: 10),
+
+                  const SizedBox(width: 2),
+
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(date, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                      Text(
+                        date,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
                       const SizedBox(height: 2),
-                      Text(time, style: const TextStyle(color: AppColors.textSecondary, fontSize: 9)),
+
+                      Text(
+                        time,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 9,
+                        ),
+                      ),
                     ],
                   ),
                 ],
               ),
-              const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textMuted, size: 16),
+
+              const Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: AppColors.textMuted,
+                size: 16,
+              ),
             ],
           ),
         ],
@@ -1843,7 +1977,8 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.calendar_month_outlined, color: Color(0xFF8B5CF6), size: 20),
+                    //const Icon(Icons.calendar_month_outlined, color: Color(0xFF8B5CF6), size: 20),
+                    SvgPicture.asset('assets/icons/calendar.svg'),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Column(
@@ -1873,7 +2008,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.calendar_month_outlined, color: Color(0xFF8B5CF6), size: 20),
+                    SvgPicture.asset('assets/icons/calendar.svg'),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Column(
@@ -1949,7 +2084,8 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
           ),
           child: Row(
             children: [
-              const Icon(Icons.payment_rounded, color: Color(0xFF8B5CF6), size: 18),
+              //const Icon(Icons.payment_rounded, color: Color(0xFF8B5CF6), size: 18),
+              SvgPicture.asset('assets/icons/advertiser_ic/wallate.svg'),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -2179,15 +2315,55 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                   padding: const EdgeInsets.only(top: 14),
                   child: Column(
                     children: [
-                      _buildQrMetadataRow('Campaign', controller.campaignNameController.text, Icons.campaign_rounded),
-                      const Divider(color: AppColors.cardBorder, height: 18),
-                      _buildQrMetadataRow('Ad', controller.uploadedFileName.value, Icons.video_file_outlined),
-                      const Divider(color: AppColors.cardBorder, height: 18),
-                      _buildQrMetadataRow('Screen / Placement', 'Rear Screen', Icons.monitor_rounded),
-                      const Divider(color: AppColors.cardBorder, height: 18),
-                      _buildQrMetadataRow('Vehicle / Asset', controller.qrAssetCode.value, Icons.directions_bus_rounded),
-                      const Divider(color: AppColors.cardBorder, height: 18),
-                      _buildQrMetadataRow('Route', controller.qrRoute.value, Icons.alt_route_rounded),
+                      _buildQrMetadataRow(
+                        'Campaign',
+                        controller.campaignNameController.text,
+                        'assets/icons/advertiser_ic/speaker.svg',
+                      ),
+
+                      const Divider(
+                        color: AppColors.cardBorder,
+                        height: 18,
+                      ),
+
+                      _buildQrMetadataRow(
+                        'Ad',
+                        controller.uploadedFileName.value,
+                        'assets/icons/sim.svg',
+                      ),
+
+                      const Divider(
+                        color: AppColors.cardBorder,
+                        height: 18,
+                      ),
+
+                      _buildQrMetadataRow(
+                        'Screen / Placement',
+                        'Rear Screen',
+                        'assets/icons/advertiser_ic/tv.svg',
+                      ),
+
+                      const Divider(
+                        color: AppColors.cardBorder,
+                        height: 18,
+                      ),
+
+                      _buildQrMetadataRow(
+                        'Vehicle / Asset',
+                        controller.qrAssetCode.value,
+                        'assets/icons/bus.svg',
+                      ),
+
+                      const Divider(
+                        color: AppColors.cardBorder,
+                        height: 18,
+                      ),
+
+                      _buildQrMetadataRow(
+                        'Route',
+                        controller.qrRoute.value,
+                        'assets/icons/live_location.svg',
+                      ),
                     ],
                   ),
                 ),
@@ -2209,10 +2385,11 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                children: const [
-                  Icon(Icons.calendar_month_outlined, color: Color(0xFF8B5CF6), size: 16),
-                  SizedBox(width: 10),
-                  Text('Playback Schedule', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
+                children: [
+                  //Icon(Icons.calendar_month_outlined, color: Color(0xFF8B5CF6), size: 16),
+                  SvgPicture.asset('assets/icons/calendar.svg'),
+                  const SizedBox(width: 10),
+                  const Text('Playback Schedule', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
                 ],
               ),
               const SizedBox(height: 16),
@@ -2293,18 +2470,41 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
     );
   }
 
-  Widget _buildQrMetadataRow(String label, String value, IconData icon) {
+  Widget _buildQrMetadataRow(
+      String label,
+      String value,
+      String iconPath,
+      ) {
     return Row(
       children: [
-        Icon(icon, color: const Color(0xFF8B5CF6), size: 14),
+        SvgPicture.asset(
+          iconPath,
+          width: 14,
+          height: 14,
+        ),
+
         const SizedBox(width: 10),
+
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 8.5)),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 8.5,
+                ),
+              ),
               const SizedBox(height: 2),
-              Text(value, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+              Text(
+                value,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
         ),
@@ -2534,16 +2734,19 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
         crossAxisSpacing: 12,
         childAspectRatio: 3.5,
         children: [
-          _buildPlacementCell(Icons.directions_bus_rounded, '3 Vehicles'),
-          _buildPlacementCell(Icons.monitor_rounded, '1,250 Screens'),
-          _buildPlacementCell(Icons.layers_outlined, 'Rear Screen Placement'),
-          _buildPlacementCell(Icons.location_on_outlined, '20 Cities'),
+          _buildPlacementCell('assets/icons/bus.svg', '3 Vehicles'),
+          _buildPlacementCell('assets/icons/advertiser_ic/tv.svg', '1,250 Screens'),
+          _buildPlacementCell('assets/icons/advertiser_ic/layers.svg', 'Rear Screen Placement'),
+          _buildPlacementCell('assets/icons/location.svg', '20 Cities'),
         ],
       ),
     );
   }
 
-  Widget _buildPlacementCell(IconData icon, String text) {
+  Widget _buildPlacementCell(
+      String iconPath,
+      String text,
+      ) {
     return Row(
       children: [
         Container(
@@ -2552,13 +2755,23 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
             color: const Color(0xFF8B5CF6).withOpacity(0.08),
             borderRadius: BorderRadius.circular(6),
           ),
-          child: Icon(icon, color: const Color(0xFF8B5CF6), size: 14),
+          child: SvgPicture.asset(
+            iconPath,
+            width: 14,
+            height: 14,
+          ),
         ),
+
         const SizedBox(width: 8),
+
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
