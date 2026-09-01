@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import '../../../../../theme/app_theme.dart';
+import '../../../../../widgets/custom_button.dart';
+import '../../goverment_profile/view/goverment_profile_view.dart';
 import '../controllers/government_dashboard_controller.dart';
 import '../../../../../theme/app_colors.dart';
 import '../../../../../routes/app_routes.dart';
@@ -18,6 +22,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
           child: Column(
             children: [
               // Top Navigation Header
+              index==4?SizedBox():
               _buildTopHeader(index),
 
               // Main Tab Content
@@ -29,7 +34,8 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                     _buildCampaignsTab(),
                     _buildEmergencyBroadcastTab(),
                     _buildAnalyticsTab(),
-                    _buildMoreTab(),
+                    GovernmentProfileView(),
+                    // _buildMoreTab(),
                   ],
                 ),
               ),
@@ -134,23 +140,24 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 14),
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF3B82F6).withOpacity(0.12),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: const Color(0xFF3B82F6).withOpacity(0.3),
-                      width: 1.2,
-                    ),
-                  ),
-                  child: const Icon(
-                    Icons.gavel_rounded,
-                    color: Color(0xFF3B82F6),
-                    size: 16,
-                  ),
-                ),
+                const SizedBox(width: 10),
+                Image.asset('assets/icons/govermentHeader.png',width: 30,height: 30,)
+                // Container(
+                //   padding: const EdgeInsets.all(6),
+                //   decoration: BoxDecoration(
+                //     color: const Color(0xFF3B82F6).withOpacity(0.12),
+                //     shape: BoxShape.circle,
+                //     border: Border.all(
+                //       color: const Color(0xFF3B82F6).withOpacity(0.3),
+                //       width: 1.2,
+                //     ),
+                //   ),
+                //   child: const Icon(
+                //     Icons.gavel_rounded,
+                //     color: Color(0xFF3B82F6),
+                //     size: 16,
+                //   ),
+                // ),
               ],
             ),
           ],
@@ -195,18 +202,22 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
 
           // Metrics Summary Row
           SizedBox(
-            height: 94,
+            height: 140,
             child: ListView(
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
               children: [
-                _buildHomeMetricCard('12', 'Active Campaigns', '+2 this week', const Color(0xFF3B82F6), Icons.campaign_rounded),
+                _buildHomeMetricCard('12', 'Active Campaigns', '+2 this week', const Color(0xFF3B82F6),
+                    "assets/icons/active-campain.svg"),
                 const SizedBox(width: 10),
-                _buildHomeMetricCard('08', 'Scheduled Campaigns', '+1 this week', const Color(0xFF8B5CF6), Icons.calendar_month_rounded),
+                _buildHomeMetricCard('08', 'Scheduled Campaigns', '+1 this week',
+                    const Color(0xFF8B5CF6),   "assets/icons/schedule-campain.svg"),
                 const SizedBox(width: 10),
-                _buildHomeMetricCard('84%', 'Live Coverage', '+6% this week', const Color(0xFF10B981), Icons.track_changes_rounded),
+                _buildHomeMetricCard('84%', 'Live Coverage', '+6% this week',
+                    const Color(0xFF10B981),    "assets/icons/live-coverage.svg"),
                 const SizedBox(width: 10),
-                _buildHomeMetricCard('02', 'Active Alerts', 'Emergency', const Color(0xFFEF4444), Icons.warning_amber_rounded),
+                _buildHomeMetricCard('02', 'Active Alerts', 'Emergency', const Color(0xFFEF4444),
+                    "assets/icons/active-alert.svg"),
               ],
             ),
           ),
@@ -241,7 +252,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
     );
   }
 
-  Widget _buildHomeMetricCard(String val, String title, String sub, Color color, IconData icon) {
+  Widget _buildHomeMetricCard(String val, String title, String sub, Color color, String icon) {
     return Container(
       width: 110,
       padding: const EdgeInsets.all(12),
@@ -254,17 +265,13 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(val, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-              Icon(icon, color: color, size: 16),
-            ],
-          ),
+          SvgPicture.asset(icon),
+          Text(val, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),
-          Text(title, style: const TextStyle(color: AppColors.textMuted, fontSize: 8.5), maxLines: 1, overflow: TextOverflow.ellipsis),
+          Text(title, style: const TextStyle(fontWeight:FontWeight.w500,color: Colors.white, fontSize: 11), maxLines: 2,
+              overflow: TextOverflow.ellipsis),
           const SizedBox(height: 2),
-          Text(sub, style: TextStyle(color: color, fontSize: 8, fontWeight: FontWeight.bold)),
+          Text(sub, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -274,20 +281,14 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFEF4444).withOpacity(0.06),
+        color: const Color(0xF3d2e32),
+        // color: const Color(0xFFEF4444).withOpacity(0.06),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFEF4444).withOpacity(0.3), width: 1.2),
       ),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFEF4444).withOpacity(0.12),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.warning_rounded, color: Color(0xFFEF4444), size: 20),
-          ),
+         SvgPicture.asset( "assets/icons/active-alert.svg"),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -295,34 +296,91 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
               children: const [
                 Text(
                   'Emergency Broadcast',
-                  style: TextStyle(color: Color(0xFFEF4444), fontSize: 13, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: Color(0xFFf7887e), fontSize: 13, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 2),
                 Text(
                   'Send immediate alerts to all or specific displays.',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 9.5),
+                  style: TextStyle(color:Color(0xffa8a1a0), fontSize:11,fontWeight: FontWeight.w500),
                 ),
               ],
             ),
           ),
           const SizedBox(width: 10),
-          ElevatedButton(
-            onPressed: () {
-              Get.toNamed(Routes.GOVERNMENT_CREATE_CAMPAIGN, arguments: {'type': 'Emergency'});
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFEF4444),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          Container(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  Color(0xffFF5A1F),
+                  Color(0xffF7332E),
+                ],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: Row(
-              children: const [
-                Text('Create Alert', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
-                SizedBox(width: 4),
-                Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 8),
-              ],
+            child: InkWell(
+              onTap: () {
+                Get.toNamed(
+                  Routes.GOVERNMENT_CREATE_CAMPAIGN,
+                  arguments: {'type': 'Emergency'},
+                );
+              },
+              borderRadius: BorderRadius.circular(10),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Create Alert',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(width: 4),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: Colors.white,
+                      size: 8,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
+          /*   Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  colors:[
+                    Color(0xffFF5A1F),
+                    Color(0xffF7332E),
+                  ]),
+            ),
+            child: ElevatedButton(
+              onPressed: () {
+                Get.toNamed(Routes.GOVERNMENT_CREATE_CAMPAIGN, arguments: {'type': 'Emergency'});
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                // backgroundColor: const Color(0xFFEF4444),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              ),
+              child: Row(
+                children: const [
+                  Text('Create Alert', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
+                  SizedBox(width: 4),
+                  Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 8),
+                ],
+              ),
+            ),
+          ),*/
         ],
       ),
     );
@@ -361,9 +419,9 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildMapStatRow(Icons.directions_bus_rounded, '248 Vehicles', 'Online', const Color(0xFF3B82F6)),
+                  _buildMapStatRow('assets/icons/fleet_operator_icons/fleetsManagedA2.svg', '248 Vehicles', 'Online', const Color(0xFF3B82F6)),
                   const SizedBox(height: 8),
-                  _buildMapStatRow(Icons.monitor_rounded, '721 Displays', 'Online', const Color(0xFF10B981)),
+                  _buildMapStatRow('assets/icons/advertiser_ic/tv.svg', '721 Displays', 'Online', const Color(0xFF10B981)),
                 ],
               ),
             ),
@@ -400,10 +458,10 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
     );
   }
 
-  Widget _buildMapStatRow(IconData icon, String val, String status, Color color) {
+  Widget _buildMapStatRow(String icon, String val, String status, Color color) {
     return Row(
       children: [
-        Icon(icon, color: color, size: 14),
+       SvgPicture.asset(icon,width: 10,height: 10,),
         const SizedBox(width: 8),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -444,26 +502,22 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
       child: Column(
         children: [
           // Filter Tabs row
-          // Filter Tabs row
-          SizedBox(
-            width: double.infinity,
-            child: _buildCampaignTabHeader(
-              'Create Campaign',
-              controller.createNewCampaign,
-            ),
+          _buildCampaignTabHeader(
+            'Create Campaign',
+            controller.createNewCampaign,
           ),
           const SizedBox(height: 14),
 
           // Overview cards row
           Row(
             children: [
-              Expanded(child: _buildListStatCard('12', 'Active', const Color(0xFF3B82F6))),
+              Expanded(child: _buildListStatCard("assets/icons/active-campain.svg",'12', 'Active', const Color(0xFF3B82F6))),
               const SizedBox(width: 8),
-              Expanded(child: _buildListStatCard('08', 'Scheduled', const Color(0xFF8B5CF6))),
+              Expanded(child: _buildListStatCard("assets/icons/schedule-campain.svg",'08', 'Scheduled', const Color(0xFF8B5CF6))),
               const SizedBox(width: 8),
-              Expanded(child: _buildListStatCard('24', 'Completed', const Color(0xFF10B981))),
+              Expanded(child: _buildListStatCard("assets/icons/complete-schedule.svg",'24', 'Completed', const Color(0xFF10B981))),
               const SizedBox(width: 8),
-              Expanded(child: _buildListStatCard('02', 'Emergency', const Color(0xFFEF4444))),
+              Expanded(child: _buildListStatCard("assets/icons/emergency-schedule.svg",'02', 'Emergency', const Color(0xFFEF4444))),
             ],
           ),
           const SizedBox(height: 16),
@@ -473,8 +527,8 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
             children: [
               Expanded(
                 child: Container(
-                  height: 40,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  // height: 40,
+                  padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 0),
                   decoration: BoxDecoration(
                     color: AppColors.cardBg,
                     borderRadius: BorderRadius.circular(10),
@@ -486,8 +540,10 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                       SizedBox(width: 8),
                       Expanded(
                         child: TextField(
+                           textAlign: TextAlign.left,
                           style: TextStyle(color: Colors.white, fontSize: 12),
                           decoration: InputDecoration(
+                            hintTextDirection: TextDirection.ltr,
                             hintText: 'Search campaigns...',
                             hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 11),
                             border: InputBorder.none,
@@ -500,8 +556,8 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
               ),
               const SizedBox(width: 12),
               Container(
-                height: 40,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                // height: 40,
+                padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 15),
                 decoration: BoxDecoration(
                   color: AppColors.cardBg,
                   borderRadius: BorderRadius.circular(10),
@@ -549,34 +605,91 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text('Government Campaigns', style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
-        ElevatedButton.icon(
-          onPressed: onTap,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF3B82F6),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+         Text('Government Campaigns',
+             style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+        Container(
+          width:135,
+          height: 40,
+          decoration: BoxDecoration(
+            gradient: AppTheme.primaryGradient,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF9333EA).withOpacity(0.25),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          icon: const Icon(Icons.add, color: Colors.white, size: 14),
-          label: Text(btnText, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-        ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(14),
+              child: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.add, color: Colors.white, size: 14),
+                      const SizedBox(width: 5),
+                    Text(
+                      btnText,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        )
+        // CustomButton(
+        //   height: 40,
+        //   width: 170,
+        //   prefixIcon:  const Icon(Icons.add, color: Colors.white, size: 14),
+        //   isGradient: true,
+        //   text: btnText,
+        //   onTap: onTap,
+        // ),
+        // ElevatedButton.icon(
+        //   onPressed: onTap,
+        //   style: ElevatedButton.styleFrom(
+        //     backgroundColor: const Color(0xFF3B82F6),
+        //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        //     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        //   ),
+        //   icon: const Icon(Icons.add, color: Colors.white, size: 14),
+        //   label: Text(btnText, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+        // ),
       ],
     );
   }
 
-  Widget _buildListStatCard(String val, String label, Color color) {
+  Widget _buildListStatCard(String icon,String val, String label, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 0),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.cardBorder, width: 1.2),
       ),
-      child: Column(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(val, style: TextStyle(color: color, fontSize: 15, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 4),
-          Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 8.5)),
+          SvgPicture.asset(icon),
+          Column(
+            children: [
+              Text(val, style: TextStyle(color: color, fontSize: 15, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              Text(label, style: const TextStyle(color: Colors.white, fontSize: 8.5)),
+            ],
+          ),
+
         ],
       ),
     );
@@ -655,7 +768,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        const Icon(Icons.calendar_month_outlined, color: AppColors.textMuted, size: 10),
+                     SvgPicture.asset('assets/icons/calendar.svg',width: 12,height: 12,),
                         const SizedBox(width: 6),
                         Text(c.dates, style: const TextStyle(color: AppColors.textSecondary, fontSize: 9)),
                       ],
@@ -663,7 +776,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(Icons.location_on_outlined, color: AppColors.textMuted, size: 10),
+                        SvgPicture.asset('assets/icons/location.svg',width: 12,height: 12,),
                         const SizedBox(width: 6),
                         Text(c.locations, style: const TextStyle(color: AppColors.textSecondary, fontSize: 9)),
                       ],
@@ -764,21 +877,22 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
             ),
             child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFEF4444).withOpacity(0.2),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFFEF4444).withOpacity(0.3),
-                        blurRadius: 8,
-                        spreadRadius: 1,
-                      ),
-                    ],
-                  ),
-                  child: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 24),
-                ),
+                // Container(
+                //   padding: const EdgeInsets.all(10),
+                //   decoration: BoxDecoration(
+                //     color: const Color(0xFFEF4444).withOpacity(0.2),
+                //     shape: BoxShape.circle,
+                //     boxShadow: [
+                //       BoxShadow(
+                //         color: const Color(0xFFEF4444).withOpacity(0.3),
+                //         blurRadius: 8,
+                //         spreadRadius: 1,
+                //       ),
+                //     ],
+                //   ),
+                //   child: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 24),
+                // ),
+                SvgPicture.asset("assets/icons/active-alert.svg",width: 35,height: 35,),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
@@ -791,7 +905,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                       SizedBox(height: 3),
                       Text(
                         'This message will be sent immediately to the selected vehicles and displays.',
-                        style: TextStyle(color: AppColors.textSecondary, fontSize: 9.5, height: 1.3),
+                        style: TextStyle(color: Colors.white, fontSize:11, height: 1.3),
                       ),
                     ],
                   ),
@@ -804,8 +918,14 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
           // Alert Message Text Area
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text('Alert Message', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+            children: [
+              Row(
+                children: [
+                 SvgPicture.asset('assets/icons/fleet_operator_icons/smsNotificationA.svg',color: Color(0xfff74317),),
+                  SizedBox(width: 10,),
+                  Text('Alert Message', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                ],
+              ),
               Text('132/500', style: TextStyle(color: AppColors.textMuted, fontSize: 9)),
             ],
           ),
@@ -818,7 +938,13 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
           const SizedBox(height: 18),
 
           // Severity Level Grid Selection
-          const Text('Severity Level', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+          Row(
+            children: [
+              SvgPicture.asset('assets/icons/fleet_operator_icons/securityA.svg',color: Color(0xfff74317),),
+              SizedBox(width: 10,),
+              const Text('Severity Level', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+            ],
+          ),
           const SizedBox(height: 8),
           Obx(() {
             final severity = controller.selectedSeverity.value;
@@ -830,35 +956,42 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
               crossAxisSpacing: 8,
               childAspectRatio: 1.1,
               children: [
-                _buildSeverityItem('Critical', 'High Impact', Icons.warning_rounded, const Color(0xFFEF4444), severity == 'Critical'),
-                _buildSeverityItem('High', 'Important', Icons.error_outline_rounded, const Color(0xFFF59E0B), severity == 'High'),
-                _buildSeverityItem('Medium', 'Moderate', Icons.info_outline_rounded, const Color(0xFFEAB308), severity == 'Medium'),
-                _buildSeverityItem('Low', 'General Info', Icons.help_outline_rounded, const Color(0xFF3B82F6), severity == 'Low'),
+                _buildSeverityItem('Critical', 'High Impact', "assets/icons/critical.svg", const Color(0xFFEF4444), severity == 'Critical'),
+                _buildSeverityItem('High', 'Important', "assets/icons/high.svg", const Color(0xFFF59E0B), severity == 'High'),
+                _buildSeverityItem('Medium', 'Moderate', "assets/icons/medium.svg", const Color(0xFFEAB308), severity == 'Medium'),
+                _buildSeverityItem('Low', 'General Info',"assets/icons/low.svg", const Color(0xFF3B82F6), severity == 'Low'),
               ],
             );
           }),
           const SizedBox(height: 18),
 
           // Target Area row
-          const Text('Target Area', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+          Row(
+            children: [
+              SvgPicture.asset('assets/icons/location.svg',width: 25,height: 25,),
+              SizedBox(width: 10,),
+              const Text('Target Area', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+            ],
+          ),
           const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
               color: AppColors.cardBg,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.cardBorder, width: 1.2),
+              border: Border.all(color: Color(0xff5e3ea2), width: 1.2),
             ),
             child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF8B5CF6).withOpacity(0.08),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.location_on_rounded, color: Color(0xFF8B5CF6), size: 14),
-                ),
+                SvgPicture.asset('assets/icons/location.svg',width: 25,height: 25,),
+                // Container(
+                //   padding: const EdgeInsets.all(8),
+                //   decoration: BoxDecoration(
+                //     color: const Color(0xFF8B5CF6).withOpacity(0.08),
+                //     shape: BoxShape.circle,
+                //   ),
+                //   child: const Icon(Icons.location_on_rounded, color: Color(0xFF8B5CF6), size: 14),
+                // ),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
@@ -880,7 +1013,13 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Broadcast To', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+               Row(
+                 children: [
+                   SvgPicture.asset('assets/icons/tower.svg',width: 25,height: 25,),
+                   SizedBox(width: 10,),
+                   Text('Broadcast To', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                 ],
+               ),
               Row(
                 children: [
                   const Text('Select All', style: TextStyle(color: AppColors.textSecondary, fontSize: 9.5)),
@@ -897,9 +1036,9 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
           const SizedBox(height: 6),
           Obx(() => Column(
             children: [
-              _buildBroadcastToRow('All Vehicles', '248 Vehicles', Icons.directions_bus_rounded, const Color(0xFF3B82F6), controller.broadcastToVehicles.value, (val) => controller.broadcastToVehicles.value = val ?? false),
+              _buildBroadcastToRow('All Vehicles', '248 Vehicles', 'assets/icons/fleet_operator_icons/fleetsManagedA2.svg', const Color(0xFF3B82F6), controller.broadcastToVehicles.value, (val) => controller.broadcastToVehicles.value = val ?? false),
               const SizedBox(height: 8),
-              _buildBroadcastToRow('All Displays', '721 Displays', Icons.monitor_rounded, const Color(0xFF10B981), controller.broadcastToDisplays.value, (val) => controller.broadcastToDisplays.value = val ?? false),
+              _buildBroadcastToRow('All Displays', '721 Displays','assets/icons/advertiser_ic/tv.svg', const Color(0xFF10B981), controller.broadcastToDisplays.value, (val) => controller.broadcastToDisplays.value = val ?? false),
             ],
           )),
           const SizedBox(height: 18),
@@ -916,8 +1055,8 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
-                  children: const [
-                    Icon(Icons.notifications_active_outlined, color: Color(0xFFEAB308), size: 16),
+                  children:  [
+                 SvgPicture.asset('assets/icons/fleet_operator_icons/notification.svg',width: 18,height: 18,),
                     SizedBox(width: 12),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -932,7 +1071,12 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                 Switch(
                   value: controller.sendPushNotification.value,
                   onChanged: (val) => controller.sendPushNotification.value = val,
-                  activeColor: const Color(0xFF10B981),
+                  activeTrackColor: const Color(0xFFFF6A00),
+                  activeThumbColor: Colors.white,
+                  inactiveTrackColor: Colors.grey.shade300,
+                  inactiveThumbColor: Colors.white,
+                  trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+
                 ),
               ],
             ),
@@ -951,8 +1095,8 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
-                  children: const [
-                    Icon(Icons.timer_outlined, color: Color(0xFF8B5CF6), size: 16),
+                  children:  [
+                    SvgPicture.asset('assets/icons/clock.svg',width: 18,height: 18,),
                     SizedBox(width: 12),
                     Text('Auto Expire Alert', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                   ],
@@ -991,7 +1135,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                 shadowColor: Colors.transparent,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              icon: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 16),
+              icon: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 25),
               label: const Text('BROADCAST NOW', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold, letterSpacing: 0.8)),
             ),
           ),
@@ -1008,7 +1152,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
     );
   }
 
-  Widget _buildSeverityItem(String title, String subtitle, IconData icon, Color color, bool isSelected) {
+  Widget _buildSeverityItem(String title, String subtitle, String icon, Color color, bool isSelected) {
     return GestureDetector(
       onTap: () => controller.selectedSeverity.value = title,
       child: Container(
@@ -1024,7 +1168,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: color, size: 18),
+            SvgPicture.asset(icon),
             const SizedBox(height: 6),
             Text(title, style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
             const SizedBox(height: 2),
@@ -1035,7 +1179,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
     );
   }
 
-  Widget _buildBroadcastToRow(String title, String count, IconData icon, Color color, bool value, ValueChanged<bool?> onChanged) {
+  Widget _buildBroadcastToRow(String title, String count, String icon, Color color, bool value, ValueChanged<bool?> onChanged) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
@@ -1045,14 +1189,15 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
       ),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.08),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: color, size: 14),
-          ),
+          SvgPicture.asset(icon),
+          // Container(
+          //   padding: const EdgeInsets.all(6),
+          //   decoration: BoxDecoration(
+          //     color: color.withOpacity(0.08),
+          //     shape: BoxShape.circle,
+          //   ),
+          //   child: Icon(icon, color: color, size: 14),
+          // ),
           const SizedBox(width: 12),
           Expanded(
             child: Row(
@@ -1128,12 +1273,16 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                 crossAxisCount: 4,
                 mainAxisSpacing: 8,
                 crossAxisSpacing: 8,
-                childAspectRatio: 0.95,
+                childAspectRatio: 0.65,
                 children: [
-                  _buildAnalyticsGridCell('Total Campaigns', '24', '↑ 12.5%', const Color(0xFF3B82F6), Icons.campaign_rounded),
-                  _buildAnalyticsGridCell('Total Displays', '721', '↑ 8.7%', const Color(0xFF10B981), Icons.monitor_rounded),
-                  _buildAnalyticsGridCell('Total Vehicles', '248', '↑ 6.3%', const Color(0xFF8B5CF6), Icons.directions_bus_rounded),
-                  _buildAnalyticsGridCell('Avg. Reach', '84%', '↑ 9.1%', const Color(0xFFF59E0B), Icons.remove_red_eye_rounded),
+                  _buildAnalyticsGridCell('Total Campaigns', '24', '↑ 12.5%', const Color(0xFF3B82F6),
+                      "assets/icons/advertiser_ic/speaker.svg"),
+                  _buildAnalyticsGridCell('Total Displays', '721', '↑ 8.7%', const Color(0xFF10B981),
+                      "assets/icons/advertiser_ic/tv.svg"),
+                  _buildAnalyticsGridCell('Total Vehicles', '248', '↑ 6.3%', const Color(0xFF8B5CF6),
+                      "assets/icons/fleet_operator_icons/car.svg"),
+                  _buildAnalyticsGridCell('Average Reach', '84%', '↑ 9.1%', const Color(0xFFF59E0B),
+                      "assets/icons/advertiser_ic/eye.svg"),
                 ],
               ),
               const SizedBox(height: 18),
@@ -1167,12 +1316,16 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                 crossAxisCount: 4,
                 mainAxisSpacing: 8,
                 crossAxisSpacing: 8,
-                childAspectRatio: 0.95,
+                childAspectRatio: 0.65,
                 children: [
-                  _buildAnalyticsGridCell('Total QR Scans', '18,642', '↑ 18.4%', const Color(0xFF10B981), Icons.qr_code_rounded),
-                  _buildAnalyticsGridCell('Unique Scans', '12,389', '↑ 15.2%', const Color(0xFF3B82F6), Icons.person_rounded),
-                  _buildAnalyticsGridCell('Avg. Scans/Day', '2,663', '↑ 10.1%', const Color(0xFFF59E0B), Icons.date_range_rounded),
-                  _buildAnalyticsGridCell('Scan Rate', '2.35%', '↑ 10.1%', const Color(0xFF8B5CF6), Icons.percent_rounded),
+                  _buildAnalyticsGridCell('Total QR Scans', '18,642', '↑ 18.4%', const Color(0xFF10B981),
+                      "assets/icons/fleet_operator_icons/qr-code-scan.svg"),
+                  _buildAnalyticsGridCell('Unique Scans', '12,389', '↑ 15.2%', const Color(0xFF3B82F6),
+                      "assets/icons/fleet_operator_icons/infoSharingA.svg"),
+                  _buildAnalyticsGridCell('Avg. Scans/Day', '2,663', '↑ 10.1%', const Color(0xFFF59E0B),
+                      "assets/icons/advertiser_ic/qrAnalytics.svg"),
+                  _buildAnalyticsGridCell('Scan\nRate', '2.35%', '↑ 10.1%', const Color(0xFF8B5CF6),
+                      "assets/icons/advertiser_ic/paymentTermsA.svg"),
                 ],
               ),
               const SizedBox(height: 18),
@@ -1308,11 +1461,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                 ),
                 child: Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(color: const Color(0xFF8B5CF6).withOpacity(0.12), shape: BoxShape.circle),
-                      child: const Icon(Icons.lightbulb_outline_rounded, color: Color(0xFF8B5CF6), size: 18),
-                    ),
+                   SvgPicture.asset('assets/icons/light.svg',width: 25,height: 25,),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -1341,7 +1490,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
-                      child: const Text('View Details', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 9, fontWeight: FontWeight.bold)),
+                      child: const Text('View Qr Analytics', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 9, fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),
@@ -1467,7 +1616,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
     );
   }
 
-  Widget _buildAnalyticsGridCell(String title, String val, String percentage, Color color, IconData icon) {
+  Widget _buildAnalyticsGridCell(String title, String val, String percentage, Color color, String icon) {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 8,
@@ -1486,33 +1635,22 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            padding: const EdgeInsets.all(3),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.08),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 11,
-            ),
-          ),
-
-          const SizedBox(height: 3),
-
+          title=='Scan Rate'|| title=='Unique Scans'?
+        SvgPicture.asset(icon,width: 25,height: 25,):
+        SvgPicture.asset(icon,width: 21,height: 21,),
+          const SizedBox(height: 5),
           Text(
             title,
             style: const TextStyle(
-              color: AppColors.textMuted,
-              fontSize: 7,
+              color: Colors.white,
+              fontSize: 10,
               height: 1,
             ),
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
 
-          const SizedBox(height: 1),
+          const SizedBox(height: 5),
 
           Text(
             val,
@@ -1526,7 +1664,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
             overflow: TextOverflow.ellipsis,
           ),
 
-          const SizedBox(height: 1),
+          const SizedBox(height: 5),
 
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -1535,27 +1673,38 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                 percentage,
                 style: TextStyle(
                   color: color,
-                  fontSize: 7,
+                  fontSize: 10,
                   fontWeight: FontWeight.bold,
                   height: 1,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(width: 2),
-              Flexible(
-                child: Text(
-                  'vs last 7d',
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 6,
-                    height: 1,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
+              // const SizedBox(width: 2),
+              // Flexible(
+              //   child: Text(
+              //     'vs last 7d',
+              //     style: const TextStyle(
+              //       color: Colors.white,
+              //       fontSize: 6,
+              //       height: 1,
+              //     ),
+              //     maxLines: 1,
+              //     overflow: TextOverflow.ellipsis,
+              //   ),
+              // ),
             ],
+          ),
+          const SizedBox(height: 5),
+          Text(
+            'vs last 7d',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 9,
+              height: 1,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -1845,28 +1994,30 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
           // Middle glowing Emergency button
           GestureDetector(
             onTap: () => controller.updateNavIndex(2),
-            child: Container(
-              width: 52,
-              height: 52,
-              margin: const EdgeInsets.only(bottom: 8, top: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEF4444),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFEF4444).withOpacity(0.4),
-                    blurRadius: 12,
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
-              child: const Center(
-                child: Icon(Icons.warning_amber_rounded, color: Colors.white, size: 24),
-              ),
-            ),
+            // child: Container(
+            //   width: 52,
+            //   height: 52,
+            //   margin: const EdgeInsets.only(bottom: 8, top: 4),
+            //   decoration: BoxDecoration(
+            //     color: const Color(0xFFEF4444),
+            //     shape: BoxShape.circle,
+            //     boxShadow: [
+            //       BoxShadow(
+            //         color: const Color(0xFFEF4444).withOpacity(0.4),
+            //         blurRadius: 12,
+            //         spreadRadius: 2,
+            //       ),
+            //     ],
+            //   ),
+            //   child: const Center(
+            //     child: Icon(Icons.warning_amber_rounded, color: Colors.white, size: 24),
+            //   ),
+            // ),
+            child: SvgPicture.asset('assets/icons/emergencyBottom.svg',width: 55
+              ,height: 55,),
           ),
           _buildNavItem(3, Icons.analytics_rounded, 'Analytics'),
-          _buildNavItem(4, Icons.more_horiz_rounded, 'More'),
+          _buildNavItem(4, Icons.person, 'Profile'),
         ],
       ),
     );
