@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../controllers/gov_campaign_details_controller.dart';
 import '../../dashboard/controllers/government_dashboard_controller.dart';
@@ -359,13 +360,13 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
                 // Metrics Badges Row
                 Row(
                   children: [
-                    Expanded(child: _buildMetricTile('28', 'Live Displays', '70%', const Color(0xFF10B981))),
+                    Expanded(child: _buildMetricTile('assets/icons/advertiser_ic/tv.svg','28', 'Live Displays', '70%', const Color(0xFF10B981))),
                     const SizedBox(width: 8),
-                    Expanded(child: _buildMetricTile('6', 'Inactive Displays', '15%', const Color(0xFFF59E0B))),
+                    Expanded(child: _buildMetricTile('assets/icons/pause.svg','6', 'Inactive Displays', '15%', const Color(0xFFF59E0B))),
                     const SizedBox(width: 8),
-                    Expanded(child: _buildMetricTile('4', 'Upcoming', '10%', const Color(0xFF3B82F6))),
+                    Expanded(child: _buildMetricTile('assets/icons/clock.svg','4', 'Upcoming', '10%', const Color(0xFF3B82F6))),
                     const SizedBox(width: 8),
-                    Expanded(child: _buildMetricTile('40', 'Total Displays', '100%', const Color(0xFF8B5CF6))),
+                    Expanded(child: _buildMetricTile('assets/icons/windows.svg','40', 'Total Displays', '100%', const Color(0xFF8B5CF6))),
                   ],
                 ),
               ],
@@ -447,7 +448,7 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
     );
   }
 
-  Widget _buildMetricTile(String val, String title, String percentage, Color color) {
+  Widget _buildMetricTile(String icon,String val, String title, String percentage, Color color) {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -457,6 +458,7 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
       ),
       child: Column(
         children: [
+          SvgPicture.asset(icon,width: 18,height: 18,),
           Text(val, style: TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.bold)),
           const SizedBox(height: 2),
           Text(title, style: const TextStyle(color: AppColors.textMuted, fontSize: 7), textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -505,12 +507,12 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
             crossAxisCount: 4,
             mainAxisSpacing: 8,
             crossAxisSpacing: 8,
-            childAspectRatio: 0.82,
+            childAspectRatio: 0.65,
             children: [
-              _buildCoreStatCard('Impressions', '1,982', '↑ 15.2%', const Color(0xFF3B82F6)),
-              _buildCoreStatCard('Reach', '1,456', '↑ 11.6%', const Color(0xFF10B981)),
-              _buildCoreStatCard('Clicks', '248', '↑ 9.3%', const Color(0xFF8B5CF6)),
-              _buildCoreStatCard('Engagement', '6.24%', '↑ 4.7%', const Color(0xFFF59E0B)),
+              _buildCoreStatCard('assets/icons/advertiser_ic/eye.svg','Impressions', '1,982', '↑ 15.2%', const Color(0xFF3B82F6)),
+              _buildCoreStatCard('assets/icons/reach.svg','Reach', '1,456', '↑ 11.6%', const Color(0xFF10B981)),
+              _buildCoreStatCard('assets/icons/clicks.svg','Clicks', '248', '↑ 9.3%', const Color(0xFF8B5CF6)),
+              _buildCoreStatCard('assets/icons/engagement.svg','Engagement', '6.24%', '↑ 4.7%', const Color(0xFFF59E0B)),
             ],
           ),
           const SizedBox(height: 18),
@@ -609,7 +611,7 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
     );
   }
 
-  Widget _buildCoreStatCard(String label, String val, String inc, Color color) {
+  Widget _buildCoreStatCard(String icon,String label, String val, String inc, Color color) {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -621,7 +623,9 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 8)),
+          SvgPicture.asset(icon,width: 18,height: 18,),
+          const SizedBox(height: 4),
+          Text(label, style: const TextStyle(color: Colors.white, fontSize: 9.2)),
           const SizedBox(height: 4),
           Text(val, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
@@ -693,12 +697,12 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
             crossAxisCount: 4,
             mainAxisSpacing: 8,
             crossAxisSpacing: 8,
-            childAspectRatio: 0.82,
+            childAspectRatio: 0.65,
             children: [
-              _buildCoreStatCard('Total QR Scans', '4,512', '↑ 12.5%', const Color(0xFF10B981)),
-              _buildCoreStatCard('Unique Scans', '3,102', '↑ 11.8%', const Color(0xFF3B82F6)),
-              _buildCoreStatCard('QR Scan Rate', '2.45%', '↑ 9.3%', const Color(0xFF8B5CF6)),
-              _buildCoreStatCard('Avg Scans/Day', '642', '↑ 8.7%', const Color(0xFFF59E0B)),
+              _buildCoreStatCard('assets/icons/fleet_operator_icons/qr-code-scan.svg','Total QR Scans', '4,512', '↑ 12.5%', const Color(0xFF10B981)),
+              _buildCoreStatCard('assets/icons/advertiser_ic/userTwo.svg','Unique Scans', '3,102', '↑ 11.8%', const Color(0xFF3B82F6)),
+              _buildCoreStatCard('assets/icons/advertiser_ic/qrAnalytics.svg','QR Scan Rate', '2.45%', '↑ 9.3%', const Color(0xFF8B5CF6)),
+              _buildCoreStatCard('assets/icons/avgScanDay.svg','Avg Scans/Day', '642', '↑ 8.7%', const Color(0xFFF59E0B)),
             ],
           ),
           const SizedBox(height: 18),

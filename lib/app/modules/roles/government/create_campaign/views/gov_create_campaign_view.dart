@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import '../controllers/gov_create_campaign_controller.dart';
 import '../../dashboard/controllers/government_dashboard_controller.dart';
 import '../../../../../theme/app_colors.dart';
@@ -177,9 +179,9 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Campaign Information', 'Enter basic campaign details'),
+        _buildSectionHeader('assets/icons/info.svg','Campaign Information', 'Enter basic campaign details'),
         const SizedBox(height: 12),
-        const Text('Campaign Name *', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+        const Text('Campaign Name *', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
         const SizedBox(height: 6),
         CustomTextField(
           hintText: 'Enter campaign name',
@@ -188,7 +190,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
         ),
         const SizedBox(height: 14),
 
-        const Text('Campaign Type *', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+        const Text('Campaign Type *', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Obx(() {
           final isEmergency = controller.selectedCampaignType.value == 'Emergency Announcement';
@@ -196,9 +198,9 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
             children: [
               Expanded(
                 child: _buildTypeCard(
-                  'Public Information',
+                  'Public\nInformation',
                   'General public information and awareness',
-                  Icons.campaign_rounded,
+                "assets/icons/active-campain.svg",
                   !isEmergency,
                   const Color(0xFF3B82F6),
                   () => controller.setCampaignType('Public Information'),
@@ -209,7 +211,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                 child: _buildTypeCard(
                   'Emergency Announcement',
                   'Urgent alerts and emergency notifications',
-                  Icons.warning_amber_rounded,
+                  "assets/icons/active-alert.svg",
                   isEmergency,
                   const Color(0xFFEF4444),
                   () => controller.setCampaignType('Emergency Announcement'),
@@ -220,7 +222,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
         }),
         const SizedBox(height: 14),
 
-        const Text('Description *', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+        const Text('Description *', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
         const SizedBox(height: 6),
         CustomTextField(
           hintText: 'Enter campaign description...',
@@ -229,7 +231,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
         ),
         const SizedBox(height: 20),
 
-        _buildSectionHeader('Campaign Content', 'Upload or select campaign content'),
+        _buildSectionHeader('assets/icons/campainContent.svg','Campaign Content', 'Upload or select campaign content'),
         const SizedBox(height: 12),
         const Text('Select Content Type', style: TextStyle(color: AppColors.textSecondary, fontSize: 10, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
@@ -241,27 +243,24 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
     );
   }
 
-  Widget _buildSectionHeader(String title, String subtitle) {
+  Widget _buildSectionHeader(String icon,String title, String subtitle) {
     return Row(
       children: [
-        Container(
-          width: 3,
-          height: 14,
-          color: const Color(0xFF3B82F6),
-        ),
+        SvgPicture.asset(icon,width: 22,height: 22,),
+        // SvgPicture.asset('assets/icons/info.svg'),
         const SizedBox(width: 8),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(title, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-            Text(subtitle, style: const TextStyle(color: AppColors.textMuted, fontSize: 9)),
+            Text(subtitle, style: const TextStyle(color:Colors.white, fontSize: 9)),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildTypeCard(String title, String desc, IconData icon, bool isSelected, Color activeColor, VoidCallback onTap) {
+  Widget _buildTypeCard(String title, String desc, String icon, bool isSelected, Color activeColor, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -280,7 +279,8 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(icon, color: isSelected ? activeColor : AppColors.textMuted, size: 20),
+                SvgPicture.asset(icon),
+                // Icon(icon, color: isSelected ? activeColor : AppColors.textMuted, size: 20),
                 if (isSelected)
                   Icon(Icons.check_circle_rounded, color: activeColor, size: 14)
                 else
@@ -299,14 +299,14 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
 
   Widget _buildContentTypeGrid() {
     final List<Map<String, dynamic>> items = [
-      {'label': 'Image', 'icon': Icons.image_outlined},
-      {'label': 'Video', 'icon': Icons.play_circle_outline_rounded},
-      {'label': 'PDF', 'icon': Icons.picture_as_pdf_outlined},
-      {'label': 'HTML5', 'icon': Icons.html_rounded},
-      {'label': 'Live URL', 'icon': Icons.link_rounded},
-      {'label': 'RSS Feed', 'icon': Icons.rss_feed_rounded},
-      {'label': 'JSON', 'icon': Icons.code_rounded},
-      {'label': 'Interactive', 'icon': Icons.touch_app_outlined},
+      {'label': 'Image', 'icon': "assets/icons/advertiser_ic/gallary.svg"},
+      {'label': 'Video', 'icon': "assets/icons/video.svg"},
+      {'label': 'PDF', 'icon': "assets/icons/advertiser_ic/pdf.svg"},
+      {'label': 'HTML5', 'icon': "assets/icons/html.svg"},
+      {'label': 'Live URL', 'icon': "assets/icons/liveUrl.svg"},
+      {'label': 'RSS Feed', 'icon':"assets/icons/rssFeed.svg"},
+      {'label': 'JSON', 'icon': "assets/icons/json.svg"},
+      {'label': 'Interactive', 'icon': "assets/icons/interactiveHand.svg"},
     ];
 
     return Obx(() {
@@ -338,7 +338,8 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(i['icon'] as IconData, color: isSelected ? const Color(0xFF3B82F6) : Colors.white, size: 18),
+                  SvgPicture.asset(i['icon'],width: 18,height: 15,),
+                  // Icon(i['icon'] as IconData, color: isSelected ? const Color(0xFF3B82F6) : Colors.white, size: 18),
                   const SizedBox(height: 4),
                   Text(i['label'] as String, style: TextStyle(color: isSelected ? Colors.white : AppColors.textSecondary, fontSize: 8, fontWeight: FontWeight.bold)),
                 ],
@@ -361,7 +362,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
       ),
       child: Column(
         children: [
-          const Icon(Icons.cloud_upload_outlined, color: Color(0xFF3B82F6), size: 28),
+        SvgPicture.asset('assets/icons/advertiser_ic/download.svg',),
           const SizedBox(height: 10),
           const Text('Upload Content', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
@@ -386,7 +387,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Campaign Content', 'Upload or select the content you want to publish'),
+        _buildSectionHeader('assets/icons/campainContent.svg','Campaign Content', 'Upload or select the content you want to publish'),
         const SizedBox(height: 12),
 
         // Thumbnail specifications card
@@ -478,7 +479,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
         _buildContentTypeGrid(),
         const SizedBox(height: 20),
 
-        _buildSectionHeader('Content Settings', 'Select display targets and scheduling constraints'),
+        _buildSectionHeader('assets/icons/campainContent.svg','Content Settings', 'Select display targets and scheduling constraints'),
         const SizedBox(height: 12),
 
         const Text('Display Type', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
@@ -509,7 +510,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
             child: _buildDisplayCell(
               'All Displays',
               'Show on all digital displays',
-              Icons.devices_other_rounded,
+             "assets/icons/allDisplay.svg",
               allSelected,
               () => controller.selectDisplayType('All'),
             ),
@@ -519,7 +520,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
             child: _buildDisplayCell(
               'Passenger Displays',
               'Show on passenger facing displays',
-              Icons.monitor_rounded,
+              "assets/icons/advertiser_ic/tv.svg",
               passengerSelected,
               () => controller.selectDisplayType('Passenger'),
             ),
@@ -529,7 +530,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
             child: _buildDisplayCell(
               'Vehicle Internal',
               'Show on internal vehicle screens',
-              Icons.branding_watermark_rounded,
+              "assets/icons/advertiser_ic/tv.svg",
               internalSelected,
               () => controller.selectDisplayType('Internal'),
             ),
@@ -539,7 +540,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
     });
   }
 
-  Widget _buildDisplayCell(String title, String desc, IconData icon, bool isSelected, VoidCallback onTap) {
+  Widget _buildDisplayCell(String title, String desc, String icon, bool isSelected, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -560,7 +561,10 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(icon, color: isSelected ? const Color(0xFF3B82F6) : AppColors.textMuted, size: 18),
+                title=='All Displays'?
+                SvgPicture.asset(icon,width: 22,height: 22,):
+                SvgPicture.asset(icon,width: 18,height: 18,),
+                // Icon(icon, color: isSelected ? const Color(0xFF3B82F6) : AppColors.textMuted, size: 18),
                 Icon(isSelected ? Icons.check_box : Icons.check_box_outline_blank, color: isSelected ? const Color(0xFF3B82F6) : AppColors.textMuted, size: 14),
               ],
             ),
@@ -616,7 +620,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Targeting', 'Choose where and how your campaign will be displayed'),
+        _buildSectionHeader('assets/icons/lsicon_map.svg','Targeting', 'Choose where and how your campaign will be displayed'),
         const SizedBox(height: 14),
 
         // Target Area with Custom Map Polygon selection
@@ -721,11 +725,11 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
         const SizedBox(height: 8),
         Row(
           children: [
-            Expanded(child: _buildSelectorTile('All Vehicles', '248 Vehicles', Icons.directions_bus_rounded, true)),
+            Expanded(child: _buildSelectorTile('All Vehicles', '248 Vehicles','assets/icons/fleet_operator_icons/fleetsManagedA2.svg', true)),
             const SizedBox(width: 8),
-            Expanded(child: _buildSelectorTile('Selected Vehicles', 'Choose specific', Icons.airport_shuttle_rounded, false)),
+            Expanded(child: _buildSelectorTile('Selected Vehicles', 'Choose specific', 'assets/icons/fleet_operator_icons/truck.svg', false)),
             const SizedBox(width: 8),
-            Expanded(child: _buildSelectorTile('Display Groups', 'Choose groups', Icons.group_work_outlined, false)),
+            Expanded(child: _buildSelectorTile('Display Groups', 'Choose groups', 'assets/icons/advertiser_ic/userTwo.svg', false)),
           ],
         ),
         const SizedBox(height: 18),
@@ -735,11 +739,11 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
         const SizedBox(height: 8),
         Row(
           children: [
-            Expanded(child: _buildSelectorTile('All Displays', '721 Displays', Icons.monitor_rounded, true)),
+            Expanded(child: _buildSelectorTile('All Displays', '721 Displays', 'assets/icons/advertiser_ic/tv.svg',true)),
             const SizedBox(width: 8),
-            Expanded(child: _buildSelectorTile('Passenger Displays', 'Inside passenger', Icons.desktop_mac_outlined, false)),
+            Expanded(child: _buildSelectorTile('Passenger Displays', 'Inside passenger', 'assets/icons/solar_cpu.svg', false)),
             const SizedBox(width: 8),
-            Expanded(child: _buildSelectorTile('External Displays', 'External LED screens', Icons.desktop_windows_outlined, false)),
+            Expanded(child: _buildSelectorTile('External Displays', 'External LED screens','assets/icons/advertiser_ic/tv.svg', false)),
           ],
         ),
         const SizedBox(height: 18),
@@ -770,14 +774,15 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
           ),
           child: Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withOpacity(0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.track_changes_rounded, color: Color(0xFF10B981), size: 16),
-              ),
+              // Container(
+              //   padding: const EdgeInsets.all(8),
+              //   decoration: BoxDecoration(
+              //     color: const Color(0xFF10B981).withOpacity(0.12),
+              //     shape: BoxShape.circle,
+              //   ),
+              //   child: const Icon(Icons.track_changes_rounded, color: Color(0xFF10B981), size: 16),
+              // ),
+              SvgPicture.asset('assets/icons/live_map.svg',color: Color(0xff2dc861),),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -814,7 +819,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
     );
   }
 
-  Widget _buildSelectorTile(String title, String sub, IconData icon, bool isSelected) {
+  Widget _buildSelectorTile(String title, String sub, String icon, bool isSelected) {
     return Container(
       height: 76,
       padding: const EdgeInsets.all(8),
@@ -833,7 +838,8 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(icon, color: isSelected ? const Color(0xFF3B82F6) : AppColors.textMuted, size: 14),
+              SvgPicture.asset(icon),
+              // Icon(icon, color: isSelected ? const Color(0xFF3B82F6) : AppColors.textMuted, size: 14),
               if (isSelected) const Icon(Icons.check_circle_rounded, color: Color(0xFF3B82F6), size: 11),
             ],
           ),
@@ -879,7 +885,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Schedule Campaign', 'Set the time and duration for your campaign'),
+        _buildSectionHeader('assets/icons/schedule-campain.svg','Schedule Campaign', 'Set the time and duration for your campaign'),
         const SizedBox(height: 16),
 
         // Date Range Inputs
@@ -932,11 +938,11 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
         const SizedBox(height: 8),
         Row(
           children: [
-            Expanded(child: _buildPriorityItem('Low', 'Normal priority', Icons.flag_rounded, const Color(0xFF3B82F6), false)),
+            Expanded(child: _buildPriorityItem('Low', 'Normal priority', Icons.flag_rounded, const Color(0xFF0390f9), false)),
             const SizedBox(width: 8),
-            Expanded(child: _buildPriorityItem('Normal', 'Standard priority', Icons.flag_rounded, const Color(0xFF8B5CF6), true)),
+            Expanded(child: _buildPriorityItem('Normal', 'Standard priority', Icons.flag_rounded, const Color(0xFF7437f8), true)),
             const SizedBox(width: 8),
-            Expanded(child: _buildPriorityItem('High', 'High priority', Icons.flag_rounded, const Color(0xFFEF4444), false)),
+            Expanded(child: _buildPriorityItem('High', 'High priority', Icons.flag_rounded, const Color(0xFFff741e), false)),
           ],
         ),
         const SizedBox(height: 18),
@@ -956,7 +962,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                 children: [
                   Row(
                     children: const [
-                      Icon(Icons.repeat_rounded, color: Color(0xFF8B5CF6), size: 16),
+                      Icon(Icons.repeat_rounded, color: Color(0xFF8B5CF6), size: 22),
                       SizedBox(width: 10),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -971,7 +977,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                   Switch(
                     value: true,
                     onChanged: (val) {},
-                    activeColor: const Color(0xFF8B5CF6),
+                    activeColor: Colors.blue,
                   ),
                 ],
               ),
@@ -1060,7 +1066,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                   children: const [
                     Row(
                       children: [
-                        Icon(Icons.public_rounded, color: AppColors.textMuted, size: 12),
+                        Icon(Icons.public_rounded, color: AppColors.primaryButtonBlue, size: 18),
                         SizedBox(width: 6),
                         Text('Time Zone', style: TextStyle(color: AppColors.textMuted, fontSize: 8.5)),
                       ],
@@ -1137,7 +1143,9 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        gradient: isSelected ? const LinearGradient(colors: [Color(0xFF3B82F6), Color(0xFF8B5CF6)]) : null,
+        gradient: isSelected ?
+        const LinearGradient(
+            colors: [Color(0xFF0388FE), Color(0xFF6B1FE6)]) : null,
         color: isSelected ? null : AppColors.cardBg,
         shape: BoxShape.rectangle,
         borderRadius: BorderRadius.circular(8),
@@ -1180,7 +1188,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(icon, color: isSelected ? color : AppColors.textMuted, size: 14),
+              Icon(icon, color:  color , size: 25),
               if (isSelected) Icon(Icons.check_circle_rounded, color: color, size: 11),
             ],
           ),
@@ -1200,7 +1208,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Campaign Preview', 'Review all details before publishing'),
+        _buildSectionHeader('assets/icons/advertiser_ic/eye.svg','Campaign Preview', 'Review all details before publishing'),
         const SizedBox(height: 14),
 
         // Beautiful cityscape image creative card
@@ -1275,7 +1283,13 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('QR Code for this Campaign', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                  Row(
+                    children: [
+                      SvgPicture.asset('assets/icons/fleet_operator_icons/qr-code-scan.svg'),
+                      SizedBox(width: 8,),
+                      const Text('QR Code for this Campaign', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(color: const Color(0xFF10B981).withOpacity(0.08), borderRadius: BorderRadius.circular(4)),
@@ -1319,7 +1333,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              Icon(Icons.copy_rounded, color: Colors.white, size: 10),
+                              Icon(Icons.copy_rounded, color: Color(0xff5956ff), size: 13),
                             ],
                           ),
                         ),
@@ -1335,11 +1349,11 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                     child: OutlinedButton.icon(
                       onPressed: () {},
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.cardBorder),
+                        side: const BorderSide(color:Color(0xff5956ff)),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
-                      icon: const Icon(Icons.download_rounded, color: Colors.white, size: 11),
-                      label: const Text('Download QR', style: TextStyle(color: Colors.white, fontSize: 9)),
+                      icon: const Icon(Icons.download_rounded, color: Color(0xff5956ff), size: 13),
+                      label: const Text('Download QR', style: TextStyle(color:Color(0xff5956ff), fontSize: 12)),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -1347,11 +1361,11 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                     child: OutlinedButton.icon(
                       onPressed: () {},
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.cardBorder),
+                        side: const BorderSide(color: Color(0xff7e51dd)),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
-                      icon: const Icon(Icons.share_rounded, color: Colors.white, size: 11),
-                      label: const Text('Share QR', style: TextStyle(color: Colors.white, fontSize: 9)),
+                      icon: const Icon(Icons.share_rounded, color: Color(0xff7e51dd), size: 13),
+                      label: const Text('Share QR', style: TextStyle(color: Color(0xff5956ff), fontSize: 12)),
                     ),
                   ),
                 ],
@@ -1364,17 +1378,22 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
         _buildStep5ReviewInfoList(),
         const SizedBox(height: 18),
 
-        const Text('Campaign Summary', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
+        Row(
+          children: [
+            SvgPicture.asset('assets/icons/campainSummary.svg',width: 21,height: 21,),
+            SizedBox(width: 5,),
+            const Text('Campaign Summary', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
+          ],
+        ),
         const SizedBox(height: 10),
         Row(
           children: [
-            Expanded(child: _buildSummaryMetricBadge('248', 'Vehicles', Icons.directions_bus_rounded, const Color(0xFF10B981))),
+            Expanded(child: _buildSummaryMetricBadge('248', 'Vehicles', 'assets/icons/advertiser_ic/userTwo.svg', const Color(0xFF10B981))),
             const SizedBox(width: 6),
-            Expanded(child: _buildSummaryMetricBadge('721', 'Displays', Icons.monitor_rounded, const Color(0xFF3B82F6))),
+            Expanded(child: _buildSummaryMetricBadge('721', 'Displays','assets/icons/advertiser_ic/tv.svg', const Color(0xFF3B82F6))),
             const SizedBox(width: 6),
-            Expanded(child: _buildSummaryMetricBadge('84%', 'Coverage', Icons.track_changes_rounded, const Color(0xFF8B5CF6))),
+            Expanded(child: _buildSummaryMetricBadge('84%', 'Coverage','assets/icons/advertiser_ic/eye.svg',const Color(0xFF8B5CF6))),
             const SizedBox(width: 6),
-            Expanded(child: _buildSummaryMetricBadge('8 Days', 'Duration', Icons.timer_outlined, const Color(0xFFF59E0B))),
           ],
         ),
       ],
@@ -1392,16 +1411,21 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
   Widget _buildStep5ReviewInfoList() {
     return Column(
       children: [
-        _buildReviewRowItem('Campaign Information', 'Road Safety Awareness\nPublic Information', Icons.description_outlined),
-        _buildReviewRowItem('Content', 'Image (road_safety_awareness.jpg)\n2.4 MB  •  1920 x 1080', Icons.photo_outlined),
-        _buildReviewRowItem('Targeting', 'Bhopal Region, All Vehicles, All Displays\nEstimated Reach: 248 Vehicles • 721 Displays', Icons.location_on_outlined),
-        _buildReviewRowItem('Schedule', '12 May 2025 - 20 May 2025\n09:00 AM - 06:00 PM  •  Mon - Fri', Icons.calendar_month_outlined),
-        _buildReviewRowItem('Priority', 'Normal Priority', Icons.flag_outlined),
+        _buildReviewRowItem('Campaign Information', 'Road Safety Awareness\nPublic Information',
+            "assets/icons/fleet_operator_icons/privacyPolicyA.svg"),
+        _buildReviewRowItem('Content', 'Image (road_safety_awareness.jpg)\n2.4 MB  •  1920 x 1080',
+            "assets/icons/video.svg"),
+        _buildReviewRowItem('Targeting', 'Bhopal Region, All Vehicles, '
+            'All Displays\nEstimated Reach: 248 Vehicles • 721 Displays',  "assets/icons/lsicon_map.svg"),
+        _buildReviewRowItem('Schedule', '12 May 2025 - 20 May 2025\n09:00 AM - 06:00 PM  •  Mon - Fri',
+            "assets/icons/calendar.svg"),
+        _buildReviewRowItem('Priority', 'Normal Priority',
+            "assets/icons/priority.svg"),
       ],
     );
   }
 
-  Widget _buildReviewRowItem(String label, String detail, IconData icon) {
+  Widget _buildReviewRowItem(String label, String detail, String icon) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
@@ -1413,7 +1437,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: const Color(0xFF3B82F6), size: 14),
+         SvgPicture.asset(icon,width: 18,height: 18,),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -1431,7 +1455,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
     );
   }
 
-  Widget _buildSummaryMetricBadge(String val, String label, IconData icon, Color color) {
+  Widget _buildSummaryMetricBadge(String val, String label, String icon, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
@@ -1441,7 +1465,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
       ),
       child: Column(
         children: [
-          Icon(icon, color: color, size: 14),
+          SvgPicture.asset(icon,width: 18,height: 18,),
           const SizedBox(height: 6),
           Text(val, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
           const SizedBox(height: 2),
@@ -1470,7 +1494,8 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
 
   Widget _buildBottomActionsRow(int step) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.symmetric(horizontal: 15,vertical: 15),
+      // padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
         color: AppColors.cardBg,
         border: Border(top: BorderSide(color: AppColors.cardBorder, width: 1.2)),
@@ -1503,7 +1528,8 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
             child: Container(
               height: 48,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [Color(0xFF3B82F6), Color(0xFF8B5CF6)]),
+                gradient: AppTheme.primaryGradient,
+                // gradient: const LinearGradient(colors: [Color(0xFF3B82F6), Color(0xFF8B5CF6)]),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: ElevatedButton(
@@ -1517,8 +1543,8 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(step == 5 ? 'Publish Campaign' : 'Continue', style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                    const SizedBox(width: 6),
-                    Icon(step == 5 ? Icons.send_rounded : Icons.arrow_forward_rounded, color: Colors.white, size: 14),
+                    // const SizedBox(width: 6),
+                    // Icon(step == 5 ? Icons.send_rounded : Icons.arrow_forward_rounded, color: Colors.white, size: 14),
                   ],
                 ),
               ),
@@ -1619,7 +1645,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                       width: double.infinity,
                       height: 48,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(colors: [Color(0xFF3B82F6), Color(0xFF8B5CF6)]),
+                        gradient: AppTheme.primaryGradient,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: ElevatedButton(
@@ -1643,7 +1669,8 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                       onPressed: controller.createAnother,
                       child: const Text(
                         'Create Another Campaign',
-                        style: TextStyle(color: Color(0xFF3B82F6), fontSize: 11.5, fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+                        style: TextStyle(color: Color(0xFF3B82F6),
+                            fontSize: 11.5, fontWeight: FontWeight.bold,),
                       ),
                     ),
                   ],

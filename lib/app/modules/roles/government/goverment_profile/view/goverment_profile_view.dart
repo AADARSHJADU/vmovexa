@@ -34,7 +34,7 @@ class GovernmentProfileView extends StatelessWidget {
                 ), 
                 InkWell(
                     onTap: (){
-                      Get.toNamed(Routes.ACCOUNT_SETTINGS);
+                      // Get.toNamed(Routes.ACCOUNT_SETTINGS);
                     },
                     child: SvgPicture.asset('assets/icons/fleet_operator_icons/profileHeaderSettingA.svg',)),
                 // IconButton(
@@ -226,7 +226,7 @@ class GovernmentProfileView extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildMenuRow('Account Settings', 'Personal and organization details', "assets/icons/profile.svg", () => Get.toNamed(Routes.ACCOUNT_SETTINGS)),
+          _buildMenuRow('Account Settings', 'Personal and organization details', "assets/icons/profile.svg", () {}),
           const Divider(color: AppColors.cardBorder, height: 16),
           _buildMenuRow('Security', 'Change password and security preferences', "assets/icons/fleet_operator_icons/securityA.svg", () => Get.toNamed(Routes.CHANGE_PASSWORD)),
           const Divider(color: AppColors.cardBorder, height: 16),
@@ -253,7 +253,6 @@ class GovernmentProfileView extends StatelessWidget {
           _buildMenuRow('Privacy Policy', 'Read our privacy policy', "assets/icons/fleet_operator_icons/privacyPolicyA.svg", () => Get.toNamed(Routes.PRIVACY_POLICY)),
           const Divider(color: AppColors.cardBorder, height: 16),
           _buildMenuRow('Terms & Conditions', 'Read our terms and conditions', "assets/icons/fleet_operator_icons/securityA.svg", () => Get.toNamed(Routes.TERMS_CONDITIONS)),
-
           const Divider(color: AppColors.cardBorder, height: 16),
           _buildMenuRow('About VMOVEXA', 'App version 1.0.0',"assets/icons/fleet_operator_icons/AboutA.svg", () {}),
         ],
