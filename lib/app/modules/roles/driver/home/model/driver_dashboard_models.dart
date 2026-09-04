@@ -49,7 +49,7 @@ class OperationalNotification {
   final String message;
   final String subMessage;
   final String timeAgo;
-  final IconData icon;
+  final String icon;
   final bool isUnread;
 
   OperationalNotification({
@@ -64,7 +64,7 @@ class OperationalNotification {
 
 class DriverQuickAction {
   final String title;
-  final IconData icon;
+  final String icon;
   final Color color;
   final String route;
   final int? badgeCount;

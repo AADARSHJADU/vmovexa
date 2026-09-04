@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
 
@@ -105,8 +106,8 @@ class MyRouteView extends GetView<MyRouteController> {
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(color: kPurple.withOpacity(0.15), borderRadius: BorderRadius.circular(12)),
-                child: const Icon(Icons.directions_bus_filled, color: kPurple, size: 22),
+                // decoration: BoxDecoration(color: kPurple.withOpacity(0.15), borderRadius: BorderRadius.circular(12)),
+                child: SvgPicture.asset('assets/icons/bus11.svg',width: 21,height: 21,)
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -146,13 +147,13 @@ class MyRouteView extends GetView<MyRouteController> {
           Row(
             children: [
               Expanded(
-                child: _SummaryStat(icon: Icons.access_time, label: 'Start Time', value: route.startTime),
+                child: _SummaryStat(icon: 'assets/icons/calendar.svg', label: 'Start Time', value: route.startTime),
               ),
               Expanded(
-                child: _SummaryStat(icon: Icons.flag_outlined, label: 'End Time', value: route.endTime),
+                child: _SummaryStat(icon: 'assets/icons/clock.svg', label: 'End Time', value: route.endTime),
               ),
               Expanded(
-                child: _SummaryStat(icon: Icons.route_outlined, label: 'Total Distance', value: '${route.totalDistanceKm} km'),
+                child: _SummaryStat(icon: 'assets/icons/advertiser_ic/route.svg', label: 'Total Distance', value: '${route.totalDistanceKm} km'),
               ),
             ],
           ),
@@ -302,7 +303,7 @@ class MyRouteView extends GetView<MyRouteController> {
 // Summary stat (Start Time / End Time / Total Distance)
 // =====================================================================
 class _SummaryStat extends StatelessWidget {
-  final IconData icon;
+  final String icon;
   final String label;
   final String value;
 
@@ -315,7 +316,8 @@ class _SummaryStat extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(icon, color: MyRouteView.kPurple, size: 13),
+            SvgPicture.asset(icon,width: 15,height: 18,),
+            // Icon(icon, color: MyRouteView.kPurple, size: 13),
             const SizedBox(width: 4),
             Text(label, style: const TextStyle(color: Colors.white, fontSize: 10)),
           ],

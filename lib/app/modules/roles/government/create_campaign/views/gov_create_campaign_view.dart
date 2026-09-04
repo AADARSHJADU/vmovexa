@@ -200,7 +200,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                 child: _buildTypeCard(
                   'Public\nInformation',
                   'General public information and awareness',
-                "assets/icons/active-campain.svg",
+                  "assets/icons/advertiser_ic/speaker.svg",
                   !isEmergency,
                   const Color(0xFF3B82F6),
                   () => controller.setCampaignType('Public Information'),
@@ -211,7 +211,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                 child: _buildTypeCard(
                   'Emergency Announcement',
                   'Urgent alerts and emergency notifications',
-                  "assets/icons/active-alert.svg",
+                  "assets/icons/infoNew.svg",
                   isEmergency,
                   const Color(0xFFEF4444),
                   () => controller.setCampaignType('Emergency Announcement'),

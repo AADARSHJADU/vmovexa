@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../../../technician/hardware_configuration/views/shared_widgets.dart' as DriverDashboardView;
 import '../controller/driver_home_controller.dart';
@@ -62,29 +63,7 @@ class DriverHomeView extends GetView<DriverHomeController> {
         ),
         GestureDetector(
           onTap: controller.onNotificationBellTap,
-          child: Obx(
-            () => Stack(
-              clipBehavior: Clip.none,
-              children: [
-                const Icon(Icons.notifications_none_rounded, color: Colors.white70, size: 24),
-                if (controller.notificationCount.value > 0)
-                  Positioned(
-                    right: -4,
-                    top: -4,
-                    child: Container(
-                      padding: const EdgeInsets.all(3),
-                      constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                      decoration: const BoxDecoration(color: kPurple, shape: BoxShape.circle),
-                      alignment: Alignment.center,
-                      child: Text(
-                        '${controller.notificationCount.value}',
-                        style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
+          child:SvgPicture.asset('assets/icons/notification.svg'),
         ),
       ],
     );
@@ -124,8 +103,9 @@ class DriverHomeView extends GetView<DriverHomeController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
-                children: const [
-                  Icon(Icons.directions_bus_filled_outlined, color: kPurple, size: 17),
+                children:  [
+                  SvgPicture.asset('assets/icons/bus.svg'),
+                  // Icon(Icons.directions_bus_filled_outlined, color: kPurple, size: 17),
                   SizedBox(width: 8),
                   Text("Today's Route", style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
                 ],
@@ -154,8 +134,9 @@ class DriverHomeView extends GetView<DriverHomeController> {
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(color: kPurple.withOpacity(0.15), borderRadius: BorderRadius.circular(12)),
-                child: const Icon(Icons.directions_bus, color: kPurple, size: 22),
+                decoration: BoxDecoration(color: kPurple.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(5)),
+                child: SvgPicture.asset('assets/icons/bus.svg'),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -251,8 +232,8 @@ class DriverHomeView extends GetView<DriverHomeController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
-                children: const [
-                  Icon(Icons.calendar_today_outlined, color: kPurple, size: 15),
+                children:  [
+                  SvgPicture.asset('assets/icons/calendar.svg'),
                   SizedBox(width: 8),
                   Text("Today's Schedule", style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
                 ],
@@ -301,8 +282,8 @@ class DriverHomeView extends GetView<DriverHomeController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
-                children: const [
-                  Icon(Icons.campaign_outlined, color: kPurple, size: 16),
+                children:  [
+                  SvgPicture.asset('assets/icons/advertiser_ic/speaker.svg'),
                   SizedBox(width: 8),
                   Text('Operational Notifications', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
                 ],
@@ -485,8 +466,8 @@ class _NotificationRow extends StatelessWidget {
       children: [
         Container(
           padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(color: kPurple.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
-          child: Icon(notification.icon, color: kPurple, size: 15),
+          // decoration: BoxDecoration(color: kPurple.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
+          child: SvgPicture.asset(notification.icon.toString())
         ),
         const SizedBox(width: 10),
         Expanded(
@@ -535,24 +516,24 @@ class _QuickActionColumn extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.all(13),
-                decoration: BoxDecoration(color: action.color.withOpacity(0.15), borderRadius: BorderRadius.circular(14)),
-                child: Icon(action.icon, color: action.color, size: 20),
+                // decoration: BoxDecoration(color: action.color.withOpacity(0.15), borderRadius: BorderRadius.circular(14)),
+                child: SvgPicture.asset(action.icon.toString())
               ),
-              if (action.badgeCount != null && action.badgeCount! > 0)
-                Positioned(
-                  right: -4,
-                  top: -4,
-                  child: Container(
-                    padding: const EdgeInsets.all(3),
-                    constraints: const BoxConstraints(minWidth: 15, minHeight: 15),
-                    decoration: const BoxDecoration(color: Color(0xFFFF4D4D), shape: BoxShape.circle),
-                    alignment: Alignment.center,
-                    child: Text(
-                      '${action.badgeCount}',
-                      style: const TextStyle(color: Colors.white, fontSize: 8.5, fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                ),
+              // if (action.badgeCount != null && action.badgeCount! > 0)
+              //   Positioned(
+              //     right: -4,
+              //     top: -4,
+              //     child: Container(
+              //       padding: const EdgeInsets.all(3),
+              //       constraints: const BoxConstraints(minWidth: 15, minHeight: 15),
+              //       decoration: const BoxDecoration(color: Color(0xFFFF4D4D), shape: BoxShape.circle),
+              //       alignment: Alignment.center,
+              //       child: Text(
+              //         '${action.badgeCount}',
+              //         style: const TextStyle(color: Colors.white, fontSize: 8.5, fontWeight: FontWeight.w700),
+              //       ),
+              //     ),
+              //   ),
             ],
           ),
           const SizedBox(height: 6),

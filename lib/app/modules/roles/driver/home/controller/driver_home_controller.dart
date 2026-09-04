@@ -80,21 +80,21 @@ class DriverHomeController extends GetxController {
         message: 'Traffic congestion on Western Express Highway.',
         subMessage: 'Expect minor delays.',
         timeAgo: '10 min ago',
-        icon: Icons.campaign_outlined,
+        icon:'assets/icons/advertiser_ic/speaker.svg'
       ),
       OperationalNotification(
         id: 'notif_2',
         message: 'Diversion on SV Road due to road work.',
         subMessage: 'Follow alternate route via Link Road.',
         timeAgo: '25 min ago',
-        icon: Icons.alt_route_outlined,
+        icon:'assets/icons/advertiser_ic/box.svg'
       ),
       OperationalNotification(
         id: 'notif_3',
         message: 'Vehicle inspection completed successfully.',
         subMessage: 'You are good to go.',
         timeAgo: '1 hr ago',
-        icon: Icons.fact_check_outlined,
+        icon: 'assets/icons/calendar.svg'
       ),
     ]);
   }
@@ -103,26 +103,26 @@ class DriverHomeController extends GetxController {
     quickActions.assignAll([
       DriverQuickAction(
         title: 'My Route',
-        icon: Icons.map_outlined,
+        icon: "assets/icons/live_location.svg",
         color: const Color(0xFFB042FF),
         route: '/my-route',
       ),
       DriverQuickAction(
         title: 'Schedule',
-        icon: Icons.calendar_today_outlined,
+        icon: "assets/icons/calendar.svg",
         color: const Color(0xFF3F7BF5),
         route: '/schedule',
       ),
       DriverQuickAction(
         title: 'Notifications',
-        icon: Icons.notifications_outlined,
+        icon: "assets/icons/notification.svg",
         color: const Color(0xFFB042FF),
         route: '/notifications',
         badgeCount: notificationCount.value,
       ),
       DriverQuickAction(
         title: 'Report Incident',
-        icon: Icons.local_activity_outlined,
+        icon: "assets/icons/advertiser_ic/layers.svg",
         color: const Color(0xFFFF4D9E),
         route: '/report-incident',
       ),
