@@ -42,7 +42,11 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
             ],
           ),
         ),
-        bottomNavigationBar: _buildBottomNav(),
+        bottomNavigationBar: SafeArea(
+          top: false,
+          child: _buildBottomNav(),
+        ),
+        // bottomNavigationBar: _buildBottomNav(),
       );
     });
   }
