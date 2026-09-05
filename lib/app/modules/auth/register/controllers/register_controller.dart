@@ -18,7 +18,7 @@ class RegisterController extends GetxController {
     'Advertisement',
     'Government',
     // 'Finance',
-    'Technician',
+    // 'Technician',
     // 'Driver',
   ];
 

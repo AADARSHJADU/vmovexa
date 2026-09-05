@@ -102,7 +102,8 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                 icon: const Icon(Icons.menu_rounded, color: Colors.white, size: 28),
                 onPressed: () {},
               ),
-              const AppLogoHeader(height: 38),
+              Image.asset('assets/app_logo/newLogo.png',width: 150,height: 40,),
+              // const AppLogoHeader(height: 38),
               Row(
                 children: [
                   // Notification Bell with Badge count 5
@@ -195,7 +196,7 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                         '8',
                         'Fleets',
                         'Active',
-                        svgPath: 'assets/icons/truck.svg',
+                        svgPath: 'assets/icons/fleet_operator_icons/fleetsManagedA2.svg',
                         //iconColor: const Color(0xFF3B82F6),
                       ),
 
@@ -203,7 +204,7 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                         '142',
                         'Vehicles',
                         '124 Online',
-                        svgPath: 'assets/icons/car.svg',
+                        svgPath: 'assets/icons/fleet_operator_icons/fleetsManagedA2.svg',
                         iconColor: const Color(0xFF3B82F6),
                       ),
 
@@ -250,14 +251,14 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                       'View and manage fleets',
                       controller.goToFleetList,
                       //icon: Icons.local_shipping_outlined,
-                      svgPath: 'assets/icons/truck.svg',
+                      svgPath: 'assets/icons/fleet_operator_icons/fleetsManagedA2.svg',
                     ),
 
                      _buildActionCard(
                       'Vehicles',
                       'Manage vehicles and status',
                       controller.goToVehicles,
-                      svgPath: 'assets/icons/car.svg',
+                      svgPath: 'assets/icons/fleet_operator_icons/fleetsManagedA2.svg',
                     ),
 
                     _buildActionCard(

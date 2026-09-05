@@ -281,52 +281,108 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
   Widget _buildHomeTab() {
     return Column(
       children: [
+        // Padding(
+        //   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        //   child: Row(
+        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //     children: [
+        //       /*IconButton(
+        //       icon: const Icon(Icons.menu_rounded, color: Colors.white, size: 24),
+        //       onPressed: () {},
+        //     ),*/
+        //       const Text(
+        //         'V M O V E X A',
+        //         style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2),
+        //       ),
+        //       Row(
+        //         children: [
+        //           Stack(
+        //             children: [
+        //               SvgPicture.asset('assets/icons/notification.svg'),
+        //               /*IconButton(
+        //               icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 24),
+        //               onPressed: () => Get.toNamed(Routes.NOTIFICATIONS_LIST),
+        //             ),*/
+        //               /*Positioned(
+        //               left: 12,
+        //               bottom: 12,
+        //               child: Container(
+        //                 width: 8,
+        //                 height: 8,
+        //                 decoration: const BoxDecoration(color: Color(0xFF8B5CF6), shape: BoxShape.circle),
+        //               ),
+        //             ),*/
+        //             ],
+        //           ),
+        //           const SizedBox(width: 10),
+        //           GestureDetector(
+        //             onTap: controller.switchToProfile,
+        //             child: Center(
+        //               child: SvgPicture.asset('assets/icons/profile.svg'),
+        //             ),
+        //           ),
+        //         ],
+        //       ),
+        //     ],
+        //   ),
+        // ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              /*IconButton(
-              icon: const Icon(Icons.menu_rounded, color: Colors.white, size: 24),
-              onPressed: () {},
-            ),*/
-              const Text(
-                'V M O V E X A',
-                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2),
+              IconButton(
+                icon: const Icon(Icons.menu_rounded, color: Colors.white, size: 28),
+                onPressed: () {},
               ),
+              Image.asset('assets/app_logo/newLogo.png',width: 150,height: 40,),
+              // const AppLogoHeader(height: 38),
               Row(
                 children: [
+                  // Notification Bell with Badge count 5
                   Stack(
                     children: [
-                      SvgPicture.asset('assets/icons/notification.svg'),
                       /*IconButton(
-                      icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 24),
-                      onPressed: () => Get.toNamed(Routes.NOTIFICATIONS_LIST),
-                    ),*/
-                      /*Positioned(
-                      left: 12,
-                      bottom: 12,
-                      child: Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(color: Color(0xFF8B5CF6), shape: BoxShape.circle),
+                        icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 26),
+                        onPressed: () {},
+                      ),*/
+                      SvgPicture.asset(
+                        'assets/icons/notification.svg',
+                        width: 24,
+                        height: 24,
                       ),
-                    ),*/
+                      Positioned(
+                        left: 12,
+                        bottom: 10,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFA855F7),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Text(
+                            '5',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
+                  // Profile Avatar
                   GestureDetector(
-                    onTap: controller.switchToProfile,
-                    child: Center(
-                      child: SvgPicture.asset('assets/icons/profile.svg'),
-                    ),
+                      onTap: controller.switchToProfile,
+                    child: SvgPicture.asset('assets/icons/profile.svg'),
                   ),
                 ],
               ),
             ],
           ),
         ),
-
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -2853,7 +2909,10 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
       onTap: onTap,
       child: Row(
         children: [
-          SvgPicture.asset(icon),
+          label=="Contact Support"|| label=='About VMOVEXA' || label=='App Version'?
+          SvgPicture.asset(icon,width: 22,height: 22,)
+              :
+          SvgPicture.asset(icon,width: 20,height: 20,),
           const SizedBox(width: 14),
           Expanded(
             child: Column(

@@ -38,10 +38,15 @@ class OnboardingView extends GetView<OnboardingController> {
             // Header Logo
             //const AppLogoHeader(height: 65),
             Image.asset(
-              'assets/app_logo/app-logo.png',
+              'assets/app_logo/logo_transparent.png',
               height: 150,
               width: 150,
             ),
+            // Image.asset(
+            //   'assets/app_logo/app-logo.png',
+            //   height: 150,
+            //   width: 150,
+            // ),
             //const SizedBox(height: 20),
 
             // Main PageView content
@@ -59,7 +64,7 @@ class OnboardingView extends GetView<OnboardingController> {
 
             // Bottom Section: Indicators & Action Buttons
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 15),
               child: Column(
                 children: [
                   // 3 Indicator Dots (Obx reactive)
@@ -145,16 +150,37 @@ class OnboardingView extends GetView<OnboardingController> {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
+            // SizedBox(
+            //   width: double.infinity,
+            //   height: 220,
+            //   child: Image.asset(
+            //     'assets/images/onboarding-bus1.png',
+            //     fit: BoxFit.cover,
+            //     errorBuilder: (context, error, stackTrace) =>
+            //     const Icon(Icons.directions_bus, size: 140, color: Colors.white38),
+            //   ),
+            // ),
             SizedBox(
               width: double.infinity,
-              height: 220,
+              height: 200,
               child: Image.asset(
-                'assets/images/onboarding-bus1.png',
-                fit: BoxFit.cover,
+                'assets/app_logo/newBus3.png',
+                // fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) =>
                 const Icon(Icons.directions_bus, size: 140, color: Colors.white38),
               ),
             ),
+            // SizedBox(
+            //   width: double.infinity,
+            //   height: 300,
+            //   child: Image.asset(
+            //     'assets/app_logo/newBus.png',
+            //     // fit: BoxFit.fill,
+            //     fit: BoxFit.cover,
+            //     errorBuilder: (context, error, stackTrace) =>
+            //     const Icon(Icons.directions_bus, size: 140, color: Colors.white38),
+            //   ),
+            // ),
             const SizedBox(height: 10),
             const Text(
               'Smart Mobility\nSimplified',
@@ -197,11 +223,13 @@ class OnboardingView extends GetView<OnboardingController> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
-          children: const [
-            Step2MapWidget(),
-            SizedBox(height: 20),
+          children:  [
+            // Step2MapWidget(),
+            Image.asset('assets/app_logo/onBoardingSecond.png'),
+            SizedBox(height: 15),
             Text(
-              'Real-Time Tracking\nAlways',
+              'Interactive Media Everywhere',
+              // 'Real-Time Tracking\nAlways',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
@@ -210,11 +238,12 @@ class OnboardingView extends GetView<OnboardingController> {
                 height: 1.25,
               ),
             ),
-            SizedBox(height: 12),
+            SizedBox(height: 10),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 40),
               child: Text(
-                'Track your vehicles live, optimize routes, and stay updated every second.',
+                'Deliver engaging content across vehicle displays and reach people on the move.',
+                // 'Track your vehicles live, optimize routes, and stay updated every second.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppColors.textSecondary,
@@ -240,11 +269,13 @@ class OnboardingView extends GetView<OnboardingController> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
-          children: const [
-            Step3AnalyticsWidget(),
-            SizedBox(height: 20),
+          children:  [
+            Image.asset('assets/app_logo/onBoardingThird.png'),
+            // Step3AnalyticsWidget(),
+            SizedBox(height: 10),
             Text(
-              'Data-Driven\nDecisions',
+              'Safety First\nFor Smarter Cities',
+              // 'Data-Driven\nDecisions',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
@@ -253,19 +284,21 @@ class OnboardingView extends GetView<OnboardingController> {
                 height: 1.25,
               ),
             ),
-            SizedBox(height: 12),
+            SizedBox(height: 8),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 40),
+              padding: EdgeInsets.symmetric(horizontal: 15),
               child: Text(
-                'Get powerful insights and reports to improve efficiency and drive growth.',
+                'Broadcast emergency alerts and important information to keep communities safe and connected',
+                // 'Get powerful insights and reports to improve efficiency and drive growth.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 14,
-                  height: 1.4,
+                  // height: 1.8,
                 ),
               ),
             ),
+            SizedBox(height: 80),
           ],
         ),
       ),

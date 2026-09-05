@@ -68,7 +68,81 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
       showActions = false;
     }
 
-    return Padding(
+    return
+    index ==0?
+    Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.menu_rounded, color: Colors.white, size: 28),
+            onPressed: () {},
+          ),
+          Image.asset('assets/app_logo/newLogo.png',width: 150,height: 40,),
+          // const AppLogoHeader(height: 38),
+          Row(
+            children: [
+              // Notification Bell with Badge count 5
+              if (showActions) ...[
+                const SizedBox(width: 8),
+
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GestureDetector(
+                      onTap: () => Get.toNamed(Routes.NOTIFICATIONS_LIST),
+                      child: Stack(
+                        children: [
+                          const Icon(
+                            Icons.notifications_outlined,
+                            color: Colors.white,
+                            size: 22,
+                          ),
+                          Positioned(
+                            top: 1,
+                            right: 1,
+                            child: Container(
+                              width: 7,
+                              height: 7,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFEF4444),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Image.asset('assets/icons/govermentHeader.png',width: 30,height: 30,)
+                    // Container(
+                    //   padding: const EdgeInsets.all(6),
+                    //   decoration: BoxDecoration(
+                    //     color: const Color(0xFF3B82F6).withOpacity(0.12),
+                    //     shape: BoxShape.circle,
+                    //     border: Border.all(
+                    //       color: const Color(0xFF3B82F6).withOpacity(0.3),
+                    //       width: 1.2,
+                    //     ),
+                    //   ),
+                    //   child: const Icon(
+                    //     Icons.gavel_rounded,
+                    //     color: Color(0xFF3B82F6),
+                    //     size: 16,
+                    //   ),
+                    // ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ],
+      ),
+    )
+        :
+
+      Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 12,

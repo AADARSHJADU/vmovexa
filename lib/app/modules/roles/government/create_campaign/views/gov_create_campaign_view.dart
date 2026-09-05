@@ -297,58 +297,126 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
     );
   }
 
+  // Widget _buildContentTypeGrid() {
+  //   final List<Map<String, dynamic>> items = [
+  //     {'label': 'Image', 'icon': "assets/icons/advertiser_ic/gallary.svg"},
+  //     {'label': 'Video', 'icon': "assets/icons/video.svg"},
+  //     {'label': 'PDF', 'icon': "assets/icons/advertiser_ic/pdf.svg"},
+  //     {'label': 'HTML5', 'icon': "assets/icons/html.svg"},
+  //     {'label': 'Live URL', 'icon': "assets/icons/liveUrl.svg"},
+  //     {'label': 'RSS Feed', 'icon':"assets/icons/rssFeed.svg"},
+  //     {'label': 'JSON', 'icon': "assets/icons/json.svg"},
+  //     {'label': 'Interactive', 'icon': "assets/icons/interactiveHand.svg"},
+  //   ];
+  //
+  //   return Obx(() {
+  //     final selected = controller.selectedContentType.value;
+  //     return GridView.builder(
+  //       shrinkWrap: true,
+  //       physics: const NeverScrollableScrollPhysics(),
+  //       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+  //         crossAxisCount: 4,
+  //         mainAxisSpacing: 15,
+  //         crossAxisSpacing: 15,
+  //         childAspectRatio: 1.2,
+  //         // childAspectRatio: 1.2,
+  //       ),
+  //       itemCount: items.length,
+  //       itemBuilder: (context, idx) {
+  //         final i = items[idx];
+  //         final isSelected = selected == i['label'];
+  //         return GestureDetector(
+  //           onTap: () => controller.setContentType(i['label'] as String),
+  //           child: Container(
+  //             decoration: BoxDecoration(
+  //               color: isSelected ? const Color(0xFF3B82F6).withOpacity(0.08) : AppColors.cardBg,
+  //               borderRadius: BorderRadius.circular(10),
+  //               border: Border.all(
+  //                 color: isSelected ? const Color(0xFF3B82F6) : AppColors.cardBorder,
+  //                 width: 1.2,
+  //               ),
+  //             ),
+  //             child: Column(
+  //               mainAxisAlignment: MainAxisAlignment.center,
+  //               children: [
+  //                 SvgPicture.asset(i['icon'],width: 18,height: 15,),
+  //                 // Icon(i['icon'] as IconData, color: isSelected ? const Color(0xFF3B82F6) : Colors.white, size: 18),
+  //                 const SizedBox(height: 4),
+  //                 Text(i['label'] as String, style: TextStyle(color: isSelected ? Colors.white : AppColors.textSecondary, fontSize: 8, fontWeight: FontWeight.bold)),
+  //               ],
+  //             ),
+  //           ),
+  //         );
+  //       },
+  //     );
+  //   });
+  // }
+
   Widget _buildContentTypeGrid() {
     final List<Map<String, dynamic>> items = [
       {'label': 'Image', 'icon': "assets/icons/advertiser_ic/gallary.svg"},
       {'label': 'Video', 'icon': "assets/icons/video.svg"},
       {'label': 'PDF', 'icon': "assets/icons/advertiser_ic/pdf.svg"},
-      {'label': 'HTML5', 'icon': "assets/icons/html.svg"},
-      {'label': 'Live URL', 'icon': "assets/icons/liveUrl.svg"},
-      {'label': 'RSS Feed', 'icon':"assets/icons/rssFeed.svg"},
-      {'label': 'JSON', 'icon': "assets/icons/json.svg"},
-      {'label': 'Interactive', 'icon': "assets/icons/interactiveHand.svg"},
     ];
 
     return Obx(() {
       final selected = controller.selectedContentType.value;
-      return GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          childAspectRatio: 1.2,
-        ),
-        itemCount: items.length,
-        itemBuilder: (context, idx) {
-          final i = items[idx];
+      return Row(
+        children: items.map((i) {
           final isSelected = selected == i['label'];
-          return GestureDetector(
-            onTap: () => controller.setContentType(i['label'] as String),
-            child: Container(
-              decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFF3B82F6).withOpacity(0.08) : AppColors.cardBg,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: isSelected ? const Color(0xFF3B82F6) : AppColors.cardBorder,
-                  width: 1.2,
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SvgPicture.asset(i['icon'],width: 18,height: 15,),
-                  // Icon(i['icon'] as IconData, color: isSelected ? const Color(0xFF3B82F6) : Colors.white, size: 18),
-                  const SizedBox(height: 4),
-                  Text(i['label'] as String, style: TextStyle(color: isSelected ? Colors.white : AppColors.textSecondary, fontSize: 8, fontWeight: FontWeight.bold)),
-                ],
-              ),
+          final isLast = i == items.last;
+          return Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(right: isLast ? 0 : 12),
+              child: _buildContentTypeItem(i, isSelected),
             ),
           );
-        },
+        }).toList(),
       );
     });
+  }
+
+  Widget _buildContentTypeItem(Map<String, dynamic> i, bool isSelected) {
+    return GestureDetector(
+      onTap: () => controller.setContentType(i['label'] as String),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        height: 72,
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color(0xFF3B82F6).withOpacity(0.08)
+              : AppColors.cardBg,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF3B82F6) : AppColors.cardBorder,
+            width: 1.2,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              i['icon'] as String,
+              width: 20,
+              height: 20,
+              colorFilter: ColorFilter.mode(
+                isSelected ? const Color(0xFF3B82F6) : AppColors.textSecondary,
+                BlendMode.srcIn,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              i['label'] as String,
+              style: TextStyle(
+                color: isSelected ? Colors.white : AppColors.textSecondary,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildUploadDashedContainer() {

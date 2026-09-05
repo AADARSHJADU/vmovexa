@@ -138,10 +138,10 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
           ),
           Obx(
                 () => SizedBox(
-              height: 30, // ~40 * 0.75
-              width: 35,  // ~59 * 0.75
-              child: FittedBox(
-                fit: BoxFit.fill,
+                  width: 35,
+                  height: 30,
+              child: Transform.scale(
+                scale: 0.75,
                 child: Switch(
                   value: controller.pushNotifications.value,
                   onChanged: (val) => controller.pushNotifications.value = val,
