@@ -52,25 +52,90 @@ class TechnicianDashboardView extends GetView<TechnicianDashboardController> {
             unselectedItemColor: AppColors.textMuted,
             selectedFontSize: 11,
             unselectedFontSize: 11,
-            items: const [
+            items: [
               BottomNavigationBarItem(
-                icon: Icon(Icons.home_outlined),
+                icon: SvgPicture.asset(
+                  'assets/icons/home.svg',
+                  width: 22,
+                  height: 22,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.textMuted,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                activeIcon: SvgPicture.asset(
+                  'assets/icons/home.svg',
+                  width: 22,
+                  height: 22,
+                ),
                 label: 'Home',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.tv),
+                icon: SvgPicture.asset(
+                  'assets/icons/tv.svg',
+                  width: 22,
+                  height: 22,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.textMuted,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                activeIcon: SvgPicture.asset(
+                  'assets/icons/tv.svg',
+                  width: 22,
+                  height: 22,
+                ),
                 label: 'Display Device',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.bar_chart_rounded),
+                icon: SvgPicture.asset(
+                  'assets/icons/neon_bars.svg',
+                  width: 22,
+                  height: 22,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.textMuted,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                activeIcon: SvgPicture.asset(
+                  'assets/icons/neon_bars.svg',
+                  width: 22,
+                  height: 22,
+                ),
                 label: 'Diagnostics',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.notifications_none),
+                icon: SvgPicture.asset(
+                  'assets/icons/notification.svg',
+                  width: 22,
+                  height: 22,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.textMuted,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                activeIcon: SvgPicture.asset(
+                  'assets/icons/notification.svg',
+                  width: 22,
+                  height: 22,
+                ),
                 label: 'Alerts',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.person),
+                icon: SvgPicture.asset(
+                  'assets/icons/profile.svg',
+                  width: 22,
+                  height: 22,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.textMuted,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                activeIcon: SvgPicture.asset(
+                  'assets/icons/profile.svg',
+                  width: 22,
+                  height: 22,
+                ),
                 label: 'Profile',
               ),
             ],

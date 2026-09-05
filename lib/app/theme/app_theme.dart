@@ -13,7 +13,13 @@ class AppTheme {
         surface: AppColors.cardBg,
       ),
       // Set Raleway globally so all Text widgets across the app automatically use Raleway
-      textTheme: GoogleFonts.ralewayTextTheme(baseTheme.textTheme).apply(
+      /*textTheme: GoogleFonts.ralewayTextTheme(baseTheme.textTheme).apply(
+        bodyColor: AppColors.textPrimary,
+        displayColor: AppColors.textPrimary,
+      ),*/
+      textTheme: GoogleFonts.interTextTheme(
+        baseTheme.textTheme,
+      ).apply(
         bodyColor: AppColors.textPrimary,
         displayColor: AppColors.textPrimary,
       ),

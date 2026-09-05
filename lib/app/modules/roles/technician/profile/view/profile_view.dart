@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
 import '../controller/profile_controller.dart';
@@ -28,25 +29,37 @@ class ProfileView extends GetView<ProfileController> {
             const SizedBox(height: 24),
             
             // Account Section
-            _buildSectionHeader(Icons.person_outline_rounded, 'Account'),
+            _buildSectionHeader(
+              svgPath: 'assets/icons/profile.svg',
+              title: 'Account',
+            ),
             const SizedBox(height: 10),
             _buildAccountCard(),
             const SizedBox(height: 24),
 
             // Preferences Section
-            _buildSectionHeader(Icons.tune_rounded, 'Preferences'),
+            _buildSectionHeader(
+              svgPath: 'assets/icons/fleet_operator_icons/appPreferenceA.svg',
+              title: 'Preferences',
+            ),
             const SizedBox(height: 10),
             _buildPreferencesCard(),
             const SizedBox(height: 24),
 
             // Security Section
-            _buildSectionHeader(Icons.gpp_good_outlined, 'Security'),
+            _buildSectionHeader(
+              svgPath: 'assets/icons/fleet_operator_icons/securityA.svg',
+              title: 'Security',
+            ),
             const SizedBox(height: 10),
             _buildSecurityCard(),
             const SizedBox(height: 24),
 
             // App Section
-            _buildSectionHeader(Icons.phone_android_rounded, 'App'),
+            _buildSectionHeader(
+              svgPath: 'assets/icons/fleet_operator_icons/AboutA.svg',
+              title: 'App',
+            ),
             const SizedBox(height: 10),
             _buildAppCard(),
             const SizedBox(height: 28),
@@ -127,11 +140,11 @@ class ProfileView extends GetView<ProfileController> {
                     color: kPurple.withOpacity(0.12),
                     border: Border.all(color: kPurple.withOpacity(0.35), width: 1.5),
                   ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.person_rounded,
-                      color: kPurple,
-                      size: 34,
+                  child: Center(
+                    child: SvgPicture.asset(
+                      'assets/icons/profile.svg',
+                      width: 34,
+                      height: 34,
                     ),
                   ),
                 ),
@@ -208,7 +221,11 @@ class ProfileView extends GetView<ProfileController> {
             // Edit Profile Button
             OutlinedButton.icon(
               onPressed: controller.editProfile,
-              icon: const Icon(Icons.edit_outlined, color: kPurple, size: 12),
+              icon: SvgPicture.asset(
+                'assets/icons/fleet_operator_icons/editA.svg',
+                width: 12,
+                height: 12,
+              ),
               label: const Text(
                 'Edit Profile',
                 style: TextStyle(
@@ -234,10 +251,17 @@ class ProfileView extends GetView<ProfileController> {
   }
 
   // ---------------- Section Header ----------------
-  Widget _buildSectionHeader(IconData icon, String title) {
+  Widget _buildSectionHeader({
+    IconData? icon,
+    String? svgPath,
+    required String title,
+  }) {
     return Row(
       children: [
-        Icon(icon, color: kPurple, size: 16),
+        if (svgPath != null)
+          SvgPicture.asset(svgPath, width: 16, height: 16)
+        else if (icon != null)
+          Icon(icon, color: kPurple, size: 16),
         const SizedBox(width: 8),
         Text(
           title,
@@ -262,14 +286,14 @@ class ProfileView extends GetView<ProfileController> {
       child: Column(
         children: [
           _buildSettingsRow(
-            icon: Icons.person_outline_rounded,
+            svgPath: 'assets/icons/profile.svg',
             title: 'Personal Information',
             subtitle: 'Update your personal details',
             onTap: controller.editProfile,
           ),
           _buildDivider(),
           _buildSettingsRow(
-            icon: Icons.lock_outline_rounded,
+            svgPath: 'assets/icons/fleet_operator_icons/changePasswordA.svg',
             title: 'Change Password',
             subtitle: 'Update your account password',
             onTap: controller.changePassword,
@@ -290,14 +314,14 @@ class ProfileView extends GetView<ProfileController> {
       child: Column(
         children: [
           _buildSettingsRow(
-            icon: Icons.notifications_none_rounded,
+            svgPath: 'assets/icons/fleet_operator_icons/notificationSettingA.svg',
             title: 'Notification Settings',
             subtitle: 'Manage your notification preferences',
             onTap: controller.goToNotificationSettings,
           ),
           // _buildDivider(),
           // Obx(() => _buildSettingsRow(
-          //       icon: Icons.language_rounded,
+          //       svgPath: 'assets/icons/fleet_operator_icons/languageA.svg',
           //       title: 'Language',
           //       subtitle: 'Choose your preferred language',
           //       trailing: Row(
@@ -350,21 +374,21 @@ class ProfileView extends GetView<ProfileController> {
       child: Column(
         children: [
           _buildSettingsRow(
-            icon: Icons.shield_outlined,
+            svgPath: 'assets/icons/fleet_operator_icons/privacyPolicyA.svg',
             title: 'Privacy Policy',
             subtitle: 'View our privacy policy',
             onTap: controller.goToPrivacyPolicy,
           ),
           _buildDivider(),
           _buildSettingsRow(
-            icon: Icons.description_outlined,
+            svgPath: 'assets/icons/advertiser_ic/termConditionHeaderA.svg',
             title: 'Terms & Conditions',
             subtitle: 'View terms and conditions',
             onTap: controller.goToTermsConditions,
           ),
           _buildDivider(),
           _buildSettingsRow(
-            icon: Icons.devices_outlined,
+            svgPath: 'assets/icons/advertiser_ic/monitor.svg',
             title: 'Device Sessions',
             subtitle: 'Manage your active sessions',
             onTap: controller.goToDeviceSessions,
@@ -383,23 +407,7 @@ class ProfileView extends GetView<ProfileController> {
         border: Border.all(color: kBorder, width: 1.2),
       ),
       child: _buildSettingsRow(
-        leadingWidget: Container(
-          width: 34,
-          height: 34,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            gradient: AppColors.primaryGradient,
-          ),
-          alignment: Alignment.center,
-          child: const Text(
-            'VM',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
+        svgPath: 'assets/icons/fleet_operator_icons/AboutA.svg',
         title: 'App Version',
         subtitle: 'You are using the latest version',
         trailing: const Text(
@@ -431,10 +439,18 @@ class ProfileView extends GetView<ProfileController> {
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.logout_rounded, color: Colors.redAccent, size: 18),
-            SizedBox(width: 8),
-            Text(
+          children: [
+            SvgPicture.asset(
+              'assets/icons/fleet_operator_icons/logoutA.svg',
+              width: 18,
+              height: 18,
+              colorFilter: const ColorFilter.mode(
+                Colors.redAccent,
+                BlendMode.srcIn,
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Text(
               'Log Out',
               style: TextStyle(
                 color: Colors.redAccent,
@@ -451,6 +467,7 @@ class ProfileView extends GetView<ProfileController> {
   // ---------------- Shared Row Builder ----------------
   Widget _buildSettingsRow({
     IconData? icon,
+    String? svgPath,
     Widget? leadingWidget,
     required String title,
     required String subtitle,
@@ -464,7 +481,13 @@ class ProfileView extends GetView<ProfileController> {
             color: kPurple.withOpacity(0.08),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, color: kPurple, size: 18),
+          child: svgPath != null
+              ? SvgPicture.asset(
+                  svgPath,
+                  width: 18,
+                  height: 18,
+                )
+              : Icon(icon, color: kPurple, size: 18),
         );
 
     final Widget tail = trailing ??

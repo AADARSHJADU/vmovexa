@@ -434,8 +434,8 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           if (svgIcon != null)
             SvgPicture.asset(
               svgIcon,
-              height: 40,
-              width: 40,
+              height: 35,
+              width: 35,
             ),
 
           if (svgIcon != null)
@@ -454,7 +454,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
 
@@ -464,7 +464,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                   value,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 24,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     height: 1.0,
                   ),
@@ -662,8 +662,8 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               children: [
                 SvgPicture.asset(
                   'assets/icons/advertiser_ic/rupees.svg',
-                  width: 40,
-                  height: 40,
+                  width: 35,
+                  height: 35,
                 ),
 
                 const SizedBox(width: 12),
@@ -672,22 +672,24 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      SizedBox(height: 8),
+                      Text(
                         'Budget Utilized',
                         style: TextStyle(
                           color: AppColors.textMuted,
-                          fontSize: 9,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
+                        maxLines: 1,
                       ),
 
                       const SizedBox(height: 2),
 
-                      const Text(
+                      Text(
                         '₹ 8.75L',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 20,
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -1950,7 +1952,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           const SizedBox(height: 4),
           Text(
             desc,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
+            style: const TextStyle(color:Colors.white, fontSize: 11),
           ),
           const Divider(color: AppColors.cardBorder, height: 24),
           Row(
@@ -1987,14 +1989,14 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
       children: [
         Text(
           label,
-          style: const TextStyle(color: AppColors.textMuted, fontSize: 7.5),
+          style: const TextStyle(color: Colors.white,fontWeight: FontWeight.w500, fontSize: 10),
         ),
         const SizedBox(height: 4),
         Text(
           value,
           style: const TextStyle(
             color: Colors.white,
-            fontSize: 10,
+            fontSize: 12,
             fontWeight: FontWeight.bold,
           ),
         ),

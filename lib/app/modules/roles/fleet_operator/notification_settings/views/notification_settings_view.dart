@@ -110,7 +110,7 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
 
   Widget _buildPushConfigCard() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(16),
@@ -137,16 +137,39 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
             ),
           ),
           Obx(
-            () => Switch(
-              value: controller.pushNotifications.value,
-              onChanged: (val) => controller.pushNotifications.value = val,
-              activeColor: CupertinoColors.white,
-              activeTrackColor: const Color(0xFF0051f4),
-              // activeTrackColor: const Color(0xFF6366F1).withOpacity(0.3),
-              inactiveThumbColor: AppColors.textMuted,
-              inactiveTrackColor: AppColors.cardBorder,
+                () => SizedBox(
+              height: 30, // ~40 * 0.75
+              width: 35,  // ~59 * 0.75
+              child: FittedBox(
+                fit: BoxFit.fill,
+                child: Switch(
+                  value: controller.pushNotifications.value,
+                  onChanged: (val) => controller.pushNotifications.value = val,
+                  activeColor: CupertinoColors.white,
+                  activeTrackColor: const Color(0xFF0051f4),
+                  inactiveThumbColor: AppColors.textMuted,
+                  inactiveTrackColor: AppColors.cardBorder,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ),
             ),
           ),
+          /*Obx(
+                () => Transform.scale(
+              scale: 0.75,
+              child: Switch(
+                value: controller.pushNotifications.value,
+                onChanged: (val) =>
+                controller.pushNotifications.value = val,
+                activeColor: CupertinoColors.white,
+                activeTrackColor: const Color(0xFF0051f4),
+                inactiveThumbColor: AppColors.textMuted,
+                inactiveTrackColor: AppColors.cardBorder,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+
+              ),
+            ),
+          ),*/
         ],
       ),
     );
@@ -157,7 +180,7 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
 
     if (isAdvertiser) {
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: AppColors.cardBg,
           borderRadius: BorderRadius.circular(16),
@@ -202,7 +225,7 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
     }
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(16),
@@ -283,22 +306,43 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
           ),
         ),
         Obx(
-          () => Switch(
-            value: state.value,
-            onChanged: (val) => state.value = val,
-            activeColor: Colors.white,
-            activeTrackColor: const Color(0xFF0051f4),
-            inactiveThumbColor: AppColors.textMuted,
-            inactiveTrackColor: AppColors.cardBorder,
+              () => SizedBox(
+            width: 35,
+            height: 30,
+            child: Transform.scale(
+              scale: 0.75,
+              child: Switch(
+                value: state.value,
+                onChanged: (val) => state.value = val,
+                activeColor: Colors.white,
+                activeTrackColor: const Color(0xFF0051f4),
+                inactiveThumbColor: AppColors.textMuted,
+                inactiveTrackColor: AppColors.cardBorder,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
           ),
         ),
+        /*Obx(
+              () => Transform.scale(
+            scale: 0.75,
+            child: Switch(
+              value: state.value,
+              onChanged: (val) => state.value = val,
+              activeColor: Colors.white,
+              activeTrackColor: const Color(0xFF0051f4),
+              inactiveThumbColor: AppColors.textMuted,
+              inactiveTrackColor: AppColors.cardBorder,
+            ),
+          ),
+        ),*/
       ],
     );
   }
 
   Widget _buildChannelsCard() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(16),

@@ -29,6 +29,19 @@ extension AlertSeverityX on AlertSeverity {
     }
   }
 
+  String get svgPath {
+    switch (this) {
+      case AlertSeverity.critical:
+        return 'assets/icons/fleet_operator_icons/notificationAlertA.svg';
+      case AlertSeverity.warning:
+        return 'assets/icons/fleet_operator_icons/notificationAlertA.svg';
+      case AlertSeverity.info:
+        return 'assets/icons/fleet_operator_icons/AboutA.svg';
+      case AlertSeverity.resolved:
+        return 'assets/icons/shield.svg';
+    }
+  }
+
   IconData get icon {
     switch (this) {
       case AlertSeverity.critical:

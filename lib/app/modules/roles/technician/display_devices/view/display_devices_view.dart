@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/theme/app_theme.dart';
 
@@ -128,13 +129,14 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
         GestureDetector(
           onTap: controller.onOpenFilterSheet,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             decoration: BoxDecoration(
               color: kCardBg,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: kPurple.withOpacity(0.4)),
             ),
-            child: const Icon(Icons.tune, color: kPurple, size: 18),
+            child: SvgPicture.asset(
+              'assets/icons/filter.svg'),
           ),
         ),
       ],
@@ -155,7 +157,7 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
           children: [
             Expanded(
               child: _StatPill(
-                icon: Icons.desktop_windows_outlined,
+                svgPath: 'assets/icons/tv.svg',
                 iconColor: kPurple,
                 count: '${controller.totalDevices}',
                 label: 'Total Devices',
@@ -371,41 +373,70 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
 // =====================================================================
 class _StatPill extends StatelessWidget {
   final IconData? icon;
+  final String? svgPath;
   final Color iconColor;
   final String count;
   final String label;
   final bool showDot;
 
   const _StatPill({
-    required this.icon,
+    this.icon,
+    this.svgPath,
     required this.iconColor,
     required this.count,
     required this.label,
-    required this.showDot,
+    this.showDot = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final bool hasSvg = svgPath != null && svgPath!.isNotEmpty;
+    final bool hasIcon = icon != null;
+
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (icon != null) ...[
-              Icon(icon, color: iconColor, size: 16),
-              const SizedBox(width: 4),
-            ] else if (showDot) ...[
-              Container(
-                width: 7,
-                height: 7,
-                decoration: BoxDecoration(color: iconColor, shape: BoxShape.circle),
+            // SVG Image
+            if (hasSvg) ...[
+              SvgPicture.asset(
+                svgPath!,
+                width: 16,
+                height: 16,
               ),
-              const SizedBox(width: 5),
-            ],
+              const SizedBox(width: 4),
+            ]
+
+            // Normal Icon
+            else if (hasIcon) ...[
+              Icon(
+                icon,
+                color: iconColor,
+                size: 16,
+              ),
+              const SizedBox(width: 4),
+            ]
+
+            // Dot
+            else if (showDot) ...[
+                Container(
+                  width: 7,
+                  height: 7,
+                  decoration: BoxDecoration(
+                    color: iconColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 5),
+              ],
+
             Text(
               count,
               style: TextStyle(
-                color: icon != null ? Colors.white : iconColor,
+                color: (hasSvg || hasIcon)
+                    ? Colors.white
+                    : iconColor,
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
               ),
@@ -415,7 +446,10 @@ class _StatPill extends StatelessWidget {
         const SizedBox(height: 3),
         Text(
           label,
-          style: const TextStyle(color: Colors.white38, fontSize: 10),
+          style: const TextStyle(
+            color: Colors.white38,
+            fontSize: 10,
+          ),
         ),
       ],
     );
@@ -450,8 +484,16 @@ class _DeviceCard extends StatelessWidget {
                 color: device.status.color.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(Icons.desktop_windows_outlined,
-                  color: device.status.color, size: 18),
+              child: SvgPicture.asset(
+                'assets/icons/tv.svg',
+                width: 18,
+                height: 18,
+                // Agar device status color apply karna ho to:
+                // colorFilter: ColorFilter.mode(
+                //   device.status.color,
+                //   BlendMode.srcIn,
+                // ),
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(

@@ -21,7 +21,7 @@ class DeviceStat {
 class QuickAction {
   final String title;
   final String subtitle;
-  final IconData icon;
+  final String icon;
   final Color color;
   final String route;
 
@@ -41,7 +41,10 @@ class DashboardTask {
   final String id;
   final String title;
   final String subtitle;
-  final IconData icon;
+
+  // SVG asset path
+  final String icon;
+
   final Color iconColor;
   TaskStatus status;
 
@@ -58,8 +61,10 @@ class DashboardTask {
     switch (status) {
       case TaskStatus.pending:
         return 'Pending';
+
       case TaskStatus.inProgress:
         return 'In Progress';
+
       case TaskStatus.completed:
         return 'Completed';
     }
@@ -69,8 +74,10 @@ class DashboardTask {
     switch (status) {
       case TaskStatus.pending:
         return const Color(0xFF7C6FF0);
+
       case TaskStatus.inProgress:
         return const Color(0xFF3FA9F5);
+
       case TaskStatus.completed:
         return const Color(0xFF2ECC71);
     }
