@@ -186,7 +186,7 @@ import '../modules/roles/government/campaign_details/views/gov_campaign_details_
 
 class AppPages {
    //static const INITIAL = Routes.SPLASH;
-  static const INITIAL = Routes.TECHNICIAN_DASHBOARD;
+  static const INITIAL = Routes.ADVERTISER_DASHBOARD;
 
   static final routes = [
     GetPage(

@@ -1952,7 +1952,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           const SizedBox(height: 4),
           Text(
             desc,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
+            style: const TextStyle(color:Colors.white, fontSize: 11),
           ),
           const Divider(color: AppColors.cardBorder, height: 24),
           Row(
@@ -1989,14 +1989,14 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
       children: [
         Text(
           label,
-          style: const TextStyle(color: AppColors.textMuted, fontSize: 7.5),
+          style: const TextStyle(color: Colors.white,fontWeight: FontWeight.w500, fontSize: 10),
         ),
         const SizedBox(height: 4),
         Text(
           value,
           style: const TextStyle(
             color: Colors.white,
-            fontSize: 10,
+            fontSize: 12,
             fontWeight: FontWeight.bold,
           ),
         ),

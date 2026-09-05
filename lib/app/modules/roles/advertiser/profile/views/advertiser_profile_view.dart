@@ -155,7 +155,8 @@ class AdvertiserProfileView extends GetView<AdvertiserProfileController> {
         children: [
        SvgPicture.asset(icon),
           const SizedBox(height: 6),
-          Text(val, style: TextStyle(color: isSuccessColor ? const Color(0xFF10B981) : Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
+          Text(val, style: TextStyle(color: isSuccessColor ? const Color(0xFF10B981) : Colors.white,
+              fontSize: 9, fontWeight: FontWeight.bold)),
           const SizedBox(height: 2),
           Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 8)),
         ],
@@ -241,7 +242,7 @@ class AdvertiserProfileView extends GetView<AdvertiserProfileController> {
         ),
         child: Row(
           children:  [
-           SvgPicture.asset('assets/icons/fleet_operator_icons/changePasswordA.svg',width: 15,height: 15,),
+           SvgPicture.asset('assets/icons/fleet_operator_icons/changePasswordA.svg',width: 18,height: 18,),
             SizedBox(width: 14),
             Expanded(child: Text('Change Password', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold))),
             Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 16),
@@ -257,6 +258,8 @@ class AdvertiserProfileView extends GetView<AdvertiserProfileController> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          label=='Registered Address'||label=='Business Type'|| label=='Company Name'|| label=='GST Number'|| label=='Business Website'|| label=='Contact Person'|| label=='Payment Terms'?
+          SvgPicture.asset(icon,width: 20,height: 20,fit: BoxFit.fill,)  :
           SvgPicture.asset(icon,width: 15,height: 15,fit: BoxFit.fill,),
           SizedBox(width: 8,),
           Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 10)),
