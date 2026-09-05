@@ -137,14 +137,17 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
             ),
           ),
           Obx(
-            () => Switch(
-              value: controller.pushNotifications.value,
-              onChanged: (val) => controller.pushNotifications.value = val,
-              activeColor: CupertinoColors.white,
-              activeTrackColor: const Color(0xFF0051f4),
-              // activeTrackColor: const Color(0xFF6366F1).withOpacity(0.3),
-              inactiveThumbColor: AppColors.textMuted,
-              inactiveTrackColor: AppColors.cardBorder,
+                () => Transform.scale(
+              scale: 0.75,
+              child: Switch(
+                value: controller.pushNotifications.value,
+                onChanged: (val) =>
+                controller.pushNotifications.value = val,
+                activeColor: CupertinoColors.white,
+                activeTrackColor: const Color(0xFF0051f4),
+                inactiveThumbColor: AppColors.textMuted,
+                inactiveTrackColor: AppColors.cardBorder,
+              ),
             ),
           ),
         ],
@@ -283,13 +286,16 @@ class NotificationSettingsView extends GetView<NotificationSettingsController> {
           ),
         ),
         Obx(
-          () => Switch(
-            value: state.value,
-            onChanged: (val) => state.value = val,
-            activeColor: Colors.white,
-            activeTrackColor: const Color(0xFF0051f4),
-            inactiveThumbColor: AppColors.textMuted,
-            inactiveTrackColor: AppColors.cardBorder,
+              () => Transform.scale(
+            scale: 0.75,
+            child: Switch(
+              value: state.value,
+              onChanged: (val) => state.value = val,
+              activeColor: Colors.white,
+              activeTrackColor: const Color(0xFF0051f4),
+              inactiveThumbColor: AppColors.textMuted,
+              inactiveTrackColor: AppColors.cardBorder,
+            ),
           ),
         ),
       ],

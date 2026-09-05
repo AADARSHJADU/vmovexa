@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../model/diagnostic_check_model.dart';
 
@@ -55,7 +54,8 @@ class DeviceDiagnosticsController extends GetxController {
         id: 'connectivity',
         title: 'Device Connectivity',
         subtitle: 'Checks internet and device connectivity',
-        icon: Icons.wifi,
+        //icon: Icons.wifi,
+        svgPath: 'assets/icons/wifi.svg',
         state: DiagnosticCheckState.passed,
         statusLabel: 'Online',
       ),
@@ -63,7 +63,8 @@ class DeviceDiagnosticsController extends GetxController {
         id: 'display',
         title: 'Display Status',
         subtitle: 'Checks display output and screen health',
-        icon: Icons.desktop_windows_outlined,
+        //icon: Icons.desktop_windows_outlined,
+        svgPath: 'assets/icons/tv.svg',
         state: DiagnosticCheckState.passed,
         statusLabel: 'Normal',
       ),
@@ -71,7 +72,8 @@ class DeviceDiagnosticsController extends GetxController {
         id: 'gps',
         title: 'GPS Status',
         subtitle: 'Checks GPS signal and location accuracy',
-        icon: Icons.location_on_outlined,
+        //icon: Icons.location_on_outlined,
+        svgPath: 'assets/icons/location.svg',
         state: DiagnosticCheckState.passed,
         statusLabel: 'Good Signal',
       ),
@@ -79,7 +81,8 @@ class DeviceDiagnosticsController extends GetxController {
         id: 'hardware',
         title: 'Hardware Health',
         subtitle: 'Checks hardware components and sensors',
-        icon: Icons.memory_outlined,
+        //icon: Icons.memory_outlined,
+        svgPath: 'assets/icons/fleet_operator_icons/yoursupportHistoryA.svg',
         state: DiagnosticCheckState.passed,
         statusLabel: 'Healthy',
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../../../../../theme/app_theme.dart';
 import '../controller/device_diagnostics_controller.dart';
@@ -95,7 +96,11 @@ class DeviceDiagnosticsView extends GetView<DeviceDiagnosticsController> {
               color: kPurple.withOpacity(0.15),
               borderRadius: BorderRadius.circular(11),
             ),
-            child: const Icon(Icons.desktop_windows_outlined, color: kPurple, size: 20),
+            child: SvgPicture.asset(
+              'assets/icons/tv.svg',
+              width: 20,
+              height: 20,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -311,7 +316,13 @@ class _CheckRow extends StatelessWidget {
               color: kPurple.withOpacity(0.12),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(check.icon, color: kPurple, size: 18),
+            child: check.hasSvg
+                ? SvgPicture.asset(
+                    check.svgPath!,
+                    width: 18,
+                    height: 18,
+                  )
+                : Icon(check.icon, color: kPurple, size: 18),
           ),
           const SizedBox(width: 12),
           Expanded(

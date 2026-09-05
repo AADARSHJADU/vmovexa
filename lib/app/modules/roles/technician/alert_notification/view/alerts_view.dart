@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
 
@@ -75,7 +76,11 @@ class AlertsView extends GetView<AlertsController> {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: kBorder),
             ),
-            child: const Icon(Icons.tune, color: Colors.white70, size: 18),
+            child: SvgPicture.asset(
+              'assets/icons/filter.svg',
+              width: 18,
+              height: 18,
+            ),
           ),
         ),
       ],
@@ -89,7 +94,7 @@ class AlertsView extends GetView<AlertsController> {
         children: [
           Expanded(
             child: _StatCard(
-              icon: Icons.error_outline,
+              svgPath: AlertSeverity.critical.svgPath,
               color: const Color(0xFFFF4D4D),
               count: '${controller.criticalCount}',
               label: 'Critical',
@@ -99,7 +104,7 @@ class AlertsView extends GetView<AlertsController> {
           const SizedBox(width: 8),
           Expanded(
             child: _StatCard(
-              icon: Icons.warning_amber_rounded,
+              svgPath: AlertSeverity.warning.svgPath,
               color: const Color(0xFFFFA726),
               count: '${controller.warningCount}',
               label: 'Warning',
@@ -109,7 +114,7 @@ class AlertsView extends GetView<AlertsController> {
           const SizedBox(width: 8),
           Expanded(
             child: _StatCard(
-              icon: Icons.info_outline,
+              svgPath: AlertSeverity.info.svgPath,
               color: const Color(0xFF3F7BF5),
               count: '${controller.infoCount}',
               label: 'Info',
@@ -119,7 +124,7 @@ class AlertsView extends GetView<AlertsController> {
           const SizedBox(width: 8),
           Expanded(
             child: _StatCard(
-              icon: Icons.check_circle_outline,
+              svgPath: AlertSeverity.resolved.svgPath,
               color: const Color(0xFF2ECC71),
               count: '${controller.resolvedCount}',
               label: 'Resolved',
@@ -163,12 +168,17 @@ class AlertsView extends GetView<AlertsController> {
         const Text('Recent Alerts', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
         GestureDetector(
           onTap: controller.onMarkAllAsRead,
-          child: const Row(
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Mark all as read', style: TextStyle(color: kPurple, fontSize: 12, fontWeight: FontWeight.w600)),
-              SizedBox(width: 5),
-              Icon(Icons.mark_email_read_outlined, color: kPurple, size: 15),
+              const Text('Mark all as read', style: TextStyle(color: kPurple, fontSize: 12, fontWeight: FontWeight.w600)),
+              const SizedBox(width: 6),
+              SvgPicture.asset(
+                'assets/icons/new_fleet-op-ic/mynaui_mail.svg',
+                width: 15,
+                height: 15,
+                colorFilter: const ColorFilter.mode(kPurple, BlendMode.srcIn),
+              ),
             ],
           ),
         ),
@@ -242,14 +252,14 @@ class AlertsView extends GetView<AlertsController> {
 // Stat card (Critical / Warning / Info / Resolved)
 // =====================================================================
 class _StatCard extends StatelessWidget {
-  final IconData icon;
+  final String svgPath;
   final Color color;
   final String count;
   final String label;
   final VoidCallback onTap;
 
   const _StatCard({
-    required this.icon,
+    required this.svgPath,
     required this.color,
     required this.count,
     required this.label,
@@ -265,19 +275,18 @@ class _StatCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: kCardBg,
           borderRadius: BorderRadius.circular(12),
-          // border: Border.all(color: color.withOpacity(0.35)),
-          // gradient: LinearGradient(
-          //   begin: Alignment.topLeft,
-          //   end: Alignment.bottomRight,
-          //   colors: [color.withOpacity(0.15), AlertsView.kCardBg],
-          // ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Icon(icon, color: color, size: 18),
+                SvgPicture.asset(
+                  svgPath,
+                  width: 18,
+                  height: 18,
+                  colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+                ),
                 const SizedBox(width: 6),
                 Text(count, style: TextStyle(color: color, fontSize: 22, fontWeight: FontWeight.w800)),
               ],
@@ -321,7 +330,12 @@ class _AlertCard extends StatelessWidget {
                 color: alert.severity.color.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(alert.severity.icon, color: alert.severity.color, size: 18),
+              child: SvgPicture.asset(
+                alert.severity.svgPath,
+                width: 18,
+                height: 18,
+                colorFilter: ColorFilter.mode(alert.severity.color, BlendMode.srcIn),
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -353,7 +367,12 @@ class _AlertCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.desktop_windows_outlined, color: AppColors.indicatorActive, size: 12),
+                      SvgPicture.asset(
+                        'assets/icons/tv.svg',
+                        width: 12,
+                        height: 12,
+                        colorFilter: const ColorFilter.mode(AppColors.indicatorActive, BlendMode.srcIn),
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         '${alert.deviceId} \u2022 ${alert.depotLocation}',

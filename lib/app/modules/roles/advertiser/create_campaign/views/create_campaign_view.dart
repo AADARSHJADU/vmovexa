@@ -2782,7 +2782,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
 
   Widget _buildReviewBudgetCard() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(16),

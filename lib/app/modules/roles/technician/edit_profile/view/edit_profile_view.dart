@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
 import '../../../../../theme/app_theme.dart';
@@ -29,19 +30,28 @@ class EditProfileView extends GetView<EditProfileController> {
                 physics: const BouncingScrollPhysics(),
                 children: [
                   // Personal Information Section (Editable)
-                  _buildSectionHeader(Icons.person_outline_rounded, 'Personal Information'),
+                  _buildSectionHeader(
+                    svgPath: 'assets/icons/profile.svg',
+                    title: 'Personal Information',
+                  ),
                   const SizedBox(height: 12),
                   _buildPersonalFields(context),
                   const SizedBox(height: 24),
 
                   // Work Information Section (Read-Only)
-                  _buildSectionHeader(Icons.business_rounded, 'Work Information'),
+                  _buildSectionHeader(
+                    svgPath: 'assets/icons/fleet_operator_icons/fleetsManagedA.svg',
+                    title: 'Work Information',
+                  ),
                   const SizedBox(height: 12),
                   _buildWorkFields(),
                   const SizedBox(height: 24),
 
                   // Account & Security Section (Read-Only & Change Password)
-                  _buildSectionHeader(Icons.security_rounded, 'Account & Security'),
+                  _buildSectionHeader(
+                    svgPath: 'assets/icons/fleet_operator_icons/securityA.svg',
+                    title: 'Account & Security',
+                  ),
                   const SizedBox(height: 12),
                   _buildSecurityFields(),
                   const SizedBox(height: 32),
@@ -101,10 +111,17 @@ class EditProfileView extends GetView<EditProfileController> {
   }
 
   // ---------------- Section Header ----------------
-  Widget _buildSectionHeader(IconData icon, String title) {
+  Widget _buildSectionHeader({
+    IconData? icon,
+    String? svgPath,
+    required String title,
+  }) {
     return Row(
       children: [
-        Icon(icon, color: kPurple, size: 16),
+        if (svgPath != null)
+          SvgPicture.asset(svgPath, width: 16, height: 16)
+        else if (icon != null)
+          Icon(icon, color: kPurple, size: 16),
         const SizedBox(width: 8),
         Text(
           title,
@@ -133,14 +150,14 @@ class EditProfileView extends GetView<EditProfileController> {
             label: 'Full Name',
             controller: controller.nameController,
             hint: 'Enter your full name',
-            icon: Icons.person_outline_rounded,
+            svgPath: 'assets/icons/profile.svg',
           ),
           const SizedBox(height: 16),
           _buildEditableTextField(
             label: 'Email Address',
             controller: controller.emailController,
             hint: 'Enter your email address',
-            icon: Icons.mail_outline_rounded,
+            svgPath: 'assets/icons/gmail.svg',
             keyboardType: TextInputType.emailAddress,
           ),
           const SizedBox(height: 16),
@@ -148,7 +165,7 @@ class EditProfileView extends GetView<EditProfileController> {
             label: 'Phone Number',
             controller: controller.phoneController,
             hint: 'Enter your phone number',
-            icon: Icons.phone_android_rounded,
+            svgPath: 'assets/icons/fleet_operator_icons/phone.svg',
             keyboardType: TextInputType.phone,
           ),
           const SizedBox(height: 16),
@@ -156,20 +173,20 @@ class EditProfileView extends GetView<EditProfileController> {
             context: context,
             label: 'Date of Birth',
             controller: controller.dobController,
-            icon: Icons.calendar_today_rounded,
+            svgPath: 'assets/icons/calendar.svg',
           ),
           const SizedBox(height: 16),
           _buildGenderDropdownField(
             label: 'Gender',
             controller: controller.genderController,
-            icon: Icons.wc_rounded,
+            svgPath: 'assets/icons/new_fleet-op-ic/lucide_venus-and-mars.svg',
           ),
           const SizedBox(height: 16),
           _buildEditableTextField(
             label: 'Address',
             controller: controller.addressController,
             hint: 'Enter your address',
-            icon: Icons.location_on_outlined,
+            svgPath: 'assets/icons/fleet_operator_icons/locationA.svg',
             maxLines: 3,
           ),
         ],
@@ -191,31 +208,31 @@ class EditProfileView extends GetView<EditProfileController> {
               _buildReadOnlyField(
                 label: 'Role',
                 value: controller.role.value,
-                icon: Icons.badge_outlined,
+                svgPath: 'assets/icons/fleet_operator_icons/employeeIdA.svg',
               ),
               const SizedBox(height: 16),
               _buildReadOnlyField(
                 label: 'Department',
                 value: controller.department.value,
-                icon: Icons.corporate_fare_outlined,
+                svgPath: 'assets/icons/fleet_operator_icons/officeA.svg',
               ),
               const SizedBox(height: 16),
               _buildReadOnlyField(
                 label: 'Reporting Manager',
                 value: controller.reportingManager.value,
-                icon: Icons.supervisor_account_outlined,
+                svgPath: 'assets/icons/profile.svg',
               ),
               const SizedBox(height: 16),
               _buildReadOnlyField(
                 label: 'Work Location',
                 value: controller.workLocation.value,
-                icon: Icons.place_outlined,
+                svgPath: 'assets/icons/fleet_operator_icons/locationA.svg',
               ),
               const SizedBox(height: 16),
               _buildReadOnlyField(
                 label: 'Joined On',
                 value: controller.joinedDate.value,
-                icon: Icons.calendar_month_outlined,
+                svgPath: 'assets/icons/calendar.svg',
               ),
             ],
           )),
@@ -236,13 +253,13 @@ class EditProfileView extends GetView<EditProfileController> {
               _buildReadOnlyField(
                 label: 'Username',
                 value: controller.username.value,
-                icon: Icons.alternate_email_rounded,
+                svgPath: 'assets/icons/gmail.svg',
               ),
               const SizedBox(height: 16),
               _buildReadOnlyField(
                 label: 'Password',
                 value: '••••••••',
-                icon: Icons.lock_outline_rounded,
+                svgPath: 'assets/icons/fleet_operator_icons/changePasswordA.svg',
                 suffixWidget: TextButton(
                   onPressed: controller.changePassword,
                   style: TextButton.styleFrom(
@@ -298,7 +315,7 @@ class EditProfileView extends GetView<EditProfileController> {
         width: double.infinity,
         height: 52,
         decoration: BoxDecoration(
-          gradient:AppTheme.primaryGradient,
+          gradient: AppTheme.primaryGradient,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -309,12 +326,20 @@ class EditProfileView extends GetView<EditProfileController> {
           ],
         ),
         alignment: Alignment.center,
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.save_rounded, color: Colors.white, size: 20),
-            SizedBox(width: 8),
-            Text(
+            SvgPicture.asset(
+              'assets/icons/fleet_operator_icons/saveChangesA.svg',
+              width: 20,
+              height: 20,
+              colorFilter: const ColorFilter.mode(
+                Colors.white,
+                BlendMode.srcIn,
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Text(
               'Save Changes',
               style: TextStyle(
                 color: Colors.white,
@@ -333,7 +358,8 @@ class EditProfileView extends GetView<EditProfileController> {
     required String label,
     required TextEditingController controller,
     required String hint,
-    required IconData icon,
+    IconData? icon,
+    String? svgPath,
     TextInputType keyboardType = TextInputType.text,
     int maxLines = 1,
   }) {
@@ -345,7 +371,16 @@ class EditProfileView extends GetView<EditProfileController> {
       decoration: _getInputDecoration(
         labelText: label,
         hintText: hint,
-        prefixIcon: Icon(icon, color: kPurple, size: 18),
+        prefixIcon: svgPath != null
+            ? Padding(
+                padding: const EdgeInsets.all(12),
+                child: SvgPicture.asset(
+                  svgPath,
+                  width: 18,
+                  height: 18,
+                ),
+              )
+            : Icon(icon, color: kPurple, size: 18),
       ),
     );
   }
@@ -354,7 +389,8 @@ class EditProfileView extends GetView<EditProfileController> {
     required BuildContext context,
     required String label,
     required TextEditingController controller,
-    required IconData icon,
+    IconData? icon,
+    String? svgPath,
   }) {
     return TextField(
       controller: controller,
@@ -364,8 +400,24 @@ class EditProfileView extends GetView<EditProfileController> {
       decoration: _getInputDecoration(
         labelText: label,
         hintText: 'Select date of birth',
-        prefixIcon: Icon(icon, color: kPurple, size: 18),
-        suffixIcon: const Icon(Icons.calendar_today_rounded, color: AppColors.textSecondary, size: 16),
+        prefixIcon: svgPath != null
+            ? Padding(
+                padding: const EdgeInsets.all(12),
+                child: SvgPicture.asset(
+                  svgPath,
+                  width: 18,
+                  height: 18,
+                ),
+              )
+            : Icon(icon, color: kPurple, size: 18),
+        suffixIcon: Padding(
+          padding: const EdgeInsets.all(12),
+          child: SvgPicture.asset(
+            'assets/icons/calendar.svg',
+            width: 16,
+            height: 16,
+          ),
+        ),
       ),
     );
   }
@@ -373,7 +425,8 @@ class EditProfileView extends GetView<EditProfileController> {
   Widget _buildGenderDropdownField({
     required String label,
     required TextEditingController controller,
-    required IconData icon,
+    IconData? icon,
+    String? svgPath,
   }) {
     final List<String> genders = ['Male', 'Female', 'Other'];
     return DropdownButtonFormField<String>(
@@ -390,7 +443,16 @@ class EditProfileView extends GetView<EditProfileController> {
       decoration: _getInputDecoration(
         labelText: label,
         hintText: 'Select gender',
-        prefixIcon: Icon(icon, color: kPurple, size: 18),
+        prefixIcon: svgPath != null
+            ? Padding(
+                padding: const EdgeInsets.all(12),
+                child: SvgPicture.asset(
+                  svgPath,
+                  width: 18,
+                  height: 18,
+                ),
+              )
+            : Icon(icon, color: kPurple, size: 18),
       ),
     );
   }
@@ -398,7 +460,8 @@ class EditProfileView extends GetView<EditProfileController> {
   Widget _buildReadOnlyField({
     required String label,
     required String value,
-    required IconData icon,
+    IconData? icon,
+    String? svgPath,
     Widget? suffixWidget,
   }) {
     return Container(
@@ -410,7 +473,14 @@ class EditProfileView extends GetView<EditProfileController> {
       ),
       child: Row(
         children: [
-          Icon(icon, color: AppColors.textMuted, size: 18),
+          if (svgPath != null)
+            SvgPicture.asset(
+              svgPath,
+              width: 18,
+              height: 18,
+            )
+          else if (icon != null)
+            Icon(icon, color: AppColors.textMuted, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

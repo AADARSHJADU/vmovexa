@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import '../controller/home_controller.dart';
 import '../model/home_models.dart';
@@ -215,6 +216,7 @@ class HomeView extends GetView<HomeController> {
         ),
         itemBuilder: (context, index) {
           final action = controller.quickActions[index];
+
           return _QuickActionCard(
             action: action,
             onTap: () => controller.onQuickActionTap(action),
@@ -338,7 +340,10 @@ class _QuickActionCard extends StatelessWidget {
   final QuickAction action;
   final VoidCallback onTap;
 
-  const _QuickActionCard({required this.action, required this.onTap});
+  const _QuickActionCard({
+    required this.action,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -349,7 +354,9 @@ class _QuickActionCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: HomeView.kCardBg,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withOpacity(0.06)),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.06),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -357,13 +364,24 @@ class _QuickActionCard extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(6),
-              // decoration: BoxDecoration(
-              //   color: action.color.withOpacity(0.15),
-              //   shape: BoxShape.circle,
-              // ),
-              child: Icon(action.icon, color: action.color, size: 22),
+              child: SvgPicture.asset(
+                action.icon,
+                width: 22,
+                height: 22,
+
+                // Agar SVG ka original color rakhna hai
+                // to colorFilter mat lagana.
+
+                // Agar action.color apply karna hai to:
+                // colorFilter: ColorFilter.mode(
+                //   action.color,
+                //   BlendMode.srcIn,
+                // ),
+              ),
             ),
+
             const Spacer(),
+
             Center(
               child: Text(
                 action.title,
@@ -378,16 +396,27 @@ class _QuickActionCard extends StatelessWidget {
                 ),
               ),
             ),
+
             const SizedBox(height: 3),
+
             Text(
               action.subtitle,
               maxLines: 2,
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: Colors.white, fontSize: 9),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 9,
+              ),
             ),
+
             const SizedBox(height: 4),
-            Icon(Icons.chevron_right, color: action.color, size: 14),
+
+            Icon(
+              Icons.chevron_right,
+              color: action.color,
+              size: 14,
+            ),
           ],
         ),
       ),
@@ -419,11 +448,15 @@ class _TaskTile extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              // decoration: BoxDecoration(
-              //   color: task.iconColor.withOpacity(0.15),
-              //   shape: BoxShape.circle,
-              // ),
-              child: Icon(task.icon, color: task.iconColor, size: 20),
+              /*decoration: BoxDecoration(
+                color: task.iconColor.withOpacity(0.15),
+                shape: BoxShape.circle,
+              ),*/
+              child: SvgPicture.asset(
+                task.icon,
+                width: 20,
+                height: 20,
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(
