@@ -711,6 +711,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           ),
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -726,9 +727,9 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
 
                 Expanded(
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: 8),
                       Text(
                         'Budget Utilized',
                         style: TextStyle(
@@ -750,7 +751,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                         ),
                       ),
 
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
 
                       const Text(
                         '65% of total budget',
@@ -765,7 +766,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               ],
             ),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
 
             Container(
               height: 4,
@@ -774,22 +775,22 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                 color: const Color(0xFF1E293B),
                 borderRadius: BorderRadius.circular(2),
               ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 70,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [
-                          Color(0xFFEC4899),
-                          Color(0xFF8B5CF6),
-                          Color(0xFF3B82F6),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(2),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  width: 70,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFFEC4899),
+                        Color(0xFF8B5CF6),
+                        Color(0xFF3B82F6),
+                      ],
                     ),
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                ],
+                ),
               ),
             ),
           ],
@@ -797,6 +798,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
       ),
     );
   }
+
   /*Widget _buildBudgetCard() {
     return GestureDetector(
       onTap: controller.switchToBilling,
@@ -1203,22 +1205,71 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(c.title, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: badgeColor.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(4),
+                        Expanded(
+                          child: Text(
+                            c.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                          child: Text(c.status, style: TextStyle(color: badgeColor, fontSize: 8, fontWeight: FontWeight.bold)),
+                        ),
+
+                        const SizedBox(width: 6),
+
+                        Flexible(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: badgeColor.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              c.status,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: badgeColor,
+                                fontSize: 8,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),
+
                     const SizedBox(height: 6),
-                    Text(c.client, style: const TextStyle(color: AppColors.textSecondary, fontSize: 10)),
+
+                    Text(
+                      c.client,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 10,
+                      ),
+                    ),
+
                     const SizedBox(height: 4),
-                    Text(c.dates, style: const TextStyle(color: AppColors.textMuted, fontSize: 9)),
+
+                    Text(
+                      c.dates,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 9,
+                      ),
+                    ),
                   ],
                 ),
               ),

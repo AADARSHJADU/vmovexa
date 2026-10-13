@@ -401,6 +401,8 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
   // STEP 2: UPLOAD CREATIVE
 // ==========================================
   Widget _buildStep2UploadCreative() {
+    final isYouTube = controller.selectedCreativeType.value == 'YouTube URL';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -411,173 +413,182 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
         const Text('Upload the media that will be displayed in your campaign.', style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
         const SizedBox(height: 20),
 
-        // Dashed-border upload box with gradient icon + gradient title
-        GestureDetector(
-          onTap: controller.simulateUpload,
-          child: CustomPaint(
-            painter: DashedBorderPainter(
-              color: const Color(0xFF8B5CF6).withOpacity(0.45),
-              borderRadius: 16,
+        if (!isYouTube) ...[
+          // Dashed-border upload box with gradient icon + gradient title
+          GestureDetector(
+            onTap: controller.simulateUpload,
+            child: CustomPaint(
+              painter: DashedBorderPainter(
+                color: const Color(0xFF8B5CF6).withOpacity(0.45),
+                borderRadius: 16,
+              ),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 20),
+                decoration: BoxDecoration(
+                  color: AppColors.cardBg,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    ShaderMask(
+                      blendMode: BlendMode.srcIn,
+                      shaderCallback: (bounds) => const LinearGradient(
+                        colors: [Color(0xFF3B82F6), Color(0xFF8B5CF6)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ).createShader(bounds),
+                      child: SvgPicture.asset('assets/icons/advertiser_ic/cloud.svg'),
+                    ),
+                    const SizedBox(height: 5),
+                    ShaderMask(
+                      blendMode: BlendMode.srcIn,
+                      shaderCallback: (bounds) => const LinearGradient(
+                        colors: [Color(0xFFA855F7), Color(0xFF6366F1)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ).createShader(bounds),
+                      child: const Text(
+                        'Upload Creative',
+                        style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    //const SizedBox(height: 6),
+                    const Text('Drag & drop your file here', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                    const SizedBox(height: 2),
+                    const Text('or', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFF8B5CF6), width: 1.4),
+                      ),
+                      child: const Text(
+                        'Tap to Upload',
+                        style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Supported Formats: JPG, PNG, MP4, HTML5\nMaximum File Size: 50 MB',
+                      style: TextStyle(color: AppColors.textMuted, fontSize: 9),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
             ),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 20),
+          ),
+          const SizedBox(height: 18),
+
+          if (controller.hasUploadedFile.value) ...[
+            const Text('Uploaded File', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: AppColors.cardBg,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.cardBorder, width: 1.2),
               ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ShaderMask(
-                    blendMode: BlendMode.srcIn,
-                    shaderCallback: (bounds) => const LinearGradient(
-                      colors: [Color(0xFF3B82F6), Color(0xFF8B5CF6)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ).createShader(bounds),
-                    child: SvgPicture.asset('assets/icons/advertiser_ic/cloud.svg'),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E293B),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Center(
+                          child: Icon(Icons.movie_filter_outlined, color: Color(0xFF8B5CF6), size: 22),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              controller.uploadedFileName.value,
+                              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              controller.uploadedFileSize.value,
+                              style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: const [
+                                Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 11),
+                                SizedBox(width: 4),
+                                Text('Uploaded Successfully', style: TextStyle(color: Color(0xFF10B981), fontSize: 10)),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        icon: const Icon(Icons.more_vert_rounded, color: AppColors.textMuted, size: 18),
+                        onPressed: () {},
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 5),
-                  ShaderMask(
-                    blendMode: BlendMode.srcIn,
-                    shaderCallback: (bounds) => const LinearGradient(
-                      colors: [Color(0xFFA855F7), Color(0xFF6366F1)],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    ).createShader(bounds),
-                    child: const Text(
-                      'Upload Creative',
-                      style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  //const SizedBox(height: 6),
-                  const Text('Drag & drop your file here', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
-                  const SizedBox(height: 2),
-                  const Text('or', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFF8B5CF6), width: 1.4),
-                    ),
-                    child: const Text(
-                      'Tap to Upload',
-                      style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Supported Formats: JPG, PNG, MP4, HTML5\nMaximum File Size: 50 MB',
-                    style: TextStyle(color: AppColors.textMuted, fontSize: 9),
-                    textAlign: TextAlign.center,
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {},
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Color(0xFF6366F1)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                          ),
+                          icon: const Icon(Icons.play_arrow_rounded, color: Color(0xFF8B5CF6), size: 16),
+                          label: const Text('Preview', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: controller.removeUploaded,
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.redAccent),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                          ),
+                          icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 16),
+                          label: const Text('Remove', style: TextStyle(color: Colors.redAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-          ),
-        ),
-        const SizedBox(height: 18),
-
-        if (controller.hasUploadedFile.value) ...[
-          const Text('Uploaded File', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.cardBg,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.cardBorder, width: 1.2),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1E293B),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Center(
-                        child: Icon(Icons.movie_filter_outlined, color: Color(0xFF8B5CF6), size: 22),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            controller.uploadedFileName.value,
-                            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            controller.uploadedFileSize.value,
-                            style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
-                          ),
-                          const SizedBox(height: 6),
-                          Row(
-                            children: const [
-                              Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 11),
-                              SizedBox(width: 4),
-                              Text('Uploaded Successfully', style: TextStyle(color: Color(0xFF10B981), fontSize: 10)),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      icon: const Icon(Icons.more_vert_rounded, color: AppColors.textMuted, size: 18),
-                      onPressed: () {},
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () {},
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Color(0xFF6366F1)),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                        ),
-                        icon: const Icon(Icons.play_arrow_rounded, color: Color(0xFF8B5CF6), size: 16),
-                        label: const Text('Preview', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: controller.removeUploaded,
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.redAccent),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                        ),
-                        icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 16),
-                        label: const Text('Remove', style: TextStyle(color: Colors.redAccent, fontSize: 11, fontWeight: FontWeight.bold)),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
+            const SizedBox(height: 20),
+          ],
         ],
 
         _buildLabel('Upload Type'),
         _buildCreativeTypeGrid(),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
+
+        if (isYouTube) ...[
+          _buildYouTubeUrlContainer(),
+          const SizedBox(height: 20),
+        ] else ...[
+          const SizedBox(height: 4),
+        ],
 
         _buildQrIdentityOptionCard(),
         const SizedBox(height: 20),
@@ -587,8 +598,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
     );
   }
 
-// Upload Type grid - Image / Video / HTML5 / PDF, 4-in-a-row,
-// equal width & height (fixes the old GridView.count overflow issue too).
+// Upload Type grid - Image / Video / YouTube URL
   Widget _buildCreativeTypeGrid() {
     final List<Map<String, dynamic>> types = [
       {
@@ -600,6 +610,11 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
         'title': 'Video',
         'subtitle': 'MP4',
         'icon': 'assets/icons/advertiser_ic/vedio.svg',
+      },
+      {
+        'title': 'YouTube URL',
+        'subtitle': 'Web Link',
+        'icon': 'assets/icons/advertiser_ic/youtube.svg',
       },
     ];
 
@@ -699,6 +714,122 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
             ),
           );
         }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildYouTubeUrlContainer() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // URL icon and section title above the textfield
+          Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF8B5CF6).withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFF8B5CF6).withOpacity(0.25)),
+                ),
+                child: SvgPicture.asset(
+                  'assets/icons/liveUrl.svg',
+                  width: 18,
+                  height: 18,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Text(
+                    'YouTube Video URL',
+                    style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Paste YouTube video link for campaign creative',
+                    style: TextStyle(color: AppColors.textMuted, fontSize: 9),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+
+          // Label above textfield with URL icon
+          Row(
+            children: [
+              SvgPicture.asset(
+                'assets/icons/liveUrl.svg',
+                width: 13,
+                height: 13,
+              ),
+              const SizedBox(width: 6),
+              const Text(
+                'YouTube URL *',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          // Text field with YouTube prefix icon inside
+          CustomTextField(
+            hintText: 'https://www.youtube.com/watch?v=...',
+            controller: controller.youtubeUrlController,
+            prefixSvg: 'assets/icons/youtube_color.svg',
+            prefixWidth: 22,
+            prefixHeight: 16,
+            prefixPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            height: 48,
+            suffixIcon: Icons.content_paste_rounded,
+            onSuffixTap: controller.pasteYouTubeUrlFromClipboard,
+          ),
+          const SizedBox(height: 8),
+
+          // Quick paste helper note
+          Row(
+            children: [
+              const Icon(Icons.info_outline, color: AppColors.textMuted, size: 12),
+              const SizedBox(width: 5),
+              const Expanded(
+                child: Text(
+                  'Accepts: youtube.com/watch?v=... or youtu.be/...',
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 8.5),
+                ),
+              ),
+              GestureDetector(
+                onTap: controller.pasteYouTubeUrlFromClipboard,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(Icons.paste_rounded, color: Color(0xFF8B5CF6), size: 11),
+                    SizedBox(width: 3),
+                    Text(
+                      'Paste',
+                      style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 9.5, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -2686,13 +2817,24 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 6),
-                _buildCreativeDetailRow('Format', 'MP4'),
+                _buildCreativeDetailRow(
+                  'Format',
+                  controller.selectedCreativeType.value == 'YouTube URL'
+                      ? 'YouTube Stream'
+                      : (controller.selectedCreativeType.value == 'Image' ? 'JPG/PNG' : 'MP4'),
+                ),
                 const SizedBox(height: 2),
-                _buildCreativeDetailRow('Resolution', '1920 x 1080'),
+                _buildCreativeDetailRow(
+                  'Resolution',
+                  controller.selectedCreativeType.value == 'YouTube URL' ? '1080p (YouTube)' : '1920 x 1080',
+                ),
                 const SizedBox(height: 2),
                 _buildCreativeDetailRow('Duration', '20 sec'),
                 const SizedBox(height: 2),
-                _buildCreativeDetailRow('Size', '42 MB'),
+                _buildCreativeDetailRow(
+                  'Size',
+                  controller.selectedCreativeType.value == 'YouTube URL' ? 'Web Stream' : '42 MB',
+                ),
                 const SizedBox(height: 6),
                 Row(
                   children: const [

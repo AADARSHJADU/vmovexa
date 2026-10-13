@@ -31,6 +31,7 @@ class CustomTextField extends StatelessWidget {
 
   final double? prefixWidth;
   final double? prefixHeight;
+  final EdgeInsetsGeometry? prefixPadding;
 
   const CustomTextField({
     super.key,
@@ -40,6 +41,7 @@ class CustomTextField extends StatelessWidget {
     this.prefixIcon,
     this.prefixAsset,
     this.prefixSvg,
+    this.prefixPadding,
 
     // Suffix - optional
     this.suffixIcon,
@@ -67,7 +69,7 @@ class CustomTextField extends StatelessWidget {
   Widget? _buildPrefixIcon() {
     if (prefixSvg != null) {
       return Padding(
-        padding: const EdgeInsets.all(16),
+        padding: prefixPadding ?? const EdgeInsets.all(16),
         child: SvgPicture.asset(
           prefixSvg!,
           width: prefixWidth ?? 20,
@@ -78,7 +80,7 @@ class CustomTextField extends StatelessWidget {
 
     if (prefixAsset != null) {
       return Padding(
-        padding: const EdgeInsets.all(16),
+        padding: prefixPadding ?? const EdgeInsets.all(16),
         child: Image.asset(
           prefixAsset!,
           width: prefixWidth ?? 20,
@@ -110,7 +112,7 @@ class CustomTextField extends StatelessWidget {
           : iconWidget;
 
       return Padding(
-        padding: const EdgeInsets.all(16),
+        padding: prefixPadding ?? const EdgeInsets.all(16),
         child: resultWidget,
       );
     }

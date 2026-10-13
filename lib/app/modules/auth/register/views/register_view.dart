@@ -24,8 +24,12 @@ class RegisterView extends GetView<RegisterController> {
               const SizedBox(height: 10),
 
               // Header Logo (Image 1)
-              const AppLogoHeader(height: 70),
-              const SizedBox(height: 24),
+              //const AppLogoHeader(height: 70),
+              Image.asset(
+                'assets/app_logo/logo_transparent.png',
+                height: 150,
+                width: 150,
+              ),
 
               // Title & Subtitle
               const Text(

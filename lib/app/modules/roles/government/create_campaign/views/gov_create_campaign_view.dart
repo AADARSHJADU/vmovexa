@@ -6,8 +6,6 @@ import '../controllers/gov_create_campaign_controller.dart';
 import '../../dashboard/controllers/government_dashboard_controller.dart';
 import '../../../../../theme/app_colors.dart';
 import '../../../../../widgets/custom_text_field.dart';
-import '../../../../../routes/app_routes.dart';
-import '../../../advertiser/create_campaign/views/create_campaign_view.dart'; // To reuse DummyQrCodePainter
 
 class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
   const GovCreateCampaignView({super.key});
@@ -238,7 +236,12 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
         _buildContentTypeGrid(),
         const SizedBox(height: 16),
 
-        _buildUploadDashedContainer(),
+        Obx(() {
+          if (controller.selectedContentType.value == 'YouTube URL') {
+            return _buildYouTubeUrlContainer();
+          }
+          return _buildUploadDashedContainer();
+        }),
       ],
     );
   }
@@ -357,6 +360,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
       {'label': 'Image', 'icon': "assets/icons/advertiser_ic/gallary.svg"},
       {'label': 'Video', 'icon': "assets/icons/video.svg"},
       {'label': 'PDF', 'icon': "assets/icons/advertiser_ic/pdf.svg"},
+      {'label': 'YouTube URL', 'icon': "assets/icons/youtube.svg"},
     ];
 
     return Obx(() {
@@ -367,7 +371,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
           final isLast = i == items.last;
           return Expanded(
             child: Padding(
-              padding: EdgeInsets.only(right: isLast ? 0 : 12),
+              padding: EdgeInsets.only(right: isLast ? 0 : 8),
               child: _buildContentTypeItem(i, isSelected),
             ),
           );
@@ -405,12 +409,18 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
               ),
             ),
             const SizedBox(height: 6),
-            Text(
-              i['label'] as String,
-              style: TextStyle(
-                color: isSelected ? Colors.white : AppColors.textSecondary,
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: Text(
+                i['label'] as String,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : AppColors.textSecondary,
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
@@ -443,6 +453,122 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
           ),
           const SizedBox(height: 8),
           const Text('Max file size: 100MB', style: TextStyle(color: AppColors.textMuted, fontSize: 8)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildYouTubeUrlContainer() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // URL icon and section title above the textfield
+          Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF3B82F6).withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.25)),
+                ),
+                child: SvgPicture.asset(
+                  'assets/icons/liveUrl.svg',
+                  width: 18,
+                  height: 18,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'YouTube Video URL',
+                    style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Paste YouTube video link for campaign broadcast',
+                    style: TextStyle(color: AppColors.textMuted, fontSize: 9),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+
+          // Label above textfield with URL icon
+          Row(
+            children: [
+              SvgPicture.asset(
+                'assets/icons/liveUrl.svg',
+                width: 13,
+                height: 13,
+              ),
+              const SizedBox(width: 6),
+              const Text(
+                'YouTube URL *',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          // Text field with YouTube prefix icon inside
+          CustomTextField(
+            hintText: 'https://www.youtube.com/watch?v=...',
+            controller: controller.youtubeUrlController,
+            prefixSvg: 'assets/icons/youtube_color.svg',
+            prefixWidth: 22,
+            prefixHeight: 16,
+            prefixPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            height: 48,
+            suffixIcon: Icons.content_paste_rounded,
+            onSuffixTap: controller.pasteYouTubeUrlFromClipboard,
+          ),
+          const SizedBox(height: 8),
+
+          // Quick paste helper note
+          Row(
+            children: [
+              const Icon(Icons.info_outline, color: AppColors.textMuted, size: 12),
+              const SizedBox(width: 5),
+              const Expanded(
+                child: Text(
+                  'Accepts: youtube.com/watch?v=... or youtu.be/...',
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 8.5),
+                ),
+              ),
+              GestureDetector(
+                onTap: controller.pasteYouTubeUrlFromClipboard,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(Icons.paste_rounded, color: Color(0xFF3B82F6), size: 11),
+                    SizedBox(width: 3),
+                    Text(
+                      'Paste',
+                      style: TextStyle(color: Color(0xFF3B82F6), fontSize: 9.5, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -545,7 +671,16 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
         const Text('Select Content Type', style: TextStyle(color: AppColors.textSecondary, fontSize: 10, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         _buildContentTypeGrid(),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
+        Obx(() {
+          if (controller.selectedContentType.value == 'YouTube URL') {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: _buildYouTubeUrlContainer(),
+            );
+          }
+          return const SizedBox.shrink();
+        }),
 
         _buildSectionHeader('assets/icons/campainContent.svg','Content Settings', 'Select display targets and scheduling constraints'),
         const SizedBox(height: 12),
@@ -1481,8 +1616,15 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
       children: [
         _buildReviewRowItem('Campaign Information', 'Road Safety Awareness\nPublic Information',
             "assets/icons/fleet_operator_icons/privacyPolicyA.svg"),
-        _buildReviewRowItem('Content', 'Image (road_safety_awareness.jpg)\n2.4 MB  •  1920 x 1080',
-            "assets/icons/video.svg"),
+        Obx(() {
+          final type = controller.selectedContentType.value;
+          final icon = type == 'YouTube URL' ? 'assets/icons/youtube.svg' : 'assets/icons/video.svg';
+          return _buildReviewRowItem(
+            'Content',
+            '$type (${controller.uploadedFileName.value})\n${controller.uploadedFileSize.value}  •  ${controller.uploadedFileResolution.value}',
+            icon,
+          );
+        }),
         _buildReviewRowItem('Targeting', 'Bhopal Region, All Vehicles, '
             'All Displays\nEstimated Reach: 248 Vehicles • 721 Displays',  "assets/icons/lsicon_map.svg"),
         _buildReviewRowItem('Schedule', '12 May 2025 - 20 May 2025\n09:00 AM - 06:00 PM  •  Mon - Fri',

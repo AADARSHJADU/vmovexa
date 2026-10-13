@@ -759,6 +759,117 @@ class ReportsPerformanceTrendPainter extends CustomPainter {
 class ReportsQrScansTrendPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
+    const double leftPadding = 10;
+    const double rightPadding = 10;
+    const double topPadding = 6;
+    const double bottomPadding = 6;
+
+    final double chartWidth =
+        size.width - leftPadding - rightPadding;
+
+    final double chartHeight =
+        size.height - topPadding - bottomPadding;
+
+    final List<double> total = [
+      800,
+      1400,
+      1200,
+      1600,
+      2200,
+    ];
+
+    final List<double> unique = [
+      400,
+      800,
+      700,
+      950,
+      1400,
+    ];
+
+    final double stepX =
+        chartWidth / (total.length - 1);
+
+    // Grid
+    final gridPaint = Paint()
+      ..color = Colors.white.withOpacity(0.04)
+      ..strokeWidth = 1;
+
+    for (int i = 0; i <= 4; i++) {
+      final double y =
+          topPadding +
+              (i * chartHeight / 4);
+
+      canvas.drawLine(
+        Offset(leftPadding, y),
+        Offset(size.width - rightPadding, y),
+        gridPaint,
+      );
+    }
+
+    // Draw chart line
+    void drawLine(
+        List<double> data,
+        Color color,
+        ) {
+      final Path path = Path();
+
+      final Paint linePaint = Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round;
+
+      final Paint pointPaint = Paint()
+        ..color = color
+        ..style = PaintingStyle.fill;
+
+      for (int i = 0; i < data.length; i++) {
+        final double x =
+            leftPadding + (i * stepX);
+
+        final double y =
+            topPadding +
+                chartHeight -
+                ((data[i] / 2500) * chartHeight);
+
+        if (i == 0) {
+          path.moveTo(x, y);
+        } else {
+          path.lineTo(x, y);
+        }
+
+        canvas.drawCircle(
+          Offset(x, y),
+          2.5,
+          pointPaint,
+        );
+      }
+
+      canvas.drawPath(path, linePaint);
+    }
+
+    drawLine(
+      total,
+      const Color(0xFF3B82F6),
+    );
+
+    drawLine(
+      unique,
+      const Color(0xFF10B981),
+    );
+  }
+
+  @override
+  bool shouldRepaint(
+      covariant CustomPainter oldDelegate,
+      ) {
+    return false;
+  }
+}
+/*class ReportsQrScansTrendPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
     final double chartHeight = size.height - 20;
     final double chartWidth = size.width - 20;
 
@@ -822,7 +933,7 @@ class ReportsQrScansTrendPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
+}*/
 
 class ReportsQrLocationDonutPainter extends CustomPainter {
   @override

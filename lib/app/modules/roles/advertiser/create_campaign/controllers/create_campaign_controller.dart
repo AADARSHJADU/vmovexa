@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../../../../routes/app_routes.dart';
 import '../../dashboard/controllers/advertiser_dashboard_controller.dart';
@@ -26,6 +27,19 @@ class CreateCampaignController extends GetxController {
   final RxString uploadedFileSize = 'MP4 • 42 MB • 1920x1080'.obs;
   final RxString selectedCreativeType = 'Video'.obs;
   final RxBool enableQrOverlay = true.obs;
+  final youtubeUrlController = TextEditingController();
+
+  @override
+  void onInit() {
+    super.onInit();
+    youtubeUrlController.addListener(() {
+      if (selectedCreativeType.value == 'YouTube URL') {
+        uploadedFileName.value = youtubeUrlController.text.trim().isNotEmpty
+            ? youtubeUrlController.text.trim()
+            : 'https://youtube.com/watch?v=summer_sale';
+      }
+    });
+  }
 
   // Step 3: Fleet target states
   final RxBool selectCityRide = true.obs;
@@ -86,6 +100,27 @@ class CreateCampaignController extends GetxController {
 
   void selectCreativeType(String type) {
     selectedCreativeType.value = type;
+    if (type == 'YouTube URL') {
+      hasUploadedFile.value = true;
+      uploadedFileName.value = youtubeUrlController.text.trim().isNotEmpty
+          ? youtubeUrlController.text.trim()
+          : 'https://youtube.com/watch?v=summer_sale';
+      uploadedFileSize.value = 'Web Stream • YouTube Video';
+    } else if (type == 'Image') {
+      uploadedFileName.value = 'summer_sale_banner.jpg';
+      uploadedFileSize.value = 'JPG • 4.2 MB • 1920x1080';
+    } else {
+      uploadedFileName.value = 'summer_sale_banner.mp4';
+      uploadedFileSize.value = 'MP4 • 42 MB • 1920x1080';
+    }
+  }
+
+  Future<void> pasteYouTubeUrlFromClipboard() async {
+    final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
+    if (clipboardData != null && clipboardData.text != null && clipboardData.text!.trim().isNotEmpty) {
+      youtubeUrlController.text = clipboardData.text!.trim();
+      uploadedFileName.value = youtubeUrlController.text;
+    }
   }
 
   void selectScreenOption(String type) {
@@ -160,6 +195,7 @@ class CreateCampaignController extends GetxController {
     campaignNameController.text = '';
     brandNameController.text = '';
     campaignDescriptionController.text = '';
+    youtubeUrlController.text = '';
     budgetController.text = '2,50,000';
   }
 
@@ -168,6 +204,7 @@ class CreateCampaignController extends GetxController {
     campaignNameController.dispose();
     brandNameController.dispose();
     campaignDescriptionController.dispose();
+    youtubeUrlController.dispose();
     startTimeController.dispose();
     endTimeController.dispose();
     budgetController.dispose();

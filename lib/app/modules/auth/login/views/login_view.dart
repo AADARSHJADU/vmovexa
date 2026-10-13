@@ -21,8 +21,13 @@ class LoginView extends GetView<LoginController> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 20),
-              const AppLogoHeader(height: 75),
-              const SizedBox(height: 32),
+              //const AppLogoHeader(height: 75),
+              //const SizedBox(height: 32),
+              Image.asset(
+                'assets/app_logo/logo_transparent.png',
+                height: 150,
+                width: 150,
+              ),
 
               const Text(
                 'Welcome Back',

@@ -824,21 +824,47 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(c.title, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: isEmergency ? const Color(0xFFEF4444).withOpacity(0.12) : const Color(0xFF3B82F6).withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
+                        Expanded(
                           child: Text(
-                            c.type.toUpperCase(),
-                            style: TextStyle(
-                              color: isEmergency ? const Color(0xFFEF4444) : const Color(0xFF3B82F6),
-                              fontSize: 7,
+                            c.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
                               fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(width: 6),
+
+                        Flexible(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isEmergency
+                                  ? const Color(0xFFEF4444).withOpacity(0.12)
+                                  : const Color(0xFF3B82F6).withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              c.type.toUpperCase(),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: isEmergency
+                                    ? const Color(0xFFEF4444)
+                                    : const Color(0xFF3B82F6),
+                                fontSize: 7,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),

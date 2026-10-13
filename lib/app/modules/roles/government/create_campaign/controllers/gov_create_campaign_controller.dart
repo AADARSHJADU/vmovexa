@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 class GovCreateCampaignController extends GetxController {
@@ -11,10 +12,11 @@ class GovCreateCampaignController extends GetxController {
   final RxString selectedCampaignType = 'Public Information'.obs; // 'Public Information', 'Emergency Announcement'
 
   // Content Selection
-  final RxString selectedContentType = 'Image'.obs; // Image, Video, PDF, HTML5, Live URL, RSS Feed, JSON, Interactive
+  final RxString selectedContentType = 'Image'.obs; // Image, Video, PDF, YouTube URL
   final RxString uploadedFileName = 'road_safety_awareness.jpg'.obs;
   final RxString uploadedFileSize = '2.4 MB'.obs;
   final RxString uploadedFileResolution = '1920 × 1080'.obs;
+  final youtubeUrlController = TextEditingController();
 
   // Step 2: Content Settings
   final RxBool selectAllDisplays = true.obs;
@@ -38,6 +40,14 @@ class GovCreateCampaignController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    youtubeUrlController.addListener(() {
+      if (selectedContentType.value == 'YouTube URL') {
+        uploadedFileName.value = youtubeUrlController.text.trim().isNotEmpty
+            ? youtubeUrlController.text.trim()
+            : 'https://youtube.com/watch?v=traffic_safety';
+      }
+    });
+
     // Support pre-initializing as Emergency Announcement if routed from shortcut
     final args = Get.arguments;
     if (args != null && args is Map && args['type'] == 'Emergency') {
@@ -74,10 +84,24 @@ class GovCreateCampaignController extends GetxController {
       uploadedFileName.value = 'bhopal_traffic_guidelines.pdf';
       uploadedFileSize.value = '1.8 MB';
       uploadedFileResolution.value = 'A4 Format';
+    } else if (type == 'YouTube URL') {
+      uploadedFileName.value = youtubeUrlController.text.trim().isNotEmpty
+          ? youtubeUrlController.text.trim()
+          : 'https://youtube.com/watch?v=traffic_safety';
+      uploadedFileSize.value = 'Web Stream';
+      uploadedFileResolution.value = '1080p (YouTube)';
     } else {
       uploadedFileName.value = 'road_safety_awareness.jpg';
       uploadedFileSize.value = '2.4 MB';
       uploadedFileResolution.value = '1920 × 1080';
+    }
+  }
+
+  Future<void> pasteYouTubeUrlFromClipboard() async {
+    final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
+    if (clipboardData != null && clipboardData.text != null && clipboardData.text!.trim().isNotEmpty) {
+      youtubeUrlController.text = clipboardData.text!.trim();
+      uploadedFileName.value = youtubeUrlController.text;
     }
   }
 
@@ -116,12 +140,14 @@ class GovCreateCampaignController extends GetxController {
     isSubmitted.value = false;
     campaignNameController.text = '';
     descriptionController.text = '';
+    youtubeUrlController.text = '';
   }
 
   @override
   void onClose() {
     campaignNameController.dispose();
     descriptionController.dispose();
+    youtubeUrlController.dispose();
     super.onClose();
   }
 }

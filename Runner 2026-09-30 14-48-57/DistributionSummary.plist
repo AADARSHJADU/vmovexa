@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>vmovexa.ipa</key>
+	<array>
+		<dict>
+			<key>architectures</key>
+			<array>
+				<string>arm64</string>
+			</array>
+			<key>buildNumber</key>
+			<string>1</string>
+			<key>certificate</key>
+			<dict>
+				<key>SHA1</key>
+				<string>B7E836D313A01D0A67535D09D7BB32C7B2833215</string>
+				<key>dateExpires</key>
+				<string>30/09/27</string>
+				<key>type</key>
+				<string>Cloud Managed Apple Distribution</string>
+			</dict>
+			<key>embeddedBinaries</key>
+			<array>
+				<dict>
+					<key>architectures</key>
+					<array>
+						<string>arm64</string>
+					</array>
+					<key>buildNumber</key>
+					<string>1.0</string>
+					<key>certificate</key>
+					<dict>
+						<key>SHA1</key>
+						<string>B7E836D313A01D0A67535D09D7BB32C7B2833215</string>
+						<key>dateExpires</key>
+						<string>30/09/27</string>
+						<key>type</key>
+						<string>Cloud Managed Apple Distribution</string>
+					</dict>
+					<key>name</key>
+					<string>App.framework</string>
+					<key>team</key>
+					<dict>
+						<key>id</key>
+						<string>99LF3HS38F</string>
+						<key>name</key>
+						<string>VMOVEXA PRIVATE LIMITED</string>
+					</dict>
+					<key>versionNumber</key>
+					<string>1.0</string>
+				</dict>
+				<dict>
+					<key>architectures</key>
+					<array>
+						<string>arm64</string>
+					</array>
+					<key>buildNumber</key>
+					<string>1.0</string>
+					<key>certificate</key>
+					<dict>
+						<key>SHA1</key>
+						<string>B7E836D313A01D0A67535D09D7BB32C7B2833215</string>
+						<key>dateExpires</key>
+						<string>30/09/27</string>
+						<key>type</key>
+						<string>Cloud Managed Apple Distribution</string>
+					</dict>
+					<key>name</key>
+					<string>Flutter.framework</string>
+					<key>team</key>
+					<dict>
+						<key>id</key>
+						<string>99LF3HS38F</string>
+						<key>name</key>
+						<string>VMOVEXA PRIVATE LIMITED</string>
+					</dict>
+					<key>versionNumber</key>
+					<string>1.0</string>
+				</dict>
+				<dict>
+					<key>architectures</key>
+					<array>
+						<string>arm64</string>
+					</array>
+					<key>buildNumber</key>
+					<string>1</string>
+					<key>certificate</key>
+					<dict>
+						<key>SHA1</key>
+						<string>B7E836D313A01D0A67535D09D7BB32C7B2833215</string>
+						<key>dateExpires</key>
+						<string>30/09/27</string>
+						<key>type</key>
+						<string>Cloud Managed Apple Distribution</string>
+					</dict>
+					<key>name</key>
+					<string>path_provider_foundation.framework</string>
+					<key>team</key>
+					<dict>
+						<key>id</key>
+						<string>99LF3HS38F</string>
+						<key>name</key>
+						<string>VMOVEXA PRIVATE LIMITED</string>
+					</dict>
+					<key>versionNumber</key>
+					<string>0.0.1</string>
+				</dict>
+			</array>
+			<key>entitlements</key>
+			<dict>
+				<key>application-identifier</key>
+				<string>99LF3HS38F.com.vmovexa.vmovexa</string>
+				<key>com.apple.developer.team-identifier</key>
+				<string>99LF3HS38F</string>
+				<key>get-task-allow</key>
+				<false/>
+			</dict>
+			<key>name</key>
+			<string>Runner.app</string>
+			<key>profile</key>
+			<dict>
+				<key>UUID</key>
+				<string>cd0bca84-f01d-4fc5-8329-a55e7af0d2ca</string>
+				<key>dateExpires</key>
+				<string>30/09/27</string>
+				<key>name</key>
+				<string>iOS Team Ad Hoc Provisioning Profile: com.vmovexa.vmovexa</string>
+			</dict>
+			<key>team</key>
+			<dict>
+				<key>id</key>
+				<string>99LF3HS38F</string>
+				<key>name</key>
+				<string>VMOVEXA PRIVATE LIMITED</string>
+			</dict>
+			<key>versionNumber</key>
+			<string>1.0.0</string>
+		</dict>
+	</array>
+</dict>
+</plist>
