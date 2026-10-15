@@ -77,9 +77,12 @@ class ForgotPasswordView extends GetView<ForgotPasswordController> {
               const SizedBox(height: 50),
 
               // Primary Button
-              CustomButton(
-                text: 'Send Reset Link',
-                onTap: controller.sendResetLink,
+              Obx(
+                () => CustomButton(
+                  text: 'Send Reset Link',
+                  isLoading: controller.isLoading.value,
+                  onTap: controller.sendResetLink,
+                ),
               ),
               const SizedBox(height: 24),
 

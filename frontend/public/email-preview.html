@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VMOVEXA — Email Template Preview & Inspection</title>
+  <style>
+    /* Preview Toolbar Styles (Browser only) */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #0b0f19;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .preview-header {
+      background: #111827;
+      border-bottom: 1px solid #1f2937;
+      padding: 14px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    .preview-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-badge {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: #ffffff;
+      font-weight: 900;
+      font-size: 14px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+    }
+    .preview-desc {
+      font-size: 13px;
+      color: #94a3b8;
+    }
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-tab {
+      background: #1f2937;
+      color: #94a3b8;
+      border: 1px solid #374151;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-tab:hover {
+      background: #374151;
+      color: #ffffff;
+    }
+    .btn-tab.active {
+      background: #2563eb;
+      color: #ffffff;
+      border-color: #3b82f6;
+    }
+    .preview-stage {
+      flex: 1;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      background: #0f172a;
+      transition: all 0.3s ease;
+    }
+    .preview-frame-container {
+      width: 100%;
+      max-width: 640px;
+      transition: max-width 0.3s ease;
+    }
+    .preview-frame-container.mobile {
+      max-width: 390px;
+    }
+    .device-info {
+      text-align: center;
+      margin-bottom: 12px;
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    /* ========================================================== */
+    /* INLINE EMAIL CSS (Standard email clients compatible)       */
+    /* ========================================================== */
+    .email-body-wrapper {
+      background-color: #f1f5f9;
+      padding: 24px 12px;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    }
+    .email-header-table {
+      width: 100%;
+      background: #090d16;
+      border-collapse: collapse;
+      border-bottom: 3px solid #2563eb;
+    }
+    .email-content {
+      padding: 36px 32px;
+      color: #334155;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .email-badge {
+      display: inline-block;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border: 1px solid #bfdbfe;
+      margin-bottom: 14px;
+    }
+    .email-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 10px 0;
+      letter-spacing: -0.4px;
+    }
+    .email-lead {
+      font-size: 14px;
+      color: #64748b;
+      margin: 0 0 20px 0;
+    }
+    .meta-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin: 20px 0;
+    }
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 13px;
+    }
+    .meta-row:last-child {
+      border-bottom: none;
+    }
+    .meta-label {
+      color: #64748b;
+      font-weight: 600;
+    }
+    .meta-value {
+      color: #0f172a;
+      font-weight: 700;
+      text-align: right;
+    }
+    .status-pill {
+      background: #fef3c7;
+      color: #b45309;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    .status-pill.success {
+      background: #dcfce7;
+      color: #15803d;
+    }
+    .cta-btn {
+      display: inline-block;
+      background: #2563eb;
+      color: #ffffff !important;
+      text-decoration: none;
+      padding: 14px 32px;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+      margin: 20px 0 10px 0;
+    }
+    .otp-code-box {
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: 8px;
+      color: #2563eb;
+      font-family: 'Courier New', Courier, monospace;
+      padding: 16px 24px;
+      background: #eff6ff;
+      border: 2px dashed #93c5fd;
+      border-radius: 12px;
+      display: inline-block;
+      margin: 16px 0;
+    }
+    .security-notice {
+      background: #fffbeb;
+      border-left: 3px solid #f59e0b;
+      padding: 12px 14px;
+      border-radius: 0 8px 8px 0;
+      font-size: 12px;
+      color: #92400e;
+      margin-top: 24px;
+    }
+    .email-footer {
+      background: #f8fafc;
+      padding: 24px 32px;
+      font-size: 11px;
+      line-height: 1.6;
+      color: #64748b;
+      border-top: 1px solid #e2e8f0;
+      text-align: center;
+    }
+    .email-footer a {
+      color: #2563eb;
+      text-decoration: none;
+    }
+    .email-footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Preview Toolbar -->
+  <div class="preview-header">
+    <div class="preview-title">
+      <span class="logo-badge">VMOVEXA ONE</span>
+      <div>
+        <div style="font-weight: 700; font-size: 14px;">Live Email Template Preview</div>
+        <div class="preview-desc">DOOH Transit Screens & Campaign Notifications</div>
+      </div>
+    </div>
+
+    <!-- Template Switcher -->
+    <div class="toolbar-actions">
+      <button class="btn-tab active" onclick="switchTemplate('campaign')">📢 Campaign Payment</button>
+      <button class="btn-tab" onclick="switchTemplate('otp')">🔑 Auth OTP Code</button>
+      <button class="btn-tab" onclick="switchTemplate('welcome')">🎉 Welcome Credentials</button>
+      <div style="width: 1px; height: 24px; background: #374151; margin: 0 4px;"></div>
+      <button class="btn-tab" onclick="toggleDevice('desktop')" id="btn-desktop">💻 Desktop</button>
+      <button class="btn-tab" onclick="toggleDevice('mobile')" id="btn-mobile">📱 Mobile</button>
+    </div>
+  </div>
+
+  <!-- Stage Area -->
+  <div class="preview-stage">
+    <div class="preview-frame-container" id="frame-container">
+      <div class="device-info" id="device-label">Viewing: Desktop Width (600px Max)</div>
+
+      <!-- Actual Email Body Content -->
+      <div class="email-body-wrapper">
+        <div class="email-container">
+          
+          <!-- Email Header -->
+          <table class="email-header-table" cellpadding="0" cellspacing="0" width="100%">
+            <tr>
+              <td style="padding: 22px 28px;" align="left" valign="middle">
+                <!-- VMOVEXA SVG Logo -->
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-size: 20px;">⚡</span>
+                  <span style="font-size: 18px; font-weight: 900; color: #ffffff; letter-spacing: -0.5px;">VMOVEXA</span>
+                  <span style="background: #2563eb; color: #ffffff; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; margin-left: 4px; text-transform: uppercase;">Transit DOOH</span>
+                </div>
+              </td>
+              <td style="padding: 22px 28px;" align="right" valign="middle">
+                <div style="font-size: 11px; font-weight: 600; color: #94a3b8; letter-spacing: 0.3px;">SYSTEM NOTIFICATION</div>
+                <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Automated Delivery</div>
+              </td>
+            </tr>
+          </table>
+
+          <!-- Dynamic Email Content Template -->
+          <div class="email-content" id="email-content-area">
+            
+            <!-- TEMPLATE 1: CAMPAIGN PAYMENT LINK -->
+            <div id="tpl-campaign">
+              <span class="email-badge">Action Required • Payment</span>
+              <h1 class="email-title">Transit Ad Campaign Approved</h1>
+              <p class="email-lead">
+                Hello <strong>Amit Sharma</strong> (Sharma Traders),<br>
+                Great news! Your transit DOOH broadcast campaign <strong>"Diwali Mega Super Sale 2026"</strong> has been reviewed and verified by VMOVEXA Operations.
+              </p>
+
+              <!-- Campaign Meta Card -->
+              <div class="meta-card">
+                <div class="meta-row">
+                  <span class="meta-label">Campaign Code</span>
+                  <span class="meta-value" style="font-family: monospace;">CMP-9824-MH12</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Target Fleet</span>
+                  <span class="meta-value">Pune Metro Transit — 25 Buses</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Broadcast Duration</span>
+                  <span class="meta-value">14 Days (15s per loop)</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Estimated Plays</span>
+                  <span class="meta-value">42,000 Impressions</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Total Payable</span>
+                  <span class="meta-value" style="color: #2563eb; font-size: 16px;">₹18,500.00 (Incl. GST)</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Status</span>
+                  <span class="meta-value"><span class="status-pill">Awaiting Payment</span></span>
+                </div>
+              </div>
+
+              <p style="font-size: 13px; color: #64748b; margin-top: 16px;">
+                To activate ad delivery across high-definition transit displays and enable live GPS geo-tagged playouts, please complete the invoice payment via the secure checkout link below:
+              </p>
+
+              <!-- CTA Button -->
+              <div style="text-align: center; margin: 24px 0 12px 0;">
+                <a href="http://localhost:5173/campaigns/46/pay?token=sample_token_vmovexa" target="_blank" class="cta-btn">
+                  💳 Pay Now & Activate Playout →
+                </a>
+              </div>
+
+              <!-- Security Notice -->
+              <div class="security-notice">
+                🔒 <strong>Secure 256-Bit Payment:</strong> Supported via Razorpay UPI, Netbanking, Credit & Debit Cards. This payment link is exclusively generated for Sharma Traders.
+              </div>
+            </div>
+
+            <!-- TEMPLATE 2: AUTH OTP CODE -->
+            <div id="tpl-otp" style="display: none;">
+              <span class="email-badge" style="background: #fef2f2; color: #b91c1c; border-color: #fecaca;">Security Verification</span>
+              <h1 class="email-title">One-Time Password (OTP)</h1>
+              <p class="email-lead">
+                Hello <strong>Operations Manager</strong>,<br>
+                We received a sign-in or authorization request for your VMOVEXA account. Use the one-time verification code below to proceed:
+              </p>
+
+              <div style="text-align: center; margin: 24px 0;">
+                <div class="otp-code-box">849201</div>
+                <div style="font-size: 12px; color: #64748b; font-weight: 600;">Valid for 10 minutes only</div>
+              </div>
+
+              <p style="font-size: 13px; color: #64748b;">
+                If you did not request this OTP, please immediately ignore this email or notify your system administrator. Never share this code with anyone.
+              </p>
+
+              <div class="security-notice" style="background: #f8fafc; border-color: #94a3b8; color: #475569;">
+                📍 <strong>Security Context:</strong> Requested from IP <code>103.21.58.12</code> (Chrome on Windows, Mumbai, India).
+              </div>
+            </div>
+
+            <!-- TEMPLATE 3: WELCOME & CREDENTIALS -->
+            <div id="tpl-welcome" style="display: none;">
+              <span class="email-badge" style="background: #f0fdf4; color: #15803d; border-color: #bbf7d0;">Account Provisioned</span>
+              <h1 class="email-title">Welcome to VMOVEXA Platform</h1>
+              <p class="email-lead">
+                Hello <strong>Vikram Joshi</strong>,<br>
+                Your account on the VMOVEXA Intelligent Fleet & DOOH Advertising Platform has been successfully provisioned by the Administrator.
+              </p>
+
+              <div class="meta-card">
+                <div class="meta-row">
+                  <span class="meta-label">Portal Role</span>
+                  <span class="meta-value">Fleet Depot Manager</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Assigned Depot</span>
+                  <span class="meta-value">Shivaji Nagar Central Depot</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Portal URL</span>
+                  <span class="meta-value" style="font-family: monospace;">http://localhost:5173</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Account Status</span>
+                  <span class="meta-value"><span class="status-pill success">Active & Verified</span></span>
+                </div>
+              </div>
+
+              <div style="text-align: center; margin: 24px 0;">
+                <a href="http://localhost:5173/login" target="_blank" class="cta-btn" style="background: #0f172a;">
+                  🚀 Sign In to Dashboard →
+                </a>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Email Footer -->
+          <div class="email-footer">
+            <p style="margin: 0 0 8px 0; font-weight: 500;">
+              This is an automated system notification from VMOVEXA DOOH Playout & Telemetry Service.
+            </p>
+            <p style="margin: 0; color: #94a3b8;">
+              © 2026 VMOVEXA Technologies Pvt. Ltd. All rights reserved. •
+              <a href="#">Portal Login</a> •
+              <a href="#">Help Center</a> •
+              <a href="#">Privacy Policy</a>
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function switchTemplate(type) {
+      document.getElementById('tpl-campaign').style.display = type === 'campaign' ? 'block' : 'none';
+      document.getElementById('tpl-otp').style.display = type === 'otp' ? 'block' : 'none';
+      document.getElementById('tpl-welcome').style.display = type === 'welcome' ? 'block' : 'none';
+
+      const buttons = document.querySelectorAll('.toolbar-actions .btn-tab');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    function toggleDevice(device) {
+      const container = document.getElementById('frame-container');
+      const label = document.getElementById('device-label');
+      const btnDesktop = document.getElementById('btn-desktop');
+      const btnMobile = document.getElementById('btn-mobile');
+
+      if (device === 'mobile') {
+        container.classList.add('mobile');
+        label.innerText = 'Viewing: Mobile Width (390px iPhone / Android)';
+        btnMobile.classList.add('active');
+        btnDesktop.classList.remove('active');
+      } else {
+        container.classList.remove('mobile');
+        label.innerText = 'Viewing: Desktop Width (600px Standard Email)';
+        btnDesktop.classList.add('active');
+        btnMobile.classList.remove('active');
+      }
+    }
+  </script>
+</body>
+</html>

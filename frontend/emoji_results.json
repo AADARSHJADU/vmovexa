@@ -1,0 +1,2328 @@
+[
+  {
+    "file": "src/pages/superadmin/GlobalUsersPage.jsx",
+    "count": 14,
+    "lines": [
+      {
+        "lineNum": 378,
+        "content": "<span>👑 Super Admin</span>"
+      },
+      {
+        "lineNum": 389,
+        "content": "<span>🏢 Tenant Admins</span>"
+      },
+      {
+        "lineNum": 400,
+        "content": "<span>📦 Fleet Operators</span>"
+      },
+      {
+        "lineNum": 411,
+        "content": "<span>👤 Drivers</span>"
+      },
+      {
+        "lineNum": 422,
+        "content": "<span>🔧 Technicians</span>"
+      },
+      {
+        "lineNum": 433,
+        "content": "<span>📢 Advertisers</span>"
+      },
+      {
+        "lineNum": 444,
+        "content": "<span>🏛️ Government</span>"
+      },
+      {
+        "lineNum": 455,
+        "content": "<span>💳 Finance</span>"
+      },
+      {
+        "lineNum": 704,
+        "content": "<span className=\"text-sm\">🛡️</span>"
+      },
+      {
+        "lineNum": 716,
+        "content": "<span className=\"text-sm\">🔑</span>"
+      },
+      {
+        "lineNum": 732,
+        "content": "<span className=\"text-sm\">{isActive(u.status) ? '🚫' : '✅'}</span>"
+      },
+      {
+        "lineNum": 746,
+        "content": "<span className=\"text-sm\">🗑️</span>"
+      },
+      {
+        "lineNum": 800,
+        "content": "⚡ Direct Add (Instant Active)"
+      },
+      {
+        "lineNum": 811,
+        "content": "✉️ Send Invite Link"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/SuperSubscriptionPlansPage.jsx",
+    "count": 11,
+    "lines": [
+      {
+        "lineNum": 373,
+        "content": "<span>⚠</span>"
+      },
+      {
+        "lineNum": 401,
+        "content": "<span>⚠</span>"
+      },
+      {
+        "lineNum": 428,
+        "content": "<span>⚠</span>"
+      },
+      {
+        "lineNum": 494,
+        "content": "<span>⚠</span>"
+      },
+      {
+        "lineNum": 517,
+        "content": "<span>⚠</span>"
+      },
+      {
+        "lineNum": 540,
+        "content": "<span>⚠</span>"
+      },
+      {
+        "lineNum": 563,
+        "content": "<span>⚠</span>"
+      },
+      {
+        "lineNum": 586,
+        "content": "<span>⚠</span>"
+      },
+      {
+        "lineNum": 609,
+        "content": "<span>⚠</span>"
+      },
+      {
+        "lineNum": 726,
+        "content": "<div className=\"text-3xl\">🎫</div>"
+      },
+      {
+        "lineNum": 835,
+        "content": "🗑️"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/GlobalCampaignsPage.jsx",
+    "count": 4,
+    "lines": [
+      {
+        "lineNum": 174,
+        "content": "<span className=\"absolute left-3 top-2.5 text-slate-400 text-xs\">🔍</span>"
+      },
+      {
+        "lineNum": 229,
+        "content": "{camp.client_phone ? ` · 📱 ${camp.client_phone}` : ''}"
+      },
+      {
+        "lineNum": 230,
+        "content": "{camp.client_email ? ` · ✉️ ${camp.client_email}` : ''}"
+      },
+      {
+        "lineNum": 278,
+        "content": "<span>✉️</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/admin/AdminCampaignMappingPage.jsx",
+    "count": 6,
+    "lines": [
+      {
+        "lineNum": 164,
+        "content": "<span>🔄</span>"
+      },
+      {
+        "lineNum": 171,
+        "content": "<span>🗺️</span>"
+      },
+      {
+        "lineNum": 271,
+        "content": "<p className=\"text-2xl\">🚌</p>"
+      },
+      {
+        "lineNum": 303,
+        "content": "{c.media?.[0]?.media_type === 'video' ? '🎬' : '🖼️'}"
+      },
+      {
+        "lineNum": 355,
+        "content": "<span>⏳</span> Awaiting Client Payment"
+      },
+      {
+        "lineNum": 374,
+        "content": "<span>{syncingId === c.id ? '⏳' : '📡'}</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/EmergencyBroadcastPage.jsx",
+    "count": 2,
+    "lines": [
+      {
+        "lineNum": 98,
+        "content": "<span>🚨 {t('emergency.console_title', 'Sovereign Emergency Broadcast Override')}</span>"
+      },
+      {
+        "lineNum": 141,
+        "content": "⏹ {t('emergency.revoke_alert', 'Stop & Resume Ads')}"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/advertiser/CampaignAnalyticsPage.jsx",
+    "count": 11,
+    "lines": [
+      {
+        "lineNum": 236,
+        "content": "🎯"
+      },
+      {
+        "lineNum": 259,
+        "content": "<option value=\"all\">🌐 All Campaigns Overview (Aggregate Analytics)</option>"
+      },
+      {
+        "lineNum": 298,
+        "content": "icon: '👁️',"
+      },
+      {
+        "lineNum": 307,
+        "content": "icon: '📺',"
+      },
+      {
+        "lineNum": 316,
+        "content": "icon: '📲',"
+      },
+      {
+        "lineNum": 325,
+        "content": "icon: '💰',"
+      },
+      {
+        "lineNum": 334,
+        "content": "icon: '⚡',"
+      },
+      {
+        "lineNum": 361,
+        "content": "{ id: 'overview', label: '📊 Performance Trend & Charts' },"
+      },
+      {
+        "lineNum": 362,
+        "content": "{ id: 'routes', label: '🚍 Transit Routes & Display Nodes' },"
+      },
+      {
+        "lineNum": 363,
+        "content": "{ id: 'qr', label: '📲 Smart QR Attribution' },"
+      },
+      {
+        "lineNum": 547,
+        "content": "<div className=\"text-2xl my-1\">📱</div>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/advertiser/ReportsHubPage.jsx",
+    "count": 10,
+    "lines": [
+      {
+        "lineNum": 144,
+        "content": "<span>📄</span>"
+      },
+      {
+        "lineNum": 152,
+        "content": "<span>📊</span>"
+      },
+      {
+        "lineNum": 160,
+        "content": "<span>💾</span>"
+      },
+      {
+        "lineNum": 172,
+        "content": "📋"
+      },
+      {
+        "lineNum": 192,
+        "content": "<option value=\"\">🌐 {t('common.all', 'All Campaigns Aggregate Audit')}</option>"
+      },
+      {
+        "lineNum": 217,
+        "content": "{ label: t('nav.campaigns', 'Total Campaigns'), value: stats.total.toLocaleString(), icon: '🎯', sub: 'In System Portfolio' },"
+      },
+      {
+        "lineNum": 218,
+        "content": "{ label: t('common.active', 'Active Campaigns'), value: stats.active.toLocaleString(), icon: '⚡', sub: 'Approved or Broadcasting' },"
+      },
+      {
+        "lineNum": 219,
+        "content": "{ label: t('reports_hub.total_budget', 'Total Budget Managed'), value: `₹ ${stats.totalBudget.toLocaleString()}`, icon: '💰', sub: 'GST Excluded' },"
+      },
+      {
+        "lineNum": 220,
+        "content": "{ label: t('reports_hub.impressions_delivered', 'Impressions Delivered'), value: stats.impressions.toLocaleString(), icon: '📺', sub: 'GPS-Verified Slots' },"
+      },
+      {
+        "lineNum": 330,
+        "content": "<span>⬇</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/advertiser/BillingPaymentsPage.jsx",
+    "count": 10,
+    "lines": [
+      {
+        "lineNum": 212,
+        "content": "💳"
+      },
+      {
+        "lineNum": 227,
+        "content": "📺"
+      },
+      {
+        "lineNum": 259,
+        "content": "<div className=\"text-2xl\">📢</div>"
+      },
+      {
+        "lineNum": 342,
+        "content": "<span>💳</span>"
+      },
+      {
+        "lineNum": 350,
+        "content": "<span>⬇</span>"
+      },
+      {
+        "lineNum": 378,
+        "content": "<div className=\"text-2xl\">📄</div>"
+      },
+      {
+        "lineNum": 413,
+        "content": "<span>💳</span>"
+      },
+      {
+        "lineNum": 422,
+        "content": "<span>📄</span>"
+      },
+      {
+        "lineNum": 474,
+        "content": "<div className=\"text-2xl\">💳</div>"
+      },
+      {
+        "lineNum": 518,
+        "content": "<div className=\"text-2xl\">💳</div>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/government/GovCampaignsListPage.jsx",
+    "count": 1,
+    "lines": [
+      {
+        "lineNum": 311,
+        "content": "<span className=\"truncate max-w-[170px]\">🏛️ {camp?.agency?.agency_name || 'Gov Agency'}</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/SuperEmergencyApprovalsPage.jsx",
+    "count": 1,
+    "lines": [
+      {
+        "lineNum": 108,
+        "content": "<div className=\"text-3xl mb-2\">🚨</div>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/government/GovEmergencyBroadcastPage.jsx",
+    "count": 9,
+    "lines": [
+      {
+        "lineNum": 187,
+        "content": "{ level: 'Critical', desc: 'Full Screen Flash', icon: '🚨' },"
+      },
+      {
+        "lineNum": 188,
+        "content": "{ level: 'High', desc: 'Top Banner Override', icon: '⚠️' },"
+      },
+      {
+        "lineNum": 189,
+        "content": "{ level: 'Medium', desc: 'Ticker Scroll', icon: '📢' },"
+      },
+      {
+        "lineNum": 190,
+        "content": "{ level: 'Low', desc: 'Standard Loop', icon: 'ℹ️' },"
+      },
+      {
+        "lineNum": 218,
+        "content": "<div className=\"w-16 h-12 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center text-lg\">🎥</div>"
+      },
+      {
+        "lineNum": 233,
+        "content": "<span>🖼️</span>"
+      },
+      {
+        "lineNum": 260,
+        "content": "<span className=\"text-lg\">🌐</span>"
+      },
+      {
+        "lineNum": 273,
+        "content": "<span className=\"text-lg\">🎯</span>"
+      },
+      {
+        "lineNum": 334,
+        "content": "<span className=\"text-lg\">🚨</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/government/GovLiveTrackingPage.jsx",
+    "count": 1,
+    "lines": [
+      {
+        "lineNum": 237,
+        "content": "<option value=\"all\">🌐 All Routes ({stats.total} buses)</option>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/government/GovAnalyticsDashboardPage.jsx",
+    "count": 5,
+    "lines": [
+      {
+        "lineNum": 92,
+        "content": "📊 Network Overview"
+      },
+      {
+        "lineNum": 102,
+        "content": "📱 QR Citizen Analytics"
+      },
+      {
+        "lineNum": 395,
+        "content": "<span className=\"text-2xl mb-1 inline-block\">📱</span>"
+      },
+      {
+        "lineNum": 401,
+        "content": "<span className=\"text-2xl mb-1 inline-block\">💻</span>"
+      },
+      {
+        "lineNum": 407,
+        "content": "<span className=\"text-2xl mb-1 inline-block\">🌐</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/NotificationDeliveryLogsPage.jsx",
+    "count": 9,
+    "lines": [
+      {
+        "lineNum": 52,
+        "content": "return <span className=\"px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300\">✉️ Email</span>;"
+      },
+      {
+        "lineNum": 54,
+        "content": "return <span className=\"px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300\">📱 SMS</span>;"
+      },
+      {
+        "lineNum": 56,
+        "content": "return <span className=\"px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300\">🔔 Push</span>;"
+      },
+      {
+        "lineNum": 58,
+        "content": "return <span className=\"px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300\">💬 WhatsApp</span>;"
+      },
+      {
+        "lineNum": 60,
+        "content": "return <span className=\"px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300\">🖥️ In-App</span>;"
+      },
+      {
+        "lineNum": 107,
+        "content": "🔄 Refresh Telemetry"
+      },
+      {
+        "lineNum": 198,
+        "content": "<p className=\"text-3xl mb-1.5\">📭</p>"
+      },
+      {
+        "lineNum": 283,
+        "content": "🔄 Retry"
+      },
+      {
+        "lineNum": 316,
+        "content": "⚠️ Provider Error Details"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/government/GovReportsPage.jsx",
+    "count": 1,
+    "lines": [
+      {
+        "lineNum": 259,
+        "content": "<span className=\"truncate\">📍 {item.location}</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/LiveServerLogsPage.jsx",
+    "count": 17,
+    "lines": [
+      {
+        "lineNum": 365,
+        "content": "🖥️ Server Logs & Status"
+      },
+      {
+        "lineNum": 389,
+        "content": "else toast('Live stream paused', { icon: '⏸️' });"
+      },
+      {
+        "lineNum": 397,
+        "content": "<span>{isLive ? '⏸️ Pause' : '▶️ Live Stream'}</span>"
+      },
+      {
+        "lineNum": 409,
+        "content": "<span>🔄 Refresh</span>"
+      },
+      {
+        "lineNum": 421,
+        "content": "<span>🚨 Delete All</span>"
+      },
+      {
+        "lineNum": 433,
+        "content": "<span>🔄 Refresh</span>"
+      },
+      {
+        "lineNum": 452,
+        "content": "<span>🖥️ Live Console</span>"
+      },
+      {
+        "lineNum": 472,
+        "content": "<span>📁 Saved Logs</span>"
+      },
+      {
+        "lineNum": 555,
+        "content": "⚡ Background Cron Tasks"
+      },
+      {
+        "lineNum": 825,
+        "content": "<span>🚨 Delete All Files</span>"
+      },
+      {
+        "lineNum": 842,
+        "content": "📁 {f.channel} ({f.fileCount} files)"
+      },
+      {
+        "lineNum": 903,
+        "content": "<span className=\"text-lg\">📁</span>"
+      },
+      {
+        "lineNum": 931,
+        "content": "<span>🗑️ Delete Folder</span>"
+      },
+      {
+        "lineNum": 979,
+        "content": "<span className=\"text-sm\">📄</span>"
+      },
+      {
+        "lineNum": 1005,
+        "content": "<span>👁️ View Log</span>"
+      },
+      {
+        "lineNum": 1043,
+        "content": "<span className=\"text-lg\">📄</span>"
+      },
+      {
+        "lineNum": 1065,
+        "content": "placeholder=\"🔍 Search lines...\""
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/SuperLanguagesPage.jsx",
+    "count": 26,
+    "lines": [
+      {
+        "lineNum": 17,
+        "content": "return map[code?.toLowerCase()] || '🌐';"
+      },
+      {
+        "lineNum": 285,
+        "content": "// Handle ⚡ Individual Translate Button (Single Key Auto-Translate)"
+      },
+      {
+        "lineNum": 356,
+        "content": "toast.success(`All keys already translated for ${targetCode.toUpperCase()}! ✅`);"
+      },
+      {
+        "lineNum": 423,
+        "content": "toast(`Paused at ${pct}% — ${completed} of ${total} keys translated.`, { icon: '⏸️' });"
+      },
+      {
+        "lineNum": 436,
+        "content": "toast.success(`✅ ${successCount} keys translated into ${targetCode.toUpperCase()}!`);"
+      },
+      {
+        "lineNum": 491,
+        "content": "<span className=\"text-xl\">🚀</span>"
+      },
+      {
+        "lineNum": 510,
+        "content": "<span>✅</span> Finished"
+      },
+      {
+        "lineNum": 527,
+        "content": "<span className=\"text-lg\">⚙️</span>"
+      },
+      {
+        "lineNum": 598,
+        "content": "<span className=\"text-base shrink-0\">ℹ️</span>"
+      },
+      {
+        "lineNum": 612,
+        "content": "<span>🚀</span>"
+      },
+      {
+        "lineNum": 621,
+        "content": "<span>⏹️</span>"
+      },
+      {
+        "lineNum": 632,
+        "content": "<span className=\"text-lg\">📊</span>"
+      },
+      {
+        "lineNum": 643,
+        "content": "<span>✅</span> Done"
+      },
+      {
+        "lineNum": 728,
+        "content": "<span>⚡</span> Translating Now"
+      },
+      {
+        "lineNum": 756,
+        "content": "<span className=\"text-xl\">🎉</span>"
+      },
+      {
+        "lineNum": 779,
+        "content": "<span>⚠️</span><span>Translation Error</span>"
+      },
+      {
+        "lineNum": 789,
+        "content": "🌐"
+      },
+      {
+        "lineNum": 852,
+        "content": "<span>🚀</span>"
+      },
+      {
+        "lineNum": 911,
+        "content": "<span>🌐</span>"
+      },
+      {
+        "lineNum": 923,
+        "content": "<span>🔑</span>"
+      },
+      {
+        "lineNum": 1023,
+        "content": "✏️"
+      },
+      {
+        "lineNum": 1035,
+        "content": "'🗑️'"
+      },
+      {
+        "lineNum": 1063,
+        "content": "<span className=\"absolute left-3 top-2.5 text-xs text-slate-400\">🔍</span>"
+      },
+      {
+        "lineNum": 1102,
+        "content": "<span>⚡</span>"
+      },
+      {
+        "lineNum": 1195,
+        "content": "{/* ⚡ Individual Key Translate Button with loading state */}"
+      },
+      {
+        "lineNum": 1210,
+        "content": "<span>⚡</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/SuperPaymentGatewaysPage.jsx",
+    "count": 17,
+    "lines": [
+      {
+        "lineNum": 172,
+        "content": "💳 Payment Gateways"
+      },
+      {
+        "lineNum": 178,
+        "content": "📋 Plans"
+      },
+      {
+        "lineNum": 184,
+        "content": "📊 Transactions"
+      },
+      {
+        "lineNum": 190,
+        "content": "📈 Billing Console"
+      },
+      {
+        "lineNum": 273,
+        "content": "<span>{isLive ? '🚀 LIVE MODE' : '🧪 TEST MODE'}</span>"
+      },
+      {
+        "lineNum": 340,
+        "content": "<span>🧪 Test Mode</span>"
+      },
+      {
+        "lineNum": 356,
+        "content": "<span>🚀 Live Mode</span>"
+      },
+      {
+        "lineNum": 393,
+        "content": "<span className=\"text-base\">{currentGw.mode === 'live' ? '🚀' : '🧪'}</span>"
+      },
+      {
+        "lineNum": 419,
+        "content": "<span className=\"text-base\">🧪</span>"
+      },
+      {
+        "lineNum": 519,
+        "content": "<span className=\"text-base\">🚀</span>"
+      },
+      {
+        "lineNum": 574,
+        "content": "⚠️ Production private key. Charges real bank cards and funds live subscriptions."
+      },
+      {
+        "lineNum": 687,
+        "content": "<span>{testResult.ok !== false ? '✅' : '❌'}</span>"
+      },
+      {
+        "lineNum": 710,
+        "content": "<span className=\"text-base\">🛒</span>"
+      },
+      {
+        "lineNum": 759,
+        "content": "<span>Checkout Link ↗</span>"
+      },
+      {
+        "lineNum": 778,
+        "content": "<span>💳 Open Stripe Hosted Checkout Page ↗</span>"
+      },
+      {
+        "lineNum": 802,
+        "content": "<span>⚡ Test Connection ({currentGw.mode?.toUpperCase()})</span>"
+      },
+      {
+        "lineNum": 820,
+        "content": "<span>🛒 Simulate Live Order (₹500)</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/SuperGoogleApisPage.jsx",
+    "count": 10,
+    "lines": [
+      {
+        "lineNum": 153,
+        "content": "<span>🗺️ Google Maps Platform & 5 APIs Engine</span>"
+      },
+      {
+        "lineNum": 169,
+        "content": "<span>🎮</span>"
+      },
+      {
+        "lineNum": 187,
+        "content": "<span>⚡ Test All 5 Google APIs</span>"
+      },
+      {
+        "lineNum": 205,
+        "content": "<span>💾 Save Endpoints</span>"
+      },
+      {
+        "lineNum": 217,
+        "content": "🔑"
+      },
+      {
+        "lineNum": 274,
+        "content": "<span className=\"text-[10px]\">↗</span>"
+      },
+      {
+        "lineNum": 339,
+        "content": "{testResults.overallStatus === 'all_operational' ? '🟢' : '🟡'}"
+      },
+      {
+        "lineNum": 427,
+        "content": "⚠️ {testStatus.message}"
+      },
+      {
+        "lineNum": 435,
+        "content": "1-Click Enable in Console ↗"
+      },
+      {
+        "lineNum": 449,
+        "content": "<span>↗</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/SuperGoogleApisPlaygroundPage.jsx",
+    "count": 24,
+    "lines": [
+      {
+        "lineNum": 128,
+        "content": "<span>🎮 Test Google APIs — Live Working Playground</span>"
+      },
+      {
+        "lineNum": 143,
+        "content": "<span>⚙️ Manage Key & Endpoints</span>"
+      },
+      {
+        "lineNum": 151,
+        "content": "{ id: 'geocoding', icon: '📍', title: '1. Geocoding', sub: 'Address ↔ GPS' },"
+      },
+      {
+        "lineNum": 152,
+        "content": "{ id: 'routes', icon: '🛣️', title: '2. Routes API', sub: 'Traffic ETA & Polyline' },"
+      },
+      {
+        "lineNum": 153,
+        "content": "{ id: 'places', icon: '🔍', title: '3. Places API', sub: 'Stop/Terminal Search' },"
+      },
+      {
+        "lineNum": 154,
+        "content": "{ id: 'roads', icon: '🚗', title: '4. Roads API', sub: 'Snap-to-Roads Jitter' },"
+      },
+      {
+        "lineNum": 155,
+        "content": "{ id: 'static_map', icon: '🗺️', title: '5. Maps SDK', sub: 'Visual Snapshot' },"
+      },
+      {
+        "lineNum": 184,
+        "content": "<span>📍 Google Geocoding API</span>"
+      },
+      {
+        "lineNum": 186,
+        "content": "Address ↔ Coordinates"
+      },
+      {
+        "lineNum": 242,
+        "content": "{geocodeLoading ? <FleetIcons.Spinner className=\"w-4 h-4 animate-spin text-white\" /> : '🚀 Geocode Now'}"
+      },
+      {
+        "lineNum": 291,
+        "content": "{geocodeLoading ? <FleetIcons.Spinner className=\"w-4 h-4 animate-spin text-white\" /> : '🚀 Reverse Geocode'}"
+      },
+      {
+        "lineNum": 302,
+        "content": "<span>✅ Live Result Received</span>"
+      },
+      {
+        "lineNum": 341,
+        "content": "<span>🛣️ Google Routes API (v2 ComputeRoutes)</span>"
+      },
+      {
+        "lineNum": 355,
+        "content": "<span>🟢 Origin Point:</span>"
+      },
+      {
+        "lineNum": 379,
+        "content": "<span>🔴 Destination Point:</span>"
+      },
+      {
+        "lineNum": 432,
+        "content": "{routesLoading ? <FleetIcons.Spinner className=\"w-4 h-4 animate-spin text-white\" /> : '⚡ Calculate Live Route & ETA'}"
+      },
+      {
+        "lineNum": 441,
+        "content": "✅ Live Google Routes Engine Response ({routesResult.latencyMs}ms)"
+      },
+      {
+        "lineNum": 483,
+        "content": "<span>🔍 Google Places API (New)</span>"
+      },
+      {
+        "lineNum": 511,
+        "content": "{placesLoading ? <FleetIcons.Spinner className=\"w-4 h-4 animate-spin text-white\" /> : '🔍 Search Places'}"
+      },
+      {
+        "lineNum": 577,
+        "content": "<span>🚗 Google Roads API (Snap-to-Roads & Jitter Fix)</span>"
+      },
+      {
+        "lineNum": 605,
+        "content": "{roadsLoading ? <FleetIcons.Spinner className=\"w-4 h-4 animate-spin text-white\" /> : '🚗 Snap to Roads Now'}"
+      },
+      {
+        "lineNum": 618,
+        "content": "✅ Coordinates Aligned to Highway ({roadsResult.latencyMs}ms)"
+      },
+      {
+        "lineNum": 649,
+        "content": "<span>🗺️ Google Maps SDK & Static Map Snapshot</span>"
+      },
+      {
+        "lineNum": 697,
+        "content": "{mapLoading ? <FleetIcons.Spinner className=\"w-4 h-4 animate-spin text-white\" /> : '🗺️ Render Live Map Snapshot'}"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/SuperChannelSettingsPage.jsx",
+    "count": 7,
+    "lines": [
+      {
+        "lineNum": 109,
+        "content": "🎛️ Master Channels"
+      },
+      {
+        "lineNum": 112,
+        "content": "📋 Event Rules"
+      },
+      {
+        "lineNum": 115,
+        "content": "✉️ Email (SMTP)"
+      },
+      {
+        "lineNum": 118,
+        "content": "💬 SMS & Twilio"
+      },
+      {
+        "lineNum": 121,
+        "content": "🟢 WhatsApp"
+      },
+      {
+        "lineNum": 124,
+        "content": "🔥 Push (Firebase)"
+      },
+      {
+        "lineNum": 218,
+        "content": "<span>🌙 Quiet Hours (Do Not Disturb Window)</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/SuperNotificationRulesPage.jsx",
+    "count": 7,
+    "lines": [
+      {
+        "lineNum": 172,
+        "content": "🎛️ Master Channels"
+      },
+      {
+        "lineNum": 175,
+        "content": "📋 Event Rules"
+      },
+      {
+        "lineNum": 178,
+        "content": "✉️ Email (SMTP)"
+      },
+      {
+        "lineNum": 181,
+        "content": "💬 SMS & Twilio"
+      },
+      {
+        "lineNum": 184,
+        "content": "🟢 WhatsApp"
+      },
+      {
+        "lineNum": 187,
+        "content": "🔥 Push (Firebase)"
+      },
+      {
+        "lineNum": 202,
+        "content": "<span className=\"absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs\">🔍</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/SuperSmtpSettingsPage.jsx",
+    "count": 7,
+    "lines": [
+      {
+        "lineNum": 139,
+        "content": "🎛️ Master Channels"
+      },
+      {
+        "lineNum": 142,
+        "content": "📋 Event Rules"
+      },
+      {
+        "lineNum": 145,
+        "content": "✉️ Email (SMTP)"
+      },
+      {
+        "lineNum": 148,
+        "content": "🎨 Email Templates"
+      },
+      {
+        "lineNum": 151,
+        "content": "💬 SMS & Twilio"
+      },
+      {
+        "lineNum": 154,
+        "content": "🟢 WhatsApp"
+      },
+      {
+        "lineNum": 157,
+        "content": "🔥 Push (Firebase)"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/SuperEmailTemplatesPage.jsx",
+    "count": 25,
+    "lines": [
+      {
+        "lineNum": 19,
+        "content": "icon: '🌟',"
+      },
+      {
+        "lineNum": 25,
+        "content": "icon: '📢',"
+      },
+      {
+        "lineNum": 31,
+        "content": "icon: '🔐',"
+      },
+      {
+        "lineNum": 37,
+        "content": "icon: '🏢',"
+      },
+      {
+        "lineNum": 43,
+        "content": "icon: '📺',"
+      },
+      {
+        "lineNum": 49,
+        "content": "icon: '🔑',"
+      },
+      {
+        "lineNum": 282,
+        "content": "icon: '✉️',"
+      },
+      {
+        "lineNum": 299,
+        "content": "<span>✉️ Global Email Templates & Brand Engine</span>"
+      },
+      {
+        "lineNum": 309,
+        "content": "🎛️ Channels"
+      },
+      {
+        "lineNum": 312,
+        "content": "📋 Rules"
+      },
+      {
+        "lineNum": 315,
+        "content": "✉️ SMTP Setup"
+      },
+      {
+        "lineNum": 318,
+        "content": "🎨 Email Templates"
+      },
+      {
+        "lineNum": 321,
+        "content": "💬 SMS"
+      },
+      {
+        "lineNum": 324,
+        "content": "🟢 WhatsApp"
+      },
+      {
+        "lineNum": 344,
+        "content": "icon: '📄',"
+      },
+      {
+        "lineNum": 402,
+        "content": "{meta?.icon || '✉️'}"
+      },
+      {
+        "lineNum": 424,
+        "content": "{activeCodeMode ? '🎨 Simple Mode' : '💻 HTML Code Mode'}"
+      },
+      {
+        "lineNum": 431,
+        "content": "<span>🎨 Brand Identity & Logo Setup</span>"
+      },
+      {
+        "lineNum": 554,
+        "content": "<span>⚡ Available Dynamic Placeholders (Click to copy):</span>"
+      },
+      {
+        "lineNum": 601,
+        "content": "{dirty ? '⚠️ You have unsaved changes' : 'All changes saved.'}"
+      },
+      {
+        "lineNum": 616,
+        "content": "<span>💾 Save Template Changes</span>"
+      },
+      {
+        "lineNum": 626,
+        "content": "<span>🚀 Send Live Test Email</span>"
+      },
+      {
+        "lineNum": 670,
+        "content": "👁️ Real-Time Email Preview"
+      },
+      {
+        "lineNum": 688,
+        "content": "🖥️ Desktop"
+      },
+      {
+        "lineNum": 699,
+        "content": "📱 Mobile"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/SuperSmsSettingsPage.jsx",
+    "count": 10,
+    "lines": [
+      {
+        "lineNum": 137,
+        "content": "🎛️ Master Channels"
+      },
+      {
+        "lineNum": 140,
+        "content": "📋 Event Rules"
+      },
+      {
+        "lineNum": 143,
+        "content": "✉️ Email (SMTP)"
+      },
+      {
+        "lineNum": 146,
+        "content": "💬 SMS & Twilio"
+      },
+      {
+        "lineNum": 149,
+        "content": "🟢 WhatsApp"
+      },
+      {
+        "lineNum": 152,
+        "content": "🔥 Push (Firebase)"
+      },
+      {
+        "lineNum": 303,
+        "content": "<span>📲 Test SMS Dispatch</span>"
+      },
+      {
+        "lineNum": 344,
+        "content": "{testing ? <FleetIcons.Spinner className=\"w-4 h-4 animate-spin\" /> : '🚀 Send Test SMS'}"
+      },
+      {
+        "lineNum": 352,
+        "content": "<span className=\"font-bold text-emerald-800 dark:text-emerald-300\">✅ Message Dispatched</span>"
+      },
+      {
+        "lineNum": 369,
+        "content": "<span>📱 Active Twilio Number</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/SuperPushSettingsPage.jsx",
+    "count": 10,
+    "lines": [
+      {
+        "lineNum": 67,
+        "content": "🎛️ Master Channels"
+      },
+      {
+        "lineNum": 70,
+        "content": "📋 Event Rules"
+      },
+      {
+        "lineNum": 73,
+        "content": "✉️ Email (SMTP)"
+      },
+      {
+        "lineNum": 76,
+        "content": "💬 SMS & Twilio"
+      },
+      {
+        "lineNum": 79,
+        "content": "🟢 WhatsApp"
+      },
+      {
+        "lineNum": 82,
+        "content": "🔥 Push (Firebase)"
+      },
+      {
+        "lineNum": 90,
+        "content": "<span className=\"text-2xl\">🔥</span>"
+      },
+      {
+        "lineNum": 183,
+        "content": "? 'Notifications Granted ✅ (Browser alerts active)'"
+      },
+      {
+        "lineNum": 185,
+        "content": "? 'Notifications Blocked ❌ (Enable in browser settings)'"
+      },
+      {
+        "lineNum": 186,
+        "content": ": 'Permission Default ⚠️ (Click to request access)'}"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/AdvertiserDetailsPage.jsx",
+    "count": 9,
+    "lines": [
+      {
+        "lineNum": 250,
+        "content": "<span>👤 Contact: <strong>{contact}</strong></span>"
+      },
+      {
+        "lineNum": 251,
+        "content": "<span>📧 {email}</span>"
+      },
+      {
+        "lineNum": 252,
+        "content": "<span>📞 {phone}</span>"
+      },
+      {
+        "lineNum": 255,
+        "content": "🌐 {adv.website}"
+      },
+      {
+        "lineNum": 299,
+        "content": "<span>🏢</span> Company Details"
+      },
+      {
+        "lineNum": 333,
+        "content": "<span>💳</span> Billing & Tax Details"
+      },
+      {
+        "lineNum": 387,
+        "content": "<span className=\"text-3xl\">📢</span>"
+      },
+      {
+        "lineNum": 427,
+        "content": "📄"
+      },
+      {
+        "lineNum": 476,
+        "content": "<span className=\"text-3xl\">📁</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/AssignedWorkOrdersPage.jsx",
+    "count": 11,
+    "lines": [
+      {
+        "lineNum": 77,
+        "content": "text: `⚠️ Overdue ${timeStr}`,"
+      },
+      {
+        "lineNum": 86,
+        "content": "text: `⏳ ${timeStr} left`,"
+      },
+      {
+        "lineNum": 711,
+        "content": "<span className=\"text-sm\">⚡</span>"
+      },
+      {
+        "lineNum": 802,
+        "content": "<span className=\"text-[11px] text-blue-400 dark:text-blue-500\">↗</span>"
+      },
+      {
+        "lineNum": 852,
+        "content": "<span>⚡</span>"
+      },
+      {
+        "lineNum": 930,
+        "content": "<span className=\"text-blue-500\">🔧</span>"
+      },
+      {
+        "lineNum": 985,
+        "content": "<span>⚡</span>"
+      },
+      {
+        "lineNum": 1062,
+        "content": "<span>⚡ Dispatch Central Technician</span>"
+      },
+      {
+        "lineNum": 1114,
+        "content": "? `🟡 BUSY — on Bus ${workload.currentJob?.bus_number || 'N/A'} @ ${workload.currentJob?.depot_name || 'Depot'} (${workload.currentJob?.status})`"
+      },
+      {
+        "lineNum": 1115,
+        "content": ": '🟢 AVAILABLE (0 active jobs)';"
+      },
+      {
+        "lineNum": 1128,
+        "content": "<span className=\"text-base\">⚠️</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/AssignTechnicianPage.jsx",
+    "count": 8,
+    "lines": [
+      {
+        "lineNum": 376,
+        "content": "⚡ Assign Technician"
+      },
+      {
+        "lineNum": 381,
+        "content": "⚡ Initiate New Dispatch"
+      },
+      {
+        "lineNum": 450,
+        "content": "⚡ Target Work Order"
+      },
+      {
+        "lineNum": 498,
+        "content": "<span>View Full Ticket & Audit Trail ↗</span>"
+      },
+      {
+        "lineNum": 523,
+        "content": "📍 {existingOrder.depot_name || existingOrder.depot?.name || depotName || 'Central Maintenance Depot'}"
+      },
+      {
+        "lineNum": 579,
+        "content": "⚡ Reassigning will replace engineer"
+      },
+      {
+        "lineNum": 1111,
+        "content": "? '⚡ Confirm & Reassign Technician'"
+      },
+      {
+        "lineNum": 1113,
+        "content": "? '⚡ Confirm & Dispatch Technician'"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/AuthorizeGovernmentPage.jsx",
+    "count": 6,
+    "lines": [
+      {
+        "lineNum": 498,
+        "content": "<span>{isEdit ? '🏛️ Edit Government Agency' : '🏛️ Authorize Government Agency'}</span>"
+      },
+      {
+        "lineNum": 689,
+        "content": "🏛️"
+      },
+      {
+        "lineNum": 725,
+        "content": "pinEmoji=\"🏛️\""
+      },
+      {
+        "lineNum": 825,
+        "content": "⚡ Generate Key"
+      },
+      {
+        "lineNum": 879,
+        "content": "<span className=\"text-base\">⚠️</span>"
+      },
+      {
+        "lineNum": 888,
+        "content": "✉"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/CentralTechniciansPage.jsx",
+    "count": 3,
+    "lines": [
+      {
+        "lineNum": 423,
+        "content": "<span className=\"text-3xl\">🔧</span>"
+      },
+      {
+        "lineNum": 648,
+        "content": "<span className=\"text-3xl\">🔧</span>"
+      },
+      {
+        "lineNum": 679,
+        "content": "{techCity(tech) && (<><span>·</span><span>📍 {techCity(tech)}</span></>)}"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/EditTenantPage.jsx",
+    "count": 1,
+    "lines": [
+      {
+        "lineNum": 423,
+        "content": "{formData.name ? formData.name.charAt(0).toUpperCase() : '🏢'}"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/GovernmentDetailsPage.jsx",
+    "count": 11,
+    "lines": [
+      {
+        "lineNum": 207,
+        "content": "e.currentTarget.parentElement.innerText = '🏛️';"
+      },
+      {
+        "lineNum": 211,
+        "content": "'🏛️'"
+      },
+      {
+        "lineNum": 238,
+        "content": "<span>👤 Contact: <strong>{officer}</strong></span>"
+      },
+      {
+        "lineNum": 239,
+        "content": "<span>📧 {email}</span>"
+      },
+      {
+        "lineNum": 240,
+        "content": "<span>📞 {phone}</span>"
+      },
+      {
+        "lineNum": 310,
+        "content": "<span>🏛️</span> Agency Details"
+      },
+      {
+        "lineNum": 346,
+        "content": "<span>🛡️</span> Jurisdiction & Status"
+      },
+      {
+        "lineNum": 372,
+        "content": "📍 {Number(agency.latitude).toFixed(5)}, {Number(agency.longitude).toFixed(5)} ↗"
+      },
+      {
+        "lineNum": 397,
+        "content": "<span>📑</span> Documents ({documents.length})"
+      },
+      {
+        "lineNum": 415,
+        "content": "<span className=\"text-3xl\">📄</span>"
+      },
+      {
+        "lineNum": 434,
+        "content": "📄"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/OnboardAdvertiserPage.jsx",
+    "count": 16,
+    "lines": [
+      {
+        "lineNum": 479,
+        "content": "👤"
+      },
+      {
+        "lineNum": 566,
+        "content": "<span>⚡</span>"
+      },
+      {
+        "lineNum": 600,
+        "content": "🏢"
+      },
+      {
+        "lineNum": 654,
+        "content": "🏢 {activeLogoSrc ? 'Change Logo' : 'Upload Logo'}"
+      },
+      {
+        "lineNum": 742,
+        "content": "📍"
+      },
+      {
+        "lineNum": 754,
+        "content": "<span>📍</span>"
+      },
+      {
+        "lineNum": 770,
+        "content": "<span>⚡</span>"
+      },
+      {
+        "lineNum": 878,
+        "content": "🧾"
+      },
+      {
+        "lineNum": 941,
+        "content": "📎"
+      },
+      {
+        "lineNum": 961,
+        "content": "<span>📎 Attached Verification Documents</span>"
+      },
+      {
+        "lineNum": 1035,
+        "content": "📄"
+      },
+      {
+        "lineNum": 1054,
+        "content": "<span>⏳</span> Ready to upload on submit"
+      },
+      {
+        "lineNum": 1096,
+        "content": "🔔"
+      },
+      {
+        "lineNum": 1113,
+        "content": "<span className=\"text-base\">✉️</span>"
+      },
+      {
+        "lineNum": 1120,
+        "content": "<span className=\"text-base\">📱</span>"
+      },
+      {
+        "lineNum": 1127,
+        "content": "<span className=\"text-base\">🔔</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/OnboardTenantPage.jsx",
+    "count": 28,
+    "lines": [
+      {
+        "lineNum": 655,
+        "content": "{formData.name ? formData.name.charAt(0).toUpperCase() : '🏢'}"
+      },
+      {
+        "lineNum": 747,
+        "content": "<span>⚠️</span>"
+      },
+      {
+        "lineNum": 787,
+        "content": "<span>⚠️</span>"
+      },
+      {
+        "lineNum": 812,
+        "content": "<span>⚠️</span>"
+      },
+      {
+        "lineNum": 834,
+        "content": "<span>⚠️</span>"
+      },
+      {
+        "lineNum": 858,
+        "content": "<span>⚠️</span>"
+      },
+      {
+        "lineNum": 882,
+        "content": "<span>⚠️</span>"
+      },
+      {
+        "lineNum": 932,
+        "content": "<span>⚠️</span>"
+      },
+      {
+        "lineNum": 954,
+        "content": "<span>⚠️</span>"
+      },
+      {
+        "lineNum": 982,
+        "content": "<span>⚠️</span>"
+      },
+      {
+        "lineNum": 1024,
+        "content": "<span>⚠️</span>"
+      },
+      {
+        "lineNum": 1110,
+        "content": "<span>🛡️</span>"
+      },
+      {
+        "lineNum": 1114,
+        "content": "<span>🔒</span> Locked by Tier"
+      },
+      {
+        "lineNum": 1170,
+        "content": "<span>🟢</span>"
+      },
+      {
+        "lineNum": 1196,
+        "content": "<span>🔵</span>"
+      },
+      {
+        "lineNum": 1217,
+        "content": "<span>🏛️</span>"
+      },
+      {
+        "lineNum": 1237,
+        "content": "<span>⚠️</span>"
+      },
+      {
+        "lineNum": 1259,
+        "content": "<span>⚠️</span>"
+      },
+      {
+        "lineNum": 1269,
+        "content": "<span>🔒</span> Fixed from Plan"
+      },
+      {
+        "lineNum": 1299,
+        "content": "<span>⚠️</span>"
+      },
+      {
+        "lineNum": 1344,
+        "content": "<span className=\"text-sm\">🏢</span>"
+      },
+      {
+        "lineNum": 1354,
+        "content": "<span>✏️</span>"
+      },
+      {
+        "lineNum": 1367,
+        "content": "{formData.name ? formData.name.charAt(0).toUpperCase() : '🏢'}"
+      },
+      {
+        "lineNum": 1429,
+        "content": "<span className=\"text-sm\">👤</span>"
+      },
+      {
+        "lineNum": 1439,
+        "content": "<span>✏️</span>"
+      },
+      {
+        "lineNum": 1479,
+        "content": "<span className=\"text-sm\">💳</span>"
+      },
+      {
+        "lineNum": 1489,
+        "content": "<span>✏️</span>"
+      },
+      {
+        "lineNum": 1520,
+        "content": "{formData.paymentMode === 'offline' ? '🟢 Offline Bank Settlement' : '🔵 Online Client Checkout'}"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/RegisterFinanceOfficerPage.jsx",
+    "count": 9,
+    "lines": [
+      {
+        "lineNum": 283,
+        "content": "errors.password = 'Password is required. You can also click \"⚡ Generate Key\".';"
+      },
+      {
+        "lineNum": 492,
+        "content": "<span>{isEdit ? '💳 Edit Finance Officer' : '💳 Register Finance Officer'}</span>"
+      },
+      {
+        "lineNum": 521,
+        "content": "📸"
+      },
+      {
+        "lineNum": 601,
+        "content": "👤"
+      },
+      {
+        "lineNum": 746,
+        "content": "⚡ Generate Key"
+      },
+      {
+        "lineNum": 787,
+        "content": "📍"
+      },
+      {
+        "lineNum": 823,
+        "content": "pinEmoji=\"💳\""
+      },
+      {
+        "lineNum": 852,
+        "content": "<span className=\"text-base\">⚠️</span>"
+      },
+      {
+        "lineNum": 861,
+        "content": "✉"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/RegisterTechnicianPage.jsx",
+    "count": 6,
+    "lines": [
+      {
+        "lineNum": 540,
+        "content": "<span>📷</span>"
+      },
+      {
+        "lineNum": 639,
+        "content": "⚡ Generate Key"
+      },
+      {
+        "lineNum": 676,
+        "content": "📍"
+      },
+      {
+        "lineNum": 721,
+        "content": "pinEmoji=\"🔧\""
+      },
+      {
+        "lineNum": 795,
+        "content": "<span className=\"text-base\">⚠️</span>"
+      },
+      {
+        "lineNum": 804,
+        "content": "✉"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/SuperAdvertisersPage.jsx",
+    "count": 4,
+    "lines": [
+      {
+        "lineNum": 392,
+        "content": "<span className=\"text-3xl\">📢</span>"
+      },
+      {
+        "lineNum": 448,
+        "content": "<span className=\"text-blue-500 text-[11px]\">📍</span>"
+      },
+      {
+        "lineNum": 632,
+        "content": "<span className=\"text-3xl\">📢</span>"
+      },
+      {
+        "lineNum": 698,
+        "content": "<span>📍</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/SuperChangePasswordPage.jsx",
+    "count": 4,
+    "lines": [
+      {
+        "lineNum": 92,
+        "content": "<span>🔐</span> {t('security.title', 'Master Key & Password Security')}"
+      },
+      {
+        "lineNum": 119,
+        "content": "<span>⚠️</span>"
+      },
+      {
+        "lineNum": 244,
+        "content": "<span>🛡️</span> Security Validation"
+      },
+      {
+        "lineNum": 271,
+        "content": "<h4 className=\"font-bold text-slate-900 dark:text-white\">🔐 Sovereign Vault Policy</h4>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/SuperContentManagerPage.jsx",
+    "count": 24,
+    "lines": [
+      {
+        "lineNum": 460,
+        "content": "<span>📎</span>"
+      },
+      {
+        "lineNum": 585,
+        "content": "{ key: 'contact', label: '📞 Contact Banner' },"
+      },
+      {
+        "lineNum": 586,
+        "content": "{ key: 'guides', label: '📖 4 SOP Guides' },"
+      },
+      {
+        "lineNum": 587,
+        "content": "{ key: 'faqs', label: `💬 FAQs (${helpFaqs.length})` },"
+      },
+      {
+        "lineNum": 588,
+        "content": "{ key: 'videos', label: `🎥 Videos (${helpVideoAcademy.videos.length})` },"
+      },
+      {
+        "lineNum": 619,
+        "content": "<option value=\"red\">🚨 Emergency SOS (Red)</option>"
+      },
+      {
+        "lineNum": 620,
+        "content": "<option value=\"dark\">🎧 Support Desk (Dark)</option>"
+      },
+      {
+        "lineNum": 621,
+        "content": "<option value=\"blue\">💼 Direct Channel (Blue)</option>"
+      },
+      {
+        "lineNum": 622,
+        "content": "<option value=\"slate\">🛠️ Technical Support (Slate)</option>"
+      },
+      {
+        "lineNum": 736,
+        "content": "<span className=\"text-lg leading-none shrink-0\">📄</span>"
+      },
+      {
+        "lineNum": 749,
+        "content": "<span>↗</span>"
+      },
+      {
+        "lineNum": 769,
+        "content": "<span className=\"text-lg leading-none shrink-0\">📎</span>"
+      },
+      {
+        "lineNum": 836,
+        "content": "<span>📁</span>"
+      },
+      {
+        "lineNum": 980,
+        "content": "<div className=\"text-2xl\">🎥</div>"
+      },
+      {
+        "lineNum": 1069,
+        "content": "{ key: 'upload', label: '⬆️ Upload File' },"
+      },
+      {
+        "lineNum": 1070,
+        "content": "{ key: 'url', label: '🔗 YouTube / URL' },"
+      },
+      {
+        "lineNum": 1091,
+        "content": "<span className=\"text-[10px] font-semibold text-emerald-700 dark:text-emerald-400\">✅ Video linked:</span>"
+      },
+      {
+        "lineNum": 1126,
+        "content": "<span>📁</span>"
+      },
+      {
+        "lineNum": 1348,
+        "content": "{ icon: '💬', label: 'FAQs' },"
+      },
+      {
+        "lineNum": 1349,
+        "content": "{ icon: '📖', label: 'Guides' },"
+      },
+      {
+        "lineNum": 1350,
+        "content": "{ icon: '🎥', label: 'Videos' },"
+      },
+      {
+        "lineNum": 1351,
+        "content": "{ icon: '💡', label: 'Safety' },"
+      },
+      {
+        "lineNum": 1383,
+        "content": "{g.docUrl ? '📥 Download SOP →' : 'Read SOP →'}"
+      },
+      {
+        "lineNum": 1431,
+        "content": "<span>🎥 Test Video Academy Modal ({helpVideoAcademy.videos.length} videos)</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/SuperGovernmentPage.jsx",
+    "count": 7,
+    "lines": [
+      {
+        "lineNum": 397,
+        "content": "<span className=\"text-3xl\">🏛️</span>"
+      },
+      {
+        "lineNum": 428,
+        "content": "e.currentTarget.parentElement.innerText = '🏛️';"
+      },
+      {
+        "lineNum": 433,
+        "content": "'🏛️'"
+      },
+      {
+        "lineNum": 658,
+        "content": "<span className=\"text-3xl\">🏛️</span>"
+      },
+      {
+        "lineNum": 688,
+        "content": "e.currentTarget.parentElement.innerText = '🏛️';"
+      },
+      {
+        "lineNum": 693,
+        "content": "'🏛️'"
+      },
+      {
+        "lineNum": 726,
+        "content": "<span className=\"font-bold text-amber-600 dark:text-amber-400\">📍 {jurisdiction}</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/SuperNotificationSettingsPage.jsx",
+    "count": 27,
+    "lines": [
+      {
+        "lineNum": 645,
+        "content": "<span className=\"text-base\">🔔</span>"
+      },
+      {
+        "lineNum": 661,
+        "content": "<span className=\"text-base\">✉️</span>"
+      },
+      {
+        "lineNum": 677,
+        "content": "<span className=\"text-base\">📱</span>"
+      },
+      {
+        "lineNum": 703,
+        "content": "<span>🌐 Web (In-App)</span>"
+      },
+      {
+        "lineNum": 721,
+        "content": "<span>📱 Push (Mobile)</span>"
+      },
+      {
+        "lineNum": 739,
+        "content": "<span>✉️ Mail (Email)</span>"
+      },
+      {
+        "lineNum": 757,
+        "content": "<span>💬 SMS / WhatsApp</span>"
+      },
+      {
+        "lineNum": 775,
+        "content": "<span>📊 All Channels Matrix</span>"
+      },
+      {
+        "lineNum": 802,
+        "content": "🌐"
+      },
+      {
+        "lineNum": 935,
+        "content": "🌐 Web Center"
+      },
+      {
+        "lineNum": 969,
+        "content": "📱"
+      },
+      {
+        "lineNum": 1100,
+        "content": "📱 Push FCM"
+      },
+      {
+        "lineNum": 1134,
+        "content": "✉️"
+      },
+      {
+        "lineNum": 1265,
+        "content": "✉️ Email"
+      },
+      {
+        "lineNum": 1299,
+        "content": "💬"
+      },
+      {
+        "lineNum": 1456,
+        "content": "💬 SMS Alert"
+      },
+      {
+        "lineNum": 1501,
+        "content": "<th className=\"py-3 px-3 text-center\">🌐 Web Center</th>"
+      },
+      {
+        "lineNum": 1502,
+        "content": "<th className=\"py-3 px-3 text-center\">📱 Mobile Push</th>"
+      },
+      {
+        "lineNum": 1503,
+        "content": "<th className=\"py-3 px-3 text-center\">✉️ Mail (Email)</th>"
+      },
+      {
+        "lineNum": 1504,
+        "content": "<th className=\"py-3 px-3 text-center\">💬 SMS / WA</th>"
+      },
+      {
+        "lineNum": 1581,
+        "content": "<span className=\"font-bold text-slate-800 dark:text-zinc-200\">🌙 Global Quiet Hours (Do Not Disturb):</span>"
+      },
+      {
+        "lineNum": 1638,
+        "content": "<span className=\"text-xl\">{smtpForm.is_custom ? '✅' : '⚙️'}</span>"
+      },
+      {
+        "lineNum": 1813,
+        "content": "<span>🧪 Live Connection Test</span>"
+      },
+      {
+        "lineNum": 1864,
+        "content": "<span className=\"text-2xl\">🔥</span>"
+      },
+      {
+        "lineNum": 1955,
+        "content": "? 'Notifications Granted ✅ (Browser alerts enabled)'"
+      },
+      {
+        "lineNum": 1957,
+        "content": "? 'Notifications Blocked ❌ (Enable in browser settings)'"
+      },
+      {
+        "lineNum": 1958,
+        "content": ": 'Permission Default ⚠️ (Click to enable browser push)'}"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/SuperProfilePage.jsx",
+    "count": 6,
+    "lines": [
+      {
+        "lineNum": 268,
+        "content": "<span>🔄</span>"
+      },
+      {
+        "lineNum": 353,
+        "content": "📷 {avatarUrl ? 'Change Photo' : 'Upload Photo'}"
+      },
+      {
+        "lineNum": 364,
+        "content": "🗑️ Remove Photo"
+      },
+      {
+        "lineNum": 437,
+        "content": "<span>👤</span> Account Details"
+      },
+      {
+        "lineNum": 470,
+        "content": "<span>🛡️</span> Security & Standing"
+      },
+      {
+        "lineNum": 608,
+        "content": "<span>📷 {avatarUrl ? 'Change Image' : 'Upload Image'}</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/SuperUserActivityPage.jsx",
+    "count": 1,
+    "lines": [
+      {
+        "lineNum": 772,
+        "content": "📋 Copy JSON"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/SuperWhatsappSettingsPage.jsx",
+    "count": 12,
+    "lines": [
+      {
+        "lineNum": 126,
+        "content": "<span>💬 WhatsApp Notification Gateway</span>"
+      },
+      {
+        "lineNum": 139,
+        "content": "🎛️ Master Channels"
+      },
+      {
+        "lineNum": 142,
+        "content": "📋 Event Rules"
+      },
+      {
+        "lineNum": 145,
+        "content": "✉️ Email (SMTP)"
+      },
+      {
+        "lineNum": 148,
+        "content": "🎨 Email Templates"
+      },
+      {
+        "lineNum": 151,
+        "content": "💬 SMS & Twilio"
+      },
+      {
+        "lineNum": 154,
+        "content": "🟢 WhatsApp"
+      },
+      {
+        "lineNum": 157,
+        "content": "🔥 Push (Firebase)"
+      },
+      {
+        "lineNum": 337,
+        "content": "{saving ? <FleetIcons.Spinner className=\"w-4 h-4 animate-spin\" /> : '💾 Save WhatsApp Settings'}"
+      },
+      {
+        "lineNum": 350,
+        "content": "<span>📲 Test WhatsApp Dispatch</span>"
+      },
+      {
+        "lineNum": 388,
+        "content": "{testing ? <FleetIcons.Spinner className=\"w-4 h-4 animate-spin\" /> : '🚀 Send Test Message'}"
+      },
+      {
+        "lineNum": 396,
+        "content": "<span>💡 WhatsApp Dispatch Rules</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/SuperWorkOrderDetailPage.jsx",
+    "count": 28,
+    "lines": [
+      {
+        "lineNum": 76,
+        "content": "text: `⚠️ Overdue ${timeStr}`,"
+      },
+      {
+        "lineNum": 85,
+        "content": "text: `⏳ ${timeStr} left`,"
+      },
+      {
+        "lineNum": 126,
+        "content": "icon: '🛡️',"
+      },
+      {
+        "lineNum": 133,
+        "content": "icon: '🔧',"
+      },
+      {
+        "lineNum": 140,
+        "content": "icon: '🏢',"
+      },
+      {
+        "lineNum": 147,
+        "content": "icon: '🚍',"
+      },
+      {
+        "lineNum": 154,
+        "content": "icon: '💳',"
+      },
+      {
+        "lineNum": 160,
+        "content": "icon: role ? '👤' : '⚡',"
+      },
+      {
+        "lineNum": 172,
+        "content": "icon: '✨',"
+      },
+      {
+        "lineNum": 180,
+        "content": "icon: '🚀',"
+      },
+      {
+        "lineNum": 188,
+        "content": "icon: '📍',"
+      },
+      {
+        "lineNum": 211,
+        "content": "icon: '📝',"
+      },
+      {
+        "lineNum": 553,
+        "content": "<span>⚡</span>"
+      },
+      {
+        "lineNum": 592,
+        "content": "<span>🚌</span>"
+      },
+      {
+        "lineNum": 626,
+        "content": "<span>📌</span>"
+      },
+      {
+        "lineNum": 662,
+        "content": "🕒"
+      },
+      {
+        "lineNum": 720,
+        "content": "{log.actor_email && <span>✉ {log.actor_email}</span>}"
+      },
+      {
+        "lineNum": 733,
+        "content": "<span>⏳</span>"
+      },
+      {
+        "lineNum": 738,
+        "content": "<span>🕒</span>"
+      },
+      {
+        "lineNum": 802,
+        "content": "<span>🔧</span>"
+      },
+      {
+        "lineNum": 868,
+        "content": "<span className=\"text-2xl\">⚠️</span>"
+      },
+      {
+        "lineNum": 880,
+        "content": "⚡ Assign Now"
+      },
+      {
+        "lineNum": 889,
+        "content": "<span>⏱️</span>"
+      },
+      {
+        "lineNum": 912,
+        "content": "<span>🏢</span>"
+      },
+      {
+        "lineNum": 941,
+        "content": "<span>🛡️</span>"
+      },
+      {
+        "lineNum": 980,
+        "content": "<span>⚡ Dispatch Central Technician</span>"
+      },
+      {
+        "lineNum": 1014,
+        "content": "workload.isBusy ? `• 🟡 Busy on ${workload.currentJob?.bus_number || 'job'}` : '• 🟢 Available'"
+      },
+      {
+        "lineNum": 1028,
+        "content": "<span className=\"text-base\">⚠️</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/TechnicianDetailsPage.jsx",
+    "count": 11,
+    "lines": [
+      {
+        "lineNum": 266,
+        "content": "<span>📧 {tech.email || '—'}</span>"
+      },
+      {
+        "lineNum": 267,
+        "content": "<span>📞 {tech.phone || '—'}</span>"
+      },
+      {
+        "lineNum": 268,
+        "content": "<span>🆔 <span className=\"font-mono text-[11px]\">{code}</span></span>"
+      },
+      {
+        "lineNum": 338,
+        "content": "<span>👤</span> Personal Information"
+      },
+      {
+        "lineNum": 364,
+        "content": "📍 {profile.city || baseCity}{profile.state ? `, ${profile.state}` : ''}"
+      },
+      {
+        "lineNum": 379,
+        "content": "🎯 {Number(profile.latitude).toFixed(4)}, {Number(profile.longitude).toFixed(4)}"
+      },
+      {
+        "lineNum": 388,
+        "content": "<span>🛡️</span> Role & Status"
+      },
+      {
+        "lineNum": 428,
+        "content": "<span>🛠️</span> Technical Skills"
+      },
+      {
+        "lineNum": 535,
+        "content": "<span className=\"text-3xl\">🛠️</span>"
+      },
+      {
+        "lineNum": 583,
+        "content": "📄"
+      },
+      {
+        "lineNum": 632,
+        "content": "<span className=\"text-3xl\">📁</span>"
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/TenantDetailsPage.jsx",
+    "count": 18,
+    "lines": [
+      {
+        "lineNum": 281,
+        "content": "<div className=\"text-3xl\">⚠️</div>"
+      },
+      {
+        "lineNum": 490,
+        "content": "<span>⚠️ Payment Pending</span>"
+      },
+      {
+        "lineNum": 580,
+        "content": "<span>🔑</span>"
+      },
+      {
+        "lineNum": 640,
+        "content": "<span>{isPaid ? '✓ Paid' : '⚠️ Pending'}</span>"
+      },
+      {
+        "lineNum": 836,
+        "content": "{isPaid ? '✓ Paid & Settled' : '⚠️ Payment Pending'}"
+      },
+      {
+        "lineNum": 891,
+        "content": "🏢"
+      },
+      {
+        "lineNum": 939,
+        "content": "<span>📞</span> <span className=\"font-mono text-slate-800 dark:text-zinc-200\">{d.contact_phone}</span>"
+      },
+      {
+        "lineNum": 1019,
+        "content": "💳"
+      },
+      {
+        "lineNum": 1040,
+        "content": "{isPaid ? '✓ Paid & Active' : '⚠️ Payment Pending'}"
+      },
+      {
+        "lineNum": 1102,
+        "content": "<div className=\"text-2xl\">📑</div>"
+      },
+      {
+        "lineNum": 1134,
+        "content": "📋"
+      },
+      {
+        "lineNum": 1189,
+        "content": "<div className=\"text-2xl\">💳</div>"
+      },
+      {
+        "lineNum": 1221,
+        "content": "📋"
+      },
+      {
+        "lineNum": 1267,
+        "content": "🔑"
+      },
+      {
+        "lineNum": 1322,
+        "content": "<span>📧</span>"
+      },
+      {
+        "lineNum": 1327,
+        "content": "<span>⚠️</span>"
+      },
+      {
+        "lineNum": 1366,
+        "content": "<span>🎲 Generate Strong</span>"
+      },
+      {
+        "lineNum": 1406,
+        "content": "⚠️ This will immediately overwrite the administrator's password and log them out of all active web and mobile sessions."
+      }
+    ]
+  },
+  {
+    "file": "src/pages/superadmin/TenantsListPage.jsx",
+    "count": 3,
+    "lines": [
+      {
+        "lineNum": 488,
+        "content": "<option value=\"payment_pending\">⚠️ Payment Pending</option>"
+      },
+      {
+        "lineNum": 696,
+        "content": "<span className=\"text-2xl\">🏢</span>"
+      },
+      {
+        "lineNum": 993,
+        "content": "<span className=\"text-3xl\">🏢</span>"
+      }
+    ]
+  }
+]

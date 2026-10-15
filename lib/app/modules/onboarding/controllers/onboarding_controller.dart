@@ -31,7 +31,8 @@ class OnboardingController extends GetxController {
   }
 
   void skipToAuth() {
-    Get.offNamed(Routes.REGISTER);
+    Get.offNamed(Routes.LOGIN);
+    // Get.offNamed(Routes.REGISTER);
   }
 
   @override

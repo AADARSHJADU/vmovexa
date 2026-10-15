@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import '../../../../../theme/app_theme.dart';
 import '../controllers/terms_conditions_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
 import '../../../../../theme/app_colors.dart';
+import '../../../../../theme/app_theme.dart';
 
 class TermsConditionsView extends GetView<TermsConditionsController> {
   const TermsConditionsView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final c = Get.isRegistered<TermsConditionsController>()
+        ? Get.find<TermsConditionsController>()
+        : Get.put(TermsConditionsController());
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -20,13 +24,13 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(
-                children: const [
-                  CustomBackButton(),
+                children: [
+                  const CustomBackButton(),
                   Expanded(
                     child: Center(
                       child: Text(
                         'Terms & Conditions',
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -34,58 +38,67 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 48), // Spacer to balance back button
+                  IconButton(
+                    icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 20),
+                    onPressed: c.loadTermsContent,
+                    tooltip: 'Refresh Terms',
+                  ),
                 ],
               ),
             ),
 
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Top Terms Aligned banner Card
-                    _buildTermsBannerCard(),
-                    const SizedBox(height: 18),
+              child: RefreshIndicator(
+                onRefresh: c.loadTermsContent,
+                color: const Color(0xFF6366F1),
+                backgroundColor: const Color(0xFF1E293B),
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Banner Card
+                      _buildTermsBannerCard(c),
+                      const SizedBox(height: 18),
 
-                    // Intro Paragraph
-                    const Text(
-                      'These Terms & Conditions govern your access to and use of the VMOVEXA mobile application and related services.',
-                      style: TextStyle(color: AppColors.textSecondary, fontSize: 11, height: 1.4),
-                    ),
-                    const SizedBox(height: 20),
+                      // Search Bar
+                      _buildSearchBar(c),
+                      const SizedBox(height: 18),
 
-                    // Accordion list of 8 items (Image 5 style)
-                    _buildAccordionList(),
-                    const SizedBox(height: 24),
+                      // Accordion List of dynamic clauses
+                      _buildAccordionList(c),
+                      const SizedBox(height: 24),
 
-                    // Need Help Card Link
-                    _buildHelpCard(),
-                    const SizedBox(height: 36),
+                      // Questions Card
+                      _buildQuestionsCard(c),
+                      const SizedBox(height: 24),
 
-                    // I Agree Button
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        gradient: AppTheme.primaryGradient,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: ElevatedButton(
-                        onPressed: controller.agreeTerms,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      // Bottom Accept Button
+                      Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.primaryGradient,
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Text('I Agree', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                        child: ElevatedButton(
+                          onPressed: c.agreeTerms,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            minimumSize: const Size(double.infinity, 50),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          child: const Text(
+                            'I Understand & Accept Terms',
+                            style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                          ),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
+                      const SizedBox(height: 20),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -95,7 +108,170 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
     );
   }
 
-  Widget _buildTermsBannerCard() {
+  Widget _buildTermsBannerCard(TermsConditionsController c) {
+    return Obx(
+      () => Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SvgPicture.asset("assets/icons/fleet_operator_icons/privacyPolicyA.svg", width: 36, height: 36),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          c.pageTitle.value,
+                          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0x263B82F6),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: const Color(0x4D3B82F6)),
+                        ),
+                        child: Text(
+                          'v${c.version.value}',
+                          style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 9.5, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    c.pageSubtitle.value,
+                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 10.5, height: 1.4),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar(TermsConditionsController c) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: TextField(
+        onChanged: (val) => c.searchQuery.value = val,
+        style: const TextStyle(color: Colors.white, fontSize: 12),
+        decoration: InputDecoration(
+          icon: const Icon(Icons.search_rounded, color: Color(0xFF64748B), size: 18),
+          hintText: 'Search fleet terms, dispatch rules or vehicle SLAs...',
+          hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+          suffixIcon: Obx(
+            () => c.searchQuery.value.isNotEmpty
+                ? IconButton(
+                    icon: const Icon(Icons.clear_rounded, color: Colors.white54, size: 16),
+                    onPressed: () => c.searchQuery.value = '',
+                  )
+                : const SizedBox.shrink(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAccordionList(TermsConditionsController c) {
+    return Obx(() {
+      final sectionList = c.filteredSections;
+
+      if (sectionList.isEmpty) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: AppColors.cardBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.cardBorder),
+          ),
+          child: const Center(
+            child: Text(
+              'No terms or clauses match your search query.',
+              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+            ),
+          ),
+        );
+      }
+
+      return Container(
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        ),
+        child: ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: sectionList.length,
+          separatorBuilder: (context, index) => const Divider(color: AppColors.cardBorder, height: 1),
+          itemBuilder: (context, index) {
+            final sec = sectionList[index];
+            final isExpanded = c.expandedIndex.value == index;
+
+            return InkWell(
+              onTap: () => c.toggleIndex(index),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            sec.title,
+                            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Icon(
+                          isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                          color: AppColors.textMuted,
+                          size: 20,
+                        ),
+                      ],
+                    ),
+                    if (isExpanded) ...[
+                      const SizedBox(height: 10),
+                      Text(
+                        sec.content,
+                        style: const TextStyle(
+                          color: Color(0xFFCBD5E1),
+                          fontSize: 11,
+                          height: 1.5,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    });
+  }
+
+  Widget _buildQuestionsCard(TermsConditionsController c) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -104,216 +280,37 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
         border: Border.all(color: AppColors.cardBorder, width: 1.2),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-         SvgPicture.asset('assets/icons/advertiser_ic/termConditionHeaderA.svg',width: 70,height: 60,),
-          const SizedBox(width: 16),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0x1F3B82F6),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.gavel_rounded, color: Color(0xFF60A5FA), size: 20),
+          ),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Terms That Keep Us Aligned',
-                  style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+              children: const [
+                Text(
+                  'Questions about operator terms?',
+                  style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Please read these terms and conditions carefully before using VMOVEXA app and services.',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 11, height: 1.4),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: const [
-                    Icon(Icons.calendar_today_outlined, color: AppColors.textMuted, size: 12),
-                    SizedBox(width: 6),
-                    Text(
-                      'Last updated: 20 May 2026',
-                      style: TextStyle(color: AppColors.textMuted, fontSize: 10),
-                    ),
-                  ],
+                SizedBox(height: 3),
+                Text(
+                  'Contact our legal and regulatory team at legal@vmovexa.com',
+                  style: TextStyle(color: AppColors.textSecondary, fontSize: 10),
                 ),
               ],
             ),
           ),
+          IconButton(
+            icon: const Icon(Icons.arrow_forward_rounded, color: Color(0xFF60A5FA), size: 18),
+            onPressed: c.openHelpMail,
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildAccordionList() {
-    final List<Map<String, dynamic>> items = [
-      {
-        'title': '1. Acceptance of Terms',
-        'subtitle': 'By using VMOVEXA, you agree to these Terms & Conditions and our policies.',
-        'details': 'Using the mobile client, portal, or hardware trackers signifies complete binding contract alignment to the terms and privacy regulations listed inside this document.',
-        'icon': "assets/icons/profile.svg",
-      },
-      {
-        'title': '2. Use of Services',
-        'subtitle': 'You agree to use our services only for lawful purposes and in accordance with these terms.',
-        'details': 'You agree not to bypass device coordinates, send spoofed GPS telemetries, alter advertisement playback schedules maliciously, or perform unauthorized code modifications.',
-        'icon': "assets/icons/fleet_operator_icons/securityA.svg",
-      },
-      {
-        'title': '3. User Responsibilities',
-        'subtitle': 'You are responsible for maintaining the confidentiality of your account and data.',
-        'details': 'Keep dashboard passwords secure. You are liable for any system activities conducted under your employee profile login credentials.',
-        'icon': "assets/icons/fleet_operator_icons/userResponsibilitiesA.svg",
-      },
-      {
-        'title': '4. Intellectual Property',
-        'subtitle': 'All content, trademarks and data in the app are the property of VMOVEXA or its licensors.',
-        'details': 'VM-QR scanning software algorithms, Bhopal map overlays, metrics collection mechanisms, and UI properties are protected by trademark intellectual standards.',
-        'icon':  "assets/icons/fleet_operator_icons/privacyPolicyA.svg",
-      },
-      {
-        'title': '5. Limitation of Liability',
-        'subtitle': 'VMOVEXA is not liable for any indirect, incidental or consequential damages.',
-        'details': 'VMOVEXA is not responsible for fleet transit delays, signal tracking dropouts, advertiser reach variance, or secondary operational interruptions.',
-        'icon':"assets/icons/fleet_operator_icons/cardA.svg",
-      },
-      {
-        'title': '6. Termination',
-        'subtitle': 'We may suspend or terminate your access if you violate these terms.',
-        'details': 'Severe policy bypasses (e.g., driver coordinate falsification) will result in immediate login cancellation, service locks, and legal query reports.',
-        'icon':"assets/icons/fleet_operator_icons/balanceA.svg",
-      },
-      {
-        'title': '7. Changes to Terms',
-        'subtitle': 'We may update these terms from time to time. Continued use means you accept the changes.',
-        'details': 'Revisions are published via active app pushes or banners. Utilizing the service post publication is treated as agreement to updated clauses.',
-        'icon': "assets/icons/fleet_operator_icons/editA.svg",
-      },
-      {
-        'title': '8. Governing Law',
-        'subtitle': 'These terms are governed by the laws of India, and any disputes shall be subject to its jurisdiction.',
-        'details': 'Any dispute, transaction claim, or service issue is handled under local state laws in India with exclusive tribunal jurisdiction.',
-        'icon':"assets/icons/fleet_operator_icons/languageA.svg",
-      },
-    ];
-
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: items.length,
-        separatorBuilder: (context, index) => const Divider(color: AppColors.cardBorder, height: 1),
-        itemBuilder: (context, index) {
-          final item = items[index];
-          return Obx(
-            () {
-              bool isExpanded = controller.expandedIndex.value == index;
-              return Column(
-                children: [
-                  GestureDetector(
-                    onTap: () => controller.toggleIndex(index),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      color: Colors.transparent,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Container(
-                          //   padding: const EdgeInsets.all(8),
-                          //   decoration: BoxDecoration(
-                          //     color: const Color(0xFF6366F1).withOpacity(0.08),
-                          //     borderRadius: BorderRadius.circular(8),
-                          //   ),
-                          //   child: Icon(item['icon'] as IconData, color: const Color(0xFF6366F1), size: 16),
-                          // ),
-                          SvgPicture.asset(item['icon'],width: 25,height: 25 ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item['title'] as String,
-                                  style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  item['subtitle'] as String,
-                                  style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5, height: 1.3),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Icon(
-                            isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
-                            color: AppColors.textMuted,
-                            size: 18,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  if (isExpanded)
-                    Container(
-                      padding: const EdgeInsets.only(left: 48, right: 16, bottom: 14),
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        item['details'] as String,
-                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 10, height: 1.4),
-                      ),
-                    ),
-                ],
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildHelpCard() {
-    return GestureDetector(
-      onTap: controller.openHelpMail,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.cardBorder, width: 1.2),
-        ),
-        child: Row(
-          children: [
-           SvgPicture.asset("assets/icons/fleet_operator_icons/helpSupportA.svg",width: 25,height: 25,),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Need Help?',
-                    style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 4),
-                  RichText(
-                    text: const TextSpan(
-                      text: 'If you have any questions, please contact us at ',
-                      style: TextStyle(color: AppColors.textSecondary, fontSize: 9.5, height: 1.3),
-                      children: [
-                        TextSpan(
-                          text: 'support@vmovexa.com',
-                          style: TextStyle(color: Color(0xFF3B82F6), fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
-            const Icon(Icons.chevron_right_rounded, color: Color(0xFF6366F1), size: 20),
-          ],
-        ),
       ),
     );
   }

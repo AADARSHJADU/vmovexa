@@ -10,6 +10,10 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
 
   @override
   Widget build(BuildContext context) {
+    final c = Get.isRegistered<PrivacyPolicyController>()
+        ? Get.find<PrivacyPolicyController>()
+        : Get.put(PrivacyPolicyController());
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -19,13 +23,13 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(
-                children: const [
-                  CustomBackButton(),
+                children: [
+                  const CustomBackButton(),
                   Expanded(
                     child: Center(
                       child: Text(
                         'Privacy Policy',
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -33,36 +37,43 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 48), // Spacer to balance back button
+                  IconButton(
+                    icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 20),
+                    onPressed: c.loadPrivacyPolicy,
+                    tooltip: 'Refresh Policy',
+                  ),
                 ],
               ),
             ),
 
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Top Privacy Matters Card
-                    _buildPrivacyBannerCard(),
-                    const SizedBox(height: 18),
+              child: RefreshIndicator(
+                onRefresh: c.loadPrivacyPolicy,
+                color: const Color(0xFF6366F1),
+                backgroundColor: const Color(0xFF1E293B),
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Banner Card
+                      _buildPrivacyBannerCard(c),
+                      const SizedBox(height: 18),
 
-                    // Intro Paragraph
-                    const Text(
-                      'This Privacy Policy explains how VMOVEXA collects, uses, shares and protects your information when you use our app and services.',
-                      style: TextStyle(color: AppColors.textSecondary, fontSize: 11, height: 1.4),
-                    ),
-                    const SizedBox(height: 20),
+                      // Search bar
+                      _buildSearchBar(c),
+                      const SizedBox(height: 18),
 
-                    // Accordion List of 8 items
-                    _buildAccordionList(),
-                    const SizedBox(height: 24),
+                      // Accordion List of dynamic sections
+                      _buildAccordionList(c),
+                      const SizedBox(height: 24),
 
-                    // Questions Card Link
-                    _buildQuestionsCard(),
-                    const SizedBox(height: 24),
-                  ],
+                      // Questions Card
+                      _buildQuestionsCard(c),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -72,7 +83,170 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
     );
   }
 
-  Widget _buildPrivacyBannerCard() {
+  Widget _buildPrivacyBannerCard(PrivacyPolicyController c) {
+    return Obx(
+      () => Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SvgPicture.asset("assets/icons/fleet_operator_icons/accountSecureA.svg", width: 36, height: 36),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          c.pageTitle.value,
+                          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0x263B82F6),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: const Color(0x4D3B82F6)),
+                        ),
+                        child: Text(
+                          'v${c.version.value}',
+                          style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 9.5, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    c.pageSubtitle.value,
+                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 10.5, height: 1.4),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar(PrivacyPolicyController c) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: TextField(
+        onChanged: (val) => c.searchQuery.value = val,
+        style: const TextStyle(color: Colors.white, fontSize: 12),
+        decoration: InputDecoration(
+          icon: const Icon(Icons.search_rounded, color: Color(0xFF64748B), size: 18),
+          hintText: 'Search fleet privacy clauses or telemetry governance...',
+          hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+          suffixIcon: Obx(
+            () => c.searchQuery.value.isNotEmpty
+                ? IconButton(
+                    icon: const Icon(Icons.clear_rounded, color: Colors.white54, size: 16),
+                    onPressed: () => c.searchQuery.value = '',
+                  )
+                : const SizedBox.shrink(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAccordionList(PrivacyPolicyController c) {
+    return Obx(() {
+      final sectionList = c.filteredSections;
+
+      if (sectionList.isEmpty) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: AppColors.cardBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.cardBorder),
+          ),
+          child: const Center(
+            child: Text(
+              'No policy sections match your search.',
+              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+            ),
+          ),
+        );
+      }
+
+      return Container(
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        ),
+        child: ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: sectionList.length,
+          separatorBuilder: (context, index) => const Divider(color: AppColors.cardBorder, height: 1),
+          itemBuilder: (context, index) {
+            final sec = sectionList[index];
+            final isExpanded = c.expandedIndex.value == index;
+
+            return InkWell(
+              onTap: () => c.toggleIndex(index),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            sec.title,
+                            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Icon(
+                          isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                          color: AppColors.textMuted,
+                          size: 20,
+                        ),
+                      ],
+                    ),
+                    if (isExpanded) ...[
+                      const SizedBox(height: 10),
+                      Text(
+                        sec.content,
+                        style: const TextStyle(
+                          color: Color(0xFFCBD5E1),
+                          fontSize: 11,
+                          height: 1.5,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    });
+  }
+
+  Widget _buildQuestionsCard(PrivacyPolicyController c) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -81,224 +255,37 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
         border: Border.all(color: AppColors.cardBorder, width: 1.2),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-         SvgPicture.asset("assets/icons/fleet_operator_icons/accountSecureA.svg"),
-          const SizedBox(width: 16),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0x1F6366F1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.mail_outline_rounded, color: Color(0xFF818CF8), size: 20),
+          ),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Your Privacy Matters',
-                  style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+              children: const [
+                Text(
+                  'Questions about data privacy?',
+                  style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 6),
-                const Text(
-                  'At VMOVEXA, we are committed to protecting your privacy and ensuring the security of your personal information.',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 11, height: 1.4),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: const [
-                    Icon(Icons.calendar_today_outlined, color: AppColors.textMuted, size: 12),
-                    SizedBox(width: 6),
-                    Text(
-                      'Last updated: 20 May 2026',
-                      style: TextStyle(color: AppColors.textMuted, fontSize: 10),
-                    ),
-                  ],
+                SizedBox(height: 3),
+                Text(
+                  'Reach out to our Data Protection Officer at privacy@vmovexa.com',
+                  style: TextStyle(color: AppColors.textSecondary, fontSize: 10),
                 ),
               ],
             ),
           ),
+          IconButton(
+            icon: const Icon(Icons.arrow_forward_rounded, color: Color(0xFF60A5FA), size: 18),
+            onPressed: c.openQuestionsMail,
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildAccordionList() {
-    final List<Map<String, dynamic>> items = [
-      {
-        'title': '1. Information We Collect',
-        'subtitle': 'We collect information that you provide directly to us and information collected automatically when you use our services.',
-        'details': 'This includes account details (name, email, phone), device data (IP address, OS version), app telemetry logs, and location data of tracked vehicles if you run active transit tracking modules.',
-        'icon': "assets/icons/profile.svg",
-        'color': const Color(0xFF6366F1),
-      },
-      {
-        'title': '2. How We Use Your Information',
-        'subtitle': 'We use the information we collect to provide, maintain and improve our services.',
-        'details': 'We use this data to authorize user access, calibrate transit route metrics, calculate advertiser campaign reach statistics, generate performance charts, and send notification updates.',
-        'icon': "assets/icons/fleet_operator_icons/profileHeaderSettingA.svg",
-        'color': const Color(0xFF6366F1),
-      },
-      {
-        'title': '3. Information Sharing & Disclosure',
-        'subtitle': 'We do not sell your personal information. We may share your information in limited circumstances.',
-        'details': 'Data is shared with verified transit authorities (e.g., Government Portal monitoring teams) and partner fleet operators according to service schedules. All transitions are fully encrypted.',
-        'icon': "assets/icons/fleet_operator_icons/infoSharingA.svg",
-        'color': const Color(0xFF6366F1),
-      },
-      {
-        'title': '4. Data Security',
-        'subtitle': 'We use appropriate technical and organizational measures to protect your data.',
-        'details': 'We implement standard AES-256 database encryption, strict TLS 1.3 transit encryption, automatic security logs, and role-based permissions to guarantee privacy safety.',
-        'icon': "assets/icons/fleet_operator_icons/securityA.svg",
-        'color': const Color(0xFF6366F1),
-      },
-      {
-        'title': '5. Your Choices',
-        'subtitle': 'You can update, review or delete your personal information anytime from your account settings.',
-        'details': 'You can configure notifications, change passwords, and request full account details removal by reaching out directly to support teams or using profile dashboards.',
-        'icon': "assets/icons/fleet_operator_icons/appPreferenceA.svg",
-        'color': const Color(0xFF6366F1),
-      },
-      {
-        'title': '6. Data Retention',
-        'subtitle': 'We retain your information only for as long as necessary for the purposes stated in this policy.',
-        'details': 'Inactive telemetry data is archived after 12 months, and active campaign records are retained for financial audit standards up to 7 years.',
-        'icon':  "assets/icons/fleet_operator_icons/timeZoneA.svg",
-        'color': const Color(0xFF6366F1),
-      },
-      {
-        'title': '7. Children\'s Privacy',
-        'subtitle': 'Our services are not intended for children under the age of 13.',
-        'details': 'We do not intentionally gather children\'s records. If any mismatch is discovered, it is immediately deleted from central servers.',
-        'icon':  "assets/icons/fleet_operator_icons/childrenPrivacyA.svg",
-        'color': const Color(0xFF6366F1),
-      },
-      {
-        'title': '8. Changes to This Policy',
-        'subtitle': 'We may update this Privacy Policy from time to time. We will notify you of any significant changes.',
-        'details': 'Updates are announced via banner alerts or email pushes. Please review revision dates regularly to stay updated.',
-        'icon':  "assets/icons/fleet_operator_icons/privacyPolicyA.svg",
-        'color': const Color(0xFF6366F1),
-      },
-    ];
-
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: items.length,
-        separatorBuilder: (context, index) => const Divider(color: AppColors.cardBorder, height: 1),
-        itemBuilder: (context, index) {
-          final item = items[index];
-          return Obx(
-            () {
-              bool isExpanded = controller.expandedIndex.value == index;
-              return Column(
-                children: [
-                  GestureDetector(
-                    onTap: () => controller.toggleIndex(index),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      color: Colors.transparent,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Container(
-                          //   padding: const EdgeInsets.all(8),
-                          //   decoration: BoxDecoration(
-                          //     color: const Color(0xFF6366F1).withOpacity(0.08),
-                          //     borderRadius: BorderRadius.circular(8),
-                          //   ),
-                          //   child: Icon(item['icon'] as IconData, color: const Color(0xFF6366F1), size: 16),
-                          // ),
-                          SvgPicture.asset(item['icon'],width: 20,height: 20,),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item['title'] as String,
-                                  style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  item['subtitle'] as String,
-                                  style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5, height: 1.3),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Icon(
-                            isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
-                            color: AppColors.textMuted,
-                            size: 18,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  if (isExpanded)
-                    Container(
-                      padding: const EdgeInsets.only(left: 48, right: 16, bottom: 14),
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        item['details'] as String,
-                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 10, height: 1.4),
-                      ),
-                    ),
-                ],
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildQuestionsCard() {
-    return GestureDetector(
-      onTap: controller.openQuestionsMail,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.cardBorder, width: 1.2),
-        ),
-        child: Row(
-          children: [
-            SvgPicture.asset( "assets/icons/fleet_operator_icons/emailA.svg",width: 20,height: 20,),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Questions?',
-                    style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 4),
-                  RichText(
-                    text: const TextSpan(
-                      text: 'If you have any questions about this Privacy Policy, please contact us at ',
-                      style: TextStyle(color: AppColors.textSecondary, fontSize: 9.5, height: 1.3),
-                      children: [
-                        TextSpan(
-                          text: 'support@vmovexa.com',
-                          style: TextStyle(color: Color(0xFF3B82F6), fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
-            const Icon(Icons.chevron_right_rounded, color: Color(0xFF6366F1), size: 20),
-          ],
-        ),
       ),
     );
   }

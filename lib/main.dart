@@ -3,8 +3,17 @@ import 'package:get/get.dart';
 import 'app/routes/app_pages.dart';
 import 'app/theme/app_theme.dart';
 
-void main() {
+import 'app/data/services/storage_service.dart';
+import 'app/data/services/http_client_service.dart';
+import 'app/data/services/auth_service.dart';
+import 'app/data/services/fleet_service.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Get.putAsync(() => StorageService().init());
+  Get.put(HttpClientService());
+  Get.put(AuthService());
+  Get.put(FleetService());
   runApp(const VMovexaApp());
 }
 

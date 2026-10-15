@@ -93,7 +93,7 @@ class ProfileController extends GetxController {
     // if (Get.isRegistered<TechnicianDashboardController>()) {
     //   Get.find<TechnicianDashboardController>().logout();
     // } else {
-    //   Get.offAllNamed(Routes.LOGIN);
+      Get.offAllNamed(Routes.LOGIN);
     // }
   }
 }

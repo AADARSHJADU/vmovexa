@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/login_controller.dart';
-import '../../../../widgets/app_logo_header.dart';
 import '../../../../widgets/custom_text_field.dart';
 import '../../../../widgets/custom_button.dart';
 import '../../../../widgets/social_button.dart';
@@ -86,9 +85,12 @@ class LoginView extends GetView<LoginController> {
 
               const SizedBox(height: 20),
 
-              CustomButton(
-                text: 'Log In',
-                onTap: controller.login,
+              Obx(
+                () => CustomButton(
+                  text: 'Log In',
+                  isLoading: controller.isLoading.value,
+                  onTap: controller.login,
+                ),
               ),
               const SizedBox(height: 32),
 
@@ -134,31 +136,31 @@ class LoginView extends GetView<LoginController> {
                   ),
                 ],
               ),
-              const SizedBox(height: 36),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    "Don't have an account? ",
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 14,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: controller.goToRegister,
-                    child: const Text(
-                      'Create Account',
-                      style: TextStyle(
-                        color: AppColors.textLink,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              // const SizedBox(height: 36),
+              //
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     const Text(
+              //       "Don't have an account? ",
+              //       style: TextStyle(
+              //         color: AppColors.textSecondary,
+              //         fontSize: 14,
+              //       ),
+              //     ),
+              //     GestureDetector(
+              //       onTap: controller.goToRegister,
+              //       child: const Text(
+              //         'Create Account',
+              //         style: TextStyle(
+              //           color: AppColors.textLink,
+              //           fontSize: 14,
+              //           fontWeight: FontWeight.bold,
+              //         ),
+              //       ),
+              //     ),
+              //   ],
+              // ),
             ],
           ),
         ),

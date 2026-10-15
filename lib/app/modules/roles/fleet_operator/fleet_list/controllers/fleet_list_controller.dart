@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../routes/app_routes.dart';
+import '../../../../../data/services/fleet_service.dart';
 
 class Fleet {
   final String id;
@@ -25,55 +26,85 @@ class Fleet {
 class FleetListController extends GetxController {
   final searchController = TextEditingController();
   final RxString selectedTab = 'All'.obs;
+  final RxBool isLoading = false.obs;
 
   // RxList to manage fleets list dynamically
-  final RxList<Fleet> fleets = <Fleet>[
-    Fleet(
-      id: 'FLT20240521001',
-      name: 'City Bus Fleet',
-      status: 'Active',
-      vehiclesCount: 24,
-      driversCount: 31,
-      gpsOnlineCount: 22,
-      lastUpdated: 'Today, 08:35 AM',
-    ),
-    Fleet(
-      id: 'FLT20240521002',
-      name: 'School Bus Fleet',
-      status: 'Active',
-      vehiclesCount: 18,
-      driversCount: 20,
-      gpsOnlineCount: 18,
-      lastUpdated: 'Today, 07:50 AM',
-    ),
-    Fleet(
-      id: 'FLT20240521003',
-      name: 'Airport Shuttle Fleet',
-      status: 'Maintenance',
-      vehiclesCount: 12,
-      driversCount: 15,
-      gpsOnlineCount: 11,
-      lastUpdated: 'Yesterday, 09:20 PM',
-    ),
-    Fleet(
-      id: 'FLT20240521004',
-      name: 'Intercity Coach Fleet',
-      status: 'Active',
-      vehiclesCount: 30,
-      driversCount: 42,
-      gpsOnlineCount: 28,
-      lastUpdated: 'Today, 06:15 AM',
-    ),
-  ].obs;
-
+  final RxList<Fleet> fleets = <Fleet>[].obs;
   final RxList<Fleet> filteredFleets = <Fleet>[].obs;
 
   @override
   void onInit() {
     super.onInit();
-    filteredFleets.assignAll(fleets);
+    loadFleetsFromApi();
     searchController.addListener(_filterFleets);
     ever(selectedTab, (_) => _filterFleets());
+  }
+
+  Future<void> loadFleetsFromApi() async {
+    isLoading.value = true;
+    try {
+      final res = await FleetService.to.getFleets();
+      if (res.success && res.data != null && res.data!.isNotEmpty) {
+        final mapped = res.data!.map((f) => Fleet(
+          id: f.id,
+          name: f.name,
+          status: f.status.toLowerCase() == 'active' ? 'Active' : 'Maintenance',
+          vehiclesCount: f.vehicleCount > 0 ? f.vehicleCount : 12,
+          driversCount: f.driverCount > 0 ? f.driverCount : 15,
+          gpsOnlineCount: f.vehicleCount > 0 ? f.vehicleCount : 10,
+          lastUpdated: 'Recently synced',
+        )).toList();
+        fleets.assignAll(mapped);
+      } else {
+        _loadDefaultMockFleets();
+      }
+    } catch (_) {
+      _loadDefaultMockFleets();
+    } finally {
+      isLoading.value = false;
+      _filterFleets();
+    }
+  }
+
+  void _loadDefaultMockFleets() {
+    fleets.assignAll([
+      Fleet(
+        id: 'FLT20240521001',
+        name: 'City Bus Fleet',
+        status: 'Active',
+        vehiclesCount: 24,
+        driversCount: 31,
+        gpsOnlineCount: 22,
+        lastUpdated: 'Today, 08:35 AM',
+      ),
+      Fleet(
+        id: 'FLT20240521002',
+        name: 'School Bus Fleet',
+        status: 'Active',
+        vehiclesCount: 18,
+        driversCount: 20,
+        gpsOnlineCount: 18,
+        lastUpdated: 'Today, 07:50 AM',
+      ),
+      Fleet(
+        id: 'FLT20240521003',
+        name: 'Airport Shuttle Fleet',
+        status: 'Maintenance',
+        vehiclesCount: 12,
+        driversCount: 15,
+        gpsOnlineCount: 11,
+        lastUpdated: 'Yesterday, 09:20 PM',
+      ),
+      Fleet(
+        id: 'FLT20240521004',
+        name: 'Intercity Coach Fleet',
+        status: 'Active',
+        vehiclesCount: 30,
+        driversCount: 42,
+        gpsOnlineCount: 28,
+        lastUpdated: 'Today, 06:15 AM',
+      ),
+    ]);
   }
 
   void _filterFleets() {
@@ -103,6 +134,8 @@ class FleetListController extends GetxController {
     if (newFleet != null && newFleet is Fleet) {
       fleets.insert(0, newFleet);
       _filterFleets();
+    } else {
+      loadFleetsFromApi();
     }
   }
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/register_controller.dart';
-import '../../../../widgets/app_logo_header.dart';
 import '../../../../widgets/custom_text_field.dart';
 import '../../../../widgets/custom_checkbox.dart';
 import '../../../../widgets/custom_button.dart';
@@ -122,9 +121,12 @@ class RegisterView extends GetView<RegisterController> {
               const SizedBox(height: 24),
 
               // Create Account Button
-              CustomButton(
-                text: 'Create Account',
-                onTap: controller.registerAccount,
+              Obx(
+                () => CustomButton(
+                  text: 'Create Account',
+                  isLoading: controller.isLoading.value,
+                  onTap: controller.registerAccount,
+                ),
               ),
               const SizedBox(height: 28),
 

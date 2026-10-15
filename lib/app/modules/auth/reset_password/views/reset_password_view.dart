@@ -90,9 +90,12 @@ class ResetPasswordView extends GetView<ResetPasswordController> {
               const SizedBox(height: 50),
 
               // Primary Button
-              CustomButton(
-                text: 'Update Password',
-                onTap: controller.updatePassword,
+              Obx(
+                () => CustomButton(
+                  text: 'Update Password',
+                  isLoading: controller.isLoading.value,
+                  onTap: controller.updatePassword,
+                ),
               ),
             ],
           ),

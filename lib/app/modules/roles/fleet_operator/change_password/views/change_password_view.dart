@@ -4,14 +4,17 @@ import 'package:get/get.dart';
 import '../../../../../theme/app_theme.dart';
 import '../controllers/change_password_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
-import '../../../../../widgets/custom_button.dart';
 import '../../../../../theme/app_colors.dart';
 
-class ChangePasswordView extends GetView<ChangePasswordController> {
+class ChangePasswordView extends StatelessWidget {
   const ChangePasswordView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.isRegistered<ChangePasswordController>()
+        ? Get.find<ChangePasswordController>()
+        : Get.put(ChangePasswordController());
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -51,32 +54,53 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
                     const SizedBox(height: 24),
 
                     // Inputs Card
-                    _buildInputsCard(),
+                    _buildInputsCard(controller),
                     const SizedBox(height: 24),
 
                     // Requirements Card
-                    _buildRequirementsCard(),
+                    _buildRequirementsCard(controller),
                     const SizedBox(height: 36),
 
                     // Actions
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        gradient: AppTheme.primaryGradient,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: ElevatedButton.icon(
-                        onPressed: controller.updatePassword,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          // backgroundndColor: const Color(0xFF3B82F6),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    Obx(
+                      () => Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.primaryGradient,
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        icon:   SvgPicture.asset("assets/icons/fleet_operator_icons/changePasswordA.svg",width: 18,height: 18,color: Colors.white,),
-                        label: const Text('Update Password', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                        child: ElevatedButton(
+                          onPressed: controller.isLoading.value ? null : controller.updatePassword,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            minimumSize: const Size(double.infinity, 50),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          child: controller.isLoading.value
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                )
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SvgPicture.asset(
+                                      "assets/icons/fleet_operator_icons/changePasswordA.svg",
+                                      width: 18,
+                                      height: 18,
+                                      colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    const Text(
+                                      'Update Password',
+                                      style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 14),
@@ -137,7 +161,7 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
     );
   }
 
-  Widget _buildInputsCard() {
+  Widget _buildInputsCard(ChangePasswordController controller) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -175,7 +199,7 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
           const SizedBox(height: 12),
 
           // Strength Bars Indicators
-          _buildStrengthRow(),
+          _buildStrengthRow(controller),
           const SizedBox(height: 20),
 
           // Confirm password field
@@ -215,9 +239,9 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
           hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          prefixIcon:   Padding(
+          prefixIcon: Padding(
             padding: const EdgeInsets.all(10.0),
-            child: SvgPicture.asset("assets/icons/fleet_operator_icons/changePasswordA.svg",width: 10,height:10,),
+            child: SvgPicture.asset("assets/icons/fleet_operator_icons/changePasswordA.svg", width: 10, height: 10),
           ),
           suffixIcon: IconButton(
             icon: Icon(
@@ -232,7 +256,7 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
     );
   }
 
-  Widget _buildStrengthRow() {
+  Widget _buildStrengthRow(ChangePasswordController controller) {
     return Obx(
       () {
         int score = controller.passwordStrength.value;
@@ -243,9 +267,9 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
 
         return Row(
           children: [
-            Text(
+            const Text(
               'Password Strength:',
-              style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+              style: TextStyle(color: AppColors.textMuted, fontSize: 10),
             ),
             const SizedBox(width: 6),
             Text(
@@ -276,7 +300,7 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
     );
   }
 
-  Widget _buildRequirementsCard() {
+  Widget _buildRequirementsCard(ChangePasswordController controller) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -288,10 +312,10 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children:  [
-              SvgPicture.asset("assets/icons/fleet_operator_icons/securityA.svg",width: 18,height: 18,),
-              SizedBox(width: 8),
-              Text(
+            children: [
+              SvgPicture.asset("assets/icons/fleet_operator_icons/securityA.svg", width: 18, height: 18),
+              const SizedBox(width: 8),
+              const Text(
                 'Password Requirements',
                 style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
               ),

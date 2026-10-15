@@ -6,8 +6,14 @@ import '../controllers/fleet_list_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
 import '../../../../../theme/app_colors.dart';
 
-class FleetListView extends GetView<FleetListController> {
-  const FleetListView({super.key});
+class FleetListView extends StatelessWidget {
+  final bool isEmbedded;
+  const FleetListView({super.key, this.isEmbedded = false});
+
+  FleetListController get controller => Get.isRegistered<FleetListController>()
+      ? Get.find<FleetListController>()
+      : Get.put(FleetListController());
+
 
   @override
   Widget build(BuildContext context) {
@@ -22,14 +28,24 @@ class FleetListView extends GetView<FleetListController> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const CustomBackButton(),
-                  const Text(
-                    'Fleet Management',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    children: [
+                      if (!isEmbedded) ...[
+                        const CustomBackButton(),
+                        const SizedBox(width: 8),
+                      ] else ...[
+                        const Icon(Icons.directions_bus_rounded, color: Colors.indigoAccent, size: 24),
+                        const SizedBox(width: 8),
+                      ],
+                      const Text(
+                        'Fleet Management',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                   Row(
                     children: [

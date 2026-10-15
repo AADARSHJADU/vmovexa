@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../../theme/app_theme.dart';
 import '../../../../widgets/custom_back_button.dart';
-import '../../../../widgets/custom_button.dart';
 import '../../../../theme/app_colors.dart';
 
 class PasswordUpdatedView extends StatelessWidget {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../../routes/app_routes.dart';
+import 'package:vmovexa/app/routes/app_routes.dart';
+import 'package:vmovexa/app/data/services/auth_service.dart';
 
 class ChangePasswordController extends GetxController {
   final currentPasswordController = TextEditingController();
@@ -19,6 +20,8 @@ class ChangePasswordController extends GetxController {
   final RxBool hasNumber = false.obs;
   final RxBool hasSpecialChar = false.obs;
 
+  final RxBool isLoading = false.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -27,7 +30,7 @@ class ChangePasswordController extends GetxController {
 
   void _validatePassword() {
     String text = newPasswordController.text;
-    
+
     hasMinLength.value = text.length >= 8;
     hasUppercase.value = text.contains(RegExp(r'[A-Z]'));
     hasNumber.value = text.contains(RegExp(r'[0-9]'));
@@ -52,30 +55,100 @@ class ChangePasswordController extends GetxController {
     }
   }
 
-  void updatePassword() {
-    if (passwordStrength.value < 4) {
+  Future<void> updatePassword() async {
+    final currentPass = currentPasswordController.text.trim();
+    final newPass = newPasswordController.text.trim();
+    final confirmPass = confirmPasswordController.text.trim();
+
+    if (currentPass.isEmpty) {
       Get.snackbar(
-        'Password Weak',
-        'Please fulfill all password requirements before saving.',
+        'Required',
+        'Please enter your current account password.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orangeAccent,
         colorText: Colors.white,
-      );
-      return;
-    }
-    
-    if (newPasswordController.text != confirmPasswordController.text) {
-      Get.snackbar(
-        'Mismatch',
-        'New password and confirm password do not match.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent.withOpacity(0.8),
-        colorText: Colors.white,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 10,
       );
       return;
     }
 
-    Get.toNamed(Routes.PASSWORD_UPDATED);
+    if (passwordStrength.value < 3) {
+      Get.snackbar(
+        'Password Too Weak',
+        'Please ensure your new password satisfies at least 3 security criteria.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orangeAccent,
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 10,
+      );
+      return;
+    }
+
+    if (newPass != confirmPass) {
+      Get.snackbar(
+        'Mismatch',
+        'New password and confirm password do not match.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFFEF4444),
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 10,
+      );
+      return;
+    }
+
+    try {
+      isLoading.value = true;
+
+      if (Get.isRegistered<AuthService>()) {
+        final res = await AuthService.to.changePassword(
+          currentPassword: currentPass,
+          newPassword: newPass,
+        );
+
+        if (res.success) {
+          Get.snackbar(
+            'Success',
+            res.message ?? 'Password updated successfully.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color(0xFF10B981),
+            colorText: Colors.white,
+            icon: const Icon(Icons.check_circle_rounded, color: Colors.white),
+            margin: const EdgeInsets.all(16),
+            borderRadius: 10,
+          );
+          await Future.delayed(const Duration(milliseconds: 600));
+          Get.toNamed(Routes.PASSWORD_UPDATED);
+        } else {
+          Get.snackbar(
+            'Change Password Failed',
+            res.message ?? 'Failed to update password. Please check your current password.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color(0xFFEF4444),
+            colorText: Colors.white,
+            icon: const Icon(Icons.error_outline_rounded, color: Colors.white),
+            margin: const EdgeInsets.all(16),
+            borderRadius: 10,
+          );
+        }
+      } else {
+        Get.toNamed(Routes.PASSWORD_UPDATED);
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Server connection error: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFFEF4444),
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 10,
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   void cancel() {

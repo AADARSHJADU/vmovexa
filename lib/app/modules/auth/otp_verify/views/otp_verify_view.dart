@@ -121,9 +121,12 @@ class OtpVerifyView extends GetView<OtpVerifyController> {
               const SizedBox(height: 60),
 
               // Bottom Button
-              CustomButton(
-                text: 'Verify & Continue',
-                onTap: controller.verifyOtp,
+              Obx(
+                () => CustomButton(
+                  text: 'Verify & Continue',
+                  isLoading: controller.isLoading.value,
+                  onTap: controller.verifyOtp,
+                ),
               ),
             ],
           ),
