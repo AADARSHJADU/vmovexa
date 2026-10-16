@@ -165,7 +165,7 @@ class FleetOpDrawer extends StatelessWidget {
                     color: Colors.amberAccent,
                     onTap: () {
                       Get.back();
-                      controller.openDepotsDialog();
+                      Get.toNamed(Routes.DEPOTS_LIST);
                     },
                   ),
                   _buildDrawerItem(
@@ -174,7 +174,7 @@ class FleetOpDrawer extends StatelessWidget {
                     color: Colors.tealAccent,
                     onTap: () {
                       Get.back();
-                      controller.openRoutesDialog();
+                      Get.toNamed(Routes.ROUTES_LIST);
                     },
                   ),
                   _buildDrawerItem(

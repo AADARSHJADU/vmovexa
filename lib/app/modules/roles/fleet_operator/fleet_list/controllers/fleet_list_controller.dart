@@ -130,17 +130,23 @@ class FleetListController extends GetxController {
   }
 
   void goToAddFleet() async {
-    final newFleet = await Get.toNamed(Routes.ADD_FLEET);
-    if (newFleet != null && newFleet is Fleet) {
-      fleets.insert(0, newFleet);
+    final result = await Get.toNamed(Routes.ADD_FLEET);
+    if (result == true) {
+      await loadFleetsFromApi();
+    } else if (result != null && result is Fleet) {
+      fleets.insert(0, result);
       _filterFleets();
     } else {
       loadFleetsFromApi();
     }
   }
 
-  void goToFleetDetails(Fleet fleet) {
-    Get.toNamed(Routes.FLEET_DETAILS, arguments: fleet);
+
+  void goToFleetDetails(Fleet fleet) async {
+    final result = await Get.toNamed(Routes.FLEET_DETAILS, arguments: fleet);
+    if (result == true) {
+      await loadFleetsFromApi();
+    }
   }
 
   @override

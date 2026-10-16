@@ -49,6 +49,13 @@ abstract class Routes {
   static const ADD_VEHICLE = '/add-vehicle';
   static const ROLE_PLACEHOLDER = '/role-placeholder';
   static const ADD_DRIVER = '/add-driver';
+  static const DRIVER_DETAILS = '/driver-details';
+  static const DEPOTS_LIST = '/depots-list';
+  static const DEPOT_DETAILS = '/depot-details';
+  static const ADD_DEPOT = '/add-depot';
+  static const ROUTES_LIST = '/routes-list';
+  static const ROUTE_DETAILS = '/route-details';
+  static const ADD_ROUTE = '/add-route';
   static const ADD_GPS = '/add-gps';
   static const ASSIGN_DRIVER = '/assign-driver';
   static const ASSIGN_GPS = '/assign-gps';

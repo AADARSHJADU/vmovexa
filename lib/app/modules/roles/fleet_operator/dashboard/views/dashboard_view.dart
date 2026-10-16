@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import '../../../../../theme/app_theme.dart';
 import '../controllers/dashboard_controller.dart';
 import '../widgets/fleet_op_drawer.dart';
 import '../../../../../theme/app_colors.dart';
@@ -296,21 +297,65 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => Get.toNamed(Routes.ADD_FLEET),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563EB),
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF9333EA).withOpacity(0.25),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                  icon: const Icon(Icons.add, color: Colors.white, size: 16),
-                  label: const Text(
-                    'Register Fleet',
-                    style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap:  (){
+                        Get.toNamed(Routes.ADD_FLEET);
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric( vertical: 10),
+                        child: Row(
+                          // mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.add, color: Colors.white, size: 20),
+                            SizedBox(width: 6),
+                            Text(
+                              'Register Fleet',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
+              // Expanded(
+              //   child: ElevatedButton.icon(
+              //     onPressed: () => Get.toNamed(Routes.ADD_FLEET),
+              //     style: ElevatedButton.styleFrom(
+              //       backgroundColor: const Color(0xFF2563EB),
+              //       elevation: 0,
+              //       padding: const EdgeInsets.symmetric(vertical: 10),
+              //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              //     ),
+              //     icon: const Icon(Icons.add, color: Colors.white, size: 16),
+              //     label: const Text(
+              //       'Register Fleet',
+              //       style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ],

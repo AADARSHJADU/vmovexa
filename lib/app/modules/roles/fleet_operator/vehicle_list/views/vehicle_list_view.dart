@@ -4,11 +4,13 @@ import '../../../../../routes/app_routes.dart';
 import '../../../../../theme/app_colors.dart';
 import '../../../../../data/models/fleet_models.dart';
 import '../../../../../data/services/fleet_service.dart';
+import '../../../../../theme/app_theme.dart';
 
 class VehicleListController extends GetxController {
   final searchController = TextEditingController();
   final RxString selectedTab = 'All'.obs;
   final RxBool isLoading = false.obs;
+  final RxBool isDeleting = false.obs;
 
   final RxList<VehicleItemModel> vehicles = <VehicleItemModel>[].obs;
   final RxList<VehicleItemModel> filteredVehicles = <VehicleItemModel>[].obs;
@@ -53,6 +55,11 @@ class VehicleListController extends GetxController {
         speedKmh: 34.5,
         batterySocPct: 82,
         fleetName: 'BRTS Electric Corridor',
+        displaysCount: 6,
+        leftDisplays: 2,
+        rightDisplays: 2,
+        rearDisplays: 1,
+        emergencyDisplays: 1,
       ),
       VehicleItemModel(
         id: 'veh_02',
@@ -67,6 +74,11 @@ class VehicleListController extends GetxController {
         speedKmh: 0.0,
         batterySocPct: null,
         fleetName: 'City Feeder Fleet',
+        displaysCount: 6,
+        leftDisplays: 2,
+        rightDisplays: 2,
+        rearDisplays: 1,
+        emergencyDisplays: 1,
       ),
       VehicleItemModel(
         id: 'veh_03',
@@ -81,6 +93,11 @@ class VehicleListController extends GetxController {
         speedKmh: 42.0,
         batterySocPct: 64,
         fleetName: 'BRTS Electric Corridor',
+        displaysCount: 8,
+        leftDisplays: 3,
+        rightDisplays: 3,
+        rearDisplays: 1,
+        emergencyDisplays: 1,
       ),
       VehicleItemModel(
         id: 'veh_04',
@@ -95,6 +112,11 @@ class VehicleListController extends GetxController {
         speedKmh: 0.0,
         batterySocPct: null,
         fleetName: 'Airport Shuttle Division',
+        displaysCount: 6,
+        leftDisplays: 2,
+        rightDisplays: 2,
+        rearDisplays: 1,
+        emergencyDisplays: 1,
       ),
     ]);
   }
@@ -106,15 +128,16 @@ class VehicleListController extends GetxController {
     final results = vehicles.where((v) {
       final matchesSearch = v.registrationNumber.toLowerCase().contains(query) ||
           v.model.toLowerCase().contains(query) ||
-          (v.assignedDriverName ?? '').toLowerCase().contains(query);
+          (v.assignedDriverName ?? '').toLowerCase().contains(query) ||
+          (v.fleetName ?? '').toLowerCase().contains(query);
 
       bool matchesTab = true;
       if (tab == 'On Route') {
-        matchesTab = v.status.toLowerCase() == 'on_route' || v.status.toLowerCase() == 'active';
+        matchesTab = v.status.toLowerCase() == 'on_route' || v.status.toLowerCase() == 'active' || v.status.toLowerCase() == 'moving';
       } else if (tab == 'In Depot') {
-        matchesTab = v.status.toLowerCase() == 'in_depot';
+        matchesTab = v.status.toLowerCase() == 'in_depot' || v.status.toLowerCase() == 'idle';
       } else if (tab == 'Maintenance') {
-        matchesTab = v.status.toLowerCase() == 'maintenance';
+        matchesTab = v.status.toLowerCase() == 'maintenance' || v.status.toLowerCase() == 'offline';
       } else if (tab == 'Electric EV') {
         matchesTab = v.fuelType.toLowerCase() == 'electric';
       }
@@ -127,6 +150,110 @@ class VehicleListController extends GetxController {
 
   void selectTab(String tabName) {
     selectedTab.value = tabName;
+  }
+
+  Future<void> navigateToAddVehicle() async {
+    final res = await Get.toNamed(Routes.ADD_VEHICLE);
+    if (res == true) {
+      await loadVehicles();
+    }
+  }
+
+  Future<void> navigateToEditVehicle(VehicleItemModel v) async {
+    final res = await Get.toNamed(Routes.ADD_VEHICLE, arguments: {
+      'id': v.id,
+      'vehicleId': v.id,
+      'vehicle': v,
+    });
+    if (res == true) {
+      await loadVehicles();
+    }
+  }
+
+  Future<void> navigateToVehicleDetails(VehicleItemModel v) async {
+    final res = await Get.toNamed(Routes.VEHICLE_DETAILS, arguments: {
+      'id': v.id,
+      'vehicleId': v.id,
+      'vehicle': v,
+    });
+    if (res == true) {
+      await loadVehicles();
+    }
+  }
+
+  Future<void> confirmDeleteVehicle(VehicleItemModel v) async {
+    final confirmed = await Get.dialog<bool>(
+      AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: const [
+            Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 24),
+            SizedBox(width: 8),
+            Text(
+              'Delete Vehicle',
+              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        content: Text(
+          'Are you sure you want to delete vehicle ${v.registrationNumber}?\nThis action cannot be undone.',
+          style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white60)),
+          ),
+          ElevatedButton(
+            onPressed: () => Get.back(result: true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: const Text('Delete', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      isDeleting.value = true;
+      try {
+        final res = await FleetService.to.deleteVehicle(v.id);
+        if (res.success) {
+          Get.snackbar(
+            'Vehicle Deleted',
+            'Vehicle ${v.registrationNumber} was deleted successfully.',
+            backgroundColor: const Color(0xFF10B981),
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+            margin: const EdgeInsets.all(16),
+          );
+          await loadVehicles();
+        } else {
+          Get.snackbar(
+            'Error',
+            res.message ?? 'Failed to delete vehicle',
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+            margin: const EdgeInsets.all(16),
+          );
+        }
+      } catch (e) {
+        Get.snackbar(
+          'Error',
+          e.toString(),
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          margin: const EdgeInsets.all(16),
+        );
+      } finally {
+        isDeleting.value = false;
+      }
+    }
   }
 }
 
@@ -161,19 +288,57 @@ class VehicleListView extends StatelessWidget {
                     ),
                   ],
                 ),
-                ElevatedButton.icon(
-                  onPressed: () => Get.toNamed(Routes.ADD_VEHICLE),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563EB),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF9333EA).withOpacity(0.25),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                  icon: const Icon(Icons.add, size: 16, color: Colors.white),
-                  label: const Text(
-                    'Add Vehicle',
-                    style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap:  controller.navigateToAddVehicle,
+                      borderRadius: BorderRadius.circular(12),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: const [
+                            Icon(Icons.add, color: Colors.white, size: 20),
+                            SizedBox(width: 6),
+                            Text(
+                              'Add Vehicle',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
+                // ElevatedButton.icon(
+                //   onPressed: controller.navigateToAddVehicle,
+                //   style: ElevatedButton.styleFrom(
+                //     backgroundColor: const Color(0xFF2563EB),
+                //     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                //   ),
+                //   icon: const Icon(Icons.add, size: 16, color: Colors.white),
+                //   label: const Text(
+                //     'Add Vehicle',
+                //     style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                //   ),
+                // ),
               ],
             ),
           ),
@@ -273,7 +438,7 @@ class VehicleListView extends StatelessWidget {
                   separatorBuilder: (context, index) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final vehicle = controller.filteredVehicles[index];
-                    return _buildVehicleCard(vehicle);
+                    return _buildVehicleCard(context, controller, vehicle);
                   },
                 ),
               );
@@ -284,22 +449,29 @@ class VehicleListView extends StatelessWidget {
     );
   }
 
-  Widget _buildVehicleCard(VehicleItemModel v) {
+  Widget _buildVehicleCard(BuildContext context, VehicleListController controller, VehicleItemModel v) {
     Color statusColor;
     String statusLabel;
     switch (v.status.toLowerCase()) {
       case 'on_route':
       case 'active':
+      case 'moving':
         statusColor = const Color(0xFF10B981);
         statusLabel = 'ON ROUTE';
         break;
       case 'in_depot':
+      case 'idle':
         statusColor = const Color(0xFF38BDF8);
         statusLabel = 'IN DEPOT';
         break;
       case 'maintenance':
+      case 'offline':
         statusColor = const Color(0xFFF59E0B);
         statusLabel = 'MAINTENANCE';
+        break;
+      case 'pending_approval':
+        statusColor = Colors.amber;
+        statusLabel = 'PENDING';
         break;
       default:
         statusColor = const Color(0xFF94A3B8);
@@ -309,7 +481,7 @@ class VehicleListView extends StatelessWidget {
     final isElectric = v.fuelType.toLowerCase() == 'electric';
 
     return InkWell(
-      onTap: () => Get.toNamed(Routes.VEHICLE_DETAILS, arguments: {'vehicleId': v.id}),
+      onTap: () => controller.navigateToVehicleDetails(v),
       borderRadius: BorderRadius.circular(14),
       child: Container(
         padding: const EdgeInsets.all(14),
@@ -321,7 +493,7 @@ class VehicleListView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top Row: Reg number & Status badge
+            // Top Row: Reg number, Fuel Badge, Status badge, and 3-dot menu
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -344,27 +516,58 @@ class VehicleListView extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    // const SizedBox(width: 8),
+                    // Container(
+                    //   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                    //   decoration: BoxDecoration(
+                    //     color: isElectric
+                    //         ? const Color(0xFF10B981).withValues(alpha: 0.15)
+                    //         : Colors.white10,
+                    //     borderRadius: BorderRadius.circular(6),
+                    //   ),
+                    //   child: Row(
+                    //     children: [
+                    //       Icon(
+                    //         isElectric ? Icons.bolt_rounded : Icons.local_gas_station_rounded,
+                    //         size: 13,
+                    //         color: isElectric ? const Color(0xFF34D399) : AppColors.textMuted,
+                    //       ),
+                    //       const SizedBox(width: 3),
+                    //       Text(
+                    //         v.fuelType.toUpperCase(),
+                    //         style: TextStyle(
+                    //           color: isElectric ? const Color(0xFF34D399) : AppColors.textMuted,
+                    //           fontSize: 10,
+                    //           fontWeight: FontWeight.bold,
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
+                  ],
+                ),
+                Row(
+                  children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: isElectric
-                            ? const Color(0xFF10B981).withValues(alpha: 0.15)
-                            : Colors.white10,
-                        borderRadius: BorderRadius.circular(6),
+                        color: statusColor.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: statusColor.withValues(alpha: 0.4)),
                       ),
                       child: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            isElectric ? Icons.bolt_rounded : Icons.local_gas_station_rounded,
-                            size: 13,
-                            color: isElectric ? const Color(0xFF34D399) : AppColors.textMuted,
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(color: statusColor, shape: BoxShape.circle),
                           ),
-                          const SizedBox(width: 3),
+                          const SizedBox(width: 5),
                           Text(
-                            v.fuelType.toUpperCase(),
+                            statusLabel,
                             style: TextStyle(
-                              color: isElectric ? const Color(0xFF34D399) : AppColors.textMuted,
+                              color: statusColor,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                             ),
@@ -372,56 +575,111 @@ class VehicleListView extends StatelessWidget {
                         ],
                       ),
                     ),
-                  ],
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: statusColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: statusColor.withValues(alpha: 0.4)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: BoxDecoration(color: statusColor, shape: BoxShape.circle),
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        statusLabel,
-                        style: TextStyle(
-                          color: statusColor,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+                    const SizedBox(width: 4),
+                    // Action 3-dot menu matching Admin Panel
+                    PopupMenuButton<String>(
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(minWidth: 40),
+                      icon: const Icon(Icons.more_vert, color: Colors.white60, size: 20),
+                      color: const Color(0xFF1E293B),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      onSelected: (val) {
+                        if (val == 'view') {
+                          controller.navigateToVehicleDetails(v);
+                        } else if (val == 'edit') {
+                          controller.navigateToEditVehicle(v);
+                        } else if (val == 'delete') {
+                          controller.confirmDeleteVehicle(v);
+                        }
+                      },
+                      itemBuilder: (_) => [
+                        const PopupMenuItem(
+                          value: 'view',
+                          child: Row(
+                            children: [
+                              Icon(Icons.visibility_outlined, size: 16, color: Color(0xFF60A5FA)),
+                              SizedBox(width: 8),
+                              Text('View Specs', style: TextStyle(color: Colors.white, fontSize: 12)),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                        const PopupMenuItem(
+                          value: 'edit',
+                          child: Row(
+                            children: [
+                              Icon(Icons.edit_outlined, size: 16, color: Colors.amberAccent),
+                              SizedBox(width: 8),
+                              Text('Edit Specs', style: TextStyle(color: Colors.white, fontSize: 12)),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuDivider(height: 1),
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete_outline_rounded, size: 16, color: Colors.redAccent),
+                              SizedBox(width: 8),
+                              Text('Delete', style: TextStyle(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),
 
             const SizedBox(height: 10),
 
-            // Vehicle Model & Fleet Division
-            Text(
-              '${v.make} ${v.model}'.trim(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
+            // Vehicle Model & Fleet Division & Displays badge
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${v.make} ${v.model}'.trim().isEmpty ? v.vehicleType : '${v.make} ${v.model}'.trim(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      if (v.fleetName != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          v.fleetName!,
+                          style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF8B5CF6).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFF8B5CF6).withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.tv_rounded, size: 12, color: Color(0xFFC084FC)),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${v.displaysCount} Displays',
+                        style: const TextStyle(color: Color(0xFFC084FC), fontSize: 10, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            if (v.fleetName != null) ...[
-              const SizedBox(height: 2),
-              Text(
-                v.fleetName!,
-                style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
-              ),
-            ],
 
             const Divider(color: AppColors.cardBorder, height: 18),
 

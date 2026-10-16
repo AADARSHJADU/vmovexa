@@ -54,9 +54,6 @@ import '../modules/roles/technician/hardware_configuration/bindings/hardware_con
 import '../modules/roles/technician/hardware_configuration/views/hardware_configuration_view.dart';
 import '../modules/roles/technician/hardware_status/bindings/hardware_status_binding.dart';
 import '../modules/roles/technician/hardware_status/view/hardware_status_view.dart';
-import '../modules/roles/technician/home/bindings/home_binding.dart'
-    hide HomeBinding;
-import '../modules/roles/technician/home/view/home_view.dart' hide HomeView;
 import '../modules/roles/technician/profile/bindings/profile_binding.dart';
 import '../modules/roles/technician/profile/view/profile_view.dart';
 import '../modules/roles/technician/edit_profile/bindings/edit_profile_binding.dart';
@@ -110,6 +107,20 @@ import '../modules/roles/placeholder/views/role_placeholder_view.dart';
 
 import '../modules/roles/fleet_operator/add_driver/bindings/add_driver_binding.dart';
 import '../modules/roles/fleet_operator/add_driver/views/add_driver_view.dart';
+import '../modules/roles/fleet_operator/driver_details/bindings/driver_details_binding.dart';
+import '../modules/roles/fleet_operator/driver_details/views/driver_details_view.dart';
+import '../modules/roles/fleet_operator/depots_list/bindings/depots_list_binding.dart';
+import '../modules/roles/fleet_operator/depots_list/views/depots_list_view.dart';
+import '../modules/roles/fleet_operator/depot_details/bindings/depot_details_binding.dart';
+import '../modules/roles/fleet_operator/depot_details/views/depot_details_view.dart';
+import '../modules/roles/fleet_operator/add_depot/bindings/add_depot_binding.dart';
+import '../modules/roles/fleet_operator/add_depot/views/add_depot_view.dart';
+import '../modules/roles/fleet_operator/routes_list/bindings/routes_list_binding.dart';
+import '../modules/roles/fleet_operator/routes_list/views/routes_list_view.dart';
+import '../modules/roles/fleet_operator/route_details/bindings/route_details_binding.dart';
+import '../modules/roles/fleet_operator/route_details/views/route_details_view.dart';
+import '../modules/roles/fleet_operator/add_route/bindings/add_route_binding.dart';
+import '../modules/roles/fleet_operator/add_route/views/add_route_view.dart';
 
 import '../modules/roles/fleet_operator/add_gps/bindings/add_gps_binding.dart';
 import '../modules/roles/fleet_operator/add_gps/views/add_gps_view.dart';
@@ -282,6 +293,48 @@ class AppPages {
       name: Routes.ADD_DRIVER,
       page: () => const AddDriverView(),
       binding: AddDriverBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DRIVER_DETAILS,
+      page: () => const DriverDetailsView(),
+      binding: DriverDetailsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DEPOTS_LIST,
+      page: () => const DepotsListView(),
+      binding: DepotsListBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DEPOT_DETAILS,
+      page: () => const DepotDetailsView(),
+      binding: DepotDetailsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.ADD_DEPOT,
+      page: () => const AddDepotView(),
+      binding: AddDepotBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.ROUTES_LIST,
+      page: () => const RoutesListView(),
+      binding: RoutesListBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.ROUTE_DETAILS,
+      page: () => const RouteDetailsView(),
+      binding: RouteDetailsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.ADD_ROUTE,
+      page: () => const AddRouteView(),
+      binding: AddRouteBinding(),
       transition: Transition.rightToLeft,
     ),
     GetPage(
