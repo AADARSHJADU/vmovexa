@@ -97,9 +97,15 @@ class ApiConstants {
 
   static const String gpsDevices = '/gps-devices';
   static String gpsDeviceOne(String id) => '/gps-devices/$id';
+  static String gpsDeviceAssign(String id) => '/gps-devices/$id/assign';
+  static String gpsDeviceApprove(String id) => '/gps-devices/$id/approve';
+  static String gpsDeviceReject(String id) => '/gps-devices/$id/reject';
 
   static const String incidents = '/incidents';
   static String incidentOne(String id) => '/incidents/$id';
+
+  static const String workOrders = '/work-orders';
+  static String workOrderOne(String id) => '/work-orders/$id';
 
   static const String activityLogs = '/users/activity';
   static const String notifications = '/notifications';

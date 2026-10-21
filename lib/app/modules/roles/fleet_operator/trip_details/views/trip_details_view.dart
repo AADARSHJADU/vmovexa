@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/trip_details_controller.dart';
-import '../../../../../widgets/custom_back_button.dart';
-import '../../../../../widgets/custom_button.dart';
 import '../../../../../theme/app_colors.dart';
+import '../../../../../widgets/custom_back_button.dart';
+import '../../../../../data/models/trip_models.dart';
+import '../controllers/trip_details_controller.dart';
 
 class TripDetailsView extends GetView<TripDetailsController> {
   const TripDetailsView({super.key});
@@ -15,120 +15,100 @@ class TripDetailsView extends GetView<TripDetailsController> {
       body: SafeArea(
         child: Column(
           children: [
-            // Top Bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const CustomBackButton(),
-                  const Text(
-                    'Trip Details',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.more_vert_rounded, color: Colors.white, size: 24),
-                    onPressed: () {},
-                  ),
-                ],
-              ),
-            ),
+            // Top Navigation & Action Bar
+            _buildTopAppBar(),
 
+            // Content Body
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Top Split Card (Info & Mini Map)
-                    _buildTopSplitCard(),
-                    const SizedBox(height: 24),
-
-                    // Route Summary Section
-                    _buildSectionHeader('Route Summary'),
-                    const SizedBox(height: 14),
-                    _buildRouteSummaryPanel(),
-                    const SizedBox(height: 24),
-
-                    // Live Statistics Section
-                    _buildSectionHeader('Live Statistics'),
-                    const SizedBox(height: 14),
-                    _buildLiveStatsGrid(),
-                    const SizedBox(height: 24),
-
-                    // Columns: Timeline & Driver/Vehicle specs
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              child: Obx(() {
+                if (controller.isLoading.value && controller.trip.value == null) {
+                  return const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Left Column: Timeline
-                        Expanded(
-                          flex: 11,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildSubHeader('Trip Timeline'),
-                              const SizedBox(height: 14),
-                              _buildTimelinePanel(),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        // Right Column: Specs Card details
-                        Expanded(
-                          flex: 12,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildSubHeader('Driver Information'),
-                              const SizedBox(height: 12),
-                              _buildDriverInfoCard(),
-                              const SizedBox(height: 20),
-                              _buildSubHeader('Vehicle Information'),
-                              const SizedBox(height: 12),
-                              _buildVehicleInfoCard(),
-                            ],
-                          ),
+                        CircularProgressIndicator(color: Color(0xFF3B82F6)),
+                        SizedBox(height: 12),
+                        Text(
+                          'Loading voyage telemetry & dispatch data...',
+                          style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 28),
+                  );
+                }
 
-                    // Quick Actions Section
-                    _buildSectionHeader('Quick Actions'),
-                    const SizedBox(height: 14),
-                    Row(
-                      children: [
-                        Expanded(child: _buildQuickActionItem('Call Driver', Icons.call_outlined, const Color(0xFF10B981), controller.callDriver)),
-                        const SizedBox(width: 10),
-                        Expanded(child: _buildQuickActionItem('Navigate', Icons.navigation_outlined, const Color(0xFF3B82F6), controller.navigate)),
-                        const SizedBox(width: 10),
-                        Expanded(child: _buildQuickActionItem('Send Alert', Icons.warning_amber_rounded, Colors.orangeAccent, controller.sendAlert)),
-                        const SizedBox(width: 10),
-                        Expanded(child: _buildQuickActionItem('Download Report', Icons.download_rounded, const Color(0xFF8B5CF6), controller.downloadReport)),
-                      ],
+                final trip = controller.trip.value;
+                if (trip == null) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.info_outline_rounded, color: AppColors.textMuted, size: 48),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'Trip record not found or inaccessible.',
+                            style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: controller.returnToTrips,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF2563EB),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                            child: const Text('Return to Trips', style: TextStyle(color: Colors.white)),
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 40),
+                  );
+                }
 
-                    // Complete Trip button
-                    CustomButton(
-                      text: 'Complete Trip',
-                      onTap: controller.completeTrip,
-                      isGradient: true,
-                    ),
-                    const SizedBox(height: 14),
-                    CustomButton(
-                      text: 'View Trip History',
-                      isOutlined: true,
-                      onTap: () {},
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
+                final totalDist = trip.distanceKm;
+                final covDist = trip.coveredKm;
+                final remDist = (totalDist - covDist).clamp(0.0, 9999.0);
+                final progress = trip.progressPercent;
+                final vehiclePlate = trip.vehicle?.busNumber ?? '—';
+                final driver = trip.driver;
+
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header Banner
+                      _buildHeaderBanner(trip),
+                      const SizedBox(height: 16),
+
+                      // 1. Route Summary & Coverage Card
+                      _buildRouteSummaryCard(trip, totalDist, covDist, remDist, progress),
+                      const SizedBox(height: 16),
+
+                      // 2. Live Statistics (6 Metric Gauges)
+                      _buildLiveStatsGauges(trip, vehiclePlate),
+                      const SizedBox(height: 16),
+
+                      // 3. Waypoint Timeline
+                      _buildWaypointTimelineCard(trip, covDist, progress),
+                      const SizedBox(height: 16),
+
+                      // 4. Assigned Driver Card
+                      _buildDriverInfoCard(driver),
+                      const SizedBox(height: 16),
+
+                      // 5. Vehicle Telematics Card
+                      _buildVehicleTelematicsCard(trip, vehiclePlate),
+                      const SizedBox(height: 20),
+
+                      // 6. Bottom Action Bar
+                      _buildBottomActionBar(trip),
+                      const SizedBox(height: 30),
+                    ],
+                  ),
+                );
+              }),
             ),
           ],
         ),
@@ -136,168 +116,32 @@ class TripDetailsView extends GetView<TripDetailsController> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 15,
-        fontWeight: FontWeight.bold,
-      ),
-    );
-  }
-
-  Widget _buildSubHeader(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 13,
-        fontWeight: FontWeight.bold,
-      ),
-    );
-  }
-
-  Widget _buildTopSplitCard() {
-    return Container(
-      height: 140,
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
+  Widget _buildTopAppBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Left Info Panel
-          Expanded(
-            flex: 13,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF8B5CF6).withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Text(
-                      'Trip Active',
-                      style: TextStyle(
-                        color: Color(0xFF8B5CF6),
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          'Trip ID: ${controller.tripId}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      const Icon(
-                        Icons.copy_rounded,
-                        color: AppColors.textMuted,
-                        size: 14,
-                      ),
-                    ],
-                  ),
-
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.directions_bus_rounded,
-                        color: Color(0xFF3B82F6),
-                        size: 15,
-                      ),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          controller.vehicleName,
-                          style: const TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 12,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.person_outline_rounded,
-                        color: Color(0xFF10B981),
-                        size: 15,
-                      ),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          controller.driverName,
-                          style: const TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 12,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      GestureDetector(
-                        onTap: controller.callDriver,
-                        child: const Icon(
-                          Icons.phone_rounded,
-                          color: Color(0xFF10B981),
-                          size: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+          const CustomBackButton(),
+          const Text(
+            'Trip Dispatch Details',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
             ),
           ),
-
-          // Divider vertical line
-          Container(width: 1.2, height: double.infinity, color: AppColors.cardBorder),
-
-          // Right Mini Map View Layout representation
-          Expanded(
-            flex: 11,
-            child: Container(
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.only(topRight: Radius.circular(16), bottomRight: Radius.circular(16)),
-                color: Color(0xFF0F172A), // Dark map area
-              ),
-              child: CustomPaint(
-                painter: MiniMapPainter(),
-              ),
-            ),
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 22),
+            onPressed: () => controller.fetchTripDetails(),
+            tooltip: 'Refresh Specs',
           ),
         ],
       ),
     );
   }
 
-  Widget _buildRouteSummaryPanel() {
+  Widget _buildHeaderBanner(TripItemModel trip) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -305,46 +149,94 @@ class TripDetailsView extends GetView<TripDetailsController> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.cardBorder, width: 1.2),
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Vertical path stepper
-          Column(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(width: 10, height: 10, decoration: const BoxDecoration(color: Color(0xFF8B5CF6), shape: BoxShape.circle)),
-              Container(width: 1.5, height: 36, color: AppColors.cardBorder),
-              const Icon(Icons.location_on_rounded, color: Colors.redAccent, size: 18),
+              Expanded(
+                child: Row(
+                  children: [
+                    Text(
+                      trip.code,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    _buildStatusPill(trip.status),
+                  ],
+                ),
+              ),
             ],
           ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text('Start', style: TextStyle(color: AppColors.textMuted, fontSize: 9)),
-                SizedBox(height: 2),
-                Text('MG Road, Bengaluru', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                Text('08:10 AM', style: TextStyle(color: AppColors.textSecondary, fontSize: 10)),
-                SizedBox(height: 16),
-                Text('Destination', style: TextStyle(color: AppColors.textMuted, fontSize: 9)),
-                SizedBox(height: 2),
-                Text('Kempegowda Bus Station', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                Text('09:25 AM', style: TextStyle(color: AppColors.textSecondary, fontSize: 10)),
-              ],
+          const SizedBox(height: 4),
+          const Text(
+            'Live waypoint tracking, speed analytics, stops completed, and telemetry logs.',
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 11,
+              height: 1.3,
             ),
           ),
-          const SizedBox(width: 10),
-          // Route statistics specs details
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          const SizedBox(height: 14),
+          Row(
             children: [
-              _buildRouteStatText('18.6 km', 'Total Distance'),
-              const SizedBox(height: 12),
-              _buildRouteStatText('6.2 km (33%)', 'Distance Covered'),
-              const SizedBox(height: 12),
-              _buildRouteStatText('12.4 km', 'Distance Remaining'),
-              const SizedBox(height: 12),
-              _buildRouteStatText('18 mins', 'ETA', color: const Color(0xFF3B82F6)),
+              // Copy Trip ID Button
+              Expanded(
+                child: Obx(() => OutlinedButton.icon(
+                      onPressed: controller.copyTripId,
+                      icon: Icon(
+                        controller.isCopied.value ? Icons.check_rounded : Icons.copy_rounded,
+                        size: 14,
+                        color: controller.isCopied.value ? const Color(0xFF10B981) : Colors.white,
+                      ),
+                      label: Text(
+                        controller.isCopied.value ? 'Copied!' : trip.code,
+                        style: TextStyle(
+                          color: controller.isCopied.value ? const Color(0xFF10B981) : Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'monospace',
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                          color: controller.isCopied.value ? const Color(0xFF10B981) : AppColors.cardBorder,
+                        ),
+                        backgroundColor: const Color(0xFF141824),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    )),
+              ),
+              const SizedBox(width: 10),
+
+              // Live Radar Button
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: controller.openLiveRadar,
+                  icon: const Icon(Icons.radar_rounded, size: 16, color: Colors.white),
+                  label: const Text(
+                    'Live Radar',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2563EB),
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
             ],
           ),
         ],
@@ -352,72 +244,297 @@ class TripDetailsView extends GetView<TripDetailsController> {
     );
   }
 
-  Widget _buildRouteStatText(String value, String label, {Color color = Colors.white}) {
+  Widget _buildRouteSummaryCard(
+    TripItemModel trip,
+    double totalDist,
+    double covDist,
+    double remDist,
+    int progress,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF3B82F6),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'ROUTE SUMMARY & COVERAGE',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Origin and Destination Corridor
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0B0D14),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.cardBorder),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.gps_fixed_rounded, color: Color(0xFF10B981), size: 14),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Origin: ${trip.origin}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+                  child: Row(
+                    children: [
+                      Container(width: 1.5, height: 12, color: AppColors.cardBorder),
+                      const SizedBox(width: 10),
+                      const Icon(Icons.arrow_downward_rounded, size: 12, color: AppColors.textMuted),
+                    ],
+                  ),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.location_on_rounded, color: Color(0xFF3B82F6), size: 14),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Dest: ${trip.destination}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // 4 Stats (Total, Covered, Remaining, ETA)
+          GridView.count(
+            crossAxisCount: 2,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            childAspectRatio: 2.2,
+            children: [
+              _buildMiniMetric('TOTAL DISTANCE', '${totalDist.toStringAsFixed(1)} km', Colors.white),
+              _buildMiniMetric('COVERED', '${covDist.toStringAsFixed(1)} km ($progress%)', const Color(0xFF60A5FA)),
+              _buildMiniMetric('REMAINING', '${remDist.toStringAsFixed(1)} km', const Color(0xFFFBBF24)),
+              _buildMiniMetric('ETA', trip.eta, const Color(0xFF34D399)),
+            ],
+          ),
+          const SizedBox(height: 14),
+
+          // Progress Bar with Gradient
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Progress: $progress% Completed',
+                style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
+              ),
+              Text(
+                '${covDist.toStringAsFixed(1)} km of ${totalDist.toStringAsFixed(1)} km',
+                style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: LinearProgressIndicator(
+              value: (progress / 100.0).clamp(0.0, 1.0),
+              backgroundColor: const Color(0xFF1E212D),
+              valueColor: AlwaysStoppedAnimation<Color>(
+                trip.status == 'in_progress'
+                    ? const Color(0xFF10B981)
+                    : (trip.status == 'completed' ? const Color(0xFF3B82F6) : const Color(0xFFF59E0B)),
+              ),
+              minHeight: 8,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMiniMetric(String title, String val, Color valColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0E1118),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 8, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            val,
+            style: TextStyle(color: valColor, fontSize: 11, fontWeight: FontWeight.bold),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLiveStatsGauges(TripItemModel trip, String vehiclePlate) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(value, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.bold)),
-        Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 9)),
+        const Text(
+          'Live Statistics Gauges',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 10),
+        GridView.count(
+          crossAxisCount: 3,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 8,
+          crossAxisSpacing: 8,
+          childAspectRatio: 1.15,
+          children: [
+            _buildGaugeCard(
+              icon: Icons.speed_rounded,
+              title: 'CURRENT SPEED',
+              value: trip.currentSpeed != null
+                  ? '${trip.currentSpeed!.toStringAsFixed(0)} km/h'
+                  : (trip.status == 'completed' ? '0 km/h' : '—'),
+              valColor: Colors.white,
+            ),
+            _buildGaugeCard(
+              icon: Icons.bar_chart_rounded,
+              title: 'AVERAGE SPEED',
+              value: trip.avgSpeed != null ? '${trip.avgSpeed!.toStringAsFixed(0)} km/h' : '—',
+              valColor: Colors.white,
+            ),
+            _buildGaugeCard(
+              icon: Icons.timer_outlined,
+              title: 'PUNCTUALITY',
+              value: trip.punctualityStatus,
+              valColor: const Color(0xFF60A5FA),
+            ),
+            _buildGaugeCard(
+              icon: Icons.access_time_rounded,
+              title: 'STARTED AT',
+              value: trip.startedAt != null ? _formatTime(trip.startedAt!) : '—',
+              valColor: Colors.white,
+            ),
+            _buildGaugeCard(
+              icon: Icons.directions_bus_rounded,
+              title: 'ASSIGNED BUS',
+              value: vehiclePlate,
+              valColor: const Color(0xFF60A5FA),
+            ),
+            _buildGaugeCard(
+              icon: Icons.gps_fixed_rounded,
+              title: 'GPS STATUS',
+              value: (trip.vehicle?.gpsStatus ?? 'CONNECTED').toUpperCase(),
+              valColor: const Color(0xFF10B981),
+            ),
+          ],
+        ),
       ],
     );
   }
 
-  Widget _buildLiveStatsGrid() {
-    return GridView.count(
-      crossAxisCount: 3,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 10,
-      crossAxisSpacing: 10,
-      childAspectRatio: 1.25,
-      children: [
-        _buildStatCounter('42 km/h', 'Current Speed', Icons.speed_rounded, const Color(0xFF3B82F6)),
-        _buildStatCounter('36 km/h', 'Average Speed', Icons.speed_rounded, const Color(0xFF10B981)),
-        _buildStatCounter('68 km/h', 'Max Speed', Icons.speed_rounded, Colors.redAccent),
-        _buildStatCounter('08m 24s', 'Idle Time', Icons.hourglass_empty_rounded, Colors.orangeAccent),
-        _buildStatCounter('5', 'Stops Made', Icons.pause_circle_outline_rounded, Colors.amber),
-        _buildStatCounter('Strong', 'GPS Status', Icons.signal_cellular_alt_rounded, const Color(0xFF8B5CF6)),
-      ],
-    );
-  }
-
-  Widget _buildStatCounter(String value, String label, IconData icon, Color iconColor) {
+  Widget _buildGaugeCard({
+    required IconData icon,
+    required String title,
+    required String value,
+    required Color valColor,
+  }) {
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.cardBorder, width: 1.2),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: iconColor, size: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 2),
-              Text(
-                label,
-                style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+          Icon(icon, size: 18, color: AppColors.textSecondary),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: const TextStyle(
+              color: AppColors.textMuted,
+              fontSize: 7.5,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 2),
+          Text(
+            value,
+            style: TextStyle(
+              color: valColor,
+              fontSize: 10.5,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTimelinePanel() {
+  Widget _buildWaypointTimelineCard(TripItemModel trip, double covDist, int progress) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -426,49 +543,106 @@ class TripDetailsView extends GetView<TripDetailsController> {
         border: Border.all(color: AppColors.cardBorder, width: 1.2),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTimelineStep('08:10 AM', 'Trip Started', 'MG Road, Indiranagar', true, isFirst: true),
-          _buildTimelineStep('08:25 AM', 'Commercial Street', 'Bengaluru Central', true),
-          _buildTimelineStep('08:40 AM', 'Indiranagar', 'Bengaluru East', true),
-          _buildTimelineStep('09:05 AM', 'Current Location', 'Near 100 Feet Road', true, isActive: true),
-          _buildTimelineStep('09:25 AM', 'Destination', 'Kempegowda Bus Station', false, isLast: true),
+          Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF8B5CF6),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'TRIP WAYPOINT TIMELINE',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Chronological station checkpoints and voyage status.',
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 10.5),
+          ),
+          const SizedBox(height: 16),
+
+          // Waypoint 1: Origin
+          _buildTimelineItem(
+            time: trip.startedAt != null ? _formatTime(trip.startedAt!) : '08:00 AM',
+            statusBadge: 'Departed',
+            badgeBg: const Color(0xFF064E3B).withOpacity(0.3),
+            badgeColor: const Color(0xFF34D399),
+            title: 'Origin — ${trip.origin}',
+            subtitle: 'Trip initiated and passenger transit log enabled.',
+            icon: Icons.check_circle_rounded,
+            iconColor: const Color(0xFF10B981),
+            showLine: true,
+          ),
+
+          // Waypoint 2: Mid-way
+          _buildTimelineItem(
+            time: '$progress% En Route',
+            statusBadge: 'Waypoint',
+            badgeBg: const Color(0xFF1E212D),
+            badgeColor: AppColors.textSecondary,
+            title: 'Corridor Segment Tracking',
+            subtitle: 'Covered ${covDist.toStringAsFixed(1)} km • Speed: ${trip.currentSpeed?.toStringAsFixed(0) ?? trip.avgSpeed?.toStringAsFixed(0) ?? '35'} km/h',
+            icon: trip.status == 'completed' || progress >= 50 ? Icons.check_circle_rounded : Icons.radio_button_checked_rounded,
+            iconColor: trip.status == 'completed' || progress >= 50 ? const Color(0xFF10B981) : const Color(0xFF3B82F6),
+            showLine: true,
+          ),
+
+          // Waypoint 3: Destination
+          _buildTimelineItem(
+            time: trip.endedAt != null
+                ? _formatTime(trip.endedAt!)
+                : (trip.eta.isNotEmpty ? trip.eta : 'Scheduled Arrival'),
+            statusBadge: trip.status == 'completed' ? 'Arrived & Concluded' : 'Terminal Arrival',
+            badgeBg: trip.status == 'completed'
+                ? const Color(0xFF064E3B).withOpacity(0.3)
+                : const Color(0xFF1E212D),
+            badgeColor: trip.status == 'completed' ? const Color(0xFF34D399) : AppColors.textSecondary,
+            title: 'Destination — ${trip.destination}',
+            subtitle: 'Final corridor destination platform.',
+            icon: trip.status == 'completed' ? Icons.check_circle_rounded : Icons.location_on_rounded,
+            iconColor: trip.status == 'completed' ? const Color(0xFF10B981) : AppColors.textMuted,
+            showLine: false,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildTimelineStep(String time, String title, String subtitle, bool showLine, {bool isFirst = false, bool isLast = false, bool isActive = false}) {
-    Color pointColor = isFirst
-        ? const Color(0xFF8B5CF6)
-        : (isLast ? Colors.redAccent : (isActive ? const Color(0xFF3B82F6) : AppColors.textMuted));
-
+  Widget _buildTimelineItem({
+    required String time,
+    required String statusBadge,
+    required Color badgeBg,
+    required Color badgeColor,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color iconColor,
+    required bool showLine,
+  }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Column(
           children: [
-            Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(
-                color: pointColor,
-                shape: BoxShape.circle,
-                boxShadow: isActive
-                    ? [
-                        BoxShadow(
-                          color: const Color(0xFF3B82F6).withOpacity(0.4),
-                          blurRadius: 6,
-                          spreadRadius: 2,
-                        )
-                      ]
-                    : null,
-              ),
-            ),
+            Icon(icon, color: iconColor, size: 18),
             if (showLine)
               Container(
                 width: 1.5,
-                height: 48,
-                color: isActive ? const Color(0xFF3B82F6) : AppColors.cardBorder,
+                height: 38,
+                color: AppColors.cardBorder,
               ),
           ],
         ),
@@ -479,51 +653,50 @@ class TripDetailsView extends GetView<TripDetailsController> {
             children: [
               Row(
                 children: [
-                  Flexible(
-                    child: Text(
-                      title,
-                      style: TextStyle(
-                        color: isActive
-                            ? const Color(0xFF3B82F6)
-                            : Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  Text(
+                    time,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'monospace',
                     ),
                   ),
-
-                  const SizedBox(width: 8),
-
-                  Flexible(
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                    decoration: BoxDecoration(
+                      color: badgeBg,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
                     child: Text(
-                      time,
-                      style: const TextStyle(
-                        color: AppColors.textMuted,
-                        fontSize: 10,
+                      statusBadge,
+                      style: TextStyle(
+                        color: badgeColor,
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.end,
                     ),
                   ),
                 ],
               ),
-
               const SizedBox(height: 2),
-
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               Text(
                 subtitle,
                 style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 10,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
-
-              const SizedBox(height: 12),
+              if (showLine) const SizedBox(height: 10),
             ],
           ),
         ),
@@ -531,38 +704,93 @@ class TripDetailsView extends GetView<TripDetailsController> {
     );
   }
 
-  Widget _buildDriverInfoCard() {
+  Widget _buildDriverInfoCard(TripDriverInfo? driver) {
+    final driverName = driver?.name ?? 'No Driver Assigned';
+    final initial = driverName.isNotEmpty ? driverName[0].toUpperCase() : 'D';
+
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.cardBorder, width: 1.2),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: const BoxDecoration(color: Color(0xFF8B5CF6), shape: BoxShape.circle),
-            child: const Center(
-              child: Icon(Icons.person_rounded, color: Colors.white, size: 18),
+          const Text(
+            'ASSIGNED DRIVER',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 11.5,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
             ),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  controller.driverName,
-                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: const Color(0xFF1E3A8A).withOpacity(0.5),
+                child: Text(
+                  initial,
+                  style: const TextStyle(
+                    color: Color(0xFF60A5FA),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                const SizedBox(height: 2),
-                const Text('+91 98765 43210', style: TextStyle(color: AppColors.textSecondary, fontSize: 10)),
-                const SizedBox(height: 2),
-                const Text('KA01 2015 123456', style: TextStyle(color: AppColors.textMuted, fontSize: 9)),
-              ],
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      driverName,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      driver?.phone ?? 'No phone recorded',
+                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                    ),
+                    Text(
+                      driver?.badgeId.isNotEmpty == true ? driver!.badgeId : 'DL Validated',
+                      style: const TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 9.5,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: controller.callDriver,
+              icon: const Icon(Icons.call_rounded, size: 15, color: Colors.white),
+              label: Text(
+                'Call Driver (${driverName.split(' ')[0]})',
+                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1F2937),
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  side: const BorderSide(color: AppColors.cardBorder),
+                ),
+              ),
             ),
           ),
         ],
@@ -570,97 +798,235 @@ class TripDetailsView extends GetView<TripDetailsController> {
     );
   }
 
-  Widget _buildVehicleInfoCard() {
+  Widget _buildVehicleTelematicsCard(TripItemModel trip, String vehiclePlate) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'VEHICLE TELEMATICS',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 11.5,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildTelematicsRow('Vehicle Number:', vehiclePlate, isMono: true, isHighlight: true),
+          _buildTelematicsRow('Vehicle Type:', trip.vehicle?.vehicleType ?? 'Transit Bus'),
+          _buildTelematicsRow('Model:', trip.vehicle?.model ?? 'Commercial Transit'),
+          _buildTelematicsRow('GPS Tracker:', trip.vehicle?.gpsDeviceId ?? 'Active Onboard', isMono: true),
+          _buildTelematicsRow('Fuel / Propelled:', trip.vehicle?.fuelType ?? 'Electric / Diesel'),
+          _buildTelematicsRow(
+            'Ignition State:',
+            trip.status == 'completed' ? 'OFF' : 'ON',
+            valColor: trip.status == 'completed' ? AppColors.textMuted : const Color(0xFFF59E0B),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTelematicsRow(
+    String label,
+    String value, {
+    bool isMono = false,
+    bool isHighlight = false,
+    Color? valColor,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              color: valColor ?? (isHighlight ? const Color(0xFF60A5FA) : Colors.white),
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              fontFamily: isMono ? 'monospace' : null,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomActionBar(TripItemModel trip) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.cardBorder, width: 1.2),
       ),
       child: Column(
         children: [
-          _buildInfoTextRow('Vehicle Number', controller.vehicleName),
-          _buildInfoTextRow('Fleet Name', 'City Bus Fleet'),
-          _buildInfoTextRow('Vehicle Type', 'Volvo 8400 Electric'),
-          _buildInfoTextRow('GPS Device', 'GPS-TRK-00123'),
-          _buildInfoTextRow('Battery', '92%', suffixColor: const Color(0xFF10B981)),
-          _buildInfoTextRow('Ignition Status', 'ON', suffixColor: Colors.orangeAccent),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoTextRow(String label, String value, {Color suffixColor = Colors.white}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
-          Text(value, style: TextStyle(color: suffixColor, fontSize: 10, fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickActionItem(String title, IconData icon, Color color, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 60,
-        decoration: BoxDecoration(
-          color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.cardBorder, width: 1.2),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: color, size: 16),
-            const SizedBox(height: 6),
-            Text(
-              title,
-              style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
+          // Complete Trip button or Concluded Badge
+          if (trip.status != 'completed')
+            Obx(() => SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: controller.isEnding.value ? null : controller.completeTrip,
+                    icon: controller.isEnding.value
+                        ? const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
+                        : const Icon(Icons.check_circle_outline_rounded, size: 16, color: Colors.white),
+                    label: Text(
+                      controller.isEnding.value ? 'Completing Voyage...' : 'Complete Trip & Log Voyage',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2563EB),
+                      disabledBackgroundColor: const Color(0xFF1D4ED8).withOpacity(0.5),
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ))
+          else
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF064E3B).withOpacity(0.3),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFF059669).withOpacity(0.5)),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.check_circle_rounded, color: Color(0xFF34D399), size: 16),
+                  SizedBox(width: 8),
+                  Text(
+                    'Trip Concluded & Archived',
+                    style: TextStyle(
+                      color: Color(0xFF34D399),
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          const SizedBox(height: 10),
+
+          // Return to Trips Button
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: controller.returnToTrips,
+              icon: const Icon(Icons.arrow_back_rounded, size: 15, color: Colors.white),
+              label: const Text(
+                'View Full Trip History',
+                style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+              ),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: AppColors.cardBorder),
+                backgroundColor: const Color(0xFF141824),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
-}
 
-class MiniMapPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final linePaint = Paint()
-      ..color = const Color(0xFF1E293B)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0;
+  Widget _buildStatusPill(String status) {
+    Color bg;
+    Color border;
+    Color text;
+    String label;
+    bool showPulse = false;
 
-    canvas.drawLine(Offset(0, size.height * 0.3), Offset(size.width, size.height * 0.35), linePaint);
-    canvas.drawLine(Offset(0, size.height * 0.7), Offset(size.width, size.height * 0.65), linePaint);
-    canvas.drawLine(Offset(size.width * 0.5, 0), Offset(size.width * 0.45, size.height), linePaint);
+    switch (status) {
+      case 'in_progress':
+        bg = const Color(0xFF064E3B).withOpacity(0.3);
+        border = const Color(0xFF059669);
+        text = const Color(0xFF34D399);
+        label = 'In Progress';
+        showPulse = true;
+        break;
+      case 'completed':
+        bg = const Color(0xFF1E3A8A).withOpacity(0.3);
+        border = const Color(0xFF2563EB);
+        text = const Color(0xFF60A5FA);
+        label = 'Completed';
+        break;
+      case 'scheduled':
+      default:
+        bg = const Color(0xFF78350F).withOpacity(0.3);
+        border = const Color(0xFFD97706);
+        text = const Color(0xFFFBBF24);
+        label = 'Scheduled';
+        break;
+    }
 
-    final routePaint = Paint()
-      ..color = const Color(0xFF8B5CF6)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.5
-      ..strokeCap = StrokeCap.round;
-
-    final routePath = Path()
-      ..moveTo(size.width * 0.1, size.height * 0.8)
-      ..quadraticBezierTo(size.width * 0.4, size.height * 0.7, size.width * 0.5, size.height * 0.4)
-      ..lineTo(size.width * 0.9, size.height * 0.2);
-
-    canvas.drawPath(routePath, routePaint);
-
-    // Points
-    canvas.drawCircle(Offset(size.width * 0.1, size.height * 0.8), 4, Paint()..color = const Color(0xFF8B5CF6));
-    canvas.drawCircle(Offset(size.width * 0.9, size.height * 0.2), 5, Paint()..color = Colors.redAccent);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: border.withOpacity(0.6)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (showPulse) ...[
+            Container(
+              width: 5,
+              height: 5,
+              decoration: BoxDecoration(
+                color: text,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 5),
+          ],
+          Text(
+            label,
+            style: TextStyle(
+              color: text,
+              fontSize: 9.5,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  String _formatTime(String raw) {
+    try {
+      final dt = DateTime.parse(raw).toLocal();
+      final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
+      final amPm = dt.hour >= 12 ? 'PM' : 'AM';
+      final min = dt.minute.toString().padLeft(2, '0');
+      return '$hour:$min $amPm';
+    } catch (_) {
+      return raw;
+    }
+  }
 }

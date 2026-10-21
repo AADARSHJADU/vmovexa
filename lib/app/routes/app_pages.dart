@@ -122,6 +122,10 @@ import '../modules/roles/fleet_operator/route_details/views/route_details_view.d
 import '../modules/roles/fleet_operator/add_route/bindings/add_route_binding.dart';
 import '../modules/roles/fleet_operator/add_route/views/add_route_view.dart';
 
+import '../modules/roles/fleet_operator/gps_list/bindings/gps_list_binding.dart';
+import '../modules/roles/fleet_operator/gps_list/views/gps_list_view.dart';
+import '../modules/roles/fleet_operator/gps_details/bindings/gps_details_binding.dart';
+import '../modules/roles/fleet_operator/gps_details/views/gps_details_view.dart';
 import '../modules/roles/fleet_operator/add_gps/bindings/add_gps_binding.dart';
 import '../modules/roles/fleet_operator/add_gps/views/add_gps_view.dart';
 
@@ -137,8 +141,18 @@ import '../modules/roles/fleet_operator/setup_complete/views/setup_complete_view
 import '../modules/roles/fleet_operator/live_tracking/bindings/live_tracking_binding.dart';
 import '../modules/roles/fleet_operator/live_tracking/views/live_tracking_view.dart';
 
+import '../modules/roles/fleet_operator/trips_list/bindings/trips_list_binding.dart';
+import '../modules/roles/fleet_operator/trips_list/views/trips_list_view.dart';
+
 import '../modules/roles/fleet_operator/trip_details/bindings/trip_details_binding.dart';
 import '../modules/roles/fleet_operator/trip_details/views/trip_details_view.dart';
+
+import '../modules/roles/fleet_operator/technician_requests/bindings/technician_requests_binding.dart';
+import '../modules/roles/fleet_operator/technician_requests/views/technician_requests_view.dart';
+import '../modules/roles/fleet_operator/create_technician_request/bindings/create_technician_request_binding.dart';
+import '../modules/roles/fleet_operator/create_technician_request/views/create_technician_request_view.dart';
+import '../modules/roles/fleet_operator/technician_request_details/bindings/technician_request_details_binding.dart';
+import '../modules/roles/fleet_operator/technician_request_details/views/technician_request_details_view.dart';
 
 import '../modules/roles/fleet_operator/vehicle_details/bindings/vehicle_details_binding.dart';
 import '../modules/roles/fleet_operator/vehicle_details/views/vehicle_details_view.dart';
@@ -338,6 +352,18 @@ class AppPages {
       transition: Transition.rightToLeft,
     ),
     GetPage(
+      name: Routes.GPS_LIST,
+      page: () => const GpsListView(),
+      binding: GpsListBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.GPS_DETAILS,
+      page: () => const GpsDetailsView(),
+      binding: GpsDetailsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
       name: Routes.ADD_GPS,
       page: () => const AddGpsView(),
       binding: AddGpsBinding(),
@@ -368,9 +394,33 @@ class AppPages {
       transition: Transition.rightToLeft,
     ),
     GetPage(
+      name: Routes.FLEET_TRIPS,
+      page: () => const TripsListView(),
+      binding: TripsListBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
       name: Routes.TRIP_DETAILS,
       page: () => const TripDetailsView(),
       binding: TripDetailsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.TECHNICIAN_REQUESTS,
+      page: () => const TechnicianRequestsView(),
+      binding: TechnicianRequestsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.CREATE_TECHNICIAN_REQUEST,
+      page: () => const CreateTechnicianRequestView(),
+      binding: CreateTechnicianRequestBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.TECHNICIAN_REQUEST_DETAILS,
+      page: () => const TechnicianRequestDetailsView(),
+      binding: TechnicianRequestDetailsBinding(),
       transition: Transition.rightToLeft,
     ),
     GetPage(

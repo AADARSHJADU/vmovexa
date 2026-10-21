@@ -3,7 +3,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/theme/app_theme.dart';
 import '../../../../../routes/app_routes.dart';
-import '../../live_tracking/views/live_tracking_view.dart';
 import '../../../../../theme/app_colors.dart';
 
 class LiveMapView extends StatelessWidget {
@@ -364,4 +363,24 @@ class LiveMapView extends StatelessWidget {
       ],
     );
   }
+}
+
+class TrackingMapPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final gridPaint = Paint()
+      ..color = const Color(0xFF1E293B).withOpacity(0.4)
+      ..strokeWidth = 1.0;
+
+    const double step = 40.0;
+    for (double x = 0; x < size.width; x += step) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
+    }
+    for (double y = 0; y < size.height; y += step) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

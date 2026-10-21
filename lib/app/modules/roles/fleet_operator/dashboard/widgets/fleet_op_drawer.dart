@@ -183,7 +183,7 @@ class FleetOpDrawer extends StatelessWidget {
                     color: Colors.orangeAccent,
                     onTap: () {
                       Get.back();
-                      Get.toNamed(Routes.ADD_GPS);
+                      Get.toNamed(Routes.GPS_LIST);
                     },
                   ),
                   _buildDrawerItem(
@@ -201,7 +201,7 @@ class FleetOpDrawer extends StatelessWidget {
                     color: Colors.purpleAccent,
                     onTap: () {
                       Get.back();
-                      Get.toNamed(Routes.TRIP_DETAILS);
+                      Get.toNamed(Routes.FLEET_TRIPS);
                     },
                   ),
                   _buildDrawerItem(
@@ -210,7 +210,7 @@ class FleetOpDrawer extends StatelessWidget {
                     color: Colors.cyanAccent,
                     onTap: () {
                       Get.back();
-                      controller.openTechnicianDialog();
+                      Get.toNamed(Routes.TECHNICIAN_REQUESTS);
                     },
                   ),
                   _buildDrawerItem(

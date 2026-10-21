@@ -117,6 +117,17 @@ class VehicleItemModel {
   final List<String> photos;
   final double? speedKmh;
   final int? batterySocPct;
+  final String? driverPhone;
+  final String? driverEmpId;
+  final String? routePolyline;
+  final double? routeDistanceKm;
+  final int? routeDurationMin;
+  final double? startLatitude;
+  final double? startLongitude;
+  final String? edgeDeviceBoxId;
+  final int? heading;
+  final int? satellites;
+  final String? lastTelemetryAt;
   final String? createdAt;
   final String? updatedAt;
 
@@ -151,6 +162,17 @@ class VehicleItemModel {
     this.photos = const [],
     this.speedKmh,
     this.batterySocPct,
+    this.driverPhone,
+    this.driverEmpId,
+    this.routePolyline,
+    this.routeDistanceKm,
+    this.routeDurationMin,
+    this.startLatitude,
+    this.startLongitude,
+    this.edgeDeviceBoxId,
+    this.heading,
+    this.satellites,
+    this.lastTelemetryAt,
     this.createdAt,
     this.updatedAt,
   });
@@ -225,12 +247,34 @@ class VehicleItemModel {
       gpsDeviceId: json['gps_device_id']?.toString() ?? json['edge_device_id']?.toString() ?? json['gpsDevice']?['serial_number']?.toString(),
       documents: docs,
       photos: photoList,
-      speedKmh: (json['speed_kmh'] ?? json['speed']) != null ? double.tryParse((json['speed_kmh'] ?? json['speed']).toString()) : null,
-      batterySocPct: json['battery_soc_pct'] != null ? int.tryParse(json['battery_soc_pct'].toString()) : null,
+      speedKmh: (json['speed_kmh'] ?? json['speed'] ?? json['last_speed']) != null ? double.tryParse((json['speed_kmh'] ?? json['speed'] ?? json['last_speed']).toString()) : null,
+      batterySocPct: (json['battery_soc_pct'] ?? json['battery_level'] ?? json['battery']) != null ? int.tryParse((json['battery_soc_pct'] ?? json['battery_level'] ?? json['battery']).toString()) : null,
+      driverPhone: json['driver_phone']?.toString() ?? json['driver']?['phone']?.toString(),
+      driverEmpId: json['driver_emp_id']?.toString() ?? json['driver']?['emp_id']?.toString() ?? json['driver']?['badge_id']?.toString(),
+      routePolyline: json['polyline']?.toString() ?? json['route']?['polyline']?.toString(),
+      routeDistanceKm: (json['route_distance_km'] ?? json['route']?['distance_km'] ?? json['distance_km']) != null
+          ? double.tryParse((json['route_distance_km'] ?? json['route']?['distance_km'] ?? json['distance_km']).toString())
+          : null,
+      routeDurationMin: (json['route_duration_min'] ?? json['route']?['total_duration_min'] ?? json['total_duration_min']) != null
+          ? int.tryParse((json['route_duration_min'] ?? json['route']?['total_duration_min'] ?? json['total_duration_min']).toString())
+          : null,
+      startLatitude: (json['start_latitude'] ?? json['route']?['start_latitude'] ?? json['latitude'] ?? json['lat']) != null
+          ? double.tryParse((json['start_latitude'] ?? json['route']?['start_latitude'] ?? json['latitude'] ?? json['lat']).toString())
+          : null,
+      startLongitude: (json['start_longitude'] ?? json['route']?['start_longitude'] ?? json['longitude'] ?? json['lng']) != null
+          ? double.tryParse((json['start_longitude'] ?? json['route']?['start_longitude'] ?? json['longitude'] ?? json['lng']).toString())
+          : null,
+      edgeDeviceBoxId: json['box_id']?.toString() ?? json['edgeDevice']?['box_id']?.toString() ?? json['gpsDevice']?['box_id']?.toString() ?? json['gpsDevice']?['serial_number']?.toString(),
+      heading: (json['heading'] ?? json['bearing']) != null ? int.tryParse((json['heading'] ?? json['bearing']).toString()) : null,
+      satellites: (json['satellites'] ?? json['sat_count']) != null ? int.tryParse((json['satellites'] ?? json['sat_count']).toString()) : null,
+      lastTelemetryAt: json['last_telemetry_at']?.toString() ?? json['last_ping_at']?.toString(),
       createdAt: json['created_at']?.toString() ?? json['createdAt']?.toString(),
       updatedAt: json['updated_at']?.toString() ?? json['updatedAt']?.toString(),
     );
   }
+
+  String get busNumber => registrationNumber;
+  String get code => registrationNumber;
 
   static int _toInt(dynamic val) {
     if (val == null) return 0;

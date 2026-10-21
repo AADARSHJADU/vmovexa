@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import '../../../fleet_operator/assign_gps/views/assign_gps_view.dart';
+import '../../../../../widgets/dashed_border_painter.dart';
 import '../controllers/create_campaign_controller.dart';
 import '../../../../../widgets/custom_text_field.dart';
 import '../../../../../widgets/custom_button.dart';

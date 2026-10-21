@@ -4,6 +4,6 @@ import '../controllers/live_tracking_controller.dart';
 class LiveTrackingBinding extends Bindings {
   @override
   void dependencies() {
-    Get.put<LiveTrackingController>(LiveTrackingController());
+    Get.lazyPut<LiveTrackingController>(() => LiveTrackingController());
   }
 }

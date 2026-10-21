@@ -2,6 +2,10 @@ import 'package:get/get.dart';
 import '../constants/api_constants.dart';
 import '../models/api_response_model.dart';
 import '../models/fleet_models.dart';
+import '../models/gps_device_model.dart';
+import '../models/vehicle_telemetry_model.dart';
+import '../models/trip_models.dart';
+import '../models/work_order_model.dart';
 import 'http_client_service.dart';
 
 class FleetService extends GetxService {
@@ -280,6 +284,22 @@ class FleetService extends GetxService {
       ApiConstants.vehicleAssignGps(vehicleId),
       body: {'gpsDeviceId': gpsDeviceId, 'gps_device_id': gpsDeviceId},
       requiresAuth: true,
+    );
+  }
+
+  /// GET /vehicles/:id/telemetry
+  Future<ApiResponseModel<VehicleTelemetryModel>> getVehicleTelemetry(String id) async {
+    return _http.get<VehicleTelemetryModel>(
+      ApiConstants.vehicleTelemetry(id),
+      requiresAuth: true,
+      create: (data) {
+        if (data is Map<String, dynamic>) {
+          return VehicleTelemetryModel.fromJson(data);
+        } else if (data is Map) {
+          return VehicleTelemetryModel.fromJson(Map<String, dynamic>.from(data));
+        }
+        return VehicleTelemetryModel(vehicleId: id);
+      },
     );
   }
 
@@ -658,22 +678,83 @@ class FleetService extends GetxService {
   }
 
   /// GET /trips
-  Future<ApiResponseModel<dynamic>> getTrips({int page = 1, int limit = 20}) async {
-    return _http.get(
+  Future<ApiResponseModel<List<TripItemModel>>> getTrips({
+    int page = 1,
+    int limit = 20,
+    String search = '',
+    String status = '',
+  }) async {
+    final queryParams = <String, dynamic>{
+      'page': page,
+      'limit': limit,
+      if (search.isNotEmpty) 'search': search,
+      if (status.isNotEmpty && status.toLowerCase() != 'all') 'status': status,
+    };
+
+    return _http.get<List<TripItemModel>>(
       ApiConstants.trips,
-      queryParams: {'page': page, 'limit': limit},
+      queryParams: queryParams,
+      requiresAuth: true,
+      create: (data) {
+        if (data is List) {
+          return data
+              .whereType<Map>()
+              .map((item) => TripItemModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        } else if (data is Map && data['rows'] is List) {
+          return (data['rows'] as List)
+              .whereType<Map>()
+              .map((item) => TripItemModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        } else if (data is Map && data['items'] is List) {
+          return (data['items'] as List)
+              .whereType<Map>()
+              .map((item) => TripItemModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        }
+        return <TripItemModel>[];
+      },
+    );
+  }
+
+  /// GET /trips/:id
+  Future<ApiResponseModel<TripItemModel>> getTrip(String id) async {
+    return _http.get<TripItemModel>(
+      ApiConstants.tripOne(id),
+      requiresAuth: true,
+      create: (data) {
+        if (data is Map<String, dynamic>) {
+          return TripItemModel.fromJson(data);
+        } else if (data is Map && data['rows'] is List && (data['rows'] as List).isNotEmpty) {
+          return TripItemModel.fromJson(Map<String, dynamic>.from(data['rows'][0]));
+        } else if (data is Map && data['data'] is Map) {
+          return TripItemModel.fromJson(Map<String, dynamic>.from(data['data']));
+        } else if (data is Map) {
+          return TripItemModel.fromJson(Map<String, dynamic>.from(data));
+        }
+        return TripItemModel(id: id, code: 'TRIP-$id');
+      },
+    );
+  }
+
+  /// PATCH /trips/:id/end
+  Future<ApiResponseModel<dynamic>> endTrip(String id) async {
+    return _http.patch(
+      ApiConstants.tripEnd(id),
+      body: {'status': 'completed'},
       requiresAuth: true,
     );
   }
 
-  /// GET /gps-devices
-  Future<ApiResponseModel<dynamic>> getGpsDevices({int page = 1, int limit = 20}) async {
-    return _http.get(
-      ApiConstants.gpsDevices,
-      queryParams: {'page': page, 'limit': limit},
+  /// POST /trips
+  Future<ApiResponseModel<dynamic>> createTrip(Map<String, dynamic> data) async {
+    return _http.post(
+      ApiConstants.trips,
+      body: data,
       requiresAuth: true,
     );
   }
+
 
   /// GET /incidents
   Future<ApiResponseModel<dynamic>> getIncidents({int page = 1, int limit = 20}) async {
@@ -706,6 +787,193 @@ class FleetService extends GetxService {
     return _http.get(
       ApiConstants.contentPage(type),
       queryParams: {'role': role},
+      requiresAuth: true,
+    );
+  }
+
+  // ==================== GPS / EDGE TRACKING DEVICES ====================
+
+  /// GET /gps-devices
+  Future<ApiResponseModel<List<GpsDeviceModel>>> getGpsDevices({
+    int page = 1,
+    int limit = 50,
+    String search = '',
+    String status = '',
+  }) async {
+    final queryParams = <String, dynamic>{
+      'page': page,
+      'limit': limit,
+      if (search.isNotEmpty) 'search': search,
+      if (status.isNotEmpty && status.toLowerCase() != 'all') 'status': status,
+    };
+
+    return _http.get<List<GpsDeviceModel>>(
+      ApiConstants.gpsDevices,
+      queryParams: queryParams,
+      requiresAuth: true,
+      create: (data) {
+        if (data is List) {
+          return data
+              .whereType<Map>()
+              .map((item) => GpsDeviceModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        } else if (data is Map && data['rows'] is List) {
+          return (data['rows'] as List)
+              .whereType<Map>()
+              .map((item) => GpsDeviceModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        } else if (data is Map && data['items'] is List) {
+          return (data['items'] as List)
+              .whereType<Map>()
+              .map((item) => GpsDeviceModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        }
+        return <GpsDeviceModel>[];
+      },
+    );
+  }
+
+  /// GET /gps-devices/:id
+  Future<ApiResponseModel<GpsDeviceModel>> getGpsDevice(String id) async {
+    return _http.get<GpsDeviceModel>(
+      ApiConstants.gpsDeviceOne(id),
+      requiresAuth: true,
+      create: (data) => GpsDeviceModel.fromJson(
+        data is Map ? Map<String, dynamic>.from(data) : {},
+      ),
+    );
+  }
+
+  /// POST /gps-devices
+  Future<ApiResponseModel<dynamic>> createGpsDevice(Map<String, dynamic> data) async {
+    return _http.post(
+      ApiConstants.gpsDevices,
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// PATCH /gps-devices/:id
+  Future<ApiResponseModel<dynamic>> updateGpsDevice(String id, Map<String, dynamic> data) async {
+    return _http.patch(
+      ApiConstants.gpsDeviceOne(id),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /gps-devices/:id/assign
+  Future<ApiResponseModel<dynamic>> assignGpsVehicle(String id, dynamic vehicleId) async {
+    return _http.post(
+      ApiConstants.gpsDeviceAssign(id),
+      body: {'vehicleId': vehicleId},
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /gps-devices/:id/approve
+  Future<ApiResponseModel<dynamic>> approveGpsDevice(String id) async {
+    return _http.post(
+      ApiConstants.gpsDeviceApprove(id),
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /gps-devices/:id/reject
+  Future<ApiResponseModel<dynamic>> rejectGpsDevice(String id, String reason) async {
+    return _http.post(
+      ApiConstants.gpsDeviceReject(id),
+      body: {'reason': reason},
+      requiresAuth: true,
+    );
+  }
+
+  /// DELETE /gps-devices/:id
+  Future<ApiResponseModel<dynamic>> deleteGpsDevice(String id) async {
+    return _http.delete(
+      ApiConstants.gpsDeviceOne(id),
+      requiresAuth: true,
+    );
+  }
+
+  // ==================== WORK ORDERS & TECHNICIAN REQUESTS ====================
+
+  /// GET /work-orders
+  Future<ApiResponseModel<List<WorkOrderModel>>> getWorkOrders({
+    int page = 1,
+    int limit = 20,
+    String search = '',
+    String urgency = '',
+    String status = '',
+  }) async {
+    final queryParams = <String, dynamic>{
+      'page': page,
+      'limit': limit,
+      if (search.isNotEmpty) 'search': search,
+      if (urgency.isNotEmpty && urgency.toLowerCase() != 'all') 'urgency': urgency,
+      if (status.isNotEmpty && status.toLowerCase() != 'all') 'status': status,
+    };
+
+    return _http.get<List<WorkOrderModel>>(
+      ApiConstants.workOrders,
+      queryParams: queryParams,
+      requiresAuth: true,
+      create: (data) {
+        if (data is List) {
+          return data
+              .whereType<Map>()
+              .map((item) => WorkOrderModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        } else if (data is Map && data['rows'] is List) {
+          return (data['rows'] as List)
+              .whereType<Map>()
+              .map((item) => WorkOrderModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        } else if (data is Map && data['items'] is List) {
+          return (data['items'] as List)
+              .whereType<Map>()
+              .map((item) => WorkOrderModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        }
+        return <WorkOrderModel>[];
+      },
+    );
+  }
+
+  /// GET /work-orders/:id
+  Future<ApiResponseModel<WorkOrderModel>> getWorkOrder(String id) async {
+    return _http.get<WorkOrderModel>(
+      ApiConstants.workOrderOne(id),
+      requiresAuth: true,
+      create: (data) {
+        if (data is Map<String, dynamic>) {
+          return WorkOrderModel.fromJson(data);
+        } else if (data is Map && data['rows'] is List && (data['rows'] as List).isNotEmpty) {
+          return WorkOrderModel.fromJson(Map<String, dynamic>.from(data['rows'][0]));
+        } else if (data is Map && data['data'] is Map) {
+          return WorkOrderModel.fromJson(Map<String, dynamic>.from(data['data']));
+        } else if (data is Map) {
+          return WorkOrderModel.fromJson(Map<String, dynamic>.from(data));
+        }
+        return WorkOrderModel(id: id, code: 'WO-$id');
+      },
+    );
+  }
+
+  /// POST /work-orders
+  Future<ApiResponseModel<dynamic>> createWorkOrder(Map<String, dynamic> data) async {
+    return _http.post(
+      ApiConstants.workOrders,
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// PATCH /work-orders/:id
+  Future<ApiResponseModel<dynamic>> updateWorkOrder(String id, Map<String, dynamic> data) async {
+    return _http.patch(
+      ApiConstants.workOrderOne(id),
+      body: data,
       requiresAuth: true,
     );
   }
