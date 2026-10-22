@@ -69,9 +69,13 @@ abstract class Routes {
   static const CREATE_TECHNICIAN_REQUEST = '/create-technician-request';
   static const TECHNICIAN_REQUEST_DETAILS = '/technician-request-details';
   static const VEHICLE_DETAILS = '/vehicle-details';
+  static const FLEET_INCIDENTS = '/fleet-incidents';
+  static const FLEET_INCIDENT_DETAILS = '/fleet-incident-details';
+  static const FLEET_REPORT_INCIDENT = '/fleet-report-incident';
   static const NOTIFICATIONS_LIST = '/notifications-list';
   static const TRIP_REPORT = '/trip-report';
   static const VEHICLE_ANALYTICS = '/vehicle-analytics';
+  static const ACTIVITY_LOGS = '/activity-logs';
   static const ACCOUNT_SETTINGS = '/account-settings';
   static const SECURITY_SETTINGS = '/security-settings';
   static const NOTIFICATION_SETTINGS = '/notification-settings';

@@ -268,29 +268,7 @@ class FleetOpDashboardController extends GetxController {
   }
 
   void openActivityLogsDialog() {
-    Get.defaultDialog(
-      title: 'Audit & Activity Logs',
-      titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-      backgroundColor: AppColors.cardBg,
-      radius: 14,
-      content: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Column(
-          children: [
-            _buildDialogItem('Trip #TRP-8891 Dispatched', 'Bus MP09-CV-9821 started Route 7A • 10m ago', Icons.history_rounded, const Color(0xFF10B981)),
-            const SizedBox(height: 8),
-            _buildDialogItem('Driver Ramesh Assigned to Bus', 'Shift: Morning • 45m ago', Icons.badge_outlined, Colors.lightBlueAccent),
-            const SizedBox(height: 8),
-            _buildDialogItem('New Vehicle Registered', 'Tata Starbus EV MP09-EV-1109 • 2h ago', Icons.directions_bus_rounded, Colors.purpleAccent),
-          ],
-        ),
-      ),
-      confirm: ElevatedButton(
-        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1)),
-        onPressed: () => Get.back(),
-        child: const Text('Close', style: TextStyle(color: Colors.white)),
-      ),
-    );
+    Get.toNamed(Routes.ACTIVITY_LOGS);
   }
 
   Widget _buildDialogItem(String title, String subtitle, IconData icon, Color color) {

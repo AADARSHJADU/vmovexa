@@ -103,13 +103,21 @@ class ApiConstants {
 
   static const String incidents = '/incidents';
   static String incidentOne(String id) => '/incidents/$id';
+  static String incidentStatus(String id) => '/incidents/$id/status';
+  static String incidentResolution(String id) => '/incidents/$id/resolution';
 
   static const String workOrders = '/work-orders';
   static String workOrderOne(String id) => '/work-orders/$id';
 
-  static const String activityLogs = '/users/activity';
+  static const String activityLogs = '/activity-logs';
+  static const String activityLogsCategories = '/activity-logs/categories';
+  static const String activityLogsFilters = '/activity-logs/filters';
+  static String activityLogOne(String id) => '/activity-logs/$id';
   static const String notifications = '/notifications';
   static const String notificationSettings = '/notifications/settings';
+  static String notificationRead(String id) => '/notifications/$id/read';
+  static const String notificationReadAll = '/notifications/read-all';
+  static String notificationDelete(String id) => '/notifications/$id';
 
   // Google APIs & Telematics Proxy
   static const String googlePlacesDemo = '/google-apis/demo/places';

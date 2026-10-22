@@ -503,6 +503,7 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
       {'title': 'Drivers', 'icon': Icons.badge_outlined, 'color': const Color(0xFF10B981), 'onTap': controller.goToDrivers},
       {'title': 'Trips', 'icon': Icons.schedule_rounded, 'color': Colors.purpleAccent, 'onTap': controller.goToTrips},
       {'title': 'Tracking', 'icon': Icons.my_location_rounded, 'color': Colors.pinkAccent, 'onTap': controller.goToLiveTracking},
+      {'title': 'Emergency', 'icon': Icons.warning_amber_rounded, 'color': Colors.redAccent, 'onTap': () => Get.toNamed(Routes.FLEET_INCIDENTS)},
       {'title': 'GPS', 'icon': Icons.memory_rounded, 'color': Colors.amberAccent, 'onTap': controller.goToGpsDevices},
       {'title': 'Reports', 'icon': Icons.bar_chart_rounded, 'color': Colors.tealAccent, 'onTap': controller.goToReports},
     ];

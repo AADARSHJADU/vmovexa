@@ -6,6 +6,9 @@ import '../models/gps_device_model.dart';
 import '../models/vehicle_telemetry_model.dart';
 import '../models/trip_models.dart';
 import '../models/work_order_model.dart';
+import '../models/incident_model.dart';
+import '../models/activity_log_model.dart';
+import '../models/notification_model.dart';
 import 'http_client_service.dart';
 
 class FleetService extends GetxService {
@@ -757,10 +760,73 @@ class FleetService extends GetxService {
 
 
   /// GET /incidents
-  Future<ApiResponseModel<dynamic>> getIncidents({int page = 1, int limit = 20}) async {
-    return _http.get(
+  Future<ApiResponseModel<List<IncidentItemModel>>> getIncidents({
+    int page = 1,
+    int limit = 20,
+    String? status,
+    String? severity,
+    String? search,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'page': page,
+      'limit': limit,
+      if (status != null && status.isNotEmpty && status != 'ALL') 'status': status,
+      if (severity != null && severity.isNotEmpty && severity != 'ALL') 'severity': severity,
+      if (search != null && search.isNotEmpty) 'search': search,
+    };
+    return _http.get<List<IncidentItemModel>>(
       ApiConstants.incidents,
-      queryParams: {'page': page, 'limit': limit},
+      queryParams: queryParams,
+      requiresAuth: true,
+      create: (data) {
+        if (data is List) {
+          return data.map((item) => IncidentItemModel.fromJson(Map<String, dynamic>.from(item))).toList();
+        } else if (data is Map && data['rows'] is List) {
+          return (data['rows'] as List).map((item) => IncidentItemModel.fromJson(Map<String, dynamic>.from(item))).toList();
+        } else if (data is Map && data['items'] is List) {
+          return (data['items'] as List).map((item) => IncidentItemModel.fromJson(Map<String, dynamic>.from(item))).toList();
+        } else if (data is Map && data['incidents'] is List) {
+          return (data['incidents'] as List).map((item) => IncidentItemModel.fromJson(Map<String, dynamic>.from(item))).toList();
+        }
+        return <IncidentItemModel>[];
+      },
+    );
+  }
+
+  /// GET /incidents/:id
+  Future<ApiResponseModel<IncidentItemModel>> getIncidentById(String id) async {
+    return _http.get<IncidentItemModel>(
+      ApiConstants.incidentOne(id),
+      requiresAuth: true,
+      create: (data) => IncidentItemModel.fromJson(
+        data is Map ? Map<String, dynamic>.from(data) : {},
+      ),
+    );
+  }
+
+  /// POST /incidents
+  Future<ApiResponseModel<dynamic>> createIncident(Map<String, dynamic> data) async {
+    return _http.post(
+      ApiConstants.incidents,
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// PATCH /incidents/:id/resolution
+  Future<ApiResponseModel<dynamic>> updateIncidentResolution(String id, Map<String, dynamic> data) async {
+    return _http.patch(
+      ApiConstants.incidentResolution(id),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// PATCH /incidents/:id/status
+  Future<ApiResponseModel<dynamic>> updateIncidentStatus(String id, String status) async {
+    return _http.patch(
+      ApiConstants.incidentStatus(id),
+      body: {'status': status},
       requiresAuth: true,
     );
   }
@@ -974,6 +1040,123 @@ class FleetService extends GetxService {
     return _http.patch(
       ApiConstants.workOrderOne(id),
       body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /activity-logs
+  Future<ApiResponseModel<ActivityLogsResult>> getActivityLogs({
+    int page = 1,
+    int limit = 10,
+    String? search,
+    String? category,
+    String? event,
+    String? severity,
+    String? startDate,
+    String? endDate,
+    String? sortBy,
+    String? sortOrder,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'page': page,
+      'limit': limit,
+      if (search != null && search.isNotEmpty) 'search': search,
+      if (category != null && category != 'All') 'category': category,
+      if (event != null && event != 'All') 'event': event,
+      if (severity != null && severity != 'All') 'severity': severity,
+      if (startDate != null && startDate.isNotEmpty) 'startDate': startDate,
+      if (endDate != null && endDate.isNotEmpty) 'endDate': endDate,
+      if (sortBy != null && sortBy.isNotEmpty) 'sortBy': sortBy,
+      if (sortOrder != null && sortOrder.isNotEmpty) 'sortOrder': sortOrder,
+    };
+
+    return _http.get<ActivityLogsResult>(
+      ApiConstants.activityLogs,
+      queryParams: queryParams,
+      requiresAuth: true,
+      create: (data) => ActivityLogsResult.fromJson(data),
+    );
+  }
+
+  /// GET /activity-logs/categories
+  Future<ApiResponseModel<List<String>>> getActivityCategories() async {
+    return _http.get<List<String>>(
+      ApiConstants.activityLogsCategories,
+      requiresAuth: true,
+      create: (data) {
+        if (data is List) return data.map((e) => e.toString()).toList();
+        if (data is Map && data['categories'] is List) {
+          return (data['categories'] as List).map((e) => e.toString()).toList();
+        }
+        return <String>[];
+      },
+    );
+  }
+
+  /// GET /activity-logs/filters
+  Future<ApiResponseModel<Map<String, dynamic>>> getActivityFilters() async {
+    return _http.get<Map<String, dynamic>>(
+      ApiConstants.activityLogsFilters,
+      requiresAuth: true,
+      create: (data) => data is Map ? Map<String, dynamic>.from(data) : {},
+    );
+  }
+
+  /// GET /notifications
+  Future<ApiResponseModel<List<AppNotificationModel>>> getNotifications({
+    int page = 1,
+    int limit = 50,
+  }) async {
+    return _http.get<List<AppNotificationModel>>(
+      ApiConstants.notifications,
+      queryParams: {'page': page, 'limit': limit},
+      requiresAuth: true,
+      create: (data) {
+        if (data is List) {
+          return data
+              .map((e) => AppNotificationModel.fromJson(Map<String, dynamic>.from(e as Map)))
+              .toList();
+        } else if (data is Map && (data['rows'] is List || data['items'] is List || data['notifications'] is List)) {
+          final list = (data['rows'] ?? data['items'] ?? data['notifications']) as List;
+          return list
+              .map((e) => AppNotificationModel.fromJson(Map<String, dynamic>.from(e as Map)))
+              .toList();
+        }
+        return <AppNotificationModel>[];
+      },
+    );
+  }
+
+  /// POST /notifications/:id/read
+  Future<ApiResponseModel<dynamic>> markNotificationRead(String id) async {
+    return _http.post(
+      ApiConstants.notificationRead(id),
+      body: {},
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /notifications/read-all
+  Future<ApiResponseModel<dynamic>> markAllNotificationsRead() async {
+    return _http.post(
+      ApiConstants.notificationReadAll,
+      body: {},
+      requiresAuth: true,
+    );
+  }
+
+  /// DELETE /notifications/:id
+  Future<ApiResponseModel<dynamic>> deleteNotification(String id) async {
+    return _http.delete(
+      ApiConstants.notificationDelete(id),
+      requiresAuth: true,
+    );
+  }
+
+  /// DELETE /notifications
+  Future<ApiResponseModel<dynamic>> clearAllNotifications() async {
+    return _http.delete(
+      ApiConstants.notifications,
       requiresAuth: true,
     );
   }

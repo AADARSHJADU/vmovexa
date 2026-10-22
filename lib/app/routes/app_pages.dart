@@ -157,6 +157,11 @@ import '../modules/roles/fleet_operator/technician_request_details/views/technic
 import '../modules/roles/fleet_operator/vehicle_details/bindings/vehicle_details_binding.dart';
 import '../modules/roles/fleet_operator/vehicle_details/views/vehicle_details_view.dart';
 
+import '../modules/roles/fleet_operator/emergency_incidents/bindings/emergency_incidents_binding.dart';
+import '../modules/roles/fleet_operator/emergency_incidents/views/emergency_incidents_list_view.dart';
+import '../modules/roles/fleet_operator/emergency_incidents/views/emergency_incident_details_view.dart';
+import '../modules/roles/fleet_operator/emergency_incidents/views/report_incident_view.dart';
+
 import '../modules/roles/fleet_operator/notifications/bindings/notifications_binding.dart';
 import '../modules/roles/fleet_operator/notifications/views/notifications_view.dart';
 
@@ -165,6 +170,9 @@ import '../modules/roles/fleet_operator/trip_report/views/trip_report_view.dart'
 
 import '../modules/roles/fleet_operator/vehicle_analytics/bindings/vehicle_analytics_binding.dart';
 import '../modules/roles/fleet_operator/vehicle_analytics/views/vehicle_analytics_view.dart';
+
+import '../modules/roles/fleet_operator/activity_logs/bindings/activity_logs_binding.dart';
+import '../modules/roles/fleet_operator/activity_logs/views/activity_logs_view.dart';
 
 import '../modules/roles/fleet_operator/account_settings/bindings/account_settings_binding.dart';
 import '../modules/roles/fleet_operator/account_settings/views/account_settings_view.dart';
@@ -430,6 +438,22 @@ class AppPages {
       transition: Transition.rightToLeft,
     ),
     GetPage(
+      name: Routes.FLEET_INCIDENTS,
+      page: () => const EmergencyIncidentsListView(),
+      binding: EmergencyIncidentsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.FLEET_INCIDENT_DETAILS,
+      page: () => const EmergencyIncidentDetailsView(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.FLEET_REPORT_INCIDENT,
+      page: () => const ReportIncidentView(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
       name: Routes.NOTIFICATIONS_LIST,
       page: () => const NotificationsView(),
       binding: NotificationsBinding(),
@@ -445,6 +469,12 @@ class AppPages {
       name: Routes.VEHICLE_ANALYTICS,
       page: () => const VehicleAnalyticsView(),
       binding: VehicleAnalyticsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.ACTIVITY_LOGS,
+      page: () => const ActivityLogsView(),
+      binding: ActivityLogsBinding(),
       transition: Transition.rightToLeft,
     ),
     GetPage(

@@ -219,7 +219,7 @@ class FleetOpDrawer extends StatelessWidget {
                     color: Colors.redAccent,
                     onTap: () {
                       Get.back();
-                      controller.openIncidentsDialog();
+                      Get.toNamed(Routes.FLEET_INCIDENTS);
                     },
                   ),
 
@@ -241,7 +241,7 @@ class FleetOpDrawer extends StatelessWidget {
                     color: const Color(0xFF06B6D4),
                     onTap: () {
                       Get.back();
-                      controller.openActivityLogsDialog();
+                      Get.toNamed(Routes.ACTIVITY_LOGS);
                     },
                   ),
                   _buildDrawerItem(
