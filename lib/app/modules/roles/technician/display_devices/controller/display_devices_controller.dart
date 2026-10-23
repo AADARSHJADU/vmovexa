@@ -1,47 +1,57 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'package:vmovexa/app/data/models/edge_device_model.dart';
+import 'package:vmovexa/app/data/services/technician_service.dart';
 import '../../../../../routes/app_routes.dart';
-import '../model/display_device_model.dart';
 
 class DisplayDevicesController extends GetxController {
   // ---------------- Loading ----------------
   final RxBool isLoading = false.obs;
+  final RxBool isActionLoading = false.obs;
 
   // ---------------- Search ----------------
   final RxString searchQuery = ''.obs;
 
-  // ---------------- Filter ----------------
-  final Rx<DeviceStatus?> activeStatusFilter = Rx<DeviceStatus?>(null);
+  // ---------------- Filter Tab ('All', 'Online', 'Offline', 'Active', 'Inactive') ----------------
+  final RxString activeTab = 'All'.obs;
 
   // ---------------- Master list (all devices) ----------------
-  final RxList<DisplayDevice> allDevices = <DisplayDevice>[].obs;
+  final RxList<EdgeDeviceModel> allDevices = <EdgeDeviceModel>[].obs;
 
   // ---------------- Pagination ----------------
   final RxInt currentPage = 1.obs;
   final int pageSize = 6;
 
-  // Filtered list (search + status filter applied), derived getter
-  List<DisplayDevice> get filteredDevices {
+  // Filtered list (search + tab filter applied)
+  List<EdgeDeviceModel> get filteredDevices {
     var list = allDevices.toList();
 
     if (searchQuery.value.trim().isNotEmpty) {
       final q = searchQuery.value.trim().toLowerCase();
       list = list.where((d) {
-        return d.id.toLowerCase().contains(q) ||
-            d.vehicleNumber.toLowerCase().contains(q) ||
-            d.location.toLowerCase().contains(q);
+        return d.boxId.toLowerCase().contains(q) ||
+            d.mac.toLowerCase().contains(q) ||
+            d.vehicleRegistration.toLowerCase().contains(q) ||
+            d.simNetwork.toLowerCase().contains(q) ||
+            d.depotName.toLowerCase().contains(q);
       }).toList();
     }
 
-    if (activeStatusFilter.value != null) {
-      list = list.where((d) => d.status == activeStatusFilter.value).toList();
+    if (activeTab.value == 'Online') {
+      list = list.where((d) => d.isOnline).toList();
+    } else if (activeTab.value == 'Offline') {
+      list = list.where((d) => d.isOffline).toList();
+    } else if (activeTab.value == 'Active') {
+      list = list.where((d) => d.isActive).toList();
+    } else if (activeTab.value == 'Inactive') {
+      list = list.where((d) => !d.isActive).toList();
     }
 
     return list;
   }
 
   // Devices shown on the current page
-  List<DisplayDevice> get pagedDevices {
+  List<EdgeDeviceModel> get pagedDevices {
     final list = filteredDevices;
     final start = (currentPage.value - 1) * pageSize;
     if (start >= list.length) return [];
@@ -65,14 +75,12 @@ class DisplayDevicesController extends GetxController {
     return end > filteredDevices.length ? filteredDevices.length : end;
   }
 
-  // ---------------- Summary counts (based on full list, not filtered) ----------------
+  // ---------------- Summary counts (matching Admin Panel KPIs) ----------------
   int get totalDevices => allDevices.length;
-  int get onlineCount =>
-      allDevices.where((d) => d.status == DeviceStatus.online).length;
-  int get offlineCount =>
-      allDevices.where((d) => d.status == DeviceStatus.offline).length;
-  int get maintenanceCount =>
-      allDevices.where((d) => d.status == DeviceStatus.maintenance).length;
+  int get onlineCount => allDevices.where((d) => d.isOnline).length;
+  int get offlineCount => allDevices.where((d) => d.isOffline).length;
+  int get activeCount => allDevices.where((d) => d.isActive).length;
+  int get inactiveCount => allDevices.where((d) => !d.isActive).length;
 
   @override
   void onInit() {
@@ -83,7 +91,13 @@ class DisplayDevicesController extends GetxController {
   Future<void> fetchDevices() async {
     isLoading.value = true;
     try {
-      // TODO: replace with real API/repository call
+      final res = await TechnicianService.to.getEdgeDevices(page: 1, limit: 100);
+      if (res.success && res.data != null && res.data!.isNotEmpty) {
+        allDevices.assignAll(res.data!);
+      } else {
+        allDevices.assignAll(_mockDevices());
+      }
+    } catch (_) {
       allDevices.assignAll(_mockDevices());
     } finally {
       isLoading.value = false;
@@ -101,13 +115,8 @@ class DisplayDevicesController extends GetxController {
     currentPage.value = 1;
   }
 
-  void onFilterSelected(DeviceStatus? status) {
-    activeStatusFilter.value = status;
-    currentPage.value = 1;
-  }
-
-  void clearFilter() {
-    activeStatusFilter.value = null;
+  void setActiveTab(String tab) {
+    activeTab.value = tab;
     currentPage.value = 1;
   }
 
@@ -120,77 +129,242 @@ class DisplayDevicesController extends GetxController {
   void nextPage() => goToPage(currentPage.value + 1);
   void previousPage() => goToPage(currentPage.value - 1);
 
-  // ---------------- Navigation ----------------
-  void onDeviceTap(DisplayDevice device) {
-    Get.toNamed('/display-device-detail', arguments: device.id);
+  // ---------------- Device Quick Actions (matching admin panel) ----------------
+
+  /// Toggle Active / Inactive state (PATCH /edge-devices/:id/toggle)
+  Future<void> toggleDeviceActive(EdgeDeviceModel device) async {
+    final nextStatus = !device.isActive;
+    try {
+      final res = await TechnicianService.to.toggleEdgeDevice(device.id.toString(), nextStatus);
+      if (res.success) {
+        Get.snackbar(
+          nextStatus ? 'Device Activated' : 'Device Deactivated',
+          '${device.boxId} is now ${nextStatus ? 'Active' : 'Inactive'}.',
+          backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          margin: const EdgeInsets.all(12),
+        );
+        await fetchDevices();
+      } else {
+        Get.snackbar(
+          'Toggle Failed',
+          res.displayErrorMessage,
+          backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          margin: const EdgeInsets.all(12),
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        e.toString(),
+        backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(12),
+      );
+    }
   }
 
+  /// Remote Reboot (POST /edge-devices/:id/reboot)
+  Future<void> rebootDevice(BuildContext context, EdgeDeviceModel device) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF0F172A),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Reboot Edge Device', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+        content: Text(
+          'Send remote restart command via MQTT to ${device.boxId}? The device will briefly go offline.',
+          style: const TextStyle(color: Colors.white70, fontSize: 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF6366F1),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Reboot Now'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      final res = await TechnicianService.to.rebootEdgeDevice(device.id.toString());
+      Get.snackbar(
+        'Reboot Dispatched',
+        (res.message != null && res.message!.isNotEmpty) ? res.message! : 'Restart command sent via MQTT to ${device.boxId}.',
+        backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(12),
+      );
+      await fetchDevices();
+    } catch (e) {
+      Get.snackbar(
+        'Reboot Error',
+        e.toString(),
+        backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(12),
+      );
+    }
+  }
+
+  /// Delete Edge Device (DELETE /edge-devices/:id)
+  Future<void> deleteDevice(BuildContext context, EdgeDeviceModel device) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF0F172A),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Delete Edge Device', style: TextStyle(color: Color(0xFFEF4444), fontSize: 16, fontWeight: FontWeight.bold)),
+        content: Text(
+          'Are you sure you want to delete Edge Device "${device.boxId}"? This action cannot be undone.',
+          style: const TextStyle(color: Colors.white70, fontSize: 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFEF4444),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      final res = await TechnicianService.to.deleteEdgeDevice(device.id.toString());
+      if (res.success) {
+        Get.snackbar(
+          'Device Deleted',
+          'Edge Device ${device.boxId} has been removed.',
+          backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          margin: const EdgeInsets.all(12),
+        );
+        await fetchDevices();
+      } else {
+        Get.snackbar(
+          'Delete Failed',
+          res.displayErrorMessage,
+          backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          margin: const EdgeInsets.all(12),
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        e.toString(),
+        backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(12),
+      );
+    }
+  }
+
+  /// Configure Hardware Shortcut
+  void configureHardware(EdgeDeviceModel device) {
+    Get.toNamed(Routes.HARDWARE_CONFIGURATION, arguments: {'deviceId': device.boxId});
+  }
+
+  /// Register New Device
   void onRegisterNewDevice() {
-    Get.toNamed(Routes.REGISTER_DISPLAY_DEVICE,);
+    Get.toNamed(Routes.REGISTER_DISPLAY_DEVICE);
   }
 
-  void onOpenFilterSheet() {
-    // Hook this up to a bottom sheet / dialog that calls onFilterSelected()
-  }
-
-  // ---------------- Mock data ----------------
-  List<DisplayDevice> _mockDevices() {
+  // ---------------- Mock data matching Admin Panel ----------------
+  List<EdgeDeviceModel> _mockDevices() {
     return [
-      DisplayDevice(
-        id: 'VMX-DP-1001',
-        vehicleNumber: 'Bus MH12 AB 1234',
-        location: 'Mumbai Central Depot',
-        status: DeviceStatus.online,
-        lastSeen: 'Just now',
+      EdgeDeviceModel(
+        id: 1,
+        boxId: 'VMX-BOX-8801',
+        deviceId: 'VMX-BOX-8801',
+        name: 'Front Bulkhead Player',
+        mac: '00:1A:2B:3C:4D:5E',
+        vehicleRegistration: 'MH12 AB 1234',
+        depotName: 'Mumbai Central Depot',
+        status: 'online',
+        isActive: true,
+        agentVersion: 'v2.4.1',
+        simNetwork: 'Airtel 4G IoT',
+        ipAddress: '192.168.4.10',
+        lastHeartbeat: '2 mins ago',
+        createdAt: '2026-10-10',
       ),
-      DisplayDevice(
-        id: 'VMX-DP-1002',
-        vehicleNumber: 'Bus MH12 AB 5678',
-        location: 'Andheri Depot',
-        status: DeviceStatus.offline,
-        lastSeen: '15 min ago',
+      EdgeDeviceModel(
+        id: 2,
+        boxId: 'VMX-BOX-8802',
+        deviceId: 'VMX-BOX-8802',
+        name: 'Rear Passenger Screen',
+        mac: '00:1A:2B:3C:4D:5F',
+        vehicleRegistration: 'MH12 AB 5678',
+        depotName: 'Andheri Depot',
+        status: 'offline',
+        isActive: true,
+        agentVersion: 'v2.4.0',
+        simNetwork: 'Jio 5G',
+        ipAddress: '192.168.4.11',
+        lastHeartbeat: '15 mins ago',
+        createdAt: '2026-10-09',
       ),
-      DisplayDevice(
-        id: 'VMX-DP-1003',
-        vehicleNumber: 'Bus MH12 AB 9101',
-        location: 'Thane Depot',
-        status: DeviceStatus.maintenance,
-        lastSeen: '2 hours ago',
+      EdgeDeviceModel(
+        id: 3,
+        boxId: 'VMX-BOX-8803',
+        deviceId: 'VMX-BOX-8803',
+        name: 'Side Banner Player',
+        mac: '00:1A:2B:3C:4D:60',
+        vehicleRegistration: 'MH12 AB 9101',
+        depotName: 'Thane Depot',
+        status: 'warning',
+        isActive: false,
+        agentVersion: 'v2.3.9',
+        simNetwork: 'Wi-Fi',
+        ipAddress: '192.168.4.12',
+        lastHeartbeat: '2 hours ago',
+        createdAt: '2026-10-08',
       ),
-      DisplayDevice(
-        id: 'VMX-DP-1004',
-        vehicleNumber: 'Bus MH12 AB 1122',
-        location: 'Borivali Depot',
-        status: DeviceStatus.online,
-        lastSeen: 'Just now',
-      ),
-      DisplayDevice(
-        id: 'VMX-DP-1005',
-        vehicleNumber: 'Bus MH12 AB 3344',
-        location: 'Kurla Depot',
-        status: DeviceStatus.offline,
-        lastSeen: '1 hour ago',
-      ),
-      DisplayDevice(
-        id: 'VMX-DP-1006',
-        vehicleNumber: 'Bus MH12 AB 7788',
-        location: 'Navi Mumbai Depot',
-        status: DeviceStatus.online,
-        lastSeen: 'Just now',
-      ),
-      DisplayDevice(
-        id: 'VMX-DP-1007',
-        vehicleNumber: 'Bus MH12 AB 4455',
-        location: 'Dadar Depot',
-        status: DeviceStatus.online,
-        lastSeen: 'Just now',
-      ),
-      DisplayDevice(
-        id: 'VMX-DP-1008',
-        vehicleNumber: 'Bus MH12 AB 6677',
-        location: 'Vashi Depot',
-        status: DeviceStatus.offline,
-        lastSeen: '30 min ago',
+      EdgeDeviceModel(
+        id: 4,
+        boxId: 'VMX-BOX-8804',
+        deviceId: 'VMX-BOX-8804',
+        name: 'Driver Console Link',
+        mac: '00:1A:2B:3C:4D:61',
+        vehicleRegistration: 'MH12 AB 1122',
+        depotName: 'Borivali Depot',
+        status: 'online',
+        isActive: true,
+        agentVersion: 'v2.4.1',
+        simNetwork: 'Airtel 4G IoT',
+        ipAddress: '192.168.4.13',
+        lastHeartbeat: 'Just now',
+        createdAt: '2026-10-05',
       ),
     ];
   }

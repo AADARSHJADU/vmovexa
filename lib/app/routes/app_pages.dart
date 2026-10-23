@@ -59,6 +59,8 @@ import '../modules/roles/technician/profile/view/profile_view.dart';
 import '../modules/roles/technician/edit_profile/bindings/edit_profile_binding.dart';
 import '../modules/roles/technician/edit_profile/view/edit_profile_view.dart';
 import '../modules/roles/technician/technician_dashboard/view/technician_dashboard_view.dart';
+import '../modules/roles/technician/work_orders/bindings/tech_work_orders_binding.dart';
+import '../modules/roles/technician/work_orders/views/tech_work_orders_view.dart';
 import 'app_routes.dart';
 
 import '../modules/splash/bindings/splash_binding.dart';
@@ -573,6 +575,12 @@ class AppPages {
       name: Routes.TECHNICIAN_DASHBOARD,
       page: () => const TechnicianDashboardView(),
       binding: TechnicianDashboardBindings(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.TECHNICIAN_WORK_ORDERS,
+      page: () => const TechWorkOrdersView(),
+      binding: TechWorkOrdersBinding(),
       transition: Transition.rightToLeft,
     ),
     GetPage(

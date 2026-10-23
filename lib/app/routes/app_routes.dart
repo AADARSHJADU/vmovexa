@@ -95,6 +95,7 @@ abstract class Routes {
 
   //technician flow routes
   static const TECHNICIAN_DASHBOARD = '/technician-dashboard';
+  static const TECHNICIAN_WORK_ORDERS = '/technician-work-orders';
   static const REGISTER_DISPLAY_DEVICE = '/register-display-device';
   static const HARDWARE_CONFIGURATION = '/hardware-configuration';
   static const GPS_INSTALLATION = '/gps-installation';

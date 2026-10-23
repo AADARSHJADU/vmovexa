@@ -11,274 +11,240 @@ class NetworkSettingsTab extends GetView<HardwareConfigController> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       children: [
-        _buildNetworkStatusCard(),
+        _buildCurrentNetworkStatusCard(),
         const SizedBox(height: 16),
-        _buildProxySettingsCard(),
+        _buildPrivacyProxyCard(),
         const SizedBox(height: 16),
-        const InfoNoteBanner(),
+        const InfoNoteBanner(text: 'Changes will be applied to the device over the air after saving.'),
       ],
     );
   }
 
-  Widget _buildNetworkStatusCard() {
-    return SectionCard(
-      icon: Icons.wifi,
-      title: 'Network Status',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Obx(
-            () => Container(
+  // ---------------- Current Network Status Card ----------------
+  Widget _buildCurrentNetworkStatusCard() {
+    return Obx(() {
+      final dev = controller.selectedDevice.value;
+      final isOnline = dev?.isOnline ?? true;
+
+      return SectionCard(
+        icon: Icons.wifi,
+        title: 'Current Network Status',
+        trailingBadge: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(
+            color: (isOnline ? kGreen : kRed).withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: (isOnline ? kGreen : kRed).withValues(alpha: 0.4)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isOnline ? kGreen : kRed,
+                ),
+              ),
+              const SizedBox(width: 5),
+              Text(
+                isOnline ? 'Connected' : 'Disconnected',
+                style: TextStyle(
+                  color: isOnline ? kGreen : kRed,
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Real-time connection telemetry and IP addressing',
+              style: TextStyle(color: Colors.white38, fontSize: 11),
+            ),
+            const SizedBox(height: 14),
+
+            // 4 Telemetry Pills
+            Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: kFieldBg,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white.withOpacity(0.06)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
               ),
-              child: Row(
+              child: GridView.count(
+                crossAxisCount: 2,
+                childAspectRatio: 2.3,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: (controller.isNetworkConnected.value ? kGreen : Colors.redAccent).withOpacity(0.15),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.wifi,
-                      color: controller.isNetworkConnected.value ? kGreen : Colors.redAccent,
-                      size: 18,
-                    ),
+                  _telemetryItem('Connection Type:', controller.networkType.value, Colors.white),
+                  _telemetryItem(
+                    'SSID Network:',
+                    controller.ssidCtrl.text.isNotEmpty ? controller.ssidCtrl.text : 'VMOVEXA_DEPOT_5G',
+                    Colors.white,
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          controller.isNetworkConnected.value ? 'Connected' : 'Disconnected',
-                          style: TextStyle(
-                            color: controller.isNetworkConnected.value ? kGreen : Colors.redAccent,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        const Text(
-                          'Your device is connected to the network and communicating with the server.',
-                          style: TextStyle(color: Colors.white38, fontSize: 10),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: controller.isTestingConnection.value ? null : controller.onRunConnectionTest,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: kPurple.withOpacity(0.5)),
-                      ),
-                      child: controller.isTestingConnection.value
-                          ? const SizedBox(
-                              width: 14,
-                              height: 14,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: kPurple),
-                            )
-                          : const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.podcasts, color: kPurple, size: 13),
-                                SizedBox(width: 4),
-                                Text('Connection Test',
-                                    style: TextStyle(color: kPurple, fontSize: 10.5, fontWeight: FontWeight.w700)),
-                              ],
-                            ),
-                    ),
+                  _telemetryItem('Local IP Address:', controller.ipAddress.value, const Color(0xFF60A5FA)),
+                  _telemetryItem(
+                    'SIM Network:',
+                    dev?.simNetwork ?? 'Jio 5G',
+                    kGreen,
                   ),
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Obx(
-            () => SettingDropdownRow(
-              icon: Icons.wifi_tethering,
-              label: 'Connection Type',
-              value: controller.connectionType.value,
-              items: controller.connectionTypeOptions,
-              onChanged: controller.setConnectionType,
-            ),
-          ),
-          const ThinDivider(),
-          Obx(
-            () => NavRow(
-              icon: Icons.wifi,
-              label: 'Wi-Fi Network (SSID)',
-              value: controller.wifiSsid.value,
-              onTap: controller.onWifiNetworkTap,
-            ),
-          ),
-          const ThinDivider(),
-          Obx(() => InfoKeyValueRow(icon: Icons.dns_outlined, label: 'IP Address', value: controller.ipAddress.value)),
-          const ThinDivider(),
-          Obx(() => InfoKeyValueRow(icon: Icons.router_outlined, label: 'Subnet Mask', value: controller.subnetMask.value)),
-          const ThinDivider(),
-          Obx(() => InfoKeyValueRow(icon: Icons.alt_route_outlined, label: 'Gateway', value: controller.gateway.value)),
-          const ThinDivider(),
-          Obx(() => InfoKeyValueRow(icon: Icons.dns, label: 'DNS Server', value: controller.dnsServer.value)),
-          const ThinDivider(),
-          Obx(
-            () => InfoKeyValueRow(
-              icon: Icons.signal_cellular_alt,
-              label: 'Signal Strength',
-              value: 'Excellent (${controller.signalStrengthPercent.value}%)',
-            ),
-          ),
-          const ThinDivider(),
-          Obx(() => InfoKeyValueRow(icon: Icons.perm_device_information_outlined, label: 'MAC Address', value: controller.macAddress.value)),
-          const ThinDivider(),
-          Obx(() => InfoKeyValueRow(icon: Icons.access_time, label: 'Last Connected', value: controller.lastConnected.value)),
-        ],
-      ),
-    );
-  }
+            const SizedBox(height: 16),
 
-  Widget _buildProxySettingsCard() {
-    return SectionCard(
-      icon: Icons.public,
-      title: 'Proxy Settings',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Obx(
-            () => SettingToggleRow(
-              icon: Icons.vpn_lock_outlined,
-              label: 'Use Proxy',
-              value: controller.useProxy.value,
-              onChanged: controller.toggleUseProxy,
+            // Network Interface Dropdown
+            SettingDropdownRow(
+              icon: Icons.settings_ethernet,
+              label: 'Network Interface *',
+              value: controller.networkType.value,
+              items: controller.networkTypeOptions,
+              onChanged: controller.setNetworkType,
             ),
-          ),
-          Obx(() {
-            if (!controller.useProxy.value) return const SizedBox();
-            return Column(
+            const SizedBox(height: 14),
+
+            // Wi-Fi SSID input
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 14),
-                _LabeledDropdown(
-                  label: 'Proxy Type',
-                  hint: 'Select proxy type',
-                  value: controller.proxyType.value.isEmpty ? null : controller.proxyType.value,
-                  items: controller.proxyTypeOptions,
-                  onChanged: controller.setProxyType,
+                const Text(
+                  'Wi-Fi SSID',
+                  style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600),
                 ),
-                const SizedBox(height: 14),
-                _LabeledTextField(
-                  label: 'Proxy Address',
-                  controller: controller.proxyAddressCtrl,
-                  hint: 'Enter address',
-                ),
-                const SizedBox(height: 14),
-                _LabeledTextField(
-                  label: 'Proxy Port',
-                  controller: controller.proxyPortCtrl,
-                  hint: 'Enter port',
-                  keyboardType: TextInputType.number,
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: kFieldBg,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                  ),
+                  child: TextField(
+                    controller: controller.ssidCtrl,
+                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      isDense: true,
+                      hintText: 'Enter Wi-Fi SSID network',
+                      hintStyle: TextStyle(color: Colors.white30, fontSize: 12),
+                    ),
+                  ),
                 ),
               ],
-            );
-          }),
-        ],
-      ),
-    );
+            ),
+          ],
+        ),
+      );
+    });
   }
-}
 
-// =====================================================================
-// Local helper widgets for the proxy form fields
-// =====================================================================
-class _LabeledDropdown extends StatelessWidget {
-  final String label;
-  final String hint;
-  final String? value;
-  final List<String> items;
-  final ValueChanged<String?> onChanged;
-
-  const _LabeledDropdown({
-    required this.label,
-    required this.hint,
-    required this.value,
-    required this.items,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _telemetryItem(String label, String value, Color valueColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600)),
-        const SizedBox(height: 6),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: kFieldBg,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.white.withOpacity(0.08)),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: value,
-              isExpanded: true,
-              dropdownColor: kFieldBg,
-              icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white38, size: 20),
-              hint: Text(hint, style: const TextStyle(color: Colors.white30, fontSize: 12.5)),
-              style: const TextStyle(color: Colors.white, fontSize: 13),
-              items: items.map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(),
-              onChanged: onChanged,
-            ),
-          ),
+        Text(label, style: const TextStyle(color: Colors.white38, fontSize: 10.5)),
+        const SizedBox(height: 2),
+        Text(
+          value.isNotEmpty ? value : '—',
+          style: TextStyle(color: valueColor, fontSize: 12, fontWeight: FontWeight.w700),
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );
   }
-}
 
-class _LabeledTextField extends StatelessWidget {
-  final String label;
-  final TextEditingController controller;
-  final String hint;
-  final TextInputType? keyboardType;
+  // ---------------- Privacy & Enterprise Proxy Card ----------------
+  Widget _buildPrivacyProxyCard() {
+    return Obx(
+      () => SectionCard(
+        icon: Icons.shield_outlined,
+        title: 'Privacy & Enterprise Proxy',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Route media downloads and telemetry through corporate proxies',
+              style: TextStyle(color: Colors.white38, fontSize: 11),
+            ),
+            const SizedBox(height: 14),
+            SettingToggleRow(
+              icon: Icons.vpn_lock_outlined,
+              label: 'Enable Corporate Peer Proxy',
+              subtitle: 'Use encrypted transit VPN tunnels for all outbound requests',
+              value: controller.peerProxy.value,
+              onChanged: controller.togglePeerProxy,
+            ),
+            if (controller.peerProxy.value) ...[
+              const SizedBox(height: 14),
+              SettingDropdownRow(
+                icon: Icons.alt_route,
+                label: 'Proxy Protocol',
+                value: controller.proxyType.value,
+                items: controller.proxyTypeOptions,
+                onChanged: controller.setProxyType,
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: _buildTextInput(
+                      label: 'Proxy Host',
+                      hint: 'proxy.vmovexa.internal',
+                      controller: controller.proxyHostCtrl,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    flex: 1,
+                    child: _buildTextInput(
+                      label: 'Port',
+                      hint: '8080',
+                      controller: controller.proxyPortCtrl,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
 
-  const _LabeledTextField({
-    required this.label,
-    required this.controller,
-    required this.hint,
-    this.keyboardType,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildTextInput({required String label, required String hint, required TextEditingController controller}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600)),
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600),
+        ),
         const SizedBox(height: 6),
         Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
             color: kFieldBg,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.white.withOpacity(0.08)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
           ),
           child: TextField(
             controller: controller,
-            keyboardType: keyboardType,
-            style: const TextStyle(color: Colors.white, fontSize: 13),
+            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
             decoration: InputDecoration(
               border: InputBorder.none,
               isDense: true,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               hintText: hint,
-              hintStyle: const TextStyle(color: Colors.white30, fontSize: 12.5),
+              hintStyle: const TextStyle(color: Colors.white30, fontSize: 12),
             ),
           ),
         ),

@@ -1,151 +1,98 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:vmovexa/app/modules/roles/technician/display_devices/view/display_devices_view.dart';
+import 'package:vmovexa/app/data/constants/api_constants.dart';
+import 'package:vmovexa/app/data/models/work_order_model.dart';
+import 'package:vmovexa/app/data/models/edge_device_model.dart';
+import 'package:vmovexa/app/data/services/storage_service.dart';
+import 'package:vmovexa/app/data/services/technician_service.dart';
+import 'package:vmovexa/app/modules/roles/technician/technician_dashboard/controller/technician_dashboard_controller.dart';
+import 'package:vmovexa/app/modules/roles/technician/work_orders/views/work_order_resolution_sheet.dart';
 import '../../../../../routes/app_routes.dart';
-import '../model/home_models.dart';
 
 class HomeController extends GetxController {
   // ---------------- Sync status ----------------
   final RxBool isSynced = true.obs;
   final RxString lastSyncedText = 'Just now'.obs;
 
-  // ---------------- Technician name ----------------
-  final RxString technicianName = 'Technician'.obs;
-
   // ---------------- Loading state ----------------
   final RxBool isLoading = false.obs;
 
-  // ---------------- Bottom nav ----------------
-  final RxInt currentNavIndex = 0.obs;
+  // ---------------- Technician Profile Info ----------------
+  final RxString technicianName = 'Technician'.obs;
+  final RxString technicianEmail = ''.obs;
+  final RxString technicianRole = 'Central Field Technician'.obs;
+  final RxString depotName = 'Central Depot'.obs;
+  final RxString badgeId = 'TECH-001'.obs;
+  final RxString avatarUrl = ''.obs;
 
-  // ---------------- Stats (Offline / Online / Issues) ----------------
-  final RxList<DeviceStat> deviceStats = <DeviceStat>[].obs;
+  // ---------------- Live KPIs (matching admin panel metrics) ----------------
+  final RxInt onlineDevicesCount = 0.obs;
+  final RxInt offlineDevicesCount = 0.obs;
+  final RxInt issuesDevicesCount = 0.obs;
+  final RxInt totalDevicesCount = 0.obs;
 
-  // ---------------- Quick actions grid ----------------
-  final RxList<QuickAction> quickActions = <QuickAction>[].obs;
-
-  // ---------------- Today's tasks ----------------
-  final RxList<DashboardTask> todaysTasks = <DashboardTask>[].obs;
+  // ---------------- Today's Tasks / Field Work Orders ----------------
+  final RxList<WorkOrderModel> todaysWorkOrders = <WorkOrderModel>[].obs;
 
   @override
   void onInit() {
     super.onInit();
+    _loadUserProfile();
     fetchDashboardData();
+  }
+
+  void _loadUserProfile() {
+    if (Get.isRegistered<StorageService>()) {
+      final user = StorageService.to.getUser();
+      if (user != null) {
+        technicianName.value = (user.name != null && user.name!.isNotEmpty) ? user.name! : 'Technician';
+        technicianEmail.value = user.email ?? '';
+        final rawRole = user.role;
+        technicianRole.value = (rawRole != null && rawRole.isNotEmpty)
+            ? rawRole.replaceAll('ROLE-', '').replaceAll('-', ' ')
+            : 'Central Field Technician';
+        depotName.value = user.organizationName ?? 'Central Depot';
+        badgeId.value = user.code ?? user.enrollmentNo ?? (user.id != null ? 'TECH-${user.id}' : 'TECH-001');
+        avatarUrl.value = ApiConstants.resolveFileUrl(user.avatarUrl);
+      }
+    }
   }
 
   Future<void> fetchDashboardData() async {
     isLoading.value = true;
     try {
-      // TODO: replace with real API/repository calls
-      _loadDeviceStats();
-      _loadQuickActions();
-      _loadTodaysTasks();
+      _loadUserProfile();
+      await Future.wait([
+        _fetchDeviceKpis(),
+        _fetchTodaysWorkOrders(),
+      ]);
       _refreshSyncStatus();
+    } catch (_) {
     } finally {
       isLoading.value = false;
     }
   }
 
-  void _loadDeviceStats() {
-    deviceStats.assignAll([
-      DeviceStat(
-        count: '5',
-        title: 'Offline Devices',
-        subtitle: 'Needs Attention',
-        color: const Color(0xFFFF4D4D),
-        icon: Icons.warning_amber_rounded,
-      ),
-      DeviceStat(
-        count: '18',
-        title: 'Online Devices',
-        subtitle: 'All Good',
-        color: const Color(0xFF2ECC71),
-        icon: Icons.check_circle_outline,
-      ),
-      DeviceStat(
-        count: '3',
-        title: 'Devices with Issues',
-        subtitle: 'Action Required',
-        color: const Color(0xFFFFA726),
-        icon: Icons.error_outline,
-      ),
-    ]);
+  Future<void> _fetchDeviceKpis() async {
+    try {
+      final res = await TechnicianService.to.getEdgeDevices(page: 1, limit: 100);
+      if (res.success && res.data != null) {
+        final List<EdgeDeviceModel> list = res.data!;
+        totalDevicesCount.value = list.length;
+        onlineDevicesCount.value = list.where((d) => d.status == 'online').length;
+        offlineDevicesCount.value = list.where((d) => d.status == 'offline').length;
+        issuesDevicesCount.value = list.where((d) => d.hasIssues).length;
+      }
+    } catch (_) {}
   }
 
-  void _loadQuickActions() {
-    quickActions.assignAll([
-      QuickAction(
-        title: 'Display Devices',
-        subtitle: 'Register & Manage Display Devices',
-        icon: 'assets/icons/advertiser_ic/tv.svg',
-        color: const Color(0xFFB042FF),
-        route: Routes.REGISTER_DISPLAY_DEVICE,
-      ),
-      QuickAction(
-        title: 'Hardware Configuration',
-        subtitle: 'Configure Hardware Settings',
-        icon: 'assets/icons/fleet_operator_icons/profileHeaderSettingA.svg',
-        color: const Color(0xFF3FA9F5),
-        route: Routes.HARDWARE_CONFIGURATION,
-      ),
-      QuickAction(
-        title: 'GPS Installation',
-        subtitle: 'Install and Assign GPS Devices',
-        icon: 'assets/icons/location.svg',
-        color: const Color(0xFF2EE6C7),
-        route: Routes.GPS_INSTALLATION,
-      ),
-      QuickAction(
-        title: 'Device Diagnostics',
-        subtitle: 'Run Diagnostics and Check Health',
-        icon: 'assets/icons/doctor.svg',
-        color: const Color(0xFFFF3D9A),
-        route: Routes.DEVICE_DIAGNOSTICS,
-      ),
-      QuickAction(
-        title: 'Hardware Status',
-        subtitle: 'Monitor Hardware Status',
-        icon: 'assets/icons/monitor_heart.svg',
-        color: const Color(0xFFFFA726),
-        route: Routes.HARDWARE_STATUS,
-      ),
-      QuickAction(
-        title: 'Connectivity Troubleshooting',
-        subtitle: 'Troubleshoot Connectivity Issues',
-        icon: 'assets/icons/hotspot.svg',
-        color: const Color(0xFF7C6FF0),
-        route: Routes.CONNECTIVITY_TROUBLESHOOTING,
-      ),
-    ]);
-  }
-
-  void _loadTodaysTasks() {
-    todaysTasks.assignAll([
-      DashboardTask(
-        id: 'task_1',
-        title: 'Register new display device',
-        subtitle: 'Bus MH12 AB 1234',
-        icon: 'assets/icons/advertiser_ic/tv.svg',
-        iconColor: const Color(0xFFB042FF),
-        status: TaskStatus.pending,
-      ),
-      DashboardTask(
-        id: 'task_2',
-        title: 'Install GPS device',
-        subtitle: 'Vehicle MH12 AB 5678',
-        icon: 'assets/icons/location.svg',
-        iconColor: const Color(0xFF3FA9F5),
-        status: TaskStatus.pending,
-      ),
-      DashboardTask(
-        id: 'task_3',
-        title: 'Check offline device',
-        subtitle: 'Device ID: VMX-DP-1023',
-        icon: 'assets/icons/fleet_operator_icons/maintainceReminderA.svg',
-        iconColor: const Color(0xFFFFA726),
-        status: TaskStatus.inProgress,
-      ),
-    ]);
+  Future<void> _fetchTodaysWorkOrders() async {
+    try {
+      final res = await TechnicianService.to.getMyWorkOrders(page: 1, limit: 10);
+      if (res.success && res.data != null) {
+        todaysWorkOrders.assignAll(res.data!);
+      }
+    } catch (_) {}
   }
 
   void _refreshSyncStatus() {
@@ -153,45 +100,58 @@ class HomeController extends GetxController {
     lastSyncedText.value = 'Just now';
   }
 
-  // ---------------- Actions ----------------
+  // ---------------- Actions & Navigation ----------------
 
-  void onStatCardTap(DeviceStat stat) {
-    // Navigate to relevant device list filtered by this stat
-    // Get.toNamed('/devices', arguments: {'filter': stat.title});
+  void openDrawer() {
+    if (Get.isRegistered<TechnicianDashboardController>()) {
+      Get.find<TechnicianDashboardController>().openDrawer();
+    }
   }
 
-  void onQuickActionTap(QuickAction action) {
-    print('action-=--$action');
-    Get.toNamed(action.route);
-  }
-
-  void onTaskTap(DashboardTask task) {
-    Get.toNamed('/task-detail', arguments: task.id);
+  void goToNotifications() {
+    Get.toNamed(Routes.ALERT_NOTIFICATION);
   }
 
   void onViewAllTasks() {
-    Get.toNamed('/tasks');
+    if (Get.isRegistered<TechnicianDashboardController>()) {
+      Get.find<TechnicianDashboardController>().onNavItemTapped(1); // Field Work Orders tab
+    }
   }
 
-  void onNavTap(int index) {
-    currentNavIndex.value = index;
-    switch (index) {
-      case 0:
-        // already on dashboard/home
-        break;
-      case 1:
-        Get.toNamed('/display-devices');
-        break;
-      case 2:
-        Get.toNamed('/device-diagnostics');
-        break;
-      case 3:
-        Get.toNamed('/hardware-status');
-        break;
-      case 4:
-        Get.toNamed('/more');
-        break;
+  void goToEdgeDevicesTab() {
+    if (Get.isRegistered<TechnicianDashboardController>()) {
+      Get.find<TechnicianDashboardController>().onNavItemTapped(2); // Edge Devices tab
     }
+  }
+
+  void goToHardwareConfigTab() {
+    if (Get.isRegistered<TechnicianDashboardController>()) {
+      Get.find<TechnicianDashboardController>().onNavItemTapped(3); // Hardware Config tab
+    }
+  }
+
+  void goToGpsInstallation() {
+    Get.toNamed(Routes.GPS_INSTALLATION);
+  }
+
+  void goToDiagnostics() {
+    Get.toNamed(Routes.DEVICE_DIAGNOSTICS);
+  }
+
+  void goToConnectivity() {
+    Get.toNamed(Routes.CONNECTIVITY_TROUBLESHOOTING);
+  }
+
+  void goToHardwareStatus() {
+    Get.toNamed(Routes.HARDWARE_STATUS);
+  }
+
+  void onTaskTap(BuildContext context, WorkOrderModel order) {
+    WorkOrderResolutionSheet.show(
+      context,
+      order,
+      onResolved: fetchDashboardData,
+    );
   }
 
   Future<void> onRefresh() async {

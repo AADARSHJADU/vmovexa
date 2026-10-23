@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/data/models/fleet_models.dart' show VehicleItemModel;
+import 'package:vmovexa/app/data/services/technician_service.dart';
+import '../../controller/display_devices_controller.dart';
+import '../../../technician_dashboard/controller/technician_dashboard_controller.dart';
 import '../model/vehicle_details_model.dart';
 import '../view/configuration_view.dart';
 import '../view/register_device_view.dart';
 import '../view/registration_success_view.dart';
 import '../view/review_and_save_view.dart';
 import '../view/vehicle_assignment_view.dart';
+
 class RegisterDeviceController extends GetxController {
   // ---------------- Stepper ----------------
   final RxInt currentStep = 1.obs; // 1 = Device Details, 2 = Vehicle Assignment, 3 = Configuration, 4 = Review & Save
@@ -33,6 +38,7 @@ class RegisterDeviceController extends GetxController {
   // ---------------- Dropdown selections ----------------
   final RxString deviceType = ''.obs;
   final List<String> deviceTypeOptions = const [
+    'Passenger Display',
     'LED Display',
     'LCD Display',
     'Digital Signage Board',
@@ -66,6 +72,56 @@ class RegisterDeviceController extends GetxController {
 
   final RxBool isSaving = false.obs;
 
+  @override
+  void onInit() {
+    super.onInit();
+    if (deviceIdCtrl.text.isEmpty) {
+      deviceIdCtrl.text = 'VMX-BOX-${(DateTime.now().millisecondsSinceEpoch % 10000).toString().padLeft(4, '0')}';
+    }
+    if (hardwareModelCtrl.text.isEmpty) {
+      hardwareModelCtrl.text = 'RK3588 UltraHD Box X2';
+    }
+    if (deviceNameCtrl.text.isEmpty) {
+      deviceNameCtrl.text = 'Passenger Display Bulkhead';
+    }
+    if (deviceType.value.isEmpty) {
+      deviceType.value = 'Passenger Display';
+    }
+    if (screenSize.value.isEmpty) {
+      screenSize.value = '22"';
+    }
+    if (resolution.value.isEmpty) {
+      resolution.value = '1920x1080';
+    }
+    if (locationDepot.value.isEmpty) {
+      locationDepot.value = 'Mumbai Central Depot';
+    }
+    if (organization.value.isEmpty) {
+      organization.value = 'VMOVEXA City Bus Service';
+    }
+
+    deviceIdCtrl.addListener(() => deviceIdLen.value = deviceIdCtrl.text.length);
+    deviceNameCtrl.addListener(() => deviceNameLen.value = deviceNameCtrl.text.length);
+    notesCtrl.addListener(() => notesLen.value = notesCtrl.text.length);
+    vehicleNotesCtrl.addListener(() => vehicleNotesLen.value = vehicleNotesCtrl.text.length);
+    configNotesCtrl.addListener(() => configNotesLen.value = configNotesCtrl.text.length);
+
+    loadVehicles();
+  }
+
+  @override
+  void onClose() {
+    deviceIdCtrl.dispose();
+    deviceNameCtrl.dispose();
+    hardwareModelCtrl.dispose();
+    notesCtrl.dispose();
+    vehicleNotesCtrl.dispose();
+    wifiSsidCtrl.dispose();
+    wifiPasswordCtrl.dispose();
+    configNotesCtrl.dispose();
+    super.onClose();
+  }
+
   // ==========================================================
   // STEP 2 — Vehicle Assignment
   // ==========================================================
@@ -85,14 +141,16 @@ class RegisterDeviceController extends GetxController {
     'VMOVEXA Intercity',
   ];
 
+  final RxList<VehicleItemModel> availableVehicles = <VehicleItemModel>[].obs;
+  final Rxn<VehicleItemModel> selectedVehicleModel = Rxn<VehicleItemModel>();
   final RxString selectedVehicle = ''.obs;
-  final List<String> vehicleOptions = const [
+  final RxList<String> vehicleOptions = <String>[
     'Bus MH12 AB 1234',
     'Bus MH12 AB 5678',
     'Bus MH12 AB 9101',
-  ];
+  ].obs;
 
-  // Mock vehicle detail lookup keyed by vehicle number
+  // Vehicle detail lookup keyed by vehicle number
   final Map<String, VehicleDetails> _vehicleDetailsMap = {
     'Bus MH12 AB 1234': VehicleDetails(
       name: 'Bus MH12 AB 1234',
@@ -126,6 +184,35 @@ class RegisterDeviceController extends GetxController {
     ),
   };
 
+  Future<void> loadVehicles() async {
+    try {
+      final res = await TechnicianService.to.getVehicles(page: 1, limit: 100);
+      if (res.success && res.data != null && res.data!.isNotEmpty) {
+        availableVehicles.assignAll(res.data!);
+        final names = res.data!
+            .map((v) => v.registrationNumber.isNotEmpty ? 'Bus ${v.registrationNumber}' : 'Bus #${v.id}')
+            .toList();
+        vehicleOptions.assignAll(names);
+        for (final v in res.data!) {
+          final label = v.registrationNumber.isNotEmpty ? 'Bus ${v.registrationNumber}' : 'Bus #${v.id}';
+          _vehicleDetailsMap[label] = VehicleDetails(
+            name: label,
+            status: v.status.isNotEmpty ? v.status : 'Active',
+            vehicleType: v.vehicleType.isNotEmpty ? v.vehicleType : 'Bus',
+            depotLocation: v.depotName != null && v.depotName!.isNotEmpty ? v.depotName! : 'Central Depot',
+            capacity: '${v.capacity} Seats',
+            driver: v.assignedDriverName ?? 'Unassigned',
+            route: v.assignedRoute ?? 'City Transit Route',
+            imageAsset: '',
+          );
+        }
+        if (selectedVehicle.value.isEmpty && vehicleOptions.isNotEmpty) {
+          setSelectedVehicle(vehicleOptions.first);
+        }
+      }
+    } catch (_) {}
+  }
+
   final Rxn<VehicleDetails> selectedVehicleDetails = Rxn<VehicleDetails>();
 
   final RxString installationPosition = ''.obs;
@@ -156,9 +243,19 @@ class RegisterDeviceController extends GetxController {
 
   void setSelectedVehicle(String? value) {
     selectedVehicle.value = value ?? '';
-    selectedVehicleDetails.value =
-        value != null ? _vehicleDetailsMap[value] : null;
-    if (value != null) vehicleError.value = null;
+    if (value != null && value.isNotEmpty) {
+      vehicleError.value = null;
+      final match = availableVehicles.firstWhereOrNull(
+        (v) => 'Bus ${v.registrationNumber}' == value || v.registrationNumber == value || 'Bus #${v.id}' == value,
+      );
+      if (match != null) {
+        selectedVehicleModel.value = match;
+      }
+      selectedVehicleDetails.value = _vehicleDetailsMap[value];
+    } else {
+      selectedVehicleDetails.value = null;
+      selectedVehicleModel.value = null;
+    }
   }
 
   void setInstallationPosition(String? value) => installationPosition.value = value ?? '';
@@ -376,10 +473,71 @@ class RegisterDeviceController extends GetxController {
   Future<void> onSaveDevicePressed() async {
     isSaving.value = true;
     try {
-      // TODO: replace with real API call to persist the device
-      await Future.delayed(const Duration(seconds: 1));
-      registeredOnDateTime.value = DateTime.now();
-      Get.off(() => const RegistrationSuccessView());
+      final boxId = deviceIdCtrl.text.trim().isNotEmpty
+          ? deviceIdCtrl.text.trim()
+          : 'VMX-BOX-${(DateTime.now().millisecondsSinceEpoch % 10000).toString().padLeft(4, '0')}';
+
+      final selectedVeh = selectedVehicleModel.value;
+
+      final payload = <String, dynamic>{
+        'boxId': boxId,
+        'box_id': boxId,
+        'mac': notesCtrl.text.contains('MAC:') ? '' : null,
+        if (selectedVeh != null) 'vehicleId': selectedVeh.id,
+        if (selectedVeh != null) 'vehicle_id': selectedVeh.id,
+        if (selectedVeh?.depotId != null) 'depotId': selectedVeh!.depotId,
+        if (selectedVeh?.depotId != null) 'depot_id': selectedVeh!.depotId,
+        'model': hardwareModelCtrl.text.trim().isNotEmpty ? hardwareModelCtrl.text.trim() : 'RK3588 UltraHD Box X2',
+        'deviceType': deviceType.value.isNotEmpty ? deviceType.value : 'Passenger Display',
+        'screenSize': screenSize.value.isNotEmpty ? screenSize.value : '22"',
+        'resolution': resolution.value.isNotEmpty ? resolution.value : '1920x1080',
+        'orientation': displayOrientation.value,
+        'brightness': screenBrightness.value.toInt(),
+        'simNetwork': networkType.value,
+        'sim_network': networkType.value,
+        'agentVersion': 'v2.4.1',
+        'agent_version': 'v2.4.1',
+        'is_active': true,
+        'isActive': true,
+        if (notesCtrl.text.trim().isNotEmpty) 'notes': notesCtrl.text.trim(),
+      };
+
+      final res = await TechnicianService.to.registerEdgeDevice(payload);
+      if (res.success) {
+        registeredOnDateTime.value = DateTime.now();
+        Get.snackbar(
+          'Device Registered',
+          '$boxId has been provisioned successfully.',
+          backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          margin: const EdgeInsets.all(12),
+        );
+
+        if (Get.isRegistered<DisplayDevicesController>()) {
+          Get.find<DisplayDevicesController>().fetchDevices();
+        }
+
+        Get.off(() => const RegistrationSuccessView());
+      } else {
+        Get.snackbar(
+          'Registration Failed',
+          res.displayErrorMessage,
+          backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          margin: const EdgeInsets.all(12),
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        e.toString(),
+        backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(12),
+      );
     } finally {
       isSaving.value = false;
     }
@@ -414,7 +572,14 @@ class RegisterDeviceController extends GetxController {
 
   void onGoToDisplayDevices() {
     Get.until((route) => route.isFirst);
-    Get.toNamed('/display-devices');
+    if (Get.isRegistered<TechnicianDashboardController>()) {
+      Get.find<TechnicianDashboardController>().onNavItemTapped(2);
+    }
+  }
+
+  void onRegisterAnotherDevice() {
+    resetWizard();
+    Get.off(() => const RegisterDeviceView());
   }
 
   /// Clears every field so the wizard is fresh, then restarts at Step 1.
@@ -466,129 +631,6 @@ class RegisterDeviceController extends GetxController {
     wifiPasswordError.value = null;
 
     registeredOnDateTime.value = null;
-  }
-
-  void onRegisterAnotherDevice() {
-    resetWizard();
-    Get.until((route) => route.isFirst);
-    Get.to(() => const RegisterDeviceView());
-  }
-
-  // ==========================================================
-  // STEP 4 — Review & Save
-  // ==========================================================
-
-  /// Pops [times] routes off the stack — used by "Edit" links to jump
-  /// back to an earlier step in the wizard.
-  void _popSteps(int times) {
-    for (int i = 0; i < times; i++) {
-      Get.back();
-    }
-  }
-
-  // void editDeviceDetails() {
-  //   currentStep.value = 1;
-  //   _popSteps(3); // Step4 -> Step3 -> Step2 -> Step1
-  // }
-  //
-  // void editVehicleAssignment() {
-  //   currentStep.value = 2;
-  //   _popSteps(2); // Step4 -> Step3 -> Step2
-  // }
-  //
-  // void editConfiguration() {
-  //   currentStep.value = 3;
-  //   _popSteps(1); // Step4 -> Step3
-  // }
-
-  void editNotes() => editConfiguration();
-
-  // ---- Review getters (pull data entered across steps 1–3) ----
-  String get reviewDeviceId => deviceIdCtrl.text.trim().isEmpty ? '—' : deviceIdCtrl.text.trim();
-  String get reviewSerialNo => registeredSerialNo.replaceFirst('Serial No: ', '');
-  String get reviewDeviceName => deviceNameCtrl.text.trim().isEmpty ? '—' : deviceNameCtrl.text.trim();
-  String get reviewDeviceType => deviceType.value.isEmpty ? '—' : deviceType.value;
-  String get reviewHardwareModel =>
-      hardwareModelCtrl.text.trim().isEmpty ? '—' : hardwareModelCtrl.text.trim();
-  String get reviewScreenSize => screenSize.value.isEmpty ? '—' : screenSize.value;
-  String get reviewOrientationStep1 => orientation.value.isEmpty ? '—' : orientation.value;
-
-  String get reviewOrganization => organization.value.isEmpty ? '—' : organization.value;
-  String get reviewVehicle => selectedVehicle.value.isEmpty ? '—' : selectedVehicle.value;
-  String get reviewVehicleType => selectedVehicleDetails.value?.vehicleType ?? '—';
-  String get reviewDepotLocation => selectedVehicleDetails.value?.depotLocation ?? '—';
-  String get reviewVehicleStatus => selectedVehicleDetails.value?.status ?? '—';
-
-  String get reviewScreenBrightness => '${screenBrightness.value.round()}%';
-  String get reviewVolumeLevel => '${volumeLevel.value.round()}%';
-  String get reviewDisplayOrientation => displayOrientation.value;
-  String get reviewScreenTimeout => screenTimeout.value;
-  String get reviewNetworkType => networkType.value;
-  String get reviewWifiSsid => wifiSsidCtrl.text.trim().isEmpty ? '—' : wifiSsidCtrl.text.trim();
-  String get reviewContentSource => defaultContentSource.value;
-  String get reviewAutoPlay => autoPlayOnBoot.value ? 'Enabled' : 'Disabled';
-
-  String get reviewFinalNotes {
-    final combined = [configNotesCtrl.text.trim(), notesCtrl.text.trim(), vehicleNotesCtrl.text.trim()]
-        .where((n) => n.isNotEmpty)
-        .join(' | ');
-    return combined.isEmpty ? 'No notes added' : combined;
-  }
-
-  Future<void> onSaveDevice() async {
-    isSaving.value = true;
-    try {
-      // TODO: replace with real API call that submits the full payload:
-      // deviceId, deviceName, deviceType, hardwareModel, screenSize,
-      // orientation, organization, selectedVehicle, configuration fields, notes.
-      await Future.delayed(const Duration(seconds: 1));
-
-      Get.snackbar(
-        'Device Registered',
-        '$reviewDeviceId has been registered and assigned to $reviewVehicle.',
-        backgroundColor: const Color(0xFF15151F),
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-      );
-
-      // Return all the way back to the Display Devices list.
-      Get.until((route) => route.settings.name == '/display-devices' || route.isFirst);
-    } finally {
-      isSaving.value = false;
-    }
-  }
-
-  @override
-  void onInit() {
-    super.onInit();
-    deviceIdCtrl.addListener(() {
-      deviceIdLen.value = deviceIdCtrl.text.length;
-    });
-    deviceNameCtrl.addListener(() {
-      deviceNameLen.value = deviceNameCtrl.text.length;
-    });
-    notesCtrl.addListener(() {
-      notesLen.value = notesCtrl.text.length;
-    });
-    vehicleNotesCtrl.addListener(() {
-      vehicleNotesLen.value = vehicleNotesCtrl.text.length;
-    });
-    configNotesCtrl.addListener(() {
-      configNotesLen.value = configNotesCtrl.text.length;
-    });
-  }
-
-  @override
-  void onClose() {
-    deviceIdCtrl.dispose();
-    deviceNameCtrl.dispose();
-    hardwareModelCtrl.dispose();
-    notesCtrl.dispose();
-    vehicleNotesCtrl.dispose();
-    wifiSsidCtrl.dispose();
-    wifiPasswordCtrl.dispose();
-    configNotesCtrl.dispose();
-    super.onClose();
   }
 
   // ---------------- Dropdown setters ----------------

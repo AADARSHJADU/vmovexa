@@ -193,7 +193,7 @@ class RegistrationSuccessView extends GetView<RegisterDeviceController> {
               ],
             ),
           ),
-          if (trailing != null) trailing,
+          ?trailing,
         ],
       ),
     );

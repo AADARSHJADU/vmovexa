@@ -849,14 +849,12 @@ class _LabeledTextField extends StatelessWidget {
 // Labeled multiline notes field with char counter
 // =====================================================================
 class _LabeledNotesField extends StatelessWidget {
-  final String? label;
   final TextEditingController controller;
   final String hint;
   final int maxLength;
   final int currentLength;
 
   const _LabeledNotesField({
-    this.label,
     required this.controller,
     required this.hint,
     required this.maxLength,
@@ -870,13 +868,6 @@ class _LabeledNotesField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (label != null) ...[
-          Text(
-            label!,
-            style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 6),
-        ],
         Container(
           decoration: BoxDecoration(
             color: kFieldBg,

@@ -1,8 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/data/services/auth_service.dart';
 import '../../../../../routes/app_routes.dart';
 
 class TechnicianDashboardController extends GetxController {
   final RxInt selectedNavIndex = 0.obs;
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void onInit() {
@@ -14,37 +17,55 @@ class TechnicianDashboardController extends GetxController {
   }
 
   void onNavItemTapped(int index) {
-
     selectedNavIndex.value = index;
   }
 
-  void goToFleetList() {
-    Get.toNamed(Routes.FLEET_LIST);
+  void openDrawer() {
+    scaffoldKey.currentState?.openDrawer();
   }
 
-  void goToLiveTracking() {
-    Get.toNamed(Routes.LIVE_TRACKING);
+  void goToWorkOrders() {
+    selectedNavIndex.value = 1;
   }
 
-  void goToReports() {
+  void goToEdgeDevices() {
     selectedNavIndex.value = 2;
   }
 
-  void goToVehicles() {
-    Get.toNamed(Routes.ADD_VEHICLE);
+  void goToHardwareConfig() {
+    selectedNavIndex.value = 3;
   }
 
-  void goToDrivers() {
-    Get.toNamed(Routes.ADD_DRIVER);
+  void goToProfile() {
+    selectedNavIndex.value = 4;
   }
 
-  void goToGpsDevices() {
-    Get.toNamed(Routes.ADD_GPS);
+  void goToGpsInstallation() {
+    Get.toNamed(Routes.GPS_INSTALLATION);
   }
 
-  void logout() {
+  void goToDiagnostics() {
+    Get.toNamed(Routes.DEVICE_DIAGNOSTICS);
+  }
+
+  void goToConnectivity() {
+    Get.toNamed(Routes.CONNECTIVITY_TROUBLESHOOTING);
+  }
+
+  void goToHardwareStatus() {
+    Get.toNamed(Routes.HARDWARE_STATUS);
+  }
+
+  void goToNotifications() {
+    Get.toNamed(Routes.ALERT_NOTIFICATION);
+  }
+
+  Future<void> logout() async {
+    try {
+      if (Get.isRegistered<AuthService>()) {
+        await AuthService.to.logout();
+      }
+    } catch (_) {}
     Get.offAllNamed(Routes.LOGIN);
   }
 }
-
-

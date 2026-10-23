@@ -11,167 +11,171 @@ class SystemSettingsTab extends GetView<HardwareConfigController> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       children: [
-        _buildDeviceInformationCard(),
+        _buildDeviceHardwareInfoCard(),
         const SizedBox(height: 16),
-        _buildDateTimeCard(),
+        _buildRemoteDeviceOperationsCard(),
         const SizedBox(height: 16),
-        _buildDeviceManagementCard(),
-        const SizedBox(height: 16),
-        const InfoNoteBanner(),
+        const InfoNoteBanner(text: 'Changes will be applied to the device over the air after saving.'),
       ],
     );
   }
 
-  Widget _buildDeviceInformationCard() {
-    return SectionCard(
-      icon: Icons.info_outline,
-      title: 'Device Information',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Obx(() => InfoKeyValueRow(icon: Icons.badge_outlined, label: 'Device ID', value: controller.deviceId.value)),
-          const ThinDivider(),
-          Obx(() => InfoKeyValueRow(icon: Icons.memory_outlined, label: 'Hardware Model', value: controller.hardwareModel.value)),
-          const ThinDivider(),
-          Obx(() => InfoKeyValueRow(icon: Icons.numbers_outlined, label: 'Serial Number', value: controller.serialNumber.value)),
-          const ThinDivider(),
-          Obx(
-            () => InfoKeyValueRow(
-              icon: Icons.system_update_outlined,
-              label: 'Firmware Version',
-              value: controller.firmwareVersion.value,
-              trailingBadge: controller.isFirmwareUpToDate.value ? const StatusBadge(label: 'Up to date') : null,
-            ),
-          ),
-          const ThinDivider(),
-          Obx(
-            () => InfoKeyValueRow(
-              icon: Icons.hub_outlined,
-              label: 'Edge Agent Version',
-              value: controller.edgeAgentVersion.value,
-              trailingBadge: controller.isEdgeAgentUpToDate.value ? const StatusBadge(label: 'Up to date') : null,
-            ),
-          ),
-          const ThinDivider(),
-          Obx(
-            () => InfoKeyValueRow(
-              icon: Icons.android_outlined,
-              label: 'OS Version',
-              value: controller.osVersion.value,
-              trailingBadge: controller.isOsUpToDate.value ? const StatusBadge(label: 'Up to date') : null,
-            ),
-          ),
-          const ThinDivider(),
-          Obx(() => InfoKeyValueRow(icon: Icons.timelapse_outlined, label: 'Uptime', value: controller.uptime.value)),
-          const ThinDivider(),
-          Obx(
-            () => InfoKeyValueRow(
-              icon: Icons.monitor_heart_outlined,
-              label: 'Device Status',
-              value: controller.deviceStatus.value,
-              trailingBadge: const Icon(Icons.check_circle, color: kGreen, size: 14),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // ---------------- Device Hardware Information Card ----------------
+  Widget _buildDeviceHardwareInfoCard() {
+    return Obx(() {
+      final dev = controller.selectedDevice.value;
 
-  Widget _buildDateTimeCard() {
-    return SectionCard(
-      icon: Icons.access_time,
-      title: 'Date & Time',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Obx(
-            () => NavRow(
-              icon: Icons.calendar_today_outlined,
-              label: 'Device Date & Time',
-              value: controller.deviceDateTime.value,
-              onTap: controller.onDeviceDateTimeTap,
+      return SectionCard(
+        icon: Icons.memory_outlined,
+        title: 'Device Hardware Information',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Cryptographic identifiers and ledger serial keys',
+              style: TextStyle(color: Colors.white38, fontSize: 11),
             ),
-          ),
-          const ThinDivider(),
-          Obx(
-            () => NavRow(
-              icon: Icons.public,
-              label: 'Time Zone',
-              value: controller.timeZoneLabel.value,
-              onTap: controller.onTimeZoneTap,
-            ),
-          ),
-          const ThinDivider(),
-          const SizedBox(height: 6),
-          Obx(
-            () => Row(
+            const SizedBox(height: 14),
+            GridView.count(
+              crossAxisCount: 2,
+              childAspectRatio: 2.1,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
               children: [
-                const Icon(Icons.sync, color: kPurple, size: 15),
-                const SizedBox(width: 8),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Auto Time Sync', style: TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w600)),
-                      Text('Synchronize time with server', style: TextStyle(color: Colors.white38, fontSize: 10)),
-                    ],
-                  ),
-                ),
-                Switch(
-                  value: controller.autoTimeSync.value,
-                  onChanged: controller.toggleAutoTimeSync,
-                  activeColor: Colors.white,
-                  activeTrackColor: kPurple,
-                  inactiveThumbColor: Colors.white54,
-                  inactiveTrackColor: Colors.white12,
+                _infoTile('MAC Address:', dev?.mac ?? '00:1A:2B:3C:4D:5E', isMonospace: true),
+                _infoTile('Box ID:', dev?.boxId ?? 'VMX-BOX-8841'),
+                _infoTile('Status:', (dev?.status ?? 'online').toUpperCase(), isStatus: true, status: dev?.status ?? 'online'),
+                _infoTile(
+                  'Edge Agent Engine:',
+                  '${dev?.agentVersion ?? "v2.4.1"} · ${dev?.simNetwork ?? "Jio 5G"}',
                 ),
               ],
             ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _infoTile(String label, String value, {bool isMonospace = false, bool isStatus = false, String status = ''}) {
+    Color valueColor = Colors.white;
+    if (isStatus) {
+      final st = status.toLowerCase();
+      if (st == 'online') {
+        valueColor = const Color(0xFF10B981);
+      } else if (st == 'warning') {
+        valueColor = const Color(0xFFF59E0B);
+      } else {
+        valueColor = const Color(0xFFEF4444);
+      }
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: kFieldBg,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(label, style: const TextStyle(color: Colors.white38, fontSize: 10)),
+          const SizedBox(height: 3),
+          Text(
+            value,
+            style: TextStyle(
+              color: valueColor,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w700,
+              fontFamily: isMonospace ? 'monospace' : null,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDeviceManagementCard() {
+  // ---------------- Remote Device Operations Card ----------------
+  Widget _buildRemoteDeviceOperationsCard() {
     return SectionCard(
-      icon: Icons.build_outlined,
-      title: 'Device Management',
+      icon: Icons.settings_remote_outlined,
+      title: 'Remote Device Operations',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const Text(
+            'Perform software restarts and factory provisioning wipes',
+            style: TextStyle(color: Colors.white38, fontSize: 11),
+          ),
+          const SizedBox(height: 16),
+
+          // Reboot Button
           Obx(
-            () => ActionRow(
-              icon: Icons.restart_alt,
-              label: 'Restart Device',
-              description: 'Restart the device to apply changes',
-              buttonLabel: 'Restart',
-              buttonColor: kBlue,
-              isLoading: controller.isRestarting.value,
-              onPressed: controller.onRestartDevice,
+            () => SizedBox(
+              width: double.infinity,
+              height: 46,
+              child: ElevatedButton.icon(
+                onPressed: controller.isRebooting.value ? null : controller.onRebootController,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1E293B),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                  ),
+                ),
+                icon: controller.isRebooting.value
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Icon(Icons.refresh_rounded, size: 18),
+                label: const Text(
+                  'Reboot Display Controller',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                ),
+              ),
             ),
           ),
-          const ThinDivider(),
+          const SizedBox(height: 12),
+
+          // Factory Reset Button
           Obx(
-            () => ActionRow(
-              icon: Icons.cleaning_services_outlined,
-              label: 'Clear Cache',
-              description: 'Clear local cache and temporary files',
-              buttonLabel: 'Clear',
-              buttonColor: kPurple,
-              isLoading: controller.isClearingCache.value,
-              onPressed: controller.onClearCache,
+            () => SizedBox(
+              width: double.infinity,
+              height: 46,
+              child: ElevatedButton.icon(
+                onPressed: controller.isResetting.value ? null : controller.onFactoryReset,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.12),
+                  foregroundColor: const Color(0xFFEF4444),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: const Color(0xFFEF4444).withValues(alpha: 0.3)),
+                  ),
+                ),
+                icon: controller.isResetting.value
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFEF4444)),
+                      )
+                    : const Icon(Icons.warning_amber_rounded, size: 18),
+                label: const Text(
+                  'Remote Factory Reset',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                ),
+              ),
             ),
-          ),
-          const ThinDivider(),
-          ActionRow(
-            icon: Icons.warning_amber_rounded,
-            label: 'Factory Reset',
-            description: 'Reset device to factory default settings',
-            buttonLabel: 'Reset',
-            buttonColor: kRed,
-            isDanger: true,
-            onPressed: controller.onFactoryReset,
           ),
         ],
       ),

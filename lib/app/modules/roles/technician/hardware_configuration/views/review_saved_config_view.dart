@@ -202,7 +202,7 @@ class ReviewAndSaveConfigView extends GetView<HardwareConfigController> {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: kPurple.withOpacity(0.15), borderRadius: BorderRadius.circular(9)),
+            decoration: BoxDecoration(color: kPurple.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(9)),
             child: const Icon(Icons.desktop_windows_outlined, color: kPurple, size: 16),
           ),
           const SizedBox(width: 10),
@@ -334,7 +334,7 @@ class ReviewAndSaveConfigView extends GetView<HardwareConfigController> {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
       decoration: BoxDecoration(
         color: kBg,
-        border: Border(top: BorderSide(color: Colors.white.withOpacity(0.06))),
+        border: Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.06))),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -349,7 +349,7 @@ class ReviewAndSaveConfigView extends GetView<HardwareConfigController> {
                   decoration: BoxDecoration(
                     color: kFieldBg,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: kPurple.withOpacity(0.4)),
+                    border: Border.all(color: kPurple.withValues(alpha: 0.4)),
                   ),
                   alignment: Alignment.center,
                   child: const Row(

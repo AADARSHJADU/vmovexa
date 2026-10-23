@@ -169,7 +169,7 @@ class ConfigurationSavedView extends GetView<HardwareConfigController> {
     );
   }
 
-  Widget _divider() => Divider(color: Colors.white.withOpacity(0.06), height: 1);
+  Widget _divider() => Divider(color: Colors.white.withValues(alpha: 0.06), height: 1);
 
   Widget _detailRow({
     required IconData icon,
@@ -187,7 +187,7 @@ class ConfigurationSavedView extends GetView<HardwareConfigController> {
         children: [
           Container(
             padding: const EdgeInsets.all(7),
-            decoration: BoxDecoration(color: kPurple.withOpacity(0.12), borderRadius: BorderRadius.circular(8)),
+            decoration: BoxDecoration(color: kPurple.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)),
             child: Icon(icon, color: kPurple, size: 15),
           ),
           const SizedBox(width: 10),
@@ -228,7 +228,7 @@ class ConfigurationSavedView extends GetView<HardwareConfigController> {
               decoration: BoxDecoration(
                 color: kFieldBg,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white.withOpacity(0.08)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
               ),
               child: const Icon(Icons.desktop_windows_outlined, color: Colors.white24, size: 28),
             ),
@@ -289,7 +289,7 @@ class ConfigurationSavedView extends GetView<HardwareConfigController> {
         height: 52,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: kPurple.withOpacity(0.5)),
+          border: Border.all(color: kPurple.withValues(alpha: 0.5)),
         ),
         alignment: Alignment.center,
         child: const Row(

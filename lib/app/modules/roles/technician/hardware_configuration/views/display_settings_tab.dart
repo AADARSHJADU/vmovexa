@@ -11,19 +11,27 @@ class DisplaySettingsTab extends GetView<HardwareConfigController> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       children: [
+        // ---------------- Display Settings Card ----------------
         SectionCard(
           icon: Icons.tv_outlined,
           title: 'Display Settings',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Text(
+                'Control screen illumination, screen timeouts, and display aspect',
+                style: TextStyle(color: Colors.white38, fontSize: 11),
+              ),
+              const SizedBox(height: 14),
               Obx(
                 () => SettingSliderRow(
                   icon: Icons.wb_sunny_outlined,
                   label: 'Screen Brightness',
-                  value: controller.screenBrightness.value,
-                  onChanged: controller.setScreenBrightness,
-                  valueLabel: '${controller.screenBrightness.value.round()}%',
+                  value: controller.brightness.value.clamp(10.0, 100.0),
+                  min: 10.0,
+                  max: 100.0,
+                  onChanged: controller.setBrightness,
+                  valueLabel: '${controller.brightness.value.round()}%',
                 ),
               ),
               const SizedBox(height: 14),
@@ -38,11 +46,12 @@ class DisplaySettingsTab extends GetView<HardwareConfigController> {
               ),
               const SizedBox(height: 14),
               Obx(
-                () => SettingToggleRow(
-                  icon: Icons.brightness_auto_outlined,
-                  label: 'Auto Brightness',
-                  value: controller.autoBrightness.value,
-                  onChanged: controller.toggleAutoBrightness,
+                () => SettingDropdownRow(
+                  icon: Icons.fullscreen,
+                  label: 'Display Mode',
+                  value: controller.displayMode.value,
+                  items: controller.displayModeOptions,
+                  onChanged: controller.setDisplayMode,
                 ),
               ),
               const SizedBox(height: 14),
@@ -57,96 +66,143 @@ class DisplaySettingsTab extends GetView<HardwareConfigController> {
               ),
               const SizedBox(height: 14),
               Obx(
-                () => SettingDropdownRow(
-                  icon: Icons.fullscreen,
-                  label: 'Display Mode',
-                  value: controller.displayMode.value,
-                  items: controller.displayModeOptions,
-                  onChanged: controller.setDisplayMode,
+                () => SettingToggleRow(
+                  icon: Icons.brightness_auto_outlined,
+                  label: 'Auto Ambient Light Sensor',
+                  subtitle: 'Dynamically adjust illumination for sunny mornings & tunnel transits',
+                  value: controller.autoBrightness.value,
+                  onChanged: controller.toggleAutoBrightness,
                 ),
               ),
             ],
           ),
         ),
         const SizedBox(height: 16),
+
+        // ---------------- Audio & Sound Settings Card ----------------
         SectionCard(
           icon: Icons.volume_up_outlined,
-          title: 'Audio Settings',
+          title: 'Audio & Sound Settings',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Text(
+                'Configure speaker output, volume decibel limits, and mute schedules',
+                style: TextStyle(color: Colors.white38, fontSize: 11),
+              ),
+              const SizedBox(height: 14),
               Obx(
                 () => SettingSliderRow(
                   icon: Icons.volume_up_outlined,
                   label: 'Volume Level',
-                  value: controller.volumeLevel.value,
-                  onChanged: controller.setVolumeLevel,
-                  valueLabel: '${controller.volumeLevel.value.round()}%',
-                ),
-              ),
-              const SizedBox(height: 14),
-              Obx(
-                () => SettingToggleRow(
-                  icon: Icons.volume_off_outlined,
-                  label: 'Mute',
-                  value: controller.isMuted.value,
-                  onChanged: controller.toggleMute,
+                  value: controller.isMuted.value ? 0.0 : controller.audioVolume.value.clamp(0.0, 100.0),
+                  min: 0.0,
+                  max: 100.0,
+                  enabled: !controller.isMuted.value,
+                  onChanged: controller.setAudioVolume,
+                  valueLabel: controller.isMuted.value ? 'Muted' : '${controller.audioVolume.value.round()}%',
                 ),
               ),
               const SizedBox(height: 14),
               Obx(
                 () => SettingDropdownRow(
                   icon: Icons.speaker_outlined,
-                  label: 'Audio Output',
-                  value: controller.audioOutput.value,
-                  items: controller.audioOutputOptions,
-                  onChanged: controller.setAudioOutput,
+                  label: 'Audio Output Source',
+                  value: controller.audioSource.value,
+                  items: controller.audioSourceOptions,
+                  onChanged: controller.setAudioSource,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Obx(
+                () => SettingToggleRow(
+                  icon: Icons.volume_off_outlined,
+                  label: 'Master Hardware Mute',
+                  subtitle: 'Completely mute all video sound tracks and keep visual captions only',
+                  value: controller.isMuted.value,
+                  onChanged: controller.toggleMute,
                 ),
               ),
             ],
           ),
         ),
         const SizedBox(height: 16),
+
+        // ---------------- Power Management Card ----------------
         SectionCard(
-          icon: Icons.bolt_outlined,
-          title: 'Power Settings',
+          icon: Icons.power_settings_new_outlined,
+          title: 'Power Management',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Text(
+                'Automatic operating schedules and low battery voltage protections',
+                style: TextStyle(color: Colors.white38, fontSize: 11),
+              ),
+              const SizedBox(height: 14),
               Obx(
                 () => SettingDropdownRow(
-                  icon: Icons.power_settings_new,
-                  label: 'Power Mode',
+                  icon: Icons.battery_charging_full_outlined,
+                  label: 'Power Profile Mode',
                   value: controller.powerMode.value,
                   items: controller.powerModeOptions,
                   onChanged: controller.setPowerMode,
                 ),
               ),
               const SizedBox(height: 14),
-              Obx(
-                () => SettingDropdownRow(
-                  icon: Icons.wb_twighlight,
-                  label: 'Auto Power On',
-                  value: controller.autoPowerOn.value,
-                  items: controller.timeOptions,
-                  onChanged: controller.setAutoPowerOn,
-                ),
-              ),
-              const SizedBox(height: 14),
-              Obx(
-                () => SettingDropdownRow(
-                  icon: Icons.nightlight_outlined,
-                  label: 'Auto Power Off',
-                  value: controller.autoPowerOff.value,
-                  items: controller.timeOptions,
-                  onChanged: controller.setAutoPowerOff,
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildTimeInput(
+                      label: 'Auto Power On',
+                      controller: controller.autoPowerOnCtrl,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildTimeInput(
+                      label: 'Auto Power Off',
+                      controller: controller.autoPowerOffCtrl,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
         ),
         const SizedBox(height: 16),
-        const InfoNoteBanner(),
+        const InfoNoteBanner(text: 'Changes will be applied to the device over the air after saving.'),
+      ],
+    );
+  }
+
+  Widget _buildTimeInput({required String label, required TextEditingController controller}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          decoration: BoxDecoration(
+            color: kFieldBg,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+          ),
+          child: TextField(
+            controller: controller,
+            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              isDense: true,
+              hintText: '06:00 AM',
+              hintStyle: TextStyle(color: Colors.white30, fontSize: 12),
+            ),
+          ),
+        ),
       ],
     );
   }

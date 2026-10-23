@@ -109,6 +109,26 @@ class ApiConstants {
   static const String workOrders = '/work-orders';
   static String workOrderOne(String id) => '/work-orders/$id';
 
+  // Technician Self-Service Endpoints
+  static const String techWorkOrders = '/me/technician/work-orders';
+  static String techWorkOrderOne(String id) => '/me/technician/work-orders/$id';
+  static String techWorkOrderStatus(String id) => '/me/technician/work-orders/$id/status';
+
+  // Edge Devices & IoT Telemetry
+  static const String edgeDevices = '/edge-devices';
+  static String edgeDeviceOne(String id) => '/edge-devices/$id';
+  static String edgeDeviceTelemetry(String id) => '/edge-devices/$id/telemetry';
+  static String edgeDeviceReboot(String id) => '/edge-devices/$id/reboot';
+  static String edgeDeviceConfig(String id) => '/edge-devices/$id/config';
+  static String edgeDeviceFactoryReset(String id) => '/edge-devices/$id/factory-reset';
+  static String edgeDeviceConnectivityTests(String id) => '/edge-devices/$id/connectivity-tests';
+  static String edgeDeviceToggle(String id) => '/edge-devices/$id/toggle';
+
+  // Digital Transit Displays
+  static const String displays = '/displays';
+  static String displayOne(String id) => '/displays/$id';
+  static String displayConfig(String id) => '/displays/$id/config';
+
   static const String activityLogs = '/activity-logs';
   static const String activityLogsCategories = '/activity-logs/categories';
   static const String activityLogsFilters = '/activity-logs/filters';

@@ -22,30 +22,32 @@ class GpsInstallationSuccessView extends GetView<GpsInstallationController> {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             children: [
-              const SizedBox(height: 12),
+              const SizedBox(height: 14),
               Row(
                 children: [
-                  GestureDetector(
-                    onTap: controller.onBackPressed,
-                    child: const Icon(Icons.arrow_back, color: Colors.white),
+                  IconButton(
+                    onPressed: controller.onGoToDashboard,
+                    icon: const Icon(Icons.arrow_back, color: Colors.white, size: 22),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 14),
               _buildSuccessBadge(),
               const SizedBox(height: 18),
               const Text(
                 'GPS Installed Successfully!',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w800),
+                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 6),
               const Text(
-                'GPS device has been assigned to the vehicle.',
+                'The telematics unit has been registered and assigned. Live satellite telemetry is now active.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white54, fontSize: 12.5),
+                style: TextStyle(color: Colors.white54, fontSize: 12.5, height: 1.35),
               ),
-              const SizedBox(height: 22),
+              const SizedBox(height: 24),
               _buildDetailsCard(),
               const Spacer(),
               _buildPrimaryButton(),
@@ -59,20 +61,26 @@ class GpsInstallationSuccessView extends GetView<GpsInstallationController> {
     );
   }
 
-  // ---------------- Success badge (green ring + check + decorative dots) ----------------
+  // ==========================================================
+  // Success badge (green ring + check + decorative dots)
+  // ==========================================================
   Widget _buildSuccessBadge() {
     return SizedBox(
-      width: 130,
-      height: 130,
+      width: 120,
+      height: 120,
       child: Stack(
         alignment: Alignment.center,
         children: [
           ..._buildDots(),
           Container(
-            width: 84,
-            height: 84,
-            decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: kGreen, width: 2.5)),
-            child: const Icon(Icons.check, color: kGreen, size: 38),
+            width: 78,
+            height: 78,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: kGreen.withValues(alpha: 0.12),
+              border: Border.all(color: kGreen, width: 2.5),
+            ),
+            child: const Icon(Icons.check, color: kGreen, size: 36),
           ),
         ],
       ),
@@ -102,11 +110,13 @@ class GpsInstallationSuccessView extends GetView<GpsInstallationController> {
         .toList();
   }
 
-  // ---------------- Details card ----------------
+  // ==========================================================
+  // Summary Details Card (Matching Admin Panel)
+  // ==========================================================
   Widget _buildDetailsCard() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: kCardBg,
         borderRadius: BorderRadius.circular(16),
@@ -115,40 +125,86 @@ class GpsInstallationSuccessView extends GetView<GpsInstallationController> {
       child: Obx(
         () => Column(
           children: [
-            _detailRow(
-              icon: Icons.directions_bus_filled_outlined,
-              label: 'Vehicle',
-              value: controller.selectedVehicle.value.isEmpty ? '—' : controller.selectedVehicle.value,
-              subValue: controller.selectedVehicleDepot,
-              trailing: const _AssignedBadge(),
+            // Top Header: Assigned Vehicle & Active Badge
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'ASSIGNED VEHICLE',
+                      style: TextStyle(
+                        color: Colors.white38,
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      controller.installedBusNumber.value.isNotEmpty
+                          ? controller.installedBusNumber.value
+                          : (controller.selectedVehicle.value?.registrationNumber ?? 'Bus MH12 AB 1234'),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontFamily: 'monospace',
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: kGreen.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: kGreen.withValues(alpha: 0.4)),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.circle, color: kGreen, size: 7),
+                      SizedBox(width: 5),
+                      Text(
+                        'Assigned & Active',
+                        style: TextStyle(color: kGreen, fontSize: 11, fontWeight: FontWeight.w700),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            _divider(),
+            const SizedBox(height: 12),
+            Divider(color: Colors.white.withValues(alpha: 0.06), height: 1),
+            const SizedBox(height: 12),
+
+            // 4 Fields Grid
             _detailRow(
-              icon: Icons.location_on_outlined,
               label: 'GPS Device ID',
-              value: controller.gpsDeviceIdCtrl.text.trim().isEmpty ? '—' : controller.gpsDeviceIdCtrl.text.trim(),
-              trailing: const _AssignedBadge(),
+              value: controller.installedGpsId.value.isNotEmpty
+                  ? controller.installedGpsId.value
+                  : (controller.gpsDeviceIdCtrl.text.isNotEmpty ? controller.gpsDeviceIdCtrl.text : 'GPS-MX-00123'),
+              isMono: true,
+              valueColor: const Color(0xFF60A5FA),
             ),
-            _divider(),
+            const SizedBox(height: 10),
             _detailRow(
-              icon: Icons.event_available_outlined,
-              label: 'Installation Status',
-              value: 'Installed / Assigned',
-              valueColor: kGreen,
-              trailing: const Icon(Icons.check_circle, color: kGreen, size: 18),
+              label: 'Depot Location',
+              value: controller.installedDepot.value.isNotEmpty
+                  ? controller.installedDepot.value
+                  : controller.selectedVehicleDepot,
             ),
-            _divider(),
+            const SizedBox(height: 10),
             _detailRow(
-              icon: Icons.access_time,
               label: 'Assigned On',
               value: controller.assignedOnText,
             ),
-            _divider(),
+            const SizedBox(height: 10),
             _detailRow(
-              icon: Icons.person_outline,
-              label: 'Assigned By',
+              label: 'Technician',
               value: controller.assignedByLabel.value,
-              isLast: true,
             ),
           ],
         ),
@@ -156,76 +212,58 @@ class GpsInstallationSuccessView extends GetView<GpsInstallationController> {
     );
   }
 
-  Widget _divider() => Divider(color: Colors.white.withOpacity(0.06), height: 1);
-
   Widget _detailRow({
-    required IconData icon,
     required String label,
     required String value,
-    String? subValue,
-    Color? valueColor,
-    Widget? trailing,
-    bool isLast = false,
+    bool isMono = false,
+    Color valueColor = Colors.white,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: kPurple.withOpacity(0.12), borderRadius: BorderRadius.circular(9)),
-            child: Icon(icon, color: kPurple, size: 16),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white54, fontSize: 12),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            color: valueColor,
+            fontSize: 12.5,
+            fontFamily: isMono ? 'monospace' : null,
+            fontWeight: FontWeight.w700,
           ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: const TextStyle(color: Colors.white54, fontSize: 11)),
-                const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: TextStyle(
-                    color: valueColor ?? Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                if (subValue != null && subValue.isNotEmpty) ...[
-                  const SizedBox(height: 1),
-                  Text(subValue, style: const TextStyle(color: Colors.white38, fontSize: 11)),
-                ],
-              ],
-            ),
-          ),
-          if (trailing != null) trailing,
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  // ---------------- Buttons ----------------
+  // ==========================================================
+  // Action Buttons (Matching Admin Panel)
+  // ==========================================================
   Widget _buildPrimaryButton() {
-    return GestureDetector(
-      onTap: controller.onViewGpsInstallations,
+    return InkWell(
+      onTap: controller.onViewHardwareStatus,
+      borderRadius: BorderRadius.circular(12),
       child: Container(
         width: double.infinity,
-        height: 52,
+        height: 50,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [kPurple, kIndigo]),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF6366F1), Color(0xFF4F46E5)],
+          ),
           borderRadius: BorderRadius.circular(12),
         ),
         alignment: Alignment.center,
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.desktop_windows_outlined, color: Colors.white, size: 18),
-            SizedBox(width: 8),
             Text(
-              'View GPS Installations',
-              style: TextStyle(color: Colors.white, fontSize: 14.5, fontWeight: FontWeight.w700),
+              'View Hardware & GPS Status',
+              style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
             ),
+            SizedBox(width: 8),
+            Icon(Icons.arrow_forward, color: Colors.white, size: 16),
           ],
         ),
       ),
@@ -233,49 +271,23 @@ class GpsInstallationSuccessView extends GetView<GpsInstallationController> {
   }
 
   Widget _buildSecondaryButton() {
-    return GestureDetector(
+    return InkWell(
       onTap: controller.onGoToDashboard,
+      borderRadius: BorderRadius.circular(12),
       child: Container(
         width: double.infinity,
-        height: 52,
+        height: 50,
         decoration: BoxDecoration(
+          color: kCardBg,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: kPurple.withOpacity(0.5)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
         ),
         alignment: Alignment.center,
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.home_outlined, color: kPurple, size: 18),
-            SizedBox(width: 8),
-            Text(
-              'Go to Dashboard',
-              style: TextStyle(color: kPurple, fontSize: 14.5, fontWeight: FontWeight.w700),
-            ),
-          ],
+        child: const Text(
+          'Go to Dashboard',
+          style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w700),
         ),
       ),
-    );
-  }
-}
-
-// =====================================================================
-// Small green "Assigned" badge with dot
-// =====================================================================
-class _AssignedBadge extends StatelessWidget {
-  const _AssignedBadge();
-
-  static const Color kGreen = GpsInstallationView.kGreen;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: const [
-        Icon(Icons.circle, color: kGreen, size: 7),
-        SizedBox(width: 5),
-        Text('Assigned', style: TextStyle(color: kGreen, fontSize: 11.5, fontWeight: FontWeight.w600)),
-      ],
     );
   }
 }

@@ -1,197 +1,293 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:vmovexa/app/theme/app_theme.dart';
-
+import 'package:vmovexa/app/data/models/edge_device_model.dart';
+import 'package:vmovexa/app/theme/app_colors.dart';
 import '../controller/display_devices_controller.dart';
-import '../model/display_device_model.dart';
 
 class DisplayDevicesView extends GetView<DisplayDevicesController> {
   const DisplayDevicesView({super.key});
 
-  static const Color kBg = Color(0xFF0B0B14);
-  static const Color kCardBg = Color(0xFF15151F);
-  static const Color kPurple = Color(0xFFB042FF);
-  static const Color kIndigo = Color(0xFF6A5CFF);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kBg,
+      backgroundColor: const Color(0xFF0A0C14),
       body: SafeArea(
-        child: Obx(
-          () => controller.isLoading.value && controller.allDevices.isEmpty
-              ? const Center(
-                  child: CircularProgressIndicator(color: kPurple),
-                )
-              : RefreshIndicator(
-                  color: kPurple,
-                  backgroundColor: kCardBg,
-                  onRefresh: controller.onRefresh,
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    children: [
-                      const SizedBox(height: 8),
-                      _buildHeader(),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'View and manage all registered display devices.',
-                        style: TextStyle(color: Colors.white54, fontSize: 12.5),
-                      ),
-                      const SizedBox(height: 16),
-                      _buildSearchAndFilterRow(),
-                      const SizedBox(height: 14),
-                      _buildStatsBar(),
-                      const SizedBox(height: 20),
-                      _buildListHeaderRow(),
-                      const SizedBox(height: 12),
-                      _buildDeviceList(),
-                      const SizedBox(height: 14),
-                      _buildPaginationFooter(),
-                      const SizedBox(height: 16),
-                    ],
-                  ),
-                ),
-        ),
+        child: Obx(() {
+          if (controller.isLoading.value && controller.allDevices.isEmpty) {
+            return const Center(
+              child: CircularProgressIndicator(color: Color(0xFF6366F1)),
+            );
+          }
+
+          return RefreshIndicator(
+            color: const Color(0xFF6366F1),
+            backgroundColor: const Color(0xFF1E293B),
+            onRefresh: controller.onRefresh,
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              children: [
+                const SizedBox(height: 12),
+                _buildHeader(context),
+                const SizedBox(height: 14),
+                _buildStatsGrid(),
+                const SizedBox(height: 16),
+                _buildSearchBar(),
+                const SizedBox(height: 12),
+                _buildFilterTabs(),
+                const SizedBox(height: 14),
+                _buildSectionTitle(context),
+                const SizedBox(height: 10),
+                _buildDeviceList(context),
+                const SizedBox(height: 16),
+                if (controller.filteredDevices.isNotEmpty) _buildPaginationFooter(),
+                const SizedBox(height: 24),
+              ],
+            ),
+          );
+        }),
       ),
     );
   }
 
   // ---------------- Header ----------------
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Row(
-      children: [
-        IconButton(
-          onPressed: () => Get.back(),
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
-        ),
-        const SizedBox(width: 8),
-        const Expanded(
-          child: Text(
-            'Display Devices',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            const Icon(Icons.notifications_none_rounded, color: Colors.white70),
-            Positioned(
-              right: -2,
-              top: -2,
-              child: Container(
-                padding: const EdgeInsets.all(3),
-                decoration: const BoxDecoration(
-                  color: kPurple,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  // ---------------- Search bar + filter button ----------------
-  Widget _buildSearchAndFilterRow() {
-    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: kCardBg,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withOpacity(0.08)),
-            ),
-            child: TextField(
-              onChanged: controller.onSearchChanged,
-              style: const TextStyle(color: Colors.white, fontSize: 13),
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 14),
-                hintText: 'Search by Device ID, Vehicle or Location',
-                hintStyle: TextStyle(color: Colors.white38, fontSize: 12.5),
-                prefixIcon: Icon(Icons.search, color: Colors.white38, size: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Text(
+                    'Edge Devices',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6366F1).withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.4)),
+                    ),
+                    child: Obx(
+                      () => Text(
+                        '${controller.allDevices.length} UNITS',
+                        style: const TextStyle(
+                          color: Color(0xFF818CF8),
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
+              const SizedBox(height: 3),
+              const Text(
+                'RK3588 edge player boxes, display screens & IoT telematics',
+                style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
         ),
-        const SizedBox(width: 10),
-        GestureDetector(
-          onTap: controller.onOpenFilterSheet,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            decoration: BoxDecoration(
-              color: kCardBg,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: kPurple.withOpacity(0.4)),
-            ),
-            child: SvgPicture.asset(
-              'assets/icons/filter.svg'),
+        IconButton(
+          onPressed: controller.onRefresh,
+          icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 20),
+          style: IconButton.styleFrom(
+            backgroundColor: const Color(0xFF1E293B),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
         ),
       ],
     );
   }
 
-  // ---------------- Stats bar (Total / Online / Offline / Maintenance) ----------------
-  Widget _buildStatsBar() {
-    return Obx(
-      () => Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
-        decoration: BoxDecoration(
-          color: kCardBg,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withOpacity(0.06)),
+  // ---------------- 4 KPI Stat Cards (Matching Admin Panel) ----------------
+  Widget _buildStatsGrid() {
+    return Obx(() {
+      return GridView.count(
+        crossAxisCount: 2,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        childAspectRatio: 2.1,
+        children: [
+          _buildStatCard(
+            title: 'TOTAL UNITS',
+            count: controller.totalDevices.toString(),
+            color: const Color(0xFF6366F1),
+            icon: Icons.memory_rounded,
+          ),
+          _buildStatCard(
+            title: 'ONLINE UNITS',
+            count: controller.onlineCount.toString(),
+            color: const Color(0xFF10B981),
+            icon: Icons.check_circle_rounded,
+          ),
+          _buildStatCard(
+            title: 'ACTIVE UNITS',
+            count: controller.activeCount.toString(),
+            color: const Color(0xFF38BDF8),
+            icon: Icons.power_rounded,
+          ),
+          _buildStatCard(
+            title: 'OFFLINE UNITS',
+            count: controller.offlineCount.toString(),
+            color: const Color(0xFFEF4444),
+            icon: Icons.signal_cellular_connected_no_internet_4_bar_rounded,
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildStatCard({
+    required String title,
+    required String count,
+    required Color color,
+    required IconData icon,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F172A),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.8,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                count,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
+          ),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 18),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---------------- Search Bar ----------------
+  Widget _buildSearchBar() {
+    return TextField(
+      onChanged: controller.onSearchChanged,
+      style: const TextStyle(color: Colors.white, fontSize: 13),
+      decoration: InputDecoration(
+        hintText: 'Search Box ID, MAC, Vehicle, Network...',
+        hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+        prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 20),
+        filled: true,
+        fillColor: const Color(0xFF1E293B),
+        isDense: true,
+        contentPadding: const EdgeInsets.symmetric(vertical: 12),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
         ),
+      ),
+    );
+  }
+
+  // ---------------- Filter Tabs ('All', 'Online', 'Offline', 'Active', 'Inactive') ----------------
+  Widget _buildFilterTabs() {
+    return Obx(() {
+      final current = controller.activeTab.value;
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            Expanded(
-              child: _StatPill(
-                svgPath: 'assets/icons/tv.svg',
-                iconColor: kPurple,
-                count: '${controller.totalDevices}',
-                label: 'Total Devices',
-                showDot: false,
+            _buildTabChip('All', controller.totalDevices, current == 'All', const Color(0xFF818CF8)),
+            const SizedBox(width: 8),
+            _buildTabChip('Online', controller.onlineCount, current == 'Online', const Color(0xFF10B981)),
+            const SizedBox(width: 8),
+            _buildTabChip('Offline', controller.offlineCount, current == 'Offline', const Color(0xFFEF4444)),
+            const SizedBox(width: 8),
+            _buildTabChip('Active', controller.activeCount, current == 'Active', const Color(0xFF38BDF8)),
+            const SizedBox(width: 8),
+            _buildTabChip('Inactive', controller.inactiveCount, current == 'Inactive', Colors.white54),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildTabChip(String label, int count, bool isSelected, Color color) {
+    return GestureDetector(
+      onTap: () => controller.setActiveTab(label),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        decoration: BoxDecoration(
+          color: isSelected ? color.withValues(alpha: 0.18) : const Color(0xFF1E293B),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: isSelected ? color : Colors.transparent,
+            width: 1.2,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : AppColors.textMuted,
+                fontSize: 11.5,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               ),
             ),
-            _divider(),
-            Expanded(
-              child: _StatPill(
-                icon: null,
-                iconColor: const Color(0xFF2ECC71),
-                count: '${controller.onlineCount}',
-                label: 'Online',
-                showDot: true,
+            const SizedBox(width: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+              decoration: BoxDecoration(
+                color: isSelected ? color : Colors.white12,
+                borderRadius: BorderRadius.circular(6),
               ),
-            ),
-            _divider(),
-            Expanded(
-              child: _StatPill(
-                icon: null,
-                iconColor: const Color(0xFFFF4D4D),
-                count: '${controller.offlineCount}',
-                label: 'Offline',
-                showDot: true,
-              ),
-            ),
-            _divider(),
-            Expanded(
-              child: _StatPill(
-                icon: null,
-                iconColor: const Color(0xFFFFA726),
-                count: '${controller.maintenanceCount}',
-                label: 'Maintenance',
-                showDot: true,
+              child: Text(
+                count.toString(),
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.white70,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
           ],
@@ -200,118 +296,270 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
     );
   }
 
-  Widget _divider() => Container(
-        height: 34,
-        width: 1,
-        color: Colors.white.withOpacity(0.08),
-      );
-
-  // ---------------- "Device List (32)" + Register button ----------------
-  Widget _buildListHeaderRow() {
+  // ---------------- Section Title + Add Device Button ----------------
+  Widget _buildSectionTitle(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Obx(
           () => Text(
-            'Device List (${controller.filteredDevices.length})',
+            'DEPLOYED DEVICES (${controller.filteredDevices.length})',
             style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
+              color: AppColors.textMuted,
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1,
             ),
           ),
         ),
-        GestureDetector(
-          onTap: controller.onRegisterNewDevice,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-            decoration: BoxDecoration(
-              gradient: AppTheme.primaryGradient,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.add_circle_outline, color: Colors.white, size: 15),
-                SizedBox(width: 6),
-                Text(
-                  'Register New Device',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
+        ElevatedButton.icon(
+          onPressed: controller.onRegisterNewDevice,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF6366F1),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            elevation: 0,
+          ),
+          icon: const Icon(Icons.add_rounded, size: 16),
+          label: const Text(
+            'Add Edge Device',
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
           ),
         ),
       ],
     );
   }
 
-  // ---------------- Device list ----------------
-  Widget _buildDeviceList() {
+  // ---------------- Device List ----------------
+  Widget _buildDeviceList(BuildContext context) {
     return Obx(() {
       final devices = controller.pagedDevices;
       if (devices.isEmpty) {
-        return const Padding(
-          padding: EdgeInsets.symmetric(vertical: 30),
-          child: Center(
-            child: Text(
-              'No devices found',
-              style: TextStyle(color: Colors.white38, fontSize: 13),
-            ),
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 40),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F172A),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFF1E293B)),
+          ),
+          child: Column(
+            children: [
+              Icon(Icons.devices_other_rounded, color: Colors.white.withValues(alpha: 0.2), size: 44),
+              const SizedBox(height: 12),
+              const Text(
+                'No Edge Devices Found',
+                style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                'Try adjusting search or filter tabs.',
+                style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+              ),
+            ],
           ),
         );
       }
-      return Column(
-        children: devices
-            .map(
-              (device) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: _DeviceCard(
-                  device: device,
-                  onTap: () => controller.onDeviceTap(device),
-                ),
-              ),
-            )
-            .toList(),
+
+      return ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: devices.length,
+        separatorBuilder: (ctx, idx) => const SizedBox(height: 12),
+        itemBuilder: (ctx, idx) => _buildDeviceCard(ctx, devices[idx]),
       );
     });
   }
 
-  // ---------------- Pagination footer ----------------
-  Widget _buildPaginationFooter() {
-    return Obx(
-      () => Column(
+  // ---------------- Single Edge Device Card (Matching TechDevicesPage.jsx) ----------------
+  Widget _buildDeviceCard(BuildContext context, EdgeDeviceModel device) {
+    final isOnline = device.isOnline;
+    final isActive = device.isActive;
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F172A),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF1E293B), width: 1.2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            controller.filteredDevices.isEmpty
-                ? 'No devices found'
-                : 'Showing ${controller.showingFrom} to ${controller.showingTo} of ${controller.filteredDevices.length} devices',
-            style: const TextStyle(color: Colors.white38, fontSize: 11.5),
-          ),
-          const SizedBox(height: 12),
+          // Top Row: Box ID, Status Badge, Active Toggle
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _PageNavButton(
-                label: 'Previous',
-                icon: Icons.chevron_left,
-                iconLeading: true,
-                enabled: controller.currentPage.value > 1,
-                onTap: controller.previousPage,
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF6366F1).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.4)),
+                ),
+                child: Text(
+                  device.boxId,
+                  style: const TextStyle(
+                    color: Color(0xFF818CF8),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              Row(
+                children: [
+                  // Status badge (online/offline)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: isOnline
+                          ? const Color(0xFF10B981).withValues(alpha: 0.15)
+                          : const Color(0xFFEF4444).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: isOnline
+                            ? const Color(0xFF10B981).withValues(alpha: 0.3)
+                            : const Color(0xFFEF4444).withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 5,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            color: isOnline ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          device.status.toUpperCase(),
+                          style: TextStyle(
+                            color: isOnline ? const Color(0xFF34D399) : const Color(0xFFF87171),
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  // Active/Inactive Toggle Button
+                  GestureDetector(
+                    onTap: () => controller.toggleDeviceActive(device),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: isActive
+                            ? const Color(0xFF38BDF8).withValues(alpha: 0.15)
+                            : Colors.white10,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: isActive
+                              ? const Color(0xFF38BDF8).withValues(alpha: 0.4)
+                              : Colors.white24,
+                        ),
+                      ),
+                      child: Text(
+                        isActive ? 'Active' : 'Inactive',
+                        style: TextStyle(
+                          color: isActive ? const Color(0xFF38BDF8) : Colors.white54,
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 10),
+
+          // Device Name & MAC
+          Text(
+            device.name.isNotEmpty ? device.name : device.boxId,
+            style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            'MAC: ${device.mac.isNotEmpty ? device.mac : "—"}',
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 10.5, fontFamily: 'monospace'),
+          ),
+
+          const SizedBox(height: 10),
+
+          // Details Matrix Panel
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E293B),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              children: [
+                _buildInfoRow('Assigned Bus', device.vehicleRegistration, Icons.directions_bus_rounded),
+                const SizedBox(height: 6),
+                _buildInfoRow('SIM Network', device.simNetwork, Icons.signal_cellular_alt_rounded),
+                const SizedBox(height: 6),
+                _buildInfoRow('Agent Version', device.agentVersion, Icons.code_rounded),
+                const SizedBox(height: 6),
+                _buildInfoRow('Depot', device.depotName, Icons.location_on_outlined),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          // Action Buttons: Configure Hardware, Reboot, Delete
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => controller.configureHardware(device),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1E293B),
+                    foregroundColor: const Color(0xFF818CF8),
+                    padding: const EdgeInsets.symmetric(vertical: 9),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    elevation: 0,
+                  ),
+                  icon: const Icon(Icons.settings_outlined, size: 14),
+                  label: const Text(
+                    'Configure Hardware',
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                  ),
+                ),
               ),
               const SizedBox(width: 8),
-              ..._buildPageNumbers(),
+              // Reboot Button
+              IconButton(
+                onPressed: () => controller.rebootDevice(context, device),
+                tooltip: 'Reboot Device',
+                icon: const Icon(Icons.restart_alt_rounded, color: Color(0xFF38BDF8), size: 18),
+                constraints: const BoxConstraints(),
+                style: IconButton.styleFrom(
+                  backgroundColor: const Color(0xFF1E293B),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.all(8),
+                ),
+              ),
               const SizedBox(width: 8),
-              _PageNavButton(
-                label: 'Next',
-                icon: Icons.chevron_right,
-                iconLeading: false,
-                enabled: controller.currentPage.value < controller.totalPages,
-                onTap: controller.nextPage,
+              // Delete Button
+              IconButton(
+                onPressed: () => controller.deleteDevice(context, device),
+                tooltip: 'Delete Device',
+                icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 18),
+                constraints: const BoxConstraints(),
+                style: IconButton.styleFrom(
+                  backgroundColor: const Color(0xFF1E293B),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.all(8),
+                ),
               ),
             ],
           ),
@@ -320,298 +568,74 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
     );
   }
 
-  List<Widget> _buildPageNumbers() {
-    final total = controller.totalPages;
-    final current = controller.currentPage.value;
-    // Show up to 5 page numbers
-    final pages = <int>[];
-    for (int i = 1; i <= total; i++) {
-      pages.add(i);
-    }
-    final visible = pages.take(5).toList();
-
-    return visible
-        .map(
-          (page) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 3),
-            child: GestureDetector(
-              onTap: () => controller.goToPage(page),
-              child: Container(
-                width: 30,
-                height: 30,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  gradient: page == current
-                      ? const LinearGradient(colors: [kIndigo, kPurple])
-                      : null,
-                  color: page == current ? null : kCardBg,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: page == current
-                        ? Colors.transparent
-                        : Colors.white.withOpacity(0.08),
-                  ),
-                ),
-                child: Text(
-                  '$page',
-                  style: TextStyle(
-                    color: page == current ? Colors.white : Colors.white54,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        )
-        .toList();
-  }
-}
-
-// =====================================================================
-// Stat pill (used inside the stats bar)
-// =====================================================================
-class _StatPill extends StatelessWidget {
-  final IconData? icon;
-  final String? svgPath;
-  final Color iconColor;
-  final String count;
-  final String label;
-  final bool showDot;
-
-  const _StatPill({
-    this.icon,
-    this.svgPath,
-    required this.iconColor,
-    required this.count,
-    required this.label,
-    this.showDot = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final bool hasSvg = svgPath != null && svgPath!.isNotEmpty;
-    final bool hasIcon = icon != null;
-
-    return Column(
+  Widget _buildInfoRow(String label, String value, IconData icon) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // SVG Image
-            if (hasSvg) ...[
-              SvgPicture.asset(
-                svgPath!,
-                width: 16,
-                height: 16,
-              ),
-              const SizedBox(width: 4),
-            ]
-
-            // Normal Icon
-            else if (hasIcon) ...[
-              Icon(
-                icon,
-                color: iconColor,
-                size: 16,
-              ),
-              const SizedBox(width: 4),
-            ]
-
-            // Dot
-            else if (showDot) ...[
-                Container(
-                  width: 7,
-                  height: 7,
-                  decoration: BoxDecoration(
-                    color: iconColor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 5),
-              ],
-
-            Text(
-              count,
-              style: TextStyle(
-                color: (hasSvg || hasIcon)
-                    ? Colors.white
-                    : iconColor,
-                fontSize: 15,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
+            Icon(icon, color: AppColors.textMuted, size: 13),
+            const SizedBox(width: 5),
+            Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
           ],
         ),
-        const SizedBox(height: 3),
         Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white38,
-            fontSize: 10,
-          ),
+          value.isNotEmpty ? value : '—',
+          style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
         ),
       ],
     );
   }
-}
 
-// =====================================================================
-// Device card
-// =====================================================================
-class _DeviceCard extends StatelessWidget {
-  final DisplayDevice device;
-  final VoidCallback onTap;
+  // ---------------- Pagination Footer ----------------
+  Widget _buildPaginationFooter() {
+    return Obx(() {
+      final current = controller.currentPage.value;
+      final total = controller.totalPages;
 
-  const _DeviceCard({required this.device, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: DisplayDevicesView.kCardBg,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withOpacity(0.06)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(9),
-              decoration: BoxDecoration(
-                color: device.status.color.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: SvgPicture.asset(
-                'assets/icons/tv.svg',
-                width: 18,
-                height: 18,
-                // Agar device status color apply karna ho to:
-                // colorFilter: ColorFilter.mode(
-                //   device.status.color,
-                //   BlendMode.srcIn,
-                // ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    device.id,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    device.vehicleNumber,
-                    style: const TextStyle(color: Colors.white54, fontSize: 11),
-                  ),
-                  const SizedBox(height: 2),
-                  Row(
-                    children: [
-                      const Icon(Icons.location_on_outlined,
-                          color: Colors.white38, size: 11),
-                      const SizedBox(width: 2),
-                      Text(
-                        device.location,
-                        style: const TextStyle(color: Colors.white38, fontSize: 10.5),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        color: device.status.color,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      device.status.label,
-                      style: TextStyle(
-                        color: device.status.color,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Showing ${controller.showingFrom}–${controller.showingTo} of ${controller.filteredDevices.length}',
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+          ),
+          Row(
+            children: [
+              IconButton(
+                onPressed: current > 1 ? controller.previousPage : null,
+                icon: const Icon(Icons.chevron_left_rounded, size: 18),
+                color: Colors.white,
+                disabledColor: Colors.white24,
+                constraints: const BoxConstraints(),
+                style: IconButton.styleFrom(
+                  backgroundColor: const Color(0xFF1E293B),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.all(6),
                 ),
-                const SizedBox(height: 3),
-                Text(
-                  'Last Seen: ${device.lastSeen}',
-                  style: const TextStyle(color: Colors.white38, fontSize: 9.5),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '$current / $total',
+                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                onPressed: current < total ? controller.nextPage : null,
+                icon: const Icon(Icons.chevron_right_rounded, size: 18),
+                color: Colors.white,
+                disabledColor: Colors.white24,
+                constraints: const BoxConstraints(),
+                style: IconButton.styleFrom(
+                  backgroundColor: const Color(0xFF1E293B),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.all(6),
                 ),
-              ],
-            ),
-            const SizedBox(width: 4),
-            const Icon(Icons.chevron_right, color: Colors.white24, size: 16),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// =====================================================================
-// Pagination nav button (Previous / Next)
-// =====================================================================
-class _PageNavButton extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final bool iconLeading;
-  final bool enabled;
-  final VoidCallback onTap;
-
-  const _PageNavButton({
-    required this.label,
-    required this.icon,
-    required this.iconLeading,
-    required this.enabled,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final children = [
-      if (iconLeading) Icon(icon, size: 15, color: enabled ? Colors.white70 : Colors.white24),
-      Text(
-        label,
-        style: TextStyle(
-          color: enabled ? Colors.white70 : Colors.white24,
-          fontSize: 11.5,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      if (!iconLeading) Icon(icon, size: 15, color: enabled ? Colors.white70 : Colors.white24),
-    ];
-
-    return GestureDetector(
-      onTap: enabled ? onTap : null,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-        decoration: BoxDecoration(
-          color: DisplayDevicesView.kCardBg,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.white.withOpacity(0.08)),
-        ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: children),
-      ),
-    );
+              ),
+            ],
+          ),
+        ],
+      );
+    });
   }
 }
