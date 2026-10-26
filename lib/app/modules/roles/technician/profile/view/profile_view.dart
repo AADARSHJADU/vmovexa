@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
+import 'package:vmovexa/app/data/constants/api_constants.dart';
 import '../controller/profile_controller.dart';
 
 class ProfileView extends GetView<ProfileController> {
@@ -18,56 +19,61 @@ class ProfileView extends GetView<ProfileController> {
     return Scaffold(
       backgroundColor: kBg,
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          physics: const BouncingScrollPhysics(),
-          children: [
-            const SizedBox(height: 8),
-            _buildHeader(context),
-            const SizedBox(height: 16),
-            _buildProfileHeaderCard(),
-            const SizedBox(height: 24),
-            
-            // Account Section
-            _buildSectionHeader(
-              svgPath: 'assets/icons/profile.svg',
-              title: 'Account',
-            ),
-            const SizedBox(height: 10),
-            _buildAccountCard(),
-            const SizedBox(height: 24),
+        child: RefreshIndicator(
+          color: kPurple,
+          backgroundColor: kCardBg,
+          onRefresh: () => controller.loadProfileData(showLoader: false),
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+            children: [
+              const SizedBox(height: 8),
+              _buildHeader(context),
+              const SizedBox(height: 16),
+              _buildProfileHeaderCard(),
+              const SizedBox(height: 24),
+              
+              // Account Section
+              _buildSectionHeader(
+                svgPath: 'assets/icons/profile.svg',
+                title: 'Account',
+              ),
+              const SizedBox(height: 10),
+              _buildAccountCard(),
+              const SizedBox(height: 24),
 
-            // Preferences Section
-            _buildSectionHeader(
-              svgPath: 'assets/icons/fleet_operator_icons/appPreferenceA.svg',
-              title: 'Preferences',
-            ),
-            const SizedBox(height: 10),
-            _buildPreferencesCard(),
-            const SizedBox(height: 24),
+              // Preferences Section
+              _buildSectionHeader(
+                svgPath: 'assets/icons/fleet_operator_icons/appPreferenceA.svg',
+                title: 'Preferences',
+              ),
+              const SizedBox(height: 10),
+              _buildPreferencesCard(),
+              const SizedBox(height: 24),
 
-            // Security Section
-            _buildSectionHeader(
-              svgPath: 'assets/icons/fleet_operator_icons/securityA.svg',
-              title: 'Security',
-            ),
-            const SizedBox(height: 10),
-            _buildSecurityCard(),
-            const SizedBox(height: 24),
+              // Security Section
+              _buildSectionHeader(
+                svgPath: 'assets/icons/fleet_operator_icons/securityA.svg',
+                title: 'Security',
+              ),
+              const SizedBox(height: 10),
+              _buildSecurityCard(),
+              const SizedBox(height: 24),
 
-            // App Section
-            _buildSectionHeader(
-              svgPath: 'assets/icons/fleet_operator_icons/AboutA.svg',
-              title: 'App',
-            ),
-            const SizedBox(height: 10),
-            _buildAppCard(),
-            const SizedBox(height: 28),
+              // // App Section
+              // _buildSectionHeader(
+              //   svgPath: 'assets/icons/fleet_operator_icons/AboutA.svg',
+              //   title: 'App',
+              // ),
+              // const SizedBox(height: 10),
+              // _buildAppCard(),
+              // const SizedBox(height: 28),
 
-            // Log Out Button
-            _buildLogOutButton(),
-            const SizedBox(height: 30),
-          ],
+              // Log Out Button
+              _buildLogOutButton(),
+              const SizedBox(height: 30),
+            ],
+          ),
         ),
       ),
     );
@@ -123,55 +129,98 @@ class ProfileView extends GetView<ProfileController> {
       ),
       child: Obx(() {
         final data = controller.profile.value;
-        if (data == null) {
-          return const Center(child: CircularProgressIndicator(color: kPurple));
+        if (data == null && controller.isLoading.value) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(24.0),
+              child: CircularProgressIndicator(color: kPurple),
+            ),
+          );
         }
+
+        if (data == null) {
+          return const SizedBox.shrink();
+        }
+
+        final photoUrl = data.profilePicture != null && data.profilePicture!.isNotEmpty
+            ? ApiConstants.resolveFileUrl(data.profilePicture)
+            : null;
 
         return Row(
           children: [
-            // Avatar Photo
-            Stack(
-              children: [
-                Container(
-                  width: 68,
-                  height: 68,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: kPurple.withOpacity(0.12),
-                    border: Border.all(color: kPurple.withOpacity(0.35), width: 1.5),
-                  ),
-                  child: Center(
-                    child: SvgPicture.asset(
-                      'assets/icons/profile.svg',
-                      width: 34,
-                      height: 34,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(3),
-                    decoration: const BoxDecoration(
-                      color: kCardBg,
+            // Avatar Photo with camera badge
+            GestureDetector(
+              onTap: controller.changePhoto,
+              child: Stack(
+                children: [
+                  Container(
+                    width: 68,
+                    height: 68,
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
+                      color: kPurple.withOpacity(0.12),
+                      border: Border.all(color: kPurple.withOpacity(0.35), width: 1.5),
                     ),
+                    child: ClipOval(
+                      child: controller.isUploadingPhoto.value
+                          ? const Center(
+                              child: SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  color: kPurple,
+                                  strokeWidth: 2.2,
+                                ),
+                              ),
+                            )
+                          : (photoUrl != null && photoUrl.isNotEmpty)
+                              ? Image.network(
+                                  photoUrl,
+                                  width: 68,
+                                  height: 68,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) => Center(
+                                    child: SvgPicture.asset(
+                                      'assets/icons/profile.svg',
+                                      width: 34,
+                                      height: 34,
+                                    ),
+                                  ),
+                                )
+                              : Center(
+                                  child: SvgPicture.asset(
+                                    'assets/icons/profile.svg',
+                                    width: 34,
+                                    height: 34,
+                                  ),
+                                ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
                     child: Container(
                       padding: const EdgeInsets.all(3),
                       decoration: const BoxDecoration(
-                        color: kPurple,
+                        color: kCardBg,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
-                        Icons.camera_alt_rounded,
-                        color: Colors.white,
-                        size: 10,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: kPurple,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.camera_alt_rounded,
+                          color: Colors.white,
+                          size: 11,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(width: 16),
 
@@ -386,13 +435,13 @@ class ProfileView extends GetView<ProfileController> {
             subtitle: 'View terms and conditions',
             onTap: controller.goToTermsConditions,
           ),
-          _buildDivider(),
-          _buildSettingsRow(
-            svgPath: 'assets/icons/advertiser_ic/monitor.svg',
-            title: 'Device Sessions',
-            subtitle: 'Manage your active sessions',
-            onTap: controller.goToDeviceSessions,
-          ),
+          // _buildDivider(),
+          // _buildSettingsRow(
+          //   svgPath: 'assets/icons/advertiser_ic/monitor.svg',
+          //   title: 'Device Sessions',
+          //   subtitle: 'Manage your active sessions',
+          //   onTap: controller.goToDeviceSessions,
+          // ),
         ],
       ),
     );

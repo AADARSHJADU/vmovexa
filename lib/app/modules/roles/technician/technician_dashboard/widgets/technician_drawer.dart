@@ -39,7 +39,7 @@ class TechnicianDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     title: 'Field Work Orders',
-                    icon: 'assets/icons/fleet_operator_icons/tripsA.svg',
+                    icon: 'assets/icons/fleet_operator_icons/fleetsManagedA2.svg',
                     isSelected: dashboardCtrl.selectedNavIndex.value == 1,
                     onTap: () {
                       Get.back();

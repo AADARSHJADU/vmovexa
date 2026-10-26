@@ -282,7 +282,7 @@ class FleetOpDrawer extends StatelessWidget {
                     color: Colors.white70,
                     onTap: () {
                       Get.back();
-                      Get.toNamed(Routes.PRIVACY_POLICY);
+                      Get.toNamed(Routes.PRIVACY_POLICY, arguments: {'role': 'ROLE-FLEET-OPERATOR'});
                     },
                   ),
                   _buildDrawerItem(
@@ -291,7 +291,7 @@ class FleetOpDrawer extends StatelessWidget {
                     color: Colors.white70,
                     onTap: () {
                       Get.back();
-                      Get.toNamed(Routes.TERMS_CONDITIONS);
+                      Get.toNamed(Routes.TERMS_CONDITIONS, arguments: {'role': 'ROLE-FLEET-OPERATOR'});
                     },
                   ),
                   _buildDrawerItem(

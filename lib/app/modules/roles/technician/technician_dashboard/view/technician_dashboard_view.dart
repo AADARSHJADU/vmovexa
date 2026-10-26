@@ -74,13 +74,13 @@ class TechnicianDashboardView extends GetView<TechnicianDashboardController> {
               ),
               BottomNavigationBarItem(
                 icon: SvgPicture.asset(
-                  'assets/icons/fleet_operator_icons/tripsA.svg',
+                  'assets/icons/fleet_operator_icons/fleetsManagedA2.svg',
                   width: 20,
                   height: 20,
                   colorFilter: const ColorFilter.mode(AppColors.textMuted, BlendMode.srcIn),
                 ),
                 activeIcon: SvgPicture.asset(
-                  'assets/icons/fleet_operator_icons/tripsA.svg',
+                  'assets/icons/fleet_operator_icons/fleetsManagedA2.svg',
                   width: 20,
                   height: 20,
                   colorFilter: const ColorFilter.mode(Color(0xFF818CF8), BlendMode.srcIn),

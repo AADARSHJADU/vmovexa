@@ -474,7 +474,7 @@ class ProfileView extends StatelessWidget {
             iconPath: 'assets/icons/fleet_operator_icons/privacyPolicyA.svg',
             iconBg: const Color(0xFF06B6D4).withOpacity(0.15),
             iconColor: const Color(0xFF22D3EE),
-            onTap: () => Get.toNamed(Routes.PRIVACY_POLICY),
+            onTap: () => Get.toNamed(Routes.PRIVACY_POLICY, arguments: {'role': 'ROLE-FLEET-OPERATOR'}),
           ),
           const Divider(color: AppColors.cardBorder, height: 16),
           _buildMenuRow(
@@ -483,7 +483,7 @@ class ProfileView extends StatelessWidget {
             iconPath: 'assets/icons/fleet_operator_icons/securityA.svg',
             iconBg: const Color(0xFF6366F1).withOpacity(0.15),
             iconColor: const Color(0xFF818CF8),
-            onTap: () => Get.toNamed(Routes.TERMS_CONDITIONS),
+            onTap: () => Get.toNamed(Routes.TERMS_CONDITIONS, arguments: {'role': 'ROLE-FLEET-OPERATOR'}),
           ),
           const Divider(color: AppColors.cardBorder, height: 16),
           _buildMenuRow(

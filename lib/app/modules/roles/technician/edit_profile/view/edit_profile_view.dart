@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
+import 'package:vmovexa/app/data/constants/api_constants.dart';
 import '../../../../../theme/app_theme.dart';
 import '../controller/edit_profile_controller.dart';
 
@@ -29,6 +30,10 @@ class EditProfileView extends GetView<EditProfileController> {
                 padding: const EdgeInsets.all(16),
                 physics: const BouncingScrollPhysics(),
                 children: [
+                  // Avatar Section
+                  _buildAvatarCard(),
+                  const SizedBox(height: 20),
+
                   // Personal Information Section (Editable)
                   _buildSectionHeader(
                     svgPath: 'assets/icons/profile.svg',
@@ -307,50 +312,175 @@ class EditProfileView extends GetView<EditProfileController> {
     );
   }
 
-  // ---------------- Save Button ----------------
-  Widget _buildSaveButton() {
-    return GestureDetector(
-      onTap: controller.saveProfile,
-      child: Container(
-        width: double.infinity,
-        height: 52,
-        decoration: BoxDecoration(
-          gradient: AppTheme.primaryGradient,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: kPurple.withOpacity(0.2),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        alignment: Alignment.center,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+  // ---------------- Avatar Card ----------------
+  Widget _buildAvatarCard() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      decoration: BoxDecoration(
+        color: kCardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: kBorder, width: 1.2),
+      ),
+      child: Center(
+        child: Column(
           children: [
-            SvgPicture.asset(
-              'assets/icons/fleet_operator_icons/saveChangesA.svg',
-              width: 20,
-              height: 20,
-              colorFilter: const ColorFilter.mode(
-                Colors.white,
-                BlendMode.srcIn,
+            Obx(() {
+              final photo = controller.avatarUrl.value;
+              final photoUrl = photo.isNotEmpty ? ApiConstants.resolveFileUrl(photo) : null;
+
+              return GestureDetector(
+                onTap: controller.changePhoto,
+                child: Stack(
+                  children: [
+                    Container(
+                      width: 86,
+                      height: 86,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: kPurple.withOpacity(0.12),
+                        border: Border.all(color: kPurple.withOpacity(0.4), width: 2),
+                      ),
+                      child: ClipOval(
+                        child: controller.isUploadingPhoto.value
+                            ? const Center(
+                                child: SizedBox(
+                                  width: 28,
+                                  height: 28,
+                                  child: CircularProgressIndicator(
+                                    color: kPurple,
+                                    strokeWidth: 2.5,
+                                  ),
+                                ),
+                              )
+                            : (photoUrl != null && photoUrl.isNotEmpty)
+                                ? Image.network(
+                                    photoUrl,
+                                    width: 86,
+                                    height: 86,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) => Center(
+                                      child: SvgPicture.asset(
+                                        'assets/icons/profile.svg',
+                                        width: 40,
+                                        height: 40,
+                                      ),
+                                    ),
+                                  )
+                                : Center(
+                                    child: SvgPicture.asset(
+                                      'assets/icons/profile.svg',
+                                      width: 40,
+                                      height: 40,
+                                    ),
+                                  ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: const BoxDecoration(
+                          color: kCardBg,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: const BoxDecoration(
+                            color: kPurple,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.camera_alt_rounded,
+                            color: Colors.white,
+                            size: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+            const SizedBox(height: 10),
+            TextButton(
+              onPressed: controller.changePhoto,
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-            ),
-            const SizedBox(width: 8),
-            const Text(
-              'Save Changes',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
+              child: const Text(
+                'Change Profile Photo',
+                style: TextStyle(
+                  color: kPurple,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  // ---------------- Save Button ----------------
+  Widget _buildSaveButton() {
+    return Obx(() {
+      final isSaving = controller.isSaving.value;
+      return GestureDetector(
+        onTap: isSaving ? null : controller.saveProfile,
+        child: Container(
+          width: double.infinity,
+          height: 52,
+          decoration: BoxDecoration(
+            gradient: AppTheme.primaryGradient,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: kPurple.withOpacity(0.2),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          alignment: Alignment.center,
+          child: isSaving
+              ? const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2.2,
+                  ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/icons/fleet_operator_icons/saveChangesA.svg',
+                      width: 20,
+                      height: 20,
+                      colorFilter: const ColorFilter.mode(
+                        Colors.white,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Save Changes',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+      );
+    });
   }
 
   // ---------------- UI Helpers ----------------

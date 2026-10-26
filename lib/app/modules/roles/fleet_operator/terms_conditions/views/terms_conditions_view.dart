@@ -15,6 +15,13 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
         ? Get.find<TermsConditionsController>()
         : Get.put(TermsConditionsController());
 
+    final expectedRole = c.resolveRole();
+    if (c.currentRoleCode != expectedRole) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        c.initForCurrentRole();
+      });
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(

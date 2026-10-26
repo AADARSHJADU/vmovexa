@@ -14,6 +14,13 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
         ? Get.find<PrivacyPolicyController>()
         : Get.put(PrivacyPolicyController());
 
+    final expectedRole = c.resolveRole();
+    if (c.currentRoleCode != expectedRole) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        c.initForCurrentRole();
+      });
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
