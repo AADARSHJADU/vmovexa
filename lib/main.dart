@@ -8,6 +8,7 @@ import 'app/data/services/http_client_service.dart';
 import 'app/data/services/auth_service.dart';
 import 'app/data/services/fleet_service.dart';
 import 'app/data/services/technician_service.dart';
+import 'app/data/services/finance_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,6 +17,7 @@ void main() async {
   Get.put(AuthService());
   Get.put(FleetService());
   Get.put(TechnicianService());
+  Get.put(FinanceService());
   runApp(const VMovexaApp());
 }
 

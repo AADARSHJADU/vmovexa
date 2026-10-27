@@ -1,304 +1,339 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:vmovexa/app/modules/roles/finance/invoice/generate_invoice/model/invoice_models.dart';
+import 'package:vmovexa/app/data/services/finance_service.dart';
+import '../../controller/invoice_controller.dart';
+import '../../../home/controller/finance_home_controller.dart';
 
-import '../view/invoice_preview_view.dart';
+class GenerateInvoiceItemState {
+  final int id;
+  final TextEditingController descCtrl;
+  final TextEditingController qtyCtrl;
+  final TextEditingController rateCtrl;
+
+  GenerateInvoiceItemState({
+    required this.id,
+    String desc = '',
+    int qty = 1,
+    num rate = 0,
+  })  : descCtrl = TextEditingController(text: desc),
+        qtyCtrl = TextEditingController(text: qty > 0 ? qty.toString() : '1'),
+        rateCtrl = TextEditingController(text: rate > 0 ? rate.toString() : '');
+
+  double get quantity => double.tryParse(qtyCtrl.text.trim()) ?? 1.0;
+  double get unitRate => double.tryParse(rateCtrl.text.trim()) ?? 0.0;
+  double get total => quantity * unitRate;
+
+  String get description => descCtrl.text.trim().isEmpty ? 'Item' : descCtrl.text.trim();
+  String get hsnSac => '998363';
+  double get rate => unitRate;
+  double get amount => total;
+
+  void dispose() {
+    descCtrl.dispose();
+    qtyCtrl.dispose();
+    rateCtrl.dispose();
+  }
+}
 
 class GenerateInvoiceController extends GetxController {
-  // ==========================================================
-  // Customer Details
-  // ==========================================================
-  final Rx<InvoiceCustomer?> selectedCustomer = Rx<InvoiceCustomer?>(null);
-  final List<InvoiceCustomer> customerOptions = [
-    InvoiceCustomer(
-      id: 'cust_1',
-      name: 'VMOVEXA Advertising Pvt. Ltd.',
-      gstin: '29ABCDE1234F1Z5',
-      billingAddress: '123, MG Road, Indiranagar, Bengaluru, Karnataka - 560038',
-      placeOfSupply: 'Karnataka (29)',
-    ),
-    InvoiceCustomer(
-      id: 'cust_2',
-      name: 'CityMove Solutions',
-      gstin: '27ABCDE5678F1Z2',
-      billingAddress: '45, FC Road, Shivaji Nagar, Pune, Maharashtra - 411005',
-      placeOfSupply: 'Maharashtra (27)',
-    ),
-    InvoiceCustomer(
-      id: 'cust_3',
-      name: 'Urban Adz Media',
-      gstin: '07ABCDE9012F1Z8',
-      billingAddress: '12, Connaught Place, New Delhi - 110001',
-      placeOfSupply: 'Delhi (07)',
-    ),
-  ];
+  // ---------------- Stepper State (1 to 4) ----------------
+  final RxInt currentStep = 1.obs;
+  final RxBool isSubmitting = false.obs;
 
-  void setCustomer(String? customerId) {
-    selectedCustomer.value = customerOptions.firstWhereOrNull((c) => c.id == customerId);
-    if (selectedCustomer.value != null) {
-      billingAddress.value = selectedCustomer.value!.billingAddress;
-      placeOfSupply.value = selectedCustomer.value!.placeOfSupply;
-      customerError.value = null;
-    }
-  }
-
-  final RxString billingAddress = ''.obs;
+  // ---------------- STEP 1: Customer Details ----------------
+  final customerNameCtrl = TextEditingController();
   final gstinCtrl = TextEditingController();
+  final poReferenceCtrl = TextEditingController();
+  final billingAddressCtrl = TextEditingController();
 
-  final RxnString customerError = RxnString();
-  final RxnString billingAddressError = RxnString();
+  // ---------------- STEP 2: Line Items ----------------
+  final RxList<GenerateInvoiceItemState> items = <GenerateInvoiceItemState>[].obs;
+  final RxDouble subtotal = 0.0.obs;
 
-  // ==========================================================
-  // Invoice Details
-  // ==========================================================
-  final Rx<DateTime> invoiceDate = DateTime(2026, 8, 7).obs;
-  final Rx<DateTime> dueDate = DateTime(2026, 8, 21).obs;
-  final poReferenceCtrl = TextEditingController(text: 'PO-12345');
-
-  final RxString currency = 'INR - Indian Rupee'.obs;
-  final List<String> currencyOptions = const ['INR - Indian Rupee', 'USD - US Dollar', 'EUR - Euro'];
-
-  final RxString placeOfSupply = ''.obs;
-  final List<String> placeOfSupplyOptions = const [
-    'Karnataka (29)', 'Maharashtra (27)', 'Delhi (07)', 'Tamil Nadu (33)', 'Gujarat (24)',
+  // ---------------- STEP 3: Taxes & Terms ----------------
+  final RxString placeOfSupply = '27-Maharashtra'.obs;
+  final List<Map<String, String>> placeOfSupplyOptions = const [
+    {'value': '27-Maharashtra', 'label': '27 - Maharashtra (CGST 9% + SGST 9%)'},
+    {'value': '23-Madhya Pradesh', 'label': '23 - Madhya Pradesh (IGST 18%)'},
+    {'value': '07-Delhi', 'label': '07 - Delhi (IGST 18%)'},
+    {'value': '29-Karnataka', 'label': '29 - Karnataka (IGST 18%)'},
+    {'value': '33-Tamil Nadu', 'label': '33 - Tamil Nadu (IGST 18%)'},
+    {'value': '24-Gujarat', 'label': '24 - Gujarat (IGST 18%)'},
   ];
 
-  static const List<String> _monthNames = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-  ];
+  final Rx<DateTime> dueDate = Rx<DateTime>(DateTime.now().add(const Duration(days: 15)));
+  final deliveryTermsCtrl = TextEditingController();
 
-  String _formatDate(DateTime dt) => '${dt.day.toString().padLeft(2, '0')} ${_monthNames[dt.month - 1]} ${dt.year}';
+  double get cgst => subtotal.value * 0.09;
+  double get sgst => subtotal.value * 0.09;
+  double get grandTotal => subtotal.value + cgst + sgst;
 
-  String get invoiceDateText => _formatDate(invoiceDate.value);
-  String get dueDateText => _formatDate(dueDate.value);
+  // ---------------- Compatibility & Preview Properties ----------------
+  final RxString invoiceNumber = 'INV-2026-PREVIEW'.obs;
+  final RxString currency = 'INR - Indian Rupee (₹)'.obs;
+  final RxBool isDownloading = false.obs;
 
-  Future<void> onPickInvoiceDate(BuildContext context) async {
-    final picked = await _showThemedDatePicker(context, invoiceDate.value);
-    if (picked != null) invoiceDate.value = picked;
+  TextEditingController get notesCtrl => deliveryTermsCtrl;
+  RxString get billingAddress => RxString(billingAddressCtrl.text.trim());
+
+  String get invoiceDateText {
+    final now = DateTime.now();
+    return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+  }
+  String get dueDateText => dueDateFormatted;
+
+  String get subtotalText => '₹${subtotal.value.toStringAsFixed(2)}';
+  String get cgstText => '₹${cgst.toStringAsFixed(2)}';
+  String get sgstText => '₹${sgst.toStringAsFixed(2)}';
+  String get totalAmountText => '₹${grandTotal.toStringAsFixed(2)}';
+
+  void onBackPressed() {
+    Get.back();
   }
 
-  Future<void> onPickDueDate(BuildContext context) async {
-    final picked = await _showThemedDatePicker(context, dueDate.value);
-    if (picked != null) dueDate.value = picked;
+  void onEditInvoice() {
+    currentStep.value = 1;
+    Get.back();
   }
 
-  Future<DateTime?> _showThemedDatePicker(BuildContext context, DateTime initial) {
-    return showDatePicker(
-      context: context,
-      initialDate: initial,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2100),
-      builder: (context, child) => Theme(
-        data: ThemeData.dark().copyWith(
-          colorScheme: const ColorScheme.dark(
-            primary: Color(0xFFB042FF),
-            onPrimary: Colors.white,
-            surface: Color(0xFF15151F),
-            onSurface: Colors.white,
-          ),
-          dialogBackgroundColor: const Color(0xFF0B0B14),
-        ),
-        child: child!,
-      ),
+  Future<void> onDownloadInvoice() async {
+    isDownloading.value = true;
+    await Future.delayed(const Duration(milliseconds: 700));
+    isDownloading.value = false;
+    Get.snackbar(
+      'Download Started',
+      'Invoice preview download initiated',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: const Color(0xFF10B981),
+      colorText: Colors.white,
     );
   }
-
-  void setCurrency(String? value) => currency.value = value ?? currency.value;
-  void setPlaceOfSupply(String? value) => placeOfSupply.value = value ?? '';
-
-  // ==========================================================
-  // Invoice Items
-  // ==========================================================
-  final RxList<InvoiceLineItem> items = <InvoiceLineItem>[].obs;
-
-  double get subtotal => items.fold(0.0, (sum, item) => sum + item.amount);
-  double get cgst => subtotal * 0.09;
-  double get sgst => subtotal * 0.09;
-  double get totalAmount => subtotal + cgst + sgst;
-
-  String _formatCurrency(double value) {
-    // Simple Indian-style digit grouping (e.g. 1,80,25,000.00) without extra packages.
-    final isNegative = value < 0;
-    final fixed = value.abs().toStringAsFixed(2);
-    final parts = fixed.split('.');
-    final intPart = parts[0];
-
-    String result;
-    if (intPart.length <= 3) {
-      result = intPart;
-    } else {
-      final last3 = intPart.substring(intPart.length - 3);
-      String remaining = intPart.substring(0, intPart.length - 3);
-      final groups = <String>[];
-      while (remaining.length > 2) {
-        groups.insert(0, remaining.substring(remaining.length - 2));
-        remaining = remaining.substring(0, remaining.length - 2);
-      }
-      if (remaining.isNotEmpty) groups.insert(0, remaining);
-      result = '${groups.join(',')},$last3';
-    }
-    return '${isNegative ? '-' : ''}\u20b9$result.${parts[1]}';
-  }
-
-  String get subtotalText => _formatCurrency(subtotal);
-  String get cgstText => _formatCurrency(cgst);
-  String get sgstText => _formatCurrency(sgst);
-  String get totalAmountText => _formatCurrency(totalAmount);
-
-  void onAddItem(BuildContext context) {
-    final descCtrl = TextEditingController();
-    final hsnCtrl = TextEditingController();
-    final qtyCtrl = TextEditingController(text: '1');
-    final rateCtrl = TextEditingController();
-
-    Get.dialog(
-      AlertDialog(
-        backgroundColor: const Color(0xFF15151F),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: const Text('Add Invoice Item', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700)),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _dialogField('Item Description', descCtrl),
-              const SizedBox(height: 10),
-              _dialogField('HSN/SAC', hsnCtrl),
-              const SizedBox(height: 10),
-              _dialogField('Quantity', qtyCtrl, keyboardType: TextInputType.number),
-              const SizedBox(height: 10),
-              _dialogField('Rate (\u20b9)', rateCtrl, keyboardType: TextInputType.number),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel', style: TextStyle(color: Colors.white54))),
-          TextButton(
-            onPressed: () {
-              final qty = double.tryParse(qtyCtrl.text.trim()) ?? 0;
-              final rate = double.tryParse(rateCtrl.text.trim()) ?? 0;
-              if (descCtrl.text.trim().isEmpty || qty <= 0 || rate <= 0) {
-                Get.snackbar('Missing Information', 'Please fill all item fields correctly',
-                    backgroundColor: const Color(0xFF15151F), colorText: Colors.white, snackPosition: SnackPosition.BOTTOM);
-                return;
-              }
-              items.add(InvoiceLineItem(
-                id: 'item_${DateTime.now().millisecondsSinceEpoch}',
-                description: descCtrl.text.trim(),
-                hsnSac: hsnCtrl.text.trim().isEmpty ? '—' : hsnCtrl.text.trim(),
-                quantity: qty,
-                rate: rate,
-              ));
-              Get.back();
-            },
-            child: const Text('Add Item', style: TextStyle(color: Color(0xFFB042FF), fontWeight: FontWeight.w700)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _dialogField(String label, TextEditingController ctrl, {TextInputType? keyboardType}) {
-    return TextField(
-      controller: ctrl,
-      keyboardType: keyboardType,
-      style: const TextStyle(color: Colors.white, fontSize: 13),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: Colors.white54, fontSize: 12),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.white.withOpacity(0.15))),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFFB042FF))),
-      ),
-    );
-  }
-
-  void onRemoveItem(String id) => items.removeWhere((i) => i.id == id);
-
-  // ==========================================================
-  // Notes
-  // ==========================================================
-  final notesCtrl = TextEditingController(text: 'Thank you for your business!');
-  static const int notesMaxLen = 500;
-  final RxInt notesLen = 0.obs;
-
-  // ==========================================================
-  // Generated invoice
-  // ==========================================================
-  final RxString invoiceNumber = 'INV-2026-000157'.obs;
-  final RxBool isGenerating = false.obs;
 
   @override
   void onInit() {
     super.onInit();
-    notesCtrl.addListener(() => notesLen.value = notesCtrl.text.length);
-    notesLen.value = notesCtrl.text.length;
+    // Default with 1 line item
+    addItem();
   }
 
   @override
   void onClose() {
+    customerNameCtrl.dispose();
     gstinCtrl.dispose();
     poReferenceCtrl.dispose();
-    notesCtrl.dispose();
+    billingAddressCtrl.dispose();
+    deliveryTermsCtrl.dispose();
+    for (var item in items) {
+      item.dispose();
+    }
     super.onClose();
   }
 
-  bool _validate() {
-    bool isValid = true;
-    if (selectedCustomer.value == null) {
-      customerError.value = 'Please select a customer';
-      isValid = false;
-    } else {
-      customerError.value = null;
-    }
-    if (billingAddress.value.trim().isEmpty) {
-      billingAddressError.value = 'Please select a billing address';
-      isValid = false;
-    } else {
-      billingAddressError.value = null;
-    }
-    return isValid;
+  // ---------------- Step 2 Items Actions ----------------
+  void addItem() {
+    final newItem = GenerateInvoiceItemState(id: DateTime.now().millisecondsSinceEpoch);
+    newItem.qtyCtrl.addListener(calculateTotals);
+    newItem.rateCtrl.addListener(calculateTotals);
+    items.add(newItem);
+    calculateTotals();
   }
 
-  Future<void> onGenerateInvoicePressed() async {
-    if (!_validate()) {
-      Get.snackbar('Missing Information', 'Please fill all required fields marked with *',
-          backgroundColor: const Color(0xFF15151F), colorText: Colors.white, snackPosition: SnackPosition.BOTTOM);
+  void removeItem(int id) {
+    if (items.length <= 1) return;
+    final item = items.firstWhereOrNull((i) => i.id == id);
+    if (item != null) {
+      item.dispose();
+      items.remove(item);
+      calculateTotals();
+    }
+  }
+
+  void calculateTotals() {
+    double sum = 0.0;
+    for (var it in items) {
+      sum += it.total;
+    }
+    subtotal.value = sum;
+  }
+
+  // ---------------- Date Picker ----------------
+  Future<void> pickDueDate(BuildContext context) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: dueDate.value,
+      firstDate: DateTime.now().subtract(const Duration(days: 30)),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) => Theme(
+        data: ThemeData.dark().copyWith(
+          colorScheme: const ColorScheme.dark(
+            primary: Color(0xFF6366F1),
+            onPrimary: Colors.white,
+            surface: Color(0xFF1E293B),
+            onSurface: Colors.white,
+          ),
+          dialogTheme: const DialogThemeData(
+            backgroundColor: Color(0xFF0F172A),
+          ),
+        ),
+        child: child!,
+      ),
+    );
+    if (picked != null) {
+      dueDate.value = picked;
+    }
+  }
+
+  String get dueDateFormatted {
+    final d = dueDate.value;
+    return '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+  }
+
+  // ---------------- Stepper Navigation ----------------
+  void goToStep(int step) {
+    if (step < 1 || step > 4) return;
+    if (step > 1 && customerNameCtrl.text.trim().isEmpty) {
+      Get.snackbar(
+        'Validation Error',
+        'Customer / Company Name is required',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+      currentStep.value = 1;
       return;
     }
-    if (items.isEmpty) {
-      Get.snackbar('No Items Added', 'Please add at least one invoice item',
-          backgroundColor: const Color(0xFF15151F), colorText: Colors.white, snackPosition: SnackPosition.BOTTOM);
+    if (step > 2) {
+      final validItems = items.where((i) => i.descCtrl.text.trim().isNotEmpty && i.total > 0).toList();
+      if (validItems.isEmpty) {
+        Get.snackbar(
+          'Validation Error',
+          'Please add at least one line item with description and rate',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
+        currentStep.value = 2;
+        return;
+      }
+    }
+    currentStep.value = step;
+  }
+
+  void nextStep() {
+    goToStep(currentStep.value + 1);
+  }
+
+  void previousStep() {
+    if (currentStep.value > 1) {
+      currentStep.value--;
+    } else {
+      Get.back();
+    }
+  }
+
+  // ---------------- STEP 4: Submit & Dispatch Invoice ----------------
+  Future<void> submitInvoice() async {
+    final customerName = customerNameCtrl.text.trim();
+    if (customerName.isEmpty) {
+      Get.snackbar(
+        'Validation Error',
+        'Customer name is required',
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+      currentStep.value = 1;
       return;
     }
 
-    isGenerating.value = true;
-    try {
-      // TODO: replace with a real API call that creates the invoice server-side
-      await Future.delayed(const Duration(milliseconds: 800));
-      Get.to(() => const InvoicePreviewView());
-    } finally {
-      isGenerating.value = false;
+    final validItems = items
+        .where((i) => i.descCtrl.text.trim().isNotEmpty)
+        .map((it) => {
+              'description': it.descCtrl.text.trim(),
+              'desc': it.descCtrl.text.trim(),
+              'quantity': it.quantity,
+              'qty': it.quantity,
+              'unit_price': it.unitRate,
+              'rate': it.unitRate,
+              'hsn_sac': '998363',
+              'tax_rate': 18,
+            })
+        .toList();
+
+    if (validItems.isEmpty) {
+      Get.snackbar(
+        'Validation Error',
+        'Please add at least one valid line item',
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+      currentStep.value = 2;
+      return;
     }
-  }
 
-  void onEditInvoice() => Get.back();
+    final payload = <String, dynamic>{
+      'billing_name': customerName,
+      'customerName': customerName,
+      'gstin': gstinCtrl.text.trim(),
+      'billing_address': billingAddressCtrl.text.trim(),
+      'billingAddress': billingAddressCtrl.text.trim(),
+      'po_reference': poReferenceCtrl.text.trim(),
+      'poReference': poReferenceCtrl.text.trim(),
+      'due_date': dueDateFormatted,
+      'dueDate': dueDateFormatted,
+      'place_of_supply': placeOfSupply.value,
+      'placeOfSupply': placeOfSupply.value,
+      'delivery_terms': deliveryTermsCtrl.text.trim(),
+      'deliveryTerms': deliveryTermsCtrl.text.trim(),
+      'type': 'ad_spend',
+      'payerType': 'advertiser',
+      'line_items': validItems,
+      'items': validItems,
+      'subtotal': subtotal.value,
+      'tax_amount': cgst + sgst,
+      'total_amount': grandTotal,
+    };
 
-  final RxBool isDownloading = false.obs;
-
-  Future<void> onDownloadInvoice() async {
-    isDownloading.value = true;
+    isSubmitting.value = true;
     try {
-      // TODO: generate a PDF (e.g. via the pdf skill/package) and save/share it
-      await Future.delayed(const Duration(seconds: 1));
-      Get.snackbar('Invoice Downloaded', '${invoiceNumber.value}.pdf has been saved.',
-          backgroundColor: const Color(0xFF15151F), colorText: Colors.white, snackPosition: SnackPosition.BOTTOM);
+      final res = await FinanceService.to.generateInvoice(payload);
+      if (res.success) {
+        Get.snackbar(
+          'Invoice Generated',
+          'Tax invoice has been issued and dispatched successfully.',
+          backgroundColor: const Color(0xFF10B981),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 3),
+        );
+
+        // Refresh invoices in InvoiceController and FinanceHomeController
+        if (Get.isRegistered<InvoiceController>()) {
+          Get.find<InvoiceController>().fetchInvoices();
+        }
+        if (Get.isRegistered<FinanceHomeController>()) {
+          Get.find<FinanceHomeController>().fetchDashboardData();
+        }
+
+        Get.back();
+      } else {
+        Get.snackbar(
+          'Error',
+          res.message ?? 'Failed to generate tax invoice',
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'An error occurred: $e',
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
-      isDownloading.value = false;
+      isSubmitting.value = false;
     }
-  }
-
-  void onBackPressed() => Get.back();
-
-  void onInfoTap() {
-    // TODO: show a help sheet explaining invoice fields
   }
 }

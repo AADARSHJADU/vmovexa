@@ -150,8 +150,40 @@ class ApiConstants {
   static const String uploads = '/uploads';
   static const String uploadAvatar = '/uploads/avatar';
   static const String content = '/content';
-  static String contentPage(String type) => '/content/$type';
   static const String supportTickets = '/me/support/tickets';
+
+  // Finance Endpoints
+  static const String financeKpis = '/finance/kpis';
+  static const String financeSubscriptions = '/finance/subscriptions';
+  static String financeSubscriptionOne(String id) => '/finance/subscriptions/$id';
+  static const String financeInvoices = '/finance/invoices';
+  static String financeInvoiceOne(String id) => '/finance/invoices/$id';
+  static String financeInvoiceMarkPaid(String id) => '/finance/invoices/$id/mark-paid';
+  static const String financePayments = '/finance/payments';
+  static String financePaymentOne(String id) => '/finance/payments/$id';
+  static String financePaymentReminder(String id) => '/finance/payments/$id/send-reminder';
+  static const String financeCampaignPayments = '/finance/campaign-payments';
+  static String financeCampaignPaymentShare(String id) => '/finance/campaign-payments/$id/share-link';
+  static String financeCampaignPaymentManual(String id) => '/finance/campaign-payments/$id/manual-pay';
+  static const String financeReconciliationSummary = '/finance/reconciliation/summary';
+  static const String financeReconciliationTransactions = '/finance/reconciliation/transactions';
+  static const String financeReconciliationAutoMatch = '/finance/reconciliation/auto-match';
+  static const String financeReconciliationFinalize = '/finance/reconciliation/finalize';
+  static const String financeGstSummary = '/finance/gst/summary';
+  static const String financeGstr1Json = '/finance/gst/gstr1-json';
+  static const String financeSettings = '/finance/settings';
+  static const String financeReportSummary = '/finance/report-summary';
+  static const String reports = '/reports';
+  static String reportOne(String id) => '/reports/$id';
+  static const String reportGenerate = '/reports/generate';
+
+  // Organizations & Tenants Endpoints (Multi-Tenant Management)
+  static const String organizations = '/organizations';
+  static String organizationOne(String id) => '/organizations/$id';
+  static String organizationStatus(String id) => '/organizations/$id/status';
+  static String organizationApprove(String id) => '/organizations/$id/approve';
+  static String organizationReject(String id) => '/organizations/$id/reject';
+  static const String billingPlans = '/billing/plans';
 
   /// Resolves a relative file URL (e.g. /uploads/avatar/xxx.jpg) to full URL
   static String resolveFileUrl(String? url) {

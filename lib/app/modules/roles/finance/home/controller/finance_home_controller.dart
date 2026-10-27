@@ -1,44 +1,115 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:vmovexa/app/modules/roles/finance/payment_detail/example_usage.dart';
-
+import 'package:vmovexa/app/data/services/finance_service.dart';
+import 'package:vmovexa/app/data/services/storage_service.dart';
+import '../../finance_dashboard/controller/finance_dashboard_controller.dart';
 import '../../../../../routes/app_routes.dart';
+import '../../invoice/model/invoice_model.dart';
+import '../../subscriptions/model/subscription_model.dart';
 import '../models/finance_home_models.dart';
 
 class FinanceHomeController extends GetxController {
   // ---------------- Header ----------------
-  final RxString userName = 'Finance User'.obs;
+  final RxString userName = 'Finance Officer'.obs;
   final RxInt notificationCount = 1.obs;
   final RxString userInitial = 'F'.obs;
 
   // ---------------- Loading ----------------
   final RxBool isLoading = false.obs;
 
-  // ---------------- Date range ----------------
-  final RxString dateRangeText = '01 Aug 2026 - 07 Aug 2026'.obs;
+  // ---------------- 4 Primary KPIs (Mirroring React Admin Panel) ----------------
+  final RxString totalRevenueStr = '₹0'.obs;
+  final RxString totalInvoicesStr = '0'.obs;
+  final RxString totalPaymentsStr = '₹0'.obs;
+  final RxString pendingInvoicesStr = '0'.obs;
 
-  // ---------------- Financial Overview ----------------
+  // Legacy list for backwards compatibility
   final RxList<FinancialStat> financialStats = <FinancialStat>[].obs;
-
-  // ---------------- Quick Actions ----------------
   final RxList<FinanceQuickAction> quickActions = <FinanceQuickAction>[].obs;
-
-  // ---------------- Key Insights ----------------
   final RxList<KeyInsight> keyInsights = <KeyInsight>[].obs;
+
+  // ---------------- Recent Invoices & Active Subscriptions ----------------
+  final RxList<InvoiceModel> recentInvoices = <InvoiceModel>[].obs;
+  final RxList<Subscription> activeSubscriptions = <Subscription>[].obs;
 
   @override
   void onInit() {
     super.onInit();
+    _loadUserHeader();
     fetchDashboardData();
+  }
+
+  void _loadUserHeader() {
+    try {
+      if (Get.isRegistered<StorageService>()) {
+        final user = StorageService.to.getUser();
+        if (user != null) {
+          final uName = user.name ?? '';
+          if (uName.isNotEmpty) {
+            userName.value = uName;
+            userInitial.value = uName[0].toUpperCase();
+          }
+        }
+      }
+    } catch (_) {}
   }
 
   Future<void> fetchDashboardData() async {
     isLoading.value = true;
     try {
-      // TODO: replace with real API/repository calls
-      _loadFinancialStats();
-      _loadQuickActions();
-      _loadKeyInsights();
+      // 1. Fetch KPIs from real API
+      final kpiRes = await FinanceService.to.getKpis();
+      if (kpiRes.success && kpiRes.data != null && kpiRes.data!.isNotEmpty) {
+        _populateKpis(kpiRes.data!);
+      } else {
+        totalRevenueStr.value = '₹0';
+        totalInvoicesStr.value = '0';
+        totalPaymentsStr.value = '₹0';
+        pendingInvoicesStr.value = '0';
+      }
+
+      // 2. Fetch Recent Invoices from real API
+      final invRes = await FinanceService.to.getInvoices(limit: 3);
+      if (invRes.success && invRes.data != null) {
+        dynamic items = invRes.data;
+        if (items is Map && items.containsKey('rows')) {
+          items = items['rows'];
+        } else if (items is Map && items.containsKey('items')) {
+          items = items['items'];
+        }
+        if (items is List && items.isNotEmpty) {
+          recentInvoices.assignAll(
+            items.take(3).map((e) => InvoiceModel.fromJson(Map<String, dynamic>.from(e as Map))).toList(),
+          );
+        } else {
+          recentInvoices.clear();
+        }
+      } else {
+        recentInvoices.clear();
+      }
+
+      // 3. Fetch Active Subscriptions from real API
+      final subRes = await FinanceService.to.getSubscriptions();
+      if (subRes.success && subRes.data != null) {
+        dynamic items = subRes.data;
+        if (items is Map && items.containsKey('rows')) {
+          items = items['rows'];
+        } else if (items is Map && items.containsKey('items')) {
+          items = items['items'];
+        }
+        if (items is List && items.isNotEmpty) {
+          activeSubscriptions.assignAll(
+            items.take(3).map((e) => Subscription.fromJson(Map<String, dynamic>.from(e as Map))).toList(),
+          );
+        } else {
+          activeSubscriptions.clear();
+        }
+      } else {
+        activeSubscriptions.clear();
+      }
+    } catch (e) {
+      recentInvoices.clear();
+      activeSubscriptions.clear();
     } finally {
       isLoading.value = false;
     }
@@ -46,161 +117,46 @@ class FinanceHomeController extends GetxController {
 
   Future<void> onRefresh() async => fetchDashboardData();
 
-  void _loadFinancialStats() {
-    financialStats.assignAll([
-      FinancialStat(
-        label: 'Total Revenue',
-        value: '\u20b948,75,000',
-        trendPercent: 12.6,
-        isPositive: true,
-        icon: Icons.account_balance_wallet_outlined,
-        color: const Color(0xFFB042FF),
-      ),
-      FinancialStat(
-        label: 'Total Invoices',
-        value: '156',
-        trendPercent: 8.3,
-        isPositive: true,
-        icon: Icons.description_outlined,
-        color: const Color(0xFF3F7BF5),
-      ),
-      FinancialStat(
-        label: 'Total Payments',
-        value: '\u20b942,10,000',
-        trendPercent: 10.2,
-        isPositive: true,
-        icon: Icons.account_balance_outlined,
-        color: const Color(0xFF2ECC71),
-      ),
-      FinancialStat(
-        label: 'Pending Amount',
-        value: '\u20b96,65,000',
-        trendPercent: 5.4,
-        isPositive: false,
-        icon: Icons.access_time,
-        color: const Color(0xFFFFA726),
-      ),
-    ]);
+  String _formatCurrency(num amount) {
+    if (amount >= 10000000) {
+      return '₹${(amount / 10000000).toStringAsFixed(2)} Cr';
+    } else if (amount >= 100000) {
+      return '₹${(amount / 100000).toStringAsFixed(2)} L';
+    } else {
+      return '₹${amount.toStringAsFixed(0)}';
+    }
   }
 
-  Future<void> _loadQuickActions() async {
-    quickActions.assignAll([
-      FinanceQuickAction(
-        title: 'Manage Subscriptions',
-        subtitle: 'View and manage all subscriptions',
-        icon: Icons.calendar_month_outlined,
-        color: const Color(0xFFB042FF),
-        route: '/subscriptions',
-      ),
-      FinanceQuickAction(
-        title: 'Generate Invoices',
-        subtitle: 'Create and manage invoices',
-        icon: Icons.receipt_long_outlined,
-        color: const Color(0xFF3F7BF5),
-        route: '/finance-invoice',
-      ),
-      FinanceQuickAction(
-        title: 'Monitor Payments',
-        subtitle: 'Track and monitor payments',
-        icon: Icons.payments_outlined,
-        color: const Color(0xFF2ECC71),
-        route:Routes.PAYMENT_DETAIL,
-      ),
-      FinanceQuickAction(
-        title: 'Revenue Reporting',
-        subtitle: 'View revenue reports and analytics',
-        icon: Icons.bar_chart_outlined,
-        color: const Color(0xFFFFA726),
-        route: Routes.REVENUE_REPORTING,
-      ),
-      FinanceQuickAction(
-        title: 'GST Management',
-        subtitle: 'Manage GST filings and returns',
-        icon: Icons.request_quote_outlined,
-        color: const Color(0xFF2EC4C4),
-        route: Routes.GST_MANAGEMENT,
-      ),
-      FinanceQuickAction(
-        title: 'Financial Reconciliation',
-        subtitle: 'Reconcile transactions and accounts',
-        icon: Icons.balance_outlined,
-        color: const Color(0xFFE0507A),
-        route: '/reconciliation',
-      ),
-    ]);
+  void _populateKpis(Map<String, dynamic> data) {
+    final totalRev = double.tryParse((data['total_revenue'] ?? data['totalRevenue'] ?? data['total_revenue_ytd'] ?? 0).toString().replaceAll(',', '')) ?? 0.0;
+    final totalInv = double.tryParse((data['total_invoices'] ?? data['totalInvoices'] ?? 0).toString().replaceAll(',', '')) ?? 0.0;
+    final totalPay = double.tryParse((data['total_payments'] ?? data['totalPayments'] ?? 0).toString().replaceAll(',', '')) ?? 0.0;
+    final pendingInv = double.tryParse((data['pending_invoices'] ?? data['pendingInvoices'] ?? data['overdue_invoices_count'] ?? data['outstanding_invoices_count'] ?? 0).toString().replaceAll(',', '')) ?? 0.0;
+
+    totalRevenueStr.value = _formatCurrency(totalRev);
+    totalInvoicesStr.value = totalInv.toInt().toString();
+    totalPaymentsStr.value = _formatCurrency(totalPay);
+    pendingInvoicesStr.value = pendingInv.toInt().toString();
   }
 
-  void _loadKeyInsights() {
-    keyInsights.assignAll([
-      KeyInsight(
-        title: 'Revenue this month',
-        subtitle: 'vs last month',
-        value: '\u20b91,95,00,000',
-        trendPercent: 15.7,
-        isPositive: true,
-        icon: Icons.trending_up,
-        color: const Color(0xFFB042FF),
-      ),
-      KeyInsight(
-        title: 'Invoices this month',
-        subtitle: 'vs last month',
-        value: '452',
-        trendPercent: 11.4,
-        isPositive: true,
-        icon: Icons.description_outlined,
-        color: const Color(0xFF3F7BF5),
-      ),
-      KeyInsight(
-        title: 'Payments received',
-        subtitle: 'vs last month',
-        value: '\u20b91,80,25,000',
-        trendPercent: 13.2,
-        isPositive: true,
-        icon: Icons.credit_card_outlined,
-        color: const Color(0xFF2ECC71),
-      ),
-      KeyInsight(
-        title: 'Outstanding amount',
-        subtitle: 'vs last month',
-        value: '\u20b96,65,000',
-        trendPercent: 5.4,
-        isPositive: false,
-        icon: Icons.error_outline,
-        color: const Color(0xFFFFA726),
-      ),
-    ]);
-  }
-
-  // ---------------- Actions ----------------
+  // ---------------- User Navigation Actions ----------------
   void onMenuTap() {
-    // TODO: open drawer / navigation menu
+    if (Get.isRegistered<FinanceDashboardController>()) {
+      Get.find<FinanceDashboardController>().openDrawer();
+    }
   }
 
-  void onDateRangeTap() {
-    // TODO: open a date-range picker and update dateRangeText
-  }
-
-  void onOverviewInfoTap() {
-    // TODO: show a tooltip/sheet explaining the Financial Overview metrics
+  void onCreateInvoiceTap() {
+    Get.toNamed(Routes.GENERATE_INVOICE);
   }
 
   void onNotificationTap() {
-    Get.toNamed(Routes.FINANCE_NOTIFICATIONS,);
+    Get.toNamed(Routes.FINANCE_NOTIFICATIONS);
   }
 
-  void onProfileTap() {
-    Get.toNamed('/profile');
-  }
-
-  void onQuickActionTap(FinanceQuickAction action) {
-    Get.toNamed(action.route);
-  }
-
-  void onInsightTap(KeyInsight insight) {
-    // TODO: navigate to the relevant detailed report screen
-  }
-
-  void onViewAllInsights() {
-    Get.toNamed('/revenue-reports');
+  void navigateToTab(int index) {
+    if (Get.isRegistered<FinanceDashboardController>()) {
+      Get.find<FinanceDashboardController>().onNavItemTapped(index);
+    }
   }
 }

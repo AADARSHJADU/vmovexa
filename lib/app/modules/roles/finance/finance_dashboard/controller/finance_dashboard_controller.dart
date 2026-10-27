@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../routes/app_routes.dart';
 
 class FinanceDashboardController extends GetxController {
   final RxInt selectedNavIndex = 0.obs;
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void onInit() {
@@ -13,8 +15,11 @@ class FinanceDashboardController extends GetxController {
     }
   }
 
-  void onNavItemTapped(int index) {
+  void openDrawer() {
+    scaffoldKey.currentState?.openDrawer();
+  }
 
+  void onNavItemTapped(int index) {
     selectedNavIndex.value = index;
   }
 

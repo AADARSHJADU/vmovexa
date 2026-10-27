@@ -38,6 +38,8 @@ class InvoiceView extends GetView<InvoiceController> {
                 _buildInvoiceListHeader(context),
                 const SizedBox(height: 12),
                 _buildSearchBar(),
+                const SizedBox(height: 12),
+                _buildStatusTabs(),
                 const SizedBox(height: 16),
                 _buildTableHeader(),
                 _buildInvoiceList(),
@@ -51,43 +53,50 @@ class InvoiceView extends GetView<InvoiceController> {
     );
   }
 
-  // ---------------- App Bar ----------------
+  // ---------------- App Bar (Mirroring InvoicesListPage.jsx) ----------------
   Widget _buildAppBar() {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        IconButton(
-          onPressed: () => Get.back(),
-          icon: const Icon(Icons.menu, color: AppColors.textPrimary),
+        Row(
+          children: [
+            const Text(
+              'Finance Portal  /  ',
+              style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+            ),
+            const Text(
+              'Tax Invoices',
+              style: TextStyle(
+                color: Color(0xFF60A5FA),
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const Spacer(),
+            IconButton(
+              onPressed: controller.refreshInvoices,
+              icon: const Icon(Icons.refresh, color: Colors.white70, size: 18),
+              tooltip: 'Refresh Invoices',
+            ),
+          ],
         ),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Invoices',
-                style: GoogleFonts.raleway(
-                  color: AppColors.textPrimary,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              Text(
-                'View and manage all invoices',
-                style: GoogleFonts.raleway(
-                  color: AppColors.textSecondary,
-                  fontSize: 12,
-                ),
-              ),
-            ],
+        const SizedBox(height: 2),
+        Text(
+          'Tax Invoices & Billing',
+          style: GoogleFonts.raleway(
+            color: AppColors.textPrimary,
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.3,
           ),
         ),
-        IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.search, color: AppColors.accentPurple),
-        ),
-        IconButton(
-          onPressed: controller.onFilterTap,
-          icon: const Icon(Icons.tune, color: AppColors.accentPurple),
+        const SizedBox(height: 3),
+        Text(
+          'Issue GST-compliant invoices, track client receivables, and audit settlement status',
+          style: GoogleFonts.raleway(
+            color: AppColors.textSecondary,
+            fontSize: 11.5,
+          ),
         ),
       ],
     );
@@ -285,6 +294,46 @@ class InvoiceView extends GetView<InvoiceController> {
         ),
       ),
     );
+  }
+
+  // ---------------- Status Tabs ----------------
+  Widget _buildStatusTabs() {
+    final tabs = ['All', 'Paid', 'Pending', 'Overdue'];
+    return Obx(() {
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: tabs.map((tab) {
+            final isSelected = controller.selectedStatusTab.value == tab;
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: ChoiceChip(
+                label: Text(tab),
+                selected: isSelected,
+                onSelected: (selected) {
+                  if (selected) {
+                    controller.selectedStatusTab.value = tab;
+                  }
+                },
+                selectedColor: const Color(0xFF6366F1),
+                backgroundColor: AppColors.cardBg,
+                labelStyle: GoogleFonts.raleway(
+                  color: isSelected ? Colors.white : AppColors.textSecondary,
+                  fontSize: 12,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(
+                    color: isSelected ? const Color(0xFF6366F1) : AppColors.cardBorder,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      );
+    });
   }
 
   // ---------------- Table Header ----------------

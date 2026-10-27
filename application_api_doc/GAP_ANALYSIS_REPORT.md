@@ -51,6 +51,19 @@ The following endpoints existed in the Backend but were missing from `frontend/s
 | **Campaigns**| `ADVERTISER_STATUS` | `/advertisers/:id/status` | `PATCH` | Toggle advertiser client status |
 | **Campaigns**| `GOVERNMENT_STATUS` | `/government/:id/status` | `PATCH` | Toggle government agency status |
 | **Users** | `CHECK_AVAILABILITY` | `/users/check-availability` | `GET` | Check if email/username is available |
+| **Users** | `FLEET_OPERATOR_QUOTAS` | `/users/quotas/fleet-operators` | `GET` | Check fleet operator quota limits |
+| **Fleet** | `SLOTS` | `/vehicle-slots` | `GET`, `POST` | List & create vehicle timetable slots |
+| **Fleet** | `SLOT_ONE` | `/vehicle-slots/:id` | `GET`, `PUT`, `DELETE` | Vehicle slot details & lifecycle |
+| **Fleet** | `SLOT_CONFLICT` | `/vehicle-slots/check-conflict` | `POST` | Real-time vehicle schedule collision detection |
+| **Fleet** | `SLOT_TIMETABLE` | `/vehicle-slots/timetable/grid` | `GET` | 24-hr visual timetable schedule grid |
+| **Fleet** | `QUOTAS` | `/fleets/quotas` | `GET` | Organization fleet quota tier limits |
+| **Activity** | `CATEGORIES` | `/activity-logs/categories` | `GET` | Filter categories for audit trails |
+| **Activity** | `FILTERS` | `/activity-logs/filters` | `GET` | Dynamic role/module filters |
+| **System** | `SERVER_STATUS` | `/system/server-status` | `GET` | Server hardware uptime & process RAM |
+| **System** | `LIVE_LOGS` | `/system/live-logs` | `GET`, `DELETE` | Stream and clear console Winston logs |
+| **System** | `DISK_LOGS` | `/system/disk-logs` | `GET`, `DELETE` | Archived disk log management |
+| **System** | `READ_DISK_LOG` | `/system/disk-logs/read` | `POST` | Slice viewer for disk logs |
+| **System** | `TRIGGER_CRON` | `/system/cron/trigger` | `POST` | Manual invocation of scheduled maintenance jobs |
 
 ---
 
@@ -151,17 +164,33 @@ off_duty ──(PATCH /duty-status { duty_status: "on_duty" })──> on_duty
                                                                  └──> off_duty
 ```
 
-### 3. Work Order Dispatch Cycle:
+### 4. Vehicle Slot Schedule Overlap & Collision Engine:
 ```
-pending ──(PATCH /assign)──> assigned ──(PATCH /status)──> in_progress ──(PATCH /status)──> completed ──(PATCH /approve)──> approved
+[Slot Form Submitted (Bus, Route, Start, End, Days)]
+                       │
+                       ▼
+checkVehicleSlotCollision(tenantId, vehicleId, start, end, days, excludeId)
+                       │
+        ┌──────────────┴──────────────┐
+        ▼                             ▼
+[Overlap Found: s1 < e2 && e1 > s2]  [No Overlap Found]
+        │                             │
+        ▼                             ▼
+HTTP 409 Conflict:                   HTTP 201 Created:
+Returns conflicting slot details,    Slot persisted in `vehicle_slots`,
+route name, bus number, and timing   reflected in live timetable grid
 ```
 
 ---
 
 ## 🎯 5. Action Items Checklist for Application Developers
 
-1. ✅ **Endpoints Constant:** Use the updated `src/api/endpoints.js` which now contains all 303 complete backend routes.
+1. ✅ **Endpoints Constant:** Use the updated `src/api/endpoints.js` which contains all complete backend routes.
 2. ✅ **Response Handling:** Always wrap API responses with `unwrap(res.data)` or `unwrapPaginated(res.data)` from `src/utils/apiResponse.js`.
 3. ✅ **Error Handling:** Catch errors with `throw normalizeError(err)` in services and `rejectWithValue(err)` in thunks to ensure UI toasts display accurate validation messages.
 4. ✅ **Pagination:** Always bind `currentPage`, `totalPages`, `pageSize`, `totalItems` with `<Pagination />` component from `src/components/ui/Pagination.jsx`.
 5. ✅ **Toast Alerts:** Use `react-hot-toast` (`toast.promise()` or `toast.success()`) instead of page-level inline divs.
+6. ✅ **Subpage Breadcrumbs:** Include `<Breadcrumb items={[...]} />` on all subpages (do not place on root portal dashboards).
+7. ✅ **Responsive Layouts & Dark Mode:** Ensure containers follow `flex flex-col sm:flex-row sm:items-center justify-between gap-4` and strict dark theme classes (`dark:bg-zinc-900`, `dark:border-zinc-800`, `dark:text-white`).
+8. ✅ **SVG Icons:** Exclusively use SVG `FleetIcons`. Never render raw unicode emojis.
+

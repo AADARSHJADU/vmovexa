@@ -7,14 +7,14 @@
 
 ---
 
-## 📋 Complete Endpoints Summary (13 APIs)
+## 📋 Complete Endpoints Summary (17 APIs)
 
 ### 1. Agency Reach & Transit Analytics (1 API)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/government/analytics` | Public transit footprint, total citizens reached, PSA impressions, and active city routes |
 
-### 2. Government Agency Directory (7 APIs)
+### 2. Government Agency Directory & Meta (11 APIs)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/government` | List registered government agencies & municipal departments |
@@ -24,6 +24,10 @@
 | `PUT` | `/government/:id` | Full agency update |
 | `PATCH` | `/government/:id/status` | Activate/Deactivate agency account (`active`, `inactive`) |
 | `DELETE` | `/government/:id` | Remove agency record |
+| `GET` | `/government/meta/options` | Combined directory dropdown options (categories, jurisdictions, clearances) |
+| `GET` | `/government/department-categories` | State & municipal department taxonomy |
+| `GET` | `/government/jurisdictions` | Authorized regional jurisdiction boundaries |
+| `GET` | `/government/clearance-levels` | Executive security clearance levels |
 
 ### 3. Emergency SOS Broadcasts (Real-Time Transit Overrides) (5 APIs)
 | Method | Endpoint | Description |
@@ -359,5 +363,5 @@ export const governmentService = {
 - **Custom Hooks:** `src/hooks/government/` (`useGovernment.js`)
 - **Pages:** `src/pages/government/` (`GovDashboard.jsx`, `GovEmergencyBroadcastPage.jsx`, `GovAgencyDirectoryPage.jsx`)
 - **Pagination Component:** `src/components/ui/Pagination.jsx`
-- **Integration Blueprint:** See [FRONTEND_INTEGRATION_GUIDE.md](file:///e:/vmovexa/application_api_doc/FRONTEND_INTEGRATION_GUIDE.md)
+- **Integration Blueprint:** See [FRONTEND_INTEGRATION_GUIDE.md](../FRONTEND_INTEGRATION_GUIDE.md)
 

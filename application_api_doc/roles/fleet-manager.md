@@ -7,7 +7,7 @@
 
 ---
 
-## 📋 Complete Endpoints Summary (65 APIs)
+## 📋 Complete Endpoints Summary (74 APIs)
 
 ### 1. Depots & Maintenance Yards (5 APIs)
 | Method | Endpoint | Description |
@@ -18,10 +18,11 @@
 | `PATCH` | `/depots/:id` | Update depot details (capacity, supervisor, phone) |
 | `DELETE` | `/depots/:id` | Delete depot (fails if vehicles currently stationed) |
 
-### 2. Fleet Groups & Sub-fleets (9 APIs)
+### 2. Fleet Groups & Sub-fleets (10 APIs)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/fleets` | List all fleet divisions (e.g. BRTS Corridor, City Feeder, AC Electric) |
+| `GET` | `/fleets/quotas` | Get organization fleet tier quotas & vehicle allocations |
 | `GET` | `/fleets/:id` | Get fleet division details |
 | `POST` | `/fleets` | Create new fleet division |
 | `PATCH` | `/fleets/:id` | Update fleet division |
@@ -100,7 +101,18 @@
 | `PATCH` | `/incidents/:id/status` | Update incident status (`reported`, `investigating`, `resolved`) |
 | `PATCH` | `/incidents/:id/resolution` | Submit incident investigation resolution & root cause |
 
-### 8. Dashboard & Live Monitoring (2 APIs)
+### 8. Vehicle Slots & Timetables Architecture (7 APIs)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/vehicle-slots` | List slots with filters (vehicle, route, driver, shift, status) & pagination |
+| `GET` | `/vehicle-slots/:id` | Detailed slot record with populated Vehicle, Route, and Driver models |
+| `POST` | `/vehicle-slots` | Create schedule slot (with real-time conflict detector) |
+| `PATCH` | `/vehicle-slots/:id` | Update slot timings, route, or driver assignment |
+| `DELETE` | `/vehicle-slots/:id` | Remove scheduled slot |
+| `POST` | `/vehicle-slots/check-conflict` | Real-time collision detector engine before slot creation |
+| `GET` | `/vehicle-slots/timetable/grid` | Visual 24-hr schedule matrix (06:00 to 23:00) grouped by route |
+
+### 9. Dashboard & Live Monitoring (2 APIs)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/dashboard/admin/kpis` | Organization KPI counters (vehicles, drivers, live trips, open incidents) |
@@ -408,6 +420,138 @@ Close and resolve incident report.
 
 ---
 
+## 🕒 SECTION 8: Vehicle Slots & Timetables Architecture
+
+### 8.1 POST `/vehicle-slots/check-conflict`
+Real-time collision detector engine. Evaluates whether a proposed shift overlaps with any active bus assignment.
+
+#### Request Body
+```json
+{
+  "vehicle_id": 12,
+  "start_time": "08:00:00",
+  "end_time": "14:00:00",
+  "operating_days": "monday,wednesday,friday", // or "ALL"
+  "exclude_id": 5 // optional, used when editing an existing slot
+}
+```
+
+#### Success Response `200` (No Conflict)
+```json
+{
+  "success": true,
+  "data": {
+    "hasConflict": false
+  }
+}
+```
+
+#### Collision Response `200` (Conflict Detected)
+```json
+{
+  "success": true,
+  "data": {
+    "hasConflict": true,
+    "conflictingSlot": {
+      "id": 8,
+      "slot_code": "SLOT-KX28-1A",
+      "slot_name": "Morning Peak Run",
+      "start_time": "07:30:00",
+      "end_time": "11:30:00",
+      "operating_days": "ALL",
+      "route_name": "Corridor 1 (Palasia - Airport)",
+      "vehicle_plate": "MP09-CV-2024",
+      "driver_name": "Ramesh Kumar"
+    },
+    "message": "Slot Conflict: Bus MP09-CV-2024 is already scheduled on Route \"Corridor 1 (Palasia - Airport)\" between 07:30 and 11:30."
+  }
+}
+```
+
+---
+
+### 8.2 POST `/vehicle-slots`
+Create a new vehicle slot schedule. Automatically executes `checkVehicleSlotCollision()` before persisting to MySQL.
+
+#### Request Body
+```json
+{
+  "vehicle_id": 12,
+  "route_id": 4,
+  "driver_id": 8,
+  "depot_id": 2,
+  "slot_name": "Morning Express Shift",
+  "start_time": "08:00",
+  "end_time": "14:00",
+  "shift_type": "morning", // "morning", "evening", "night", "split", "custom"
+  "operating_days": "monday,wednesday,friday", // or "ALL"
+  "status": "active", // "active", "pending", "inactive"
+  "notes": "BRTS dedicated EV express service"
+}
+```
+
+#### Success Response `201`
+```json
+{
+  "success": true,
+  "message": "Vehicle slot created successfully",
+  "data": {
+    "id": 19,
+    "slot_code": "SLOT-MA8K-7F",
+    "organization_id": 2,
+    "vehicle_id": 12,
+    "route_id": 4,
+    "driver_id": 8,
+    "start_time": "08:00:00",
+    "end_time": "14:00:00",
+    "shift_type": "morning",
+    "operating_days": "monday,wednesday,friday",
+    "status": "active"
+  }
+}
+```
+
+---
+
+### 8.3 GET `/vehicle-slots/timetable/grid`
+Generates a structured hourly matrix (06:00 to 23:00) grouped by route for interactive timetable and calendar rendering.
+
+#### Query Params
+`?route_id=4&vehicle_id=12&shift_type=morning`
+
+#### Success Response `200`
+```json
+{
+  "success": true,
+  "data": {
+    "hours": ["06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"],
+    "totalSlots": 14,
+    "routes": [
+      {
+        "route_id": 4,
+        "route_name": "BRTS Corridor 1",
+        "start_point": "Rajwada",
+        "end_point": "Airport",
+        "slots": [
+          {
+            "id": 19,
+            "slot_code": "SLOT-MA8K-7F",
+            "start_time": "08:00:00",
+            "end_time": "14:00:00",
+            "operating_days": "monday,wednesday,friday",
+            "shift_type": "morning",
+            "vehicle": { "id": 12, "bus_number": "MP09-CV-2024", "model": "Tata Ultra EV" },
+            "driver": { "id": 8, "name": "Ramesh Kumar", "phone": "+919876543210" }
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+---
+
 ## 💻 Standard Frontend Service Implementation
 
 ```javascript
@@ -422,6 +566,7 @@ export const fleetService = {
 
   // Fleets
   getFleets: (params) => apiClient.get(ENDPOINTS.FLEET.FLEETS, { params }),
+  getFleetQuotas: () => apiClient.get(ENDPOINTS.FLEET.QUOTAS),
   createFleet: (data) => apiClient.post(ENDPOINTS.FLEET.FLEETS, data),
   assignVehicleToFleet: (id, vehicleId) => apiClient.post(ENDPOINTS.FLEET.FLEET_ASSIGN_VEHICLE(id), { vehicleId }),
 
@@ -454,6 +599,15 @@ export const fleetService = {
   logIncident: (data) => apiClient.post(ENDPOINTS.FLEET.INCIDENTS, data),
   resolveIncident: (id, data) => apiClient.patch(ENDPOINTS.FLEET.INCIDENT_RESOLUTION(id), data),
 
+  // Vehicle Slots & Timetables (src/api/services/fleet/vehicleSlot.service.js)
+  getVehicleSlots: (params) => apiClient.get(ENDPOINTS.FLEET.SLOTS, { params }),
+  getVehicleSlot: (id) => apiClient.get(ENDPOINTS.FLEET.SLOT_ONE(id)),
+  createVehicleSlot: (data) => apiClient.post(ENDPOINTS.FLEET.SLOTS, data),
+  updateVehicleSlot: (id, data) => apiClient.put(ENDPOINTS.FLEET.SLOT_ONE(id), data),
+  deleteVehicleSlot: (id) => apiClient.delete(ENDPOINTS.FLEET.SLOT_ONE(id)),
+  checkSlotConflict: (data) => apiClient.post(ENDPOINTS.FLEET.SLOT_CONFLICT, data),
+  getSlotsTimetableGrid: (params) => apiClient.get(ENDPOINTS.FLEET.SLOT_TIMETABLE, { params }),
+
   // Dashboard & KPIs
   getAdminKpis: () => apiClient.get(ENDPOINTS.DASHBOARD.ADMIN_KPIS),
   getLiveSummary: () => apiClient.get(ENDPOINTS.DASHBOARD.LIVE_SUMMARY),
@@ -463,10 +617,14 @@ export const fleetService = {
 ---
 
 ## 🔗 Frontend Architecture & File Reference
-- **Services:** `src/api/services/fleet/` (`vehicle.service.js`, `driver.service.js`, `route.service.js`, `trip.service.js`, `fleet.service.js`, `gps.service.js`)
-- **Thunks:** `src/store/thunks/fleet/` (`vehicle.thunks.js`, `driver.thunks.js`, `route.thunks.js`, `trip.thunks.js`, `incident.thunks.js`)
-- **Slices:** `src/store/slices/fleet/` (`vehicleSlice.js`, `driverSlice.js`, `routeSlice.js`, `tripSlice.js`, `incidentSlice.js`)
-- **Custom Hooks:** `src/hooks/fleet/` (`useFleetVehicle.js`, `useFleetDriver.js`, `useFleetRoute.js`, `useFleetTrip.js`, `useFleetIncident.js`)
-- **Pages:** `src/pages/fleet-manager/` (`VehiclesPage.jsx`, `DriversPage.jsx`, `FleetsPage.jsx`, `RoutesPage.jsx`, `TripsPage.jsx`, `LiveTrackingPage.jsx`, `IncidentsPage.jsx`)
+- **Services:** `src/api/services/fleet/` (`vehicle.service.js`, `driver.service.js`, `route.service.js`, `trip.service.js`, `fleet.service.js`, `gps.service.js`, `vehicleSlot.service.js`)
+- **Thunks:** `src/store/thunks/fleet/` (`vehicle.thunks.js`, `driver.thunks.js`, `route.thunks.js`, `trip.thunks.js`, `incident.thunks.js`, `vehicleSlot.thunks.js`)
+- **Slices:** `src/store/slices/fleet/` (`vehicleSlice.js`, `driverSlice.js`, `routeSlice.js`, `tripSlice.js`, `incidentSlice.js`, `vehicleSlotSlice.js`)
+- **Custom Hooks:** `src/hooks/fleet/` (`useFleetVehicle.js`, `useFleetDriver.js`, `useFleetRoute.js`, `useFleetTrip.js`, `useFleetIncident.js`, `useVehicleSlot.js`)
+- **Pages:**
+  - Fleet Operator: `src/pages/fleet-manager/` (`VehiclesPage.jsx`, `DriversPage.jsx`, `FleetsPage.jsx`, `RoutesPage.jsx`, `TripsPage.jsx`, `LiveTrackingPage.jsx`, `VehicleSlotsPage.jsx` (`/fleet-operator/slots`))
+  - Tenant Admin: `src/pages/admin/` (`AdminVehicleSlotsPage.jsx` (`/admin/slots`))
+- **Modal Component:** `src/components/fleet/AddVehicleSlotModal.jsx` (includes live conflict checking & time validation)
 - **Pagination Component:** `src/components/ui/Pagination.jsx`
-- **Integration Blueprint:** See [FRONTEND_INTEGRATION_GUIDE.md](file:///e:/vmovexa/application_api_doc/FRONTEND_INTEGRATION_GUIDE.md)
+- **Breadcrumb Component:** `src/components/ui/Breadcrumb.jsx`
+- **Integration Blueprint:** See [FRONTEND_INTEGRATION_GUIDE.md](../FRONTEND_INTEGRATION_GUIDE.md)

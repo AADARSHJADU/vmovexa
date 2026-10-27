@@ -851,7 +851,8 @@ class FleetService extends GetxService {
   /// GET /content/:type?role=ROLE-FLEET-OPERATOR
   Future<ApiResponseModel<dynamic>> getContentPage(String type, {String role = 'ROLE-FLEET-OPERATOR'}) async {
     return _http.get(
-      ApiConstants.contentPage(type),
+      ApiConstants.techWorkOrders,
+      // ApiConstants.contentPage(type),
       queryParams: {'role': role},
       requiresAuth: true,
     );

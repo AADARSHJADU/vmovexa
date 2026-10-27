@@ -203,5 +203,5 @@ export const notificationService = {
 - **Custom Hooks:** `src/hooks/useNotificationLogs.js`
 - **Socket Client:** `src/api/socket.js` (`getSocket()`, `disconnectSocket()`)
 - **Shared Notification UI:** `src/pages/admin/SharedNotificationsView.jsx` (Powers all portal notification pages with `<Pagination />`)
-- **Integration Blueprint:** See [FRONTEND_INTEGRATION_GUIDE.md](file:///e:/vmovexa/application_api_doc/FRONTEND_INTEGRATION_GUIDE.md)
+- **Integration Blueprint:** See [FRONTEND_INTEGRATION_GUIDE.md](../FRONTEND_INTEGRATION_GUIDE.md)
 

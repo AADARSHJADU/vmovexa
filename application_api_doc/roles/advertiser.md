@@ -7,7 +7,7 @@
 
 ---
 
-## 📋 Complete Endpoints Summary (38 APIs)
+## 📋 Complete Endpoints Summary (40 APIs)
 
 ### 1. Campaign Core CRUD (6 APIs)
 | Method | Endpoint | Auth | Description |
@@ -19,7 +19,7 @@
 | `PATCH` | `/campaigns/:id` | Yes | Partial update of campaign details |
 | `DELETE` | `/campaigns/:id` | Yes | Delete draft campaign |
 
-### 2. Campaign Lifecycle Controls (10 APIs)
+### 2. Campaign Lifecycle Controls (12 APIs)
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
 | `POST` | `/campaigns/:id/submit` | Yes | Submit draft campaign for SuperAdmin approval (`pending_approval`) |
@@ -28,7 +28,9 @@
 | `POST` | `/campaigns/:id/verify` | Yes | Verify campaign creative assets compliance |
 | `POST` | `/campaigns/:id/pay` | Yes | Internal checkout initiation |
 | `POST` | `/campaigns/:id/pay/confirm` | Yes | Confirm payment (Razorpay payment_id & signature) |
+| `POST` | `/campaigns/:id/record-offline-payment` | Yes | Record manual wire/cheque offline payment |
 | `POST` | `/campaigns/:id/start` | Yes | **Start Ad:** Broadcast creatives to transit bus screens (`status: live`) |
+| `POST` | `/campaigns/:id/stop` | Yes | Stop / suspend ad broadcast |
 | `POST` | `/campaigns/:id/pause` | Yes | Temporarily pause broadcast (`status: paused`) |
 | `POST` | `/campaigns/:id/end` | Yes | Terminate campaign broadcast (`status: completed`) |
 | `POST` | `/campaigns/:id/share-payment-link` | Yes | Re-dispatch SMS/Email payment link to customer |
@@ -252,5 +254,5 @@ export const advertiserService = {
 - **Custom Hooks:** `src/hooks/advertiser/` (`useCampaign.js`, `useAdvertiser.js`)
 - **Pages:** `src/pages/advertiser/` (`CampaignsPage.jsx`, `CreateCampaignPage.jsx`, `AdvertiserDashboard.jsx`)
 - **Public Checkout Page:** `src/pages/public/PublicCheckoutPage.jsx` (`/campaigns/:id/pay?token=...`)
-- **Integration Blueprint:** See [FRONTEND_INTEGRATION_GUIDE.md](file:///e:/vmovexa/application_api_doc/FRONTEND_INTEGRATION_GUIDE.md)
+- **Integration Blueprint:** See [FRONTEND_INTEGRATION_GUIDE.md](../FRONTEND_INTEGRATION_GUIDE.md)
 

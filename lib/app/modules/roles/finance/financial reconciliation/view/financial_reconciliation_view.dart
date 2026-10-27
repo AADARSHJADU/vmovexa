@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../../theme/app_colors.dart';
+import 'package:vmovexa/app/widgets/custom_button.dart';
 import '../controller/financial_reconciliation_controller.dart';
 import '../model/financial_reconciliation_model.dart';
 import 'start_reconciliation_view.dart';
 import 'reconciliation_completed_view.dart';
+
+const Color kBgColor = Color(0xFF0C0C14);
+const Color kCardBg = Color(0xFF13131F);
+const Color kInputBg = Color(0xFF1B1B2A);
+const Color kBorderColor = Color(0xFF232336);
 
 class FinancialReconciliationView extends GetView<FinancialReconciliationController> {
   const FinancialReconciliationView({super.key});
@@ -12,7 +17,7 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: kBgColor,
       body: SafeArea(
         child: Obx(() {
           switch (controller.currentScreenIndex.value) {
@@ -22,654 +27,67 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
               return const ReconciliationCompletedView();
             case 0:
             default:
-              return _buildDashboard();
+              return _buildDashboard(context);
           }
         }),
       ),
     );
   }
 
-  Widget _buildDashboard() {
+  Widget _buildDashboard(BuildContext context) {
     return Column(
       children: [
-        // App Bar / Top Header
-        _buildHeader(),
-        
-        // Main Scrollable Content
+        _buildAppBar(),
         Expanded(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Section: Reconciliation Summary
-                const Text(
-                  'Reconciliation Summary',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _buildSummaryCardsList(),
-                const SizedBox(height: 20),
-
-                // Section: Filters Row
-                _buildFiltersRow(),
-                const SizedBox(height: 24),
-
-                // Section: Reconciliation List Table
-                _buildReconciliationListHeader(),
-                const SizedBox(height: 12),
-                _buildReconciliationTable(),
-                const SizedBox(height: 24),
-
-                // Section: Reconciliation Insights
-                const Text(
-                  'Reconciliation Insights',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _buildInsightsRow(),
-                const SizedBox(height: 24),
-
-                // Help Banner
-                _buildHelpBanner(),
-                const SizedBox(height: 20),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Header Widget
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: AppColors.cardBorder, width: 1),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () {
-                  if (Get.previousRoute.isNotEmpty) {
-                    Get.back();
-                  } else {
-                    controller.backToDashboard();
-                  }
-                },
-              ),
-              const SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Financial Reconciliation',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  const Text(
-                    'Reconcile transactions and accounts',
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          IconButton(
-            icon: const Icon(Icons.info_outline, color: Color(0xFFA855F7)),
-            onPressed: () => controller.learnMoreHelp(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // 4 Top Cards for Summary
-  Widget _buildSummaryCardsList() {
-    return Obx(() {
-      return SizedBox(
-        height: 110,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
-          itemCount: controller.summaryCards.length,
-          itemBuilder: (context, index) {
-            final card = controller.summaryCards[index];
-            return Container(
-              width: 100,
-              margin: const EdgeInsets.only(right: 10),
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppColors.cardBg,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.cardBorder, width: 1.2),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Icon badge
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: card.color.withOpacity(0.12),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(card.icon, size: 16, color: card.color),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        card.title,
-                        style: const TextStyle(
-                          color: AppColors.textMuted,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        card.value,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        card.subtitle,
-                        style: TextStyle(
-                          color: card.percentage == 100.0 ? AppColors.textSecondary : card.color,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      );
-    });
-  }
-
-  // Filters section
-  Widget _buildFiltersRow() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              // Date Filter
-              Expanded(
-                child: InkWell(
-                  onTap: () => controller.pickDateRange(),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: AppColors.background,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.cardBorder, width: 1),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Icon(Icons.calendar_today_outlined, size: 14, color: AppColors.textSecondary),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Obx(() => Text(
-                                controller.selectedDateRange.value,
-                                style: const TextStyle(color: Colors.white, fontSize: 11),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              )),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              // Account Filter
-              Expanded(
-                child: InkWell(
-                  onTap: () => controller.filterByAccount(),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: AppColors.background,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.cardBorder, width: 1),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Obx(() => Text(
-                                controller.selectedAccount.value,
-                                style: const TextStyle(color: Colors.white, fontSize: 11),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              )),
-                        ),
-                        const Icon(Icons.keyboard_arrow_down, size: 16, color: AppColors.textSecondary),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              // Status Filter
-              Expanded(
-                child: InkWell(
-                  onTap: () => controller.filterByStatus(),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: AppColors.background,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.cardBorder, width: 1),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Obx(() => Text(
-                                controller.selectedStatus.value,
-                                style: const TextStyle(color: Colors.white, fontSize: 11),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              )),
-                        ),
-                        const Icon(Icons.keyboard_arrow_down, size: 16, color: AppColors.textSecondary),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              // Apply Filter Button
-              InkWell(
-                onTap: () => controller.applyFilter(),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF6366F1).withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFF6366F1), width: 1.2),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.filter_list_alt, size: 14, color: Color(0xFF6366F1)),
-                      SizedBox(width: 4),
-                      Text(
-                        'Apply',
-                        style: TextStyle(
-                          color: Color(0xFF6366F1),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Reconciliation List Header
-  Widget _buildReconciliationListHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          'Reconciliation List',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        InkWell(
-          onTap: () {
-            if (controller.reconciliationItems.isNotEmpty) {
-              controller.startNewReconcile(controller.reconciliationItems.first);
+          child: Obx(() {
+            if (controller.isLoadingSummary.value && controller.summary.value == null) {
+              return const Center(child: CircularProgressIndicator(color: Color(0xFF1C68FD)));
             }
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: const Color(0xFF10121A),
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: const Color(0xFF1C1F2E), width: 1.2),
-            ),
-            child: const Row(
-              children: [
-                Icon(Icons.add, size: 14, color: Colors.white),
-                SizedBox(width: 4),
-                Text(
-                  'New Reconciliation',
-                  style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ),
+
+            final summary = controller.summary.value ?? ReconciliationSummaryModel.fallback();
+
+            return SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 4 Summary KPI Cards
+                  _buildKpiGrid(summary),
+                  const SizedBox(height: 18),
+
+                  // Ledger Accounts Roster Section
+                  _buildAccountsSection(context),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            );
+          }),
         ),
       ],
     );
   }
 
-  // Reconciliation Table Widget
-  Widget _buildReconciliationTable() {
-    return Obx(() {
-      return Container(
-        decoration: BoxDecoration(
-          color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.cardBorder, width: 1.2),
-        ),
-        child: Column(
-          children: [
-            // Table Header Row
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: AppColors.cardBorder, width: 1.2),
-                ),
-              ),
-              child: const Row(
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: Text(
-                      'Account/Source',
-                      style: TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      'Type',
-                      style: TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      'Status',
-                      style: TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      'Last Reconciled',
-                      style: TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        'Actions',
-                        style: TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Table Body List
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: controller.reconciliationItems.length,
-              separatorBuilder: (context, index) => const Divider(color: AppColors.cardBorder, height: 1),
-              itemBuilder: (context, index) {
-                final item = controller.reconciliationItems[index];
-                return InkWell(
-                  onTap: () => controller.startNewReconcile(item),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                    child: Row(
-                      children: [
-                        // Account
-                        Expanded(
-                          flex: 3,
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: AppColors.background,
-                                  borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(color: AppColors.cardBorder, width: 1),
-                                ),
-                                child: Icon(item.icon, size: 16, color: Colors.purple[300]),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item.accountName,
-                                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      item.accountType,
-                                      style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        // Type
-                        Expanded(
-                          flex: 2,
-                          child: Text(
-                            item.type.replaceAll(' Reconciliation', '\nReconciliation'),
-                            style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
-                          ),
-                        ),
-                        // Status
-                        Expanded(
-                          flex: 2,
-                          child: Container(
-                            alignment: Alignment.centerLeft,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: item.status.color.withOpacity(0.08),
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(color: item.status.color.withOpacity(0.6), width: 1),
-                              ),
-                              child: Text(
-                                item.status.label,
-                                style: TextStyle(
-                                  color: item.status.color,
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        // Last Reconciled
-                        Expanded(
-                          flex: 2,
-                          child: Text(
-                            item.lastReconciled,
-                            style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
-                          ),
-                        ),
-                        // Actions
-                        Expanded(
-                          flex: 1,
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: IconButton(
-                              icon: const Icon(Icons.more_vert, color: AppColors.textMuted, size: 18),
-                              onPressed: () => controller.startNewReconcile(item),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      );
-    });
-  }
-
-  // Reconciliation Insights section
-  Widget _buildInsightsRow() {
-    return Obx(() {
-      return SizedBox(
-        height: 100,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
-          itemCount: controller.insights.length,
-          itemBuilder: (context, index) {
-            final insight = controller.insights[index];
-            return Container(
-              width: 140,
-              margin: const EdgeInsets.only(right: 12),
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppColors.cardBg,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.cardBorder, width: 1.2),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        insight.title,
-                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 9),
-                      ),
-                      Icon(insight.icon, size: 14, color: AppColors.textMuted),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        insight.value,
-                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              insight.changeText,
-                              style: TextStyle(
-                                color: insight.changeColor,
-                                fontSize: 9,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 1),
-                      Text(
-                        insight.subtitle,
-                        style: const TextStyle(color: AppColors.textMuted, fontSize: 8),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      );
-    });
-  }
-
-  // Bottom Help Banner
-  Widget _buildHelpBanner() {
+  // ==========================================
+  // TOP APP BAR
+  // ==========================================
+  Widget _buildAppBar() {
     return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF6366F1).withOpacity(0.05),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF6366F1).withOpacity(0.2), width: 1.2),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: const BoxDecoration(
+        color: kCardBg,
+        border: Border(bottom: BorderSide(color: kBorderColor, width: 1)),
       ),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: const Color(0xFF6366F1).withOpacity(0.1),
-              shape: BoxShape.circle,
+          IconButton(
+            onPressed: () => Get.back(),
+            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 20),
+            style: IconButton.styleFrom(
+              backgroundColor: const Color(0xFF1C1C2D),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              padding: const EdgeInsets.all(8),
+              minimumSize: const Size(36, 36),
             ),
-            child: const Icon(Icons.lightbulb_outline, size: 18, color: Color(0xFF6366F1)),
           ),
           const SizedBox(width: 12),
           const Expanded(
@@ -677,31 +95,524 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Need help with reconciliation?',
-                  style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                  'Bank Reconciliation',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.3,
+                  ),
                 ),
                 SizedBox(height: 2),
                 Text(
-                  'Learn how reconciliation works or contact support.',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 10),
+                  'Reconcile corporate bank accounts, gateway escrow & ledgers',
+                  style: TextStyle(color: Colors.white54, fontSize: 11),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
-          TextButton(
-            onPressed: () => controller.learnMoreHelp(),
-            child: const Row(
-              children: [
-                Text(
-                  'Learn More',
-                  style: TextStyle(color: Color(0xFF6366F1), fontSize: 10, fontWeight: FontWeight.bold),
-                ),
-                Icon(Icons.open_in_new, size: 10, color: Color(0xFF6366F1)),
-              ],
+          IconButton(
+            onPressed: controller.loadReconciliationSummary,
+            icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 18),
+            style: IconButton.styleFrom(
+              backgroundColor: const Color(0xFF1C1C2D),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              minimumSize: const Size(36, 36),
             ),
+            tooltip: 'Refresh',
+          ),
+          // const SizedBox(width: 8),
+          // CustomButton(
+          //   text: 'Start Wizard',
+          //   onTap: () => controller.startWizardForAccount(null),
+          //   isGradient: true,
+          //   height: 38,
+          //   width: 124,
+          //   prefixIcon: const Icon(Icons.analytics_outlined, color: Colors.white, size: 15),
+          // ),
+        ],
+      ),
+    );
+  }
+
+  // ==========================================
+  // 4 SUMMARY KPI CARDS
+  // ==========================================
+  Widget _buildKpiGrid(ReconciliationSummaryModel summary) {
+    return GridView.count(
+      crossAxisCount: 2,
+      crossAxisSpacing: 10,
+      mainAxisSpacing: 10,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      childAspectRatio: 1.45,
+      children: [
+        _buildKpiCard(
+          label: 'TOTAL\nTRANSACTIONS',
+          value: '${summary.totalTransactions}',
+          sub: 'Across all accounts',
+          valColor: const Color(0xFF818CF8),
+          icon: Icons.receipt_long_outlined,
+          iconBg: const Color(0xFF312E81).withValues(alpha: 0.4),
+          iconColor: const Color(0xFFA5B4FC),
+        ),
+        _buildKpiCard(
+          label: 'MATCHED FEEDS',
+          value: '${summary.matched}',
+          sub: 'Verified with bank feeds',
+          valColor: const Color(0xFF34D399),
+          icon: Icons.check_circle_outline_rounded,
+          iconBg: const Color(0xFF064E3B).withValues(alpha: 0.4),
+          iconColor: const Color(0xFF6EE7B7),
+        ),
+        _buildKpiCard(
+          label: 'REQUIRES REVIEW',
+          value: '${summary.unmatched}',
+          sub: 'Discrepancies / audit',
+          valColor: const Color(0xFFFB7185),
+          icon: Icons.warning_amber_rounded,
+          iconBg: const Color(0xFF881337).withValues(alpha: 0.4),
+          iconColor: const Color(0xFFFDA4AF),
+        ),
+        _buildKpiCard(
+          label: 'IN PROGRESS',
+          value: '${summary.inProgress}',
+          sub: 'Gateway clearance',
+          valColor: const Color(0xFFFBBF24),
+          icon: Icons.sync_rounded,
+          iconBg: const Color(0xFF78350F).withValues(alpha: 0.4),
+          iconColor: const Color(0xFFFDE68A),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildKpiCard({
+    required String label,
+    required String value,
+    required String sub,
+    required Color valColor,
+    required IconData icon,
+    required Color iconBg,
+    required Color iconColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: kCardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: kBorderColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(color: Colors.white38, fontSize: 9.5, fontWeight: FontWeight.bold),
+              ),
+              Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: iconBg,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, color: iconColor, size: 14),
+              ),
+            ],
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              color: valColor,
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+              fontFamily: 'monospace',
+            ),
+          ),
+          Text(
+            sub,
+            style: const TextStyle(color: Colors.white38, fontSize: 10),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
+    );
+  }
+
+  // ==========================================
+  // LEDGER ACCOUNTS ROSTER SECTION
+  // ==========================================
+  Widget _buildAccountsSection(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: kCardBg,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: kBorderColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'LEDGER ACCOUNTS ROSTER',
+                    style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 0.8),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Corporate banks, gateway escrow,and\npayoutledgers',
+                    style: TextStyle(color: Colors.white38, fontSize: 11),
+                  ),
+                ],
+              ),
+
+            ],
+          ),
+          // const SizedBox(height: 5),
+          // Row(
+          //   children: [
+          //     Obx(() => Container(
+          //       decoration: BoxDecoration(
+          //         color: kInputBg,
+          //         borderRadius: BorderRadius.circular(10),
+          //         border: Border.all(color: kBorderColor),
+          //       ),
+          //       child: Row(
+          //         mainAxisSize: MainAxisSize.min,
+          //         children: [
+          //           IconButton(
+          //             icon: Icon(
+          //               Icons.table_rows_rounded,
+          //               size: 16,
+          //               color: controller.viewMode.value == 'table' ? Colors.white : Colors.white38,
+          //             ),
+          //             onPressed: () => controller.viewMode.value = 'table',
+          //             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+          //             padding: EdgeInsets.zero,
+          //           ),
+          //
+          //         ],
+          //       ),
+          //     )),
+          //     IconButton(
+          //       icon: Icon(
+          //         Icons.grid_view_rounded,
+          //         size: 16,
+          //         color: controller.viewMode.value == 'card' ? Colors.white : Colors.white38,
+          //       ),
+          //       onPressed: () => controller.viewMode.value = 'card',
+          //       constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+          //       padding: EdgeInsets.zero,
+          //     ),
+          //   ],
+          // ),
+          const SizedBox(height: 14),
+
+          // Search Box
+          TextField(
+            onChanged: (val) {
+              controller.accountSearch.value = val;
+              controller.currentPage.value = 1;
+            },
+            style: const TextStyle(color: Colors.white, fontSize: 13),
+            decoration: InputDecoration(
+              hintText: 'Search accounts by name, number, category...',
+              hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
+              prefixIcon: const Icon(Icons.search_rounded, color: Colors.white38, size: 18),
+              filled: true,
+              fillColor: kInputBg,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF28283E))),
+              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF60A5FA))),
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // Accounts List
+          Obx(() {
+            final accounts = controller.paginatedAccounts;
+            if (accounts.isEmpty) {
+              return Container(
+                padding: const EdgeInsets.symmetric(vertical: 36),
+                alignment: Alignment.center,
+                child: const Text('No matching ledger accounts found', style: TextStyle(color: Colors.white38, fontSize: 12)),
+              );
+            }
+
+            if (controller.viewMode.value == 'table') {
+              return Column(
+                children: accounts.map((acc) => _buildAccountCard(acc)).toList(),
+              );
+            } else {
+              return Column(
+                children: accounts.map((acc) => _buildAccountCard(acc)).toList(),
+              );
+            }
+          }),
+
+          const SizedBox(height: 12),
+
+          // Pagination
+          Obx(() => _buildPagination()),
+        ],
+      ),
+    );
+  }
+
+  // Row Item for Table-like layout
+  Widget _buildAccountRow(ReconciliationAccountModel acc) {
+    final isReconciled = acc.status.toLowerCase() == 'reconciled';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: kInputBg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFF28283E)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      acc.name,
+                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${acc.category} · ${acc.accountNumber}',
+                      style: const TextStyle(color: Colors.white54, fontSize: 11, fontFamily: 'monospace'),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: isReconciled
+                      ? const Color(0xFF064E3B).withValues(alpha: 0.5)
+                      : const Color(0xFF78350F).withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: isReconciled
+                        ? const Color(0xFF10B981).withValues(alpha: 0.4)
+                        : const Color(0xFFF59E0B).withValues(alpha: 0.4),
+                  ),
+                ),
+                child: Text(
+                  '● ${acc.status}',
+                  style: TextStyle(
+                    color: isReconciled ? const Color(0xFF34D399) : const Color(0xFFFBBF24),
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Ledger Balance', style: TextStyle(color: Colors.white38, fontSize: 10)),
+                  Text(
+                    acc.ledgerBalance,
+                    style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w900, fontFamily: 'monospace'),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Text(
+                    'Txns: ${acc.totalTxns} | M: ${acc.matched} | U: ${acc.unmatched}',
+                    style: const TextStyle(color: Colors.white54, fontSize: 10.5),
+                  ),
+                  const SizedBox(width: 10),
+                  CustomButton(
+                    text: 'Reconcile',
+                    onTap: () => controller.startWizardForAccount(acc),
+                    isGradient: true,
+                    height: 32,
+                    width: 95,
+                    prefixIcon: const Icon(Icons.sync_alt_rounded, color: Colors.white, size: 13),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Card View item
+  Widget _buildAccountCard(ReconciliationAccountModel acc) {
+    final isReconciled = acc.status.toLowerCase() == 'reconciled';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: kInputBg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFF28283E)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E3A8A).withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  acc.category.toUpperCase(),
+                  style: const TextStyle(color: Color(0xFF93C5FD), fontSize: 9.5, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: isReconciled
+                      ? const Color(0xFF064E3B).withValues(alpha: 0.5)
+                      : const Color(0xFF78350F).withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  '● ${acc.status}',
+                  style: TextStyle(
+                    color: isReconciled ? const Color(0xFF34D399) : const Color(0xFFFBBF24),
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            acc.name,
+            style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            acc.accountNumber,
+            style: const TextStyle(color: Colors.white38, fontSize: 11, fontFamily: 'monospace'),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFF131320),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildStatColumn('TOTAL TXNS', '${acc.totalTxns}', Colors.white),
+                _buildStatColumn('MATCHED', '${acc.matched}', const Color(0xFF34D399)),
+                _buildStatColumn('UNMATCHED', '${acc.unmatched}', const Color(0xFFFB7185)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('LEDGER BALANCE', style: TextStyle(color: Colors.white38, fontSize: 9)),
+                  Text(
+                    acc.ledgerBalance,
+                    style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w900, fontFamily: 'monospace'),
+                  ),
+                ],
+              ),
+              CustomButton(
+                text: 'Reconcile',
+                onTap: () => controller.startWizardForAccount(acc),
+                isGradient: true,
+                height: 36,
+                width: 110,
+                prefixIcon: const Icon(Icons.sync_alt_rounded, color: Colors.white, size: 14),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatColumn(String label, String value, Color color) {
+    return Column(
+      children: [
+        Text(label, style: const TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 2),
+        Text(value, style: TextStyle(color: color, fontSize: 13, fontWeight: FontWeight.bold, fontFamily: 'monospace')),
+      ],
+    );
+  }
+
+  // Pagination controls
+  Widget _buildPagination() {
+    final total = controller.totalPages;
+    final current = controller.currentPage.value;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Page $current of $total (${controller.filteredAccounts.length} accounts)',
+          style: const TextStyle(color: Colors.white38, fontSize: 11),
+        ),
+        Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.chevron_left_rounded, color: Colors.white),
+              onPressed: current > 1 ? () => controller.currentPage.value-- : null,
+              disabledColor: Colors.white24,
+            ),
+            IconButton(
+              icon: const Icon(Icons.chevron_right_rounded, color: Colors.white),
+              onPressed: current < total ? () => controller.currentPage.value++ : null,
+              disabledColor: Colors.white24,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -1,31 +1,31 @@
 # VMOVEXA ONE — Master Role-Based API & Frontend Integration Documentation
 
 Welcome to the **VMOVEXA ONE** Master Technical Documentation package.  
-This package is structured strictly by **user roles & portals** and includes a complete **Frontend UI Integration Blueprint** so that frontend engineers and AI assistants can seamlessly build and connect every portal without ambiguity.
+This package is structured strictly by **user roles & portals** and includes a complete **Frontend UI Integration Blueprint** so that frontend engineers and AI assistants can seamlessly build, connect, and maintain every portal without ambiguity.
 
 ---
 
 ## 📘 Quick Navigation
 
-1. 🚀 **[Frontend UI Integration Guide (Master Blueprint)](file:///e:/vmovexa/application_api_doc/FRONTEND_INTEGRATION_GUIDE.md)**  
-   *Step-by-step code tutorial: Services → Redux Thunks → Slices → Hooks → React UI Tables with `<Pagination />`, Search Debounce, Modals & Toast alerts.*
+1. 🚀 **[Frontend UI Integration Guide (Master Blueprint)](./FRONTEND_INTEGRATION_GUIDE.md)**  
+   *Step-by-step code tutorial: Services → Redux Thunks → Slices → Hooks → React UI Tables with `<Pagination />`, Breadcrumbs, Responsive Headers, Dark Mode, Modals & Toast alerts.*
 
-2. 📊 **[Full-Stack Gap Analysis Report](file:///e:/vmovexa/application_api_doc/GAP_ANALYSIS_REPORT.md)**  
-   *Audit results: Backend vs Frontend endpoints, resolved missing routes in `endpoints.js`, payload wiring fixes & status lifecycle diagrams.*
+2. 📊 **[Full-Stack Gap Analysis Report](./GAP_ANALYSIS_REPORT.md)**  
+   *Audit results: Backend vs Frontend endpoints, resolved missing routes in `endpoints.js`, Vehicle Slots collision engine, payload wiring fixes & status lifecycle diagrams.*
 
 3. 🏛️ **Role-Based Portals & API Specifications:**
-   - 🔑 **[auth.md](file:///e:/vmovexa/application_api_doc/roles/auth.md)** — **35 APIs** (Identity, OTP, Org Self-Registration, Social OAuth Google/Zoho/Apple, Sessions)
-   - 🚌 **[fleet-manager.md](file:///e:/vmovexa/application_api_doc/roles/fleet-manager.md)** — **65 APIs** (Depots, Fleets, Vehicles, Drivers, Routes, Trips, Telemetry, Docs)
-   - 👨‍✈️ **[driver.md](file:///e:/vmovexa/application_api_doc/roles/driver.md)** — **11 APIs** (Self-service Driver Portal, Schedules, Routes, Duty Status, Incidents)
-   - 📢 **[advertiser.md](file:///e:/vmovexa/application_api_doc/roles/advertiser.md)** — **38 APIs** (Campaigns, Approvals, Public Customer Checkout, QR Passenger Scans)
-   - 💰 **[finance.md](file:///e:/vmovexa/application_api_doc/roles/finance.md)** — **49 APIs** (Invoices, Ledger, Campaign Settlements, Bank Auto-Match, GST GSTR-1, Gateways)
-   - 🔧 **[technician.md](file:///e:/vmovexa/application_api_doc/roles/technician.md)** — **36 APIs** (Work Orders Queue, Smart Edge Remote Reboot/Config, Displays, GPS Pairing)
-   - 🏛️ **[government.md](file:///e:/vmovexa/application_api_doc/roles/government.md)** — **13 APIs** (Transit Footprint Analytics, Directory, Emergency SOS Broadcast Overrides)
-   - 🔔 **[notifications-websocket.md](file:///e:/vmovexa/application_api_doc/roles/notifications-websocket.md)** — **23 REST + WS** (In-app Alerts, Delivery Logs & Retry, FCM Push, Socket.IO Live Telemetry)
-   - 👑 **[superadmin.md](file:///e:/vmovexa/application_api_doc/roles/superadmin.md)** — **38 APIs** (Sovereign KPIs, Multi-Tenant Approvals & Impersonation, RBAC, Health)
-   - 📁 **[common-services.md](file:///e:/vmovexa/application_api_doc/roles/common-services.md)** — **20 APIs** (Multipart Media Uploads, Helpdesk Support Tickets, Geocoding & Directions, i18n)
+   - 🔑 **[auth.md](./roles/auth.md)** — **35 APIs** (Identity, OTP, Org Self-Registration, Social OAuth Google/Zoho/Apple, Sessions)
+   - 🚌 **[fleet-manager.md](./roles/fleet-manager.md)** — **74 APIs** (Depots, Fleets, Vehicles, Drivers, Routes, Trips, Telemetry, Docs, **Vehicle Slots & Timetables Grid**, Quotas)
+   - 👨‍✈️ **[driver.md](./roles/driver.md)** — **15 APIs** (Self-service Driver Portal, Schedules, Routes, Duty Status, Incidents, Route Trip Start/End)
+   - 📢 **[advertiser.md](./roles/advertiser.md)** — **40 APIs** (Campaigns, Approvals, Public Customer Checkout, QR Passenger Scans, Manual Ad Broadcast Start/Pause/Stop, Offline Payments)
+   - 💰 **[finance.md](./roles/finance.md)** — **49 APIs** (Invoices, Ledger, Campaign Settlements, Bank Auto-Match, GST GSTR-1, Gateways)
+   - 🔧 **[technician.md](./roles/technician.md)** — **42 APIs** (Work Orders Queue, Technician Stats & Rating, Smart Edge Remote Reboot/Config/Packages, Displays, GPS Pairing)
+   - 🏛️ **[government.md](./roles/government.md)** — **17 APIs** (Transit Footprint Analytics, Directory & Metadata Taxonomy, Emergency SOS Broadcast Overrides)
+   - 🔔 **[notifications-websocket.md](./roles/notifications-websocket.md)** — **23 REST + WS** (In-app Alerts, Delivery Logs & Retry, FCM Push, Socket.IO Live Telemetry)
+   - 👑 **[superadmin.md](./roles/superadmin.md)** — **44 APIs** (Sovereign KPIs, Multi-Tenant Approvals & Impersonation, RBAC, Health, System Logs, Activity Logs)
+   - 📁 **[common-services.md](./roles/common-services.md)** — **23 APIs** (Multipart Media Uploads, Helpdesk Support Tickets & Threads, Dynamic Help/FAQs, Geocoding & Directions, i18n)
 
-> **Total Endpoints Documented:** **328 Comprehensive APIs & WebSocket Protocols**
+> **Total Endpoints Documented:** **362 Comprehensive APIs & WebSocket Protocols**
 
 ---
 
@@ -53,10 +53,21 @@ Component
 ```
 
 ### 🚨 4 Golden Rules:
-1. **Component never calls Axios directly:** Components only consume custom hooks (e.g., `useFleetVehicle()`, `useCampaign()`).
+1. **Component never calls Axios directly:** Components only consume custom hooks (e.g., `useFleetVehicle()`, `useCampaign()`, `useVehicleSlot()`).
 2. **Hook wraps Redux:** State reads use `useAppSelector` and mutations use `useAppDispatch(thunk).unwrap()`.
 3. **Thunk delegates to Service:** Thunks handle async operations and format errors via `rejectWithValue(normalizeError(err))`.
 4. **Service calls `apiClient`:** Direct `fetch` or custom Axios instances are forbidden. All HTTP goes through `src/api/client.js`.
+
+---
+
+## 🧭 Subpage Navigation & UI Design Standards
+
+1. **Breadcrumbs:** Every subpage must include standard `<Breadcrumb items={[...]} className="mb-2" />`.
+   - Root Portal Landing Dashboards (e.g. `/admin/dashboard`, `/fleet-manager/dashboard`) do **NOT** take breadcrumbs.
+   - All nested subpages (e.g. `/admin/slots`, `/fleet-manager/fleets`, `/admin/users/activity`) require breadcrumb hierarchy.
+2. **Icons:** Strict usage of SVG `FleetIcons` (`Bus`, `Plus`, `Search`, `Check`, `Key`, `Speed`, `Pin`, `Profile`, `Trash`, `Clock`, `ArrowLeft`). Unicode emojis are prohibited.
+3. **Mobile-Responsive Headers:** Header container: `flex flex-col sm:flex-row sm:items-center justify-between gap-4`. Buttons and inputs: `w-full sm:w-auto`.
+4. **Dark Mode Tokens:** `dark:bg-zinc-900`, `dark:bg-zinc-800`, `dark:border-zinc-800`, `dark:text-white`, `dark:text-zinc-400`.
 
 ---
 

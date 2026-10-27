@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/modules/roles/finance/invoice/generate_invoice/controller/generate_invoice_controller.dart';
 import '../../../../../../theme/app_theme.dart';
-import 'generate_invoice_view.dart' show GenerateInvoiceView;
 
 class InvoicePreviewView extends GetView<GenerateInvoiceController> {
   const InvoicePreviewView({super.key});
 
-  static const Color kBg = GenerateInvoiceView.kBg;
-  static const Color kCardBg = GenerateInvoiceView.kCardBg;
-  static const Color kFieldBg = GenerateInvoiceView.kFieldBg;
-  static const Color kPurple = GenerateInvoiceView.kPurple;
-  static const Color kIndigo = GenerateInvoiceView.kIndigo;
-  static const Color kBorder = GenerateInvoiceView.kBorder;
+  static const Color kBg = Color(0xFF0F172A);
+  static const Color kCardBg = Color(0xFF1E293B);
+  static const Color kBorder = Color(0xFF334155);
+  static const Color kFieldBg = Color(0xFF0F172A);
+  static const Color kDarkBg = Color(0xFF0F172A);
+
+  static const Color kPrimaryBlue = Color(0xFF2563EB);
+  static const Color kPrimaryIndigo = Color(0xFF6366F1);
+  static const Color kPurple = Color(0xFF6366F1);
+  static const Color kGreen = Color(0xFF10B981);
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +103,19 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
         border: Border.all(color: kBorder),
       ),
       child: Obx(() {
-        final customer = controller.selectedCustomer.value;
+        final customerName = controller.customerNameCtrl.text.trim().isEmpty
+            ? 'Customer / Company'
+            : controller.customerNameCtrl.text.trim();
+        final billingAddr = controller.billingAddressCtrl.text.trim().isEmpty
+            ? '—'
+            : controller.billingAddressCtrl.text.trim();
+        final gstin = controller.gstinCtrl.text.trim().isEmpty
+            ? '—'
+            : controller.gstinCtrl.text.trim();
+        final placeOfSupply = controller.placeOfSupply.value.isEmpty
+            ? '—'
+            : controller.placeOfSupply.value;
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -169,14 +184,10 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _miniLabel('Customer Name'),
-                      _miniValue(customer?.name ?? '—'),
+                      _miniValue(customerName),
                       const SizedBox(height: 8),
                       _miniLabel('Billing Address'),
-                      _miniValue(
-                        controller.billingAddress.value.isEmpty
-                            ? '—'
-                            : controller.billingAddress.value,
-                      ),
+                      _miniValue(billingAddr),
                     ],
                   ),
                 ),
@@ -186,25 +197,17 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _miniLabel('GSTIN'),
-                      _miniValue(
-                        controller.gstinCtrl.text.trim().isEmpty
-                            ? (customer?.gstin ?? '—')
-                            : controller.gstinCtrl.text.trim(),
-                      ),
+                      _miniValue(gstin),
                       const SizedBox(height: 8),
                       _miniLabel('Place of Supply'),
-                      _miniValue(
-                        controller.placeOfSupply.value.isEmpty
-                            ? '—'
-                            : controller.placeOfSupply.value,
-                      ),
+                      _miniValue(placeOfSupply),
                     ],
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            Divider(color: Colors.white.withOpacity(0.08), height: 1),
+            Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
             const SizedBox(height: 16),
             _sectionHeader(Icons.description_outlined, 'Invoice Details'),
             const SizedBox(height: 10),
@@ -244,7 +247,7 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
               ],
             ),
             const SizedBox(height: 16),
-            Divider(color: Colors.white.withOpacity(0.08), height: 1),
+            Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
             const SizedBox(height: 16),
             _sectionHeader(Icons.inventory_2_outlined, 'Invoice Items'),
             const SizedBox(height: 10),
@@ -252,9 +255,9 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
             const SizedBox(height: 16),
             _buildTotalsBlock(),
             const SizedBox(height: 16),
-            Divider(color: Colors.white.withOpacity(0.08), height: 1),
+            Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
             const SizedBox(height: 16),
-            _sectionHeader(Icons.notes_outlined, 'Notes (Optional)'),
+            _sectionHeader(Icons.notes_outlined, 'Notes / Terms'),
             const SizedBox(height: 8),
             Container(
               width: double.infinity,
@@ -265,7 +268,7 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
               ),
               child: Text(
                 controller.notesCtrl.text.trim().isEmpty
-                    ? 'No notes added'
+                    ? 'Payment within 15 days of invoice date.'
                     : controller.notesCtrl.text.trim(),
                 style: const TextStyle(color: Colors.white70, fontSize: 11.5),
               ),
@@ -354,7 +357,7 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
             ],
           ),
           const SizedBox(height: 8),
-          Divider(color: Colors.white.withOpacity(0.08), height: 1),
+          Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
           ...controller.items.map(
             (item) => Padding(
               padding: const EdgeInsets.symmetric(vertical: 9),
@@ -439,7 +442,7 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
               const SizedBox(height: 6),
               _totalRow('SGST (9%)', controller.sgstText),
               const SizedBox(height: 8),
-              Divider(color: Colors.white.withOpacity(0.1), height: 1),
+              Divider(color: Colors.white.withValues(alpha: 0.1), height: 1),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -493,7 +496,7 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
       decoration: BoxDecoration(
         color: kBg,
-        border: Border(top: BorderSide(color: Colors.white.withOpacity(0.06))),
+        border: Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.06))),
       ),
       child: Column(
         children: [
@@ -549,7 +552,7 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
               height: 50,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: kPurple.withOpacity(0.5)),
+                border: Border.all(color: kPurple.withValues(alpha: 0.5)),
               ),
               alignment: Alignment.center,
               child: const Row(

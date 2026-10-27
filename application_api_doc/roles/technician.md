@@ -7,16 +7,17 @@
 
 ---
 
-## 📋 Complete Endpoints Summary (36 APIs)
+## 📋 Complete Endpoints Summary (42 APIs)
 
-### 1. Technician Self-Service (3 APIs)
+### 1. Technician Self-Service (4 APIs)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
+| `GET` | `/me/technician/stats` | Technician task KPIs (assigned, in-progress, completed, average rating) |
 | `GET` | `/me/technician/work-orders` | Technician's assigned work orders list (today's dispatch queue) |
 | `GET` | `/me/technician/work-orders/:id` | Detailed view of a single assigned work order |
 | `PATCH` | `/me/technician/work-orders/:id/status` | Update execution status (`in_progress`, `completed`, `on_hold`) |
 
-### 2. Work Orders Management Lifecycle (8 APIs)
+### 2. Work Orders Management Lifecycle (9 APIs)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/work-orders` | List all organization hardware work orders with filters & pagination |
@@ -27,8 +28,9 @@
 | `PATCH` | `/work-orders/:id/approve` | Supervisor approve work order completion |
 | `PATCH` | `/work-orders/:id/reject` | Reject work order completion (re-open task) |
 | `PATCH` | `/work-orders/:id/status` | Admin status override |
+| `POST` | `/work-orders/:id/rate` | Submit performance star rating & feedback for completed maintenance |
 
-### 3. Edge Computing Devices (13 APIs)
+### 3. Edge Computing Devices (17 APIs)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/edge-devices` | List all smart edge computing boxes installed on vehicles |
@@ -36,6 +38,7 @@
 | `GET` | `/edge-devices/:id/telemetry` | Real-time sensor metrics (CPU, RAM, temp, MQTT heartbeat) |
 | `POST` | `/edge-devices` | Register a new edge computing unit |
 | `PATCH` | `/edge-devices/:id` | Update edge unit configuration, name, or vehicle assignment |
+| `POST` | `/edge-devices/:id/assign` | Pair & mount edge unit to transit vehicle |
 | `PATCH` | `/edge-devices/:id/toggle` | Toggle device active/inactive operational status |
 | `DELETE` | `/edge-devices/:id` | De-register edge unit |
 | `POST` | `/edge-devices/:id/reboot` | Remote reboot command via MQTT command channel |
@@ -44,6 +47,9 @@
 | `POST` | `/edge-devices/:id/factory-reset` | Remote factory reset edge device |
 | `GET` | `/edge-devices/:id/connectivity-tests` | Connectivity ping & telemetry test history |
 | `POST` | `/edge-devices/:id/connectivity-tests` | Trigger instant cellular / WiFi connectivity diagnostic ping |
+| `GET` | `/edge-devices/package/download` | Download edge daemon deployment package tarball |
+| `GET` | `/edge-devices/setup-script` | Generate shell automated setup script for edge units |
+| `GET` | `/edge-devices/handshake/:boxId` | Telemetry pre-flight handshake check |
 
 ### 4. Vehicle Transit Screen Displays (4 APIs)
 | Method | Endpoint | Description |
@@ -327,5 +333,5 @@ export const technicianService = {
 - **Custom Hooks:** `src/hooks/technician/` (`useTechnician.js`)
 - **Pages:** `src/pages/technician/` (`TechnicianDashboard.jsx`, `TechDevicesPage.jsx`, `TechHardwareStatusPage.jsx`, `TechDiagnosticsPage.jsx`)
 - **Pagination Component:** `src/components/ui/Pagination.jsx`
-- **Integration Blueprint:** See [FRONTEND_INTEGRATION_GUIDE.md](file:///e:/vmovexa/application_api_doc/FRONTEND_INTEGRATION_GUIDE.md)
+- **Integration Blueprint:** See [FRONTEND_INTEGRATION_GUIDE.md](../FRONTEND_INTEGRATION_GUIDE.md)
 

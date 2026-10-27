@@ -118,12 +118,15 @@ abstract class Routes {
   //Finance flow routes
   static const FINANCE_DASHBOARD = '/finance-dashboard';
   static const FINANCE_SUBSCRIPTIONS = '/subscriptions';
+  static const FINANCE_ONBOARD_TENANT = '/finance/subscriptions/onboard';
   static const FINANCE_INVOICE = '/finance-invoice';
   static const GENERATE_INVOICE = '/generate-invoice';
   static const PAYMENT_DETAIL = '/payment-detail';
   static const REVENUE_REPORTING = '/revenue-reporting';
   static const GST_MANAGEMENT = '/gst-management';
   static const FINANCIAL_RECONCILIATION = '/financial-reconciliation';
+  static const FINANCE_PAYMENTS = '/finance-payments';
+  static const FINANCE_REPORTS = '/finance-reports';
   static const FINANCE_NOTIFICATIONS = '/finance-notifications';
   static const FINANCE_PROFILE = '/finance-profile';
   static const FINANCE_SETTINGS = '/finance-settings';

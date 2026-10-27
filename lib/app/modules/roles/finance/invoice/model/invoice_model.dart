@@ -54,15 +54,28 @@ class InvoiceModel {
   });
 
   factory InvoiceModel.fromJson(Map<String, dynamic> json) {
+    DateTime parsedDate = DateTime.now();
+    final dateRaw = json['issue_date'] ?? json['created_at'] ?? json['invoiceDate'] ?? json['due_date'];
+    if (dateRaw != null) {
+      parsedDate = DateTime.tryParse(dateRaw.toString()) ?? DateTime.now();
+    }
+
+    final statusStr = (json['status'] ?? 'pending').toString().toLowerCase();
+    InvoiceStatus parsedStatus = InvoiceStatus.pending;
+    if (statusStr == 'paid') {
+      parsedStatus = InvoiceStatus.paid;
+    } else if (statusStr == 'overdue') {
+      parsedStatus = InvoiceStatus.overdue;
+    } else {
+      parsedStatus = InvoiceStatus.pending;
+    }
+
     return InvoiceModel(
-      id: json['id'] as String,
-      company: json['company'] as String,
-      invoiceDate: DateTime.parse(json['invoiceDate'] as String),
-      amount: (json['amount'] as num).toDouble(),
-      status: InvoiceStatus.values.firstWhere(
-        (e) => e.name == json['status'],
-        orElse: () => InvoiceStatus.pending,
-      ),
+      id: json['invoice_number']?.toString() ?? json['id']?.toString() ?? 'INV-${DateTime.now().millisecondsSinceEpoch}',
+      company: json['customer_name']?.toString() ?? json['billing_name']?.toString() ?? json['company']?.toString() ?? 'Customer',
+      invoiceDate: parsedDate,
+      amount: double.tryParse((json['total_amount'] ?? json['amount'] ?? json['subtotal'] ?? 0).toString().replaceAll(',', '')) ?? 0.0,
+      status: parsedStatus,
     );
   }
 

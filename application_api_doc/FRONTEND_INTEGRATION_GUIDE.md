@@ -631,3 +631,96 @@ toast.promise(
   }
 );
 ```
+
+---
+
+## 🧭 6. Subpage UI Standards & Layout Guidelines
+
+### 1. Breadcrumbs Component (`src/components/ui/Breadcrumb.jsx`)
+Har subpage ke top par standard `<Breadcrumb />` lagana mandatory hai:
+- **Root Dashboards (Rule):** `/fleet-manager/dashboard`, `/driver/dashboard`, `/admin/dashboard` etc. par breadcrumb **NAHI** lagega.
+- **Subpages (Rule):** `/fleet-manager/fleets`, `/admin/slots`, `/superadmin/activity` etc. par standard hierarchy lagegi:
+
+```jsx
+import { Breadcrumb } from '../../components/ui/Breadcrumb';
+
+// Inside component render:
+<Breadcrumb
+  items={[
+    { label: 'Fleet Operations', to: '/fleet-operator/dashboard' },
+    { label: 'Vehicle Slots & Timetables' },
+  ]}
+  className="mb-2"
+/>
+```
+
+### 2. SVG `FleetIcons` Standard (No Raw Emojis)
+Raw unicode emojis (e.g. 🚌, 🚗, ⏰, 🗑️) strictly prohibited hain. Always import SVG icons from `src/components/FleetIcons.jsx`:
+```jsx
+import { FleetIcons } from '../../components/FleetIcons';
+
+<FleetIcons.Bus className="w-5 h-5 text-blue-500" />
+<FleetIcons.Clock className="w-4 h-4 text-zinc-400" />
+<FleetIcons.Search className="w-4 h-4 text-zinc-400" />
+```
+
+### 3. Responsive Header & Action Buttons
+Header container must be responsive across mobile screens:
+```jsx
+<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-4">
+  <div>
+    <h1 className="text-xl font-bold text-zinc-900 dark:text-white">Vehicle Timetable Slots</h1>
+    <p className="text-xs text-zinc-500 dark:text-zinc-400">Manage shift assignments and prevent schedule double-booking</p>
+  </div>
+  <div className="flex items-center gap-2 w-full sm:w-auto">
+    <button className="w-full sm:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer">
+      + New Slot
+    </button>
+  </div>
+</div>
+```
+
+### 4. Dark Mode Color Tokens
+Standardize to the official VMOVEXA dark mode palette:
+- Main Page Container: `min-h-screen bg-slate-50 dark:bg-zinc-950 text-zinc-900 dark:text-white`
+- Cards / Panels: `bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl`
+- Table Headers: `bg-zinc-50 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-800`
+- Table Rows: `border-b border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/40`
+
+---
+
+## 🕒 7. Complex Domain Example: Vehicle Slots & Timetables
+
+### Hook Usage (`useVehicleSlot`)
+```javascript
+import { useVehicleSlot } from '../../hooks/fleet/useVehicleSlot';
+
+const MySlotsPage = () => {
+  const {
+    slots,
+    timetable,
+    loading,
+    conflictResult,
+    checkConflict,
+    createVehicleSlot,
+    fetchTimetableGrid,
+  } = useVehicleSlot();
+
+  // Check collision in real-time on modal form change
+  const handleTimeChange = async (startTime, endTime, vehicleId, days) => {
+    const conflict = await checkConflict({
+      vehicle_id: vehicleId,
+      start_time: startTime,
+      end_time: endTime,
+      operating_days: days,
+    });
+
+    if (conflict?.hasConflict) {
+      toast.error(conflict.message);
+    }
+  };
+
+  // ...
+};
+```
+

@@ -7,7 +7,7 @@
 
 ---
 
-## 📋 Endpoints Summary
+## 📋 Endpoints Summary (15 APIs)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -22,6 +22,10 @@
 | `GET` | `/me/driver/incidents/:id` | Single incident detail |
 | `POST` | `/me/driver/incidents` | Report a new incident |
 | `PATCH` | `/me/driver/duty-status` | Toggle on-duty / off-duty |
+| `POST` | `/me/driver/trip/start` | Start current assigned route trip |
+| `POST` | `/me/driver/trip/end` | Finish & log current assigned route trip |
+| `POST` | `/me/driver/trips/:id/start` | Start scheduled trip by ID |
+| `POST` | `/me/driver/trips/:id/end` | Finish scheduled trip by ID |
 
 ---
 
@@ -407,9 +411,11 @@ Toggle driver duty status (on-duty / off-duty). Used at start/end of shift.
 
 ---
 
-## 🔗 Frontend File Reference
-- `src/hooks/useDriver.js` — Driver portal hook
-- `src/api/services/driver/driverPortal.service.js` — API functions
-- `src/store/slices/driverSlice.js` — Redux state
-- `src/store/thunks/driver.thunks.js` — Async thunks
-- `src/pages/driver/` — Driver portal pages
+## 🔗 Frontend Architecture & File Reference
+- **Services:** `src/api/services/driver/driverPortal.service.js`
+- **Thunks:** `src/store/thunks/driver.thunks.js`
+- **Slices:** `src/store/slices/driverSlice.js`
+- **Custom Hooks:** `src/hooks/useDriver.js`
+- **Pages:** `src/pages/driver/` (`DriverDashboard.jsx`, `DriverSchedulePage.jsx`, `DriverTripsPage.jsx`, `DriverIncidentsListPage.jsx`, `DriverDocumentsPage.jsx`)
+- **Pagination Component:** `src/components/ui/Pagination.jsx`
+- **Integration Blueprint:** See [FRONTEND_INTEGRATION_GUIDE.md](../FRONTEND_INTEGRATION_GUIDE.md)

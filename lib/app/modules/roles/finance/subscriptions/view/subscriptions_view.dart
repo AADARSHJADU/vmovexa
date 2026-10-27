@@ -2,45 +2,53 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/modules/roles/finance/subscriptions/controller/subscriptions_controller.dart';
 import 'package:vmovexa/app/modules/roles/finance/subscriptions/model/subscription_model.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 
 class SubscriptionsView extends GetView<SubscriptionsController> {
   const SubscriptionsView({super.key});
 
-  static const Color kBg = Color(0xFF0B0B14);
-  static const Color kCardBg = Color(0xFF15151F);
-  static const Color kFieldBg = Color(0xFF1B1B27);
-  static const Color kPurple = Color(0xFFB042FF);
-  static const Color kIndigo = Color(0xFF6A5CFF);
-  static const Color kBorder = Color(0x14FFFFFF);
+  static const Color kDarkBg = Color(0xFF0F172A);
+  static const Color kCardBg = Color(0xFF1E293B);
+  static const Color kBorder = Color(0xFF334155);
+  static const Color kFieldBg = Color(0xFF0F172A);
+  static const Color kPrimaryBlue = Color(0xFF2563EB);
+  static const Color kPrimaryIndigo = Color(0xFF6366F1);
+  static const Color kGreen = Color(0xFF10B981);
+  static const Color kAmber = Color(0xFFF59E0B);
+  static const Color kRed = Color(0xFFEF4444);
 
   @override
   Widget build(BuildContext context) {
+    if (!Get.isRegistered<SubscriptionsController>()) {
+      Get.put(SubscriptionsController());
+    }
+
     return Scaffold(
-      backgroundColor: kBg,
+      backgroundColor: kDarkBg,
       body: SafeArea(
         child: Obx(
           () => controller.isLoading.value && controller.allSubscriptions.isEmpty
-              ? const Center(child: CircularProgressIndicator(color: kPurple))
+              ? const Center(
+                  child: CircularProgressIndicator(color: kPrimaryIndigo),
+                )
               : RefreshIndicator(
-                  color: kPurple,
+                  color: kPrimaryIndigo,
                   backgroundColor: kCardBg,
                   onRefresh: controller.onRefresh,
                   child: ListView(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     children: [
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                       _buildHeader(),
-                      const SizedBox(height: 4),
-                      const Text('View and manage all your subscriptions', style: TextStyle(color: Colors.white54, fontSize: 12)),
-                      const SizedBox(height: 16),
-                      _buildSearchAndFilterRow(),
+                      const SizedBox(height: 14),
+                      _buildKpiStatsRow(),
+                      const SizedBox(height: 14),
+                      _buildSearchRow(),
                       const SizedBox(height: 12),
                       _buildFilterTabs(),
                       const SizedBox(height: 14),
-                      _buildSubscriptionsList(),
-                      const SizedBox(height: 12),
-                      _buildHelpBanner(),
-                      const SizedBox(height: 16),
+                      _buildTenantsList(),
+                      const SizedBox(height: 24),
                     ],
                   ),
                 ),
@@ -49,264 +57,536 @@ class SubscriptionsView extends GetView<SubscriptionsController> {
     );
   }
 
-  // ---------------- Header ----------------
+  // ---------------- Header (Mirroring TenantsListPage.jsx & SubscriptionsListPage.jsx) ----------------
   Widget _buildHeader() {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        GestureDetector(onTap: controller.onMenuTap, child: const Icon(Icons.menu, color: kPurple)),
-        const SizedBox(width: 12),
-        const Expanded(
-          child: Text('All Subscriptions', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700)),
-        ),
-        GestureDetector(
-          onTap: controller.onNotificationTap,
-          child: Obx(
-            () => Stack(
-              clipBehavior: Clip.none,
-              children: [
-                const Icon(Icons.notifications_none_rounded, color: Colors.white70, size: 22),
-                if (controller.notificationCount.value > 0)
-                  Positioned(
-                    right: -1,
-                    top: -1,
-                    child: Container(width: 8, height: 8, decoration: const BoxDecoration(color: kPurple, shape: BoxShape.circle)),
-                  ),
-              ],
+        Row(
+          children: [
+            const Text(
+              'Finance Portal  /  ',
+              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
             ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        GestureDetector(
-          onTap: controller.onProfileTap,
-          child: Container(
-            width: 32,
-            height: 32,
-            decoration: const BoxDecoration(gradient: LinearGradient(colors: [kPurple, kIndigo]), shape: BoxShape.circle),
-            alignment: Alignment.center,
-            child: Obx(() => Text(controller.userInitial.value, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700))),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ---------------- Search + filter icon ----------------
-  Widget _buildSearchAndFilterRow() {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(color: kCardBg, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withOpacity(0.08))),
-            child: TextField(
-              onChanged: controller.onSearchChanged,
-              style: const TextStyle(color: Colors.white, fontSize: 13),
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 13),
-                hintText: 'Search by company name',
-                hintStyle: TextStyle(color: Colors.white38, fontSize: 12.5),
-                prefixIcon: Icon(Icons.search, color: Colors.white38, size: 19),
+            const Text(
+              'Tenants',
+              style: TextStyle(
+                color: Color(0xFF60A5FA),
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
               ),
             ),
-          ),
-        ),
-        const SizedBox(width: 10),
-        GestureDetector(
-          onTap: controller.onOpenFilterSheet,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-            decoration: BoxDecoration(color: kCardBg, borderRadius: BorderRadius.circular(12), border: Border.all(color: kPurple.withOpacity(0.4))),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.tune, color: kPurple, size: 15),
-                SizedBox(width: 5),
-                Text('Filter', style: TextStyle(color: kPurple, fontSize: 12, fontWeight: FontWeight.w600)),
-              ],
+            const Spacer(),
+            IconButton(
+              onPressed: controller.onRefresh,
+              icon: const Icon(Icons.refresh, color: Colors.white70, size: 20),
+              tooltip: 'Refresh Tenants',
             ),
-          ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Tenant Organizations',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Manage fleet clients, active licenses, and onboarding',
+                    style: TextStyle(
+                      color: Color(0xFF94A3B8),
+                      fontSize: 11.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Onboard Tenant Primary Button
+            GestureDetector(
+              onTap: controller.onOnboardTenant,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                decoration: BoxDecoration(
+                  gradient: AppTheme.primaryGradient,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: kPrimaryIndigo.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.add, color: Colors.white, size: 16),
+                    SizedBox(width: 4),
+                    Text(
+                      'Onboard Tenant',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );
   }
 
-  // ---------------- Filter chips (All / Active / Expiring Soon / Inactive) ----------------
-  Widget _buildFilterTabs() {
+  // ---------------- KPI Stats Cards ----------------
+  Widget _buildKpiStatsRow() {
     return Obx(
-      () => SizedBox(
-        height: 34,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
+      () => SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
           children: [
-            _FilterChip(label: 'All (${controller.totalCount})', isActive: controller.selectedFilterIndex.value == 0, onTap: () => controller.selectFilter(0)),
+            _buildStatChip('Total Orgs', '${controller.totalCount}', Colors.white70),
             const SizedBox(width: 8),
-            _FilterChip(label: 'Active (${controller.activeCount})', isActive: controller.selectedFilterIndex.value == 1, onTap: () => controller.selectFilter(1)),
+            _buildStatChip('Active', '${controller.activeCount}', kGreen),
             const SizedBox(width: 8),
-            _FilterChip(label: 'Expiring Soon (${controller.expiringSoonCount})', isActive: controller.selectedFilterIndex.value == 2, onTap: () => controller.selectFilter(2)),
+            _buildStatChip('Pending Approval', '${controller.pendingApprovalCount}', kPrimaryIndigo),
             const SizedBox(width: 8),
-            _FilterChip(label: 'Inactive (${controller.inactiveCount})', isActive: controller.selectedFilterIndex.value == 3, onTap: () => controller.selectFilter(3)),
+            _buildStatChip('Payment Pending', '${controller.paymentPendingCount}', kAmber),
+            const SizedBox(width: 8),
+            _buildStatChip('Suspended', '${controller.suspendedCount}', kRed),
           ],
         ),
       ),
     );
   }
 
-  // ---------------- Subscriptions list ----------------
-  Widget _buildSubscriptionsList() {
-    return Obx(() {
-      final list = controller.filteredSubscriptions;
-      if (list.isEmpty) {
-        return const Padding(
-          padding: EdgeInsets.symmetric(vertical: 40),
-          child: Center(child: Text('No subscriptions found', style: TextStyle(color: Colors.white38, fontSize: 13))),
-        );
-      }
-      return Column(
-        children: list
-            .map((s) => Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: _SubscriptionCard(subscription: s, onTap: () => controller.onSubscriptionTap(s)),
-                ))
-            .toList(),
-      );
-    });
-  }
-
-  // ---------------- Help banner ----------------
-  Widget _buildHelpBanner() {
+  Widget _buildStatChip(String title, String count, Color color) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: kFieldBg, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withOpacity(0.06))),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: kCardBg,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: kBorder),
+      ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.info_outline, color: kPurple, size: 16),
-          const SizedBox(width: 8),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Need help?', style: TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w700)),
-                SizedBox(height: 2),
-                Text('Contact our support team for any subscription related queries.', style: TextStyle(color: Colors.white38, fontSize: 10.5)),
-              ],
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
             ),
           ),
-          GestureDetector(
-            onTap: controller.onContactSupport,
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('Contact Support', style: TextStyle(color: kPurple, fontSize: 11.5, fontWeight: FontWeight.w600)),
-                Icon(Icons.chevron_right, color: kPurple, size: 14),
-              ],
+          const SizedBox(width: 6),
+          Text(
+            title,
+            style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            count,
+            style: TextStyle(
+              color: color,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
             ),
           ),
         ],
       ),
     );
   }
-}
 
-// =====================================================================
-// Filter chip
-// =====================================================================
-class _FilterChip extends StatelessWidget {
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  const _FilterChip({required this.label, required this.isActive, required this.onTap});
-
-  static const Color kPurple = SubscriptionsView.kPurple;
-  static const Color kCardBg = SubscriptionsView.kCardBg;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: isActive ? kPurple : kCardBg,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isActive ? Colors.transparent : Colors.white.withOpacity(0.08)),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(color: isActive ? Colors.white : Colors.white54, fontSize: 11.5, fontWeight: isActive ? FontWeight.w700 : FontWeight.w500),
+  // ---------------- Search Row ----------------
+  Widget _buildSearchRow() {
+    return Container(
+      height: 44,
+      decoration: BoxDecoration(
+        color: kCardBg,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: kBorder),
+      ),
+      child: TextField(
+        onChanged: controller.onSearchChanged,
+        style: const TextStyle(color: Colors.white, fontSize: 13),
+        decoration: InputDecoration(
+          hintText: 'Search by tenant name, city, state, or email...',
+          hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 12),
+          prefixIcon: const Icon(Icons.search, color: Color(0xFF94A3B8), size: 18),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 10),
+          suffixIcon: Obx(
+            () => controller.searchQuery.value.isNotEmpty
+                ? IconButton(
+                    icon: const Icon(Icons.clear, color: Colors.white54, size: 16),
+                    onPressed: () => controller.onSearchChanged(''),
+                  )
+                : const SizedBox.shrink(),
+          ),
         ),
       ),
     );
   }
-}
 
-// =====================================================================
-// Subscription card
-// =====================================================================
-class _SubscriptionCard extends StatelessWidget {
-  final Subscription subscription;
-  final VoidCallback onTap;
-
-  const _SubscriptionCard({required this.subscription, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: SubscriptionsView.kCardBg,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: SubscriptionsView.kBorder),
-        ),
+  // ---------------- Filter Tabs (All, Active, Payment Pending, Pending Approval, Suspended) ----------------
+  Widget _buildFilterTabs() {
+    return Obx(
+      () => SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
         child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(color: subscription.avatarColor, borderRadius: BorderRadius.circular(10)),
-              alignment: Alignment.center,
-              child: Text(subscription.initials, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(subscription.companyName, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 2),
-                  Text(subscription.planName, style: const TextStyle(color: Colors.white54, fontSize: 11)),
-                  const SizedBox(height: 3),
-                  Row(
+          children: List.generate(controller.filterLabels.length, (index) {
+            final isSelected = controller.selectedFilterIndex.value == index;
+            final label = controller.filterLabels[index];
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: InkWell(
+                onTap: () => controller.selectFilter(index),
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: isSelected ? kPrimaryIndigo : kCardBg,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: isSelected ? kPrimaryIndigo : kBorder,
+                    ),
+                  ),
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : const Color(0xFF94A3B8),
+                      fontSize: 11.5,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
+      ),
+    );
+  }
+
+  // ---------------- Tenants List ----------------
+  Widget _buildTenantsList() {
+    return Obx(() {
+      final list = controller.filteredSubscriptions;
+
+      if (list.isEmpty) {
+        return _buildEmptyState();
+      }
+
+      return ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: list.length,
+        separatorBuilder: (ctx, i) => const SizedBox(height: 12),
+        itemBuilder: (context, index) {
+          final sub = list[index];
+          return _buildTenantCard(sub);
+        },
+      );
+    });
+  }
+
+  // ---------------- Single Tenant Card ----------------
+  Widget _buildTenantCard(Subscription sub) {
+    return Container(
+      decoration: BoxDecoration(
+        color: kCardBg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: kBorder),
+      ),
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Top Row: Avatar + Name + Status Badge
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Avatar
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: sub.avatarColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: sub.avatarColor.withValues(alpha: 0.4)),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  sub.initials,
+                  style: TextStyle(
+                    color: sub.avatarColor,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Name + Location
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      sub.companyName,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        if (sub.city.isNotEmpty || sub.state.isNotEmpty) ...[
+                          const Icon(Icons.location_on_outlined, size: 12, color: Color(0xFF94A3B8)),
+                          const SizedBox(width: 3),
+                          Expanded(
+                            child: Text(
+                              '${sub.city}${sub.city.isNotEmpty && sub.state.isNotEmpty ? ', ' : ''}${sub.state}',
+                              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ] else
+                          Text(
+                            sub.subscriptionCode,
+                            style: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              // Status Badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: sub.status.badgeBg,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: sub.status.color.withValues(alpha: 0.4)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: sub.status.color,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      sub.status.label,
+                      style: TextStyle(
+                        color: sub.status.color,
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+          Divider(color: Colors.white.withValues(alpha: 0.06), height: 1),
+          const SizedBox(height: 10),
+
+          // Metadata Grid: Plan, Fleet Quota, Admin
+          Row(
+            children: [
+              // Plan
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'PLAN TIER',
+                      style: TextStyle(color: Color(0xFF64748B), fontSize: 9.5, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      sub.planName,
+                      style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 11.5, fontWeight: FontWeight.w700),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              // Quota
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'FLEET QUOTA',
+                      style: TextStyle(color: Color(0xFF64748B), fontSize: 9.5, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${sub.busesCount} Buses • ${sub.depotsCount} Depots',
+                      style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+              // Admin
+              if (sub.adminName.isNotEmpty)
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.calendar_today_outlined, color: Colors.white24, size: 11),
-                      const SizedBox(width: 4),
-                      Text(subscription.dateRangeText, style: const TextStyle(color: Colors.white38, fontSize: 9.5)),
+                      const Text(
+                        'PRIMARY ADMIN',
+                        style: TextStyle(color: Color(0xFF64748B), fontSize: 9.5, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        sub.adminName,
+                        style: const TextStyle(color: Colors.white70, fontSize: 11.5, fontWeight: FontWeight.w600),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ],
                   ),
-                ],
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-                  decoration: BoxDecoration(color: subscription.status.color.withOpacity(0.15), borderRadius: BorderRadius.circular(20)),
-                  child: Text(subscription.status.label, style: TextStyle(color: subscription.status.color, fontSize: 10, fontWeight: FontWeight.w600)),
                 ),
-                const SizedBox(height: 14),
-                const Icon(Icons.chevron_right, color: Colors.white24, size: 16),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+
+          // Bottom Action Row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              // Quick Approve button if pending approval
+              if (sub.status == SubscriptionStatus.pendingApproval) ...[
+                GestureDetector(
+                  onTap: () => controller.approveTenant(sub.id),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: kGreen.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: kGreen.withValues(alpha: 0.4)),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.check, color: kGreen, size: 14),
+                        SizedBox(width: 4),
+                        Text(
+                          'Approve',
+                          style: TextStyle(color: kGreen, fontSize: 11, fontWeight: FontWeight.w700),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
               ],
+
+              // Manage / View Details
+              GestureDetector(
+                onTap: () => controller.onManageSubscription(sub),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: kFieldBg,
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: kBorder),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Manage',
+                        style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                      ),
+                      SizedBox(width: 4),
+                      Icon(Icons.arrow_forward_ios, color: Colors.white54, size: 10),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---------------- Empty State ----------------
+  Widget _buildEmptyState() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+      decoration: BoxDecoration(
+        color: kCardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: kBorder),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: kPrimaryIndigo.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
             ),
-          ],
-        ),
+            child: const Icon(Icons.domain_disabled_outlined, color: kPrimaryIndigo, size: 28),
+          ),
+          const SizedBox(height: 14),
+          const Text(
+            'No Tenants Found',
+            style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'No tenant organizations match your current search and filter criteria.',
+            style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 18),
+          ElevatedButton.icon(
+            onPressed: controller.onOnboardTenant,
+            icon: const Icon(Icons.add, size: 16),
+            label: const Text('Onboard New Tenant'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kPrimaryIndigo,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -454,5 +454,5 @@ export const authService = {
 - **Custom Hook:** `src/hooks/useAuth.js`
 - **Token Persistence:** `src/utils/storage.js` (`storage.getAccessToken()`, `storage.setTokens()`)
 - **Pages:** `src/pages/auth/` (`LoginPage.jsx`, `RegisterPage.jsx`, `ForgotPasswordPage.jsx`, `ResetPasswordPage.jsx`, `AcceptInvitePage.jsx`)
-- **Integration Blueprint:** See [FRONTEND_INTEGRATION_GUIDE.md](file:///e:/vmovexa/application_api_doc/FRONTEND_INTEGRATION_GUIDE.md)
+- **Integration Blueprint:** See [FRONTEND_INTEGRATION_GUIDE.md](../FRONTEND_INTEGRATION_GUIDE.md)
 

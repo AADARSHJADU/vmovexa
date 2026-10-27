@@ -9,6 +9,8 @@ import 'package:vmovexa/app/modules/roles/finance/revenue_reporting/bindings/rev
 import 'package:vmovexa/app/modules/roles/finance/revenue_reporting/view/revenue_reporting_view.dart';
 import 'package:vmovexa/app/modules/roles/finance/subscriptions/bindings/subscriptions_binding.dart';
 import 'package:vmovexa/app/modules/roles/finance/subscriptions/view/subscriptions_view.dart';
+import 'package:vmovexa/app/modules/roles/finance/subscriptions/onboard_tenant/bindings/onboard_tenant_binding.dart';
+import 'package:vmovexa/app/modules/roles/finance/subscriptions/onboard_tenant/view/onboard_tenant_view.dart';
 import 'package:vmovexa/app/modules/roles/technician/technician_dashboard/bindings/technician_dashboard_bindings.dart';
 import '../modules/roles/driver/driver_dashboard/bindings/driver_dashboard_bindings.dart';
 import '../modules/roles/driver/driver_dashboard/view/driver_dashboard_view.dart';
@@ -40,6 +42,8 @@ import '../modules/roles/finance/financial reconciliation/bindings/financial_rec
 import '../modules/roles/finance/financial reconciliation/view/financial_reconciliation_view.dart';
 import '../modules/roles/finance/notifications/bindings/finance_notifications_binding.dart';
 import '../modules/roles/finance/notifications/view/finance_notifications_view.dart';
+import '../modules/roles/finance/payments/view/finance_payments_view.dart';
+import '../modules/roles/finance/reports/view/finance_reports_view.dart';
 import '../modules/roles/technician/alert_notification/bindings/alerts_binding.dart';
 import '../modules/roles/technician/alert_notification/view/alerts_view.dart';
 import '../modules/roles/technician/connectivity_troubleshooting/bindings/connectivity_troubleshooting_binding.dart';
@@ -700,6 +704,12 @@ class AppPages {
       transition: Transition.rightToLeft,
     ),
     GetPage(
+      name: Routes.FINANCE_ONBOARD_TENANT,
+      page: () => const OnboardTenantView(),
+      binding: OnboardTenantBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
       name: Routes.FINANCE_INVOICE,
       page: () => const InvoiceView(),
       binding: InvoiceBinding(),
@@ -732,6 +742,16 @@ class AppPages {
       name: Routes.FINANCIAL_RECONCILIATION,
       page: () => const FinancialReconciliationView(),
       binding: FinancialReconciliationBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.FINANCE_PAYMENTS,
+      page: () => const FinancePaymentsView(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.FINANCE_REPORTS,
+      page: () => const FinanceReportsView(),
       transition: Transition.rightToLeft,
     ),
     GetPage(

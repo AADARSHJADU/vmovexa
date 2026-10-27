@@ -240,5 +240,5 @@ export const financeService = {
 - **Custom Hooks:** `src/hooks/finance/` (`useFinance.js`, `useSubscription.js`)
 - **Pages:** `src/pages/finance/` (`FinanceDashboard.jsx`, `InvoicesPage.jsx`, `PaymentsLedgerPage.jsx`, `ReconciliationPage.jsx`, `GstCompliancePage.jsx`)
 - **Pagination Component:** `src/components/ui/Pagination.jsx`
-- **Integration Blueprint:** See [FRONTEND_INTEGRATION_GUIDE.md](file:///e:/vmovexa/application_api_doc/FRONTEND_INTEGRATION_GUIDE.md)
+- **Integration Blueprint:** See [FRONTEND_INTEGRATION_GUIDE.md](../FRONTEND_INTEGRATION_GUIDE.md)
 

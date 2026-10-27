@@ -7,7 +7,7 @@
 
 ---
 
-## 📋 Complete Endpoints Summary (38 APIs)
+## 📋 Complete Endpoints Summary (44 APIs)
 
 ### 1. Platform Sovereign Dashboard (1 API)
 | Method | Endpoint | Description |
@@ -35,7 +35,7 @@
 | `POST` | `/approvals/:id/approve` | Approve selected request item |
 | `POST` | `/approvals/:id/reject` | Reject request item with mandatory reason remarks |
 
-### 4. Platform Users Management (7 APIs)
+### 4. Platform Users Management (9 APIs)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/users` | List all platform users across all tenants with search & role filter |
@@ -45,6 +45,8 @@
 | `DELETE` | `/users/:id` | Terminate user account |
 | `PATCH` | `/users/:id/status` | Toggle user active/suspended status |
 | `POST` | `/users/:id/resend-invite` | Re-send onboarding invitation email |
+| `GET` | `/users/check-availability` | Check if email or username is already taken |
+| `GET` | `/users/quotas/fleet-operators` | Check organization fleet operator allocation quotas |
 
 ### 5. RBAC Roles & Permissions Catalog (6 APIs)
 | Method | Endpoint | Description |
@@ -63,17 +65,25 @@
 | `POST` | `/invitations` | Dispatch new email invitation |
 | `DELETE` | `/invitations/:id` | Revoke invitation token |
 
-### 7. System Health, Telemetry & Audit Logs (8 APIs)
+### 7. System Health, Diagnostics & Live Server Logs (8 APIs)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/system/health` | Real-time health check (MySQL, Redis, MQTT broker, Disk, Uptime) |
 | `GET` | `/system/metrics` | Server resource usage metrics (CPU, RAM, Event Loop lag) |
-| `GET` | `/system/logs` | Real-time winston application error & access logs |
-| `GET` | `/system/database` | Database connection pool stats & active query counts |
-| `GET` | `/system/redis` | Redis cache hit/miss ratio & memory usage |
-| `GET` | `/system/mqtt` | MQTT broker active client connections & packet throughput |
+| `GET` | `/system/server-status` | Extended hardware uptime, process memory & Node.js environment |
+| `GET` | `/system/live-logs` | Stream recent Winston application console logs |
+| `DELETE` | `/system/live-logs` | Clear in-memory console stream |
+| `GET` | `/system/disk-logs` | List archived disk log files on server |
+| `POST` | `/system/disk-logs/read` | Read specific lines from archived disk log file |
+| `POST` | `/system/cron/trigger` | Manually dispatch automated scheduled jobs (e.g. DL expiry scan, subscription check) |
+
+### 8. Cross-Tenant Audit Logs & Telemetry (4 APIs)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
 | `GET` | `/activity-logs` | Comprehensive cross-tenant audit trail with search & IP filter |
 | `GET` | `/activity-logs/:id` | Single audit trail log detail with before/after state diff |
+| `GET` | `/activity-logs/categories` | Unique category groupings for log filtering |
+| `GET` | `/activity-logs/filters` | Dynamic available action, role, and module filter options |
 
 ---
 
@@ -236,28 +246,34 @@ export const superadminService = {
   activateOrg: (id) => apiClient.post(`/organizations/${id}/activate`),
   impersonateOrg: (id) => apiClient.post(`/organizations/${id}/impersonate`),
 
-  // Universal Approvals Hub
-  getApprovals: (params) => apiClient.get('/approvals', { params }),
-  getApprovalCounts: () => apiClient.get('/approvals/counts'),
-  approveItem: (id, data) => apiClient.post(`/approvals/${id}/approve`, data),
-  rejectItem: (id, data) => apiClient.post(`/approvals/${id}/reject`, data),
+  // Activity Logs & Telemetry
+  getActivityLogs: (params) => apiClient.get('/activity-logs', { params }),
+  getActivityLogCategories: () => apiClient.get('/activity-logs/categories'),
+  getActivityLogFilters: () => apiClient.get('/activity-logs/filters'),
+  getActivityLog: (id) => apiClient.get(`/activity-logs/${id}`),
 
-  // Users & RBAC
-  getUsers: (params) => apiClient.get('/users', { params }),
-  getRoles: () => apiClient.get('/roles'),
-  getPermissions: () => apiClient.get('/permissions'),
-  updateRole: (id, data) => apiClient.patch(`/roles/${id}`, data),
+  // System Diagnostics & Server Logs
+  getServerStatus: () => apiClient.get('/system/server-status'),
+  getLiveLogs: () => apiClient.get('/system/live-logs'),
+  clearLiveLogs: () => apiClient.delete('/system/live-logs'),
+  getDiskLogs: () => apiClient.get('/system/disk-logs'),
+  readDiskLog: (data) => apiClient.post('/system/disk-logs/read', data),
+  triggerCron: (jobName) => apiClient.post('/system/cron/trigger', { job: jobName }),
 };
 ```
 
 ---
 
 ## 🔗 Frontend Architecture & File Reference
-- **Services:** `src/api/services/superadmin/` (`superadmin.service.js`, `organization.service.js`)
-- **Thunks:** `src/store/thunks/superadmin/` (`superadmin.thunks.js`, `organization.thunks.js`)
+- **Services:** `src/api/services/superadmin/` (`superadmin.service.js`, `organization.service.js`), `src/api/services/activity.service.js`
+- **Thunks:** `src/store/thunks/superadmin/` (`superadmin.thunks.js`, `organization.thunks.js`, `activity.thunks.js`)
 - **Slices:** `src/store/slices/superadmin/` (`superadminSlice.js`, `organizationSlice.js`)
-- **Custom Hooks:** `src/hooks/superadmin/` (`useSuperadmin.js`, `useOrganization.js`)
-- **Pages:** `src/pages/superadmin/` (`SuperadminDashboard.jsx`, `TenantsListPage.jsx`, `SuperRolesPermissionsPage.jsx`)
+- **Custom Hooks:** `src/hooks/superadmin/` (`useSuperadmin.js`, `useOrganization.js`, `useActivityLogs.js`)
+- **Pages:**
+  - `src/pages/superadmin/` (`SuperadminDashboard.jsx`, `TenantsListPage.jsx`, `SuperRolesPermissionsPage.jsx`, `SuperUserActivityPage.jsx` (`/superadmin/activity`), `SuperNotificationsPage.jsx`)
+  - `src/pages/admin/` (`AdminUserActivityPage.jsx` (`/admin/activity`))
 - **Pagination Component:** `src/components/ui/Pagination.jsx`
-- **Integration Blueprint:** See [FRONTEND_INTEGRATION_GUIDE.md](file:///e:/vmovexa/application_api_doc/FRONTEND_INTEGRATION_GUIDE.md)
+- **Breadcrumb Component:** `src/components/ui/Breadcrumb.jsx`
+- **Integration Blueprint:** See [FRONTEND_INTEGRATION_GUIDE.md](../FRONTEND_INTEGRATION_GUIDE.md)
+
 
