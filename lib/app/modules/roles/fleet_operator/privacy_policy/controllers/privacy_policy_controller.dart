@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/data/services/finance_service.dart';
 import 'package:vmovexa/app/data/services/fleet_service.dart';
 import 'package:vmovexa/app/data/services/storage_service.dart';
 
@@ -83,9 +84,40 @@ class PrivacyPolicyController extends GetxController {
 
   void _loadDefaults([String? role]) {
     final activeRole = role ?? resolveRole();
+    final isFinance = activeRole.contains('FINANCE');
     final isTech = activeRole.contains('TECH');
 
-    if (isTech) {
+    if (isFinance) {
+      pageTitle.value = 'Financial Data & Ledger Privacy Policy';
+      pageSubtitle.value = 'Banking credential security, PCI-DSS compliance, and statutory financial record retention';
+      sections.assignAll([
+        PolicySectionItem(
+          id: '1',
+          title: '1. Banking Encryption & PCI-DSS Compliance',
+          content: 'All payment gateway credentials, merchant tokens, bank account hashes, and UPI identifiers are processed with end-to-end TLS 1.3 encryption and strictly adhere to PCI-DSS Level 1 compliance standards.',
+        ),
+        PolicySectionItem(
+          id: '2',
+          title: '2. Financial Ledger Isolation & Access Controls',
+          content: 'Tenant revenue ledgers, debit/credit entries, and settlement reconciliation logs are strictly isolated under role-based financial controls, preventing unauthorized cross-tenant exposure.',
+        ),
+        PolicySectionItem(
+          id: '3',
+          title: '3. Statutory GST & Tax Audit Retention',
+          content: 'Tax invoices, SAC codes, and e-way bill records are securely archived for statutory compliance in alignment with Indian GST and corporate tax audit requirements.',
+        ),
+        PolicySectionItem(
+          id: '4',
+          title: '4. Payment Gateway Security & Settlement Tokenization',
+          content: 'Payment card details and net banking authentication tokens are never stored directly on our core servers; they are tokenized via certified payment aggregators.',
+        ),
+        PolicySectionItem(
+          id: '5',
+          title: '5. Audit Trail & Financial Transparency',
+          content: 'Every financial reconciliation entry, transaction dispute, and refund approval is immutably timestamped with officer credentials for periodic internal and external audits.',
+        ),
+      ]);
+    } else if (isTech) {
       pageTitle.value = 'Technician Telemetry Privacy Policy';
       pageSubtitle.value = 'Diagnostic sensor isolation, technician geolocation handling, and hardware log security';
       sections.assignAll([
@@ -154,8 +186,11 @@ class PrivacyPolicyController extends GetxController {
     currentRoleCode = activeRole;
     try {
       isLoading.value = true;
-      if (Get.isRegistered<FleetService>()) {
-        var res = await FleetService.to.getContentPage('privacy', role: activeRole);
+      dynamic res;
+      if (Get.isRegistered<FinanceService>() && activeRole.contains('FINANCE')) {
+        res = await FinanceService.to.getContentPage('privacy', role: activeRole);
+      } else if (Get.isRegistered<FleetService>()) {
+        res = await FleetService.to.getContentPage('privacy', role: activeRole);
 
         // Fallback: If not found and role is technician, try alternate technician role code
         if ((!res.success || res.data == null) && activeRole == 'ROLE-CENTRAL-TECH') {
@@ -164,47 +199,49 @@ class PrivacyPolicyController extends GetxController {
             res = altRes;
           }
         }
+      } else if (Get.isRegistered<FinanceService>()) {
+        res = await FinanceService.to.getContentPage('privacy', role: activeRole);
+      }
 
-        if (res.success && res.data != null) {
-          final data = res.data is Map ? res.data as Map : {};
+      if (res != null && res.success == true && res.data != null) {
+        final data = res.data is Map ? res.data as Map : {};
 
-          if (data['title'] != null && data['title'].toString().isNotEmpty) {
-            pageTitle.value = data['title'].toString();
-          }
-          if (data['summary'] != null && data['summary'].toString().isNotEmpty) {
-            pageSubtitle.value = data['summary'].toString();
-          }
-          if (data['version'] != null) {
-            version.value = data['version'].toString();
-          }
+        if (data['title'] != null && data['title'].toString().isNotEmpty) {
+          pageTitle.value = data['title'].toString();
+        }
+        if (data['summary'] != null && data['summary'].toString().isNotEmpty) {
+          pageSubtitle.value = data['summary'].toString();
+        }
+        if (data['version'] != null) {
+          version.value = data['version'].toString();
+        }
 
-          dynamic rawSections = data['sections'];
-          List parsedList = [];
-          if (rawSections is List) {
-            parsedList = rawSections;
-          } else if (rawSections is String && rawSections.trim().startsWith('[')) {
-            try {
-              parsedList = jsonDecode(rawSections);
-            } catch (_) {}
-          } else if (rawSections is Map && rawSections['sections'] is List) {
-            parsedList = rawSections['sections'] as List;
-          }
+        dynamic rawSections = data['sections'];
+        List parsedList = [];
+        if (rawSections is List) {
+          parsedList = rawSections;
+        } else if (rawSections is String && rawSections.trim().startsWith('[')) {
+          try {
+            parsedList = jsonDecode(rawSections);
+          } catch (_) {}
+        } else if (rawSections is Map && rawSections['sections'] is List) {
+          parsedList = rawSections['sections'] as List;
+        }
 
-          if (parsedList.isNotEmpty) {
-            final list = <PolicySectionItem>[];
-            for (var i = 0; i < parsedList.length; i++) {
-              final item = parsedList[i];
-              if (item is Map) {
-                list.add(PolicySectionItem(
-                  id: item['id']?.toString() ?? 'sec-$i',
-                  title: item['title']?.toString() ?? item['question']?.toString() ?? 'Section ${i + 1}',
-                  content: item['content']?.toString() ?? item['answer']?.toString() ?? item['body']?.toString() ?? '',
-                ));
-              }
+        if (parsedList.isNotEmpty) {
+          final list = <PolicySectionItem>[];
+          for (var i = 0; i < parsedList.length; i++) {
+            final item = parsedList[i];
+            if (item is Map) {
+              list.add(PolicySectionItem(
+                id: item['id']?.toString() ?? 'sec-$i',
+                title: item['title']?.toString() ?? item['question']?.toString() ?? 'Section ${i + 1}',
+                content: item['content']?.toString() ?? item['answer']?.toString() ?? item['body']?.toString() ?? '',
+              ));
             }
-            if (list.isNotEmpty) {
-              sections.assignAll(list);
-            }
+          }
+          if (list.isNotEmpty) {
+            sections.assignAll(list);
           }
         }
       }
@@ -229,6 +266,19 @@ class PrivacyPolicyController extends GetxController {
     } else {
       expandedIndex.value = index;
     }
+  }
+
+  void acknowledgePolicy() {
+    Get.back();
+    Get.snackbar(
+      'Policy Acknowledged',
+      'You have acknowledged the updated privacy policy terms.',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: const Color(0xFF10B981),
+      colorText: Colors.white,
+      margin: const EdgeInsets.all(16),
+      borderRadius: 10,
+    );
   }
 
   void openQuestionsMail() {

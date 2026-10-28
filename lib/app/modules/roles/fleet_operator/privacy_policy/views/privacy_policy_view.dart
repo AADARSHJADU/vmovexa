@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../controllers/privacy_policy_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
 import '../../../../../theme/app_colors.dart';
+import '../../../../../theme/app_theme.dart';
 
 class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
   const PrivacyPolicyView({super.key});
@@ -78,6 +79,34 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
 
                       // Questions Card
                       _buildQuestionsCard(c),
+                      const SizedBox(height: 24),
+
+                      // Bottom Acknowledge Button
+                      Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.primaryGradient,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: ElevatedButton(
+                          onPressed: c.acknowledgePolicy,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            minimumSize: const Size(double.infinity, 50),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          child: const Text(
+                            'Acknowledge & Confirm',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 24),
                     ],
                   ),

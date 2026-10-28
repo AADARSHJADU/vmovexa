@@ -451,4 +451,109 @@ class FinanceService extends GetxService {
       create: (data) => data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{},
     );
   }
+
+  // ==========================================================
+  // SECTION 8: Notifications, Settings & Common Services
+  // ==========================================================
+
+  /// GET /notifications/settings
+  Future<ApiResponseModel<dynamic>> getNotificationSettings() async {
+    return _http.get(
+      ApiConstants.notificationSettings,
+      requiresAuth: true,
+    );
+  }
+
+  /// PATCH /notifications/settings
+  Future<ApiResponseModel<dynamic>> updateNotificationSettings(Map<String, dynamic> settings) async {
+    return _http.patch(
+      ApiConstants.notificationSettings,
+      body: settings,
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /notifications
+  Future<ApiResponseModel<dynamic>> getNotifications({
+    int page = 1,
+    int limit = 50,
+    String? category,
+    String? search,
+    bool? isRead,
+  }) async {
+    final query = <String, dynamic>{
+      'page': page,
+      'limit': limit,
+      if (category != null && category.isNotEmpty && category != 'All') 'category': category,
+      if (search != null && search.isNotEmpty) 'search': search,
+      if (isRead != null) 'is_read': isRead,
+    };
+    return _http.get(
+      ApiConstants.notifications,
+      queryParams: query,
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /notifications/:id/read
+  Future<ApiResponseModel<dynamic>> markNotificationRead(String id) async {
+    return _http.post(
+      ApiConstants.notificationRead(id),
+      body: {},
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /notifications/read-all
+  Future<ApiResponseModel<dynamic>> markAllNotificationsRead() async {
+    return _http.post(
+      ApiConstants.notificationReadAll,
+      body: {},
+      requiresAuth: true,
+    );
+  }
+
+  /// DELETE /notifications/:id
+  Future<ApiResponseModel<dynamic>> deleteNotification(String id) async {
+    return _http.delete(
+      ApiConstants.notificationDelete(id),
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /content/:type?role=...
+  Future<ApiResponseModel<dynamic>> getContentPage(String type, {String role = 'ROLE-FINANCE-OFFICER'}) async {
+    return _http.get(
+      ApiConstants.contentPage(type),
+      queryParams: {'role': role},
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /content/faqs?role=...
+  Future<ApiResponseModel<dynamic>> getFaqs({String role = 'ROLE-FINANCE-OFFICER'}) async {
+    return _http.get(
+      ApiConstants.contentFaqs,
+      queryParams: {'role': role},
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /me/support/tickets
+  Future<ApiResponseModel<dynamic>> getMySupportTickets({int page = 1, int limit = 50}) async {
+    return _http.get(
+      ApiConstants.supportTickets,
+      queryParams: {'page': page, 'limit': limit},
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /me/support/tickets
+  Future<ApiResponseModel<dynamic>> createSupportTicket(Map<String, dynamic> data) async {
+    return _http.post(
+      ApiConstants.supportTickets,
+      body: data,
+      requiresAuth: true,
+    );
+  }
 }

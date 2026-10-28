@@ -28,6 +28,8 @@ import '../modules/roles/finance/finance_profile/notification_preference/binding
 import '../modules/roles/finance/finance_profile/notification_preference/view/notification_preferences_view.dart';
 import '../modules/roles/finance/finance_profile/profile/bindings/finance_profile_binding.dart';
 import '../modules/roles/finance/finance_profile/profile/view/finance_profile_view.dart';
+import '../modules/roles/finance/finance_profile/edit_profile/bindings/finance_edit_profile_binding.dart';
+import '../modules/roles/finance/finance_profile/edit_profile/view/finance_edit_profile_view.dart';
 import '../modules/roles/finance/finance_profile/setting/bindings/finance_settings_binding.dart';
 import '../modules/roles/finance/finance_profile/setting/view/finance_settings_view.dart' show FinanceSettingsView;
 import '../modules/roles/finance/invoice/bindings/invoice_binding.dart';
@@ -764,6 +766,12 @@ class AppPages {
       name: Routes.FINANCE_PROFILE,
       page: () => const FinanceProfileView(),
       binding: FinanceProfileBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.FINANCE_EDIT_PROFILE,
+      page: () => const FinanceEditProfileView(),
+      binding: FinanceEditProfileBinding(),
       transition: Transition.rightToLeft,
     ),
     GetPage(

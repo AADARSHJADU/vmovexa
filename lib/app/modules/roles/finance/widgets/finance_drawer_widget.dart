@@ -246,7 +246,7 @@ class FinanceDrawerWidget extends StatelessWidget {
                     label: 'Privacy Policy',
                     onTap: () {
                       Navigator.pop(context);
-                      Get.toNamed(Routes.PRIVACY_POLICY);
+                      Get.toNamed(Routes.PRIVACY_POLICY, arguments: {'role': 'ROLE-FINANCE-OFFICER'});
                     },
                   ),
                   _buildMenuItem(
@@ -254,7 +254,7 @@ class FinanceDrawerWidget extends StatelessWidget {
                     label: 'Terms & SLAs',
                     onTap: () {
                       Navigator.pop(context);
-                      Get.toNamed(Routes.TERMS_CONDITIONS);
+                      Get.toNamed(Routes.TERMS_CONDITIONS, arguments: {'role': 'ROLE-FINANCE-OFFICER'});
                     },
                   ),
                 ],

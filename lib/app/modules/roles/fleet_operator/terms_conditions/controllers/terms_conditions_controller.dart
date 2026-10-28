@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/data/services/finance_service.dart';
 import 'package:vmovexa/app/data/services/fleet_service.dart';
 import 'package:vmovexa/app/data/services/storage_service.dart';
 
@@ -83,9 +84,40 @@ class TermsConditionsController extends GetxController {
 
   void _loadDefaults([String? role]) {
     final activeRole = role ?? resolveRole();
+    final isFinance = activeRole.contains('FINANCE');
     final isTech = activeRole.contains('TECH');
 
-    if (isTech) {
+    if (isFinance) {
+      pageTitle.value = 'Finance Officer Terms & Reconciliation Rules';
+      pageSubtitle.value = 'Revenue ledger standards, payment gateway settlements, and statutory GST reconciliation';
+      sections.assignAll([
+        TermsSectionItem(
+          id: '1',
+          title: '1. Automated Tax Invoicing & SAC Codes',
+          content: 'All invoices generated through VMOVEXA must include statutory 6-digit SAC codes, GSTIN breakdown (CGST, SGST, IGST), and legal registered address of the transacting entity.',
+        ),
+        TermsSectionItem(
+          id: '2',
+          title: '2. Bank Wire & Auto-Reconciliation Standards',
+          content: 'Manual bank transfer uploads must match UTR reference numbers within 48 hours. Discrepant amounts will remain flagged under pending unallocated deposits until verified.',
+        ),
+        TermsSectionItem(
+          id: '3',
+          title: '3. Payment Gateway Settlement SLAs',
+          content: 'Card, NetBanking, and UPI settlements via Razorpay/Stripe follow T+2 business day settlement schedules. Chargebacks or gateway holds must be reviewed within 7 business days.',
+        ),
+        TermsSectionItem(
+          id: '4',
+          title: '4. GST Filing & Statutory Compliance Liability',
+          content: 'Officers are responsible for reviewing monthly GSTR-1 and GSTR-3B summary schedules before final filing cutoff dates. The platform provides automated ledger exports for verification.',
+        ),
+        TermsSectionItem(
+          id: '5',
+          title: '5. Credit Ledger & Refund Authorization',
+          content: 'Refund vouchers and tenant credit memo issuances require dual-tier sign-off and must be supported by valid operational reason codes.',
+        ),
+      ]);
+    } else if (isTech) {
       pageTitle.value = 'Central Technician Terms & SLA';
       pageSubtitle.value = 'Hardware installation protocols, CAN-bus calibration, and depot maintenance standards';
       sections.assignAll([
@@ -164,8 +196,11 @@ class TermsConditionsController extends GetxController {
     currentRoleCode = activeRole;
     try {
       isLoading.value = true;
-      if (Get.isRegistered<FleetService>()) {
-        var res = await FleetService.to.getContentPage('terms', role: activeRole);
+      dynamic res;
+      if (Get.isRegistered<FinanceService>() && activeRole.contains('FINANCE')) {
+        res = await FinanceService.to.getContentPage('terms', role: activeRole);
+      } else if (Get.isRegistered<FleetService>()) {
+        res = await FleetService.to.getContentPage('terms', role: activeRole);
 
         // Fallback: If not found and role is technician, try alternate technician role code
         if ((!res.success || res.data == null) && activeRole == 'ROLE-CENTRAL-TECH') {
@@ -174,47 +209,49 @@ class TermsConditionsController extends GetxController {
             res = altRes;
           }
         }
+      } else if (Get.isRegistered<FinanceService>()) {
+        res = await FinanceService.to.getContentPage('terms', role: activeRole);
+      }
 
-        if (res.success && res.data != null) {
-          final data = res.data is Map ? res.data as Map : {};
+      if (res != null && res.success == true && res.data != null) {
+        final data = res.data is Map ? res.data as Map : {};
 
-          if (data['title'] != null && data['title'].toString().isNotEmpty) {
-            pageTitle.value = data['title'].toString();
-          }
-          if (data['summary'] != null && data['summary'].toString().isNotEmpty) {
-            pageSubtitle.value = data['summary'].toString();
-          }
-          if (data['version'] != null) {
-            version.value = data['version'].toString();
-          }
+        if (data['title'] != null && data['title'].toString().isNotEmpty) {
+          pageTitle.value = data['title'].toString();
+        }
+        if (data['summary'] != null && data['summary'].toString().isNotEmpty) {
+          pageSubtitle.value = data['summary'].toString();
+        }
+        if (data['version'] != null) {
+          version.value = data['version'].toString();
+        }
 
-          dynamic rawSections = data['sections'];
-          List parsedList = [];
-          if (rawSections is List) {
-            parsedList = rawSections;
-          } else if (rawSections is String && rawSections.trim().startsWith('[')) {
-            try {
-              parsedList = jsonDecode(rawSections);
-            } catch (_) {}
-          } else if (rawSections is Map && rawSections['sections'] is List) {
-            parsedList = rawSections['sections'] as List;
-          }
+        dynamic rawSections = data['sections'];
+        List parsedList = [];
+        if (rawSections is List) {
+          parsedList = rawSections;
+        } else if (rawSections is String && rawSections.trim().startsWith('[')) {
+          try {
+            parsedList = jsonDecode(rawSections);
+          } catch (_) {}
+        } else if (rawSections is Map && rawSections['sections'] is List) {
+          parsedList = rawSections['sections'] as List;
+        }
 
-          if (parsedList.isNotEmpty) {
-            final list = <TermsSectionItem>[];
-            for (var i = 0; i < parsedList.length; i++) {
-              final item = parsedList[i];
-              if (item is Map) {
-                list.add(TermsSectionItem(
-                  id: item['id']?.toString() ?? 'sec-$i',
-                  title: item['title']?.toString() ?? item['question']?.toString() ?? 'Clause ${i + 1}',
-                  content: item['content']?.toString() ?? item['answer']?.toString() ?? item['body']?.toString() ?? '',
-                ));
-              }
+        if (parsedList.isNotEmpty) {
+          final list = <TermsSectionItem>[];
+          for (var i = 0; i < parsedList.length; i++) {
+            final item = parsedList[i];
+            if (item is Map) {
+              list.add(TermsSectionItem(
+                id: item['id']?.toString() ?? 'sec-$i',
+                title: item['title']?.toString() ?? item['question']?.toString() ?? 'Clause ${i + 1}',
+                content: item['content']?.toString() ?? item['answer']?.toString() ?? item['body']?.toString() ?? '',
+              ));
             }
-            if (list.isNotEmpty) {
-              sections.assignAll(list);
-            }
+          }
+          if (list.isNotEmpty) {
+            sections.assignAll(list);
           }
         }
       }

@@ -150,6 +150,8 @@ class ApiConstants {
   static const String uploads = '/uploads';
   static const String uploadAvatar = '/uploads/avatar';
   static const String content = '/content';
+  static String contentPage(String type) => '/content/$type';
+  static const String contentFaqs = '/content/faqs';
   static const String supportTickets = '/me/support/tickets';
 
   // Finance Endpoints

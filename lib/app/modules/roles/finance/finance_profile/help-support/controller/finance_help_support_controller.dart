@@ -1,191 +1,273 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/data/services/finance_service.dart';
 
-import '../../../../driver/profile/help_support/model/help_support_models.dart';
+class FaqItem {
+  final String question;
+  final String answer;
+
+  FaqItem({required this.question, required this.answer});
+}
+
+class SupportTicketItem {
+  final String id;
+  final String subject;
+  final String category;
+  final String priority;
+  final String status; // 'open', 'in_progress', 'resolved', 'closed'
+  final String date;
+
+  SupportTicketItem({
+    required this.id,
+    required this.subject,
+    required this.category,
+    required this.priority,
+    required this.status,
+    required this.date,
+  });
+
+  factory SupportTicketItem.fromJson(Map<String, dynamic> json) {
+    return SupportTicketItem(
+      id: json['code']?.toString() ?? json['id']?.toString() ?? 'TCK-001',
+      subject: json['subject']?.toString() ?? 'Support Request',
+      category: json['category']?.toString() ?? 'GENERAL',
+      priority: json['priority']?.toString() ?? 'MEDIUM',
+      status: json['status']?.toString() ?? 'open',
+      date: json['created_at']?.toString() ?? 'Recent',
+    );
+  }
+}
 
 class FinanceHelpSupportController extends GetxController {
-  // ---------------- Search ----------------
+  // Tabs: 0: FAQs & Guides, 1: My Tickets
+  final RxInt activeTabIndex = 0.obs;
+
   final RxString searchQuery = ''.obs;
-  void onSearchChanged(String value) => searchQuery.value = value;
+  final RxInt expandedFaqIndex = 0.obs;
 
-  void onSearchSubmit() {
-    if (searchQuery.value.trim().isEmpty) return;
-    Get.toNamed('/help-search-results', arguments: {'query': searchQuery.value.trim()});
-  }
+  final RxList<FaqItem> allFaqs = <FaqItem>[].obs;
+  final RxList<FaqItem> filteredFaqs = <FaqItem>[].obs;
 
-  // ---------------- Loading ----------------
+  final RxList<SupportTicketItem> myTickets = <SupportTicketItem>[].obs;
+
   final RxBool isLoading = false.obs;
+  final RxBool isSubmittingTicket = false.obs;
 
-  // ---------------- Quick Help ----------------
-  final RxList<QuickHelpItem> quickHelpItems = <QuickHelpItem>[].obs;
+  // New Ticket Form Controllers
+  final subjectController = TextEditingController();
+  final descriptionController = TextEditingController();
+  final RxString selectedCategory = 'INVOICING'.obs;
+  final RxString selectedPriority = 'MEDIUM'.obs;
 
-  // ---------------- Contact Support ----------------
-  final RxList<ContactChannel> contactChannels = <ContactChannel>[].obs;
+  final List<Map<String, String>> categories = [
+    {'code': 'INVOICING', 'name': 'Corporate Invoicing & Taxes'},
+    {'code': 'RECONCILIATION', 'name': 'Bank Wire & Auto-Reconciliation'},
+    {'code': 'GATEWAY', 'name': 'Payment Gateway & Settlements'},
+    {'code': 'GST', 'name': 'GST Filing & GSTR-1 Compliance'},
+    {'code': 'SUBSCRIPTION', 'name': 'Tenant Subscription & Plan'},
+    {'code': 'OTHER', 'name': 'Other Financial Query'},
+  ];
 
-  // ---------------- Support Tickets ----------------
-  final RxList<SupportTicket> supportTickets = <SupportTicket>[].obs;
-
-  // ---------------- Popular Articles ----------------
-  final RxList<PopularArticle> popularArticles = <PopularArticle>[].obs;
+  final List<String> priorities = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'];
 
   @override
   void onInit() {
     super.onInit();
-    fetchHelpData();
+    loadHelpContent();
+    loadMyTickets();
   }
 
-  Future<void> fetchHelpData() async {
+  Future<void> loadHelpContent() async {
     isLoading.value = true;
     try {
-      // TODO: replace with real API/repository calls
-      _loadQuickHelp();
-      _loadContactChannels();
-      _loadSupportTickets();
-      _loadPopularArticles();
+      if (Get.isRegistered<FinanceService>()) {
+        final res = await FinanceService.to.getFaqs(role: 'ROLE-FINANCE-OFFICER');
+        if (res.success && res.data != null) {
+          final data = res.data;
+          List items = [];
+          if (data is List) {
+            items = data;
+          } else if (data is Map && (data['rows'] is List || data['faqs'] is List)) {
+            items = (data['rows'] ?? data['faqs']) as List;
+          }
+
+          if (items.isNotEmpty) {
+            allFaqs.assignAll(items.map((e) {
+              final map = Map<String, dynamic>.from(e as Map);
+              return FaqItem(
+                question: map['q']?.toString() ?? map['question']?.toString() ?? map['title']?.toString() ?? '',
+                answer: map['a']?.toString() ?? map['answer']?.toString() ?? map['content']?.toString() ?? '',
+              );
+            }).toList());
+          } else {
+            _seedDefaultFinanceFaqs();
+          }
+        } else {
+          _seedDefaultFinanceFaqs();
+        }
+      } else {
+        _seedDefaultFinanceFaqs();
+      }
+    } catch (_) {
+      _seedDefaultFinanceFaqs();
     } finally {
+      applyFaqSearch();
       isLoading.value = false;
     }
   }
 
-  Future<void> onRefresh() async => fetchHelpData();
-
-  void _loadQuickHelp() {
-    quickHelpItems.assignAll([
-      QuickHelpItem(
-        title: 'FAQs',
-        subtitle: 'Find answers to common questions',
-        icon: Icons.help_outline,
-        color: const Color(0xFFB042FF),
-        route: '/faqs',
+  void _seedDefaultFinanceFaqs() {
+    allFaqs.assignAll([
+      FaqItem(
+        question: 'How do I generate a corporate GST tax invoice?',
+        answer: 'Navigate to Invoices > Generate Invoice from the sidebar. Select tenant organization, input SAC/HSN codes, itemize line items with GST rates (18%), and click "Generate Corporate Invoice".',
       ),
-      QuickHelpItem(
-        title: 'Guides',
-        subtitle: 'Step-by-step user guides',
-        icon: Icons.menu_book_outlined,
-        color: const Color(0xFF3F7BF5),
-        route: '/guides',
+      FaqItem(
+        question: 'How does automated bank reconciliation work?',
+        answer: 'Under Financial Reconciliation, upload MT940 / CSV bank statement. Our reconciliation engine auto-matches transactions by UTR, invoice reference number, and amount within a 99.4% precision index.',
       ),
-      QuickHelpItem(
-        title: 'Video Tutorials',
-        subtitle: 'Watch tutorials and learn',
-        icon: Icons.play_circle_outline,
-        color: const Color(0xFF2ECC71),
-        route: '/video-tutorials',
+      FaqItem(
+        question: 'Where can I export GSTR-1 compliant JSON files?',
+        answer: 'Go to GST & Compliance portal, select the target month and fiscal year, and click "Export GSTR-1 JSON". The exported payload can be uploaded directly to the Government GSTN portal.',
       ),
-      QuickHelpItem(
-        title: 'Best Practices',
-        subtitle: 'Tips to get the best results',
-        icon: Icons.lightbulb_outline,
-        color: const Color(0xFFFFA726),
-        route: '/best-practices',
+      FaqItem(
+        question: 'How to record manual offline payment receipts (Cheque/NEFT)?',
+        answer: 'Open the unpaid invoice details page, click "Mark Paid", choose payment method (NEFT, RTGS, Cheque), enter bank reference UTR number, and confirm settlement.',
+      ),
+      FaqItem(
+        question: 'What are the payment gateway settlement cycles?',
+        answer: 'Razorpay and Stripe settlements follow standard T+1 banking day cycles into VMOVEXA designated treasury bank accounts configured under Corporate Settings.',
       ),
     ]);
   }
 
-  void _loadContactChannels() {
-    contactChannels.assignAll([
-      ContactChannel(
-        type: ContactChannelType.liveChat,
-        title: 'Live Chat',
-        subtitle: 'Chat with our support team',
-        statusText: 'Available Now',
-        icon: Icons.chat_bubble_outline,
-        statusColor: const Color(0xFF2ECC71),
-      ),
-      ContactChannel(
-        type: ContactChannelType.callSupport,
-        title: 'Call Support',
-        subtitle: 'Speak with our support executive',
-        statusText: '+91 98765 43210',
-        icon: Icons.call_outlined,
-        statusColor: const Color(0xFF3F7BF5),
-      ),
-      ContactChannel(
-        type: ContactChannelType.emailSupport,
-        title: 'Email Support',
-        subtitle: 'Send us an email anytime',
-        statusText: 'support@vmovexa.com',
-        icon: Icons.email_outlined,
-        statusColor: const Color(0xFFB042FF),
-      ),
-    ]);
+  Future<void> loadMyTickets() async {
+    try {
+      if (Get.isRegistered<FinanceService>()) {
+        final res = await FinanceService.to.getMySupportTickets(page: 1, limit: 50);
+        if (res.success && res.data != null) {
+          final data = res.data;
+          List items = [];
+          if (data is List) {
+            items = data;
+          } else if (data is Map && (data['rows'] is List || data['tickets'] is List)) {
+            items = (data['rows'] ?? data['tickets']) as List;
+          }
+
+          if (items.isNotEmpty) {
+            myTickets.assignAll(items.map((e) => SupportTicketItem.fromJson(Map<String, dynamic>.from(e as Map))).toList());
+          }
+        }
+      }
+    } catch (_) {}
   }
 
-  void _loadSupportTickets() {
-    supportTickets.assignAll([
-      SupportTicket(
-        id: 'CMP-2026-000124',
-        title: 'Campaign not displaying on screens',
-        subtitle: '',
-        dateText: '08 May 2026, 11:30 AM',
-        status: TicketStatus.inProgress,
-        icon: Icons.campaign_outlined,
-      ),
-      SupportTicket(
-        id: 'CMP-2026-000089',
-        title: 'Invoice download issue',
-        subtitle: '',
-        dateText: '06 May 2026, 04:20 PM',
-        status: TicketStatus.resolved,
-        icon: Icons.description_outlined,
-      ),
-      SupportTicket(
-        id: 'CMP-2026-000067',
-        title: 'Payment failed but amount deducted',
-        subtitle: '',
-        dateText: '03 May 2026, 09:15 AM',
-        status: TicketStatus.closed,
-        icon: Icons.payments_outlined,
-      ),
-    ]);
-  }
-
-  void _loadPopularArticles() {
-    popularArticles.assignAll([
-      PopularArticle(id: 'article_1', title: 'How to create and launch a campaign?'),
-      PopularArticle(id: 'article_2', title: 'What are the best practices for creatives?'),
-      PopularArticle(id: 'article_3', title: 'How billing and payments work?'),
-    ]);
-  }
-
-  // ---------------- Actions ----------------
-  void onBackPressed() => Get.back();
-
-  void onHeadsetTap() {
-    Get.toNamed('/contact-support');
-  }
-
-  void onQuickHelpTap(QuickHelpItem item) {
-    Get.toNamed(item.route);
-  }
-
-  void onContactChannelTap(ContactChannel channel) {
-    switch (channel.type) {
-      case ContactChannelType.liveChat:
-        Get.toNamed('/live-chat');
-        break;
-      case ContactChannelType.callSupport:
-        // TODO: integrate url_launcher to dial channel.statusText
-        break;
-      case ContactChannelType.emailSupport:
-        // TODO: integrate url_launcher to open mail composer to channel.statusText
-        break;
+  void applyFaqSearch() {
+    final q = searchQuery.value.toLowerCase().trim();
+    if (q.isEmpty) {
+      filteredFaqs.assignAll(allFaqs);
+    } else {
+      filteredFaqs.assignAll(
+        allFaqs.where((f) => f.question.toLowerCase().contains(q) || f.answer.toLowerCase().contains(q)).toList(),
+      );
     }
   }
 
-  void onTicketTap(SupportTicket ticket) {
-    Get.toNamed('/ticket-detail', arguments: {'ticketId': ticket.id});
+  void onSearchChanged(String val) {
+    searchQuery.value = val;
+    applyFaqSearch();
   }
 
-  void onViewAllTickets() {
-    Get.toNamed('/support-tickets');
+  void toggleFaq(int index) {
+    expandedFaqIndex.value = expandedFaqIndex.value == index ? -1 : index;
   }
 
-  void onArticleTap(PopularArticle article) {
-    Get.toNamed('/article-detail', arguments: {'articleId': article.id});
+  Future<void> submitNewTicket() async {
+    final subject = subjectController.text.trim();
+    if (subject.isEmpty) {
+      Get.snackbar(
+        'Validation Error',
+        'Ticket subject cannot be empty.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFFEF4444),
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    final desc = descriptionController.text.trim();
+    if (desc.isEmpty) {
+      Get.snackbar(
+        'Validation Error',
+        'Please describe the issue in detail.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFFEF4444),
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    isSubmittingTicket.value = true;
+    try {
+      final payload = {
+        'subject': subject,
+        'category': selectedCategory.value,
+        'priority': selectedPriority.value,
+        'description': desc,
+      };
+
+      if (Get.isRegistered<FinanceService>()) {
+        final res = await FinanceService.to.createSupportTicket(payload);
+        if (res.success) {
+          subjectController.clear();
+          descriptionController.clear();
+          Get.back(); // close modal
+          await loadMyTickets();
+          activeTabIndex.value = 1; // switch to tickets tab
+
+          Get.snackbar(
+            'Ticket Created',
+            'Your support ticket has been filed with finance desk.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color(0xFF10B981),
+            colorText: Colors.white,
+          );
+        } else {
+          Get.snackbar(
+            'Submission Failed',
+            res.message ?? 'Could not file ticket.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color(0xFFEF4444),
+            colorText: Colors.white,
+          );
+        }
+      } else {
+        Get.back();
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to submit ticket: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFFEF4444),
+        colorText: Colors.white,
+      );
+    } finally {
+      isSubmittingTicket.value = false;
+    }
   }
 
-  void onViewAllArticles() {
-    Get.toNamed('/help-articles');
+  Future<void> onRefresh() async {
+    await loadHelpContent();
+    await loadMyTickets();
+  }
+
+  void onBackPressed() => Get.back();
+
+  @override
+  void onClose() {
+    subjectController.dispose();
+    descriptionController.dispose();
+    super.onClose();
   }
 }

@@ -129,6 +129,7 @@ abstract class Routes {
   static const FINANCE_REPORTS = '/finance-reports';
   static const FINANCE_NOTIFICATIONS = '/finance-notifications';
   static const FINANCE_PROFILE = '/finance-profile';
+  static const FINANCE_EDIT_PROFILE = '/finance-edit-profile';
   static const FINANCE_SETTINGS = '/finance-settings';
   static const FINANCE_NOTIFICATION_SETTINGS = '/finance-notification-settings';
   static const FINANCE_HELP_SUPPORT = '/finance-help-support';

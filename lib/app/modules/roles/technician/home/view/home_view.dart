@@ -380,7 +380,7 @@ class HomeView extends GetView<HomeController> {
             title: 'Field Work Orders',
             subtitle: 'Repair dispatch queue',
             badge: '$assignedTasks Assigned',
-            icon: 'assets/icons/fleet_operator_icons/tripsA.svg',
+            icon: 'assets/icons/fleet_operator_icons/fleetsManagedA2.svg',
             iconColor: const Color(0xFF38BDF8),
             onTap: controller.onViewAllTasks,
           ),

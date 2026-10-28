@@ -1,52 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'package:vmovexa/app/theme/app_theme.dart';
 import '../controller/notification_preferences_controller.dart';
-import '../model/notification_pref_model.dart';
 
 class NotificationPreferencesView extends GetView<NotificationPreferencesController> {
   const NotificationPreferencesView({super.key});
 
   static const Color kBg = Color(0xFF0B0B14);
   static const Color kCardBg = Color(0xFF15151F);
-  static const Color kFieldBg = Color(0xFF1B1B27);
+  static const Color kBorder = Color(0xFF262638);
   static const Color kPurple = Color(0xFFB042FF);
-  static const Color kIndigo = Color(0xFF6A5CFF);
-  static const Color kBorder = Color(0x14FFFFFF);
-  static const Color kGreen = Color(0xFF2ECC71);
+  static const Color kIndigo = Color(0xFF6366F1);
 
   @override
   Widget build(BuildContext context) {
+    if (!Get.isRegistered<NotificationPreferencesController>()) {
+      Get.put(NotificationPreferencesController());
+    }
+
     return Scaffold(
       backgroundColor: kBg,
       body: SafeArea(
         child: Obx(
-          () => controller.isLoading.value && controller.notificationTypes.isEmpty
+          () => controller.isLoading.value
               ? const Center(child: CircularProgressIndicator(color: kPurple))
               : RefreshIndicator(
                   color: kPurple,
                   backgroundColor: kCardBg,
                   onRefresh: controller.onRefresh,
                   child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     children: [
-                      const SizedBox(height: 8),
                       _buildHeader(),
                       const SizedBox(height: 16),
-                      _buildIdentityCard(),
-                      const SizedBox(height: 20),
-                      const Text('Notification Channels', style: TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 10),
                       _buildChannelsCard(),
-                      const SizedBox(height: 20),
-                      _buildNotificationTypesHeader(),
-                      const SizedBox(height: 10),
-                      _buildNotificationTypesCard(),
-                      const SizedBox(height: 14),
-                      _buildQuietHoursCard(),
-                      const SizedBox(height: 10),
-                      _buildFooterNote(),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 32),
                     ],
                   ),
                 ),
@@ -55,302 +43,273 @@ class NotificationPreferencesView extends GetView<NotificationPreferencesControl
     );
   }
 
-  // ---------------- Header ----------------
+  // 1. Header (Breadcrumb, Title, Subtitle, Done Button)
   Widget _buildHeader() {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        GestureDetector(onTap: controller.onBackPressed, child: const Icon(Icons.arrow_back, color: kPurple)),
-        const SizedBox(width: 10),
-        const Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Notification Preferences', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700)),
-              SizedBox(height: 2),
-              Text('Manage email and in-app notification settings', style: TextStyle(color: Colors.white54, fontSize: 11.5)),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ---------------- Identity card ----------------
-  Widget _buildIdentityCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: kCardBg, borderRadius: BorderRadius.circular(16), border: Border.all(color: kBorder)),
-      child: Row(
-        children: [
-          Container(
-            width: 46,
-            height: 46,
-            decoration: const BoxDecoration(gradient: LinearGradient(colors: [kPurple, kIndigo]), shape: BoxShape.circle),
-            alignment: Alignment.center,
-            child: Obx(() => Text(controller.initials.value, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700))),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Obx(
-              () => Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(controller.fullName.value, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 2),
-                  Text(controller.roleLabel.value, style: const TextStyle(color: kPurple, fontSize: 11, fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 2),
-                  Text(controller.email.value, style: const TextStyle(color: Colors.white54, fontSize: 10.5)),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ---------------- Notification Channels ----------------
-  Widget _buildChannelsCard() {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(color: kCardBg, borderRadius: BorderRadius.circular(14), border: Border.all(color: kBorder)),
-      child: Column(
-        children: [
-          Obx(
-            () => _ChannelToggleRow(
-              icon: Icons.mail_outline,
-              title: 'Email Notifications',
-              subtitle: 'Receive notifications on your email',
-              value: controller.emailNotifications.value,
-              onChanged: controller.toggleEmailNotifications,
-            ),
-          ),
-          Divider(color: Colors.white.withOpacity(0.06), height: 1, indent: 14, endIndent: 14),
-          Obx(
-            () => _ChannelToggleRow(
-              icon: Icons.notifications_none_rounded,
-              title: 'In-app Notifications',
-              subtitle: 'Receive notifications within the application',
-              value: controller.inAppNotifications.value,
-              onChanged: controller.toggleInAppNotifications,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNotificationTypesHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text('Notification Types', style: TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w700)),
-        GestureDetector(
-          onTap: controller.onMarkAllAsRead,
-          child: const Text('Mark all as read', style: TextStyle(color: kPurple, fontSize: 12, fontWeight: FontWeight.w600)),
-        ),
-      ],
-    );
-  }
-
-  // ---------------- Notification Types table ----------------
-  Widget _buildNotificationTypesCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(color: kCardBg, borderRadius: BorderRadius.circular(14), border: Border.all(color: kBorder)),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Row(
-              children: const [
-                Expanded(child: SizedBox()),
-                SizedBox(width: 52, child: Text('Email', textAlign: TextAlign.center, style: TextStyle(color: Colors.white38, fontSize: 10))),
-                SizedBox(width: 52, child: Text('In-app', textAlign: TextAlign.center, style: TextStyle(color: Colors.white38, fontSize: 10))),
-              ],
-            ),
-          ),
-          Obx(
-            () => Column(
-              children: List.generate(controller.notificationTypes.length, (index) {
-                final type = controller.notificationTypes[index];
-                final isLast = index == controller.notificationTypes.length - 1;
-                return Column(
-                  children: [
-                    _NotificationTypeRow(type: type),
-                    if (!isLast) Divider(color: Colors.white.withOpacity(0.06), height: 1),
-                  ],
-                );
-              }),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ---------------- Quiet Hours ----------------
-  Widget _buildQuietHoursCard() {
-    return GestureDetector(
-      onTap: controller.onQuietHoursTap,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(color: kCardBg, borderRadius: BorderRadius.circular(14), border: Border.all(color: kBorder)),
-        child: Row(
+        Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(9),
-              decoration: BoxDecoration(color: kPurple.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
-              child: const Icon(Icons.access_time, color: kPurple, size: 18),
+            GestureDetector(
+              onTap: controller.onBackPressed,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: kCardBg,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: kBorder),
+                ),
+                child: const Icon(Icons.arrow_back, color: Colors.white, size: 18),
+              ),
             ),
             const SizedBox(width: 12),
             const Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Quiet Hours', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
+                  Row(
+                    children: [
+                      Text(
+                        'Finance Portal  /  ',
+                        style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+                      ),
+                      Text(
+                        'Notification Settings',
+                        style: TextStyle(
+                          color: Color(0xFF818CF8),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
                   SizedBox(height: 2),
-                  Text('Mute notifications during specific hours', style: TextStyle(color: Colors.white38, fontSize: 10.5)),
+                  Text(
+                    'Finance Notification Settings',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
                 ],
               ),
             ),
-            Obx(() => Text(controller.quietHoursText.value, style: const TextStyle(color: kPurple, fontSize: 11, fontWeight: FontWeight.w600))),
-            const SizedBox(width: 4),
-            const Icon(Icons.chevron_right, color: Colors.white24, size: 16),
+            GestureDetector(
+              onTap: controller.onBackPressed,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                decoration: BoxDecoration(
+                  gradient: AppTheme.primaryGradient,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Text(
+                  'Done',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
+        const SizedBox(height: 6),
+        const Text(
+          'Manage your delivery preferences across 5 notification channels',
+          style: TextStyle(color: Colors.white54, fontSize: 11.5),
+        ),
+      ],
+    );
+  }
+
+  // 2. 5 Master Delivery Channels Card (Admin Panel Replica)
+  Widget _buildChannelsCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: kCardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: kBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'NOTIFICATION DELIVERY CHANNELS',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Toggle channels on or off according to your\npreference',
+                    style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+                  ),
+                ],
+              ),
+              // Container(
+              //   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              //   decoration: BoxDecoration(
+              //     gradient: AppTheme.primaryGradient,
+              //     borderRadius: BorderRadius.circular(6),
+              //   ),
+              //   child: const Text(
+              //     '5 Channels',
+              //     style: TextStyle(
+              //       color: Colors.white,
+              //       fontSize: 10,
+              //       fontWeight: FontWeight.w700,
+              //     ),
+              //   ),
+              // ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // 1. Web / In-App Notifications
+          Obx(
+            () => _buildChannelTile(
+              id: 'channel_in_app',
+              title: 'Web Notifications',
+              desc: 'Real-time browser popups and in-app dashboard notifications',
+              icon: Icons.language,
+              iconColor: const Color(0xFF60A5FA),
+              enabled: controller.channelInApp.value,
+              onToggle: (val) => controller.toggleChannel('channel_in_app', controller.channelInApp.value),
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // 2. Push Notifications
+          Obx(
+            () => _buildChannelTile(
+              id: 'channel_push',
+              title: 'Push Notifications',
+              desc: 'Mobile device push notifications and urgent alerts',
+              icon: Icons.phone_android,
+              iconColor: const Color(0xFF818CF8),
+              enabled: controller.channelPush.value,
+              onToggle: (val) => controller.toggleChannel('channel_push', controller.channelPush.value),
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // 3. SMS Notifications
+          Obx(
+            () => _buildChannelTile(
+              id: 'channel_sms',
+              title: 'SMS Notifications',
+              desc: 'Direct SMS text alerts on your registered mobile number',
+              icon: Icons.chat_bubble_outline,
+              iconColor: const Color(0xFFFBBF24),
+              enabled: controller.channelSms.value,
+              onToggle: (val) => controller.toggleChannel('channel_sms', controller.channelSms.value),
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // 4. Mail Notifications
+          Obx(
+            () => _buildChannelTile(
+              id: 'channel_email',
+              title: 'Mail Notifications',
+              desc: 'Email summaries, invoices, and critical system notices',
+              icon: Icons.mail_outline,
+              iconColor: const Color(0xFFFB7185),
+              enabled: controller.channelEmail.value,
+              onToggle: (val) => controller.toggleChannel('channel_email', controller.channelEmail.value),
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // 5. WhatsApp Notifications
+          Obx(
+            () => _buildChannelTile(
+              id: 'channel_whatsapp',
+              title: 'WhatsApp Notifications',
+              desc: 'Instant WhatsApp message alerts and dispatch updates',
+              icon: Icons.verified_user_outlined,
+              iconColor: const Color(0xFF34D399),
+              enabled: controller.channelWhatsapp.value,
+              onToggle: (val) => controller.toggleChannel('channel_whatsapp', controller.channelWhatsapp.value),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  // ---------------- Footer note ----------------
-  Widget _buildFooterNote() {
-    return const Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.info_outline, color: kPurple, size: 12),
-        SizedBox(width: 5),
-        Text('Changes are saved automatically', style: TextStyle(color: Colors.white38, fontSize: 10.5)),
-      ],
-    );
-  }
-}
-
-// =====================================================================
-// Channel toggle row (Email / In-app Notifications)
-// =====================================================================
-class _ChannelToggleRow extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final bool value;
-  final ValueChanged<bool> onChanged;
-
-  const _ChannelToggleRow({required this.icon, required this.title, required this.subtitle, required this.value, required this.onChanged});
-
-  static const Color kPurple = NotificationPreferencesView.kPurple;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(14),
+  Widget _buildChannelTile({
+    required String id,
+    required String title,
+    required String desc,
+    required IconData icon,
+    required Color iconColor,
+    required bool enabled,
+    required ValueChanged<bool> onToggle,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F0F1A),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: kBorder),
+      ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(9),
-            decoration: BoxDecoration(color: kPurple.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
-            child: Icon(icon, color: kPurple, size: 17),
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: iconColor, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(subtitle, style: const TextStyle(color: Colors.white38, fontSize: 10.5)),
+                Text(
+                  desc,
+                  style: const TextStyle(
+                    color: Color(0xFF94A3B8),
+                    fontSize: 10.5,
+                  ),
+                ),
               ],
             ),
           ),
+          const SizedBox(width: 8),
           Switch(
-            value: value,
-            onChanged: onChanged,
-            activeColor: Colors.white,
-            activeTrackColor: kPurple,
-            inactiveThumbColor: Colors.white54,
-            inactiveTrackColor: Colors.white12,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// =====================================================================
-// Notification type row (icon+title+subtitle, Email toggle, In-app toggle)
-// =====================================================================
-class _NotificationTypeRow extends StatelessWidget {
-  final NotificationTypePref type;
-
-  const _NotificationTypeRow({required this.type});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: type.color.withOpacity(0.15), borderRadius: BorderRadius.circular(9)),
-            child: Icon(type.icon, color: type.color, size: 16),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(type.title, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700)),
-                const SizedBox(height: 2),
-                Text(type.subtitle, style: const TextStyle(color: Colors.white38, fontSize: 9.5)),
-              ],
-            ),
-          ),
-          SizedBox(
-            width: 52,
-            child: Obx(
-              () => Transform.scale(
-                scale: 0.85,
-                child: Switch(
-                  value: type.emailEnabled.value,
-                  onChanged: (v) => type.emailEnabled.value = v,
-                  activeColor: Colors.white,
-                  activeTrackColor: const Color(0xFFB042FF),
-                  inactiveThumbColor: Colors.white54,
-                  inactiveTrackColor: Colors.white12,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(
-            width: 52,
-            child: Obx(
-              () => Transform.scale(
-                scale: 0.85,
-                child: Switch(
-                  value: type.inAppEnabled.value,
-                  onChanged: (v) => type.inAppEnabled.value = v,
-                  activeColor: Colors.white,
-                  activeTrackColor: const Color(0xFFB042FF),
-                  inactiveThumbColor: Colors.white54,
-                  inactiveTrackColor: Colors.white12,
-                ),
-              ),
-            ),
+            value: enabled,
+            onChanged: onToggle,
+            activeTrackColor: const Color(0xFF10B981),
+            activeThumbColor: Colors.white,
+            inactiveTrackColor: const Color(0xFF262638),
+            inactiveThumbColor: const Color(0xFF94A3B8),
           ),
         ],
       ),

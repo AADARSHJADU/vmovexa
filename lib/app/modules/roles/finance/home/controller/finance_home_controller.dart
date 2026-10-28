@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/data/services/finance_service.dart';
 import 'package:vmovexa/app/data/services/storage_service.dart';
@@ -60,7 +59,15 @@ class FinanceHomeController extends GetxController {
       // 1. Fetch KPIs from real API
       final kpiRes = await FinanceService.to.getKpis();
       if (kpiRes.success && kpiRes.data != null && kpiRes.data!.isNotEmpty) {
-        _populateKpis(kpiRes.data!);
+        final raw = kpiRes.data!;
+        final kpiMap = raw['kpis'] is Map
+            ? Map<String, dynamic>.from(raw['kpis'] as Map)
+            : raw['data'] is Map
+                ? Map<String, dynamic>.from(raw['data'] as Map)
+                : raw['summary'] is Map
+                    ? Map<String, dynamic>.from(raw['summary'] as Map)
+                    : raw;
+        _populateKpis(kpiMap);
       } else {
         totalRevenueStr.value = '₹0';
         totalInvoicesStr.value = '0';
