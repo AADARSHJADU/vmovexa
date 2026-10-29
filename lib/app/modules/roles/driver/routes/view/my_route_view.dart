@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:vmovexa/app/theme/app_colors.dart';
-
 import '../../../../../theme/app_theme.dart';
 import '../../../technician/hardware_configuration/views/shared_widgets.dart';
 import '../controller/my_route_controller.dart';
@@ -80,10 +78,10 @@ class MyRouteView extends GetView<MyRouteController> {
             ],
           ),
         ),
-        GestureDetector(
+        /*GestureDetector(
           onTap: controller.onOpenFilterSheet,
           child: const Icon(Icons.tune, color: kPurple, size: 20),
-        ),
+        ),*/
       ],
     );
   }
@@ -162,38 +160,80 @@ class MyRouteView extends GetView<MyRouteController> {
     );
   }
 
-  // ---------------- Start Route button ----------------
+  // ---------------- Start / End Route button ----------------
   Widget _buildStartRouteButton() {
     return Obx(
-      () => GestureDetector(
-        onTap: (controller.isStarting.value || controller.isRouteStarted.value) ? null : controller.onStartRoute,
-        child: Container(
-          width: double.infinity,
-          height: 52,
-          decoration: BoxDecoration(
-            gradient: AppTheme.primaryGradient,
-            borderRadius: BorderRadius.circular(12),
+      () {
+        final isRunning = controller.isRouteStarted.value;
+        final isLoading = controller.isStarting.value;
+
+        return GestureDetector(
+          onTap: isLoading
+              ? null
+              : () {
+                  if (isRunning) {
+                    Get.dialog(
+                      AlertDialog(
+                        backgroundColor: const Color(0xFF15151F),
+                        title: const Text('End Current Trip?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        content: const Text(
+                          'Are you sure you want to end this trip and complete the route?',
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Get.back(),
+                            child: const Text('Cancel', style: TextStyle(color: Colors.white60)),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                            onPressed: () {
+                              Get.back();
+                              controller.onEndRoute();
+                            },
+                            child: const Text('End Trip', style: TextStyle(color: Colors.white)),
+                          ),
+                        ],
+                      ),
+                    );
+                  } else {
+                    controller.onStartRoute();
+                  }
+                },
+          child: Container(
+            width: double.infinity,
+            height: 52,
+            decoration: BoxDecoration(
+              gradient: isRunning
+                  ? const LinearGradient(
+                      colors: [Color(0xFFE53935), Color(0xFFB71C1C)],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    )
+                  : AppTheme.primaryGradient,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            alignment: Alignment.center,
+            child: isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.4),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(isRunning ? Icons.stop_circle_outlined : Icons.play_arrow, color: Colors.white, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        isRunning ? 'End Trip / Complete Route' : 'Start Route',
+                        style: const TextStyle(color: Colors.white, fontSize: 14.5, fontWeight: FontWeight.w700),
+                      ),
+                    ],
+                  ),
           ),
-          alignment: Alignment.center,
-          child: controller.isStarting.value
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.4),
-                )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(controller.isRouteStarted.value ? Icons.check_circle_outline : Icons.play_arrow, color: Colors.white, size: 20),
-                    const SizedBox(width: 8),
-                    Text(
-                      controller.isRouteStarted.value ? 'Route Started' : 'Start Route',
-                      style: const TextStyle(color: Colors.white, fontSize: 14.5, fontWeight: FontWeight.w700),
-                    ),
-                  ],
-                ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -203,7 +243,7 @@ class MyRouteView extends GetView<MyRouteController> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const Text('Route Details', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
-        GestureDetector(
+        /*GestureDetector(
           onTap: controller.onViewOnMap,
           child: const Row(
             mainAxisSize: MainAxisSize.min,
@@ -213,7 +253,7 @@ class MyRouteView extends GetView<MyRouteController> {
               Icon(Icons.map_outlined, color: kPurple, size: 15),
             ],
           ),
-        ),
+        ),*/
       ],
     );
   }
@@ -251,13 +291,55 @@ class MyRouteView extends GetView<MyRouteController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Route Information', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+          const Text(
+            'Route Information',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           const SizedBox(height: 14),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Expanded(child: _InfoColumn(icon: Icons.route_outlined, label: 'Route Type', value: route.routeType)),
-              Expanded(child: _InfoColumn(icon: Icons.loop, label: 'Frequency', value: route.frequency)),
-              Expanded(child: _InfoColumn(icon: Icons.groups_outlined, label: 'Passengers (Est.)', value: route.passengersEstimate)),
+              Expanded(
+                child: _InfoColumn(
+                  icon: Icons.route_outlined,
+                  label: 'Route Type',
+                  value: route.routeType,
+                ),
+              ),
+              const SizedBox(
+                height: 50,
+                child: VerticalDivider(
+                  color: kBorder,
+                  thickness: 1,
+                  width: 16,
+                ),
+              ),
+              Expanded(
+                child: _InfoColumn(
+                  icon: Icons.loop,
+                  label: 'Frequency',
+                  value: route.frequency,
+                ),
+              ),
+              const SizedBox(
+                height: 50,
+                child: VerticalDivider(
+                  color: kBorder,
+                  thickness: 1,
+                  width: 16,
+                ),
+              ),
+              Expanded(
+                child: _InfoColumn(
+                  icon: Icons.groups_outlined,
+                  label: 'Passengers (Est.)',
+                  value: route.passengersEstimate,
+                ),
+              ),
             ],
           ),
         ],
@@ -287,12 +369,44 @@ class MyRouteView extends GetView<MyRouteController> {
           ),
           const SizedBox(height: 14),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: _PlainInfoColumn(label: 'Bus Number', value: route.busNumber.replaceFirst('Bus ', ''))),
-              Expanded(child: _PlainInfoColumn(label: 'Vehicle ID', value: route.vehicleId)),
-              Expanded(child: _PlainInfoColumn(label: 'Bus Type', value: route.busType)),
+              Expanded(
+                child: _PlainInfoColumn(
+                  label: 'Bus Number',
+                  value: route.busNumber.replaceFirst('Bus ', ''),
+                ),
+              ),
+              const SizedBox(
+                height: 40,
+                child: VerticalDivider(
+                  color: Colors.grey,
+                  thickness: 1,
+                  width: 20,
+                ),
+              ),
+              Expanded(
+                child: _PlainInfoColumn(
+                  label: 'Vehicle ID',
+                  value: route.vehicleId,
+                ),
+              ),
+              const SizedBox(
+                height: 40,
+                child: VerticalDivider(
+                  color: Colors.grey,
+                  thickness: 1,
+                  width: 20,
+                ),
+              ),
+              Expanded(
+                child: _PlainInfoColumn(
+                  label: 'Bus Type',
+                  value: route.busType,
+                ),
+              ),
             ],
-          ),
+          )
         ],
       ),
     );
@@ -455,7 +569,7 @@ class _PlainInfoColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(label, style: const TextStyle(color: Colors.white, fontSize: 9.5)),
         const SizedBox(height: 5),

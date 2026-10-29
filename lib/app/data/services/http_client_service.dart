@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import '../constants/api_constants.dart';
 import '../models/api_response_model.dart';
-import '../models/auth_response_model.dart';
 import '../services/storage_service.dart';
 import '../../routes/app_routes.dart';
 
@@ -14,7 +13,7 @@ class HttpClientService extends GetxService {
   static HttpClientService get to => Get.find<HttpClientService>();
 
   final http.Client _client = http.Client();
-  bool _isRefreshingToken = false;
+  Completer<bool>? _refreshCompleter;
 
   /// Helper to build full Uri
   Uri _buildUri(String endpoint, [Map<String, dynamic>? queryParams]) {
@@ -43,17 +42,18 @@ class HttpClientService extends GetxService {
     final headers = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+      'X-Client-Type': 'app',
     };
+
+    if (customHeaders != null) {
+      headers.addAll(customHeaders);
+    }
 
     if (requiresAuth && Get.isRegistered<StorageService>()) {
       final token = StorageService.to.getAccessToken();
       if (token != null && token.isNotEmpty) {
         headers['Authorization'] = 'Bearer $token';
       }
-    }
-
-    if (customHeaders != null) {
-      headers.addAll(customHeaders);
     }
 
     return headers;
@@ -176,6 +176,7 @@ class HttpClientService extends GetxService {
       }
     }
     request.headers['Accept'] = 'application/json';
+    request.headers['X-Client-Type'] = 'app';
 
     request.fields['purpose'] = purpose;
     if (additionalFields != null) {
@@ -301,8 +302,14 @@ class HttpClientService extends GetxService {
 
       // Check for 401 Unauthorized - handle silent token refresh
       if (response.statusCode == 401 && requiresAuth && !isRetry) {
+        if (kDebugMode) {
+          debugPrint('⚠️ [AUTH] 401 Unauthorized for $uri. Attempting silent token refresh...');
+        }
         final refreshed = await _handleTokenRefresh();
         if (refreshed) {
+          if (kDebugMode) {
+            debugPrint('🔄 [AUTH] Refresh successful. Retrying original request: $method $uri');
+          }
           // Retry the original request once with new token
           return await _sendRequest<T>(
             method: method,
@@ -315,11 +322,16 @@ class HttpClientService extends GetxService {
             create: create,
           );
         } else {
+          if (kDebugMode) {
+            debugPrint('🚨 [AUTH] Token refresh failed or session expired. Logging out.');
+          }
           // Refresh failed - force logout
           if (Get.isRegistered<StorageService>()) {
             await StorageService.to.clearAuth();
           }
-          Get.offAllNamed(Routes.LOGIN);
+          if (Get.currentRoute != Routes.LOGIN) {
+            Get.offAllNamed(Routes.LOGIN);
+          }
           return ApiResponseModel.failure(
             message: 'Session expired. Please log in again.',
             error: 'UNAUTHORIZED',
@@ -374,41 +386,125 @@ class HttpClientService extends GetxService {
   }
 
   /// Attempt silent token refresh via POST /auth/refresh
+  /// Supports concurrent requests by queueing them on a single Completer future.
   Future<bool> _handleTokenRefresh() async {
-    if (_isRefreshingToken) return false;
-    _isRefreshingToken = true;
+    // If a refresh is already in progress, wait for the existing one to resolve!
+    if (_refreshCompleter != null) {
+      if (kDebugMode) {
+        debugPrint('⏳ [AUTH] Token refresh already in progress, awaiting existing operation...');
+      }
+      return await _refreshCompleter!.future;
+    }
+
+    _refreshCompleter = Completer<bool>();
 
     try {
-      if (!Get.isRegistered<StorageService>()) return false;
+      if (!Get.isRegistered<StorageService>()) {
+        _refreshCompleter!.complete(false);
+        return false;
+      }
       final refreshToken = StorageService.to.getRefreshToken();
-      if (refreshToken == null || refreshToken.isEmpty) return false;
+      if (refreshToken == null || refreshToken.trim().isEmpty) {
+        if (kDebugMode) {
+          debugPrint('⚠️ [AUTH] No refresh token found in storage. Cannot refresh.');
+        }
+        _refreshCompleter!.complete(false);
+        return false;
+      }
 
       final refreshUri = _buildUri(ApiConstants.refreshToken);
+      if (kDebugMode) {
+        debugPrint('➡️ [REFRESH POST] $refreshUri');
+      }
+
+      // Backend requires camelCase "refreshToken" (also provide snake_case as fallback)
+      final refreshBody = jsonEncode({
+        'refreshToken': refreshToken.trim(),
+        'refresh_token': refreshToken.trim(),
+      });
+
       final response = await _client.post(
         refreshUri,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'refresh_token': refreshToken}),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: refreshBody,
       ).timeout(ApiConstants.receiveTimeout);
 
-      if (response.statusCode == 200) {
-        final decoded = jsonDecode(response.body);
+      if (kDebugMode) {
+        debugPrint('⬅️ [${response.statusCode}] $refreshUri');
+        debugPrint('📄 Refresh Response: ${response.body}');
+      }
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        dynamic decoded;
+        try {
+          decoded = jsonDecode(response.body);
+        } catch (_) {}
+
         if (decoded is Map<String, dynamic> && decoded['data'] != null) {
-          final authData = AuthResponseModel.fromJson(decoded['data']);
-          if (authData.accessToken != null && authData.refreshToken != null) {
+          final data = decoded['data'];
+          String? newAccessToken;
+          String? newRefreshToken;
+
+          if (data is Map) {
+            // Check nested tokens map: { "tokens": { "accessToken": "..." } }
+            if (data['tokens'] is Map) {
+              final tokensMap = data['tokens'] as Map;
+              newAccessToken = tokensMap['accessToken']?.toString() ??
+                  tokensMap['access_token']?.toString() ??
+                  tokensMap['token']?.toString();
+              newRefreshToken = tokensMap['refreshToken']?.toString() ??
+                  tokensMap['refresh_token']?.toString();
+            }
+
+            // Root data fields: { "accessToken": "...", "access_token": "..." }
+            newAccessToken ??= data['accessToken']?.toString() ??
+                data['access_token']?.toString() ??
+                data['token']?.toString();
+            newRefreshToken ??= data['refreshToken']?.toString() ??
+                data['refresh_token']?.toString();
+          } else if (data is String && data.isNotEmpty) {
+            newAccessToken = data;
+          }
+
+          // If server didn't issue a new refresh token, preserve current refresh token
+          newRefreshToken ??= refreshToken;
+
+          if (newAccessToken != null && newAccessToken.isNotEmpty) {
             await StorageService.to.saveTokens(
-              accessToken: authData.accessToken!,
-              refreshToken: authData.refreshToken!,
+              accessToken: newAccessToken,
+              refreshToken: newRefreshToken,
             );
+            if (kDebugMode) {
+              debugPrint('✅ [AUTH] Token refreshed successfully and updated in StorageService.');
+            }
+            if (!_refreshCompleter!.isCompleted) {
+              _refreshCompleter!.complete(true);
+            }
             return true;
           }
         }
       }
+
+      if (kDebugMode) {
+        debugPrint('❌ [AUTH] Token refresh rejected by server (Status ${response.statusCode})');
+      }
+      if (!_refreshCompleter!.isCompleted) {
+        _refreshCompleter!.complete(false);
+      }
       return false;
     } catch (e) {
-      debugPrint('Failed to refresh token: $e');
+      if (kDebugMode) {
+        debugPrint('❌ [AUTH] Failed to refresh token: $e');
+      }
+      if (_refreshCompleter != null && !_refreshCompleter!.isCompleted) {
+        _refreshCompleter!.complete(false);
+      }
       return false;
     } finally {
-      _isRefreshingToken = false;
+      _refreshCompleter = null;
     }
   }
 }

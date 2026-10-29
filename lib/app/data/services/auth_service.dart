@@ -12,6 +12,8 @@ class AuthService extends GetxService {
   HttpClientService get _http => HttpClientService.to;
   StorageService get _storage => StorageService.to;
 
+  UserModel? get currentUser => _storage.getUser();
+
   /// 1.1 POST /auth/login-email
   Future<ApiResponseModel<AuthResponseModel>> loginEmail({
     required String email,
@@ -153,7 +155,10 @@ class AuthService extends GetxService {
   ) async {
     final response = await _http.post<AuthResponseModel>(
       ApiConstants.refreshToken,
-      body: {'refresh_token': refreshToken},
+      body: {
+        'refreshToken': refreshToken.trim(),
+        'refresh_token': refreshToken.trim(),
+      },
       requiresAuth: false,
       create: (data) => AuthResponseModel.fromJson(
         data is Map ? Map<String, dynamic>.from(data) : {},
@@ -162,10 +167,12 @@ class AuthService extends GetxService {
 
     if (response.success && response.data != null) {
       final authData = response.data!;
-      if (authData.accessToken != null && authData.refreshToken != null) {
+      if (authData.accessToken != null && authData.accessToken!.isNotEmpty) {
         await _storage.saveTokens(
           accessToken: authData.accessToken!,
-          refreshToken: authData.refreshToken!,
+          refreshToken: (authData.refreshToken != null && authData.refreshToken!.isNotEmpty)
+              ? authData.refreshToken!
+              : refreshToken,
         );
       }
     }

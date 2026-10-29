@@ -100,6 +100,9 @@ abstract class Routes {
   static const MY_ROUTE = '/my-route';
   static const DRIVER_NOTIFICATION = '/driver-notifications';
   static const DRIVER_REPORT_INCIDENT = '/report-incident';
+  static const DRIVER_INCIDENTS_LIST = '/driver-incidents-list';
+  static const DRIVER_INCIDENT_DETAILS = '/driver-incident-details';
+  static const DRIVER_SCHEDULE = '/driver-schedule';
   static const DRIVER_PROFILE = '/driver-profile';
   static const DRIVER_DOCUMENT = '/driver-documents';
   static const DRIVER_HELP_SUPPORT = '/driver-help-support';

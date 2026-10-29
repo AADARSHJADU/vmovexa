@@ -101,6 +101,19 @@ class ApiConstants {
   static const String incidents = '/incidents';
   static String incidentOne(String id) => '/incidents/$id';
 
+  // Driver Self-Service Endpoints (ROLE-DRIVER) — Base: /me/driver
+  static const String driverProfile     = '/me/driver/profile';
+  static const String driverSchedule    = '/me/driver/schedule';
+  static const String driverActiveRoute = '/me/driver/active-route';
+  static const String driverTrips       = '/me/driver/trips';
+  static const String driverTripStart   = '/me/driver/trip/start';
+  static const String driverTripEnd     = '/me/driver/trip/end';
+  static const String driverDocuments   = '/me/driver/documents';
+  static String driverDocumentOne(String id) => '/me/driver/documents/$id';
+  static const String driverIncidents   = '/me/driver/incidents';
+  static String driverIncidentOne(String id) => '/me/driver/incidents/$id';
+  static const String driverDutyStatus  = '/me/driver/duty-status';
+
   static const String activityLogs = '/users/activity';
   static const String notifications = '/notifications';
   static const String notificationSettings = '/notifications/settings';
@@ -111,6 +124,71 @@ class ApiConstants {
   static const String googleGeocodeDemo = '/google-apis/demo/geocode';
   static const String googleStaticMapDemo = '/google-apis/demo/static-map';
   static const String googleMapsApiKey = 'AIzaSyBqlBrjGRXwr0b2gEq8R0d_BlPBH4FcPSw';
+
+  // Government Endpoints
+  static const String government = '/government';
+  static String governmentOne(String id) => '/government/$id';
+  static const String governmentAnalytics = '/government/analytics';
+  static const String governmentClearanceLevels = '/government/clearance-levels';
+  static const String governmentDepartmentCategories = '/government/department-categories';
+  static const String governmentJurisdictions = '/government/jurisdictions';
+  static const String governmentMetaOptions = '/government/meta/options';
+
+  // Government & Public Campaigns Endpoints
+  static const String campaigns = '/campaigns';
+  static String campaignOne(String id) => '/campaigns/$id';
+  static String campaignApprove(String id) => '/campaigns/$id/approve';
+  static String campaignReject(String id) => '/campaigns/$id/reject';
+  static String campaignPause(String id) => '/campaigns/$id/pause';
+  static String campaignStart(String id) => '/campaigns/$id/start';
+  static const String campaignFleetOptions = '/campaigns/fleet-options';
+  static const String campaignTrackingLive = '/campaigns/tracking/live';
+  static const String campaignTrackingRoutes = '/campaigns/tracking/routes';
+
+  // Emergency Broadcasts Endpoints
+  static const String emergencyBroadcasts = '/emergency-broadcasts';
+  static String emergencyBroadcastOne(String id) => '/emergency-broadcasts/$id';
+  static String emergencyBroadcastApprove(String id) => '/emergency-broadcasts/$id/approve';
+  static String emergencyBroadcastReject(String id) => '/emergency-broadcasts/$id/reject';
+  static String emergencyBroadcastRevoke(String id) => '/emergency-broadcasts/$id/revoke';
+
+  /// Generates Google Static Map URL using the official API key and dark styling
+  static String buildGoogleStaticMapUrl({
+    double? lat,
+    double? lng,
+    double? centerLat,
+    double? centerLng,
+    int zoom = 12,
+    int width = 600,
+    int height = 300,
+    String mapType = 'roadmap',
+    dynamic markers,
+  }) {
+    final effectiveLat = lat ?? centerLat ?? 23.2599;
+    final effectiveLng = lng ?? centerLng ?? 77.4126;
+    String markersParam = '';
+    if (markers is List && markers.isNotEmpty) {
+      for (final m in markers) {
+        if (m is Map) {
+          final mLat = m['lat'];
+          final mLng = m['lng'];
+          final color = m['color'] ?? 'red';
+          if (mLat != null && mLng != null) {
+            markersParam += '&markers=color:$color%7C$mLat,$mLng';
+          }
+        } else if (m is GoogleMapMarker) {
+          final labelStr = m.label.isNotEmpty ? '%7Clabel:${m.label}' : '';
+          markersParam += '&markers=color:${m.color}$labelStr%7C${m.lat},${m.lng}';
+        }
+      }
+    } else {
+      markersParam = '&markers=color:red%7C$effectiveLat,$effectiveLng';
+    }
+    final styleParam = mapType == 'satellite' || mapType == 'hybrid'
+        ? ''
+        : '&style=element:geometry%7Ccolor:0x1b2438&style=element:labels.icon%7Cvisibility:off&style=element:labels.text.fill%7Ccolor:0x8fa3bf&style=element:labels.text.stroke%7Ccolor:0x1b2438';
+    return 'https://maps.googleapis.com/maps/api/staticmap?center=$effectiveLat,$effectiveLng&zoom=$zoom&size=${width}x$height&scale=2&maptype=$mapType$styleParam$markersParam&key=$googleMapsApiKey';
+  }
 
   // Uploads & Content Endpoints
   static const String uploads = '/uploads';
@@ -137,4 +215,18 @@ class ApiConstants {
   // Request timeouts
   static const Duration connectTimeout = Duration(seconds: 15);
   static const Duration receiveTimeout = Duration(seconds: 15);
+}
+
+class GoogleMapMarker {
+  final double lat;
+  final double lng;
+  final String color;
+  final String label;
+
+  const GoogleMapMarker({
+    required this.lat,
+    required this.lng,
+    this.color = 'red',
+    this.label = '',
+  });
 }

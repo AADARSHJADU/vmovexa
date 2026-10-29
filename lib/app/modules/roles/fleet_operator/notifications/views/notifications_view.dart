@@ -46,10 +46,10 @@ class NotificationsView extends GetView<NotificationsController> {
                           style: TextStyle(color: AppColors.textLink, fontSize: 11, fontWeight: FontWeight.bold),
                         ),
                       ),
-                      IconButton(
+                      /*IconButton(
                         icon: const Icon(Icons.settings_outlined, color: Colors.white, size: 18),
                         onPressed: () {},
-                      ),
+                      ),*/
                     ],
                   ),
                 ],

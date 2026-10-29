@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import '../../../technician/hardware_configuration/views/shared_widgets.dart' as DriverDashboardView;
 import '../controller/driver_home_controller.dart';
 import '../model/driver_dashboard_models.dart';
 
@@ -35,9 +34,11 @@ class DriverHomeView extends GetView<DriverHomeController> {
                       _buildHeader(),
                       const SizedBox(height: 16),
                       _buildGreeting(),
-                      const SizedBox(height: 18),
-                      _buildTodaysRouteCard(),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
+                      _buildVerificationBanner(),
+                      const SizedBox(height: 4),
+                    /*  _buildTodaysRouteCard(),
+                      const SizedBox(height: 16),*/
                       _buildScheduleCard(),
                       const SizedBox(height: 16),
                       _buildNotificationsCard(),
@@ -57,13 +58,42 @@ class DriverHomeView extends GetView<DriverHomeController> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        GestureDetector(
+        InkWell(
           onTap: controller.onMenuTap,
-          child: const Icon(Icons.menu, color: Colors.white70),
+          borderRadius: BorderRadius.circular(8),
+          child: const Padding(
+            padding: EdgeInsets.all(4),
+            child: Icon(Icons.menu_rounded, color: Colors.white, size: 26),
+          ),
         ),
-        GestureDetector(
-          onTap: controller.onNotificationBellTap,
-          child:SvgPicture.asset('assets/icons/notification.svg'),
+        Obx(
+          () => GestureDetector(
+            onTap: controller.onNotificationBellTap,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                SvgPicture.asset('assets/icons/notification.svg'),
+                if (controller.notificationCount.value > 0)
+                  Positioned(
+                    right: -2,
+                    top: -2,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: kPurple,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                      child: Text(
+                        '${controller.notificationCount.value}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ),
       ],
     );
@@ -84,6 +114,68 @@ class DriverHomeView extends GetView<DriverHomeController> {
         ],
       ),
     );
+  }
+
+  // ---------------- Document Verification Pending Banner ----------------
+  Widget _buildVerificationBanner() {
+    return Obx(() {
+      if (controller.isDocumentsVerified.value) return const SizedBox.shrink();
+      return Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFF2A1C0E),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.amber.withOpacity(0.4)),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.amber.withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.hourglass_top_rounded, color: Colors.amber, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Document Verification Pending',
+                    style: TextStyle(color: Colors.amber, fontSize: 13, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 3),
+                  const Text(
+                    'Your KYC & driving documents are currently pending verification by Admin. Once verified, full route dispatch and schedule access will be unlocked.',
+                    style: TextStyle(color: Colors.white70, fontSize: 11.5, height: 1.3),
+                  ),
+                  const SizedBox(height: 10),
+                  GestureDetector(
+                    onTap: controller.onUploadDocumentsTap,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: Colors.amber,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        'Upload / View Documents →',
+                        style: TextStyle(color: Colors.black, fontSize: 11, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   // ---------------- Today's Route ----------------
@@ -111,19 +203,47 @@ class DriverHomeView extends GetView<DriverHomeController> {
                 ],
               ),
               Obx(
-                () => Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: kGreen.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(width: 6, height: 6, decoration: const BoxDecoration(color: kGreen, shape: BoxShape.circle)),
-                      const SizedBox(width: 5),
-                      Text(controller.isOnDuty.value ? 'On Duty' : 'Off Duty', style: const TextStyle(color: kGreen, fontSize: 11, fontWeight: FontWeight.w600)),
-                    ],
+                () => GestureDetector(
+                  onTap: controller.isUpdatingDuty.value ? null : controller.toggleDutyStatus,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: (controller.isOnDuty.value ? kGreen : Colors.orangeAccent).withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: (controller.isOnDuty.value ? kGreen : Colors.orangeAccent).withOpacity(0.3),
+                        width: 0.8,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (controller.isUpdatingDuty.value)
+                          const SizedBox(
+                            width: 10,
+                            height: 10,
+                            child: CircularProgressIndicator(strokeWidth: 1.5, color: Colors.white),
+                          )
+                        else
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: controller.isOnDuty.value ? kGreen : Colors.orangeAccent,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        const SizedBox(width: 5),
+                        Text(
+                          controller.isOnDuty.value ? 'On Duty' : 'Off Duty',
+                          style: TextStyle(
+                            color: controller.isOnDuty.value ? kGreen : Colors.orangeAccent,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -252,13 +372,20 @@ class DriverHomeView extends GetView<DriverHomeController> {
           ),
           const SizedBox(height: 14),
           Obx(
-            () => Column(
-              children: List.generate(controller.schedule.length, (index) {
-                final entry = controller.schedule[index];
-                final isLast = index == controller.schedule.length - 1;
-                return _ScheduleRow(entry: entry, isLast: isLast);
-              }),
-            ),
+            () => controller.schedule.isEmpty
+                ? const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Center(
+                      child: Text('No scheduled trips for today', style: TextStyle(color: Colors.white38, fontSize: 12)),
+                    ),
+                  )
+                : Column(
+                    children: List.generate(controller.schedule.length, (index) {
+                      final entry = controller.schedule[index];
+                      final isLast = index == controller.schedule.length - 1;
+                      return _ScheduleRow(entry: entry, isLast: isLast);
+                    }),
+                  ),
           ),
         ],
       ),
@@ -280,12 +407,20 @@ class DriverHomeView extends GetView<DriverHomeController> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Row(
                 children:  [
                   SvgPicture.asset('assets/icons/advertiser_ic/speaker.svg'),
                   SizedBox(width: 8),
-                  Text('Operational Notifications', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+                  Text(
+                    'Operational Notifications',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                      ),
+                  ),
                 ],
               ),
               GestureDetector(
@@ -300,16 +435,23 @@ class DriverHomeView extends GetView<DriverHomeController> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 24),
           Obx(
-            () => Column(
-              children: controller.notifications
-                  .map((n) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: _NotificationRow(notification: n),
-                      ))
-                  .toList(),
-            ),
+            () => controller.notifications.isEmpty
+                ? const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Center(
+                      child: Text('No operational notifications', style: TextStyle(color: Colors.white38, fontSize: 12)),
+                    ),
+                  )
+                : Column(
+                    children: controller.notifications
+                        .map((n) => Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: _NotificationRow(notification: n),
+                            ))
+                        .toList(),
+                  ),
           ),
         ],
       ),
@@ -389,7 +531,7 @@ class _ScheduleRow extends StatelessWidget {
 
   const _ScheduleRow({required this.entry, required this.isLast});
 
-  static const Color kPurple = DriverDashboardView.kPurple;
+  static const Color kPurple = DriverHomeView.kPurple;
 
   @override
   Widget build(BuildContext context) {
@@ -457,7 +599,7 @@ class _NotificationRow extends StatelessWidget {
 
   const _NotificationRow({required this.notification});
 
-  static const Color kPurple = DriverDashboardView.kPurple;
+  static const Color kPurple = DriverHomeView.kPurple;
 
   @override
   Widget build(BuildContext context) {
@@ -465,7 +607,6 @@ class _NotificationRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
           // decoration: BoxDecoration(color: kPurple.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
           child: SvgPicture.asset(notification.icon.toString())
         ),
@@ -519,21 +660,21 @@ class _QuickActionColumn extends StatelessWidget {
                 // decoration: BoxDecoration(color: action.color.withOpacity(0.15), borderRadius: BorderRadius.circular(14)),
                 child: SvgPicture.asset(action.icon.toString())
               ),
-              // if (action.badgeCount != null && action.badgeCount! > 0)
-              //   Positioned(
-              //     right: -4,
-              //     top: -4,
-              //     child: Container(
-              //       padding: const EdgeInsets.all(3),
-              //       constraints: const BoxConstraints(minWidth: 15, minHeight: 15),
-              //       decoration: const BoxDecoration(color: Color(0xFFFF4D4D), shape: BoxShape.circle),
-              //       alignment: Alignment.center,
-              //       child: Text(
-              //         '${action.badgeCount}',
-              //         style: const TextStyle(color: Colors.white, fontSize: 8.5, fontWeight: FontWeight.w700),
-              //       ),
-              //     ),
-              //   ),
+              if (action.badgeCount != null && action.badgeCount! > 0)
+                Positioned(
+                  right: -4,
+                  top: -4,
+                  child: Container(
+                    padding: const EdgeInsets.all(3),
+                    constraints: const BoxConstraints(minWidth: 15, minHeight: 15),
+                    decoration: const BoxDecoration(color: Color(0xFFFF4D4D), shape: BoxShape.circle),
+                    alignment: Alignment.center,
+                    child: Text(
+                      '${action.badgeCount}',
+                      style: const TextStyle(color: Colors.white, fontSize: 8.5, fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ),
             ],
           ),
           const SizedBox(height: 6),

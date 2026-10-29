@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/modules/roles/driver/report/controller/report_incident_controller.dart';
@@ -419,7 +420,10 @@ class IncidentDetailsView extends GetView<ReportIncidentController> {
                         color: Colors.white10,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.image_outlined, color: Colors.white24, size: 24),
+                      clipBehavior: Clip.antiAlias,
+                      child: File(path).existsSync()
+                          ? Image.file(File(path), width: 78, height: 78, fit: BoxFit.cover)
+                          : const Icon(Icons.image_outlined, color: Colors.white24, size: 24),
                     ),
                     Positioned(
                       top: 4,

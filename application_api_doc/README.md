@@ -1,136 +1,51 @@
-# VMOVEXA ONE — Master Role-Based API & Frontend Integration Documentation
+# VMOVEXA ONE — App Developer API Handoff
 
-Welcome to the **VMOVEXA ONE** Master Technical Documentation package.  
-This package is structured strictly by **user roles & portals** and includes a complete **Frontend UI Integration Blueprint** so that frontend engineers and AI assistants can seamlessly build and connect every portal without ambiguity.
+Updated: **28 October 2026**. Source: current backend working tree, including recent GPS changes. This package replaces the earlier role documents and their endpoint counts.
 
----
+## Start here
 
-## 📘 Quick Navigation
+1. [App developer guide](APP_DEVELOPER_GUIDE.md): API origin, authentication, token refresh, response formats, uploads and request examples.
+2. [Complete API reference](API_REFERENCE.md): **430 method/path entries**, including aliases, gateway webhook and health routes; access guards and all **100 route-attached Joi validation schemas**.
+3. [Realtime and GPS contract](REALTIME_AND_GPS.md): Socket.IO, MQTT, lock/staleness, hardware configuration and current limitations.
+4. [Postman collection](VMOVEXA.postman_collection.json): importable templates for all 430 entries. Set `baseUrl`, `accessToken` and route ID variables. Templates require real payload values before execution.
+5. [Controller contract excerpts](CONTROLLER_CONTRACTS.md): exact handler code for field spelling, service forwarding and response branches where available.
+6. [Audit and limitations](GAP_ANALYSIS_REPORT.md) and [change notes](CHANGELOG.md).
 
-1. 🚀 **[Frontend UI Integration Guide (Master Blueprint)](file:///e:/vmovexa/application_api_doc/FRONTEND_INTEGRATION_GUIDE.md)**  
-   *Step-by-step code tutorial: Services → Redux Thunks → Slices → Hooks → React UI Tables with `<Pagination />`, Search Debounce, Modals & Toast alerts.*
+## Role/module indexes
 
-2. 📊 **[Full-Stack Gap Analysis Report](file:///e:/vmovexa/application_api_doc/GAP_ANALYSIS_REPORT.md)**  
-   *Audit results: Backend vs Frontend endpoints, resolved missing routes in `endpoints.js`, payload wiring fixes & status lifecycle diagrams.*
+| Area | Index |
+|---|---|
+| Authentication and invitations | [auth](roles/auth.md) |
+| Fleet, vehicles, drivers, routes, slots and trips | [fleet-manager](roles/fleet-manager.md) |
+| Driver self-service | [driver](roles/driver.md) |
+| Campaigns, advertiser directory and QR | [advertiser](roles/advertiser.md) |
+| Finance, billing and gateway webhook | [finance](roles/finance.md) |
+| Devices, GPS trackers, displays and work orders | [technician](roles/technician.md) |
+| Government and emergency broadcasts | [government](roles/government.md) |
+| Notifications and push | [notifications-websocket](roles/notifications-websocket.md) |
+| Users, organizations, approvals, RBAC and administration | [superadmin](roles/superadmin.md) |
+| Uploads, content, support, reports, exports and maps | [common-services](roles/common-services.md) |
 
-3. 🏛️ **Role-Based Portals & API Specifications:**
-   - 🔑 **[auth.md](file:///e:/vmovexa/application_api_doc/roles/auth.md)** — **35 APIs** (Identity, OTP, Org Self-Registration, Social OAuth Google/Zoho/Apple, Sessions)
-   - 🚌 **[fleet-manager.md](file:///e:/vmovexa/application_api_doc/roles/fleet-manager.md)** — **65 APIs** (Depots, Fleets, Vehicles, Drivers, Routes, Trips, Telemetry, Docs)
-   - 👨‍✈️ **[driver.md](file:///e:/vmovexa/application_api_doc/roles/driver.md)** — **11 APIs** (Self-service Driver Portal, Schedules, Routes, Duty Status, Incidents)
-   - 📢 **[advertiser.md](file:///e:/vmovexa/application_api_doc/roles/advertiser.md)** — **38 APIs** (Campaigns, Approvals, Public Customer Checkout, QR Passenger Scans)
-   - 💰 **[finance.md](file:///e:/vmovexa/application_api_doc/roles/finance.md)** — **49 APIs** (Invoices, Ledger, Campaign Settlements, Bank Auto-Match, GST GSTR-1, Gateways)
-   - 🔧 **[technician.md](file:///e:/vmovexa/application_api_doc/roles/technician.md)** — **36 APIs** (Work Orders Queue, Smart Edge Remote Reboot/Config, Displays, GPS Pairing)
-   - 🏛️ **[government.md](file:///e:/vmovexa/application_api_doc/roles/government.md)** — **13 APIs** (Transit Footprint Analytics, Directory, Emergency SOS Broadcast Overrides)
-   - 🔔 **[notifications-websocket.md](file:///e:/vmovexa/application_api_doc/roles/notifications-websocket.md)** — **23 REST + WS** (In-app Alerts, Delivery Logs & Retry, FCM Push, Socket.IO Live Telemetry)
-   - 👑 **[superadmin.md](file:///e:/vmovexa/application_api_doc/roles/superadmin.md)** — **38 APIs** (Sovereign KPIs, Multi-Tenant Approvals & Impersonation, RBAC, Health)
-   - 📁 **[common-services.md](file:///e:/vmovexa/application_api_doc/roles/common-services.md)** — **20 APIs** (Multipart Media Uploads, Helpdesk Support Tickets, Geocoding & Directions, i18n)
+These are navigation groups. Actual permission middleware and tenant/service checks determine access; a filename does not grant access.
 
-> **Total Endpoints Documented:** **328 Comprehensive APIs & WebSocket Protocols**
+## Integration corrections
 
----
+- Default origin: `http://localhost:4000`; API prefix: `/api/v1`. A phone must use the actual reachable API origin. Port `5173` serves the frontend development app.
+- Errors use `code`, not `error`. Joi validation failures return **422**.
+- Standard paginated controllers return `data: []` plus `meta.pagination`; other controllers can wrap nested service results.
+- GPS absence means unavailable/searching, never hardcoded coordinates. Edge online status does not establish satellite lock.
+- Reboot success acknowledges dispatch; the current core reboot handler logs a no-op and does not reboot Android.
+- Permissive/absent schemas and unverified response DTOs are identified explicitly. The package does not invent guarantees that the backend does not enforce.
 
-## ⚡ The Frontend Architecture Standard (Golden Rules)
+## Regeneration
 
-All frontend components strictly adhere to the following 5-layer separation:
+From the repository root:
 
-```
-Component
-  └── use[Domain]() hook                  ← ONLY hook is called by UI
-        ├── useAppSelector(select[Domain]) ← Reads state reactively
-        └── dispatch(fetch[Domain]Thunk()) ← Dispatches action
-                  │
-                  ▼
-      store/thunks/[domain].thunks.js     ← Handles async logic & normalizeError
-                  │
-                  ▼
-      api/services/[domain].service.js    ← Calls apiClient with endpoint & params
-                  │
-                  ▼
-      api/client.js (axios instance)      ← Injects Bearer token & handles 401 refresh
-                  │
-                  ▼
-      Backend Express API (`/api/v1/...`) ← Processes request & queries MySQL
+```powershell
+node backend/scripts/generate-app-api-docs.js
+node backend/scripts/verify-app-api-docs.js
 ```
 
-### 🚨 4 Golden Rules:
-1. **Component never calls Axios directly:** Components only consume custom hooks (e.g., `useFleetVehicle()`, `useCampaign()`).
-2. **Hook wraps Redux:** State reads use `useAppSelector` and mutations use `useAppDispatch(thunk).unwrap()`.
-3. **Thunk delegates to Service:** Thunks handle async operations and format errors via `rejectWithValue(normalizeError(err))`.
-4. **Service calls `apiClient`:** Direct `fetch` or custom Axios instances are forbidden. All HTTP goes through `src/api/client.js`.
+The generator evaluates route wiring with inert controller/middleware substitutes and reads real Joi descriptions. It does not start the API, access the database or import `.env` values. Generated files: reference, excerpts, role indexes, Postman, [manifest](route-manifest.json) and [source hashes](source-snapshot.json). Human integration guides require review when behavior changes.
 
----
-
-## 📑 Global Pagination & Query Standard
-
-Every entity list, table, or grid must implement pagination using the global reusable component: `src/components/ui/Pagination.jsx`.
-
-```jsx
-<Pagination
-  currentPage={currentPage}
-  totalPages={pagination?.totalPages || 1}
-  totalItems={pagination?.total || 0}
-  pageSize={pageSize}
-  pageSizeOptions={[10, 20, 50, 100]}
-  onPageChange={setCurrentPage}
-  onPageSizeChange={(newSize) => {
-    setPageSize(newSize);
-    setCurrentPage(1);
-  }}
-/>
-```
-
-Backend expects query parameters:
-```http
-GET /api/v1/<entity>?page=1&limit=20&search=keyword&status=active&sortBy=created_at&sortOrder=DESC
-```
-
----
-
-## 🔔 Global Notification System (`react-hot-toast`)
-
-Never write inline status alert boxes. Use `react-hot-toast` (already mounted in `App.jsx`):
-
-```javascript
-import toast from 'react-hot-toast';
-
-toast.success('Record created successfully!');
-toast.error(err.message || 'Operation failed');
-
-// Best Pattern for Async Actions:
-toast.promise(
-  saveOperation(data),
-  {
-    loading: 'Processing request...',
-    success: 'Saved successfully!',
-    error: (err) => err.message || 'Error occurred.',
-  }
-);
-```
-
----
-
-## 🔒 Unified Response Envelope
-
-Every endpoint in the system strictly returns:
-
-### Success (`200` / `201`)
-```json
-{
-  "success": true,
-  "message": "Operation completed successfully",
-  "data": { ... }
-}
-```
-
-### Error (`400` / `401` / `403` / `404` / `500`)
-```json
-{
-  "success": false,
-  "message": "Human readable error description",
-  "error": "ERROR_CODE",
-  "errors": [
-    { "field": "field_name", "message": "Field validation failure" }
-  ]
-}
-```
-Client errors are normalized by `src/utils/apiResponse.js` into `{ code, message, status, details }`.
+This is a working-tree contract snapshot, not proof that a separate deployed server runs the same code.

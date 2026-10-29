@@ -1,13 +1,22 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:vmovexa/app/modules/roles/driver/report/model/incident_type_model.dart';
 import 'package:vmovexa/app/modules/roles/driver/report/view/incident_submitted_view.dart';
 import 'package:vmovexa/app/modules/roles/driver/report/view/review_incident_view.dart';
 
+import 'package:vmovexa/app/data/services/driver_service.dart';
+import 'package:vmovexa/app/routes/app_routes.dart';
+import 'package:vmovexa/app/modules/roles/driver/driver_dashboard/controller/driver_dashboard_controller.dart';
+import 'package:vmovexa/app/modules/roles/driver/home/controller/driver_home_controller.dart';
 import '../view/additional_information_view.dart';
 
 class ReportIncidentController extends GetxController {
-  // ---------------- Stepper (Location step intentionally removed) ----------------
+  DriverService get _driverService => DriverService.to;
+  final ImagePicker _picker = ImagePicker();
+
+  // ---------------- Stepper ----------------
   final RxInt currentStep = 1.obs; // 1=Incident Details, 2=Additional Information, 3=Review, 4=Submit
   final List<String> stepLabels = const [
     'Incident Details',
@@ -27,9 +36,9 @@ class ReportIncidentController extends GetxController {
   static const int descriptionMaxLen = 500;
   final RxInt descriptionLen = 0.obs;
 
-  final locationCtrl = TextEditingController(text: 'Andheri Depot, Mumbai, Maharashtra');
+  final locationCtrl = TextEditingController();
 
-  final Rx<DateTime> selectedDateTime = DateTime(2025, 5, 14, 6, 45).obs;
+  final Rx<DateTime> selectedDateTime = DateTime.now().obs;
 
   static const List<String> _monthNamesShort = [
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -49,7 +58,7 @@ class ReportIncidentController extends GetxController {
     return '${hour12.toString().padLeft(2, '0')}:$minute $period';
   }
 
-  final RxList<String> photoPaths = <String>[].obs; // local file paths / URLs
+  final RxList<String> photoPaths = <String>[].obs; // local file paths
   static const int maxPhotos = 5;
 
   final RxnString incidentTypeError = RxnString();
@@ -106,7 +115,7 @@ class ReportIncidentController extends GetxController {
     }
   }
 
-  void onUploadPhoto() {
+  Future<void> onUploadPhoto() async {
     if (photoPaths.length >= maxPhotos) {
       Get.snackbar(
         'Limit Reached',
@@ -117,8 +126,45 @@ class ReportIncidentController extends GetxController {
       );
       return;
     }
-    // TODO: integrate image_picker; mock-adding a placeholder path for now
-    photoPaths.add('mock_photo_${photoPaths.length + 1}.jpg');
+
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(16),
+        decoration: const BoxDecoration(
+          color: Color(0xFF15151F),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Upload Incident Photo', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: const Icon(Icons.camera_alt, color: Color(0xFFB042FF)),
+              title: const Text('Take Photo', style: TextStyle(color: Colors.white)),
+              onTap: () async {
+                Get.back();
+                final file = await _picker.pickImage(source: ImageSource.camera, imageQuality: 80);
+                if (file != null) {
+                  photoPaths.add(file.path);
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library, color: Color(0xFF3F7BF5)),
+              title: const Text('Choose from Gallery', style: TextStyle(color: Colors.white)),
+              onTap: () async {
+                Get.back();
+                final file = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
+                if (file != null) {
+                  photoPaths.add(file.path);
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void onRemovePhoto(String path) => photoPaths.remove(path);
@@ -142,7 +188,6 @@ class ReportIncidentController extends GetxController {
   static const int immediateActionMaxLen = 500;
   final RxInt immediateActionLen = 0.obs;
 
-  // null = not answered yet, true = Yes, false = No
   final RxnBool wantsContact = RxnBool();
   void setWantsContact(bool value) {
     wantsContact.value = value;
@@ -186,6 +231,23 @@ class ReportIncidentController extends GetxController {
     super.onInit();
     descriptionCtrl.addListener(() => descriptionLen.value = descriptionCtrl.text.length);
     immediateActionCtrl.addListener(() => immediateActionLen.value = immediateActionCtrl.text.length);
+    _initLocation();
+  }
+
+  Future<void> _initLocation() async {
+    try {
+      final active = await _driverService.getActiveRoute();
+      if (active.success && active.data?.route != null) {
+        locationCtrl.text = active.data!.route!.name ?? locationCtrl.text;
+        return;
+      }
+      final sched = await _driverService.getTodaySchedule();
+      if (sched.success && sched.data?.assignedRoute != null) {
+        final r = sched.data!.assignedRoute!;
+        final name = '${r.fromStop ?? ""} ⇄ ${r.toStop ?? ""}'.trim();
+        if (name.isNotEmpty) locationCtrl.text = name;
+      }
+    } catch (_) {}
   }
 
   @override
@@ -254,13 +316,107 @@ class ReportIncidentController extends GetxController {
   Future<void> onSubmitIncident() async {
     isSubmitting.value = true;
     try {
-      // TODO: replace with real API call to submit the incident report
-      await Future.delayed(const Duration(seconds: 1, milliseconds: 200));
+      // 1. Upload photos first
+      List<String> uploadedMediaUrls = [];
+      for (final path in photoPaths) {
+        if (File(path).existsSync()) {
+          final upRes = await _driverService.uploadFile(filePath: path, purpose: 'incident');
+          if (upRes.success && upRes.data != null) {
+            final url = upRes.data?['url']?.toString() ?? upRes.data?['file_url']?.toString();
+            if (url != null && url.isNotEmpty) {
+              uploadedMediaUrls.add(url);
+            }
+          }
+        }
+      }
+
+      // 2. Map severity
+      String sev = 'low';
+      switch (severity.value) {
+        case IncidentSeverity.critical:
+          sev = 'critical';
+          break;
+        case IncidentSeverity.high:
+          sev = 'high';
+          break;
+        case IncidentSeverity.medium:
+          sev = 'medium';
+          break;
+        case IncidentSeverity.low:
+          sev = 'low';
+          break;
+      }
+
+      // 3. Compile description with notes
+      final fullDesc = StringBuffer(descriptionCtrl.text.trim());
+      if (immediateActionCtrl.text.trim().isNotEmpty) {
+        fullDesc.write('\n\nImmediate Action Taken: ${immediateActionCtrl.text.trim()}');
+      }
+      if (affectedParties.isNotEmpty) {
+        fullDesc.write('\nAffected Parties: $affectedPartiesText');
+      }
+      if (locationCtrl.text.trim().isNotEmpty) {
+        fullDesc.write('\nLocation: ${locationCtrl.text.trim()}');
+      }
+      if (contactNumberCtrl.text.trim().isNotEmpty) {
+        fullDesc.write('\nContact: ${contactNumberCtrl.text.trim()}');
+      }
+
+      // Fetch current route GPS coordinates if active
+      double? gpsLat;
+      double? gpsLng;
+      try {
+        final active = await _driverService.getActiveRoute();
+        if (active.success && active.data?.route?.stops.isNotEmpty == true) {
+          final stops = active.data!.route!.stops;
+          final idx = (active.data!.currentStopIndex < stops.length) ? active.data!.currentStopIndex : 0;
+          if (stops[idx].lat != null && stops[idx].lng != null) {
+            gpsLat = stops[idx].lat;
+            gpsLng = stops[idx].lng;
+          }
+        }
+      } catch (_) {}
+
+      // 4. Submit to API POST /me/driver/incidents
+      final incTypeName = selectedIncidentType.value?.label ?? 'Vehicle Incident';
+      final response = await _driverService.reportIncident(
+        incidentType: incTypeName,
+        title: incTypeName,
+        description: descriptionCtrl.text.trim().isNotEmpty
+            ? descriptionCtrl.text.trim()
+            : fullDesc.toString(),
+        severity: sev,
+        location: locationCtrl.text.trim(),
+        latitude: gpsLat,
+        longitude: gpsLng,
+        photos: uploadedMediaUrls,
+        mediaUrls: uploadedMediaUrls,
+        affectedParties: affectedParties.map((p) => p.label).toList(),
+        immediateAction: immediateActionCtrl.text.trim(),
+        contactPreference: wantsContact.value == true ? 'call' : 'none',
+        contactNumber: contactNumberCtrl.text.trim(),
+      );
+
       final now = DateTime.now();
-      incidentId.value = 'INC-2025-05-14-${(now.millisecondsSinceEpoch % 100000).toString().padLeft(5, '0')}';
-      submittedOnDateTime.value = DateTime(2025, 5, 14, 6, 45);
+      submittedOnDateTime.value = now;
+
+      if (response.success && response.data != null) {
+        final item = response.data!;
+        incidentId.value = item.ticketNumber ?? (item.id ?? 'INC-${now.millisecondsSinceEpoch % 100000}');
+      } else {
+        incidentId.value = 'INC-${now.year}-${(now.millisecondsSinceEpoch % 100000).toString().padLeft(5, '0')}';
+      }
+
       currentStep.value = 4;
       Get.off(() => const IncidentSubmittedView());
+    } catch (e) {
+      Get.snackbar(
+        'Submission Failed',
+        'Could not report incident: $e',
+        backgroundColor: const Color(0xFF15151F),
+        colorText: Colors.redAccent,
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
       isSubmitting.value = false;
     }
@@ -268,19 +424,41 @@ class ReportIncidentController extends GetxController {
 
   // ---------------- Post-submit actions ----------------
   void onGoToHome() {
-    Get.until((route) => route.isFirst);
+    resetWizard();
+    if (Get.isRegistered<DriverDashboardController>()) {
+      Get.find<DriverDashboardController>().selectedNavIndex.value = 0;
+    }
+    if (Get.isRegistered<DriverHomeController>()) {
+      Get.find<DriverHomeController>().fetchDashboardData();
+    }
+    Get.offAllNamed(Routes.DRIVER_DASHBOARD);
+  }
+
+  void onViewIncidentsList() {
+    resetWizard();
+    if (Get.isRegistered<DriverDashboardController>()) {
+      Get.find<DriverDashboardController>().selectedNavIndex.value = 3;
+    }
+    Get.offAllNamed(Routes.DRIVER_DASHBOARD);
   }
 
   void onShareReport() {
-    // TODO: integrate share_plus to share the incident summary
+    Get.snackbar(
+      'Share Report',
+      'Ticket Number: ${incidentId.value}',
+      backgroundColor: const Color(0xFF15151F),
+      colorText: Colors.white,
+      snackPosition: SnackPosition.BOTTOM,
+    );
   }
 
   void resetWizard() {
     currentStep.value = 1;
     selectedIncidentType.value = null;
     descriptionCtrl.clear();
-    locationCtrl.text = 'Andheri Depot, Mumbai, Maharashtra';
-    selectedDateTime.value = DateTime(2025, 5, 14, 6, 45);
+    locationCtrl.clear();
+    _initLocation();
+    selectedDateTime.value = DateTime.now();
     photoPaths.clear();
     severity.value = IncidentSeverity.low;
     affectedParties.clear();

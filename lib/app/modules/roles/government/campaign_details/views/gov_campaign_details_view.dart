@@ -5,7 +5,6 @@ import '../controllers/gov_campaign_details_controller.dart';
 import '../../dashboard/controllers/government_dashboard_controller.dart';
 import '../../../../../theme/app_colors.dart';
 import '../../../../../widgets/custom_back_button.dart';
-import '../../../../../routes/app_routes.dart';
 
 class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
   const GovCampaignDetailsView({super.key});
@@ -80,6 +79,10 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Obx(() {
         final c = controller.campaign.value;
+        final isPaused = controller.isPaused.value;
+        final statusText = isPaused ? 'PAUSED' : (c.status?.toUpperCase() ?? 'ACTIVE');
+        final statusCol = isPaused ? const Color(0xFFF59E0B) : c.statusColor;
+
         return Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -94,11 +97,17 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
                 height: 52,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  image: DecorationImage(
-                    image: NetworkImage(c.imagePath),
-                    fit: BoxFit.cover,
-                  ),
+                  color: AppColors.cardBg,
+                  image: c.resolvedMediaUrl.isNotEmpty
+                      ? DecorationImage(
+                          image: NetworkImage(c.resolvedMediaUrl),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
                 ),
+                child: c.resolvedMediaUrl.isEmpty
+                    ? const Icon(Icons.campaign_outlined, color: AppColors.textMuted, size: 22)
+                    : null,
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -107,20 +116,24 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
                   children: [
                     Row(
                       children: [
-                        Text(
-                          c.title,
-                          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                        Expanded(
+                          child: Text(
+                            c.displayName,
+                            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                         const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF10B981).withOpacity(0.12),
+                            color: statusCol.withOpacity(0.12),
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: const Text(
-                            'Active',
-                            style: TextStyle(color: Color(0xFF10B981), fontSize: 7.5, fontWeight: FontWeight.bold),
+                          child: Text(
+                            statusText,
+                            style: TextStyle(color: statusCol, fontSize: 7.5, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ],
@@ -134,10 +147,9 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
                           size: 10,
                         ),
                         const SizedBox(width: 4),
-
                         Expanded(
                           child: Text(
-                            c.dates,
+                            c.displayDates,
                             style: const TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: 9.5,
@@ -146,19 +158,16 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-
                         const SizedBox(width: 8),
-
                         const Icon(
                           Icons.location_on_outlined,
                           color: AppColors.textMuted,
                           size: 10,
                         ),
                         const SizedBox(width: 4),
-
                         Expanded(
                           child: Text(
-                            c.locations,
+                            c.displayLocations,
                             style: const TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: 9.5,
@@ -171,6 +180,15 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
                     ),
                   ],
                 ),
+              ),
+              IconButton(
+                icon: Icon(
+                  isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+                  color: isPaused ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                  size: 22,
+                ),
+                tooltip: isPaused ? 'Resume Campaign' : 'Pause Campaign',
+                onPressed: () => controller.togglePlayback(),
               ),
             ],
           ),
@@ -268,107 +286,110 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
                 ),
                 const SizedBox(height: 12),
 
-                // Stylized Bhopal Live Map Painter
-                Container(
-                  height: 240,
-                  decoration: BoxDecoration(
-                    color: Colors.black26,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.cardBorder, width: 1),
-                  ),
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: CustomPaint(
-                            painter: BhopalLiveCoverageMapPainter(),
-                          ),
-                        ),
-                      ),
-                      // Legend panel at top-right
-                      Positioned(
-                        top: 10,
-                        right: 10,
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.8),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.cardBorder, width: 1),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildLegendItem('Live', '28', const Color(0xFF10B981)),
-                              const SizedBox(height: 4),
-                              _buildLegendItem('Inactive', '6', const Color(0xFFF59E0B)),
-                              const SizedBox(height: 4),
-                              _buildLegendItem('Upcoming', '4', const Color(0xFF3B82F6)),
-                            ],
-                          ),
-                        ),
-                      ),
-                      // Location Pin Overlay labels
-                      const Positioned(
-                        top: 70,
-                        left: 100,
-                        child: Text('Chuna Bhatti', style: TextStyle(color: AppColors.textMuted, fontSize: 8)),
-                      ),
-                      const Positioned(
-                        top: 140,
-                        right: 100,
-                        child: Text('Arera Colony', style: TextStyle(color: AppColors.textMuted, fontSize: 8)),
-                      ),
-                      const Positioned(
-                        bottom: 90,
-                        left: 30,
-                        child: Text('Bairagarh', style: TextStyle(color: AppColors.textMuted, fontSize: 8)),
-                      ),
-                      const Positioned(
-                        bottom: 90,
-                        right: 110,
-                        child: Text('TT Nagar', style: TextStyle(color: AppColors.textMuted, fontSize: 8)),
-                      ),
+                // Bhopal Live Google Map or painter fallback
+                Obx(() {
+                  final mapUrl = controller.staticMapUrl.value;
+                  final liveCount = controller.liveDisplays.value;
+                  final inactiveCount = controller.inactiveDisplays.value;
+                  final upcomingCount = controller.upcomingDisplays.value;
 
-                      // Zoom key overlays
-                      Positioned(
-                        bottom: 10,
-                        right: 10,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.black87,
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: AppColors.cardBorder, width: 1),
-                          ),
-                          child: Column(
-                            children: [
-                              const Icon(Icons.gps_fixed_rounded, color: Colors.white, size: 14),
-                              const Divider(color: AppColors.cardBorder, height: 12),
-                              const Icon(Icons.add, color: Colors.white, size: 14),
-                              const Divider(color: AppColors.cardBorder, height: 12),
-                              const Icon(Icons.remove, color: Colors.white, size: 14),
-                            ],
+                  return Container(
+                    height: 240,
+                    decoration: BoxDecoration(
+                      color: Colors.black26,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.cardBorder, width: 1),
+                    ),
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: mapUrl.isNotEmpty
+                                ? Image.network(
+                                    mapUrl,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (ctx, err, stack) => CustomPaint(
+                                      painter: BhopalLiveCoverageMapPainter(),
+                                    ),
+                                  )
+                                : CustomPaint(
+                                    painter: BhopalLiveCoverageMapPainter(),
+                                  ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
+                        // Legend panel at top-right
+                        Positioned(
+                          top: 10,
+                          right: 10,
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.8),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: AppColors.cardBorder, width: 1),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildLegendItem('Live', '$liveCount', const Color(0xFF10B981)),
+                                const SizedBox(height: 4),
+                                _buildLegendItem('Inactive', '$inactiveCount', const Color(0xFFF59E0B)),
+                                const SizedBox(height: 4),
+                                _buildLegendItem('Upcoming', '$upcomingCount', const Color(0xFF3B82F6)),
+                              ],
+                            ),
+                          ),
+                        ),
+                        // Zoom key overlays
+                        Positioned(
+                          bottom: 10,
+                          right: 10,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.black87,
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: AppColors.cardBorder, width: 1),
+                            ),
+                            child: Column(
+                              children: const [
+                                Icon(Icons.gps_fixed_rounded, color: Colors.white, size: 14),
+                                Divider(color: AppColors.cardBorder, height: 12),
+                                Icon(Icons.add, color: Colors.white, size: 14),
+                                Divider(color: AppColors.cardBorder, height: 12),
+                                Icon(Icons.remove, color: Colors.white, size: 14),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
                 const SizedBox(height: 14),
 
                 // Metrics Badges Row
-                Row(
-                  children: [
-                    Expanded(child: _buildMetricTile('assets/icons/advertiser_ic/tv.svg','28', 'Live Displays', '70%', const Color(0xFF10B981))),
-                    const SizedBox(width: 8),
-                    Expanded(child: _buildMetricTile('assets/icons/pause.svg','6', 'Inactive Displays', '15%', const Color(0xFFF59E0B))),
-                    const SizedBox(width: 8),
-                    Expanded(child: _buildMetricTile('assets/icons/clock.svg','4', 'Upcoming', '10%', const Color(0xFF3B82F6))),
-                    const SizedBox(width: 8),
-                    Expanded(child: _buildMetricTile('assets/icons/windows.svg','40', 'Total Displays', '100%', const Color(0xFF8B5CF6))),
-                  ],
-                ),
+                Obx(() {
+                  final total = controller.totalDisplays.value;
+                  final live = controller.liveDisplays.value;
+                  final inactive = controller.inactiveDisplays.value;
+                  final upcoming = controller.upcomingDisplays.value;
+                  final livePct = total > 0 ? '${((live / total) * 100).round()}%' : '0%';
+                  final inactPct = total > 0 ? '${((inactive / total) * 100).round()}%' : '0%';
+                  final upPct = total > 0 ? '${((upcoming / total) * 100).round()}%' : '0%';
+
+                  return Row(
+                    children: [
+                      Expanded(child: _buildMetricTile('assets/icons/advertiser_ic/tv.svg', '$live', 'Live Displays', livePct, const Color(0xFF10B981))),
+                      const SizedBox(width: 8),
+                      Expanded(child: _buildMetricTile('assets/icons/pause.svg', '$inactive', 'Inactive Displays', inactPct, const Color(0xFFF59E0B))),
+                      const SizedBox(width: 8),
+                      Expanded(child: _buildMetricTile('assets/icons/clock.svg', '$upcoming', 'Upcoming', upPct, const Color(0xFF3B82F6))),
+                      const SizedBox(width: 8),
+                      Expanded(child: _buildMetricTile('assets/icons/windows.svg', '$total', 'Total Displays', '100%', const Color(0xFF8B5CF6))),
+                    ],
+                  );
+                }),
               ],
             ),
           ),
@@ -385,7 +406,7 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
           const SizedBox(height: 10),
 
           // Live Activity Items List
-          Column(
+          Obx(() => Column(
             children: controller.activityFeed.map((item) {
               return Container(
                 margin: const EdgeInsets.only(bottom: 8),
@@ -400,7 +421,7 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: item['color'].withOpacity(0.08),
+                        color: (item['color'] as Color).withOpacity(0.08),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(item['icon'] as IconData, color: item['color'] as Color, size: 16),
@@ -430,7 +451,7 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
                 ),
               );
             }).toList(),
-          ),
+          )),
         ],
       ),
     );
@@ -501,7 +522,7 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
           const SizedBox(height: 10),
 
           // Overview stats grid
-          GridView.count(
+          Obx(() => GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             crossAxisCount: 4,
@@ -509,48 +530,47 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
             crossAxisSpacing: 8,
             childAspectRatio: 0.65,
             children: [
-              _buildCoreStatCard('assets/icons/advertiser_ic/eye.svg','Impressions', '1,982', '↑ 15.2%', const Color(0xFF3B82F6)),
-              _buildCoreStatCard('assets/icons/reach.svg','Reach', '1,456', '↑ 11.6%', const Color(0xFF10B981)),
-              _buildCoreStatCard('assets/icons/clicks.svg','Clicks', '248', '↑ 9.3%', const Color(0xFF8B5CF6)),
-              _buildCoreStatCard('assets/icons/engagement.svg','Engagement', '6.24%', '↑ 4.7%', const Color(0xFFF59E0B)),
+              _buildCoreStatCard('assets/icons/advertiser_ic/eye.svg', 'Impressions', '${controller.impressions.value}', 'Live', const Color(0xFF3B82F6)),
+              _buildCoreStatCard('assets/icons/reach.svg', 'Reach', '${controller.reach.value}', 'Live', const Color(0xFF10B981)),
+              _buildCoreStatCard('assets/icons/clicks.svg', 'Clicks', '${controller.clicks.value}', 'Live', const Color(0xFF8B5CF6)),
+              _buildCoreStatCard('assets/icons/engagement.svg', 'Engagement', '${controller.engagementRate.value}%', 'Live', const Color(0xFFF59E0B)),
             ],
-          ),
+          )),
           const SizedBox(height: 18),
 
           // Campaign Core Info Table
           const Text('Campaign Core Info', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.cardBg,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.cardBorder, width: 1.2),
-            ),
-            child: Column(
-              children: [
-                _buildInfoRow('Campaign Name', 'Road Safety Awareness'),
-                const Divider(color: AppColors.cardBorder, height: 16),
-                _buildInfoRow('Campaign Type', 'Awareness'),
-                const Divider(color: AppColors.cardBorder, height: 16),
-                _buildInfoRow('Objective', 'Increase Road Safety Awareness'),
-                const Divider(color: AppColors.cardBorder, height: 16),
-                _buildInfoRow('Start Date', '12 May 2025'),
-                const Divider(color: AppColors.cardBorder, height: 16),
-                _buildInfoRow('End Date', '20 May 2025'),
-                const Divider(color: AppColors.cardBorder, height: 16),
-                _buildInfoRow('Status', 'Active'),
-                const Divider(color: AppColors.cardBorder, height: 16),
-                _buildInfoRow('Budget', '₹50,000'),
-                const Divider(color: AppColors.cardBorder, height: 16),
-                _buildInfoRow('Daily Budget', '₹5,000'),
-                const Divider(color: AppColors.cardBorder, height: 16),
-                _buildInfoRow('Target Locations', 'Bhopal, MP'),
-                const Divider(color: AppColors.cardBorder, height: 16),
-                _buildInfoRow('Description', 'Promoting road safety rules and responsible driving through outdoor advertising across key locations.'),
-              ],
-            ),
-          ),
+          Obx(() {
+            final c = controller.campaign.value;
+            return Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.cardBg,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.cardBorder, width: 1.2),
+              ),
+              child: Column(
+                children: [
+                  _buildInfoRow('Campaign Name', c.displayName),
+                  const Divider(color: AppColors.cardBorder, height: 16),
+                  _buildInfoRow('Campaign Type', c.category ?? 'Public Awareness'),
+                  const Divider(color: AppColors.cardBorder, height: 16),
+                  _buildInfoRow('Objective', c.description ?? 'Civic Broadcast'),
+                  const Divider(color: AppColors.cardBorder, height: 16),
+                  _buildInfoRow('Dates', c.displayDates),
+                  const Divider(color: AppColors.cardBorder, height: 16),
+                  _buildInfoRow('Status', c.status?.toUpperCase() ?? 'ACTIVE'),
+                  const Divider(color: AppColors.cardBorder, height: 16),
+                  _buildInfoRow('Priority', c.priority?.toUpperCase() ?? 'NORMAL'),
+                  const Divider(color: AppColors.cardBorder, height: 16),
+                  _buildInfoRow('Target Locations', c.displayLocations),
+                  const Divider(color: AppColors.cardBorder, height: 16),
+                  _buildInfoRow('Description', c.description ?? 'Government broadcast campaign'),
+                ],
+              ),
+            );
+          }),
           const SizedBox(height: 18),
 
           // Daily Performance Trend Line Chart
@@ -691,7 +711,7 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
           const SizedBox(height: 10),
 
           // QR Metric cards grid
-          GridView.count(
+          Obx(() => GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             crossAxisCount: 4,
@@ -699,12 +719,12 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
             crossAxisSpacing: 8,
             childAspectRatio: 0.65,
             children: [
-              _buildCoreStatCard('assets/icons/fleet_operator_icons/qr-code-scan.svg','Total QR Scans', '4,512', '↑ 12.5%', const Color(0xFF10B981)),
-              _buildCoreStatCard('assets/icons/advertiser_ic/userTwo.svg','Unique Scans', '3,102', '↑ 11.8%', const Color(0xFF3B82F6)),
-              _buildCoreStatCard('assets/icons/advertiser_ic/qrAnalytics.svg','QR Scan Rate', '2.45%', '↑ 9.3%', const Color(0xFF8B5CF6)),
-              _buildCoreStatCard('assets/icons/avgScanDay.svg','Avg Scans/Day', '642', '↑ 8.7%', const Color(0xFFF59E0B)),
+              _buildCoreStatCard('assets/icons/fleet_operator_icons/qr-code-scan.svg', 'Total QR Scans', '${controller.qrTotalScans.value}', 'Live', const Color(0xFF10B981)),
+              _buildCoreStatCard('assets/icons/advertiser_ic/userTwo.svg', 'Unique Scans', '${controller.qrUniqueScans.value}', 'Live', const Color(0xFF3B82F6)),
+              _buildCoreStatCard('assets/icons/advertiser_ic/qrAnalytics.svg', 'QR Scan Rate', '${controller.qrScanRate.value}%', 'Live', const Color(0xFF8B5CF6)),
+              _buildCoreStatCard('assets/icons/avgScanDay.svg', 'Avg Scans/Day', '${controller.qrAvgScansPerDay.value}', 'Live', const Color(0xFFF59E0B)),
             ],
-          ),
+          )),
           const SizedBox(height: 18),
 
           // Campaign QR Code & Details Layout
@@ -845,7 +865,7 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
           // QR Scans by Campaigns
           const Text('QR Scans by Campaigns', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          Column(
+          Obx(() => Column(
             children: controller.topQrCampaigns.map((i) {
               return Container(
                 margin: const EdgeInsets.only(bottom: 8),
@@ -864,11 +884,17 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
                       height: 32,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(6),
-                        image: DecorationImage(
-                          image: NetworkImage(i['image'] as String),
-                          fit: BoxFit.cover,
-                        ),
+                        color: AppColors.cardBg,
+                        image: (i['image'] as String).isNotEmpty
+                            ? DecorationImage(
+                                image: NetworkImage(i['image'] as String),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
                       ),
+                      child: (i['image'] as String).isEmpty
+                          ? const Icon(Icons.qr_code_2_rounded, color: AppColors.textMuted, size: 16)
+                          : null,
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -902,7 +928,7 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
                 ),
               );
             }).toList(),
-          ),
+          )),
         ],
       ),
     );

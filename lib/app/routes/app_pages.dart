@@ -5,6 +5,11 @@ import 'package:vmovexa/app/modules/roles/driver/profile/driver_documents/view/d
 import 'package:vmovexa/app/modules/roles/driver/profile/view/driver_profile_view.dart';
 import 'package:vmovexa/app/modules/roles/driver/report/bindings/report_incident_binding.dart';
 import 'package:vmovexa/app/modules/roles/driver/report/view/incident_details_view.dart';
+import 'package:vmovexa/app/modules/roles/driver/schedule/bindings/schedule_binding.dart';
+import 'package:vmovexa/app/modules/roles/driver/schedule/view/schedule_view.dart';
+import 'package:vmovexa/app/modules/roles/driver/report/bindings/driver_incidents_list_binding.dart';
+import 'package:vmovexa/app/modules/roles/driver/report/view/driver_incidents_list_view.dart';
+import 'package:vmovexa/app/modules/roles/driver/report/view/driver_incident_detail_view.dart';
 import 'package:vmovexa/app/modules/roles/finance/revenue_reporting/bindings/revenue_reporting_binding.dart';
 import 'package:vmovexa/app/modules/roles/finance/revenue_reporting/view/revenue_reporting_view.dart';
 import 'package:vmovexa/app/modules/roles/finance/subscriptions/bindings/subscriptions_binding.dart';
@@ -579,6 +584,23 @@ class AppPages {
       name: Routes.DRIVER_REPORT_INCIDENT,
       page: () => const IncidentDetailsView(),
       binding: ReportIncidentBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DRIVER_SCHEDULE,
+      page: () => const ScheduleView(),
+      binding: ScheduleBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DRIVER_INCIDENTS_LIST,
+      page: () => const DriverIncidentsListView(),
+      binding: DriverIncidentsListBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DRIVER_INCIDENT_DETAILS,
+      page: () => const DriverIncidentDetailView(),
       transition: Transition.rightToLeft,
     ),
     GetPage(

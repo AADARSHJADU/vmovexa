@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum DocumentStatus { verified, underReview, uploaded, missing }
+enum DocumentStatus { verified, underReview, uploaded, missing, rejected }
 
 extension DocumentStatusX on DocumentStatus {
   Color get color {
@@ -12,6 +12,7 @@ extension DocumentStatusX on DocumentStatus {
       case DocumentStatus.uploaded:
         return Colors.white54;
       case DocumentStatus.missing:
+      case DocumentStatus.rejected:
         return const Color(0xFFFF4D4D);
     }
   }

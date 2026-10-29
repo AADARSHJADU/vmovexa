@@ -1,0 +1,305 @@
+{
+  "updated": "2026-10-28",
+  "files": [
+    {
+      "path": "backend/scripts/generate-app-api-docs.js",
+      "sha256": "cde6c32225c573c2f4a4f534ea5528384098e3f3e45f5e44eb65527c4eb89be5"
+    },
+    {
+      "path": "backend/src/app.js",
+      "sha256": "36151947e7a2cee0ea8be54904264a2d8d9dc9140d14f3bef1c5189e221892f1"
+    },
+    {
+      "path": "backend/src/modules/activity/activity.controller.js",
+      "sha256": "ac7f2c754172ea317b5a8c7fc840d7a56ee988d77dd59d709fabab2e5dc996e5"
+    },
+    {
+      "path": "backend/src/modules/activity/activity.routes.js",
+      "sha256": "97b99813a1774f07cba3158edb24efc13b9507f104a4f67af1f4f4fc8da24bc8"
+    },
+    {
+      "path": "backend/src/modules/activity/activity.validation.js",
+      "sha256": "d6bf50695210a75204a9d4d57c5ace0bb23256edb7c7a9f3bbcb047bc17eb90c"
+    },
+    {
+      "path": "backend/src/modules/admin/admin.routes.js",
+      "sha256": "6c84bca4954c39e3150ea2a4b2078ade949607fba3f3ae584de8ac06ef5ed71b"
+    },
+    {
+      "path": "backend/src/modules/admin/admin.validation.js",
+      "sha256": "84a5c10ea4073c050521bf79caaa37ffa00816ca8345a8e2e940b397cff07491"
+    },
+    {
+      "path": "backend/src/modules/admin/impersonation.controller.js",
+      "sha256": "0908597bb35a4f7c5bb6cafc35dcb661d38826e16bbc3a426cb98c354152e116"
+    },
+    {
+      "path": "backend/src/modules/approvals/approval.controller.js",
+      "sha256": "45b0f00a03299733a7a657416b8cd32a7468280d9ded88cabb9db5b7e8d9a53f"
+    },
+    {
+      "path": "backend/src/modules/approvals/approval.routes.js",
+      "sha256": "19158a63e6795a45c981a51815dc629cb19e638fde9fb607d3490a0bac7f60c9"
+    },
+    {
+      "path": "backend/src/modules/approvals/approval.validation.js",
+      "sha256": "d5eb652229845e37bbac0893e91365e622f3feb4f604cfcc59955156686ef65f"
+    },
+    {
+      "path": "backend/src/modules/auth/auth.controller.js",
+      "sha256": "ee37ebb192c2e387f98891cd9c484e1aa8dba4b29f7d3dee8596047d75373bfc"
+    },
+    {
+      "path": "backend/src/modules/auth/auth.routes.js",
+      "sha256": "ca52c424d2fb00ccc4c43896d367982470f9d73ae137cb1163a530a5adecbc6e"
+    },
+    {
+      "path": "backend/src/modules/auth/auth.validators.js",
+      "sha256": "df2da2eb5c2d7ad006081106948f1885a8c61bff81d9d6b08e9d460beacebfaa"
+    },
+    {
+      "path": "backend/src/modules/auth/invitation.routes.js",
+      "sha256": "4d2203fed49dfa955b24b9deed9b133add03829d15e919624ae4a318af60f19f"
+    },
+    {
+      "path": "backend/src/modules/auth/social/social.routes.js",
+      "sha256": "15a85bcc281f7fa01778f35b857a8775459a6ddfb058eacd5031b6666717e0b2"
+    },
+    {
+      "path": "backend/src/modules/campaigns/campaign.controller.js",
+      "sha256": "9447049e13b33c74f1c4356b24d13fc63b99503959cb4d43834675db0922621d"
+    },
+    {
+      "path": "backend/src/modules/campaigns/campaign.routes.js",
+      "sha256": "38c4e2dd4fe0381edbe38d717ebf59d23f2c8aafc32b0664e4ea90741fbd8b8f"
+    },
+    {
+      "path": "backend/src/modules/campaigns/campaign.validation.js",
+      "sha256": "1274358a8836a7393a48f75049ba089c0c3bc690abc3c5cb0c493dc4a3036903"
+    },
+    {
+      "path": "backend/src/modules/content/content.controller.js",
+      "sha256": "8de27f41c42f4fa00d7e7584563b71b05490cb106be52fdb12d046377a6522cd"
+    },
+    {
+      "path": "backend/src/modules/content/content.routes.js",
+      "sha256": "a5a734c4a1fb8f65a51f9700006b12d82c4654044638847398c0e14ed4ca606d"
+    },
+    {
+      "path": "backend/src/modules/content/content.validation.js",
+      "sha256": "63b762a587fe5301e5a9829a2c5fed2de6ce5d5a215e17e5e8e575e2f848a659"
+    },
+    {
+      "path": "backend/src/modules/dashboard/dashboard.controller.js",
+      "sha256": "9fc70335dde687f9a202cb1ab41fe07582164e69646392b9502151c635bef923"
+    },
+    {
+      "path": "backend/src/modules/dashboard/dashboard.routes.js",
+      "sha256": "0cc1d381eba2a9c58acc0f4a4c1510d6804d7d3762ffb4502d99e27954c0400b"
+    },
+    {
+      "path": "backend/src/modules/devices/device.controller.js",
+      "sha256": "d032648d4d32cefaebc09cfcc0b7dc06606c07f7ee692df0ed8bcc50403bdee8"
+    },
+    {
+      "path": "backend/src/modules/devices/device.routes.js",
+      "sha256": "cfc0d56dddbac592bd31913ef518ead65a231ee22e257bf90cb6ba750ae2b76b"
+    },
+    {
+      "path": "backend/src/modules/devices/device.validation.js",
+      "sha256": "c923a1c1021a9be2da66a53144ad1f2bf5669ca670fcb52b83ad55a76d522bf2"
+    },
+    {
+      "path": "backend/src/modules/driver-portal/driverPortal.controller.js",
+      "sha256": "42c8b9ff3aa1112b3488d4f1b8a12b36bbacb0bb3b2790856105fcb197cd42db"
+    },
+    {
+      "path": "backend/src/modules/driver-portal/driverPortal.routes.js",
+      "sha256": "3521b83e50d519261e532f08e14a59ce5329a6dfe7a84b672262c0dfde2b9066"
+    },
+    {
+      "path": "backend/src/modules/driver-portal/driverPortal.validation.js",
+      "sha256": "09e68cb03fbf0c7e19bef3e5080977ee299f34551dc5858ec58b56aa041c66ed"
+    },
+    {
+      "path": "backend/src/modules/exports/export.controller.js",
+      "sha256": "b269c3a11115d84e9874ef67f2feda48d04b8f4515e90dbc8ca93e096b1f6b79"
+    },
+    {
+      "path": "backend/src/modules/exports/export.routes.js",
+      "sha256": "0d796834304ec0a0cdbc20118e283944d153ee4861c371ca586bd284e457306c"
+    },
+    {
+      "path": "backend/src/modules/exports/export.validation.js",
+      "sha256": "eb9d7f7a0461122b8a2a80be5cdfe687bf0caaae49c758b88ca061e44a767950"
+    },
+    {
+      "path": "backend/src/modules/finance/finance.controller.js",
+      "sha256": "61f01677a715b5dc98a25cee37aa6ead815d7ea5bc4e72f64262d17cbcdd3892"
+    },
+    {
+      "path": "backend/src/modules/finance/finance.routes.js",
+      "sha256": "0785153a592d3a91993c938c14ef476b5c8a9ef12136abe579348c8683029881"
+    },
+    {
+      "path": "backend/src/modules/finance/finance.validation.js",
+      "sha256": "b72ace7030758507fc9ec79ffaeba783cd90fdc0bcecebf904a571ec87343b9d"
+    },
+    {
+      "path": "backend/src/modules/fleet/fleet.controller.js",
+      "sha256": "e2e1a1e5ad1efa3b12cb9686a91f0f99cedbf822594fb10b0e48060ef4311c1d"
+    },
+    {
+      "path": "backend/src/modules/fleet/fleet.routes.js",
+      "sha256": "b3e41604ab16f7768a68eaabda634490a9db11a12c9ebac52dc54d5fcca0e069"
+    },
+    {
+      "path": "backend/src/modules/fleet/fleet.validation.js",
+      "sha256": "4b0e696adcc5c275e14133608378840d68622c885167d3f598088ded2fe278c0"
+    },
+    {
+      "path": "backend/src/modules/google-apis/googleApis.controller.js",
+      "sha256": "b96ed997f67cedd95ec98db03399af387d1b406402fbc6478c33ea9b78054bc0"
+    },
+    {
+      "path": "backend/src/modules/google-apis/googleApis.routes.js",
+      "sha256": "06149ae5d6ad2f7b932ef379f71bafe6871bc249daaa37b6db421c1b6d223cbb"
+    },
+    {
+      "path": "backend/src/modules/notifications/notification.controller.js",
+      "sha256": "6dbf38c36e7f22de68770871a0ff09852be950c5b9b6e837b043a1213ca7aa30"
+    },
+    {
+      "path": "backend/src/modules/notifications/notification.routes.js",
+      "sha256": "f134314deba24c6fb979b6465db4074a605de3f6935275595da7438ae454717e"
+    },
+    {
+      "path": "backend/src/modules/notifications/notification.validation.js",
+      "sha256": "9b7a6486f6f284a4270ebc97cf00e72e9994ca17afe65abbba2b1405e4564783"
+    },
+    {
+      "path": "backend/src/modules/organizations/organization.controller.js",
+      "sha256": "31c1f5ac51612bacd1af2eb91f713820a7dfb6d4954ddfd62c338592f1d97b7e"
+    },
+    {
+      "path": "backend/src/modules/organizations/organization.routes.js",
+      "sha256": "ff5e50ce45560669ee3b3854c59c2d902295e8781a8993c8e6bcfa85ca328171"
+    },
+    {
+      "path": "backend/src/modules/organizations/organization.validators.js",
+      "sha256": "695fddb984deaf5f04098fe9807905b7815cace8cefc6b9a051e6cb4efa5ba1a"
+    },
+    {
+      "path": "backend/src/modules/payments/billing.controller.js",
+      "sha256": "4afcc1fdd32e22a64817f33764168853d9dd7514548db5dd16057c0b934b48bb"
+    },
+    {
+      "path": "backend/src/modules/payments/billing.routes.js",
+      "sha256": "070f6ab4ae468d9f9d2f05cb20ccaf2da8a9c06d32e94bd45455e0c889d59206"
+    },
+    {
+      "path": "backend/src/modules/payments/billing.validation.js",
+      "sha256": "09f959f860b41fda3cb6eee2f34f4a2b440ac7a4c6f0a13902668c1b64aae296"
+    },
+    {
+      "path": "backend/src/modules/payments/webhook.controller.js",
+      "sha256": "5d5c48bfdf7f16bc0dc60e40f161ba758b6d4c5a90b72abfb96658ae1816b66b"
+    },
+    {
+      "path": "backend/src/modules/payments/webhook.routes.js",
+      "sha256": "0d13916f145a571f9fd285412f7c1772609f25003cfb0796940e79394ddc3c0d"
+    },
+    {
+      "path": "backend/src/modules/rbac/rbac.controller.js",
+      "sha256": "69add05e9dd72863f958cb14c05b5c1c417e5315ef343aaff4e6e340ff67e13f"
+    },
+    {
+      "path": "backend/src/modules/rbac/rbac.routes.js",
+      "sha256": "0941bd4bb603683e3faad4ceb6850a7323e15f1e8550621833a1b16983277c16"
+    },
+    {
+      "path": "backend/src/modules/rbac/rbac.validation.js",
+      "sha256": "22c62575903718e4bf2555389ed21832821a75fbf281a6a338418add4f208436"
+    },
+    {
+      "path": "backend/src/modules/reports/report.controller.js",
+      "sha256": "d388781219555ec9ef5ad11ccb7b1673a0a43087c7140c48e106fa8c8b3569ea"
+    },
+    {
+      "path": "backend/src/modules/reports/report.routes.js",
+      "sha256": "3a14e263054aa0b285147ca58c5996ca0565a75f24b8358fda0c7ebe717cc138"
+    },
+    {
+      "path": "backend/src/modules/reports/report.validation.js",
+      "sha256": "ba96ac43a88da753f53bb59581d9e0768930f56e7248e96681a8564003fe627d"
+    },
+    {
+      "path": "backend/src/modules/support/support.controller.js",
+      "sha256": "14d9da667a1e04ee24100ed4be5a7180cbb15a3e3164319bc6ade5f65f598f22"
+    },
+    {
+      "path": "backend/src/modules/support/support.routes.js",
+      "sha256": "d6fca5c0d2d049e212b34b68eeae9e5fdaeeb82aa2b43b7ba6ec29b0307f8afc"
+    },
+    {
+      "path": "backend/src/modules/support/support.validation.js",
+      "sha256": "ed8088749000fa5fd65d216897e71968dcd0747c5c58e4dad2058995cca373a1"
+    },
+    {
+      "path": "backend/src/modules/system/system.controller.js",
+      "sha256": "ff8e3fd161256fc266b8a129931b932fb166b0770414f8b624a6e4732cb625b4"
+    },
+    {
+      "path": "backend/src/modules/system/system.routes.js",
+      "sha256": "6be4cd92f1d869866653cd1056f823fbc93ca94bbaf097742067c8e31aa6e363"
+    },
+    {
+      "path": "backend/src/modules/uploads/upload.routes.js",
+      "sha256": "49d38c774e2d07e3ebe1676fcccc54e66c3694de95ff8fa52e7870708a61eb8c"
+    },
+    {
+      "path": "backend/src/modules/users/user.controller.js",
+      "sha256": "5af033f1d25eb026ac7e92d2e3cf35391b8088f342690f80000e5f0e156f5a10"
+    },
+    {
+      "path": "backend/src/modules/users/user.routes.js",
+      "sha256": "b722692d464fede2f57105584b2717fe5623102c3f6b99a85857e3c824505ee7"
+    },
+    {
+      "path": "backend/src/modules/users/user.validators.js",
+      "sha256": "aff5db5dd23b5d8a9f944b04305b2950828a880c7eb12fcb7508c4b8f24ee5d7"
+    },
+    {
+      "path": "backend/src/modules/work-orders/technicianPortal.routes.js",
+      "sha256": "87b26247c76c38c1dbcf5d68eb6040eec1267821811436652eef1ed75ed2c3e2"
+    },
+    {
+      "path": "backend/src/modules/work-orders/workOrder.controller.js",
+      "sha256": "cecae86dcf0e1059fe61a14eb21ae133c5a304f1aa040bf7a16d5b8bfc7e2f5c"
+    },
+    {
+      "path": "backend/src/modules/work-orders/workOrder.routes.js",
+      "sha256": "73861918f15b6b225b7c5be8ec6803bc347a0591ed913f2aaaf4a2072af09782"
+    },
+    {
+      "path": "backend/src/modules/work-orders/workOrder.validation.js",
+      "sha256": "824548c5aaf615b37e3ebfcfa07439693c37992412b140127b350d7217f19646"
+    },
+    {
+      "path": "backend/src/mqtt/handlers.js",
+      "sha256": "0d368660dc4a6c900acb180a7aa3a12cf37e2baff0ad3edf48473c5a5cf1cb69"
+    },
+    {
+      "path": "backend/src/realtime/io.js",
+      "sha256": "c7721a48a507aca4dcf7273ca6be11fdafe430b07f0a3e0707f2839109693dd6"
+    },
+    {
+      "path": "backend/src/routes/index.js",
+      "sha256": "49afef78c0cea1000b6bfd0736f4320c7975ae18155b936588bc4bfaf56b53c6"
+    },
+    {
+      "path": "backend/src/utils/apiResponse.js",
+      "sha256": "b1183a3c54790a63da78b47602594ca48ff4b4daa3b62535266967ac52d49b13"
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "AUTH_INVALID_CREDENTIALS": {
+    "status": 401,
+    "message": "Invalid email or password."
+  },
+  "AUTH_MFA_REQUIRED": {
+    "status": 401,
+    "message": "MFA verification required."
+  },
+  "AUTH_OTP_INVALID": {
+    "status": 401,
+    "message": "Invalid or expired OTP."
+  },
+  "AUTH_TOKEN_EXPIRED": {
+    "status": 401,
+    "message": "Session expired. Please log in again."
+  },
+  "AUTH_TOKEN_INVALID": {
+    "status": 401,
+    "message": "Invalid authentication token."
+  },
+  "AUTH_ACCOUNT_LOCKED": {
+    "status": 423,
+    "message": "Account temporarily locked. Try again later."
+  },
+  "AUTH_FORBIDDEN": {
+    "status": 403,
+    "message": "You are not authorized."
+  },
+  "AUTH_SOCIAL_NOT_PROVISIONED": {
+    "status": 403,
+    "message": "This account is not provisioned. Ask an admin to invite you."
+  },
+  "ONBOARDING_PENDING_APPROVAL": {
+    "status": 403,
+    "message": "Your account is pending Super Admin approval."
+  },
+  "SUBSCRIPTION_REQUIRED": {
+    "status": 402,
+    "message": "An active subscription is required."
+  },
+  "REGISTRATION_REJECTED": {
+    "status": 403,
+    "message": "Your registration was rejected."
+  },
+  "TENANT_SUSPENDED": {
+    "status": 403,
+    "message": "This organization is suspended."
+  },
+  "PERMISSION_DENIED": {
+    "status": 403,
+    "message": "You do not have permission for this action."
+  },
+  "CROSS_TENANT_BLOCKED": {
+    "status": 403,
+    "message": "Cross-tenant access is not allowed."
+  },
+  "FEATURE_DISABLED": {
+    "status": 403,
+    "message": "This feature is not enabled for your account."
+  },
+  "VALIDATION_FAILED": {
+    "status": 422,
+    "message": "Validation failed."
+  },
+  "NOT_FOUND": {
+    "status": 404,
+    "message": "Resource not found."
+  },
+  "DUPLICATE": {
+    "status": 409,
+    "message": "A record with these details already exists."
+  },
+  "CONFLICT": {
+    "status": 409,
+    "message": "Request conflicts with the current state."
+  },
+  "TICKET_RESOLVED": {
+    "status": 400,
+    "message": "This ticket has been resolved and closed. Further replies are disabled."
+  },
+  "GATEWAY_ERROR": {
+    "status": 502,
+    "message": "Payment gateway error."
+  },
+  "GATEWAY_TIMEOUT": {
+    "status": 504,
+    "message": "Payment gateway timed out."
+  },
+  "PAYMENT_FAILED": {
+    "status": 402,
+    "message": "Payment failed."
+  },
+  "WEBHOOK_SIGNATURE_INVALID": {
+    "status": 400,
+    "message": "Invalid webhook signature."
+  },
+  "RATE_LIMITED": {
+    "status": 429,
+    "message": "Too many requests. Please slow down."
+  },
+  "QUOTA_EXCEEDED": {
+    "status": 429,
+    "message": "Quota exceeded for your plan."
+  },
+  "PLAN_QUOTA_EXCEEDED": {
+    "status": 403,
+    "message": "Plan quota limit reached."
+  },
+  "SUBSCRIPTION_EXPIRED": {
+    "status": 403,
+    "message": "Subscription has expired."
+  },
+  "INTERNAL_ERROR": {
+    "status": 500,
+    "message": "Something went wrong."
+  },
+  "SERVICE_UNAVAILABLE": {
+    "status": 503,
+    "message": "Service temporarily unavailable."
+  }
+}

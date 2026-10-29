@@ -9,6 +9,9 @@ import 'package:vmovexa/app/data/services/http_client_service.dart';
 import 'package:vmovexa/app/data/services/storage_service.dart';
 import 'package:vmovexa/app/modules/roles/fleet_operator/profile/controllers/profile_controller.dart';
 import 'package:vmovexa/app/modules/roles/fleet_operator/dashboard/controllers/dashboard_controller.dart';
+import 'package:vmovexa/app/modules/roles/driver/profile/controller/driver_profile_controller.dart';
+import 'package:vmovexa/app/modules/roles/driver/home/controller/driver_home_controller.dart';
+import 'package:vmovexa/app/modules/roles/government/goverment_profile/controller/goverment_profile_controller.dart';
 
 class AccountSettingsController extends GetxController {
   final RxString fullName = ''.obs;
@@ -378,6 +381,16 @@ class AccountSettingsController extends GetxController {
           if (Get.isRegistered<FleetOpDashboardController>()) {
             Get.find<FleetOpDashboardController>().loadUserData();
           }
+          if (Get.isRegistered<DriverProfileController>()) {
+            Get.find<DriverProfileController>().fetchProfile();
+          }
+          if (Get.isRegistered<DriverHomeController>()) {
+            Get.find<DriverHomeController>().avatarUrl.value = rawUrl;
+            Get.find<DriverHomeController>().fetchDashboardData();
+          }
+          if (Get.isRegistered<GovernmentProfileController>()) {
+            Get.find<GovernmentProfileController>().loadProfileData();
+          }
 
           Get.snackbar(
             'Success',
@@ -498,11 +511,16 @@ class AccountSettingsController extends GetxController {
     try {
       isSaving.value = true;
 
+      String sanitizeAvatar(String url) {
+        final idx = url.indexOf('/uploads/');
+        return idx != -1 ? url.substring(idx) : url;
+      }
+
       final patchData = <String, dynamic>{
         'name': fullName.value.trim(),
         'email': email.value.trim(),
         'phone': phone.value.trim(),
-        if (avatarUrl.value.isNotEmpty) 'avatar_url': avatarUrl.value.trim(),
+        if (avatarUrl.value.isNotEmpty) 'avatar_url': sanitizeAvatar(avatarUrl.value.trim()),
         'companyName': companyName.value.trim(),
         'branch': branch.value.trim(),
         'address': officeAddress.value.trim(),
@@ -557,6 +575,15 @@ class AccountSettingsController extends GetxController {
           if (Get.isRegistered<FleetOpDashboardController>()) {
             Get.find<FleetOpDashboardController>().loadUserData();
           }
+          if (Get.isRegistered<DriverProfileController>()) {
+            Get.find<DriverProfileController>().fetchProfile();
+          }
+          if (Get.isRegistered<DriverHomeController>()) {
+            Get.find<DriverHomeController>().fetchDashboardData();
+          }
+          if (Get.isRegistered<GovernmentProfileController>()) {
+            Get.find<GovernmentProfileController>().loadProfileData();
+          }
 
           Get.snackbar(
             'Profile Updated',
@@ -570,7 +597,12 @@ class AccountSettingsController extends GetxController {
           );
 
           await Future.delayed(const Duration(milliseconds: 600));
-          Get.offAllNamed(Routes.FLEET_OP_DASHBOARD);
+          if (Navigator.of(Get.context!).canPop()) {
+            Get.back();
+          } else {
+            final targetRoute = currentUser?.dashboardRoute ?? Routes.FLEET_OP_DASHBOARD;
+            Get.offAllNamed(targetRoute);
+          }
         } else {
           Get.snackbar(
             'Update Failed',

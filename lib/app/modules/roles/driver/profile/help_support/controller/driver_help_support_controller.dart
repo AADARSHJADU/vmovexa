@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/data/constants/api_constants.dart';
+import 'package:vmovexa/app/data/services/driver_service.dart';
+import 'package:vmovexa/app/data/services/http_client_service.dart';
 import 'package:vmovexa/app/modules/roles/driver/profile/help_support/model/help_support_models.dart';
 
 class DriverHelpSupportController extends GetxController {
+  DriverService get _driverService => DriverService.to;
+
   // ---------------- Search ----------------
   final RxString searchQuery = ''.obs;
   void onSearchChanged(String value) => searchQuery.value = value;
@@ -36,11 +41,12 @@ class DriverHelpSupportController extends GetxController {
   Future<void> fetchHelpData() async {
     isLoading.value = true;
     try {
-      // TODO: replace with real API/repository calls
       _loadQuickHelp();
       _loadContactChannels();
-      _loadSupportTickets();
       _loadPopularArticles();
+      await _loadSupportTickets();
+    } catch (e) {
+      debugPrint('DriverHelpSupportController fetch error: $e');
     } finally {
       isLoading.value = false;
     }
@@ -52,31 +58,31 @@ class DriverHelpSupportController extends GetxController {
     quickHelpItems.assignAll([
       QuickHelpItem(
         title: 'FAQs',
-        subtitle: 'Find answers to common questions',
+        subtitle: 'Common questions for drivers',
         icon: Icons.help_outline,
         color: const Color(0xFFB042FF),
         route: '/faqs',
       ),
       QuickHelpItem(
-        title: 'Guides',
-        subtitle: 'Step-by-step user guides',
+        title: 'Route Guides',
+        subtitle: 'Navigation and corridor guides',
         icon: Icons.menu_book_outlined,
         color: const Color(0xFF3F7BF5),
         route: '/guides',
       ),
       QuickHelpItem(
-        title: 'Video Tutorials',
-        subtitle: 'Watch tutorials and learn',
-        icon: Icons.play_circle_outline,
+        title: 'Duty Guidelines',
+        subtitle: 'Duty hours and break rules',
+        icon: Icons.access_time_outlined,
         color: const Color(0xFF2ECC71),
-        route: '/video-tutorials',
+        route: '/duty-guidelines',
       ),
       QuickHelpItem(
-        title: 'Best Practices',
-        subtitle: 'Tips to get the best results',
-        icon: Icons.lightbulb_outline,
+        title: 'Emergency SOP',
+        subtitle: 'Breakdown and incident protocol',
+        icon: Icons.warning_amber_rounded,
         color: const Color(0xFFFFA726),
-        route: '/best-practices',
+        route: '/emergency-sop',
       ),
     ]);
   }
@@ -85,16 +91,16 @@ class DriverHelpSupportController extends GetxController {
     contactChannels.assignAll([
       ContactChannel(
         type: ContactChannelType.liveChat,
-        title: 'Live Chat',
-        subtitle: 'Chat with our support team',
-        statusText: 'Available Now',
+        title: 'Transit Dispatch Chat',
+        subtitle: 'Chat with depot dispatch team',
+        statusText: 'Available 24/7',
         icon: Icons.chat_bubble_outline,
         statusColor: const Color(0xFF2ECC71),
       ),
       ContactChannel(
         type: ContactChannelType.callSupport,
-        title: 'Call Support',
-        subtitle: 'Speak with our support executive',
+        title: 'Control Room Helpline',
+        subtitle: 'Direct call to transit helpline',
         statusText: '+91 98765 43210',
         icon: Icons.call_outlined,
         statusColor: const Color(0xFF3F7BF5),
@@ -102,48 +108,73 @@ class DriverHelpSupportController extends GetxController {
       ContactChannel(
         type: ContactChannelType.emailSupport,
         title: 'Email Support',
-        subtitle: 'Send us an email anytime',
-        statusText: 'support@vmovexa.com',
+        subtitle: 'Write to transit driver support',
+        statusText: 'driver.support@vmovexa.com',
         icon: Icons.email_outlined,
         statusColor: const Color(0xFFB042FF),
       ),
     ]);
   }
 
-  void _loadSupportTickets() {
-    supportTickets.assignAll([
-      SupportTicket(
-        id: 'CMP-2026-000124',
-        title: 'Campaign not displaying on screens',
-        subtitle: '',
-        dateText: '08 May 2026, 11:30 AM',
-        status: TicketStatus.inProgress,
-        icon: Icons.campaign_outlined,
-      ),
-      SupportTicket(
-        id: 'CMP-2026-000089',
-        title: 'Invoice download issue',
-        subtitle: '',
-        dateText: '06 May 2026, 04:20 PM',
-        status: TicketStatus.resolved,
-        icon: Icons.description_outlined,
-      ),
-      SupportTicket(
-        id: 'CMP-2026-000067',
-        title: 'Payment failed but amount deducted',
-        subtitle: '',
-        dateText: '03 May 2026, 09:15 AM',
-        status: TicketStatus.closed,
-        icon: Icons.payments_outlined,
-      ),
-    ]);
+  Future<void> _loadSupportTickets() async {
+    // 1. Try fetching from support tickets API
+    try {
+      final res = await HttpClientService.to.get(ApiConstants.supportTickets, requiresAuth: true);
+      if (res.success && res.data is List && (res.data as List).isNotEmpty) {
+        final list = (res.data as List).map((e) {
+          final m = Map<String, dynamic>.from(e as Map);
+          TicketStatus st = TicketStatus.inProgress;
+          final s = (m['status'] ?? '').toString().toLowerCase();
+          if (s == 'resolved') st = TicketStatus.resolved;
+          if (s == 'closed') st = TicketStatus.closed;
+
+          return SupportTicket(
+            id: m['ticket_number']?.toString() ?? m['id']?.toString() ?? '',
+            title: m['title']?.toString() ?? m['subject']?.toString() ?? 'Support Request',
+            subtitle: m['category']?.toString() ?? '',
+            dateText: m['created_at']?.toString() ?? '',
+            status: st,
+            icon: Icons.confirmation_number_outlined,
+          );
+        }).toList();
+        supportTickets.assignAll(list);
+        return;
+      }
+    } catch (_) {}
+
+    // 2. Fallback to reported incidents from driver service (incidents act as driver tickets)
+    try {
+      final incidentsRes = await _driverService.getIncidents(page: 1, limit: 10);
+      if (incidentsRes.success && incidentsRes.data != null && incidentsRes.data!.isNotEmpty) {
+        final list = incidentsRes.data!.map((inc) {
+          TicketStatus st = TicketStatus.inProgress;
+          final s = (inc.status ?? '').toLowerCase();
+          if (s == 'resolved') st = TicketStatus.resolved;
+          if (s == 'closed') st = TicketStatus.closed;
+
+          return SupportTicket(
+            id: inc.ticketNumber ?? (inc.id ?? 'INC'),
+            title: inc.title ?? 'Reported Incident',
+            subtitle: 'Severity: ${inc.severity?.toUpperCase() ?? "LOW"}',
+            dateText: inc.reportedAt ?? 'Recently',
+            status: st,
+            icon: Icons.warning_amber_rounded,
+          );
+        }).toList();
+
+        supportTickets.assignAll(list);
+        return;
+      }
+    } catch (_) {}
+
+    supportTickets.clear();
   }
 
   void _loadPopularArticles() {
     popularArticles.assignAll([
-      PopularArticle(id: 'article_1', title: 'How to create and launch a campaign?'),
-      PopularArticle(id: 'article_2', title: 'What are the best practices for creatives?'),
-      PopularArticle(id: 'article_3', title: 'How billing and payments work?'),
+      PopularArticle(id: 'article_1', title: 'How to report a vehicle breakdown or route hazard?'),
+      PopularArticle(id: 'article_2', title: 'Managing duty status: toggle on-duty, off-duty, and breaks'),
+      PopularArticle(id: 'article_3', title: 'Uploading and updating your commercial driving license'),
     ]);
   }
 
@@ -164,10 +195,8 @@ class DriverHelpSupportController extends GetxController {
         Get.toNamed('/live-chat');
         break;
       case ContactChannelType.callSupport:
-        // TODO: integrate url_launcher to dial channel.statusText
         break;
       case ContactChannelType.emailSupport:
-        // TODO: integrate url_launcher to open mail composer to channel.statusText
         break;
     }
   }

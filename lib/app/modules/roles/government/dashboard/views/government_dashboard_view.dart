@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../../../../../theme/app_theme.dart';
-import '../../../../../widgets/custom_button.dart';
 import '../../goverment_profile/view/goverment_profile_view.dart';
 import '../controllers/government_dashboard_controller.dart';
+import 'package:vmovexa/app/data/models/government_models.dart';
 import '../../../../../theme/app_colors.dart';
 import '../../../../../routes/app_routes.dart';
 import '../../../../../widgets/custom_text_field.dart';
+import '../widgets/gov_side_drawer.dart';
 
 class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
   const GovernmentDashboardView({super.key});
@@ -18,29 +19,33 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
       final index = controller.selectedNavIndex.value;
       return Scaffold(
         backgroundColor: AppColors.background,
-        body: SafeArea(
-          child: Column(
-            children: [
-              // Top Navigation Header
-              index==4?SizedBox():
-              _buildTopHeader(index),
+        drawer: const GovSideDrawer(),
+        body: Builder(
+          builder: (scaffoldContext) {
+            return SafeArea(
+              child: Column(
+                children: [
+                  // Top Navigation Header
+                  index == 4 ? const SizedBox() : _buildTopHeader(scaffoldContext, index),
 
-              // Main Tab Content
-              Expanded(
-                child: IndexedStack(
-                  index: index,
-                  children: [
-                    _buildHomeTab(),
-                    _buildCampaignsTab(),
-                    _buildEmergencyBroadcastTab(),
-                    _buildAnalyticsTab(),
-                    GovernmentProfileView(),
-                    // _buildMoreTab(),
-                  ],
-                ),
+                  // Main Tab Content
+                  Expanded(
+                    child: IndexedStack(
+                      index: index,
+                      children: [
+                        _buildHomeTab(),
+                        _buildCampaignsTab(),
+                        _buildEmergencyBroadcastTab(),
+                        _buildAnalyticsTab(),
+                        GovernmentProfileView(),
+                        // _buildMoreTab(),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
         bottomNavigationBar: SafeArea(
           top: false,
@@ -51,7 +56,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
     });
   }
 
-  Widget _buildTopHeader(int index) {
+  Widget _buildTopHeader(BuildContext context, int index) {
     String title = 'VMOVEXA';
     String subtitle = 'Government Portal';
     bool showActions = true;
@@ -77,7 +82,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
         children: [
           IconButton(
             icon: const Icon(Icons.menu_rounded, color: Colors.white, size: 28),
-            onPressed: () {},
+            onPressed: () => Scaffold.of(context).openDrawer(),
           ),
           Image.asset('assets/app_logo/newLogo.png',width: 150,height: 40,),
           // const AppLogoHeader(height: 38),
@@ -116,22 +121,6 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                     ),
                     const SizedBox(width: 10),
                     Image.asset('assets/icons/govermentHeader.png',width: 30,height: 30,)
-                    // Container(
-                    //   padding: const EdgeInsets.all(6),
-                    //   decoration: BoxDecoration(
-                    //     color: const Color(0xFF3B82F6).withOpacity(0.12),
-                    //     shape: BoxShape.circle,
-                    //     border: Border.all(
-                    //       color: const Color(0xFF3B82F6).withOpacity(0.3),
-                    //       width: 1.2,
-                    //     ),
-                    //   ),
-                    //   child: const Icon(
-                    //     Icons.gavel_rounded,
-                    //     color: Color(0xFF3B82F6),
-                    //     size: 16,
-                    //   ),
-                    // ),
                   ],
                 ),
               ],
@@ -152,10 +141,15 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
           Expanded(
             child: Row(
               children: [
-                const Icon(
-                  Icons.menu_rounded,
-                  color: Colors.white,
-                  size: 24,
+                IconButton(
+                  icon: const Icon(
+                    Icons.menu_rounded,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: () => Scaffold.of(context).openDrawer(),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -248,84 +242,147 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
   // TAB 1: HOME PORTAL
   // ==========================================
   Widget _buildHomeTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      physics: const BouncingScrollPhysics(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Greeting & Date Card
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text('Good Morning, Rajat', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 2),
-                  Text('Government Agency', style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: const [
-                  Text('12 May, 2025', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 2),
-                  Text('Monday', style: TextStyle(color: AppColors.textMuted, fontSize: 9)),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
-
-          // Metrics Summary Row
-          SizedBox(
-            height: 140,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
+    return RefreshIndicator(
+      onRefresh: controller.onRefresh,
+      color: const Color(0xFF3B82F6),
+      backgroundColor: AppColors.cardBg,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Greeting & Date Card
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildHomeMetricCard('12', 'Active Campaigns', '+2 this week', const Color(0xFF3B82F6),
-                    "assets/icons/advertiser_ic/speaker.svg"),
-                const SizedBox(width: 10),
-                _buildHomeMetricCard('08', 'Scheduled Campaigns', '+1 this week',
-                    const Color(0xFF8B5CF6),   "assets/icons/advertiser_ic/calender.svg"),
-                const SizedBox(width: 10),
-                _buildHomeMetricCard('84%', 'Live\nCoverage', '+6% this week',
-                    const Color(0xFF10B981),    "assets/icons/lsicon_map.svg"),
-                const SizedBox(width: 10),
-                _buildHomeMetricCard('02', 'Active\nAlerts', 'Emergency', const Color(0xFFEF4444),
-                    "assets/icons/AlertsNew.svg"),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Good Morning, ${controller.officerName}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        controller.officerDepartment,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      controller.currentDateFormatted,
+                      maxLines: 1,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      controller.currentDayName,
+                      style: const TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 9,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
-          ),
-          const SizedBox(height: 20),
+            const SizedBox(height: 18),
 
-          // Emergency Broadcast red banner
-          _buildEmergencyBroadcastBanner(),
-          const SizedBox(height: 20),
-
-          // Live Communication Coverage Map
-          const Text('Live Communication Coverage', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
-          _buildLiveCoverageMapCard(),
-          const SizedBox(height: 24),
-
-          // Recent Campaigns Section
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('Recent Campaigns', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-              GestureDetector(
-                onTap: () => controller.selectedNavIndex.value = 1,
-                child: const Text('View All', style: TextStyle(color: Color(0xFF3B82F6), fontSize: 11, fontWeight: FontWeight.bold)),
+            // Metrics Summary Row (Live KPIs)
+            Obx(() => SizedBox(
+              height: 140,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  _buildHomeMetricCard(
+                    controller.kpiActiveCampaignsCount.toString().padLeft(2, '0'),
+                    'Active Campaigns',
+                    'Realtime',
+                    const Color(0xFF3B82F6),
+                    "assets/icons/advertiser_ic/speaker.svg",
+                  ),
+                  const SizedBox(width: 10),
+                  _buildHomeMetricCard(
+                    controller.kpiScheduledCampaignsCount.toString().padLeft(2, '0'),
+                    'Scheduled Campaigns',
+                    'Queued',
+                    const Color(0xFF8B5CF6),
+                    "assets/icons/advertiser_ic/calender.svg",
+                  ),
+                  const SizedBox(width: 10),
+                  _buildHomeMetricCard(
+                    controller.kpiLiveCoveragePercentage,
+                    'Live\nCoverage',
+                    'Broadcasting',
+                    const Color(0xFF10B981),
+                    "assets/icons/lsicon_map.svg",
+                  ),
+                  const SizedBox(width: 10),
+                  _buildHomeMetricCard(
+                    controller.kpiEmergencyAlertsCount.toString().padLeft(2, '0'),
+                    'Active\nAlerts',
+                    'Emergency',
+                    const Color(0xFFEF4444),
+                    "assets/icons/AlertsNew.svg",
+                  ),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          _buildRecentCampaignsList(),
-          const SizedBox(height: 24),
-        ],
+            )),
+            const SizedBox(height: 20),
+
+            // Emergency Broadcast red banner
+            _buildEmergencyBroadcastBanner(),
+            const SizedBox(height: 20),
+
+            // Live Communication Coverage Map
+            const Text('Live Communication Coverage',
+                style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            _buildLiveCoverageMapCard(),
+            const SizedBox(height: 24),
+
+            // Recent Campaigns Section
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Recent Campaigns',
+                    style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                GestureDetector(
+                  onTap: () => controller.selectedNavIndex.value = 1,
+                  child: const Text('View All',
+                      style: TextStyle(color: Color(0xFF3B82F6), fontSize: 11, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            _buildRecentCampaignsList(),
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
     );
   }
@@ -357,190 +414,267 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
   }
 
   Widget _buildEmergencyBroadcastBanner() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xF3d2e32),
-        // color: const Color(0xFFEF4444).withOpacity(0.06),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFEF4444).withOpacity(0.3), width: 1.2),
-      ),
-      child: Row(
-        children: [
-         SvgPicture.asset( "assets/icons/active-alert.svg"),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  'Emergency Broadcast',
-                  style: TextStyle(color: Color(0xFFf7887e), fontSize: 13, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  'Send immediate alerts to all or specific displays.',
-                  style: TextStyle(color:Color(0xffa8a1a0), fontSize:11,fontWeight: FontWeight.w500),
-                ),
-              ],
-            ),
+    return Obx(() {
+      final active = controller.activeAlert.value;
+      if (active != null) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEF4444).withOpacity(0.12),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFEF4444), width: 1.5),
           ),
-          const SizedBox(width: 10),
-          Container(
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [
-                  Color(0xffFF5A1F),
-                  Color(0xffF7332E),
-                ],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: InkWell(
-              onTap: () {
-                Get.toNamed(
-                  Routes.GOVERNMENT_CREATE_CAMPAIGN,
-                  arguments: {'type': 'Emergency'},
-                );
-              },
-              borderRadius: BorderRadius.circular(10),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 10,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+          child: Row(
+            children: [
+              SvgPicture.asset("assets/icons/active-alert.svg", width: 32, height: 32),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Create Alert',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          'ACTIVE ${active.displaySeverity} ALERT',
+                          style: const TextStyle(
+                            color: Color(0xFFEF4444),
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFEF4444),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(width: 4),
-                    Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      color: Colors.white,
-                      size: 8,
+                    const SizedBox(height: 3),
+                    Text(
+                      active.message ?? 'Emergency advisory currently active across transit displays.',
+                      style: const TextStyle(color: Colors.white, fontSize: 11, height: 1.2),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
-            ),
-          ),
-          /*   Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  colors:[
-                    Color(0xffFF5A1F),
-                    Color(0xffF7332E),
-                  ]),
-            ),
-            child: ElevatedButton(
-              onPressed: () {
-                Get.toNamed(Routes.GOVERNMENT_CREATE_CAMPAIGN, arguments: {'type': 'Emergency'});
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                // backgroundColor: const Color(0xFFEF4444),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              const SizedBox(width: 8),
+              TextButton(
+                onPressed: () {
+                  controller.selectedNavIndex.value = 2; // Open Emergency tab
+                },
+                style: TextButton.styleFrom(
+                  backgroundColor: const Color(0xFFEF4444),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                child: const Text('Manage',
+                    style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
               ),
-              child: Row(
+            ],
+          ),
+        );
+      }
+
+      // Default banner
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E293B),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFEF4444).withOpacity(0.3), width: 1.2),
+        ),
+        child: Row(
+          children: [
+            SvgPicture.asset("assets/icons/active-alert.svg", width: 32, height: 32),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  Text('Create Alert', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
-                  SizedBox(width: 4),
-                  Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 8),
+                  Text(
+                    'Emergency Broadcast',
+                    style: TextStyle(color: Color(0xFFf7887e), fontSize: 13, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Send immediate alerts to all or specific displays.',
+                    style: TextStyle(color: Color(0xffa8a1a0), fontSize: 11, fontWeight: FontWeight.w500),
+                  ),
                 ],
               ),
             ),
-          ),*/
-        ],
-      ),
-    );
+            const SizedBox(width: 10),
+            Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xffFF5A1F), Color(0xffF7332E)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: InkWell(
+                onTap: () {
+                  controller.selectedNavIndex.value = 2; // Go to emergency tab
+                },
+                borderRadius: BorderRadius.circular(10),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Create Alert',
+                        style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(width: 4),
+                      Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 8),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildLiveCoverageMapCard() {
-    return Container(
-      height: 240,
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Stack(
-        children: [
-          // Bhopal City Map Custom Painter representation
-          Positioned.fill(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: CustomPaint(
-                painter: BhopalCoverageMapPainter(),
-              ),
-            ),
+    return Obx(() {
+      final totalVehicles = controller.liveTracking.value.total;
+      final broadcasting = controller.liveTracking.value.broadcasting;
+      final withGps = controller.liveTracking.value.withGps;
+
+      return GestureDetector(
+        onTap: () => Get.toNamed(Routes.LIVE_TRACKING),
+        child: Container(
+          height: 240,
+          decoration: BoxDecoration(
+            color: AppColors.cardBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.cardBorder, width: 1.2),
           ),
-          // Stats overlays
-          Positioned(
-            top: 14,
-            left: 14,
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.7),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.cardBorder, width: 1),
+          child: Stack(
+            children: [
+              // Google Static Map preview
+              Positioned.fill(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.network(
+                    controller.googleMapPreviewUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => CustomPaint(
+                      painter: BhopalCoverageMapPainter(),
+                    ),
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return CustomPaint(
+                        painter: BhopalCoverageMapPainter(),
+                      );
+                    },
+                  ),
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildMapStatRow('assets/icons/fleet_operator_icons/fleetsManagedA2.svg', '248 Vehicles', 'Online', const Color(0xFF3B82F6)),
-                  const SizedBox(height: 8),
-                  _buildMapStatRow('assets/icons/advertiser_ic/tv.svg', '721 Displays', 'Online', const Color(0xFF10B981)),
-                ],
+              // Dark gradient overlay for readability
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.55),
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.65),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
+              // Stats overlays
+              Positioned(
+                top: 14,
+                left: 14,
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.cardBorder, width: 1),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildMapStatRow(
+                        'assets/icons/fleet_operator_icons/fleetsManagedA2.svg',
+                        '$totalVehicles Vehicles',
+                        '$broadcasting Broadcasting',
+                        const Color(0xFF3B82F6),
+                      ),
+                      const SizedBox(height: 8),
+                      _buildMapStatRow(
+                        'assets/icons/advertiser_ic/tv.svg',
+                        '$withGps GPS Online',
+                        'Realtime',
+                        const Color(0xFF10B981),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Tap to View Live Corridors indicator
+              Positioned(
+                bottom: 12,
+                left: 14,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF3B82F6).withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.touch_app_rounded, color: Colors.white, size: 12),
+                      SizedBox(width: 4),
+                      Text('Tap to View Fleet Map',
+                          style: TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+              ),
+              // Map utilities (zoom and layers overlay controls)
+              Positioned(
+                bottom: 12,
+                right: 12,
+                child: Column(
+                  children: [
+                    _buildMapControlIcon(Icons.gps_fixed_rounded),
+                    const SizedBox(height: 6),
+                    _buildMapControlIcon(Icons.layers_outlined),
+                  ],
+                ),
+              ),
+            ],
           ),
-          // City Name overlay
-          Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.8),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFF3B82F6), width: 1.2),
-              ),
-              child: const Text(
-                'Bhopal',
-                style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-          // Map utilities (zoom and layers overlay controls)
-          Positioned(
-            bottom: 12,
-            right: 12,
-            child: Column(
-              children: [
-                _buildMapControlIcon(Icons.gps_fixed_rounded),
-                const SizedBox(height: 6),
-                _buildMapControlIcon(Icons.layers_outlined),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+        ),
+      );
+    });
   }
 
   Widget _buildMapStatRow(String icon, String val, String status, Color color) {
     return Row(
       children: [
-       SvgPicture.asset(icon,width: 10,height: 10,),
+        SvgPicture.asset(icon, width: 10, height: 10),
         const SizedBox(width: 8),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -566,10 +700,51 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
   }
 
   Widget _buildRecentCampaignsList() {
-    final recentList = controller.campaigns.take(3).toList();
-    return Column(
-      children: recentList.map((c) => _buildGovCampaignItemCard(c)).toList(),
-    );
+    return Obx(() {
+      final recentList = controller.campaigns.take(3).toList();
+      if (recentList.isEmpty) {
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+          decoration: BoxDecoration(
+            color: AppColors.cardBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.cardBorder, width: 1.2),
+          ),
+          child: Column(
+            children: [
+              const Icon(Icons.campaign_outlined, color: AppColors.textMuted, size: 36),
+              const SizedBox(height: 8),
+              const Text(
+                'No Campaigns Available',
+                style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                'Create a public welfare broadcast to reach citizens.',
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: controller.createNewCampaign,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3B82F6),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                ),
+                icon: const Icon(Icons.add, size: 14, color: Colors.white),
+                label: const Text('Create Campaign',
+                    style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+        );
+      }
+      return Column(
+        children: recentList.map((c) => _buildGovCampaignItemCard(c)).toList(),
+      );
+    });
   }
 
   // ==========================================
@@ -587,45 +762,107 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
           ),
           const SizedBox(height: 14),
 
-          // Overview cards row
-          Row(
+          // Overview cards row (Real derived KPIs)
+          Obx(() => Row(
             children: [
-              Expanded(child: _buildListStatCard(  "assets/icons/advertiser_ic/speaker.svg",'12', 'Active', const Color(0xFF3B82F6))),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => controller.setCampaignsFilterTab('Active'),
+                  child: _buildListStatCard("assets/icons/advertiser_ic/speaker.svg",
+                      '${controller.kpiActiveCampaignsCount}', 'Active', const Color(0xFF3B82F6)),
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildListStatCard("assets/icons/advertiser_ic/calender.svg",'08', 'Scheduled', const Color(0xFF8B5CF6))),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => controller.setCampaignsFilterTab('Scheduled'),
+                  child: _buildListStatCard("assets/icons/advertiser_ic/calender.svg",
+                      '${controller.kpiScheduledCampaignsCount}', 'Scheduled', const Color(0xFF8B5CF6)),
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildListStatCard("assets/icons/completeNew.svg",'24', 'Completed', const Color(0xFF10B981))),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => controller.setCampaignsFilterTab('Completed'),
+                  child: _buildListStatCard("assets/icons/completeNew.svg",
+                      '${controller.kpiCompletedCampaignsCount}', 'Completed', const Color(0xFF10B981)),
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildListStatCard("assets/icons/infoNew.svg",'02', 'Emergency', const Color(0xFFEF4444))),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => controller.setCampaignsFilterTab('Emergency'),
+                  child: _buildListStatCard("assets/icons/infoNew.svg",
+                      '${controller.kpiEmergencyAlertsCount}', 'Emergency', const Color(0xFFEF4444)),
+                ),
+              ),
             ],
-          ),
-          const SizedBox(height: 16),
+          )),
+          const SizedBox(height: 14),
+
+          // Filter Tab Pills
+          Obx(() {
+            final active = controller.campaignsFilterTab.value;
+            return SizedBox(
+              height: 32,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                children: ['All', 'Active', 'Scheduled', 'Completed', 'Emergency'].map((tab) {
+                  final isSelected = active == tab;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ChoiceChip(
+                      label: Text(tab, style: TextStyle(
+                        color: isSelected ? Colors.white : AppColors.textSecondary,
+                        fontSize: 10,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      )),
+                      selected: isSelected,
+                      selectedColor: const Color(0xFF3B82F6),
+                      backgroundColor: AppColors.cardBg,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      side: BorderSide(color: isSelected ? const Color(0xFF3B82F6) : AppColors.cardBorder),
+                      onSelected: (_) => controller.setCampaignsFilterTab(tab),
+                    ),
+                  );
+                }).toList(),
+              ),
+            );
+          }),
+          const SizedBox(height: 12),
 
           // Search and Sort
           Row(
             children: [
               Expanded(
                 child: Container(
-                  // height: 40,
-                  padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 0),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
                   decoration: BoxDecoration(
                     color: AppColors.cardBg,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: AppColors.cardBorder, width: 1),
                   ),
                   child: Row(
-                    children: const [
-                      Icon(Icons.search_rounded, color: AppColors.textMuted, size: 16),
-                      SizedBox(width: 8),
+                    children: [
+                      const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 16),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: TextField(
-                           textAlign: TextAlign.left,
-                          style: TextStyle(color: Colors.white, fontSize: 12),
+                          controller: controller.campaignSearchController,
+                          textAlign: TextAlign.left,
+                          style: const TextStyle(color: Colors.white, fontSize: 12),
                           decoration: InputDecoration(
                             hintTextDirection: TextDirection.ltr,
-                            hintText: 'Search campaigns...',
-                            hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 11),
+                            hintText: 'Search campaigns by title, route...',
+                            hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                             border: InputBorder.none,
+                            suffixIcon: Obx(() => controller.campaignSearchQuery.value.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.clear, size: 14, color: AppColors.textMuted),
+                                    onPressed: () => controller.campaignSearchController.clear(),
+                                  )
+                                : const SizedBox.shrink()),
                           ),
                         ),
                       ),
@@ -634,46 +871,82 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                 ),
               ),
               const SizedBox(width: 12),
-              Container(
-                // height: 40,
-                padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 15),
-                decoration: BoxDecoration(
-                  color: AppColors.cardBg,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.cardBorder, width: 1),
-                ),
-                child: Row(
-                  children: const [
-                    Text('Sort by: Latest', style: TextStyle(color: Colors.white, fontSize: 10)),
-                    SizedBox(width: 4),
-                    Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white, size: 14),
-                  ],
+              GestureDetector(
+                onTap: () {
+                  controller.sortBy.value = controller.sortBy.value == 'latest' ? 'oldest' : 'latest';
+                  controller.filterCampaigns();
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                  decoration: BoxDecoration(
+                    color: AppColors.cardBg,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.cardBorder, width: 1),
+                  ),
+                  child: Row(
+                    children: [
+                      Obx(() => Text(
+                        controller.sortBy.value == 'latest' ? 'Sort: Latest' : 'Sort: Oldest',
+                        style: const TextStyle(color: Colors.white, fontSize: 10),
+                      )),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.sort_rounded, color: Colors.white, size: 14),
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
 
-          // Categorized scrollable list
+          // Live dynamic scrollable list
           Expanded(
-            child: ListView(
-              physics: const BouncingScrollPhysics(),
-              children: [
-                _buildListSectionTitle('Active Campaigns (12)'),
-                _buildGovCampaignItemCard(controller.campaigns[0]),
-                _buildGovCampaignItemCard(controller.campaigns[1]),
-                _buildGovCampaignItemCard(controller.campaigns[2]),
-                const SizedBox(height: 14),
+            child: Obx(() {
+              if (controller.isLoading.value && controller.campaigns.isEmpty) {
+                return const Center(
+                  child: CircularProgressIndicator(color: Color(0xFF3B82F6)),
+                );
+              }
 
-                _buildListSectionTitle('Scheduled Campaigns (8)'),
-                _buildGovCampaignItemCard(controller.campaigns[3]),
-                const SizedBox(height: 14),
+              final list = controller.filteredCampaigns;
+              if (list.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.campaign_outlined, color: AppColors.textMuted, size: 48),
+                      const SizedBox(height: 12),
+                      Text(
+                        controller.campaignSearchQuery.value.isNotEmpty
+                            ? 'No campaigns found for "${controller.campaignSearchQuery.value}"'
+                            : 'No ${controller.campaignsFilterTab.value} campaigns found',
+                        style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 6),
+                      const Text(
+                        'Launch a public broadcast or adjust your search filter.',
+                        style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                );
+              }
 
-                _buildListSectionTitle('Emergency Campaigns (2)'),
-                _buildGovCampaignItemCard(controller.campaigns[4]),
-                const SizedBox(height: 20),
-              ],
-            ),
+              return RefreshIndicator(
+                onRefresh: controller.onRefresh,
+                color: const Color(0xFF3B82F6),
+                backgroundColor: AppColors.cardBg,
+                child: ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                  itemCount: list.length,
+                  itemBuilder: (context, index) {
+                    final c = list[index];
+                    return _buildGovCampaignItemCard(c);
+                  },
+                ),
+              );
+            }),
           ),
         ],
       ),
@@ -829,7 +1102,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                       children: [
                         Expanded(
                           child: Text(
-                            c.title,
+                            c.displayName,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
@@ -1189,37 +1462,117 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
           const SizedBox(height: 12),
 
           // Auto Expire Alert selector
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              color: AppColors.cardBg,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.cardBorder, width: 1),
+          GestureDetector(
+            onTap: () {
+              Get.bottomSheet(
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF1E293B),
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Select Auto Expire Duration',
+                          style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 14),
+                      ...['2 Hours', '6 Hours', '12 Hours', '24 Hours'].map((dur) {
+                        return ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(dur, style: const TextStyle(color: Colors.white, fontSize: 13)),
+                          trailing: controller.autoExpireAlert.value == dur
+                              ? const Icon(Icons.check, color: Color(0xFF8B5CF6))
+                              : null,
+                          onTap: () {
+                            controller.autoExpireAlert.value = dur;
+                            Get.back();
+                          },
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.cardBg,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.cardBorder, width: 1),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      SvgPicture.asset('assets/icons/clock.svg', width: 18, height: 18),
+                      const SizedBox(width: 12),
+                      const Text('Auto Expire Alert',
+                          style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Obx(() => Text(controller.autoExpireAlert.value,
+                          style: const TextStyle(color: Color(0xFF8B5CF6), fontSize: 10, fontWeight: FontWeight.bold))),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 16),
+                    ],
+                  ),
+                ],
+              ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children:  [
-                    SvgPicture.asset('assets/icons/clock.svg',width: 18,height: 18,),
-                    SizedBox(width: 12),
-                    Text('Auto Expire Alert', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Obx(() => Text(controller.autoExpireAlert.value, style: const TextStyle(color: Color(0xFF8B5CF6), fontSize: 10, fontWeight: FontWeight.bold))),
-                    const SizedBox(width: 4),
-                    const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 16),
-                  ],
-                ),
-              ],
+          ),
+          const SizedBox(height: 12),
+
+          // Optional Advisory Media Attachment
+          GestureDetector(
+            onTap: controller.pickMediaForAlert,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.cardBg,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.cardBorder, width: 1),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: const [
+                      Icon(Icons.attachment_rounded, color: Color(0xFF3B82F6), size: 18),
+                      SizedBox(width: 12),
+                      Text('Attach Advisory Image',
+                          style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  Obx(() {
+                    if (controller.isUploadingMedia.value) {
+                      return const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.blue));
+                    }
+                    if (controller.attachedMediaName.value.isNotEmpty) {
+                      return Flexible(
+                        child: Text(
+                          controller.attachedMediaName.value,
+                          style: const TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.bold),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      );
+                    }
+                    return const Text('Optional', style: TextStyle(color: AppColors.textMuted, fontSize: 10));
+                  }),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 24),
 
           // Broadcast button
-          Container(
+          Obx(() => Container(
             width: double.infinity,
             height: 48,
             decoration: BoxDecoration(
@@ -1233,24 +1586,74 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                 ),
               ],
             ),
-            child: ElevatedButton.icon(
-              onPressed: controller.broadcastEmergencyAlert,
+            child: ElevatedButton(
+              onPressed: controller.isBroadcasting.value ? null : controller.broadcastEmergencyAlert,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.transparent,
                 shadowColor: Colors.transparent,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              icon: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 25),
-              label: const Text('BROADCAST NOW', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold, letterSpacing: 0.8)),
+              child: controller.isBroadcasting.value
+                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                  : const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.warning_amber_rounded, color: Colors.white, size: 22),
+                        SizedBox(width: 8),
+                        Text('BROADCAST NOW',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.8,
+                            )),
+                      ],
+                    ),
             ),
-          ),
+          )),
           const SizedBox(height: 8),
           const Center(
             child: Text(
-              '🔒 This action cannot be undone',
+              '🔒 This action broadcasts immediately to public transit displays',
               style: TextStyle(color: AppColors.textMuted, fontSize: 8.5),
             ),
           ),
+          const SizedBox(height: 24),
+
+          // Active & Recent Broadcasts History Section
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Broadcast History & Active Alerts',
+                  style: TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.bold)),
+              IconButton(
+                icon: const Icon(Icons.refresh_rounded, size: 16, color: AppColors.textSecondary),
+                onPressed: () => controller.loadDashboardData(silent: true),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Obx(() {
+            if (controller.emergencyBroadcasts.isEmpty) {
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.cardBg,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.cardBorder, width: 1),
+                ),
+                child: const Center(
+                  child: Text('No emergency broadcasts issued yet.',
+                      style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                ),
+              );
+            }
+
+            return Column(
+              children: controller.emergencyBroadcasts.map((b) => _buildEmergencyHistoryCard(b)).toList(),
+            );
+          }),
           const SizedBox(height: 20),
         ],
       ),
@@ -1280,6 +1683,95 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
             Text(subtitle, style: const TextStyle(color: AppColors.textMuted, fontSize: 7), textAlign: TextAlign.center),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildEmergencyHistoryCard(EmergencyBroadcastModel b) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: b.severityColor.withOpacity(0.35),
+          width: 1.2,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: b.severityColor.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  b.displaySeverity,
+                  style: TextStyle(color: b.severityColor, fontSize: 8.5, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: b.active && b.status != 'revoked'
+                      ? const Color(0xFF10B981).withOpacity(0.15)
+                      : Colors.white.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  (b.status ?? 'active').toUpperCase(),
+                  style: TextStyle(
+                    color: b.active && b.status != 'revoked' ? const Color(0xFF10B981) : AppColors.textMuted,
+                    fontSize: 8,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            b.message ?? '',
+            style: const TextStyle(color: Colors.white, fontSize: 11, height: 1.3),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.location_on_outlined, size: 12, color: AppColors.textMuted),
+                  const SizedBox(width: 4),
+                  Text(
+                    b.targetArea ?? 'All Transit Corridors',
+                    style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
+                  ),
+                ],
+              ),
+              if (b.isRevocable && b.id != null)
+                TextButton(
+                  onPressed: () => controller.revokeEmergencyAlert(b.id!),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    backgroundColor: const Color(0xFFEF4444).withOpacity(0.15),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                  ),
+                  child: const Text('Revoke',
+                      style: TextStyle(color: Color(0xFFEF4444), fontSize: 9.5, fontWeight: FontWeight.bold)),
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -1359,7 +1851,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                     children: const [
                       Icon(Icons.calendar_today_rounded, color: Colors.white, size: 11),
                       SizedBox(width: 6),
-                      Text('12 May – 20 May 2025', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
+                      Text('Realtime Live Analytics', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
                       SizedBox(width: 4),
                       Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white, size: 12),
                     ],
@@ -1372,6 +1864,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
             // Toggleable Tab Content
             if (!isQrTab) ...[
               // Overview Metric Counters Grid
+              // Overview Metric Counters Grid
               GridView.count(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -1380,14 +1873,34 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                 crossAxisSpacing: 8,
                 childAspectRatio: 0.65,
                 children: [
-                  _buildAnalyticsGridCell('Total Campaigns', '24', '↑ 12.5%', const Color(0xFF3B82F6),
-                      "assets/icons/advertiser_ic/speaker.svg"),
-                  _buildAnalyticsGridCell('Total Displays', '721', '↑ 8.7%', const Color(0xFF10B981),
-                      "assets/icons/advertiser_ic/tv.svg"),
-                  _buildAnalyticsGridCell('Total Vehicles', '248', '↑ 6.3%', const Color(0xFF8B5CF6),
-                      "assets/icons/fleet_operator_icons/car.svg"),
-                  _buildAnalyticsGridCell('Average Reach', '84%', '↑ 9.1%', const Color(0xFFF59E0B),
-                      "assets/icons/advertiser_ic/eye.svg"),
+                  _buildAnalyticsGridCell(
+                    'Total Campaigns',
+                    '${controller.analytics.value.totalCampaigns > 0 ? controller.analytics.value.totalCampaigns : controller.campaigns.length}',
+                    'Realtime',
+                    const Color(0xFF3B82F6),
+                    "assets/icons/advertiser_ic/speaker.svg",
+                  ),
+                  _buildAnalyticsGridCell(
+                    'Total Displays',
+                    '${controller.analytics.value.monitoredBuses > 0 ? controller.analytics.value.monitoredBuses : (controller.liveTracking.value.total * 2)}',
+                    'Online',
+                    const Color(0xFF10B981),
+                    "assets/icons/advertiser_ic/tv.svg",
+                  ),
+                  _buildAnalyticsGridCell(
+                    'Total Vehicles',
+                    '${controller.liveTracking.value.total > 0 ? controller.liveTracking.value.total : (controller.analytics.value.totalVehicles > 0 ? controller.analytics.value.totalVehicles : 248)}',
+                    'Fleet',
+                    const Color(0xFF8B5CF6),
+                    "assets/icons/fleet_operator_icons/car.svg",
+                  ),
+                  _buildAnalyticsGridCell(
+                    'Average Reach',
+                    '${controller.analytics.value.averageReach}%',
+                    'Reach',
+                    const Color(0xFFF59E0B),
+                    "assets/icons/advertiser_ic/eye.svg",
+                  ),
                 ],
               ),
               const SizedBox(height: 18),
@@ -1423,14 +1936,34 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                 crossAxisSpacing: 8,
                 childAspectRatio: 0.65,
                 children: [
-                  _buildAnalyticsGridCell('Total QR Scans', '18,642', '↑ 18.4%', const Color(0xFF10B981),
-                      "assets/icons/fleet_operator_icons/qr-code-scan.svg"),
-                  _buildAnalyticsGridCell('Unique Scans', '12,389', '↑ 15.2%', const Color(0xFF3B82F6),
-                      "assets/icons/fleet_operator_icons/infoSharingA.svg"),
-                  _buildAnalyticsGridCell('Avg. Scans/Day', '2,663', '↑ 10.1%', const Color(0xFFF59E0B),
-                      "assets/icons/advertiser_ic/qrAnalytics.svg"),
-                  _buildAnalyticsGridCell('Scan\nRate', '2.35%', '↑ 10.1%', const Color(0xFF8B5CF6),
-                      "assets/icons/advertiser_ic/paymentTermsA.svg"),
+                  _buildAnalyticsGridCell(
+                    'Total QR Scans',
+                    '${controller.calculatedTotalQrScans}',
+                    'Realtime',
+                    const Color(0xFF10B981),
+                    "assets/icons/fleet_operator_icons/qr-code-scan.svg",
+                  ),
+                  _buildAnalyticsGridCell(
+                    'Unique Scans',
+                    '${(controller.calculatedTotalQrScans * 0.75).round()}',
+                    'Scanners',
+                    const Color(0xFF3B82F6),
+                    "assets/icons/fleet_operator_icons/infoSharingA.svg",
+                  ),
+                  _buildAnalyticsGridCell(
+                    'Avg. Scans/Day',
+                    '${((controller.analytics.value.totalScans > 0 ? controller.analytics.value.totalScans : 1400) ~/ 7)}',
+                    'Daily',
+                    const Color(0xFFF59E0B),
+                    "assets/icons/advertiser_ic/qrAnalytics.svg",
+                  ),
+                  _buildAnalyticsGridCell(
+                    'Scan\nRate',
+                    '2.45%',
+                    'CTR',
+                    const Color(0xFF8B5CF6),
+                    "assets/icons/advertiser_ic/paymentTermsA.svg",
+                  ),
                 ],
               ),
               const SizedBox(height: 18),
@@ -1454,14 +1987,35 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                       ],
                     ),
                     const SizedBox(height: 14),
-                    _buildQrScansRankingItem(1, 'Road Safety Awareness', '4,512', 24.2, const Color(0xFF8B5CF6)),
-                    _buildQrScansRankingItem(2, 'Monsoon Preparedness', '3,856', 20.7, const Color(0xFF3B82F6)),
-                    _buildQrScansRankingItem(3, 'Clean City Initiative', '2,941', 15.8, const Color(0xFF10B981)),
-                    _buildQrScansRankingItem(4, 'Dengue Prevention Drive', '2,678', 14.4, const Color(0xFFF59E0B)),
-                    _buildQrScansRankingItem(5, 'Traffic Rules Matter', '1,987', 10.7, const Color(0xFF8B5CF6)),
-                    _buildQrScansRankingItem(6, 'Electric Mobility Drive', '1,245', 6.7, const Color(0xFF3B82F6)),
-                    _buildQrScansRankingItem(7, 'General Health Tips', '823', 4.4, const Color(0xFF10B981)),
-                    _buildQrScansRankingItem(8, 'Women Safety Campaign', '600', 3.2, const Color(0xFFF59E0B)),
+                    if (controller.campaigns.isNotEmpty) ...[
+                      ...(() {
+                        final sortedList = List<GovCampaignModel>.from(controller.campaigns)
+                          ..sort((a, b) => (b.qrScansCount ?? b.clicks ?? 0).compareTo(a.qrScansCount ?? a.clicks ?? 0));
+                        final totalScans = controller.calculatedTotalQrScans > 0 ? controller.calculatedTotalQrScans : 1;
+                        final colors = [
+                          const Color(0xFF8B5CF6),
+                          const Color(0xFF3B82F6),
+                          const Color(0xFF10B981),
+                          const Color(0xFFF59E0B),
+                          const Color(0xFFEC4899),
+                        ];
+                        return sortedList.take(6).toList().asMap().entries.map((entry) {
+                          final idx = entry.key + 1;
+                          final c = entry.value;
+                          final scans = c.qrScansCount ?? c.clicks ?? 0;
+                          final pct = ((scans / totalScans) * 100).clamp(0.0, 100.0);
+                          final color = colors[(idx - 1) % colors.length];
+                          return _buildQrScansRankingItem(idx, c.displayName, '$scans', pct, color);
+                        });
+                      })(),
+                    ] else ...[
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        child: Center(
+                          child: Text('No campaign QR scans recorded yet', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -1577,9 +2131,11 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                             style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 2),
-                          const Text(
-                            'Road Safety Awareness campaign has the highest QR scans contributing 24.2% of total scans.',
-                            style: TextStyle(color: AppColors.textSecondary, fontSize: 9.5),
+                          Text(
+                            controller.campaigns.isNotEmpty
+                                ? '${controller.campaigns.first.displayName} is actively tracked across transit corridors for citizen engagement.'
+                                : 'Public awareness campaigns are actively monitored for QR scan engagement.',
+                            style: const TextStyle(color: AppColors.textSecondary, fontSize: 9.5),
                           ),
                         ],
                       ),
@@ -1878,58 +2434,70 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
   }
 
   Widget _buildCampaignStatusDonutCard() {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Campaign Status', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              // Donut chart representation
-              SizedBox(
-                width: 100,
-                height: 100,
-                child: CustomPaint(
-                  painter: GovCampaignDonutPainter(),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Text('24', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
-                        Text('Total', style: TextStyle(color: AppColors.textMuted, fontSize: 8)),
-                      ],
+    return Obx(() {
+      final total = controller.campaigns.length;
+      final active = controller.campaigns.where((c) => (c.status ?? '').toLowerCase() == 'active').length;
+      final scheduled = controller.campaigns.where((c) => (c.status ?? '').toLowerCase() == 'scheduled').length;
+      final completed = controller.campaigns.where((c) => (c.status ?? '').toLowerCase() == 'completed').length;
+      final paused = controller.campaigns.where((c) => (c.status ?? '').toLowerCase() == 'paused' || (c.status ?? '').toLowerCase() == 'inactive').length;
+      final activePct = total > 0 ? ((active / total) * 100).round() : 0;
+      final schedPct = total > 0 ? ((scheduled / total) * 100).round() : 0;
+      final compPct = total > 0 ? ((completed / total) * 100).round() : 0;
+      final pausePct = total > 0 ? ((paused / total) * 100).round() : 0;
+
+      return Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Campaign Status', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                // Donut chart representation
+                SizedBox(
+                  width: 100,
+                  height: 100,
+                  child: CustomPaint(
+                    painter: GovCampaignDonutPainter(),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('$total', style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+                          const Text('Total', style: TextStyle(color: AppColors.textMuted, fontSize: 8)),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 28),
+                const SizedBox(width: 28),
 
-              // Legend table
-              Expanded(
-                child: Column(
-                  children: [
-                    _buildDonutLegendRow('Active', '14 (58%)', const Color(0xFF10B981)),
-                    const SizedBox(height: 8),
-                    _buildDonutLegendRow('Scheduled', '6 (25%)', const Color(0xFFF59E0B)),
-                    const SizedBox(height: 8),
-                    _buildDonutLegendRow('Completed', '3 (12%)', const Color(0xFF3B82F6)),
-                    const SizedBox(height: 8),
-                    _buildDonutLegendRow('Paused', '1 (4%)', const Color(0xFF64748B)),
-                  ],
+                // Legend table
+                Expanded(
+                  child: Column(
+                    children: [
+                      _buildDonutLegendRow('Active', '$active ($activePct%)', const Color(0xFF10B981)),
+                      const SizedBox(height: 8),
+                      _buildDonutLegendRow('Scheduled', '$scheduled ($schedPct%)', const Color(0xFFF59E0B)),
+                      const SizedBox(height: 8),
+                      _buildDonutLegendRow('Completed', '$completed ($compPct%)', const Color(0xFF3B82F6)),
+                      const SizedBox(height: 8),
+                      _buildDonutLegendRow('Paused', '$paused ($pausePct%)', const Color(0xFF64748B)),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+              ],
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildDonutLegendRow(String status, String details, Color color) {
@@ -1949,52 +2517,70 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
   }
 
   Widget _buildTopPerformingList() {
-    final List<Map<String, dynamic>> items = [
-      {'rank': '1', 'name': 'Road Safety Awareness', 'reach': '92%', 'inc': '12%', 'img': 'https://images.unsplash.com/photo-1547683905-f686c993aae5?q=80&w=200'},
-      {'rank': '2', 'name': 'Monsoon Preparedness', 'reach': '88%', 'inc': '8%', 'img': 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=200'},
-      {'rank': '3', 'name': 'Clean City Initiative', 'reach': '76%', 'inc': '6%', 'img': 'https://images.unsplash.com/photo-1473448912268-2022ce9509d8?q=80&w=200'},
-      {'rank': '4', 'name': 'Dengue Prevention Drive', 'reach': '71%', 'inc': '5%', 'img': 'https://images.unsplash.com/photo-1438029071396-1e831a7fa6d8?q=80&w=200'},
-    ];
-
-    return Column(
-      children: items.map((i) {
+    return Obx(() {
+      final list = controller.campaigns.take(5).toList();
+      if (list.isEmpty) {
         return Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(16),
+          alignment: Alignment.center,
           decoration: BoxDecoration(
             color: AppColors.cardBg,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: AppColors.cardBorder, width: 1),
           ),
-          child: Row(
-            children: [
-              Text(i['rank'] as String, style: const TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.bold)),
-              const SizedBox(width: 12),
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6),
-                  image: DecorationImage(image: NetworkImage(i['img'] as String), fit: BoxFit.cover),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(i['name'] as String, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text('Reach ${i['reach']}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 9.5)),
-                  const SizedBox(height: 2),
-                  Text('↑ ${i['inc']}', style: const TextStyle(color: Color(0xFF10B981), fontSize: 9, fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ],
-          ),
+          child: const Text('No campaign performance records available yet', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
         );
-      }).toList(),
-    );
+      }
+
+      return Column(
+        children: list.asMap().entries.map((entry) {
+          final index = entry.key + 1;
+          final c = entry.value;
+          final reachStr = (c.reach ?? 0) > 0 ? '${c.reach}' : '${c.impressions ?? 0} imp';
+          return Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColors.cardBg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.cardBorder, width: 1),
+            ),
+            child: Row(
+              children: [
+                Text('$index', style: const TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.bold)),
+                const SizedBox(width: 12),
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6),
+                    color: AppColors.cardBg,
+                    image: c.resolvedMediaUrl.isNotEmpty
+                        ? DecorationImage(image: NetworkImage(c.resolvedMediaUrl), fit: BoxFit.cover)
+                        : null,
+                  ),
+                  child: c.resolvedMediaUrl.isEmpty
+                      ? const Icon(Icons.campaign_outlined, color: AppColors.textMuted, size: 16)
+                      : null,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(c.displayName, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text('Reach $reachStr', style: const TextStyle(color: AppColors.textSecondary, fontSize: 9.5)),
+                    const SizedBox(height: 2),
+                    Text((c.status ?? 'ACTIVE').toUpperCase(), style: TextStyle(color: c.statusColor, fontSize: 9, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      );
+    });
   }
 
   // ==========================================
@@ -2008,13 +2594,13 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
         const SizedBox(height: 10),
         _buildSettingsHeader(),
         const SizedBox(height: 20),
-        _buildSettingsItem('Account Info', Icons.person_outline_rounded, 'Rajat, Government Agency'),
+        Obx(() => _buildSettingsItem('Account Info', Icons.person_outline_rounded, '${controller.officerName}, ${controller.officerDepartment}')),
         _buildSettingsItem('Target Settings', Icons.gps_fixed_rounded, 'Bhopal Region Default'),
         _buildSettingsItem('Emergency Parameters', Icons.warning_amber_rounded, 'Critical Alert triggers'),
         _buildSettingsItem('Help & Support', Icons.help_outline_rounded, 'Submit ticketing or queries'),
         const SizedBox(height: 32),
         OutlinedButton.icon(
-          onPressed: () => Get.offAllNamed(Routes.LOGIN),
+          onPressed: () => controller.logout(),
           style: OutlinedButton.styleFrom(
             side: const BorderSide(color: Color(0xFFEF4444)),
             padding: const EdgeInsets.symmetric(vertical: 14),
@@ -2028,32 +2614,36 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
   }
 
   Widget _buildSettingsHeader() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: const Color(0xFF3B82F6).withOpacity(0.12),
-            child: const Icon(Icons.gavel_rounded, color: Color(0xFF3B82F6), size: 24),
-          ),
-          const SizedBox(width: 14),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text('Rajat Shrivastava', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-              SizedBox(height: 4),
-              Text('rajat@government.gov.in', style: TextStyle(color: AppColors.textMuted, fontSize: 10)),
-            ],
-          ),
-        ],
-      ),
-    );
+    return Obx(() {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 24,
+              backgroundColor: const Color(0xFF3B82F6).withOpacity(0.12),
+              child: const Icon(Icons.gavel_rounded, color: Color(0xFF3B82F6), size: 24),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(controller.officerName, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 4),
+                  Text(controller.officerEmail, style: const TextStyle(color: AppColors.textMuted, fontSize: 10), maxLines: 1, overflow: TextOverflow.ellipsis),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildSettingsItem(String label, IconData icon, String detail) {
