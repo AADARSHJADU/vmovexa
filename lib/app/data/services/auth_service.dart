@@ -153,7 +153,10 @@ class AuthService extends GetxService {
   ) async {
     final response = await _http.post<AuthResponseModel>(
       ApiConstants.refreshToken,
-      body: {'refresh_token': refreshToken},
+      body: {
+        'refreshToken': refreshToken,
+        'refresh_token': refreshToken,
+      },
       requiresAuth: false,
       create: (data) => AuthResponseModel.fromJson(
         data is Map ? Map<String, dynamic>.from(data) : {},

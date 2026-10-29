@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../theme/app_colors.dart';
@@ -36,10 +37,11 @@ class DepotDetailsView extends GetView<DepotDetailsController> {
                         const SizedBox(height: 12),
                         const Text('Depot Facility Not Found', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () => Get.back(),
-                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981)),
-                          child: const Text('Back to Depots', style: TextStyle(color: Colors.white)),
+                        CustomButton(
+                          text: 'Back to Depots',
+                          onTap: () => Get.back(),
+                          width: 160,
+                          height: 42,
                         ),
                       ],
                     ),
@@ -589,16 +591,11 @@ class DepotDetailsView extends GetView<DepotDetailsController> {
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: controller.goToEdit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF10B981),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  icon: const Icon(Icons.edit_outlined, size: 18),
-                  label: const Text('Edit Facility', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                child: CustomButton(
+                  text: 'Edit Facility',
+                  prefixIcon: const Icon(Icons.edit_outlined, size: 18, color: Colors.white),
+                  onTap: controller.goToEdit,
+                  height: 44,
                 ),
               ),
             ],

@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../theme/app_colors.dart';
@@ -541,8 +542,18 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   decoration: BoxDecoration(
-                    color: tab == 0 ? const Color(0xFF2563EB) : Colors.transparent,
+                    gradient: tab == 0 ? AppTheme.primaryGradient : null,
+                    color: tab == 0 ? null : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
+                    boxShadow: tab == 0
+                        ? [
+                            BoxShadow(
+                              color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
                   ),
                   child: Center(
                     child: Row(
@@ -571,8 +582,18 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   decoration: BoxDecoration(
-                    color: tab == 1 ? const Color(0xFF2563EB) : Colors.transparent,
+                    gradient: tab == 1 ? AppTheme.primaryGradient : null,
+                    color: tab == 1 ? null : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
+                    boxShadow: tab == 1
+                        ? [
+                            BoxShadow(
+                              color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
                   ),
                   child: Center(
                     child: Row(
@@ -625,15 +646,12 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 14),
-            ElevatedButton.icon(
-              onPressed: controller.goToEdit,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2563EB),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              icon: const Icon(Icons.add_rounded, size: 16),
-              label: const Text('Add Waypoint Stops', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+            CustomButton(
+              text: 'Add Waypoint Stops',
+              prefixIcon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
+              onTap: controller.goToEdit,
+              width: 200,
+              height: 42,
             ),
           ],
         ),

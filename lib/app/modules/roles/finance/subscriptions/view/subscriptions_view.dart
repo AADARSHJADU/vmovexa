@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/modules/roles/finance/subscriptions/controller/subscriptions_controller.dart';
@@ -259,11 +260,21 @@ class SubscriptionsView extends GetView<SubscriptionsController> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                   decoration: BoxDecoration(
-                    color: isSelected ? kPrimaryIndigo : kCardBg,
+                    gradient: isSelected ? AppTheme.primaryGradient : null,
+                    color: isSelected ? null : kCardBg,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: isSelected ? kPrimaryIndigo : kBorder,
+                      color: isSelected ? Colors.transparent : kBorder,
                     ),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
                   ),
                   child: Text(
                     label,
@@ -575,16 +586,12 @@ class SubscriptionsView extends GetView<SubscriptionsController> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 18),
-          ElevatedButton.icon(
-            onPressed: controller.onOnboardTenant,
-            icon: const Icon(Icons.add, size: 16),
-            label: const Text('Onboard New Tenant'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: kPrimaryIndigo,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
+          CustomButton(
+            text: 'Onboard New Tenant',
+            prefixIcon: const Icon(Icons.add, size: 16, color: Colors.white),
+            onTap: controller.onOnboardTenant,
+            width: 220,
+            height: 44,
           ),
         ],
       ),

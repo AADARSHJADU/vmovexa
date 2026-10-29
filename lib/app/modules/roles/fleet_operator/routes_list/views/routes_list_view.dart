@@ -288,11 +288,21 @@ class RoutesListView extends GetView<RoutesListController> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                   decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFF2563EB) : const Color(0xFF1E293B),
+                    gradient: isSelected ? AppTheme.primaryGradient : null,
+                    color: isSelected ? null : const Color(0xFF1E293B),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: isSelected ? const Color(0xFF3B82F6) : const Color(0xFF334155),
+                      color: isSelected ? Colors.transparent : const Color(0xFF334155),
                     ),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
                   ),
                   child: Text(
                     t['label']!,

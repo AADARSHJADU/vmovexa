@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../theme/app_colors.dart';
@@ -223,34 +224,18 @@ class CreateTechnicianRequestView extends GetView<CreateTechnicianRequestControl
               const SizedBox(width: 10),
               Expanded(
                 flex: 4,
-                child: Obx(() => ElevatedButton.icon(
-                      onPressed: controller.isSubmitting.value ? null : controller.submitRequest,
-                      icon: controller.isSubmitting.value
-                          ? const SizedBox(
-                              width: 14,
-                              height: 14,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                            )
+                child: Obx(() => CustomButton(
+                      text: controller.isSubmitting.value
+                          ? 'Submitting...'
+                          : (controller.isEditMode.value
+                              ? 'Update Work Order'
+                              : 'Submit Ticket to Super Admin Pool'),
+                      prefixIcon: controller.isSubmitting.value
+                          ? null
                           : const Icon(Icons.send_rounded, size: 15, color: Colors.white),
-                      label: Text(
-                        controller.isSubmitting.value
-                            ? 'Submitting...'
-                            : (controller.isEditMode.value
-                                ? 'Update Work Order'
-                                : 'Submit Ticket to Super Admin Pool'),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2563EB),
-                        disabledBackgroundColor: const Color(0xFF1D4ED8).withValues(alpha: 0.5),
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
+                      onTap: controller.isSubmitting.value ? () {} : controller.submitRequest,
+                      isLoading: controller.isSubmitting.value,
+                      height: 44,
                     )),
               ),
             ],

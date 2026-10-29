@@ -1815,25 +1815,11 @@ class PaymentDetailView extends GetView<PaymentDetailController> {
               style: TextStyle(color: Colors.white54, fontSize: 13),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => Get.back(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3B82F6),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text(
-                'Back to Payments',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+            CustomButton(
+              text: 'Back to Payments',
+              onTap: () => Get.back(),
+              width: 200,
+              height: 44,
             ),
           ],
         ),

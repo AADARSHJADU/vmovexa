@@ -1,3 +1,5 @@
+import 'package:vmovexa/app/widgets/custom_button.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -264,20 +266,36 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                 ),
               ),
               if (inc.displayDriverPhone.isNotEmpty)
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF10B981),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.gradientPink.withValues(alpha: 0.25),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
-                  icon: const Icon(Icons.phone, size: 16, color: Colors.white),
-                  label: const Text('Call', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                  onPressed: () async {
-                    final uri = Uri.parse('tel:${inc.displayDriverPhone}');
-                    if (await canLaunchUrl(uri)) {
-                      await launchUrl(uri);
-                    }
-                  },
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      elevation: 0,
+                    ),
+                    icon: const Icon(Icons.phone, size: 16, color: Colors.white),
+                    label: const Text('Call', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                    onPressed: () async {
+                      final uri = Uri.parse('tel:${inc.displayDriverPhone}');
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(uri);
+                      }
+                    },
+                  ),
                 ),
             ],
           ),
@@ -654,28 +672,11 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
 
           // Save Button
           Obx(() {
-            return SizedBox(
-              width: double.infinity,
+            return CustomButton(
+              text: 'Save Incident Resolution',
+              onTap: controller.saveResolution,
+              isLoading: controller.isUpdatingResolution.value,
               height: 44,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6366F1),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-                onPressed: controller.isUpdatingResolution.value
-                    ? null
-                    : () => controller.saveResolution(),
-                child: controller.isUpdatingResolution.value
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                      )
-                    : const Text(
-                        'Save Incident Resolution',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-                      ),
-              ),
             );
           }),
         ],

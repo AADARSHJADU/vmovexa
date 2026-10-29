@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../theme/app_colors.dart';
@@ -369,11 +370,21 @@ class TripsListView extends GetView<TripsListController> {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFF2563EB) : const Color(0xFF1E212D),
+            gradient: isSelected ? AppTheme.primaryGradient : null,
+            color: isSelected ? null : const Color(0xFF1E212D),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: isSelected ? const Color(0xFF3B82F6) : AppColors.cardBorder,
+              color: isSelected ? Colors.transparent : AppColors.cardBorder,
             ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
           child: Text(
             label,

@@ -112,15 +112,12 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                         const SizedBox(height: 12),
                         const Text('Vehicle information unavailable', style: TextStyle(color: Colors.white70, fontSize: 14)),
                         const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: controller.loadVehicleDetails,
-                          icon: const Icon(Icons.refresh, size: 16),
-                          label: const Text('Retry'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF6366F1),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          ),
+                        CustomButton(
+                          text: 'Retry',
+                          prefixIcon: const Icon(Icons.refresh, size: 16, color: Colors.white),
+                          onTap: controller.loadVehicleDetails,
+                          width: 140,
+                          height: 42,
                         ),
                       ],
                     ),

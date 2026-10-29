@@ -1,0 +1,10 @@
+{
+  "updated": "2026-10-28",
+  "routes": 430,
+  "postmanRequests": 430,
+  "validatedRoutes": 100,
+  "verifiedLinks": 852,
+  "sourceFiles": 75,
+  "status": "passed",
+  "scope": "Static documentation verification; no live API operations performed"
+}

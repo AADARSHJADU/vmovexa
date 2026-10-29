@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
+import 'package:vmovexa/app/widgets/custom_button.dart';
 import '../controller/generate_invoice_controller.dart';
 
 class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
@@ -144,19 +146,29 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                   decoration: BoxDecoration(
+                    gradient: isActive ? AppTheme.primaryGradient : null,
                     color: isActive
-                        ? const Color(0xFF334155)
+                        ? null
                         : isCompleted
                             ? kGreen.withValues(alpha: 0.1)
                             : Colors.transparent,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
                       color: isActive
-                          ? kPrimaryBlue
+                          ? Colors.transparent
                           : isCompleted
                               ? kGreen.withValues(alpha: 0.3)
                               : Colors.transparent,
                     ),
+                    boxShadow: isActive
+                        ? [
+                            BoxShadow(
+                              color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
                   ),
                   child: Column(
                     children: [
@@ -165,7 +177,7 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                         backgroundColor: isCompleted
                             ? kGreen
                             : isActive
-                                ? kPrimaryBlue
+                                ? Colors.white.withOpacity(0.25)
                                 : const Color(0xFF475569),
                         child: isCompleted
                             ? const Icon(Icons.check, size: 12, color: Colors.white)
@@ -258,26 +270,10 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                 maxLines: 2,
               ),
               const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => controller.goToStep(2),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: kPrimaryBlue,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text(
-                    'Next: Add Line Items →',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+              CustomButton(
+                text: 'Next: Add Line Items →',
+                onTap: () => controller.goToStep(2),
+                height: 48,
               ),
             ],
           ),
@@ -323,19 +319,32 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                       ),
                     ],
                   ),
-                  ElevatedButton.icon(
-                    onPressed: controller.addItem,
-                    icon: const Icon(Icons.add, size: 14, color: Colors.white),
-                    label: const Text(
-                      'Add Item',
-                      style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: kPrimaryIndigo,
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  GestureDetector(
+                    onTap: controller.addItem,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.primaryGradient,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.gradientPink.withValues(alpha: 0.25),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.add, size: 14, color: Colors.white),
+                          SizedBox(width: 4),
+                          Text(
+                            'Add Item',
+                            style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -486,14 +495,10 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                   const SizedBox(width: 10),
                   Expanded(
                     flex: 2,
-                    child: ElevatedButton(
-                      onPressed: () => controller.goToStep(3),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kPrimaryBlue,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                      child: const Text('Next: Taxes & Terms →', style: TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.bold)),
+                    child: CustomButton(
+                      text: 'Next: Taxes & Terms →',
+                      onTap: () => controller.goToStep(3),
+                      height: 44,
                     ),
                   ),
                 ],
@@ -674,14 +679,10 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                   const SizedBox(width: 10),
                   Expanded(
                     flex: 2,
-                    child: ElevatedButton(
-                      onPressed: () => controller.goToStep(4),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kPrimaryBlue,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                      child: const Text('Next: Review & Issue →', style: TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.bold)),
+                    child: CustomButton(
+                      text: 'Next: Review & Issue →',
+                      onTap: () => controller.goToStep(4),
+                      height: 44,
                     ),
                   ),
                 ],
@@ -794,24 +795,14 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                     const SizedBox(width: 10),
                     Expanded(
                       flex: 2,
-                      child: ElevatedButton.icon(
-                        onPressed: controller.isSubmitting.value ? null : controller.submitInvoice,
-                        icon: controller.isSubmitting.value
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                              )
+                      child: CustomButton(
+                        text: controller.isSubmitting.value ? 'Issuing…' : 'Issue & Dispatch Invoice',
+                        onTap: controller.isSubmitting.value ? () {} : controller.submitInvoice,
+                        isLoading: controller.isSubmitting.value,
+                        prefixIcon: controller.isSubmitting.value
+                            ? null
                             : const Icon(Icons.check_circle_outline, size: 16, color: Colors.white),
-                        label: Text(
-                          controller.isSubmitting.value ? 'Issuing…' : 'Issue & Dispatch Invoice',
-                          style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.bold),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: kPrimaryBlue,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
+                        height: 44,
                       ),
                     ),
                   ],

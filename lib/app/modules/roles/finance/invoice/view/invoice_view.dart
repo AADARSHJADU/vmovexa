@@ -307,25 +307,34 @@ class InvoiceView extends GetView<InvoiceController> {
             final isSelected = controller.selectedStatusTab.value == tab;
             return Padding(
               padding: const EdgeInsets.only(right: 8),
-              child: ChoiceChip(
-                label: Text(tab),
-                selected: isSelected,
-                onSelected: (selected) {
-                  if (selected) {
-                    controller.selectedStatusTab.value = tab;
-                  }
-                },
-                selectedColor: const Color(0xFF6366F1),
-                backgroundColor: AppColors.cardBg,
-                labelStyle: GoogleFonts.raleway(
-                  color: isSelected ? Colors.white : AppColors.textSecondary,
-                  fontSize: 12,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  side: BorderSide(
-                    color: isSelected ? const Color(0xFF6366F1) : AppColors.cardBorder,
+              child: GestureDetector(
+                onTap: () => controller.selectedStatusTab.value = tab,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+                  decoration: BoxDecoration(
+                    gradient: isSelected ? AppTheme.primaryGradient : null,
+                    color: isSelected ? null : AppColors.cardBg,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isSelected ? Colors.transparent : AppColors.cardBorder,
+                    ),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: Text(
+                    tab,
+                    style: GoogleFonts.raleway(
+                      color: isSelected ? Colors.white : AppColors.textSecondary,
+                      fontSize: 12,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                    ),
                   ),
                 ),
               ),

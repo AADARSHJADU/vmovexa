@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/device_diagnostics_controller.dart';
@@ -408,46 +409,14 @@ class DeviceDiagnosticsView extends GetView<DeviceDiagnosticsController> {
       () => Column(
         children: [
           // Run Diagnostics CTA
-          SizedBox(
-            width: double.infinity,
+          CustomButton(
+            text: controller.isRunning.value
+                ? 'Running Live Subsystem Diagnostics Sequence...'
+                : 'Run Subsystems Diagnostic Routine',
+            onTap: controller.onRunDiagnosticsPressed,
+            isLoading: controller.isRunning.value,
+            prefixIcon: controller.isRunning.value ? null : const Icon(Icons.track_changes_rounded, size: 16, color: Colors.white),
             height: 48,
-            child: ElevatedButton(
-              onPressed: controller.isRunning.value ? null : controller.onRunDiagnosticsPressed,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: kPurple,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                elevation: 0,
-              ),
-              child: controller.isRunning.value
-                  ? const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                        ),
-                        SizedBox(width: 10),
-                        Text(
-                          'Running Live Subsystem Diagnostics\nSequence...',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
-                        ),
-                      ],
-                    )
-                  : const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.track_changes_rounded, size: 16, color: Colors.white),
-                        SizedBox(width: 8),
-                        Text(
-                          'Run Subsystems Diagnostic Routine',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
-                        ),
-                      ],
-                    ),
-            ),
           ),
           const SizedBox(height: 10),
 

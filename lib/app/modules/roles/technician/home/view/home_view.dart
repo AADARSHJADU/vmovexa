@@ -64,20 +64,7 @@ class HomeView extends GetView<HomeController> {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ShaderMask(
-              shaderCallback: (bounds) => const LinearGradient(
-                colors: [Color(0xFF6366F1), Color(0xFF818CF8), Color(0xFF38BDF8)],
-              ).createShader(bounds),
-              child: const Text(
-                'VMOVEXA',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.5,
-                  color: Colors.white,
-                ),
-              ),
-            ),
+            Image.asset('assets/app_logo/newLogo.png', width: 140, height: 38),
             const SizedBox(width: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

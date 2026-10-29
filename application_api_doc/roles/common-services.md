@@ -1,153 +1,55 @@
-# Common Shared Services — API Documentation (Uploads, Support, Content, i18n & Geocoding)
+# common-services API index
 
-> **Base Path:** `http://localhost:4000/api/v1`  
-> **Auth:** All endpoints require `Authorization: Bearer <token>` (except public i18n bundle and static assets)  
-> **Scope:** Shared cross-domain services utilized by multiple user roles.
+Updated: 2026-10-28. 47 route entries. This grouping is navigation only: access is determined by actual permissions and tenant/controller rules, not by this filename. Shared routes can be used by multiple roles.
 
----
+See [app developer guide](../APP_DEVELOPER_GUIDE.md) and [complete request reference](../API_REFERENCE.md). For realtime events see [REALTIME_AND_GPS.md](../REALTIME_AND_GPS.md).
 
-## 📋 Complete Endpoints Summary (23 APIs)
-
-### 1. File & Media Uploads (`/uploads`) (4 APIs)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/uploads` | Universal multipart file upload (image, logo, document) |
-| `POST` | `/uploads/media` | Multipart upload for campaign ads (Videos, Banners, PDFs, Images). Max 500MB |
-| `POST` | `/uploads/document` | Upload compliance KYC docs (Driver license, Vehicle RC, Insurance) |
-| `POST` | `/uploads/video` | High-bandwidth transit ad video upload with ffmpeg validation |
-
-### 2. Helpdesk & Support Tickets (`/support` & `/me/support`) (5 APIs)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/me/support/tickets` | List support tickets filed by current logged-in user |
-| `POST` | `/me/support/tickets` | File a new support ticket (Subject, Category, Severity, Description) |
-| `GET` | `/support/tickets/:id` | Get ticket conversation & messages |
-| `POST` | `/support/tickets/:id/messages`| Post reply in ticket thread |
-| `PATCH`| `/support/tickets/:id/status` | Update ticket status (`open`, `in_progress`, `resolved`, `closed`) |
-
-### 3. Dynamic Content, Runbooks & FAQs (`/content`) (4 APIs)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/content/:type` | Fetch dynamic role content (e.g. `/content/help?role=ROLE-TENANT-ADMIN`) |
-| `GET` | `/content/faqs` | List role-based interactive FAQs with live search |
-| `POST` | `/content` | SuperAdmin create dynamic content guide/runbook |
-| `POST` | `/content/:id/publish` | Publish / release content revision |
-
-### 4. Reports & Data Exports (`/reports` & `/exports`) (4 APIs)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/reports` | List generated analytics reports |
-| `POST` | `/reports/generate` | Request on-demand report generation |
-| `GET` | `/exports` | List historical export jobs |
-| `POST` | `/exports` | Trigger CSV / Excel / PDF data export |
-
-### 5. Google Maps & Geocoding Telematics Proxy (`/google-apis`) (3 APIs)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/google-apis/geocode` | Address to GPS coordinates resolution |
-| `GET` | `/google-apis/routes` | Compute shortest route path & travel time between transit stops |
-| `GET` | `/google-apis/places` | Real-time search suggestions for transit depots and bus stops |
-
-### 6. Multi-Language & i18n (`/i18n`) (3 APIs)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/i18n/:lang` | Fetch localized UI strings bundle (supports 10 Indian languages) |
-| `GET` | `/i18n/languages` | List all registered languages |
-| `POST` | `/i18n/auto-translate` | AI/Cloud auto-translation of UI string master keys |
-
----
-
-## 📁 SECTION 1: File Uploads Integration
-
-### 1.1 POST `/uploads/media`
-Multipart upload endpoint for campaign ad creatives.
-
-#### Request Headers
-```http
-Content-Type: multipart/form-data
-Authorization: Bearer <token>
-```
-
-#### FormData Payload
-- `file`: Binary file (MP4, WEBM, JPG, PNG, PDF)
-- `category`: `campaign_media` (or `avatar`, `kyc`)
-
-#### Success Response `201`
-```json
-{
-  "success": true,
-  "message": "File uploaded successfully.",
-  "data": {
-    "file_id": "upl_01HX99...",
-    "original_filename": "diwali_sale_spot.mp4",
-    "mime_type": "video/mp4",
-    "size_bytes": 14502000,
-    "url": "http://localhost:4000/uploads/campaigns/diwali_sale_spot.mp4",
-    "duration_seconds": 30,
-    "resolution": "1920x1080"
-  }
-}
-```
-
----
-
-## 🎫 SECTION 2: Support Ticket Lifecycle
-
-```mermaid
-graph LR
-    A[User Files Ticket POST /me/support/tickets] --> B[Assigned to Support Queue]
-    B --> C[Agent/User Reply POST /support/tickets/:id/messages]
-    C --> D[Resolved PATCH /support/tickets/:id/status]
-    D --> E[User Confirms Closure]
-```
-
-### 2.1 POST `/me/support/tickets`
-```json
-{
-  "subject": "GPS Tracker offline for vehicle MP09-CV-2024",
-  "category": "HARDWARE",
-  "priority": "HIGH",
-  "description": "Device stopped sending telemetry since 08:30 AM today near Palasia square."
-}
-```
-
----
-
-## 💻 Standard Frontend Service
-
-```javascript
-// src/api/services/common.service.js
-import apiClient from '../client';
-import ENDPOINTS from '../endpoints';
-
-export const commonService = {
-  // File Uploads
-  uploadMedia: (formData, onProgress) =>
-    apiClient.post(ENDPOINTS.UPLOADS.CREATE, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-      onUploadProgress: onProgress,
-    }),
-
-  // Support Tickets
-  getMyTickets: (params) => apiClient.get(ENDPOINTS.SUPPORT.MY_TICKETS, { params }),
-  createTicket: (data) => apiClient.post(ENDPOINTS.SUPPORT.MY_TICKETS, data),
-  getTicketDetails: (id) => apiClient.get(ENDPOINTS.SUPPORT.TICKET_ONE(id)),
-  replyTicket: (id, data) => apiClient.post(ENDPOINTS.SUPPORT.TICKET_MESSAGES(id), data),
-  updateTicketStatus: (id, status) => apiClient.patch(ENDPOINTS.SUPPORT.TICKET_STATUS(id), { status }),
-
-  // Dynamic Content & Help
-  getContentPage: (type, params) => apiClient.get(ENDPOINTS.CONTENT.PAGE(type), { params }),
-  getFaqs: (params) => apiClient.get(ENDPOINTS.CONTENT.FAQS, { params }),
-
-  // i18n Translations
-  getLanguageBundle: (lang) => apiClient.get(ENDPOINTS.I18N.BUNDLE(lang)),
-};
-```
-
----
-
-## 🔗 Architecture & File Reference
-- **Components:** `src/components/ui/CreateTicketModal.jsx`, `src/components/content/RoleHelpPage.jsx`
-- **Context:** `src/contexts/I18nContext.jsx` (seeded with 276 master keys & 10 Indian languages)
-- **Service:** `src/api/services/i18n.service.js`, `src/api/services/upload.service.js`
-- **Integration Blueprint:** See [FRONTEND_INTEGRATION_GUIDE.md](../FRONTEND_INTEGRATION_GUIDE.md)
+| Method | Path | Authentication | Request / access details |
+|---|---|---|---|
+| GET | `/api/v1/content` | No requireAuth guard | [Reference](../API_REFERENCE.md#get-api-v1-content) |
+| POST | `/api/v1/content` | Bearer | [Reference](../API_REFERENCE.md#post-api-v1-content) |
+| DELETE | `/api/v1/content/:id` | Bearer | [Reference](../API_REFERENCE.md#delete-api-v1-content-id) |
+| PATCH | `/api/v1/content/:id` | Bearer | [Reference](../API_REFERENCE.md#patch-api-v1-content-id) |
+| POST | `/api/v1/content/:id/publish` | Bearer | [Reference](../API_REFERENCE.md#post-api-v1-content-id-publish) |
+| GET | `/api/v1/content/:type` | No requireAuth guard | [Reference](../API_REFERENCE.md#get-api-v1-content-type) |
+| GET | `/api/v1/content/faqs` | Bearer | [Reference](../API_REFERENCE.md#get-api-v1-content-faqs) |
+| POST | `/api/v1/content/faqs` | Bearer | [Reference](../API_REFERENCE.md#post-api-v1-content-faqs) |
+| DELETE | `/api/v1/content/faqs/:id` | Bearer | [Reference](../API_REFERENCE.md#delete-api-v1-content-faqs-id) |
+| PATCH | `/api/v1/content/faqs/:id` | Bearer | [Reference](../API_REFERENCE.md#patch-api-v1-content-faqs-id) |
+| GET | `/api/v1/exports` | Bearer | [Reference](../API_REFERENCE.md#get-api-v1-exports) |
+| POST | `/api/v1/exports` | Bearer | [Reference](../API_REFERENCE.md#post-api-v1-exports) |
+| GET | `/api/v1/google-apis` | Bearer | [Reference](../API_REFERENCE.md#get-api-v1-google-apis) |
+| PUT | `/api/v1/google-apis` | Bearer | [Reference](../API_REFERENCE.md#put-api-v1-google-apis) |
+| POST | `/api/v1/google-apis/demo/geocode` | No requireAuth guard | [Reference](../API_REFERENCE.md#post-api-v1-google-apis-demo-geocode) |
+| POST | `/api/v1/google-apis/demo/places` | No requireAuth guard | [Reference](../API_REFERENCE.md#post-api-v1-google-apis-demo-places) |
+| POST | `/api/v1/google-apis/demo/roads` | No requireAuth guard | [Reference](../API_REFERENCE.md#post-api-v1-google-apis-demo-roads) |
+| POST | `/api/v1/google-apis/demo/routes` | No requireAuth guard | [Reference](../API_REFERENCE.md#post-api-v1-google-apis-demo-routes) |
+| GET | `/api/v1/google-apis/demo/static-map` | No requireAuth guard | [Reference](../API_REFERENCE.md#get-api-v1-google-apis-demo-static-map) |
+| POST | `/api/v1/google-apis/test` | Bearer | [Reference](../API_REFERENCE.md#post-api-v1-google-apis-test) |
+| POST | `/api/v1/i18n` | Bearer | [Reference](../API_REFERENCE.md#post-api-v1-i18n) |
+| GET | `/api/v1/i18n/:lang` | No requireAuth guard | [Reference](../API_REFERENCE.md#get-api-v1-i18n-lang) |
+| POST | `/api/v1/i18n/auto-translate` | Bearer | [Reference](../API_REFERENCE.md#post-api-v1-i18n-auto-translate) |
+| POST | `/api/v1/i18n/bulk` | Bearer | [Reference](../API_REFERENCE.md#post-api-v1-i18n-bulk) |
+| GET | `/api/v1/i18n/keys` | Bearer | [Reference](../API_REFERENCE.md#get-api-v1-i18n-keys) |
+| POST | `/api/v1/i18n/keys` | Bearer | [Reference](../API_REFERENCE.md#post-api-v1-i18n-keys) |
+| DELETE | `/api/v1/i18n/keys/:id` | Bearer | [Reference](../API_REFERENCE.md#delete-api-v1-i18n-keys-id) |
+| PUT | `/api/v1/i18n/keys/:id` | Bearer | [Reference](../API_REFERENCE.md#put-api-v1-i18n-keys-id) |
+| GET | `/api/v1/i18n/languages` | No requireAuth guard | [Reference](../API_REFERENCE.md#get-api-v1-i18n-languages) |
+| POST | `/api/v1/i18n/languages` | Bearer | [Reference](../API_REFERENCE.md#post-api-v1-i18n-languages) |
+| DELETE | `/api/v1/i18n/languages/:id` | Bearer | [Reference](../API_REFERENCE.md#delete-api-v1-i18n-languages-id) |
+| PUT | `/api/v1/i18n/languages/:id` | Bearer | [Reference](../API_REFERENCE.md#put-api-v1-i18n-languages-id) |
+| POST | `/api/v1/i18n/translate-single` | Bearer | [Reference](../API_REFERENCE.md#post-api-v1-i18n-translate-single) |
+| GET | `/api/v1/me/support/tickets` | Bearer | [Reference](../API_REFERENCE.md#get-api-v1-me-support-tickets) |
+| GET | `/api/v1/reports` | Bearer | [Reference](../API_REFERENCE.md#get-api-v1-reports) |
+| DELETE | `/api/v1/reports/:id` | Bearer | [Reference](../API_REFERENCE.md#delete-api-v1-reports-id) |
+| GET | `/api/v1/reports/:id` | Bearer | [Reference](../API_REFERENCE.md#get-api-v1-reports-id) |
+| POST | `/api/v1/reports/generate` | Bearer | [Reference](../API_REFERENCE.md#post-api-v1-reports-generate) |
+| GET | `/api/v1/support/tickets` | Bearer | [Reference](../API_REFERENCE.md#get-api-v1-support-tickets) |
+| POST | `/api/v1/support/tickets` | Bearer | [Reference](../API_REFERENCE.md#post-api-v1-support-tickets) |
+| GET | `/api/v1/support/tickets/:id` | Bearer | [Reference](../API_REFERENCE.md#get-api-v1-support-tickets-id) |
+| POST | `/api/v1/support/tickets/:id/messages` | Bearer | [Reference](../API_REFERENCE.md#post-api-v1-support-tickets-id-messages) |
+| PATCH | `/api/v1/support/tickets/:id/status` | Bearer | [Reference](../API_REFERENCE.md#patch-api-v1-support-tickets-id-status) |
+| POST | `/api/v1/uploads` | Bearer | [Reference](../API_REFERENCE.md#post-api-v1-uploads) |
+| POST | `/api/v1/uploads/document` | Bearer | [Reference](../API_REFERENCE.md#post-api-v1-uploads-document) |
+| DELETE | `/api/v1/uploads/document/:id` | Bearer | [Reference](../API_REFERENCE.md#delete-api-v1-uploads-document-id) |
+| POST | `/api/v1/uploads/video` | Bearer | [Reference](../API_REFERENCE.md#post-api-v1-uploads-video) |

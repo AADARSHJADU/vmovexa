@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -148,17 +149,22 @@ class SupportHistoryView extends GetView<SupportHistoryController> {
           alignment: Alignment.center,
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                color: isSelected ? const Color(0xFF3B82F6) : Colors.transparent,
-                width: 2.0,
-              ),
-            ),
+            gradient: isSelected ? AppTheme.primaryGradient : null,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
           child: Text(
             label,
             style: TextStyle(
-              color: isSelected ? const Color(0xFF3B82F6) : AppColors.textSecondary,
+              color: isSelected ? Colors.white : AppColors.textSecondary,
               fontSize: 12,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),

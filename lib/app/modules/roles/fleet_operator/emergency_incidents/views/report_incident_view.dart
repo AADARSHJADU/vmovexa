@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../theme/app_colors.dart';
@@ -659,32 +660,11 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
 
   Widget _buildSubmitButton() {
     return Obx(() {
-      return SizedBox(
-        width: double.infinity,
+      return CustomButton(
+        text: 'Log & Broadcast Incident',
+        onTap: controller.submitReportIncident,
+        isLoading: controller.isSubmittingReport.value,
         height: 48,
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFEF4444),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-          onPressed: controller.isSubmittingReport.value
-              ? null
-              : () => controller.submitReportIncident(),
-          child: controller.isSubmittingReport.value
-              ? const SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                )
-              : const Text(
-                  'Log & Broadcast Incident',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-        ),
       );
     });
   }

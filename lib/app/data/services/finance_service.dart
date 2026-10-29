@@ -556,4 +556,303 @@ class FinanceService extends GetxService {
       requiresAuth: true,
     );
   }
+
+  // ==========================================================
+  // SECTION 9: Billing Gateways & Platform Payment Testing
+  // ==========================================================
+
+  /// GET /billing/gateways
+  Future<ApiResponseModel<dynamic>> getBillingGateways() async {
+    return _http.get(
+      ApiConstants.billingGateways,
+      requiresAuth: true,
+    );
+  }
+
+  /// PUT /billing/gateways/:id
+  Future<ApiResponseModel<dynamic>> updateBillingGateway(String id, Map<String, dynamic> data) async {
+    return _http.put(
+      ApiConstants.billingGatewayOne(id),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /billing/gateways/:id/simulate-order
+  Future<ApiResponseModel<dynamic>> simulateBillingOrder(String id, Map<String, dynamic> data) async {
+    return _http.post(
+      ApiConstants.billingGatewaySimulateOrder(id),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /billing/gateways/:id/test
+  Future<ApiResponseModel<dynamic>> testBillingGateway(String id, [Map<String, dynamic>? data]) async {
+    return _http.post(
+      ApiConstants.billingGatewayTest(id),
+      body: data ?? {},
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /billing/gateways/:id/test-connection
+  Future<ApiResponseModel<dynamic>> testBillingGatewayConnection(String id, [Map<String, dynamic>? data]) async {
+    return _http.post(
+      ApiConstants.billingGatewayTestConnection(id),
+      body: data ?? {},
+      requiresAuth: true,
+    );
+  }
+
+  // ==========================================================
+  // SECTION 10: Billing Invoices (SaaS Subscription Invoices)
+  // ==========================================================
+
+  /// GET /billing/invoices
+  Future<ApiResponseModel<dynamic>> getBillingInvoices({
+    int page = 1,
+    int limit = 20,
+    String? status,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'page': page,
+      'limit': limit,
+      if (status != null && status.isNotEmpty && status.toLowerCase() != 'all') 'status': status,
+    };
+    return _http.get(
+      ApiConstants.billingInvoices,
+      queryParams: queryParams,
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /billing/invoices/:id
+  Future<ApiResponseModel<dynamic>> getBillingInvoice(String id) async {
+    return _http.get(
+      ApiConstants.billingInvoiceOne(id),
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /billing/invoices/:id/html
+  Future<ApiResponseModel<dynamic>> getBillingInvoiceHtml(String id) async {
+    return _http.get(
+      ApiConstants.billingInvoiceHtml(id),
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /billing/invoices/:id/pay
+  Future<ApiResponseModel<dynamic>> payBillingInvoice(String id, Map<String, dynamic> data) async {
+    return _http.post(
+      ApiConstants.billingInvoicePay(id),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  // ==========================================================
+  // SECTION 11: Billing Plans Lifecycle Management
+  // ==========================================================
+
+  /// POST /billing/plans
+  Future<ApiResponseModel<dynamic>> createBillingPlan(Map<String, dynamic> data) async {
+    return _http.post(
+      ApiConstants.billingPlans,
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// PUT /billing/plans/:id
+  Future<ApiResponseModel<dynamic>> updateBillingPlan(String id, Map<String, dynamic> data) async {
+    return _http.put(
+      ApiConstants.billingPlanOne(id),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// DELETE /billing/plans/:id
+  Future<ApiResponseModel<dynamic>> deleteBillingPlan(String id) async {
+    return _http.delete(
+      ApiConstants.billingPlanOne(id),
+      requiresAuth: true,
+    );
+  }
+
+  // ==========================================================
+  // SECTION 12: Billing Revenue Analytics & Settlements
+  // ==========================================================
+
+  /// GET /billing/revenue/summary
+  Future<ApiResponseModel<dynamic>> getBillingRevenueSummary({
+    String? period,
+    String? startDate,
+    String? endDate,
+  }) async {
+    final queryParams = <String, dynamic>{
+      if (period != null && period.isNotEmpty) 'period': period,
+      if (startDate != null && startDate.isNotEmpty) 'startDate': startDate,
+      if (endDate != null && endDate.isNotEmpty) 'endDate': endDate,
+    };
+    return _http.get(
+      ApiConstants.billingRevenueSummary,
+      queryParams: queryParams,
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /billing/revenue/shares
+  Future<ApiResponseModel<dynamic>> getBillingRevenueShares({
+    int page = 1,
+    int limit = 50,
+  }) async {
+    return _http.get(
+      ApiConstants.billingRevenueShares,
+      queryParams: {'page': page, 'limit': limit},
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /billing/revenue/settlements
+  Future<ApiResponseModel<dynamic>> getBillingRevenueSettlements({
+    int page = 1,
+    int limit = 50,
+  }) async {
+    return _http.get(
+      ApiConstants.billingRevenueSettlements,
+      queryParams: {'page': page, 'limit': limit},
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /billing/revenue/top-tenants
+  Future<ApiResponseModel<dynamic>> getBillingTopTenants({int limit = 10}) async {
+    return _http.get(
+      ApiConstants.billingRevenueTopTenants,
+      queryParams: {'limit': limit},
+      requiresAuth: true,
+    );
+  }
+
+  // ==========================================================
+  // SECTION 13: Subscriptions & Online Checkout (SaaS)
+  // ==========================================================
+
+  /// GET /billing/subscription
+  Future<ApiResponseModel<dynamic>> getMyBillingSubscription() async {
+    return _http.get(
+      ApiConstants.billingSubscription,
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /billing/subscription/check-status
+  Future<ApiResponseModel<dynamic>> checkBillingSubscriptionStatusGet() async {
+    return _http.get(
+      ApiConstants.billingSubscriptionCheckStatus,
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /billing/subscription/check-status
+  Future<ApiResponseModel<dynamic>> checkBillingSubscriptionStatusPost(Map<String, dynamic> data) async {
+    return _http.post(
+      ApiConstants.billingSubscriptionCheckStatus,
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /billing/subscription/order
+  Future<ApiResponseModel<dynamic>> createBillingSubscriptionOrder(Map<String, dynamic> data) async {
+    return _http.post(
+      ApiConstants.billingSubscriptionOrder,
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /billing/subscription/confirm
+  Future<ApiResponseModel<dynamic>> confirmBillingSubscription(Map<String, dynamic> data) async {
+    return _http.post(
+      ApiConstants.billingSubscriptionConfirm,
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /billing/subscription/verify-session
+  Future<ApiResponseModel<dynamic>> verifyBillingSubscriptionSession(Map<String, dynamic> data) async {
+    return _http.post(
+      ApiConstants.billingSubscriptionVerifySession,
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  // ==========================================================
+  // SECTION 14: Billing Transactions & Wallet
+  // ==========================================================
+
+  /// GET /billing/transactions
+  Future<ApiResponseModel<dynamic>> getBillingTransactions({
+    int page = 1,
+    int limit = 50,
+    String? status,
+    String? type,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'page': page,
+      'limit': limit,
+      if (status != null && status.isNotEmpty) 'status': status,
+      if (type != null && type.isNotEmpty) 'type': type,
+    };
+    return _http.get(
+      ApiConstants.billingTransactions,
+      queryParams: queryParams,
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /billing/transactions/manual-offline
+  Future<ApiResponseModel<dynamic>> createManualOfflineTransaction(Map<String, dynamic> data) async {
+    return _http.post(
+      ApiConstants.billingTransactionsManualOffline,
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /billing/wallet
+  Future<ApiResponseModel<dynamic>> getBillingWallet() async {
+    return _http.get(
+      ApiConstants.billingWallet,
+      requiresAuth: true,
+    );
+  }
+
+  // ==========================================================
+  // SECTION 15: Cron & Webhooks
+  // ==========================================================
+
+  /// POST /billing/cron/check-expiries
+  Future<ApiResponseModel<dynamic>> checkBillingExpiriesCron() async {
+    return _http.post(
+      ApiConstants.billingCronCheckExpiries,
+      body: {},
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /webhooks/:gateway
+  Future<ApiResponseModel<dynamic>> postGatewayWebhook(String gateway, Map<String, dynamic> payload) async {
+    return _http.post(
+      ApiConstants.webhookGateway(gateway),
+      body: payload,
+      requiresAuth: false,
+    );
+  }
 }

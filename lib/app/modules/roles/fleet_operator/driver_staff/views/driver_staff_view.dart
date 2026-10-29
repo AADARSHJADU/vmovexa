@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../routes/app_routes.dart';
@@ -512,11 +513,12 @@ class DriverStaffListView extends StatelessWidget {
                         style: TextStyle(color: AppColors.textMuted, fontSize: 14),
                       ),
                       const SizedBox(height: 14),
-                      ElevatedButton.icon(
-                        onPressed: controller.goToAddDriver,
-                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981)),
-                        icon: const Icon(Icons.add, size: 16, color: Colors.white),
-                        label: const Text('Add First Driver', style: TextStyle(color: Colors.white, fontSize: 12)),
+                      CustomButton(
+                        text: 'Add First Driver',
+                        prefixIcon: const Icon(Icons.add, size: 16, color: Colors.white),
+                        onTap: controller.goToAddDriver,
+                        width: 200,
+                        height: 42,
                       ),
                     ],
                   ),
@@ -580,11 +582,21 @@ class DriverStaffListView extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFF10B981) : AppColors.cardBg,
+            gradient: isSelected ? AppTheme.primaryGradient : null,
+            color: isSelected ? null : AppColors.cardBg,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isSelected ? const Color(0xFF10B981) : AppColors.cardBorder,
+              color: isSelected ? Colors.transparent : AppColors.cardBorder,
             ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

@@ -209,10 +209,21 @@ class TechnicianService extends GetxService {
   Future<ApiResponseModel<ConnectivityTestModel>> runConnectivityTest(
     dynamic deviceId, {
     String testType = 'full_diagnostics',
+    num? latency,
+    num? packetLoss,
+    num? rssi,
+    String? status,
   }) async {
+    final body = <String, dynamic>{
+      'status': status ?? 'success',
+      if (latency != null) 'latency': latency,
+      if (packetLoss != null) 'packetLoss': packetLoss,
+      if (rssi != null) 'rssi': rssi,
+      'test_type': testType,
+    };
     return _http.post<ConnectivityTestModel>(
       ApiConstants.edgeDeviceConnectivityTests(deviceId.toString()),
-      body: {'test_type': testType},
+      body: body,
       requiresAuth: true,
       create: (data) => ConnectivityTestModel.fromJson(data is Map ? Map<String, dynamic>.from(data) : {}),
     );
@@ -376,6 +387,228 @@ class TechnicianService extends GetxService {
         }
         return <DepotItemModel>[];
       },
+    );
+  }
+
+  // ==========================================================
+  // SECTION 6: Technician Stats & Extended Display / Edge Ops
+  // ==========================================================
+
+  /// GET /me/technician/stats
+  Future<ApiResponseModel<dynamic>> getTechnicianStats() async {
+    return _http.get(
+      ApiConstants.techStats,
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /displays
+  Future<ApiResponseModel<dynamic>> getDisplays({
+    int page = 1,
+    int limit = 50,
+    String? search,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'page': page,
+      'limit': limit,
+      if (search != null && search.isNotEmpty) 'search': search,
+    };
+    return _http.get(
+      ApiConstants.displays,
+      queryParams: queryParams,
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /displays
+  Future<ApiResponseModel<dynamic>> registerDisplay(Map<String, dynamic> data) async {
+    return _http.post(
+      ApiConstants.displays,
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /edge-devices/:id/assign
+  Future<ApiResponseModel<dynamic>> assignEdgeDevice(dynamic id, dynamic vehicleId) async {
+    return _http.post(
+      ApiConstants.edgeDeviceAssign(id.toString()),
+      body: {'vehicleId': vehicleId, 'vehicle_id': vehicleId},
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /edge-devices/handshake/:boxId
+  Future<ApiResponseModel<dynamic>> getEdgeDeviceHandshake(String boxId) async {
+    return _http.get(
+      ApiConstants.edgeDeviceHandshake(boxId),
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /edge-devices/package/download
+  Future<ApiResponseModel<dynamic>> getEdgeDevicePackageDownload() async {
+    return _http.get(
+      ApiConstants.edgeDevicePackageDownload,
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /edge-devices/setup-script
+  Future<ApiResponseModel<dynamic>> getEdgeDeviceSetupScript() async {
+    return _http.get(
+      ApiConstants.edgeDeviceSetupScript,
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /gps-devices/:id
+  Future<ApiResponseModel<GpsDeviceModel>> getGpsDevice(dynamic id) async {
+    return _http.get<GpsDeviceModel>(
+      ApiConstants.gpsDeviceOne(id.toString()),
+      requiresAuth: true,
+      create: (data) => GpsDeviceModel.fromJson(data is Map ? Map<String, dynamic>.from(data) : {}),
+    );
+  }
+
+  /// PATCH /gps-devices/:id
+  Future<ApiResponseModel<dynamic>> updateGpsDevice(dynamic id, Map<String, dynamic> data) async {
+    return _http.patch(
+      ApiConstants.gpsDeviceOne(id.toString()),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// DELETE /gps-devices/:id
+  Future<ApiResponseModel<dynamic>> deleteGpsDevice(dynamic id) async {
+    return _http.delete(
+      ApiConstants.gpsDeviceOne(id.toString()),
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /gps-devices/:id/approve
+  Future<ApiResponseModel<dynamic>> approveGpsDevice(dynamic id) async {
+    return _http.post(
+      ApiConstants.gpsDeviceApprove(id.toString()),
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /gps-devices/:id/reject
+  Future<ApiResponseModel<dynamic>> rejectGpsDevice(dynamic id, String reason) async {
+    return _http.post(
+      ApiConstants.gpsDeviceReject(id.toString()),
+      body: {'reason': reason},
+      requiresAuth: true,
+    );
+  }
+
+  // ==========================================================
+  // SECTION 7: Global Work Orders Management
+  // ==========================================================
+
+  /// GET /work-orders
+  Future<ApiResponseModel<List<WorkOrderModel>>> getGlobalWorkOrders({
+    int page = 1,
+    int limit = 20,
+    String? status,
+    String? urgency,
+    String? search,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'page': page,
+      'limit': limit,
+      if (status != null && status.isNotEmpty && status.toLowerCase() != 'all') 'status': status,
+      if (urgency != null && urgency.isNotEmpty && urgency.toLowerCase() != 'all') 'urgency': urgency,
+      if (search != null && search.isNotEmpty) 'search': search,
+    };
+    return _http.get<List<WorkOrderModel>>(
+      ApiConstants.workOrders,
+      queryParams: queryParams,
+      requiresAuth: true,
+      create: (data) {
+        if (data is List) {
+          return data.whereType<Map>().map((i) => WorkOrderModel.fromJson(Map<String, dynamic>.from(i))).toList();
+        } else if (data is Map && data['rows'] is List) {
+          return (data['rows'] as List).whereType<Map>().map((i) => WorkOrderModel.fromJson(Map<String, dynamic>.from(i))).toList();
+        } else if (data is Map && data['items'] is List) {
+          return (data['items'] as List).whereType<Map>().map((i) => WorkOrderModel.fromJson(Map<String, dynamic>.from(i))).toList();
+        }
+        return <WorkOrderModel>[];
+      },
+    );
+  }
+
+  /// POST /work-orders
+  Future<ApiResponseModel<dynamic>> createWorkOrder(Map<String, dynamic> data) async {
+    return _http.post(
+      ApiConstants.workOrders,
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /work-orders/:id
+  Future<ApiResponseModel<WorkOrderModel>> getWorkOrder(dynamic id) async {
+    return _http.get<WorkOrderModel>(
+      ApiConstants.workOrderOne(id.toString()),
+      requiresAuth: true,
+      create: (data) => WorkOrderModel.fromJson(data is Map ? Map<String, dynamic>.from(data) : {}),
+    );
+  }
+
+  /// PATCH /work-orders/:id
+  Future<ApiResponseModel<dynamic>> updateWorkOrder(dynamic id, Map<String, dynamic> data) async {
+    return _http.patch(
+      ApiConstants.workOrderOne(id.toString()),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// PATCH /work-orders/:id/approve
+  Future<ApiResponseModel<dynamic>> approveWorkOrder(dynamic id) async {
+    return _http.patch(
+      ApiConstants.workOrderApprove(id.toString()),
+      requiresAuth: true,
+    );
+  }
+
+  /// PATCH /work-orders/:id/assign
+  Future<ApiResponseModel<dynamic>> assignWorkOrder(dynamic id, Map<String, dynamic> data) async {
+    return _http.patch(
+      ApiConstants.workOrderAssign(id.toString()),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /work-orders/:id/rate
+  Future<ApiResponseModel<dynamic>> rateWorkOrder(dynamic id, Map<String, dynamic> data) async {
+    return _http.post(
+      ApiConstants.workOrderRate(id.toString()),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// PATCH /work-orders/:id/reject
+  Future<ApiResponseModel<dynamic>> rejectWorkOrder(dynamic id, String reason) async {
+    return _http.patch(
+      ApiConstants.workOrderReject(id.toString()),
+      body: {'reason': reason},
+      requiresAuth: true,
+    );
+  }
+
+  /// PATCH /work-orders/:id/status
+  Future<ApiResponseModel<dynamic>> updateWorkOrderStatus(dynamic id, Map<String, dynamic> data) async {
+    return _http.patch(
+      ApiConstants.workOrderStatus(id.toString()),
+      body: data,
+      requiresAuth: true,
     );
   }
 }

@@ -102,21 +102,37 @@ class AddGpsView extends GetView<AddGpsController> {
             ),
           ),
           Obx(() {
-            return ElevatedButton(
-              onPressed: controller.isSubmitting.value ? null : controller.submitForm,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6366F1),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            return Container(
+              height: 36,
+              decoration: BoxDecoration(
+                gradient: AppTheme.primaryGradient,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.gradientPink.withValues(alpha: 0.25),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              child: controller.isSubmitting.value
-                  ? const SizedBox(
-                      width: 14,
-                      height: 14,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                    )
-                  : Text(isEdit ? 'Update' : 'Save', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              child: ElevatedButton(
+                onPressed: controller.isSubmitting.value ? null : controller.submitForm,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  elevation: 0,
+                ),
+                child: controller.isSubmitting.value
+                    ? const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                    : Text(isEdit ? 'Update' : 'Save', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              ),
             );
           }),
         ],

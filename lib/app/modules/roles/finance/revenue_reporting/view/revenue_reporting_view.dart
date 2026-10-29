@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -259,18 +260,28 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
         onTap: () => controller.applyPreset(id),
         borderRadius: BorderRadius.circular(8),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
           decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFF3B82F6).withOpacity(0.2) : const Color(0xFF1C1C2D),
+            gradient: isSelected ? AppTheme.primaryGradient : null,
+            color: isSelected ? null : const Color(0xFF1C1C2D),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: isSelected ? const Color(0xFF3B82F6) : const Color(0xFF28283E),
+              color: isSelected ? Colors.transparent : const Color(0xFF28283E),
             ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
           child: Text(
             label,
             style: TextStyle(
-              color: isSelected ? const Color(0xFF93C5FD) : Colors.white70,
+              color: isSelected ? Colors.white : Colors.white70,
               fontSize: 11,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
             ),

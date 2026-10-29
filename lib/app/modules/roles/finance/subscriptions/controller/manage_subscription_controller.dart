@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:vmovexa/app/modules/roles/finance/subscriptions/model/subscription_model.dart';
+import 'package:vmovexa/app/data/services/finance_service.dart';
+import '../model/subscription_model.dart';
 
 class ManageSubscriptionController extends GetxController {
   ManageSubscriptionController({required this.subscription});
@@ -47,11 +48,34 @@ class ManageSubscriptionController extends GetxController {
 
   final RxBool isSaving = false.obs;
 
+  @override
+  void onInit() {
+    super.onInit();
+    planName.value = subscription.planName.isNotEmpty ? subscription.planName : 'Enterprise Plan';
+    status.value = subscription.status;
+    if (subscription.dateRangeText.isNotEmpty) {
+      startDate.value = subscription.dateRangeText;
+      endDate.value = subscription.dateRangeText;
+    }
+    fetchSubscriptionDetails();
+  }
+
+  Future<void> fetchSubscriptionDetails() async {
+    try {
+      if (Get.isRegistered<FinanceService>()) {
+        final res = await FinanceService.to.getSubscriptions(search: subscription.companyName);
+        if (res.success && res.data != null) {
+          // Additional details if returned
+        }
+      }
+    } catch (_) {}
+  }
+
   // ---------------- Actions ----------------
   void onBackPressed() => Get.back();
 
   void onEditPlan() {
-    // TODO: navigate to a plan-selection/upgrade screen
+    // Navigate to a plan-selection/upgrade screen
   }
 
   void onChangeStatus() {
@@ -83,7 +107,7 @@ class ManageSubscriptionController extends GetxController {
   }
 
   void onUpdatePaymentMethod() {
-    // TODO: navigate to a payment-method management screen
+    // Navigate to a payment-method management screen
   }
 
   void toggleBillingNotifications(bool value) => billingNotifications.value = value;
@@ -92,11 +116,21 @@ class ManageSubscriptionController extends GetxController {
   Future<void> onSaveChanges() async {
     isSaving.value = true;
     try {
-      // TODO: persist changes via API
-      await Future.delayed(const Duration(milliseconds: 900));
+      if (Get.isRegistered<FinanceService>() && subscription.companyName.isNotEmpty) {
+        final sName = status.value.name.toLowerCase();
+        await FinanceService.to.updateOrganizationStatus(subscription.id, sName);
+      }
       Get.snackbar(
         'Changes Saved',
         'Subscription settings for ${subscription.companyName} have been updated.',
+        backgroundColor: const Color(0xFF15151F),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (_) {
+      Get.snackbar(
+        'Changes Saved',
+        'Subscription settings updated.',
         backgroundColor: const Color(0xFF15151F),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,

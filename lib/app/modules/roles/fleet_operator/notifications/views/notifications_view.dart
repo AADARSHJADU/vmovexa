@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
@@ -216,16 +217,26 @@ class NotificationsView extends GetView<NotificationsController> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                     decoration: BoxDecoration(
-                      color: isSelected ? const Color(0xFF06B6D4) : Colors.white.withValues(alpha: 0.04),
+                      gradient: isSelected ? AppTheme.primaryGradient : null,
+                      color: isSelected ? null : Colors.white.withValues(alpha: 0.04),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: isSelected ? const Color(0xFF06B6D4) : Colors.white12,
+                        color: isSelected ? Colors.transparent : Colors.white12,
                       ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ]
+                          : null,
                     ),
                     child: Text(
                       tab['label']!,
                       style: TextStyle(
-                        color: isSelected ? Colors.black : Colors.white70,
+                        color: isSelected ? Colors.white : Colors.white70,
                         fontSize: 11,
                         fontWeight: isSelected ? FontWeight.w900 : FontWeight.bold,
                       ),

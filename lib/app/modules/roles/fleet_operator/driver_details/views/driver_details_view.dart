@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../theme/app_colors.dart';
@@ -29,10 +30,11 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                   const SizedBox(height: 16),
                   const Text('Driver profile not found', style: TextStyle(color: Colors.white70, fontSize: 16)),
                   const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () => Get.back(),
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981)),
-                    child: const Text('Back to Drivers', style: TextStyle(color: Colors.white)),
+                  CustomButton(
+                    text: 'Back to Drivers',
+                    onTap: () => Get.back(),
+                    width: 160,
+                    height: 42,
                   ),
                 ],
               ),

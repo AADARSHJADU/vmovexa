@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
+import 'package:vmovexa/app/widgets/custom_button.dart';
 import '../../../../../theme/app_colors.dart';
 import '../controller/finance_payments_controller.dart';
 
@@ -123,8 +125,18 @@ class FinancePaymentsView extends GetView<FinancePaymentsController> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    color: tab == 0 ? kIndigo : Colors.transparent,
+                    gradient: tab == 0 ? AppTheme.primaryGradient : null,
+                    color: tab == 0 ? null : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
+                    boxShadow: tab == 0
+                        ? [
+                            BoxShadow(
+                              color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
                   ),
                   alignment: Alignment.center,
                   child: Row(
@@ -151,8 +163,18 @@ class FinancePaymentsView extends GetView<FinancePaymentsController> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    color: tab == 1 ? kIndigo : Colors.transparent,
+                    gradient: tab == 1 ? AppTheme.primaryGradient : null,
+                    color: tab == 1 ? null : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
+                    boxShadow: tab == 1
+                        ? [
+                            BoxShadow(
+                              color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
                   ),
                   alignment: Alignment.center,
                   child: Row(
@@ -403,15 +425,11 @@ class FinancePaymentsView extends GetView<FinancePaymentsController> {
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => controller.openManualPayDialog(item),
-                        icon: const Icon(Icons.check, size: 14, color: Colors.white),
-                        label: const Text('Record Pay', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: kIndigo,
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
+                      child: CustomButton(
+                        text: 'Record Pay',
+                        prefixIcon: const Icon(Icons.check, size: 14, color: Colors.white),
+                        onTap: () => controller.openManualPayDialog(item),
+                        height: 38,
                       ),
                     ),
                   ],

@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/onboard_tenant_controller.dart';
@@ -1210,17 +1211,13 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
+                  child: CustomButton(
+                    text: 'Done / View',
+                    onTap: () {
                       controller.successModalData.value = null;
                       Get.back();
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: kGreen,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                    ),
-                    child: const Text('Done / View', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700)),
+                    height: 42,
                   ),
                 ),
               ],

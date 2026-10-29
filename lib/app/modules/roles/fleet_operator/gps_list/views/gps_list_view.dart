@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../theme/app_colors.dart';
@@ -338,14 +339,22 @@ class GpsListView extends GetView<GpsListController> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFF6366F1) : AppColors.cardBg,
+                  gradient: isSelected ? AppTheme.primaryGradient : null,
+                  color: isSelected ? null : AppColors.cardBg,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: isSelected
-                        ? const Color(0xFF818CF8)
-                        : AppColors.cardBorder,
+                    color: isSelected ? Colors.transparent : AppColors.cardBorder,
                     width: 1.2,
                   ),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -534,16 +543,12 @@ class GpsListView extends GetView<GpsListController> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
-          ElevatedButton.icon(
-            onPressed: controller.goToAdd,
-            icon: const Icon(Icons.add_rounded, size: 16),
-            label: const Text('Register First GPS Unit'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6366F1),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
+          CustomButton(
+            text: 'Register First GPS Unit',
+            prefixIcon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
+            onTap: controller.goToAdd,
+            width: 220,
+            height: 42,
           ),
         ],
       ),

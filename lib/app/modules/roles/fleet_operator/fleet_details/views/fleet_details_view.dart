@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/data/constants/api_constants.dart';
@@ -55,13 +56,11 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                         style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: controller.backToFleetList,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryButtonBlue,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                        child: const Text('Back to Fleets List', style: TextStyle(color: Colors.white)),
+                      CustomButton(
+                        text: 'Back to Fleets List',
+                        onTap: controller.backToFleetList,
+                        width: 180,
+                        height: 42,
                       ),
                     ],
                   ),
@@ -276,18 +275,33 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
             runSpacing: 8,
             children: [
               // Edit Fleet Profile Button
-              ElevatedButton.icon(
-                onPressed: controller.goToEditFleet,
-                icon: const Icon(Icons.edit, size: 14, color: Colors.white),
-                label: const Text('Edit Fleet', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(0, 40),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  backgroundColor: AppColors.primaryButtonBlue,
-                  foregroundColor: Colors.white,
-                  // padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              Container(
+                height: 40,
+                decoration: BoxDecoration(
+                  gradient: AppTheme.primaryGradient,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.gradientPink.withValues(alpha: 0.25),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton.icon(
+                  onPressed: controller.goToEditFleet,
+                  icon: const Icon(Icons.edit, size: 14, color: Colors.white),
+                  label: const Text('Edit Fleet', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(0, 40),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    elevation: 0,
+                  ),
                 ),
               ),
 
@@ -482,8 +496,18 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 9),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryButtonBlue : Colors.transparent,
+          gradient: isSelected ? AppTheme.primaryGradient : null,
+          color: isSelected ? null : Colors.transparent,
           borderRadius: BorderRadius.circular(9),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -1119,15 +1143,23 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                 'Assigned Transit Units (${vehicles.length})',
                 style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
               ),
-              ElevatedButton.icon(
-                onPressed: controller.goToAddVehicle,
-                icon: const Icon(Icons.add, size: 14, color: Colors.white),
-                label: const Text('Add Vehicle', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryButtonBlue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: AppTheme.primaryGradient,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: ElevatedButton.icon(
+                  onPressed: controller.goToAddVehicle,
+                  icon: const Icon(Icons.add, size: 14, color: Colors.white),
+                  label: const Text('Add Vehicle', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    elevation: 0,
+                  ),
                 ),
               ),
             ],

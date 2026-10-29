@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../theme/app_colors.dart';
@@ -529,19 +530,11 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
             const SizedBox(height: 12),
 
             // Button to View Bus Details
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: controller.goToVehicleDetails,
-                icon: const Icon(Icons.arrow_forward_rounded, size: 16),
-                label: const Text('View Bus Details & Telematics'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2563EB),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
+            CustomButton(
+              text: 'View Bus Details & Telematics',
+              prefixIcon: const Icon(Icons.arrow_forward_rounded, size: 16, color: Colors.white),
+              onTap: controller.goToVehicleDetails,
+              height: 46,
             ),
           ] else ...[
             Container(
@@ -567,15 +560,12 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 14),
-                  ElevatedButton.icon(
-                    onPressed: controller.goToAssign,
-                    icon: const Icon(Icons.add_link_rounded, size: 16),
-                    label: const Text('Pair to Vehicle Now'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6366F1),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
+                  CustomButton(
+                    text: 'Pair to Vehicle Now',
+                    prefixIcon: const Icon(Icons.add_link_rounded, size: 16, color: Colors.white),
+                    onTap: controller.goToAssign,
+                    width: 200,
+                    height: 42,
                   ),
                 ],
               ),
@@ -744,13 +734,11 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => Get.back(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1E293B),
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Go Back'),
+            CustomButton(
+              text: 'Go Back',
+              onTap: () => Get.back(),
+              width: 140,
+              height: 42,
             ),
           ],
         ),

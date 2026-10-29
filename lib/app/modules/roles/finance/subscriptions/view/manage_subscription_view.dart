@@ -158,15 +158,25 @@ class ManageSubscriptionView extends GetView<ManageSubscriptionController> {
               return GestureDetector(
                 onTap: () => controller.selectTab(index),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    border: Border(bottom: BorderSide(color: isActive ? kPurple : Colors.transparent, width: 2)),
+                    gradient: isActive ? AppTheme.primaryGradient : null,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: isActive
+                        ? [
+                            BoxShadow(
+                              color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(controller.tabIcons[index], size: 14, color: isActive ? kPurple : Colors.white38),
+                      Icon(controller.tabIcons[index], size: 14, color: isActive ? Colors.white : Colors.white38),
                       const SizedBox(width: 6),
                       Text(
                         controller.tabLabels[index],

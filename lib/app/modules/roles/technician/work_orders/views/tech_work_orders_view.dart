@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/data/models/work_order_model.dart';
@@ -178,19 +179,27 @@ class TechWorkOrdersView extends StatelessWidget {
     required VoidCallback onTap,
     Color? color,
   }) {
-    final activeColor = color ?? const Color(0xFF6366F1);
-
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? activeColor.withValues(alpha: 0.18) : const Color(0xFF1E293B),
+          gradient: isSelected ? AppTheme.primaryGradient : null,
+          color: isSelected ? null : const Color(0xFF1E293B),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? activeColor.withValues(alpha: 0.5) : const Color(0xFF334155),
+            color: isSelected ? Colors.transparent : const Color(0xFF334155),
           ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
         child: Row(
           children: [
@@ -206,7 +215,7 @@ class TechWorkOrdersView extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
               decoration: BoxDecoration(
-                color: isSelected ? activeColor : const Color(0xFF334155),
+                color: isSelected ? Colors.white.withValues(alpha: 0.25) : const Color(0xFF334155),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(

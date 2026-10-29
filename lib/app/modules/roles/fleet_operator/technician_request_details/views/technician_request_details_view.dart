@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../theme/app_colors.dart';
@@ -40,12 +41,11 @@ class TechnicianRequestDetailsView extends GetView<TechnicianRequestDetailsContr
                           style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 14),
-                        ElevatedButton(
-                          onPressed: () => Get.back(),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2563EB),
-                          ),
-                          child: const Text('Back to Work Orders', style: TextStyle(color: Colors.white)),
+                        CustomButton(
+                          text: 'Back to Work Orders',
+                          onTap: () => Get.back(),
+                          width: 180,
+                          height: 42,
                         ),
                       ],
                     ),
@@ -169,22 +169,11 @@ class TechnicianRequestDetailsView extends GetView<TechnicianRequestDetailsContr
           ),
           if (isEditable) ...[
             const SizedBox(height: 14),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: controller.openEditOrder,
-                icon: const Icon(Icons.edit_outlined, size: 15, color: Colors.white),
-                label: const Text(
-                  'Edit Request Details',
-                  style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2563EB),
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(vertical: 11),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
+            CustomButton(
+              text: 'Edit Request Details',
+              prefixIcon: const Icon(Icons.edit_outlined, size: 15, color: Colors.white),
+              onTap: controller.openEditOrder,
+              height: 44,
             ),
           ],
         ],

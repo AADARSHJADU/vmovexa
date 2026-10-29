@@ -1,3 +1,5 @@
+import 'package:vmovexa/app/widgets/custom_button.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../theme/app_colors.dart';
@@ -122,28 +124,11 @@ class TechnicianRequestsView extends GetView<TechnicianRequestsController> {
             ),
           ),
           const SizedBox(height: 14),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: controller.openCreateRequest,
-              icon: const Icon(Icons.add_rounded, size: 18, color: Colors.white),
-              label: const Text(
-                'New Technician Request',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2563EB),
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
+          CustomButton(
+            text: 'New Technician Request',
+            prefixIcon: const Icon(Icons.add_rounded, size: 18, color: Colors.white),
+            onTap: controller.openCreateRequest,
+            height: 48,
           ),
         ],
       ),
@@ -339,11 +324,21 @@ class TechnicianRequestsView extends GetView<TechnicianRequestsController> {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFF2563EB) : const Color(0xFF1E212D),
+            gradient: isSelected ? AppTheme.primaryGradient : null,
+            color: isSelected ? null : const Color(0xFF1E212D),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: isSelected ? const Color(0xFF3B82F6) : AppColors.cardBorder,
+              color: isSelected ? Colors.transparent : AppColors.cardBorder,
             ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
           child: Text(
             label,

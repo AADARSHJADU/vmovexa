@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../controllers/advertiser_profile_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
 import '../../../../../theme/app_colors.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import '../../../../../routes/app_routes.dart';
 
 class AdvertiserProfileView extends GetView<AdvertiserProfileController> {
@@ -80,7 +81,7 @@ class AdvertiserProfileView extends GetView<AdvertiserProfileController> {
               height: 80,
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: LinearGradient(colors: [Color(0xFF8B5CF6), Color(0xFFEC4899)]),
+                gradient: AppTheme.primaryGradient,
               ),
               child: const Center(
                 child: Text(

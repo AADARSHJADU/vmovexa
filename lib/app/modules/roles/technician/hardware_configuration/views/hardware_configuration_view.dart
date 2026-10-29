@@ -1,8 +1,8 @@
+import 'package:vmovexa/app/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/data/models/edge_device_model.dart';
 import 'package:vmovexa/app/modules/roles/technician/hardware_configuration/views/system_settings_tab.dart';
-import '../../../../../theme/app_theme.dart';
 import '../controllers/hardware_config_controller.dart';
 import 'display_settings_tab.dart';
 import 'network_settings_tab.dart';
@@ -287,13 +287,22 @@ class HardwareConfigurationView extends GetView<HardwareConfigController> {
                   duration: const Duration(milliseconds: 150),
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   decoration: BoxDecoration(
-                    color: isActive ? kPurple.withValues(alpha: 0.18) : Colors.transparent,
+                    gradient: isActive ? AppTheme.primaryGradient : null,
+                    color: isActive ? null : Colors.transparent,
                     borderRadius: BorderRadius.circular(9),
-                    border: isActive ? Border.all(color: kPurple.withValues(alpha: 0.5)) : null,
+                    boxShadow: isActive
+                        ? [
+                            BoxShadow(
+                              color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
                   ),
                   child: Column(
                     children: [
-                      Icon(icons[index], size: 16, color: isActive ? kPurple : Colors.white38),
+                      Icon(icons[index], size: 16, color: isActive ? Colors.white : Colors.white38),
                       const SizedBox(height: 3),
                       Text(
                         controller.tabLabels[index],

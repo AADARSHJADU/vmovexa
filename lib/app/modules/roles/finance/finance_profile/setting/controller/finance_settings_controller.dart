@@ -1,22 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/data/services/auth_service.dart';
+import 'package:vmovexa/app/data/services/finance_service.dart';
+import 'package:vmovexa/app/data/services/storage_service.dart';
 import 'package:vmovexa/app/routes/app_routes.dart';
-
 import '../../model/profile_settings_models.dart';
 
 class FinanceSettingsController extends GetxController {
   // ---------------- Identity header ----------------
-  final RxString fullName = 'Riya Agarwal'.obs;
-  final RxString roleLabel = 'Finance Manager'.obs;
-  final RxString email = 'riya.agarwal@vmovexa.com'.obs;
-  final RxString phone = '+91 98765 43210'.obs;
-  final RxString initials = 'RA'.obs;
+  final RxString fullName = 'Finance Manager'.obs;
+  final RxString roleLabel = 'Finance Officer'.obs;
+  final RxString email = ''.obs;
+  final RxString phone = ''.obs;
+  final RxString initials = 'FM'.obs;
 
   // ---------------- Preferences (shown as trailing text in the list) ----------------
   final RxString language = 'English'.obs;
   final RxString timeZone = 'IST (UTC +05:30)'.obs;
   final RxString theme = 'Dark'.obs;
   final RxString appVersion = 'v1.4.0'.obs;
+
+  // ---------------- Corporate Finance Settings ----------------
+  final RxMap<String, dynamic> corporateSettings = <String, dynamic>{}.obs;
 
   // ---------------- Sections ----------------
   final RxList<SettingsMenuItem> accountItems = <SettingsMenuItem>[].obs;
@@ -28,7 +33,40 @@ class FinanceSettingsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _loadUserHeader();
     _buildMenus();
+    fetchCorporateSettings();
+  }
+
+  void _loadUserHeader() {
+    try {
+      if (Get.isRegistered<StorageService>()) {
+        final u = StorageService.to.getUser();
+        if (u != null) {
+          if (u.name != null && u.name!.isNotEmpty) fullName.value = u.name!;
+          if (u.email != null && u.email!.isNotEmpty) email.value = u.email!;
+          if (u.phone != null && u.phone!.isNotEmpty) phone.value = u.phone!;
+          if (u.role != null && u.role!.isNotEmpty) {
+            roleLabel.value = u.role!.replaceAll('ROLE-', '').replaceAll('-', ' ');
+          }
+          if (fullName.value.isNotEmpty) initials.value = fullName.value[0].toUpperCase();
+        }
+      }
+    } catch (_) {}
+  }
+
+  Future<void> fetchCorporateSettings() async {
+    isLoading.value = true;
+    try {
+      if (Get.isRegistered<FinanceService>()) {
+        final res = await FinanceService.to.getSettings();
+        if (res.success && res.data != null && res.data!.isNotEmpty) {
+          corporateSettings.assignAll(res.data!);
+        }
+      }
+    } catch (_) {} finally {
+      isLoading.value = false;
+    }
   }
 
   void _buildMenus() {
@@ -38,22 +76,15 @@ class FinanceSettingsController extends GetxController {
         icon: Icons.person_outline,
         title: 'Profile Information',
         subtitle: 'View and update your personal information',
-        route: '/finance-profile',
+        route: Routes.FINANCE_PROFILE,
       ),
       SettingsMenuItem(
         id: 'change_password',
         icon: Icons.lock_outline,
         title: 'Change Password',
         subtitle: 'Update your account password',
-        route: '/change-password',
+        route: Routes.CHANGE_PASSWORD,
       ),
-      // SettingsMenuItem(
-      //   id: 'account_activity',
-      //   icon: Icons.work_outline,
-      //   title: 'Account Activity',
-      //   subtitle: 'View your recent account activity and sessions',
-      //   route: '/account-activity',
-      // ),
     ]);
 
     preferenceItems.assignAll([
@@ -64,40 +95,9 @@ class FinanceSettingsController extends GetxController {
         subtitle: 'Manage email and in-app notification settings',
         route: Routes.FINANCE_NOTIFICATION_SETTINGS,
       ),
-      // SettingsMenuItem(
-      //   id: 'language',
-      //   icon: Icons.public,
-      //   title: 'Language',
-      //   subtitle: 'Choose your preferred language',
-      //   trailingText: language.value,
-      //   route: '/language-settings',
-      // ),
-      // SettingsMenuItem(
-      //   id: 'time_zone',
-      //   icon: Icons.access_time,
-      //   title: 'Time Zone',
-      //   subtitle: 'Set your preferred time zone',
-      //   trailingText: timeZone.value,
-      //   route: '/timezone-settings',
-      // ),
-      // SettingsMenuItem(
-      //   id: 'theme',
-      //   icon: Icons.palette_outlined,
-      //   title: 'Theme',
-      //   subtitle: 'Choose your preferred app theme',
-      //   trailingText: theme.value,
-      //   route: '/theme-settings',
-      // ),
     ]);
 
     appItems.assignAll([
-      // SettingsMenuItem(
-      //   id: 'data_storage',
-      //   icon: Icons.storage_outlined,
-      //   title: 'Data & Storage',
-      //   subtitle: 'Manage app data and storage usage',
-      //   route: '/data-storage',
-      // ),
       SettingsMenuItem(
         id: 'about',
         icon: Icons.info_outline,
@@ -127,14 +127,16 @@ class FinanceSettingsController extends GetxController {
   // ---------------- Actions ----------------
   void onBackPressed() => Get.back();
 
-  void onHeaderTap() => Get.toNamed('/finance-profile');
+  void onHeaderTap() => Get.toNamed(Routes.FINANCE_PROFILE);
 
   void onMenuItemTap(SettingsMenuItem item) {
     if (item.id == 'logout') {
       onLogout();
       return;
     }
-    Get.toNamed(item.route);
+    if (item.route.isNotEmpty) {
+      Get.toNamed(item.route);
+    }
   }
 
   void onLogout() {
@@ -147,10 +149,16 @@ class FinanceSettingsController extends GetxController {
         actions: [
           TextButton(onPressed: () => Get.back(), child: const Text('Cancel', style: TextStyle(color: Colors.white54))),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Get.back();
-              // TODO: clear session/tokens
-              Get.offAllNamed('/login');
+              try {
+                if (Get.isRegistered<AuthService>()) {
+                  await AuthService.to.logout();
+                } else if (Get.isRegistered<StorageService>()) {
+                  await StorageService.to.clearAuth();
+                }
+              } catch (_) {}
+              Get.offAllNamed(Routes.LOGIN);
             },
             child: const Text('Log Out', style: TextStyle(color: Color(0xFFFF4D4D), fontWeight: FontWeight.w700)),
           ),

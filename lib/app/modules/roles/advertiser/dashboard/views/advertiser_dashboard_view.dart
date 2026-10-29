@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/theme/app_theme.dart';
-import '../../../../../widgets/custom_back_button.dart';
+import 'package:vmovexa/app/theme/app_colors.dart';
 import '../../../../../widgets/custom_button.dart';
-import '../controllers/advertiser_dashboard_controller.dart';
-import '../../../../../theme/app_colors.dart';
 import '../../../../../widgets/custom_text_field.dart';
 import '../../../../../routes/app_routes.dart';
+import 'package:vmovexa/app/data/models/campaign_model.dart';
+import '../controllers/advertiser_dashboard_controller.dart';
+import '../../widgets/advertiser_drawer_widget.dart';
 
 class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
   const AdvertiserDashboardView({super.key});
@@ -15,16 +16,20 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: controller.scaffoldKey,
+      drawer: const AdvertiserDrawerWidget(),
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Obx(() {
           switch (controller.selectedNavIndex.value) {
+            case 0:
+              return _buildHomeTab();
             case 1:
               return _buildCampaignsTab();
             case 2:
-              return _buildAnalyticsTab();
+              return _buildLifecycleFlowTab();
             case 3:
-              return _buildReportsTab();
+              return _buildAnalyticsTab();
             case 4:
               return _buildDynamicTab4Body();
             default:
@@ -33,17 +38,6 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
         }),
       ),
       bottomNavigationBar: Obx(() {
-        IconData tab4Icon = Icons.person_outline_rounded;
-        String tab4Label = 'Profile';
-
-        if (controller.tab4Mode.value == 'billing') {
-          tab4Icon = Icons.account_balance_wallet_rounded;
-          tab4Label = 'Billing';
-        } else if (controller.tab4Mode.value == 'help') {
-          tab4Icon = Icons.more_horiz_rounded;
-          tab4Label = 'More';
-        }
-
         return Container(
           decoration: const BoxDecoration(
             color: AppColors.cardBg,
@@ -52,41 +46,34 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             ),
           ),
           child: BottomNavigationBar(
-            currentIndex: controller.selectedNavIndex.value,
-            onTap: (index) {
-              if (index == 4) {
-                // Keep whatever mode it was or let it stick
-              } else {
-                // If switching away from index 4, reset mode to profile for next click or let it stay
-              }
-              controller.changeTab(index);
-            },
+            currentIndex: controller.selectedNavIndex.value.clamp(0, 4),
+            onTap: controller.changeTab,
             backgroundColor: Colors.transparent,
             type: BottomNavigationBarType.fixed,
             selectedItemColor: const Color(0xFF8B5CF6),
             unselectedItemColor: AppColors.textMuted,
             selectedFontSize: 9.5,
             unselectedFontSize: 9.5,
-            items: [
-              const BottomNavigationBarItem(
-                icon: Icon(Icons.home_filled, size: 20),
-                label: 'Home',
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.dashboard_rounded, size: 20),
+                label: 'Dashboard',
               ),
-              const BottomNavigationBarItem(
+              BottomNavigationBarItem(
                 icon: Icon(Icons.campaign_rounded, size: 20),
                 label: 'Campaigns',
               ),
-              const BottomNavigationBarItem(
+              BottomNavigationBarItem(
+                icon: Icon(Icons.account_tree_outlined, size: 20),
+                label: 'Lifecycle & Flow',
+              ),
+              BottomNavigationBarItem(
                 icon: Icon(Icons.bar_chart_rounded, size: 20),
                 label: 'Analytics',
               ),
-              const BottomNavigationBarItem(
-                icon: Icon(Icons.description_outlined, size: 20),
-                label: 'Reports',
-              ),
               BottomNavigationBarItem(
-                icon: Icon(tab4Icon, size: 20),
-                label: tab4Label,
+                icon: Icon(Icons.person_outline_rounded, size: 20),
+                label: 'Profile',
               ),
             ],
           ),
@@ -101,231 +88,20 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
       return _buildBillingTab();
     } else if (mode == 'help') {
       return _buildHelpSupportTab();
+    } else if (mode == 'reports') {
+      return _buildReportsTab();
     } else {
       return _buildSettingsTab();
     }
   }
 
   // ==========================================
-  // HOME TAB (Index 0)
+  // HOME / OVERVIEW TAB (Index 0) - Real API
   // ==========================================
-/*  Widget _buildHomeTab() {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                icon: const Icon(
-                  Icons.menu_rounded,
-                  color: Colors.white,
-                  size: 24,
-                ),
-                onPressed: () {},
-              ),
-              const Text(
-                'V M O V E X A',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2,
-                ),
-              ),
-              Row(
-                children: [
-                  Stack(
-                    children: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.notifications_none_rounded,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                        onPressed: () => Get.toNamed(Routes.NOTIFICATIONS_LIST),
-                      ),
-                      Positioned(
-                        right: 12,
-                        top: 12,
-                        child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF8B5CF6),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(width: 4),
-                  GestureDetector(
-                    onTap: controller.switchToProfile,
-                    child: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF8B5CF6),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.person_outline_rounded,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Welcome back,',
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 13),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Advertiser!',
-                  style: TextStyle(
-                    color: Color(0xFF8B5CF6),
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  "Here's an overview of your campaigns.",
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 11,
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                _buildMetricsGrid(),
-                const SizedBox(height: 28),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Campaign Performance (Last 7 Days)',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () => controller.changeTab(2),
-                      child: const Text(
-                        'View All',
-                        style: TextStyle(
-                          color: Color(0xFF6366F1),
-                          fontSize: 11,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                _buildPerformanceChart(),
-                const SizedBox(height: 28),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Recent Campaigns',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () => controller.changeTab(1),
-                      child: const Text(
-                        'View All',
-                        style: TextStyle(
-                          color: Color(0xFF6366F1),
-                          fontSize: 11,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                _buildRecentCampaignsList(),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }*/
-
   Widget _buildHomeTab() {
     return Column(
       children: [
-        // Padding(
-        //   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        //   child: Row(
-        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //     children: [
-        //       /*IconButton(
-        //       icon: const Icon(Icons.menu_rounded, color: Colors.white, size: 24),
-        //       onPressed: () {},
-        //     ),*/
-        //       const Text(
-        //         'V M O V E X A',
-        //         style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2),
-        //       ),
-        //       Row(
-        //         children: [
-        //           Stack(
-        //             children: [
-        //               SvgPicture.asset('assets/icons/notification.svg'),
-        //               /*IconButton(
-        //               icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 24),
-        //               onPressed: () => Get.toNamed(Routes.NOTIFICATIONS_LIST),
-        //             ),*/
-        //               /*Positioned(
-        //               left: 12,
-        //               bottom: 12,
-        //               child: Container(
-        //                 width: 8,
-        //                 height: 8,
-        //                 decoration: const BoxDecoration(color: Color(0xFF8B5CF6), shape: BoxShape.circle),
-        //               ),
-        //             ),*/
-        //             ],
-        //           ),
-        //           const SizedBox(width: 10),
-        //           GestureDetector(
-        //             onTap: controller.switchToProfile,
-        //             child: Center(
-        //               child: SvgPicture.asset('assets/icons/profile.svg'),
-        //             ),
-        //           ),
-        //         ],
-        //       ),
-        //     ],
-        //   ),
-        // ),
+        // Top App Bar
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Row(
@@ -333,100 +109,82 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             children: [
               IconButton(
                 icon: const Icon(Icons.menu_rounded, color: Colors.white, size: 28),
-                onPressed: () {},
+                onPressed: controller.openDrawer,
               ),
-              Image.asset('assets/app_logo/newLogo.png',width: 150,height: 40,),
-              // const AppLogoHeader(height: 38),
+              Image.asset('assets/app_logo/newLogo.png', width: 140, height: 38),
               Row(
                 children: [
-                  // Notification Bell with Badge count 5
-                  Stack(
-                    children: [
-                      /*IconButton(
-                        icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 26),
-                        onPressed: () {},
-                      ),*/
-                      SvgPicture.asset(
-                        'assets/icons/notification.svg',
-                        width: 24,
-                        height: 24,
-                      ),
-                      Positioned(
-                        left: 12,
-                        bottom: 10,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFA855F7),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Text(
-                            '5',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                  IconButton(
+                    icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 24),
+                    onPressed: () => Get.toNamed(Routes.NOTIFICATIONS_LIST),
                   ),
-                  const SizedBox(width: 8),
-                  // Profile Avatar
+                  const SizedBox(width: 4),
                   GestureDetector(
-                      onTap: controller.switchToProfile,
-                    child: SvgPicture.asset('assets/icons/profile.svg'),
+                    onTap: controller.switchToProfile,
+                    child: Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.primaryGradient,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Center(
+                        child: Icon(Icons.person_outline_rounded, color: Colors.white, size: 18),
+                      ),
+                    ),
                   ),
                 ],
               ),
             ],
           ),
         ),
+
+        // Body with Pull-to-refresh
         Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Welcome back,', style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
-                const SizedBox(height: 4),
-                const Text('Advertiser!', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 22, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                const Text("Here's an overview of your campaigns.", style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
-                const SizedBox(height: 24),
-
-                _buildMetricsGrid(),
-                const SizedBox(height: 28),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Campaign Performance (Last 7 Days)', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-                    TextButton(
-                      onPressed: () => controller.changeTab(2),
-                      child: const Text('View All', style: TextStyle(color: Color(0xFF6366F1), fontSize: 11)),
+          child: RefreshIndicator(
+            onRefresh: () => controller.loadDashboardData(isRefresh: true),
+            color: const Color(0xFF6366F1),
+            backgroundColor: AppColors.cardBg,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+              child: Obx(() {
+                if (controller.isLoading.value) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 80),
+                    child: Center(
+                      child: CircularProgressIndicator(color: Color(0xFF8B5CF6)),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                _buildPerformanceChart(),
-                const SizedBox(height: 28),
+                  );
+                }
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Recent Campaigns', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-                    TextButton(
-                      onPressed: () => controller.changeTab(1),
-                      child: const Text('View All', style: TextStyle(color: Color(0xFF6366F1), fontSize: 11)),
-                    ),
+                    // Welcome & Telemetry Header
+                    _buildDashboardHeader(),
+                    const SizedBox(height: 20),
+
+                    // 4 Real KPI Cards (from API)
+                    _buildKpiGrid(),
+                    const SizedBox(height: 24),
+
+                    // 7-Day Performance Bar Chart
+                    _buildPerformanceSection(),
+                    const SizedBox(height: 24),
+
+                    // Quick Actions
+                    _buildQuickActions(),
+                    const SizedBox(height: 24),
+
+                    // Recent Campaigns
+                    _buildRecentCampaignsHeader(),
+                    const SizedBox(height: 12),
+                    _buildRecentCampaigns(),
+                    const SizedBox(height: 20),
                   ],
-                ),
-                const SizedBox(height: 10),
-                _buildRecentCampaignsList(),
-              ],
+                );
+              }),
             ),
           ),
         ),
@@ -434,166 +192,168 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
     );
   }
 
-  Widget _buildMetricsGrid() {
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisSpacing: 14,
-      mainAxisSpacing: 14,
-      childAspectRatio: 1.35,
+  Widget _buildDashboardHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildMetricCard(
-          'Active Campaigns',
-          '12',
-          '2 running now',
-          svgIcon: 'assets/icons/advertiser_ic/speaker.svg',
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Welcome back,',
+                    style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${controller.greetingName}!',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  const Text(
+                    'Transit display ad campaign telemetry & insights.',
+                    style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                  ),
+                ],
+              ),
+            ),
+            // Live MQTT Telemetry Pill
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0F172A),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: controller.isMqttConnected
+                      ? const Color(0xFF10B981).withValues(alpha: 0.3)
+                      : const Color(0xFFEF4444).withValues(alpha: 0.3),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 7,
+                    height: 7,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: controller.isMqttConnected
+                          ? const Color(0xFF10B981)
+                          : const Color(0xFFEF4444),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    '${controller.onlineDevicesCount} Online',
+                    style: TextStyle(
+                      color: controller.isMqttConnected
+                          ? const Color(0xFF34D399)
+                          : const Color(0xFFF87171),
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        _buildMetricCard(
-          'Scheduled Campaigns',
-          '8',
-          'Upcoming',
-          svgIcon: 'assets/icons/advertiser_ic/calender.svg',
+        const SizedBox(height: 14),
+        Row(
+          children: [
+            Expanded(
+              child: CustomButton(
+                text: '+ Create Campaign',
+                isGradient: true,
+                height: 42,
+                onTap: controller.goToCreateCampaign,
+                prefixIcon: const Icon(Icons.add_rounded, color: Colors.white, size: 18),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Container(
+              height: 42,
+              width: 42,
+              decoration: BoxDecoration(
+                color: AppColors.cardBg,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.cardBorder),
+              ),
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 20),
+                onPressed: () => controller.loadDashboardData(isRefresh: true),
+              ),
+            ),
+          ],
         ),
-        _buildMetricCard(
-          'Total Impressions',
-          '2.45M',
-          '▲ 18.6% vs last 7 days',
-          svgIcon: 'assets/icons/advertiser_ic/eye.svg',
-          isTrendUp: true,
-        ),
-        _buildBudgetCard(),
       ],
     );
   }
 
-  Widget _buildMetricCard(
-      String label,
-      String value,
-      String subText, {
-        String? svgIcon,
-        bool isTrendUp = false,
-      }) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.cardBorder,
-          width: 1.2,
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          if (svgIcon != null)
-            SvgPicture.asset(
-              svgIcon,
-              height: 35,
-              width: 35,
-            ),
-
-          if (svgIcon != null)
-            const SizedBox(width: 14),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  value,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    height: 1.0,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  subText,
-                  style: TextStyle(
-                    color: isTrendUp
-                        ? const Color(0xFF10B981)
-                        : const Color(0xFF60A5FA),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-  /*Widget _buildMetricsGrid() {
+  Widget _buildKpiGrid() {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      crossAxisSpacing: 14,
-      mainAxisSpacing: 14,
-      childAspectRatio: 1.35,
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: 1.32,
       children: [
-        _buildMetricCard(
-          'Active Campaigns',
-          '12',
-          '2 running now',
-          Icons.campaign_outlined,
-          const Color(0xFFEC4899),
+        _buildKpiCard(
+          label: 'Active Campaigns',
+          value: '${controller.activeCampaignsCount}',
+          sub: '${controller.totalCampaignsCount} total campaigns',
+          icon: Icons.campaign_rounded,
+          iconColor: const Color(0xFF6366F1),
+          bgColor: const Color(0xFF6366F1).withValues(alpha: 0.12),
         ),
-        _buildMetricCard(
-          'Scheduled Campaigns',
-          '8',
-          'Upcoming',
-          Icons.schedule_rounded,
-          const Color(0xFF3B82F6),
+        _buildKpiCard(
+          label: 'Impressions Delivered',
+          value: controller.impressionsDeliveredCount >= 1000
+              ? '${(controller.impressionsDeliveredCount / 1000).toStringAsFixed(1)}K'
+              : '${controller.impressionsDeliveredCount}',
+          sub: '${controller.screenPlaybacksCount} screen playbacks',
+          icon: Icons.remove_red_eye_rounded,
+          iconColor: const Color(0xFF0EA5E9),
+          bgColor: const Color(0xFF0EA5E9).withValues(alpha: 0.12),
         ),
-        _buildMetricCard(
-          'Total Impressions',
-          '2.45M',
-          '▲ 18.6% vs last 7 days',
-          Icons.remove_red_eye_outlined,
-          const Color(0xFF10B981),
-          isTrendUp: true,
+        _buildKpiCard(
+          label: 'QR Scan Leads',
+          value: '${controller.qrScansCount}',
+          sub: 'Passenger engagements',
+          icon: Icons.qr_code_scanner_rounded,
+          iconColor: const Color(0xFF10B981),
+          bgColor: const Color(0xFF10B981).withValues(alpha: 0.12),
         ),
-        _buildBudgetCard(),
+        _buildKpiCard(
+          label: 'Budget Spent',
+          value: controller.formatMoney(controller.totalSpentAmount),
+          sub: 'of ${controller.formatMoney(controller.totalBudgetAmount)} total',
+          icon: Icons.currency_rupee_rounded,
+          iconColor: const Color(0xFFF59E0B),
+          bgColor: const Color(0xFFF59E0B).withValues(alpha: 0.12),
+        ),
       ],
     );
   }
 
-  Widget _buildMetricCard(
-    String label,
-    String value,
-    String subText,
-    IconData icon,
-    Color iconColor, {
-    bool isTrendUp = false,
+  Widget _buildKpiCard({
+    required String label,
+    required String value,
+    required String sub,
+    required IconData icon,
+    required Color iconColor,
+    required Color bgColor,
   }) {
     return Container(
       padding: const EdgeInsets.all(14),
@@ -602,303 +362,61 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.cardBorder, width: 1.2),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildGradientIconRing(icon, iconColor),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  label,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  label.toUpperCase(),
                   style: const TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  value,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    height: 1.0,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  subText,
-                  style: TextStyle(
-                    color: isTrendUp
-                        ? const Color(0xFF10B981)
-                        : const Color(0xFF60A5FA),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }*/
-
-  // Circular ring with gradient border + soft glow + centered icon,
-  // matching the pink-to-blue circular outline in the screenshot.
-  Widget _buildGradientIconRing(IconData icon, Color iconColor) {
-    return Container(
-      width: 42,
-      height: 42,
-      padding: const EdgeInsets.all(2), // ring thickness
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          colors: [Color(0xFFEC4899), Color(0xFF3B82F6)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: AppColors.cardBg,
-        ),
-        child: Center(child: Icon(icon, color: iconColor, size: 22)),
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------
-  // Example usage with your data:
-  //
-  // _buildMetricCard(
-  //   'Active Campaigns',
-  //   '12',
-  //   '2 running now',
-  //   Icons.campaign_outlined,
-  //   const Color(0xFFEC4899),
-  //   isTrendUp: false,
-  // ),
-  // ---------------------------------------------------------------------
-  Widget _buildBudgetCard() {
-    return GestureDetector(
-      onTap: controller.switchToBilling,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: AppColors.cardBorder,
-            width: 1.2,
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SvgPicture.asset(
-                  'assets/icons/advertiser_ic/rupees.svg',
-                  width: 35,
-                  height: 35,
-                ),
-
-                const SizedBox(width: 12),
-
-                Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Budget Utilized',
-                        style: TextStyle(
-                          color: AppColors.textMuted,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                      ),
-
-                      const SizedBox(height: 2),
-
-                      Text(
-                        '₹ 8.75L',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-
-                      const SizedBox(height: 2),
-
-                      const Text(
-                        '65% of total budget',
-                        style: TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 8,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 6),
-
-            Container(
-              height: 4,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
-                borderRadius: BorderRadius.circular(2),
-              ),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Container(
-                  width: 70,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFFEC4899),
-                        Color(0xFF8B5CF6),
-                        Color(0xFF3B82F6),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /*Widget _buildBudgetCard() {
-    return GestureDetector(
-      onTap: controller.switchToBilling,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.cardBorder, width: 1.2),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Budget Utilized',
-                  style: TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 9,
                     fontWeight: FontWeight.bold,
+                    letterSpacing: 0.4,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const Text(
-                  '₹ 8.75L',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+              ),
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: bgColor,
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                const SizedBox(height: 4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Text(
-                      '65% of total budget',
-                      style: TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 8,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Container(
-                  height: 4,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E293B),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 70,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFEC4899), Color(0xFF8B5CF6)],
-                          ),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }*/
-
-  Widget _buildPerformanceChart() {
-    return Container(
-      height: 180,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        children: [
-          Expanded(
-            child: CustomPaint(
-              size: const Size(double.infinity, double.infinity),
-              painter: ChartPainter(),
-            ),
+                child: Icon(icon, color: iconColor, size: 16),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildLegendItem('Impressions', const Color(0xFFEC4899)),
-              const SizedBox(width: 14),
-              _buildLegendItem('Reach', const Color(0xFF3B82F6)),
+              Text(
+                value,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 19,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -0.5,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                sub,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 9,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ],
           ),
         ],
@@ -906,37 +424,287 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
     );
   }
 
-  Widget _buildLegendItem(String label, Color color) {
-    return Row(
+  Widget _buildPerformanceSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Text(
+                    'Campaign Performance',
+                    style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Last 7 Days verified telemetry',
+                    style: TextStyle(color: AppColors.textMuted, fontSize: 10),
+                  ),
+                ],
+              ),
+              TextButton(
+                onPressed: () => controller.changeTab(3),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: const Text('View Analytics ›', style: TextStyle(color: Color(0xFF818CF8), fontSize: 11, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (controller.perfSeries.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                child: Column(
+                  children: const [
+                    Icon(Icons.bar_chart_rounded, color: AppColors.textMuted, size: 36),
+                    SizedBox(height: 8),
+                    Text(
+                      'No telemetry data recorded in the last 7 days.',
+                      style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else ...[
+            SizedBox(
+              height: 140,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: controller.perfSeries.map((d) {
+                  final int maxVal = controller.perfSeries
+                      .map((p) => (p['impressions'] as int?) ?? 0)
+                      .fold(1, (a, b) => a > b ? a : b);
+                  final int val = (d['impressions'] as int?) ?? 0;
+                  final double ratio = maxVal > 0 ? (val / maxVal).clamp(0.08, 1.0) : 0.08;
+                  final String date = d['date']?.toString() ?? '';
+
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            val >= 1000 ? '${(val / 1000).toStringAsFixed(1)}k' : '$val',
+                            style: const TextStyle(
+                              color: AppColors.textMuted,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 6),
+                          Container(
+                            height: 80 * ratio,
+                            decoration: BoxDecoration(
+                              gradient: AppTheme.primaryGradient,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            date,
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 9,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+            const SizedBox(height: 10),
+            const Center(
+              child: Text(
+                'Daily impressions delivered across transit fleet screens',
+                style: TextStyle(color: AppColors.textMuted, fontSize: 9.5),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickActions() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        const Text(
+          'Quick Actions',
+          style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
         ),
-        const SizedBox(width: 6),
-        Text(
-          label,
-          style: const TextStyle(color: AppColors.textSecondary, fontSize: 9),
+        const SizedBox(height: 12),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          child: Row(
+            children: [
+              _buildQuickActionChip(
+                label: 'Create Campaign',
+                icon: Icons.add_circle_outline_rounded,
+                color: const Color(0xFF6366F1),
+                onTap: controller.goToCreateCampaign,
+              ),
+              const SizedBox(width: 10),
+              _buildQuickActionChip(
+                label: 'Campaigns Hub',
+                icon: Icons.campaign_outlined,
+                color: const Color(0xFF0EA5E9),
+                onTap: () => controller.changeTab(1),
+              ),
+              const SizedBox(width: 10),
+              _buildQuickActionChip(
+                label: 'Lifecycle & Flow',
+                icon: Icons.account_tree_outlined,
+                color: const Color(0xFF8B5CF6),
+                onTap: () => controller.changeTab(2),
+              ),
+              const SizedBox(width: 10),
+              _buildQuickActionChip(
+                label: 'Analytics',
+                icon: Icons.bar_chart_rounded,
+                color: const Color(0xFF10B981),
+                onTap: () => controller.changeTab(3),
+              ),
+              const SizedBox(width: 10),
+              _buildQuickActionChip(
+                label: 'Billing & Wallet',
+                icon: Icons.account_balance_wallet_outlined,
+                color: const Color(0xFFF59E0B),
+                onTap: controller.switchToBilling,
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildRecentCampaignsList() {
-    final list = controller.allCampaigns.take(3).toList();
-    return Column(children: list.map((c) => _buildCampaignRowItem(c)).toList());
+  Widget _buildQuickActionChip({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.cardBorder),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 16),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  Widget _buildCampaignRowItem(dynamic c) {
-    Color badgeColor = c.status == 'RUNNING'
-        ? const Color(0xFF10B981)
-        : const Color(0xFFF59E0B);
+  Widget _buildRecentCampaignsHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text(
+          'Recent Campaigns',
+          style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+        ),
+        TextButton(
+          onPressed: () => controller.changeTab(1),
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          child: const Text('View All ›', style: TextStyle(color: Color(0xFF818CF8), fontSize: 11, fontWeight: FontWeight.bold)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRecentCampaigns() {
+    final list = controller.recentCampaigns;
+    if (list.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        ),
+        child: Column(
+          children: [
+            const Icon(Icons.campaign_outlined, color: AppColors.textMuted, size: 40),
+            const SizedBox(height: 8),
+            const Text(
+              'No campaigns found',
+              style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'Create your first campaign to launch on transit screens.',
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 10),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 14),
+            CustomButton(
+              text: 'Create Campaign',
+              isGradient: true,
+              height: 38,
+              width: 160,
+              onTap: controller.goToCreateCampaign,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      children: list.map((c) => _buildRecentCampaignCard(c)).toList(),
+    );
+  }
+
+  Widget _buildRecentCampaignCard(CampaignModel c) {
     return GestureDetector(
       onTap: () => controller.goToCampaignDetails(c),
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: AppColors.cardBg,
           borderRadius: BorderRadius.circular(14),
@@ -945,100 +713,326 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
         child: Row(
           children: [
             Container(
-              width: 48,
-              height: 48,
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
-                color: c.themeColor.withOpacity(0.12),
+                color: c.statusColor.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: c.themeColor.withOpacity(0.3),
-                  width: 1,
-                ),
+                border: Border.all(color: c.statusColor.withValues(alpha: 0.3)),
               ),
-              child: Center(
-                child: Icon(
-                  Icons.campaign_outlined,
-                  color: c.themeColor,
-                  size: 22,
-                ),
-              ),
+              child: Icon(Icons.campaign_outlined, color: c.statusColor, size: 22),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        c.title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: badgeColor.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          c.status,
-                          style: TextStyle(
-                            color: badgeColor,
-                            fontSize: 8,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
                   Text(
-                    c.client,
+                    c.displayTitle,
                     style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 10,
+                      color: Colors.white,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.bold,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        c.dates,
-                        style: const TextStyle(
-                          color: AppColors.textMuted,
-                          fontSize: 9,
-                        ),
-                      ),
-                      Text(
-                        'Budget: ${c.budget}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: 3),
+                  Text(
+                    '${c.displayClient} • ${c.dateRangeText}',
+                    style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 9.5,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
             ),
             const SizedBox(width: 10),
-            const Icon(
-              Icons.chevron_right_rounded,
-              color: AppColors.textMuted,
-              size: 16,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  c.formattedBudget,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: c.statusColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: c.statusColor.withValues(alpha: 0.3)),
+                  ),
+                  child: Text(
+                    c.statusLabel,
+                    style: TextStyle(
+                      color: c.statusColor,
+                      fontSize: 8.5,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // ==========================================
+  // LIFECYCLE & FLOW TAB (Index 2)
+  // ==========================================
+  Widget _buildLifecycleFlowTab() {
+    final stages = [
+      {'key': 'all', 'label': 'All'},
+      {'key': 'draft', 'label': 'Draft'},
+      {'key': 'pending_approval', 'label': 'Pending Approval'},
+      {'key': 'approved', 'label': 'Approved'},
+      {'key': 'paid', 'label': 'Paid (Ready)'},
+      {'key': 'live', 'label': 'Live'},
+      {'key': 'paused', 'label': 'Paused'},
+      {'key': 'completed', 'label': 'Completed'},
+      {'key': 'rejected', 'label': 'Rejected'},
+    ];
+
+    return Column(
+      children: [
+        // Top Bar
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.menu_rounded, color: Colors.white, size: 28),
+                onPressed: controller.openDrawer,
+              ),
+              const Text(
+                'Lifecycle & Flow',
+                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              IconButton(
+                icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 22),
+                onPressed: () => controller.loadDashboardData(isRefresh: true),
+              ),
+            ],
+          ),
+        ),
+
+        // Stages Filter Bar
+        Obx(() {
+          return SizedBox(
+            height: 42,
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              scrollDirection: Axis.horizontal,
+              itemCount: stages.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemBuilder: (context, index) {
+                final s = stages[index];
+                final key = s['key']!;
+                final label = s['label']!;
+                final isSelected = controller.activeLifecycleStage.value == key;
+                final count = controller.getCountForStage(key);
+
+                return GestureDetector(
+                  onTap: () => controller.setLifecycleStage(key),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      gradient: isSelected ? AppTheme.primaryGradient : null,
+                      color: isSelected ? null : AppColors.cardBg,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: isSelected ? Colors.transparent : AppColors.cardBorder,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          label,
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : AppColors.textSecondary,
+                            fontSize: 11,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? Colors.white.withValues(alpha: 0.25)
+                                : AppColors.background,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '$count',
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : AppColors.textMuted,
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
+        }),
+
+        const SizedBox(height: 12),
+
+        // Campaigns List for current stage
+        Expanded(
+          child: Obx(() {
+            final list = controller.lifecycleCampaigns;
+            if (list.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.account_tree_outlined, color: AppColors.textMuted, size: 48),
+                    const SizedBox(height: 12),
+                    Text(
+                      'No campaigns in ${controller.activeLifecycleStage.value.replaceAll('_', ' ')} stage',
+                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Select another stage or create a new campaign.',
+                      style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              itemCount: list.length,
+              itemBuilder: (context, index) {
+                final c = list[index];
+                return _buildLifecycleCampaignCard(c);
+              },
+            );
+          }),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLifecycleCampaignCard(CampaignModel c) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  c.displayTitle,
+                  style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.bold),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: c.statusColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: c.statusColor.withValues(alpha: 0.3)),
+                ),
+                child: Text(
+                  c.statusLabel,
+                  style: TextStyle(color: c.statusColor, fontSize: 9, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '${c.displayClient} • ${c.dateRangeText}',
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 10.5),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Budget: ${c.formattedBudget}',
+                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+              ),
+              Row(
+                children: [
+                  if (c.canStart)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: GestureDetector(
+                        onTap: () => controller.startCampaign(c.id),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
+                          ),
+                          child: const Text('Start', style: TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                    ),
+                  if (c.canPause)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: GestureDetector(
+                        onTap: () => controller.pauseCampaign(c.id),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF97316).withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: const Color(0xFFF97316).withValues(alpha: 0.4)),
+                          ),
+                          child: const Text('Pause', style: TextStyle(color: Color(0xFFF97316), fontSize: 10, fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                    ),
+                  GestureDetector(
+                    onTap: () => controller.goToCampaignDetails(c),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.primaryGradient,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Text('Details ›', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -1051,20 +1045,30 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
       children: [
         Column(
           children: [
+            // Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(
                 children: [
-                  //Icon(Icons.campaign_rounded, color: Color(0xFF8B5CF6), size: 24),
                   SvgPicture.asset('assets/icons/advertiser_ic/speaker.svg'),
-                  SizedBox(width: 10),
-                  Text('Campaigns', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(width: 10),
+                  const Text(
+                    'Campaigns',
+                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 20),
+                    onPressed: () => controller.fetchCampaigns(),
+                    tooltip: 'Refresh Campaigns',
+                  ),
                 ],
               ),
             ),
 
+            // Search Bar & Sort Dropdown
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: Row(
                 children: [
                   Expanded(
@@ -1074,65 +1078,130 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: AppColors.cardBorder, width: 1.2),
                       ),
-                      child: const TextField(
-                        style: TextStyle(color: Colors.white, fontSize: 13),
-                        decoration: InputDecoration(
-                          hintText: 'Search Campaigns...',
+                      child: TextField(
+                        style: const TextStyle(color: Colors.white, fontSize: 13),
+                        onChanged: controller.searchCampaigns,
+                        decoration: const InputDecoration(
+                          hintText: 'Search by title, brand, client, id...',
                           hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 12),
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                           prefixIcon: Icon(Icons.search_rounded, color: AppColors.textMuted, size: 18),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Container(
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.cardBg,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.cardBorder, width: 1.2),
+                  const SizedBox(width: 8),
+                  PopupMenuButton<String>(
+                    tooltip: 'Sort Campaigns',
+                    color: const Color(0xFF1E293B),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    onSelected: controller.setSort,
+                    itemBuilder: (context) {
+                      // Read once, outside the map, so the value is stable while the menu builds
+                      final current = controller.selectedSort.value;
+                      return controller.sortOptions.map((opt) {
+                        final isSel = current == opt;
+                        return PopupMenuItem<String>(
+                          value: opt,
+                          child: Row(
+                            children: [
+                              Icon(
+                                isSel ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+                                color: isSel ? const Color(0xFF8B5CF6) : AppColors.textMuted,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                opt,
+                                style: TextStyle(
+                                  color: isSel ? Colors.white : AppColors.textSecondary,
+                                  fontSize: 12,
+                                  fontWeight: isSel ? FontWeight.bold : FontWeight.normal,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: AppColors.cardBg,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+                      ),
+                      child: Row(
+                        children: [
+                          SvgPicture.asset('assets/icons/advertiser_ic/filter.svg'),
+                          const SizedBox(width: 6),
+                          Obx(() => Text(
+                            controller.selectedSort.value, // RxString read inside Obx
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                          )),
+                          const Icon(Icons.arrow_drop_down, color: AppColors.textMuted, size: 18),
+                        ],
+                      ),
                     ),
-                    child: SvgPicture.asset('assets/icons/advertiser_ic/filter.svg'),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
 
+            // Status tabs: NO outer Obx; each pill observes its own state
             SizedBox(
-              height: 36,
-              child: Obx(
-                    () => ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  children: [
-                    _buildFilterPill('All'),
-                    _buildFilterPill('Running'),
-                    _buildFilterPill('Scheduled'),
-                    _buildFilterPill('Pending'),
-                    _buildFilterPill('Completed'),
-                    _buildFilterPill('Paused'),
-                  ],
-                ),
+              height: 38,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: controller.statusTabs.length, // plain list, fixed tabs
+                itemBuilder: (context, idx) {
+                  final tab = controller.statusTabs[idx];
+                  return _buildFilterPill(tab);
+                },
               ),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
 
+            // Campaign list
             Expanded(
               child: Obx(() {
-                if (controller.filteredCampaigns.isEmpty) {
-                  return const Center(child: Text('No campaigns found', style: TextStyle(color: AppColors.textMuted)));
+                final list = controller.filteredCampaigns; // RxList read inside Obx
+                if (list.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.campaign_outlined,
+                            size: 48, color: AppColors.textMuted.withOpacity(0.4)),
+                        const SizedBox(height: 12),
+                        const Text('No campaigns found in this view',
+                            style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
+                        const SizedBox(height: 16),
+                        CustomButton(
+                          width: 160,
+                          height: 40,
+                          text: 'Create Campaign',
+                          isGradient: true,
+                          onTap: controller.goToCreateCampaign,
+                        ),
+                      ],
+                    ),
+                  );
                 }
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: controller.filteredCampaigns.length,
-                  itemBuilder: (context, index) {
-                    final c = controller.filteredCampaigns[index];
-                    return _buildDetailedCampaignCard(c);
-                  },
+                return RefreshIndicator(
+                  color: const Color(0xFF8B5CF6),
+                  backgroundColor: const Color(0xFF1E293B),
+                  onRefresh: () => controller.fetchCampaigns(),
+                  child: ListView.builder(
+                    padding: const EdgeInsets.only(left: 16, right: 16, bottom: 84),
+                    physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                    itemCount: list.length,
+                    itemBuilder: (context, index) => _buildDetailedCampaignCard(list[index]),
+                  ),
                 );
               }),
             ),
@@ -1142,497 +1211,468 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           bottom: 20,
           right: 20,
           child: CustomButton(
-            width: 180,
-            height: 50,
+            width: 175,
+            height: 48,
             text: 'Create Campaign',
+            isGradient: true,
             onTap: controller.goToCreateCampaign,
-            prefixIcon: const Icon(
-              Icons.add,
-              color: Colors.white,
-              size: 20,
-            ),
+            prefixIcon: const Icon(Icons.add, color: Colors.white, size: 20),
           ),
         ),
       ],
     );
   }
+
   Widget _buildFilterPill(String filter) {
-    bool isSelected = controller.activeFilter.value == filter;
-    return GestureDetector(
-      onTap: () => controller.filterCampaigns(filter),
-      child: Container(
-        margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF8B5CF6).withOpacity(0.12) : AppColors.cardBg,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: isSelected ? const Color(0xFF8B5CF6) : AppColors.cardBorder, width: 1),
-        ),
-        child: Text(filter, style: TextStyle(color: isSelected ? Colors.white : AppColors.textSecondary, fontSize: 11)),
-      ),
-    );
-  }
+    return Obx(() {
+      final isSelected = controller.activeFilter.value == filter;
+      final int count = controller.getTabCount(filter);
 
-  Widget _buildDetailedCampaignCard(dynamic c) {
-    Color badgeColor = c.status == 'RUNNING' ? const Color(0xFF10B981) : const Color(0xFFF59E0B);
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+      return GestureDetector(
+        onTap: () => controller.filterCampaigns(filter),
+        child: Container(
+          margin: const EdgeInsets.only(right: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            gradient: isSelected ? AppTheme.primaryGradient : null,
+            color: isSelected ? null : AppColors.cardBg,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isSelected ? Colors.transparent : AppColors.cardBorder,
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
+              Text(
+                filter,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : AppColors.textSecondary,
+                  fontSize: 11.5,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                ),
+              ),
+              const SizedBox(width: 6),
               Container(
-                width: 64,
-                height: 64,
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: c.themeColor.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: c.themeColor.withOpacity(0.2), width: 1),
+                  color: isSelected ? Colors.white.withValues(alpha: 0.25) : Colors.black.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                child: Center(child: Icon(Icons.photo_library_outlined, color: c.themeColor, size: 24)),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            c.title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(width: 6),
-
-                        Flexible(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: badgeColor.withOpacity(0.12),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              c.status,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: badgeColor,
-                                fontSize: 8,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 6),
-
-                    Text(
-                      c.client,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 10,
-                      ),
-                    ),
-
-                    const SizedBox(height: 4),
-
-                    Text(
-                      c.dates,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.textMuted,
-                        fontSize: 9,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  '$count',
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : AppColors.textMuted,
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
           ),
-          const Divider(color: AppColors.cardBorder, height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildCompactStat('Budget', c.budget),
-              _buildCompactStat('Screens', '${c.screens}'),
-              _buildCompactStat('Impressions', c.impressions),
-              GestureDetector(
-                onTap: () => controller.goToCampaignDetails(c),
-                child: Row(
-                  children: const [
-                    Text('View Details', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 10, fontWeight: FontWeight.bold)),
-                    SizedBox(width: 4),
-                    Icon(Icons.chevron_right_rounded, color: Color(0xFF8B5CF6), size: 14),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+        ),
+      );
+    });
   }
+  Widget _buildDetailedCampaignCard(CampaignModel c) {
+    final statusColor = c.statusColor;
+    final isEditable = ['draft', 'pending_approval', 'rejected', 'pending'].contains(c.status.toLowerCase());
+    final isRunning = c.isLive;
+    final isPaused = c.isPaused;
+    final isApproved = c.status.toLowerCase() == 'approved';
 
-  Widget _buildCompactStat(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 8)),
-        const SizedBox(height: 4),
-        Text(value, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-      ],
-    );
-  }
-  /*Widget _buildCampaignsTab() {
-    return Stack(
-      children: [
-        Column(
+    return GestureDetector(
+      onTap: () => controller.goToCampaignDetails(c),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 14),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: Row(
-                children: const [
-                  Icon(
-                    Icons.campaign_rounded,
-                    color: Color(0xFF8B5CF6),
-                    size: 24,
-                  ),
-                  SizedBox(width: 10),
-                  Text(
-                    'Campaigns',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+            // Top Accent Gradient Line
+            Container(
+              height: 3,
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: AppTheme.primaryGradient,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
               ),
             ),
 
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-              child: Row(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.inputBg,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: AppColors.cardBorder,
-                          width: 1.2,
+                  // Meta Row: ID + Status + 3-Dots Action Menu
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E293B),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: AppColors.cardBorder, width: 1),
                         ),
-                      ),
-                      child: const TextField(
-                        style: TextStyle(color: Colors.white, fontSize: 13),
-                        decoration: InputDecoration(
-                          hintText: 'Search Campaigns...',
-                          hintStyle: TextStyle(
-                            color: AppColors.textMuted,
-                            fontSize: 12,
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          prefixIcon: Icon(
-                            Icons.search_rounded,
-                            color: AppColors.textMuted,
-                            size: 18,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.cardBg,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppColors.cardBorder,
-                        width: 1.2,
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.tune_rounded,
-                      color: Color(0xFF8B5CF6),
-                      size: 18,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            SizedBox(
-              height: 36,
-              child: Obx(
-                () => ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  children: [
-                    _buildFilterPill('All'),
-                    _buildFilterPill('Running'),
-                    _buildFilterPill('Scheduled'),
-                    _buildFilterPill('Pending'),
-                    _buildFilterPill('Completed'),
-                    _buildFilterPill('Paused'),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 14),
-
-            Expanded(
-              child: Obx(() {
-                if (controller.filteredCampaigns.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      'No campaigns found',
-                      style: TextStyle(color: AppColors.textMuted),
-                    ),
-                  );
-                }
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: controller.filteredCampaigns.length,
-                  itemBuilder: (context, index) {
-                    final c = controller.filteredCampaigns[index];
-                    return _buildDetailedCampaignCard(c);
-                  },
-                );
-              }),
-            ),
-          ],
-        ),
-        Positioned(
-          bottom: 20,
-          right: 20,
-          child: FloatingActionButton.extended(
-            onPressed: controller.goToCreateCampaign,
-            backgroundColor: const Color(0xFF8B5CF6),
-            icon: const Icon(Icons.add, color: Colors.white),
-            label: const Text(
-              'Create Campaign',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }*/
-
-  /*Widget _buildFilterPill(String filter) {
-    bool isSelected = controller.activeFilter.value == filter;
-    return GestureDetector(
-      onTap: () => controller.filterCampaigns(filter),
-      child: Container(
-        margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0xFF8B5CF6).withOpacity(0.12)
-              : AppColors.cardBg,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: isSelected ? const Color(0xFF8B5CF6) : AppColors.cardBorder,
-            width: 1,
-          ),
-        ),
-        child: Text(
-          filter,
-          style: TextStyle(
-            color: isSelected ? Colors.white : AppColors.textSecondary,
-            fontSize: 11,
-          ),
-        ),
-      ),
-    );
-  }*/
-
-/*  Widget _buildDetailedCampaignCard(dynamic c) {
-    Color badgeColor = c.status == 'RUNNING'
-        ? const Color(0xFF10B981)
-        : const Color(0xFFF59E0B);
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: c.themeColor.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: c.themeColor.withOpacity(0.2),
-                    width: 1,
-                  ),
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.photo_library_outlined,
-                    color: c.themeColor,
-                    size: 24,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          c.title,
+                        child: Text(
+                          c.displayCode,
                           style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
+                            color: Colors.white70,
+                            fontFamily: 'monospace',
+                            fontSize: 10,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: badgeColor.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            c.status,
-                            style: TextStyle(
-                              color: badgeColor,
-                              fontSize: 8,
-                              fontWeight: FontWeight.bold,
+                      ),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: statusColor.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: statusColor.withOpacity(0.4), width: 1),
                             ),
+                            child: Text(
+                              c.statusLabel,
+                              style: TextStyle(
+                                color: statusColor,
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+
+                          // 3-DOTS POPUP MENU
+                          PopupMenuButton<String>(
+                            icon: const Icon(Icons.more_vert_rounded, color: Colors.white70, size: 20),
+                            color: const Color(0xFF1E293B),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            onSelected: (action) {
+                              if (action == 'view_details') {
+                                controller.goToCampaignDetails(c);
+                              } else if (action == 'edit_campaign') {
+                                controller.goToEditCampaign(c);
+                              } else if (action == 'start_broadcast' || action == 'resume_ad') {
+                                controller.startCampaign(c.id);
+                              } else if (action == 'pause_ad') {
+                                controller.pauseCampaign(c.id);
+                              } else if (action == 'end_campaign') {
+                                controller.confirmEndCampaign(c);
+                              } else if (action == 'view_analytics') {
+                                controller.goToCampaignAnalytics(c);
+                              } else if (action == 'delete_campaign') {
+                                controller.confirmDeleteCampaign(c);
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              const PopupMenuItem<String>(
+                                value: 'view_details',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.visibility_outlined, size: 16, color: Colors.white70),
+                                    SizedBox(width: 10),
+                                    Text('View Details', style: TextStyle(color: Colors.white, fontSize: 12)),
+                                  ],
+                                ),
+                              ),
+                              if (isEditable)
+                                const PopupMenuItem<String>(
+                                  value: 'edit_campaign',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.edit_outlined, size: 16, color: Colors.white70),
+                                      SizedBox(width: 10),
+                                      Text('Edit Campaign', style: TextStyle(color: Colors.white, fontSize: 12)),
+                                    ],
+                                  ),
+                                ),
+                              if (isApproved)
+                                const PopupMenuItem<String>(
+                                  value: 'start_broadcast',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.play_arrow_rounded, size: 16, color: Color(0xFF10B981)),
+                                      SizedBox(width: 10),
+                                      Text('Start Broadcast',
+                                          style: TextStyle(
+                                              color: Color(0xFF10B981), fontSize: 12, fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                ),
+                              if (isRunning)
+                                const PopupMenuItem<String>(
+                                  value: 'pause_ad',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.pause_rounded, size: 16, color: Color(0xFFF59E0B)),
+                                      SizedBox(width: 10),
+                                      Text('Pause Ad',
+                                          style: TextStyle(
+                                              color: Color(0xFFF59E0B), fontSize: 12, fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                ),
+                              if (isPaused)
+                                const PopupMenuItem<String>(
+                                  value: 'resume_ad',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.play_arrow_rounded, size: 16, color: Color(0xFF10B981)),
+                                      SizedBox(width: 10),
+                                      Text('Resume Ad',
+                                          style: TextStyle(
+                                              color: Color(0xFF10B981), fontSize: 12, fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                ),
+                              if (isRunning || isPaused)
+                                const PopupMenuItem<String>(
+                                  value: 'end_campaign',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.stop_rounded, size: 16, color: Color(0xFFEF4444)),
+                                      SizedBox(width: 10),
+                                      Text('End Campaign',
+                                          style: TextStyle(
+                                              color: Color(0xFFEF4444), fontSize: 12, fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                ),
+                              const PopupMenuItem<String>(
+                                value: 'view_analytics',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.bar_chart_rounded, size: 16, color: Colors.white70),
+                                    SizedBox(width: 10),
+                                    Text('View Analytics', style: TextStyle(color: Colors.white, fontSize: 12)),
+                                  ],
+                                ),
+                              ),
+                              if (isEditable)
+                                const PopupMenuItem<String>(
+                                  value: 'delete_campaign',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.delete_outline_rounded, size: 16, color: Color(0xFFEF4444)),
+                                      SizedBox(width: 10),
+                                      Text('Delete Campaign',
+                                          style: TextStyle(
+                                              color: Color(0xFFEF4444), fontSize: 12, fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Title & Brand
+                  Text(
+                    c.displayTitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Text(
+                        c.brandName?.isNotEmpty == true ? c.brandName! : c.displayClient,
+                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.w600),
+                      ),
+                      if (c.clientName != null && c.clientName!.isNotEmpty) ...[
+                        const SizedBox(width: 6),
+                        const Text('·', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF3B82F6).withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.3), width: 1),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.person_outline_rounded, size: 10, color: Color(0xFF60A5FA)),
+                              const SizedBox(width: 3),
+                              Text(
+                                'Client: ${c.clientName}',
+                                style: const TextStyle(color: Color(0xFF93C5FD), fontSize: 9, fontWeight: FontWeight.bold),
+                              ),
+                            ],
                           ),
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      c.client,
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 10,
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Badges Row: Format, QR, Payment
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E293B),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: AppColors.cardBorder),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              (c.mediaType ?? '').toLowerCase().contains('video')
+                                  ? Icons.videocam_outlined
+                                  : Icons.image_outlined,
+                              size: 10,
+                              color: const Color(0xFF8B5CF6),
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              (c.mediaType ?? 'Video').toUpperCase(),
+                              style: const TextStyle(color: Colors.white70, fontSize: 8.5, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      c.dates,
-                      style: const TextStyle(
-                        color: AppColors.textMuted,
-                        fontSize: 9,
+                      if (c.promoCode != null && c.promoCode!.isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF10B981).withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: const Color(0xFF10B981).withOpacity(0.3)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.qr_code_2_rounded, size: 10, color: Color(0xFF10B981)),
+                              const SizedBox(width: 3),
+                              Text(
+                                c.promoCode!,
+                                style: const TextStyle(
+                                    color: Color(0xFF34D399),
+                                    fontSize: 8.5,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'monospace'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF6366F1).withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: const Color(0xFF6366F1).withOpacity(0.3)),
+                        ),
+                        child: Text(
+                          'Payment: ${c.paymentBreakdown != null ? 'Paid' : 'Unpaid'}',
+                          style: const TextStyle(color: Color(0xFFA5B4FC), fontSize: 8.5, fontWeight: FontWeight.bold),
+                        ),
                       ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+                  const Divider(color: AppColors.cardBorder, height: 1),
+                  const SizedBox(height: 10),
+
+                  // Flight Duration & Amount Row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Flight Duration', style: TextStyle(color: AppColors.textMuted, fontSize: 9)),
+                          const SizedBox(height: 2),
+                          Text(c.dates,
+                              style: const TextStyle(
+                                  color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          const Text('Total Amount', style: TextStyle(color: AppColors.textMuted, fontSize: 9)),
+                          const SizedBox(height: 2),
+                          Text(c.budget,
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 13, fontWeight: FontWeight.w900)),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Target screens pill
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E293B).withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.cardBorder),
                     ),
-                  ],
-                ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.tv_rounded, size: 13, color: Color(0xFF8B5CF6)),
+                            const SizedBox(width: 6),
+                            Text(
+                              '${c.screensCount} Target Screens',
+                              style: const TextStyle(
+                                  color: Color(0xFFC4B5FD), fontSize: 11, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            const Icon(Icons.location_on_outlined, size: 12, color: AppColors.textMuted),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${c.targets.isNotEmpty ? c.targets.length : 1} Cities',
+                              style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          const Divider(color: AppColors.cardBorder, height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildCompactStat('Budget', c.budget),
-              _buildCompactStat('Screens', '${c.screens}'),
-              _buildCompactStat('Impressions', c.impressions),
-              GestureDetector(
-                onTap: () => controller.goToCampaignDetails(c),
-                child: Row(
-                  children: const [
-                    Text(
-                      'View Details',
-                      style: TextStyle(
-                        color: Color(0xFF8B5CF6),
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(width: 4),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      color: Color(0xFF8B5CF6),
-                      size: 14,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildCompactStat(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(color: AppColors.textMuted, fontSize: 8),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 11,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
-  }*/
+
+
 
   // ==========================================
   // ANALYTICS TAB (Index 2)
@@ -1881,6 +1921,54 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
   // ==========================================
   // REPORTS TAB (Index 3)
   // ==========================================
+  Widget _buildPerformanceChart() {
+    return Container(
+      height: 180,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+      ),
+      child: Column(
+        children: [
+          Expanded(
+            child: CustomPaint(
+              size: const Size(double.infinity, double.infinity),
+              painter: ChartPainter(),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildLegendItem('Impressions', const Color(0xFFEC4899)),
+              const SizedBox(width: 14),
+              _buildLegendItem('Reach', const Color(0xFF3B82F6)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLegendItem(String label, Color color) {
+    return Row(
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 9),
+        ),
+      ],
+    );
+  }
+
   Widget _buildReportsTab() {
     return Column(
       children: [
@@ -3329,21 +3417,28 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             ),
           ),
           const SizedBox(width: 8),
-          ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF8B5CF6),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          Container(
+            decoration: BoxDecoration(
+              gradient: AppTheme.primaryGradient,
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: const Text(
-              'Raise a Ticket ›',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
+            child: ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              ),
+              child: const Text(
+                'Raise a Ticket ›',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),

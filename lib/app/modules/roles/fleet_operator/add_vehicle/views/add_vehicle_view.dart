@@ -1190,16 +1190,10 @@ class AddVehicleView extends GetView<AddVehicleController> {
               style: TextStyle(color: AppColors.textSecondary, fontSize: 12, height: 1.45),
             ),
             const SizedBox(height: 18),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => Get.back(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryButtonBlue,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-                child: const Text('Got It', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-              ),
+            CustomButton(
+              text: 'Got It',
+              onTap: () => Get.back(),
+              height: 46,
             ),
           ],
         ),

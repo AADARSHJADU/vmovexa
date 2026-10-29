@@ -1161,4 +1161,265 @@ class FleetService extends GetxService {
       requiresAuth: true,
     );
   }
+
+  // ==================== FLEET EXTENSIONS & QUOTAS ====================
+
+  /// GET /fleets/quotas
+  Future<ApiResponseModel<dynamic>> getFleetQuotas() async {
+    return _http.get(
+      ApiConstants.fleetQuotas,
+      requiresAuth: true,
+    );
+  }
+
+  /// DELETE /fleets/:id
+  Future<ApiResponseModel<dynamic>> deleteFleet(String id) async {
+    return _http.delete(
+      ApiConstants.fleetOne(id),
+      requiresAuth: true,
+    );
+  }
+
+  /// PUT /fleets/:id
+  Future<ApiResponseModel<dynamic>> replaceFleet(String id, Map<String, dynamic> data) async {
+    return _http.put(
+      ApiConstants.fleetOne(id),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// PUT /depots/:id
+  Future<ApiResponseModel<dynamic>> replaceDepot(String id, Map<String, dynamic> data) async {
+    return _http.put(
+      ApiConstants.depotOne(id),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// PUT /drivers/:id
+  Future<ApiResponseModel<dynamic>> replaceDriver(String id, Map<String, dynamic> data) async {
+    return _http.put(
+      ApiConstants.driverOne(id),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /drivers/:id/documents
+  Future<ApiResponseModel<dynamic>> getDriverDocuments(String id) async {
+    return _http.get(
+      ApiConstants.driverDocs(id),
+      requiresAuth: true,
+    );
+  }
+
+  /// PUT /vehicles/:id
+  Future<ApiResponseModel<dynamic>> replaceVehicle(String id, Map<String, dynamic> data) async {
+    return _http.put(
+      ApiConstants.vehicleOne(id),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// PATCH /vehicles/:id/approve
+  Future<ApiResponseModel<dynamic>> approveVehicle(String id) async {
+    return _http.patch(
+      ApiConstants.vehicleApprove(id),
+      requiresAuth: true,
+    );
+  }
+
+  /// PATCH /vehicles/:id/reject
+  Future<ApiResponseModel<dynamic>> rejectVehicle(String id, String reason) async {
+    return _http.patch(
+      ApiConstants.vehicleReject(id),
+      body: {'reason': reason},
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /vehicles/:id/documents
+  Future<ApiResponseModel<dynamic>> getVehicleDocuments(String id) async {
+    return _http.get(
+      ApiConstants.vehicleDocuments(id),
+      requiresAuth: true,
+    );
+  }
+
+  /// PATCH /vehicles/:id/documents/:docId/approve
+  Future<ApiResponseModel<dynamic>> approveVehicleDocument(String vehicleId, String docId) async {
+    return _http.patch(
+      ApiConstants.vehicleDocumentApprove(vehicleId, docId),
+      requiresAuth: true,
+    );
+  }
+
+  /// PATCH /vehicles/:id/documents/:docId/reject
+  Future<ApiResponseModel<dynamic>> rejectVehicleDocument(String vehicleId, String docId, String reason) async {
+    return _http.patch(
+      ApiConstants.vehicleDocumentReject(vehicleId, docId),
+      body: {'reason': reason},
+      requiresAuth: true,
+    );
+  }
+
+  /// PUT /routes/:id
+  Future<ApiResponseModel<dynamic>> replaceRoute(String id, Map<String, dynamic> data) async {
+    return _http.put(
+      ApiConstants.routeOne(id),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// DELETE /incidents/:id
+  Future<ApiResponseModel<dynamic>> deleteIncident(String id) async {
+    return _http.delete(
+      ApiConstants.incidentOne(id),
+      requiresAuth: true,
+    );
+  }
+
+  /// PATCH /incidents/:id
+  Future<ApiResponseModel<dynamic>> updateIncident(String id, Map<String, dynamic> data) async {
+    return _http.patch(
+      ApiConstants.incidentOne(id),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// PUT /incidents/:id
+  Future<ApiResponseModel<dynamic>> replaceIncident(String id, Map<String, dynamic> data) async {
+    return _http.put(
+      ApiConstants.incidentOne(id),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// DELETE /trips/:id
+  Future<ApiResponseModel<dynamic>> deleteTrip(String id) async {
+    return _http.delete(
+      ApiConstants.tripOne(id),
+      requiresAuth: true,
+    );
+  }
+
+  /// PATCH /trips/:id
+  Future<ApiResponseModel<dynamic>> updateTrip(String id, Map<String, dynamic> data) async {
+    return _http.patch(
+      ApiConstants.tripOne(id),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// PUT /trips/:id
+  Future<ApiResponseModel<dynamic>> replaceTrip(String id, Map<String, dynamic> data) async {
+    return _http.put(
+      ApiConstants.tripOne(id),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  // ==================== VEHICLE SLOTS (TIMETABLE SCHEDULING) ====================
+
+  /// GET /vehicle-slots
+  Future<ApiResponseModel<dynamic>> getVehicleSlots({
+    int page = 1,
+    int limit = 50,
+    String? vehicleId,
+    String? routeId,
+    String? status,
+    String? date,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'page': page,
+      'limit': limit,
+      if (vehicleId != null && vehicleId.isNotEmpty) 'vehicleId': vehicleId,
+      if (routeId != null && routeId.isNotEmpty) 'routeId': routeId,
+      if (status != null && status.isNotEmpty) 'status': status,
+      if (date != null && date.isNotEmpty) 'date': date,
+    };
+    return _http.get(
+      ApiConstants.vehicleSlots,
+      queryParams: queryParams,
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /vehicle-slots
+  Future<ApiResponseModel<dynamic>> createVehicleSlot(Map<String, dynamic> data) async {
+    return _http.post(
+      ApiConstants.vehicleSlots,
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /vehicle-slots/:id
+  Future<ApiResponseModel<dynamic>> getVehicleSlot(String id) async {
+    return _http.get(
+      ApiConstants.vehicleSlotOne(id),
+      requiresAuth: true,
+    );
+  }
+
+  /// PATCH /vehicle-slots/:id
+  Future<ApiResponseModel<dynamic>> updateVehicleSlot(String id, Map<String, dynamic> data) async {
+    return _http.patch(
+      ApiConstants.vehicleSlotOne(id),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// PUT /vehicle-slots/:id
+  Future<ApiResponseModel<dynamic>> replaceVehicleSlot(String id, Map<String, dynamic> data) async {
+    return _http.put(
+      ApiConstants.vehicleSlotOne(id),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// DELETE /vehicle-slots/:id
+  Future<ApiResponseModel<dynamic>> deleteVehicleSlot(String id) async {
+    return _http.delete(
+      ApiConstants.vehicleSlotOne(id),
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /vehicle-slots/check-conflict
+  Future<ApiResponseModel<dynamic>> checkVehicleSlotConflict(Map<String, dynamic> data) async {
+    return _http.post(
+      ApiConstants.vehicleSlotsCheckConflict,
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /vehicle-slots/timetable/grid
+  Future<ApiResponseModel<dynamic>> getVehicleSlotsTimetableGrid({
+    String? date,
+    String? depotId,
+    String? routeId,
+  }) async {
+    final queryParams = <String, dynamic>{
+      if (date != null && date.isNotEmpty) 'date': date,
+      if (depotId != null && depotId.isNotEmpty) 'depotId': depotId,
+      if (routeId != null && routeId.isNotEmpty) 'routeId': routeId,
+    };
+    return _http.get(
+      ApiConstants.vehicleSlotsTimetableGrid,
+      queryParams: queryParams,
+      requiresAuth: true,
+    );
+  }
 }

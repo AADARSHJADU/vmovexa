@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../theme/app_colors.dart';
@@ -357,15 +358,12 @@ class DepotsListView extends GetView<DepotsListController> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: controller.goToAddDepot,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF10B981),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-                icon: const Icon(Icons.add_rounded, size: 16),
-                label: const Text('Add First Depot'),
+              CustomButton(
+                text: 'Add First Depot',
+                prefixIcon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
+                onTap: controller.goToAddDepot,
+                width: 200,
+                height: 42,
               ),
             ],
           ),

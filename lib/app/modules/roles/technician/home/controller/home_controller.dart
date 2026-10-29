@@ -75,6 +75,19 @@ class HomeController extends GetxController {
 
   Future<void> _fetchDeviceKpis() async {
     try {
+      final statsRes = await TechnicianService.to.getTechnicianStats();
+      if (statsRes.success && statsRes.data != null && statsRes.data is Map) {
+        final map = Map<String, dynamic>.from(statsRes.data as Map);
+        final tot = int.tryParse(map['totalDevices']?.toString() ?? map['total_devices']?.toString() ?? '0') ?? 0;
+        if (tot > 0) {
+          totalDevicesCount.value = tot;
+          onlineDevicesCount.value = int.tryParse(map['onlineDevices']?.toString() ?? map['online_devices']?.toString() ?? '0') ?? 0;
+          offlineDevicesCount.value = int.tryParse(map['offlineDevices']?.toString() ?? map['offline_devices']?.toString() ?? '0') ?? 0;
+          issuesDevicesCount.value = int.tryParse(map['issuesDevices']?.toString() ?? map['issues_devices']?.toString() ?? '0') ?? 0;
+          return;
+        }
+      }
+
       final res = await TechnicianService.to.getEdgeDevices(page: 1, limit: 100);
       if (res.success && res.data != null) {
         final List<EdgeDeviceModel> list = res.data!;

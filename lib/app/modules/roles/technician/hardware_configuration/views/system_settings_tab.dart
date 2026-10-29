@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/hardware_config_controller.dart';
@@ -117,32 +118,12 @@ class SystemSettingsTab extends GetView<HardwareConfigController> {
 
           // Reboot Button
           Obx(
-            () => SizedBox(
-              width: double.infinity,
+            () => CustomButton(
+              text: 'Reboot Display Controller',
+              prefixIcon: const Icon(Icons.refresh_rounded, size: 18, color: Colors.white),
+              onTap: controller.onRebootController,
+              isLoading: controller.isRebooting.value,
               height: 46,
-              child: ElevatedButton.icon(
-                onPressed: controller.isRebooting.value ? null : controller.onRebootController,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1E293B),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
-                  ),
-                ),
-                icon: controller.isRebooting.value
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
-                    : const Icon(Icons.refresh_rounded, size: 18),
-                label: const Text(
-                  'Reboot Display Controller',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                ),
-              ),
             ),
           ),
           const SizedBox(height: 12),

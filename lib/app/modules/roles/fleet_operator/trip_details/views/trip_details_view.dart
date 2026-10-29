@@ -1,3 +1,5 @@
+import 'package:vmovexa/app/widgets/custom_button.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../theme/app_colors.dart';
@@ -52,13 +54,11 @@ class TripDetailsView extends GetView<TripDetailsController> {
                             style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: controller.returnToTrips,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF2563EB),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                            ),
-                            child: const Text('Return to Trips', style: TextStyle(color: Colors.white)),
+                          CustomButton(
+                            text: 'Return to Trips',
+                            onTap: controller.returnToTrips,
+                            width: 160,
+                            height: 42,
                           ),
                         ],
                       ),
@@ -218,22 +218,37 @@ class TripDetailsView extends GetView<TripDetailsController> {
 
               // Live Radar Button
               Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: controller.openLiveRadar,
-                  icon: const Icon(Icons.radar_rounded, size: 16, color: Colors.white),
-                  label: const Text(
-                    'Live Radar',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
+                child: Container(
+                  height: 46,
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.gradientPink.withValues(alpha: 0.25),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563EB),
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  child: ElevatedButton.icon(
+                    onPressed: controller.openLiveRadar,
+                    icon: const Icon(Icons.radar_rounded, size: 16, color: Colors.white),
+                    label: const Text(
+                      'Live Radar',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                   ),
                 ),
               ),

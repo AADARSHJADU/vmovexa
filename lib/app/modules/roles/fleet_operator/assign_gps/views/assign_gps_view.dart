@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../theme/app_colors.dart';
@@ -428,17 +429,10 @@ class AssignGpsView extends GetView<AssignGpsController> {
                 const SizedBox(height: 24),
 
                 // Confirm & Skip Buttons
-                SizedBox(
-                  width: double.infinity,
+                CustomButton(
+                  text: 'Confirm Assignment',
+                  onTap: controller.confirmAssignment,
                   height: 48,
-                  child: ElevatedButton(
-                    onPressed: controller.confirmAssignment,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6366F1),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    child: const Text('Confirm Assignment', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  ),
                 ),
                 const SizedBox(height: 8),
                 Center(
@@ -474,14 +468,12 @@ class AssignGpsView extends GetView<AssignGpsController> {
             children: [
               const Text('No available GPS units found in inventory.', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
               const SizedBox(height: 10),
-              ElevatedButton.icon(
-                onPressed: controller.goToAddGps,
-                icon: const Icon(Icons.add, size: 14),
-                label: const Text('Register GPS Device'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6366F1),
-                  foregroundColor: Colors.white,
-                ),
+              CustomButton(
+                text: 'Register GPS Device',
+                prefixIcon: const Icon(Icons.add, size: 14, color: Colors.white),
+                onTap: controller.goToAddGps,
+                width: 200,
+                height: 40,
               ),
             ],
           ),

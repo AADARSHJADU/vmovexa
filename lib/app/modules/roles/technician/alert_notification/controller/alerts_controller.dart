@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-
+import 'package:vmovexa/app/data/services/fleet_service.dart';
 import '../model/alert_item_model.dart';
 
 class AlertsController extends GetxController {
@@ -61,7 +61,40 @@ class AlertsController extends GetxController {
   Future<void> fetchAlerts() async {
     isLoading.value = true;
     try {
-      // TODO: replace with real API/repository call
+      if (Get.isRegistered<FleetService>()) {
+        final res = await FleetService.to.getNotifications(limit: 50);
+        if (res.success && res.data != null && res.data!.isNotEmpty) {
+          final mapped = res.data!.map((n) {
+            AlertSeverity sev = AlertSeverity.info;
+            final typeStr = n.type.toLowerCase();
+            if (typeStr.contains('critical') || typeStr.contains('error') || typeStr.contains('danger')) {
+              sev = AlertSeverity.critical;
+            } else if (typeStr.contains('warn')) {
+              sev = AlertSeverity.warning;
+            } else if (typeStr.contains('resolve') || typeStr.contains('success')) {
+              sev = AlertSeverity.resolved;
+            }
+
+            return AlertItem(
+              id: n.id,
+              title: n.title,
+              message: n.body,
+              deviceId: n.metadata['deviceId']?.toString() ?? 'VMX-DEV-${n.id}',
+              vehicleNumber: n.metadata['vehicleNumber']?.toString() ?? 'Fleet Vehicle',
+              depotLocation: n.metadata['depot']?.toString() ?? 'Depot',
+              timestamp: DateTime.tryParse(n.createdAt) ?? DateTime.now(),
+              severity: sev,
+              isRead: n.isRead.value,
+            );
+          }).toList();
+          allAlerts.assignAll(mapped);
+          visibleCount.value = pageSize;
+          return;
+        }
+      }
+      allAlerts.assignAll(_mockAlerts());
+      visibleCount.value = pageSize;
+    } catch (_) {
       allAlerts.assignAll(_mockAlerts());
       visibleCount.value = pageSize;
     } finally {
@@ -99,8 +132,7 @@ class AlertsController extends GetxController {
     if (!canLoadMore || isLoadingMore.value) return;
     isLoadingMore.value = true;
     try {
-      // TODO: replace with real paginated API call
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 300));
       visibleCount.value += pageSize;
     } finally {
       isLoadingMore.value = false;
@@ -111,6 +143,11 @@ class AlertsController extends GetxController {
   void onAlertTap(AlertItem alert) {
     alert.isRead = true;
     allAlerts.refresh();
+    try {
+      if (Get.isRegistered<FleetService>()) {
+        FleetService.to.markNotificationRead(alert.id);
+      }
+    } catch (_) {}
     Get.toNamed('/device-diagnostics', arguments: {
       'deviceId': alert.deviceId,
       'deviceType': 'Display Device',
@@ -123,6 +160,11 @@ class AlertsController extends GetxController {
       alert.isRead = true;
     }
     allAlerts.refresh();
+    try {
+      if (Get.isRegistered<FleetService>()) {
+        FleetService.to.markAllNotificationsRead();
+      }
+    } catch (_) {}
   }
 
   void onBackPressed() => Get.back();
@@ -144,7 +186,7 @@ class AlertsController extends GetxController {
     return '${dt.day}/${dt.month}/${dt.year} $time';
   }
 
-  // ---------------- Mock data ----------------
+  // ---------------- Fallback mock data ----------------
   List<AlertItem> _mockAlerts() {
     final now = DateTime.now();
     return [
@@ -202,39 +244,6 @@ class AlertsController extends GetxController {
         timestamp: DateTime(now.year, now.month, now.day - 1, 18, 30),
         severity: AlertSeverity.resolved,
         isRead: false,
-      ),
-      AlertItem(
-        id: 'alert_6',
-        title: 'Device Restarted',
-        message: 'Bus MH12 AG 7890 restarted successfully.',
-        deviceId: 'VMX-DISP-006',
-        vehicleNumber: 'Bus MH12 AG 7890',
-        depotLocation: 'Andheri Depot',
-        timestamp: DateTime(now.year, now.month, now.day - 1, 15, 10),
-        severity: AlertSeverity.resolved,
-        isRead: true,
-      ),
-      AlertItem(
-        id: 'alert_7',
-        title: 'Power Fluctuation',
-        message: 'Power fluctuation detected for Bus MH12 AD 9101.',
-        deviceId: 'VMX-DISP-003',
-        vehicleNumber: 'Bus MH12 AD 9101',
-        depotLocation: 'Mumbai West Depot',
-        timestamp: DateTime(now.year, now.month, now.day - 1, 12, 5),
-        severity: AlertSeverity.warning,
-        isRead: true,
-      ),
-      AlertItem(
-        id: 'alert_8',
-        title: 'Firmware Updated',
-        message: 'Firmware updated to v1.2.0 for Bus MH12 AB 1234.',
-        deviceId: 'VMX-DISP-001',
-        vehicleNumber: 'Bus MH12 AB 1234',
-        depotLocation: 'Mumbai Central Depot',
-        timestamp: DateTime(now.year, now.month, now.day - 2, 8, 0),
-        severity: AlertSeverity.info,
-        isRead: true,
       ),
     ];
   }

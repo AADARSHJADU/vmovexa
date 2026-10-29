@@ -1,3 +1,5 @@
+import 'package:vmovexa/app/widgets/custom_button.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/data/models/work_order_model.dart';
@@ -280,14 +282,23 @@ class _WorkOrderResolutionSheetState extends State<WorkOrderResolutionSheet> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: _addPart,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF334155),
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    GestureDetector(
+                      onTap: _addPart,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.primaryGradient,
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.gradientPink.withValues(alpha: 0.25),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Text('Add', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                       ),
-                      child: const Text('Add', style: TextStyle(color: Colors.white, fontSize: 12)),
                     ),
                   ],
                 ),
@@ -359,8 +370,12 @@ class _WorkOrderResolutionSheetState extends State<WorkOrderResolutionSheet> {
                         const SizedBox(width: 10),
                       ],
                       Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: loading ? null : () async {
+                        child: CustomButton(
+                          text: loading ? 'Saving...' : 'Resolve & Close',
+                          isLoading: loading,
+                          prefixIcon: loading ? null : const Icon(Icons.check_circle_outline_rounded, size: 16, color: Colors.white),
+                          height: 44,
+                          onTap: () async {
                             if (_notesCtrl.text.trim().isEmpty) {
                               Get.snackbar(
                                 'Missing Notes',
@@ -389,19 +404,6 @@ class _WorkOrderResolutionSheetState extends State<WorkOrderResolutionSheet> {
                               widget.onResolved?.call();
                             }
                           },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF10B981),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          ),
-                          icon: loading
-                              ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                              : const Icon(Icons.check_circle_outline_rounded, size: 16),
-                          label: Text(
-                            loading ? 'Saving...' : 'Resolve & Close',
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                          ),
                         ),
                       ),
                     ],

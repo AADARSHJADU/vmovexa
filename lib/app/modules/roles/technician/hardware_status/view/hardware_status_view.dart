@@ -1,3 +1,5 @@
+import 'package:vmovexa/app/widgets/custom_button.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../data/models/edge_device_model.dart';
@@ -166,23 +168,11 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
         ),
         const SizedBox(height: 12),
         // Run All Diagnostics Button
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: controller.runAllDiagnostics,
-            icon: const Icon(Icons.track_changes_rounded, size: 16, color: Colors.white),
-            label: const Text(
-              'Run All Diagnostics',
-              style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.white),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: kPurple,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              elevation: 0,
-            ),
-          ),
+        CustomButton(
+          text: 'Run All Diagnostics',
+          prefixIcon: const Icon(Icons.track_changes_rounded, size: 16, color: Colors.white),
+          onTap: controller.runAllDiagnostics,
+          height: 44,
         ),
       ],
     );
@@ -280,11 +270,21 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
                   duration: const Duration(milliseconds: 200),
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.white : kCardBg,
+                    gradient: isSelected ? AppTheme.primaryGradient : null,
+                    color: isSelected ? null : kCardBg,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: isSelected ? Colors.white : kCardBorder,
+                      color: isSelected ? Colors.transparent : kCardBorder,
                     ),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -292,7 +292,7 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
                       Text(
                         label,
                         style: TextStyle(
-                          color: isSelected ? Colors.black : Colors.white70,
+                          color: isSelected ? Colors.white : Colors.white70,
                           fontSize: 12,
                           fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                         ),
@@ -301,13 +301,13 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                         decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFFE4E4E7) : const Color(0xFF27272A),
+                          color: isSelected ? Colors.white.withValues(alpha: 0.25) : const Color(0xFF27272A),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           '$count',
-                          style: TextStyle(
-                            color: isSelected ? Colors.black87 : Colors.white70,
+                          style: const TextStyle(
+                            color: Colors.white,
                             fontSize: 10.5,
                             fontWeight: FontWeight.w700,
                           ),
@@ -775,19 +775,33 @@ class _VehicleHardwareCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: onRunDiagnostics,
-                  icon: const Icon(Icons.bolt_rounded, size: 14, color: Colors.white),
-                  label: const Text(
-                    'Run Diagnostics',
-                    style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Colors.white),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(9),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.gradientPink.withValues(alpha: 0.2),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF27273A),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 9),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
-                    elevation: 0,
+                  child: ElevatedButton.icon(
+                    onPressed: onRunDiagnostics,
+                    icon: const Icon(Icons.bolt_rounded, size: 14, color: Colors.white),
+                    label: const Text(
+                      'Run Diagnostics',
+                      style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 9),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
+                      elevation: 0,
+                    ),
                   ),
                 ),
               ),

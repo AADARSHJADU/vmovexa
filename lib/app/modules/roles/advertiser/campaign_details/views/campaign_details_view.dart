@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../controllers/campaign_details_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
+import '../../../../../widgets/custom_button.dart';
 import '../../../../../theme/app_colors.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
+import 'package:vmovexa/app/data/models/campaign_model.dart';
 
 class CampaignDetailsView extends GetView<CampaignDetailsController> {
   const CampaignDetailsView({super.key});
@@ -30,70 +33,60 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.more_horiz_rounded, color: Colors.white, size: 20),
-                    onPressed: () {},
+                    icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 20),
+                    onPressed: () => controller.refreshCampaignDetails(),
+                    tooltip: 'Refresh',
                   ),
                 ],
               ),
             ),
 
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                physics: const BouncingScrollPhysics(),
-                child: Obx(() {
-                  final c = controller.campaign.value;
+              child: Obx(() {
+                if (controller.isLoading.value) {
+                  return const Center(child: CircularProgressIndicator(color: Color(0xFF8B5CF6)));
+                }
 
-                  return Column(
+                final c = controller.campaign.value;
+
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Under Review yellow alert
-                      _buildUnderReviewAlert(c),
+                      // Header Meta Card
+                      _buildHeaderBanner(c),
                       const SizedBox(height: 16),
 
-                      // Campaign Information
-                      _buildCampaignInformationCard(c),
+                      // Quick Action Buttons
+                      _buildQuickActionButtons(c),
                       const SizedBox(height: 18),
 
-                      // Creative Preview with Play button overlay
-                      _buildCreativePreviewCard(c),
-                      const SizedBox(height: 18),
-
-                      // Fleet & Screens Grid
-                      _buildFleetScreensCard(c),
-                      const SizedBox(height: 18),
-
-                      // Schedule Details
-                      _buildScheduleDetailsCard(c),
-                      const SizedBox(height: 18),
-
-                      // Budget & Payment Side-by-side
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(child: _buildBudgetSummaryCard(c)),
-                          const SizedBox(width: 12),
-                          Expanded(child: _buildPaymentStatusCard(c)),
-                        ],
-                      ),
-                      const SizedBox(height: 18),
-
-                      // QR Tracking Card
-                      _buildQrTrackingCard(),
-                      const SizedBox(height: 18),
-
-                      // Timeline
-                      _buildCampaignTimelineCard(c),
-                      const SizedBox(height: 28),
-
-                      // Bottom actions row
-                      _buildBottomActionsRow(),
+                      // 4 Section Navigation Tabs
+                      _buildSectionTabs(),
                       const SizedBox(height: 16),
+
+                      // Dynamic Tab Body
+                      Obx(() {
+                        switch (controller.activeSectionTab.value) {
+                          case 'media_fleet':
+                            return _buildMediaFleetSection(c);
+                          case 'schedule_budget':
+                            return _buildScheduleBudgetSection(c);
+                          case 'payment_qr':
+                            return _buildPaymentQrSection(c);
+                          case 'overview':
+                          default:
+                            return _buildOverviewSection(c);
+                        }
+                      }),
+
+                      const SizedBox(height: 32),
                     ],
-
-                  );
-                }),
-              ),
+                  ),
+                );
+              }),
             ),
           ],
         ),
@@ -101,101 +94,116 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
     );
   }
 
-  Widget _buildUnderReviewAlert(dynamic c) {
+  // ==========================================================
+  // HEADER BANNER & ACTION ROW
+  // ==========================================================
+  Widget _buildHeaderBanner(CampaignModel c) {
+    final statusColor = c.statusColor;
+    final isPaid = c.paymentBreakdown != null;
+
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF59E0B).withOpacity(0.06),
+        color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.2), width: 1.2),
+        border: Border.all(color: AppColors.cardBorder, width: 1.2),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SvgPicture.asset(
-                'assets/icons/clock.svg',
-                width: 20,
-                height: 20,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      'Under Review',
-                      style: TextStyle(color: Color(0xFFF59E0B), fontSize: 13, fontWeight: FontWeight.bold),
+          Container(
+            height: 3.5,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: AppTheme.primaryGradient,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E293B),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: AppColors.cardBorder),
+                      ),
+                      child: Text(
+                        c.id.isNotEmpty ? (c.id.startsWith('CMP-') ? c.id : '#${c.id}') : '#CMP',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontFamily: 'monospace',
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Your campaign is under review. We will notify you once it\'s approved.',
-                      style: TextStyle(color: AppColors.textSecondary, fontSize: 10, height: 1.4),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: statusColor.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: statusColor.withOpacity(0.4)),
+                          ),
+                          child: Text(
+                            c.status.toUpperCase(),
+                            style: TextStyle(
+                              color: statusColor,
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: (isPaid ? const Color(0xFF10B981) : const Color(0xFFEF4444)).withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                                color: (isPaid ? const Color(0xFF10B981) : const Color(0xFFEF4444)).withOpacity(0.4)),
+                          ),
+                          child: Text(
+                            isPaid ? 'PAID' : 'UNPAID',
+                            style: TextStyle(
+                              color: isPaid ? const Color(0xFF34D399) : const Color(0xFFF87171),
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  const Text('Campaign ID', style: TextStyle(color: AppColors.textMuted, fontSize: 8.5)),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Text(c.id, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                      const SizedBox(width: 4),
-                      GestureDetector(
-                        onTap: () {
-                          Get.snackbar('Copied', 'Campaign ID copied to clipboard');
-                        },
-                        child: const Icon(Icons.copy_rounded, color: Color(0xFF8B5CF6), size: 11),
-                      ),
+                const SizedBox(height: 12),
+                Text(
+                  c.displayTitle,
+                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Text(
+                      c.brandName?.isNotEmpty == true ? c.brandName! : c.displayClient,
+                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 12, fontWeight: FontWeight.w600),
+                    ),
+                    if (c.clientName != null && c.clientName!.isNotEmpty) ...[
+                      const SizedBox(width: 8),
+                      const Text('·', style: TextStyle(color: AppColors.textMuted)),
+                      const SizedBox(width: 8),
+                      Text('Client: ${c.clientName}',
+                          style: const TextStyle(color: Color(0xFF93C5FD), fontSize: 11, fontWeight: FontWeight.bold)),
                     ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const Divider(color: AppColors.cardBorder, height: 24),
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  child: _buildAlertSubCell(
-                    'Submitted On',
-                    '07 Aug 2026, 09:41 AM',
-                    'assets/icons/clock.svg',
-                  ),
-                ),
-
-                const VerticalDivider(
-                  color: Color(0xFF3A3A3A),
-                  thickness: 1,
-                  width: 16,
-                ),
-
-                Expanded(
-                  child: _buildAlertSubCell(
-                    'Expected Approval',
-                    'Within 24 Hours',
-                    'assets/icons/shield.svg',
-                  ),
-                ),
-
-                const VerticalDivider(
-                  color: Color(0xFF3A3A3A),
-                  thickness: 1,
-                  width: 16,
-                ),
-
-                Expanded(
-                  child: _buildAlertSubCell(
-                    'Submitted By',
-                    'John Doe\njohn@citymart.com',
-                    'assets/icons/profile.svg',
-                  ),
+                  ],
                 ),
               ],
             ),
@@ -205,806 +213,957 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
     );
   }
 
-  Widget _buildAlertSubCell(
-      String label,
-      String value,
-      String svgPath,
-      ) {
-    return Row(
+  Widget _buildQuickActionButtons(CampaignModel c) {
+    final isRunning = c.isLive;
+    final isPaused = c.isPaused;
+    final isApproved = c.status.toLowerCase() == 'approved';
+    final isEditable = ['draft', 'pending_approval', 'rejected', 'pending'].contains(c.status.toLowerCase());
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        if (isApproved)
+          CustomButton(
+            width: 150,
+            height: 38,
+            text: 'Start Broadcast',
+            isGradient: true,
+            onTap: controller.startCampaign,
+            prefixIcon: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 16),
+          ),
+        if (isRunning)
+          SizedBox(
+            width: 140,
+            height: 38,
+            child: ElevatedButton.icon(
+              onPressed: controller.pauseCampaign,
+              icon: const Icon(Icons.pause_rounded, color: Colors.white, size: 16),
+              label: const Text('Pause Ad', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFF59E0B),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          ),
+        if (isPaused)
+          SizedBox(
+            width: 140,
+            height: 38,
+            child: ElevatedButton.icon(
+              onPressed: controller.startCampaign,
+              icon: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 16),
+              label: const Text('Resume Ad', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF10B981),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          ),
+        if (isRunning || isPaused)
+          SizedBox(
+            width: 140,
+            height: 38,
+            child: ElevatedButton.icon(
+              onPressed: controller.confirmEndCampaign,
+              icon: const Icon(Icons.stop_rounded, color: Colors.white, size: 16),
+              label: const Text('End Broadcast', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFEF4444),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          ),
+        if (isEditable)
+          SizedBox(
+            width: 130,
+            height: 38,
+            child: OutlinedButton.icon(
+              onPressed: controller.goToEdit,
+              icon: const Icon(Icons.edit_outlined, color: Colors.white, size: 15),
+              label: const Text('Edit', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: AppColors.cardBorder),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          ),
+        SizedBox(
+          width: 145,
+          height: 38,
+          child: ElevatedButton.icon(
+            onPressed: controller.goToAnalytics,
+            icon: const Icon(Icons.bar_chart_rounded, color: Colors.white, size: 16),
+            label: const Text('View Analytics', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF6366F1),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+        ),
+        if (isEditable)
+          SizedBox(
+            width: 110,
+            height: 38,
+            child: OutlinedButton.icon(
+              onPressed: controller.confirmDeleteCampaign,
+              icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 15),
+              label: const Text('Delete', style: TextStyle(color: Color(0xFFEF4444), fontSize: 11, fontWeight: FontWeight.bold)),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Color(0xFFEF4444)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  // ==========================================================
+  // 4 SECTION NAVIGATION TABS
+  // ==========================================================
+  // Widget _buildSectionTabs() {
+  //   final tabs = [
+  //     {'key': 'overview', 'label': 'Overview & Client'},
+  //     {'key': 'media_fleet', 'label': 'Media & Fleet'},
+  //     {'key': 'schedule_budget', 'label': 'Schedule & Budget'},
+  //     {'key': 'payment_qr', 'label': 'Payment & QR'},
+  //   ];
+  //
+  //   return SizedBox(
+  //     height: 38,
+  //     child: ListView.builder(
+  //       scrollDirection: Axis.horizontal,
+  //       itemCount: tabs.length,
+  //       itemBuilder: (context, idx) {
+  //         final t = tabs[idx];
+  //         final isSelected = controller.activeSectionTab.value == t['key'];
+  //         return GestureDetector(
+  //           onTap: () => controller.setSectionTab(t['key']!),
+  //           child: Container(
+  //             margin: const EdgeInsets.only(right: 8),
+  //             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+  //             decoration: BoxDecoration(
+  //               gradient: isSelected ? AppTheme.primaryGradient : null,
+  //               color: isSelected ? null : AppColors.cardBg,
+  //               borderRadius: BorderRadius.circular(10),
+  //               border: Border.all(color: isSelected ? Colors.transparent : AppColors.cardBorder, width: 1),
+  //             ),
+  //             child: Center(
+  //               child: Text(
+  //                 t['label']!,
+  //                 style: TextStyle(
+  //                   color: isSelected ? Colors.white : AppColors.textSecondary,
+  //                   fontSize: 11,
+  //                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         );
+  //       },
+  //     ),
+  //   );
+  // }
+  Widget _buildSectionTabs() {
+    final tabs = [
+      {'key': 'overview', 'label': 'Overview & Client'},
+      {'key': 'media_fleet', 'label': 'Media & Fleet'},
+      {'key': 'schedule_budget', 'label': 'Schedule & Budget'},
+      {'key': 'payment_qr', 'label': 'Payment & QR'},
+    ];
+
+    return SizedBox(
+      height: 38,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: tabs.length,
+        itemBuilder: (context, idx) {
+          final t = tabs[idx];
+
+          // Obx wraps each tab so the Rx value is read inside its own builder
+          return Obx(() {
+            final isSelected = controller.activeSectionTab.value == t['key'];
+
+            return GestureDetector(
+              onTap: () => controller.setSectionTab(t['key']!),
+              child: Container(
+                margin: const EdgeInsets.only(right: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  gradient: isSelected ? AppTheme.primaryGradient : null,
+                  color: isSelected ? null : AppColors.cardBg,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: isSelected ? Colors.transparent : AppColors.cardBorder,
+                    width: 1,
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    t['label']!,
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : AppColors.textSecondary,
+                      fontSize: 11,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          });
+        },
+      ),
+    );
+  }
+  // ==========================================================
+  // TAB 1: OVERVIEW & CLIENT DETAILS
+  // ==========================================================
+  Widget _buildOverviewSection(CampaignModel c) {
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SvgPicture.asset(
-          svgPath,
-          width: 14,
-          height: 14,
+        // 1A. Campaign Information
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.cardBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.cardBorder),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.info_outline_rounded, color: Color(0xFF8B5CF6), size: 16),
+                  SizedBox(width: 8),
+                  Text('Campaign Information',
+                      style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              const SizedBox(height: 14),
+              _buildTwoColInfo('Campaign Name', c.displayTitle, 'Brand / Company', c.brandName ?? 'Commercial'),
+              const SizedBox(height: 10),
+              _buildTwoColInfo('Campaign Type', c.type ?? 'Commercial DOOH', 'Category', c.category ?? 'Retail'),
+              const SizedBox(height: 10),
+              _buildTwoColInfo('Objective', c.targetAudience ?? 'Brand Awareness', 'Created At', c.createdAt?.split('T').first ?? '—'),
+              if (c.description != null && c.description!.trim().isNotEmpty) ...[
+                const SizedBox(height: 14),
+                const Text('Brief / Description', style: TextStyle(color: AppColors.textMuted, fontSize: 10)),
+                const SizedBox(height: 4),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F172A),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.cardBorder),
+                  ),
+                  child: Text(
+                    c.description!,
+                    style: const TextStyle(color: Colors.white70, fontSize: 11, height: 1.4),
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
-        const SizedBox(width: 6),
+        const SizedBox(height: 16),
 
+        // 1B. Customer / Client Information Card
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E293B).withOpacity(0.5),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.3)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.person_outline_rounded, color: Color(0xFF60A5FA), size: 16),
+                      SizedBox(width: 8),
+                      Text('Customer / Client Details',
+                          style: TextStyle(color: Color(0xFF93C5FD), fontSize: 13, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  // Container(
+                  //   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  //   decoration: BoxDecoration(
+                  //     color: const Color(0xFF3B82F6).withOpacity(0.15),
+                  //     borderRadius: BorderRadius.circular(6),
+                  //   ),
+                  //   child: const Text('Payment Link Recipient',
+                  //       style: TextStyle(color: Color(0xFF93C5FD), fontSize: 9, fontWeight: FontWeight.bold)),
+                  // ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              _buildTwoColInfo('Contact Person', c.clientName ?? '—', 'Company Name', c.clientCompany ?? '—'),
+              const SizedBox(height: 10),
+              _buildTwoColInfo(
+                'Mobile Phone (SMS)',
+                c.clientPhone ?? '—',
+                'Email Address (Invoice)',
+                c.clientEmail ?? '—',
+                isPhone: c.clientPhone != null,
+                isEmail: c.clientEmail != null,
+              ),
+              const SizedBox(height: 10),
+              _buildTwoColInfo(
+                'City & State',
+                [c.clientCity, c.clientState].whereType<String>().where((s) => s.isNotEmpty).join(', ').isEmpty
+                    ? '—'
+                    : [c.clientCity, c.clientState].whereType<String>().where((s) => s.isNotEmpty).join(', '),
+                'Pincode',
+                c.clientPincode ?? '—',
+              ),
+              const SizedBox(height: 10),
+              const Text('Billing Address', style: TextStyle(color: AppColors.textMuted, fontSize: 10)),
+              const SizedBox(height: 3),
+              Text(c.clientAddress ?? '—',
+                  style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ==========================================================
+  // TAB 2: MEDIA & FLEET TARGETING
+  // ==========================================================
+  Widget _buildMediaFleetSection(CampaignModel c) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 2A. Creative Assets Gallery / Preview
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.cardBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.cardBorder),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.video_collection_outlined, color: Color(0xFF8B5CF6), size: 16),
+                  SizedBox(width: 8),
+                  Text('Creative Media Assets',
+                      style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Container(
+                height: 160,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0F172A),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.cardBorder),
+                ),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        (c.mediaType ?? '').toLowerCase().contains('video')
+                            ? Icons.play_circle_fill_rounded
+                            : Icons.image_rounded,
+                        color: const Color(0xFF8B5CF6),
+                        size: 48,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Format: ${(c.mediaType ?? 'Video').toUpperCase()}',
+                        style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                      if (c.videoUrl != null && c.videoUrl!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                          child: Text(
+                            c.videoUrl!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 10),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // 2B. Targeted Transit Inventory
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.cardBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.cardBorder),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.directions_bus_outlined, color: Color(0xFF10B981), size: 16),
+                      SizedBox(width: 8),
+                      Text('Targeted Fleet & Screens',
+                          style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF10B981).withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      '${c.screensCount} Screens Total',
+                      style: const TextStyle(color: Color(0xFF34D399), fontSize: 9.5, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+
+              if (c.targets.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Center(
+                    child: Text('All city transit routes selected across fleet network',
+                        style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                  ),
+                )
+              else
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: c.targets.length,
+                  itemBuilder: (context, idx) {
+                    final target = c.targets[idx];
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0F172A),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppColors.cardBorder),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.route_outlined, size: 16, color: Color(0xFF8B5CF6)),
+                              const SizedBox(width: 8),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    target.fleetName ?? 'City Transit Route #${idx + 1}',
+                                    style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                                  ),
+                                  if (target.city != null && target.city!.isNotEmpty)
+                                    Text(target.city!, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
+                                ],
+                              ),
+                            ],
+                          ),
+                          Text('${target.screensCount} Screens',
+                              style: const TextStyle(color: Color(0xFFC4B5FD), fontSize: 10, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ==========================================================
+  // TAB 3: SCHEDULE & BUDGET BREAKDOWN
+  // ==========================================================
+  Widget _buildScheduleBudgetSection(CampaignModel c) {
+    final pb = c.paymentBreakdown;
+    final baseAmount = pb != null && pb['baseAmount'] != null
+        ? double.tryParse(pb['baseAmount'].toString()) ?? (c.rawBudget ?? 0.0)
+        : (c.rawBudget ?? 0.0);
+    final items = pb != null && pb['items'] is List ? (pb['items'] as List) : [];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 3A. Broadcast Schedule
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.cardBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.cardBorder),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.calendar_today_outlined, color: Color(0xFF3B82F6), size: 16),
+                  SizedBox(width: 8),
+                  Text('Broadcast Schedule & Airtime Window',
+                      style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              const SizedBox(height: 14),
+              _buildTwoColInfo('Flight Dates', c.dateRangeText, 'Duration', '${c.durationDays ?? 14} Days'),
+              const SizedBox(height: 10),
+              _buildTwoColInfo(
+                'Operating Window',
+                '${c.slot?.startTime ?? '08:00'} - ${c.slot?.endTime ?? '22:00'}',
+                'Active Days',
+                c.slot?.activeDays.isNotEmpty == true ? c.slot!.activeDays.join(', ') : 'Daily (All 7 Days)',
+              ),
+              const SizedBox(height: 14),
+
+              // Visual 24-hr Airtime Window Bar
+              const Text('Active Daily Airtime Visualizer (24-Hour Day)',
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 10)),
+              const SizedBox(height: 6),
+              Container(
+                height: 8,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0F172A),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  children: [
+                    const Spacer(flex: 8),
+                    Expanded(
+                      flex: 14,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.primaryGradient,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                    const Spacer(flex: 2),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 4),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('00:00 (Night)', style: TextStyle(color: AppColors.textMuted, fontSize: 8)),
+                  Text('08:00 - 22:00 (Active)', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 8, fontWeight: FontWeight.bold)),
+                  Text('24:00 (Midnight)', style: TextStyle(color: AppColors.textMuted, fontSize: 8)),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // 3B. Budget & Itemized Tax Invoice Breakdown
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.cardBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.cardBorder),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.receipt_long_outlined, color: Color(0xFF10B981), size: 16),
+                      SizedBox(width: 8),
+                      Text('Budget & Invoice Breakdown',
+                          style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF10B981).withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      'Pay:${c.budget}',
+                      // 'Payable: ${c.budget}',
+                      style: const TextStyle(color: Color(0xFF34D399), fontSize: 10, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+
+              // Base amount row
+              _buildBreakdownRow('Campaign Base Budget', '₹ ${baseAmount.toStringAsFixed(0)}', isBold: true),
+              const Divider(color: AppColors.cardBorder, height: 16),
+
+              // Itemized rows from backend
+              if (items.isNotEmpty)
+                ...items.map((it) {
+                  if (it is! Map) return const SizedBox.shrink();
+                  final label = it['label']?.toString() ?? 'Fee';
+                  final amt = double.tryParse(it['amount']?.toString() ?? '0') ?? 0.0;
+                  final type = it['type']?.toString() ?? 'charge';
+                  final isDiscount = type == 'discount';
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: _buildBreakdownRow(
+                      label,
+                      '${isDiscount ? '- ' : '+ '}₹ ${amt.toStringAsFixed(0)}',
+                      isNegative: isDiscount,
+                    ),
+                  );
+                })
+              else ...[
+                _buildBreakdownRow('Central GST (CGST 9%)', '+ ₹ ${(baseAmount * 0.09).toStringAsFixed(0)}'),
+                const SizedBox(height: 8),
+                _buildBreakdownRow('State GST (SGST 9%)', '+ ₹ ${(baseAmount * 0.09).toStringAsFixed(0)}'),
+              ],
+
+              const Divider(color: AppColors.cardBorder, height: 20),
+              _buildBreakdownRow('Total Amount Payable', c.budget, isBold: true, highlightColor: Colors.white),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ==========================================================
+  // TAB 4: PAYMENT & QR ATTRIBUTION
+  // ==========================================================
+  Widget _buildPaymentQrSection(CampaignModel c) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 4A. Payment Status & Share Checkout Link
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.cardBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.cardBorder),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.payment_outlined, color: Color(0xFF6366F1), size: 16),
+                      SizedBox(width: 8),
+                      Text('Payment Status & Checkout Token',
+                          style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: (c.paymentBreakdown != null ? const Color(0xFF10B981) : const Color(0xFFEF4444)).withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      c.paymentBreakdown != null ? 'PAID' : 'UNPAID',
+                      style: TextStyle(
+                        color: c.paymentBreakdown != null ? const Color(0xFF34D399) : const Color(0xFFF87171),
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Checkout Token: ${c.id.isNotEmpty ? c.id : 'VMX-TOKEN-AUTO'}',
+                style: const TextStyle(color: Colors.white70, fontFamily: 'monospace', fontSize: 11),
+              ),
+              const SizedBox(height: 14),
+              CustomButton(
+                width: double.infinity,
+                height: 42,
+                text: 'Share Payment Checkout Link',
+                isGradient: true,
+                onTap: controller.showSharePaymentModal,
+                // prefixIcon: const Icon(Icons.share_outlined, color: Colors.white, size: 16),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // 4B. QR Attribution Metrics
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.cardBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.cardBorder),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.qr_code_2_rounded, color: Color(0xFF10B981), size: 16),
+                  SizedBox(width: 8),
+                  Text('Dynamic QR Lead Attribution',
+                      style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.qr_code_rounded, size: 48, color: Colors.black),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Code: ${c.promoCode?.isNotEmpty == true ? c.promoCode! : 'VMX-QR-${c.id}'}',
+                          style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Redirect: ${c.qrRedirectUrl ?? 'https://vmovexa.com/ad/${c.id}'}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 10),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              const Divider(color: AppColors.cardBorder, height: 1),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildMetricStat('QR Scans', '${controller.qrScans.value}'),
+                  _buildMetricStat('Leads Generated', '${controller.vmovexaLeads.value}'),
+                  _buildMetricStat('Conversion', '${controller.qrConversion.value}%'),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // 4C. Customer Reviews & Ratings
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.cardBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.cardBorder),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 16),
+                      SizedBox(width: 8),
+                      Text('Customer Reviews & Ratings',
+                          style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  Text('${controller.reviews.length} Reviews',
+                      style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
+                ],
+              ),
+              const SizedBox(height: 14),
+
+              if (controller.reviews.isEmpty)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Text('No verified customer feedback submitted yet',
+                        style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                  ),
+                )
+              else
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: controller.reviews.length,
+                  itemBuilder: (context, idx) {
+                    final r = controller.reviews[idx];
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0F172A),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppColors.cardBorder),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(r.customerName ?? 'Verified Customer',
+                                  style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                              Row(
+                                children: List.generate(
+                                  5,
+                                  (i) => Icon(
+                                    i < r.rating ? Icons.star_rounded : Icons.star_border_rounded,
+                                    size: 13,
+                                    color: const Color(0xFFF59E0B),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (r.comment != null && r.comment!.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(r.comment!,
+                                style: const TextStyle(color: Colors.white70, fontSize: 10.5, height: 1.3)),
+                          ],
+                        ],
+                      ),
+                    );
+                  },
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ==========================================================
+  // REUSABLE ROW & STAT HELPERS
+  // ==========================================================
+  Widget _buildTwoColInfo(
+    String label1,
+    String val1,
+    String label2,
+    String val2, {
+    bool isPhone = false,
+    bool isEmail = false,
+  }) {
+    return Row(
+      children: [
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 8,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 9,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              Text(label1, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
+              const SizedBox(height: 2),
+              isPhone
+                  ? GestureDetector(
+                      onTap: () => launchUrl(Uri.parse('tel:$val1')),
+                      child: Text(val1,
+                          style: const TextStyle(
+                              color: Color(0xFF60A5FA), fontSize: 11, fontWeight: FontWeight.bold, decoration: TextDecoration.underline)),
+                    )
+                  : Text(val1,
+                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
             ],
           ),
         ),
-      ],
-    );
-  }
-
-
-  Widget _buildCampaignInformationCard(dynamic c) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text('Campaign Information', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
-              Text('Edit (Disabled)', style: TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
-            ],
-          ),
-          const Divider(color: AppColors.cardBorder, height: 20),
-          _buildDetailRow('Campaign Name', c.title),
-          _buildDetailRow('Brand Name', c.client),
-          _buildDetailRow('Campaign Type', 'Offer / Promotion'),
-          _buildDetailRow('Objective', 'Increase Brand Awareness'),
-          _buildDetailRow('Category', 'Retail'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailRow(String label, String val) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 10)),
-          Text(val, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCreativePreviewCard(dynamic c) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              SvgPicture.asset(
-                'assets/icons/advertiser_ic/gallary.svg',
-                width: 14,
-                height: 14,
-              ),
-              const SizedBox(width: 8),
-              const Text('Creative Preview', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              // Simulated Playable video preview thumbnail
-              Container(
-                width: 140,
-                height: 80,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [Color(0xFFEC4899), Color(0xFF8B5CF6)]),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(color: Colors.black38, shape: BoxShape.circle),
-                    child: SvgPicture.asset(
-                      'assets/icons/advertiser_ic/vedio.svg',
-                      width: 24,
-                      height: 24,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-
-              // Specifications
-              Expanded(
-                child: Column(
-                  children: [
-                    _buildSpecRow('Format', 'MP4'),
-                    _buildSpecRow('Resolution', '1920 × 1080'),
-                    _buildSpecRow('Duration', '20 sec'),
-                    _buildSpecRow('Size', '42 MB'),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSpecRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
-          Text(value, style: const TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFleetScreensCard(dynamic c) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              SvgPicture.asset(
-                'assets/icons/bus.svg',
-                width: 14,
-                height: 14,
-              ),
-              const SizedBox(width: 8),
-              const Text('Fleet & Screens', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              Expanded(child: _buildFleetStatItem('3', 'Fleet Operators', 'assets/icons/bus.svg')),
-              Expanded(child: _buildFleetStatItem('1,250', 'Screens', 'assets/icons/advertiser_ic/tv.svg')),
-              Expanded(child: _buildFleetStatItem('20', 'Cities', 'assets/icons/fleet_operator_icons/officeA.svg')),
-              Expanded(child: _buildFleetStatItem('2.5M', 'Estimated Reach', 'assets/icons/profile.svg')),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFleetStatItem(String val, String label, String svgPath) {
-    return Column(
-      children: [
-        SvgPicture.asset(
-          svgPath,
-          width: 16,
-          height: 16,
-        ),
-        const SizedBox(height: 6),
-        Text(val, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 2),
-        Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 8), textAlign: TextAlign.center),
-      ],
-    );
-  }
-
-  Widget _buildScheduleDetailsCard(dynamic c) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              SvgPicture.asset(
-                'assets/icons/advertiser_ic/calender.svg',
-                width: 14,
-                height: 14,
-              ),
-              const SizedBox(width: 8),
-              const Text('Schedule', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          const Divider(color: AppColors.cardBorder, height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text('Start Date & Time', style: TextStyle(color: AppColors.textMuted, fontSize: 8.5)),
-                    SizedBox(height: 4),
-                    Text('20 May 2026, 10:00 AM', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text('End Date & Time', style: TextStyle(color: AppColors.textMuted, fontSize: 8.5)),
-                    SizedBox(height: 4),
-                    Text('10 Jun 2026, 10:00 PM', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          _buildDetailRow('Repeat', 'Weekly on Mon, Tue, Wed, Thu, Fri'),
-          _buildDetailRow('Daily Time Slot', '08:00 AM - 10:00 PM'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBudgetSummaryCard(dynamic c) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              SvgPicture.asset(
-                'assets/icons/advertiser_ic/rupees.svg',
-                width: 14,
-                height: 14,
-              ),
-              const SizedBox(width: 8),
-              const Text('Budget Summary', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          const Divider(color: AppColors.cardBorder, height: 16),
-          _buildBudgetMiniRow('Total Budget', '₹2,50,000'),
-          _buildBudgetMiniRow('GST (18%)', '₹45,000'),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text('Total Paid', style: TextStyle(color: AppColors.textSecondary, fontSize: 9.5)),
-              Text('₹2,95,000', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPaymentStatusCard(dynamic c) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              SvgPicture.asset(
-                'assets/icons/fleet_operator_icons/cardA.svg',
-                width: 14,
-                height: 14,
-              ),
-              const SizedBox(width: 8),
-              const Text('Payment Status', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          const Divider(color: AppColors.cardBorder, height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('Status', style: TextStyle(color: AppColors.textSecondary, fontSize: 9)),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Text('Paid', style: TextStyle(color: Color(0xFF10B981), fontSize: 8.5, fontWeight: FontWeight.bold)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          _buildBudgetMiniRow('Paid On', '07 Aug 2026'),
-          _buildBudgetMiniRow('Method', 'Credit Card'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBudgetMiniRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 9)),
-          Text(value, style: const TextStyle(color: AppColors.textSecondary, fontSize: 9, fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCampaignTimelineCard(dynamic c) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              SvgPicture.asset(
-                'assets/icons/advertiser_ic/route.svg',
-                width: 14,
-                height: 14,
-              ),
-              const SizedBox(width: 8),
-              const Text('Campaign Timeline', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          const SizedBox(height: 18),
-          Row(
-            children: [
-              _buildTimelineStep(
-                'Submitted',
-                '07 Aug 2026\n09:41 AM',
-                isChecked: true,
-                icon: const Icon(Icons.check_rounded, color: Color(0xFF10B981), size: 10),
-              ),
-              _buildTimelineDivider(true),
-              _buildTimelineStep(
-                'Under Review',
-                'In Progress',
-                isActiveAlert: true,
-                icon: SvgPicture.asset(
-                  'assets/icons/clock.svg',
-                  width: 10,
-                  height: 10,
-                ),
-              ),
-              _buildTimelineDivider(false),
-              _buildTimelineStep(
-                'Approved',
-                'Pending',
-                isPending: true,
-                icon: SvgPicture.asset(
-                  'assets/icons/clock.svg',
-                  width: 10,
-                  height: 10,
-                ),
-              ),
-              _buildTimelineDivider(false),
-              _buildTimelineStep(
-                'Live',
-                'Pending',
-                isPending: true,
-                icon: SvgPicture.asset(
-                  'assets/icons/advertiser_ic/vedio.svg',
-                  width: 10,
-                  height: 10,
-                ),
-              ),
-              _buildTimelineDivider(false),
-              _buildTimelineStep(
-                'Completed',
-                'Pending',
-                isPending: true,
-                icon: const Icon(Icons.check_rounded, color: AppColors.textMuted, size: 10),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTimelineStep(
-    String title,
-    String sub, {
-    bool isChecked = false,
-    bool isActiveAlert = false,
-    bool isPending = false,
-    required Widget icon,
-  }) {
-    Color ringColor = Colors.grey;
-
-    if (isChecked) {
-      ringColor = const Color(0xFF10B981);
-    } else if (isActiveAlert) {
-      ringColor = const Color(0xFFF59E0B);
-    } else if (isPending) {
-      ringColor = AppColors.cardBorder;
-    }
-
-    return Expanded(
-      child: Column(
-        children: [
-          Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isChecked
-                  ? const Color(0xFF10B981).withOpacity(0.12)
-                  : (isActiveAlert ? const Color(0xFFF59E0B).withOpacity(0.12) : Colors.transparent),
-              border: Border.all(color: ringColor, width: 1.5),
-            ),
-            child: Center(child: icon),
-          ),
-          const SizedBox(height: 6),
-          Text(title, style: const TextStyle(color: Colors.white, fontSize: 8.5, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
-          const SizedBox(height: 2),
-          Text(sub, style: TextStyle(color: isActiveAlert ? const Color(0xFFF59E0B) : AppColors.textMuted, fontSize: 7), textAlign: TextAlign.center),
-        ],
-      ),
-    );
-  }
-
-
-  Widget _buildTimelineDivider(bool isCompleted) {
-    return Container(
-      width: 14,
-      height: 1.5,
-      margin: const EdgeInsets.only(bottom: 24),
-      color: isCompleted ? const Color(0xFF10B981) : AppColors.cardBorder,
-    );
-  }
-
-  Widget _buildBottomActionsRow() {
-    final isUnderReview = controller.campaign.value.status == 'PENDING';
-
-    if (isUnderReview) {
-      return Row(
-        children: [
-          // Download Invoice
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: () {
-                Get.snackbar(
-                  'Downloading Invoice',
-                  'Your invoice PDF download has started.',
-                  snackPosition: SnackPosition.BOTTOM,
-                  backgroundColor: const Color(0xFF8B5CF6),
-                  colorText: Colors.white,
-                );
-              },
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(0xFF8B5CF6), width: 1.2),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              icon: SvgPicture.asset(
-                'assets/icons/advertiser_ic/note.svg',
-                width: 14,
-                height: 14,
-              ),
-              label: const Text('Download Invoice', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-            ),
-          ),
-          const SizedBox(width: 14),
-          // Back to Campaigns
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: () => Get.back(),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(0xFF8B5CF6), width: 1.2),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 14),
-              label: const Text('Back to Campaigns', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-            ),
-          ),
-        ],
-      );
-    }
-
-    return Row(
-      children: [
-        // Duplicate Campaign
         Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFF8B5CF6),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: ElevatedButton.icon(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              icon: SvgPicture.asset(
-                'assets/icons/advertiser_ic/layers.svg',
-                width: 14,
-                height: 14,
-              ),
-              label: const Text('Duplicate Campaign', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
-            ),
-          ),
-        ),
-        const SizedBox(width: 10),
-
-        // Download Invoice
-        Expanded(
-          child: OutlinedButton.icon(
-            onPressed: () {},
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.cardBorder),
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            icon: SvgPicture.asset(
-              'assets/icons/advertiser_ic/note.svg',
-              width: 14,
-              height: 14,
-            ),
-            label: const Text('Download Invoice', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
-          ),
-        ),
-        const SizedBox(width: 10),
-
-        // Back to Campaigns
-        Expanded(
-          child: OutlinedButton.icon(
-            onPressed: () => Get.back(),
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.cardBorder),
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 14),
-            label: const Text('Back to Campaigns', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildQrTrackingCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF10B981).withOpacity(0.3), width: 1.2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  SvgPicture.asset(
-                    'assets/icons/fleet_operator_icons/qr-code-scan.svg',
-                    width: 14,
-                    height: 14,
-                  ),
-                  const SizedBox(width: 8),
-                  const Text('QR Tracking', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
-                  const SizedBox(width: 8),
-                  const Text('Enabled', style: TextStyle(color: Color(0xFF10B981), fontSize: 9.5, fontWeight: FontWeight.bold)),
-                ],
-              ),
-              GestureDetector(
-                onTap: () {
-                  Get.snackbar('QR Details', 'Opening QR placement configuration details');
-                },
-                child: Row(
-                  children: const [
-                    Text('View Details', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 9.5, fontWeight: FontWeight.bold)),
-                    SizedBox(width: 2),
-                    Icon(Icons.chevron_right_rounded, color: Color(0xFF8B5CF6), size: 12),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const Divider(color: AppColors.cardBorder, height: 16),
-          Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Left: QR Code Preview
-              Container(
-                width: 90,
-                height: 90,
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: CustomPaint(
-                        painter: DummyQrCodePainter(color: Colors.black),
-                      ),
-                    ),
-                    Center(
-                      child: Container(
-                        width: 18,
-                        height: 18,
-                        decoration: BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'V',
-                            style: TextStyle(
-                              color: Color(0xFF8B5CF6),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 9,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 14),
-              // Middle: QR details
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('QR ID', style: TextStyle(color: AppColors.textMuted, fontSize: 8)),
-                    const SizedBox(height: 2),
-                    Row(
-                      children: [
-                        const Text('VMX-QR-8F29A7', style: TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
-                        const SizedBox(width: 4),
-                        GestureDetector(
-                          onTap: () => Get.snackbar('Copied', 'QR ID copied to clipboard'),
-                          child: const Icon(Icons.copy_rounded, color: Color(0xFF8B5CF6), size: 10),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    const Text('Destination URL', style: TextStyle(color: AppColors.textMuted, fontSize: 8)),
-                    const SizedBox(height: 2),
-                    Row(
-                      children: [
-                        const Expanded(
-                          child: Text(
-                            'https://www.citymart.com/summer-sale',
-                            style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 8.5, fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        GestureDetector(
-                          onTap: () => Get.snackbar('Copied', 'Destination URL copied to clipboard'),
-                          child: const Icon(Icons.copy_rounded, color: Color(0xFF8B5CF6), size: 10),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 10),
-              // Right: scan details
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Placement', style: TextStyle(color: AppColors.textMuted, fontSize: 8)),
-                  const SizedBox(height: 2),
-                  const Text('Rear Screen', style: TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
-                  const Text('QR Scans', style: TextStyle(color: AppColors.textMuted, fontSize: 8)),
-                  const SizedBox(height: 2),
-                  Obx(() => Text('${controller.qrScans.value}', style: const TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold))),
-                ],
-              ),
+              Text(label2, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
+              const SizedBox(height: 2),
+              isEmail
+                  ? GestureDetector(
+                      onTap: () => launchUrl(Uri.parse('mailto:$val2')),
+                      child: Text(val2,
+                          style: const TextStyle(
+                              color: Color(0xFF60A5FA), fontSize: 11, fontWeight: FontWeight.bold, decoration: TextDecoration.underline)),
+                    )
+                  : Text(val2,
+                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
             ],
           ),
-        ],
-      ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBreakdownRow(String label, String value,
+      {bool isBold = false, bool isNegative = false, Color? highlightColor}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: isBold ? Colors.white : AppColors.textSecondary,
+            fontSize: isBold ? 11.5 : 10.5,
+            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            color: highlightColor ?? (isNegative ? const Color(0xFF34D399) : Colors.white),
+            fontSize: isBold ? 13 : 11,
+            fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
+            fontFamily: 'monospace',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMetricStat(String label, String value) {
+    return Column(
+      children: [
+        Text(value, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 2),
+        Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
+      ],
     );
   }
 }
-
-class DummyQrCodePainter extends CustomPainter {
-  final Color color;
-  DummyQrCodePainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    double borderSize = size.width / 4;
-
-    void drawFinderPattern(double dx, double dy) {
-      canvas.drawRect(Rect.fromLTWH(dx, dy, borderSize, borderSize), paint);
-      canvas.drawRect(Rect.fromLTWH(dx + 2, dy + 2, borderSize - 4, borderSize - 4), Paint()..color = Colors.white);
-      canvas.drawRect(Rect.fromLTWH(dx + 4, dy + 4, borderSize - 8, borderSize - 8), paint);
-    }
-
-    drawFinderPattern(0, 0);
-    drawFinderPattern(size.width - borderSize, 0);
-    drawFinderPattern(0, size.height - borderSize);
-
-    final randomPixels = [
-      Offset(size.width * 0.5, size.height * 0.1),
-      Offset(size.width * 0.6, size.height * 0.2),
-      Offset(size.width * 0.5, size.height * 0.4),
-      Offset(size.width * 0.4, size.height * 0.5),
-      Offset(size.width * 0.7, size.height * 0.6),
-      Offset(size.width * 0.8, size.height * 0.5),
-      Offset(size.width * 0.5, size.height * 0.8),
-      Offset(size.width * 0.6, size.height * 0.8),
-      Offset(size.width * 0.8, size.height * 0.8),
-    ];
-
-    for (var pos in randomPixels) {
-      canvas.drawRect(Rect.fromCenter(center: pos, width: 4, height: 4), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-

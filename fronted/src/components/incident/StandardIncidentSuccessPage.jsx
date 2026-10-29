@@ -1,0 +1,113 @@
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { FleetIcons } from '../FleetIcons';
+import Breadcrumb from '../ui/Breadcrumb';
+
+export const StandardIncidentSuccessPage = ({
+  roleTitle = 'Fleet Operator',
+  roleScope = 'fleet',
+  basePath = '/fleet-operator',
+}) => {
+  const location = useLocation();
+  const incident = location.state?.incident || {
+    id: 'INC-2026-DISPATCH-001',
+    incident_type: 'Road Condition',
+    severity: 'low',
+    location: 'Central Transit Corridor',
+    reported_at: new Date().toISOString(),
+    status: 'open',
+  };
+
+  const formattedDate = incident.reported_at
+    ? new Date(incident.reported_at).toLocaleString('en-GB')
+    : new Date().toLocaleString('en-GB');
+
+  return (
+    <div className="w-full max-w-xl mx-auto py-8 sm:py-12 space-y-6 animate-in fade-in zoom-in-95 duration-200 text-center">
+      <Breadcrumb
+        items={[
+          { label: roleTitle, to: `${basePath}/dashboard` },
+          { label: 'Incidents Log', to: `${basePath}/incidents` },
+          { label: 'Report Success' },
+        ]}
+        className="mb-4 justify-center"
+      />
+
+      {/* Green Checkmark */}
+      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-100 dark:bg-emerald-950/40 border-2 border-emerald-300 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400 rounded-3xl flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/10">
+        <FleetIcons.Check className="w-8 h-8 sm:w-10 sm:h-10 stroke-[2.5]" />
+      </div>
+
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+          Incident Reported Successfully!
+        </h1>
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1.5 max-w-sm mx-auto">
+          Emergency report broadcasted to Control Room dispatchers, assigned depot managers, and emergency channels.
+        </p>
+      </div>
+
+      {/* Incident Summary Card */}
+      <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-sm text-left space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3">
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Incident Record ID
+            </span>
+            <div className="text-sm font-mono font-black text-slate-900 dark:text-white mt-0.5">
+              #{incident.id}
+            </div>
+          </div>
+          <span className="text-xs font-bold px-2.5 py-1 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 rounded-lg uppercase">
+            {incident.status || 'OPEN'}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <div>
+            <span className="text-slate-400 text-[11px] font-medium">Category:</span>
+            <div className="font-bold text-slate-900 dark:text-zinc-200 mt-0.5">
+              {incident.incident_type || incident.incidentType || 'Road Issue'}
+            </div>
+          </div>
+          <div>
+            <span className="text-slate-400 text-[11px] font-medium">Severity Level:</span>
+            <div className="font-bold text-emerald-700 dark:text-emerald-400 mt-0.5 uppercase">
+              ● {incident.severity || 'low'}
+            </div>
+          </div>
+          <div>
+            <span className="text-slate-400 text-[11px] font-medium">Location:</span>
+            <div className="font-bold text-slate-900 dark:text-zinc-200 mt-0.5 truncate">
+              {incident.location || incident.landmark || 'GPS Coordinated'}
+            </div>
+          </div>
+          <div>
+            <span className="text-slate-400 text-[11px] font-medium">Timestamp:</span>
+            <div className="font-bold text-slate-900 dark:text-zinc-200 mt-0.5">
+              {formattedDate}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="space-y-3 pt-2">
+        <Link
+          to={`${basePath}/incidents`}
+          className="w-full py-3 bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-xs font-bold rounded-xl shadow-sm transition-all block text-center"
+        >
+          View in Incidents Command Log
+        </Link>
+        <Link
+          to={`${basePath}/dashboard`}
+          className="w-full py-3 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-bold rounded-xl transition-all block text-center"
+        >
+          Return to Dashboard
+        </Link>
+      </div>
+    </div>
+  );
+};
+
+export default StandardIncidentSuccessPage;

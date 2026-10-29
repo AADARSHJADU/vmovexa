@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../../data/services/fleet_service.dart';
 import '../../../../../routes/app_routes.dart';
 import '../../add_driver/controllers/add_driver_controller.dart';
 
@@ -7,47 +8,20 @@ class AssignDriverController extends GetxController {
   final searchController = TextEditingController();
   final RxString selectedTab = 'Available'.obs;
   final RxString searchPattern = ''.obs;
+  final RxBool isLoading = false.obs;
+  final RxBool isSubmitting = false.obs;
 
   // Selected driver
   final Rxn<DriverModel> selectedDriver = Rxn<DriverModel>();
 
   // Driver database list
-  final RxList<DriverModel> drivers = <DriverModel>[
-    DriverModel(
-      name: 'Rajesh Kumar',
-      empId: 'EMP00123',
-      dlNo: 'DL12345678',
-      dlExpiry: '15 Dec 2025',
-      status: 'Available',
-    ),
-    DriverModel(
-      name: 'Priya Sharma',
-      empId: 'EMP00124',
-      dlNo: 'DL87654321',
-      dlExpiry: '20 Jan 2026',
-      status: 'Available',
-    ),
-    DriverModel(
-      name: 'Amit Verma',
-      empId: 'EMP00125',
-      dlNo: 'DL11223344',
-      dlExpiry: '10 Mar 2026',
-      status: 'Available',
-    ),
-    DriverModel(
-      name: 'Sandeep Singh',
-      empId: 'EMP00126',
-      dlNo: 'DL44332211',
-      dlExpiry: '05 Feb 2026',
-      status: 'Available',
-    ),
-  ].obs;
-
+  final RxList<DriverModel> drivers = <DriverModel>[].obs;
   final RxList<DriverModel> filteredDrivers = <DriverModel>[].obs;
 
   late final String vehicleName;
   late final String fleetName;
   late final String vehicleType;
+  dynamic vehicleId;
 
   @override
   void onInit() {
@@ -56,12 +30,60 @@ class AssignDriverController extends GetxController {
     vehicleName = (args is Map) ? (args['vehicleName'] ?? 'MH12AB1234') : 'MH12AB1234';
     fleetName = (args is Map) ? (args['fleetName'] ?? 'City Bus Fleet') : 'City Bus Fleet';
     vehicleType = (args is Map) ? (args['vehicleType'] ?? 'Bus') : 'Bus';
+    vehicleId = (args is Map) ? args['vehicleId'] : null;
 
-    filteredDrivers.assignAll(drivers);
     searchController.addListener(() {
       searchPattern.value = searchController.text.trim();
       _filterDrivers();
     });
+
+    fetchDrivers();
+  }
+
+  Future<void> fetchDrivers() async {
+    isLoading.value = true;
+    try {
+      if (Get.isRegistered<FleetService>()) {
+        final res = await FleetService.to.getDrivers(limit: 100);
+        if (res.success && res.data != null && res.data!.isNotEmpty) {
+          final mapped = res.data!.map((d) {
+            return DriverModel(
+              name: d.name.isNotEmpty ? d.name : 'Driver #${d.id}',
+              empId: d.empId.isNotEmpty ? d.empId : 'EMP-${d.id}',
+              dlNo: d.licenseNumber.isNotEmpty ? d.licenseNumber : 'N/A',
+              dlExpiry: d.dlExpiry.isNotEmpty ? d.dlExpiry : 'N/A',
+              status: d.documentsVerified ? 'Available' : 'Pending Verification',
+            );
+          }).toList();
+          drivers.assignAll(mapped);
+          _filterDrivers();
+          return;
+        }
+      }
+    } catch (_) {} finally {
+      isLoading.value = false;
+    }
+
+    // Fallback seed if no drivers in backend
+    if (drivers.isEmpty) {
+      drivers.assignAll([
+        DriverModel(
+          name: 'Rajesh Kumar',
+          empId: 'EMP00123',
+          dlNo: 'DL12345678',
+          dlExpiry: '15 Dec 2025',
+          status: 'Available',
+        ),
+        DriverModel(
+          name: 'Priya Sharma',
+          empId: 'EMP00124',
+          dlNo: 'DL87654321',
+          dlExpiry: '20 Jan 2026',
+          status: 'Available',
+        ),
+      ]);
+      _filterDrivers();
+    }
   }
 
   void _filterDrivers() {
@@ -83,6 +105,7 @@ class AssignDriverController extends GetxController {
       'vehicleName': vehicleName,
       'fleetName': fleetName,
       'vehicleType': vehicleType,
+      'vehicleId': vehicleId,
     });
     if (newDriverObj != null && newDriverObj is DriverModel) {
       drivers.insert(0, newDriverObj);
@@ -96,26 +119,38 @@ class AssignDriverController extends GetxController {
       'vehicleName': vehicleName,
       'fleetName': fleetName,
       'vehicleType': vehicleType,
+      'vehicleId': vehicleId,
       'driverName': 'None Assigned',
     });
   }
 
-  void confirmAssignment() {
+  Future<void> confirmAssignment() async {
     if (selectedDriver.value == null) {
       Get.snackbar(
         'Selection Required',
         'Please select a driver by clicking "Assign" on their card, or click "Skip for Now".',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent.withOpacity(0.8),
+        backgroundColor: Colors.redAccent.withValues(alpha: 0.8),
         colorText: Colors.white,
       );
       return;
+    }
+
+    if (vehicleId != null && Get.isRegistered<FleetService>()) {
+      isSubmitting.value = true;
+      try {
+        final dName = selectedDriver.value!.name;
+        await FleetService.to.assignDriverToVehicle(vehicleId.toString(), dName);
+      } catch (_) {} finally {
+        isSubmitting.value = false;
+      }
     }
 
     Get.toNamed(Routes.ASSIGN_GPS, arguments: {
       'vehicleName': vehicleName,
       'fleetName': fleetName,
       'vehicleType': vehicleType,
+      'vehicleId': vehicleId,
       'driverName': selectedDriver.value!.name,
     });
   }

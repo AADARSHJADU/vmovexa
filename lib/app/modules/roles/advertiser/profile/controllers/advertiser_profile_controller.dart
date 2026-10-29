@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:vmovexa/app/data/services/storage_service.dart';
 
 class AdvertiserProfileController extends GetxController {
   final companyName = 'VMOVEXA Advertising Pvt. Ltd.'.obs;
@@ -15,4 +16,30 @@ class AdvertiserProfileController extends GetxController {
   final billingEmail = 'billing@vmovexa.com'.obs;
   final invoicesEmail = 'invoices@vmovexa.com'.obs;
   final paymentTerms = 'Net 15 Days'.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    final user = StorageService.to.getUser();
+    if (user != null) {
+      if (user.companyName != null && user.companyName!.isNotEmpty) {
+        companyName.value = user.companyName!;
+      } else if (user.organizationName != null && user.organizationName!.isNotEmpty) {
+        companyName.value = user.organizationName!;
+      }
+      if (user.name != null && user.name!.isNotEmpty) {
+        contactPerson.value = user.name!;
+      }
+      if (user.email != null && user.email!.isNotEmpty) {
+        contactEmail.value = user.email!;
+        billingEmail.value = user.email!;
+      }
+      if (user.phone != null && user.phone!.isNotEmpty) {
+        contactPhone.value = user.phone!;
+      }
+      if (user.officeAddress != null && user.officeAddress!.isNotEmpty) {
+        registeredAddress.value = user.officeAddress!;
+      }
+    }
+  }
 }

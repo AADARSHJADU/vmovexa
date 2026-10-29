@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/data/models/edge_device_model.dart';
@@ -256,12 +257,22 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.18) : const Color(0xFF1E293B),
+          gradient: isSelected ? AppTheme.primaryGradient : null,
+          color: isSelected ? null : const Color(0xFF1E293B),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? color : Colors.transparent,
+            color: isSelected ? Colors.transparent : const Color(0xFF334155),
             width: 1.2,
           ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -278,13 +289,13 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
               decoration: BoxDecoration(
-                color: isSelected ? color : Colors.white12,
+                color: isSelected ? Colors.white.withValues(alpha: 0.25) : Colors.white12,
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
                 count.toString(),
-                style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.white70,
+                style: const TextStyle(
+                  color: Colors.white,
                   fontSize: 10,
                   fontWeight: FontWeight.w800,
                 ),
@@ -312,19 +323,33 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
             ),
           ),
         ),
-        ElevatedButton.icon(
-          onPressed: controller.onRegisterNewDevice,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF6366F1),
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            elevation: 0,
+        Container(
+          decoration: BoxDecoration(
+            gradient: AppTheme.primaryGradient,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.gradientPink.withValues(alpha: 0.25),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          icon: const Icon(Icons.add_rounded, size: 16),
-          label: const Text(
-            'Add Edge Device',
-            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+          child: ElevatedButton.icon(
+            onPressed: controller.onRegisterNewDevice,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              elevation: 0,
+            ),
+            icon: const Icon(Icons.add_rounded, size: 16),
+            label: const Text(
+              'Add Edge Device',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+            ),
           ),
         ),
       ],
