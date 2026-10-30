@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/data/services/advertiser_service.dart';
 import 'package:vmovexa/app/data/services/finance_service.dart';
 import 'package:vmovexa/app/data/services/fleet_service.dart';
 import 'package:vmovexa/app/data/services/storage_service.dart';
@@ -86,8 +87,39 @@ class TermsConditionsController extends GetxController {
     final activeRole = role ?? resolveRole();
     final isFinance = activeRole.contains('FINANCE');
     final isTech = activeRole.contains('TECH');
+    final isAdv = activeRole.contains('ADV');
 
-    if (isFinance) {
+    if (isAdv) {
+      pageTitle.value = 'Advertiser Terms & Campaign SLA';
+      pageSubtitle.value = 'Ad creative specifications, impression verification guarantees, and playback compliance rules';
+      sections.assignAll([
+        TermsSectionItem(
+          id: '1',
+          title: '1. Ad Creative Specifications & Quality Standards',
+          content: 'All creative media submitted for transit display must adhere strictly to standard 16:9 widescreen formats (1920x1080 resolution), MP4 H.264 video encoding (max 30 seconds, 30 fps), or high-resolution JPEG/PNG images under 50 MB. Content must comply with Advertising Standards Council of India (ASCI) guidelines.',
+        ),
+        TermsSectionItem(
+          id: '2',
+          title: '2. GPS Proof-of-Play Verification SLA',
+          content: 'VMOVEXA guarantees that ad playback timestamps, GPS coordinates, and vehicle IDs are captured on onboard hardware and synced via MQTT telemetry. In the event of vehicle mechanical breakdown or screen hardware downtime exceeding 4 continuous hours, campaign flight hours will be credited back automatically.',
+        ),
+        TermsSectionItem(
+          id: '3',
+          title: '3. Smart QR Lead Attribution & Consumer Privacy',
+          content: 'Interactive QR codes dynamically generated for transit campaigns capture timestamped scan counts, approximate commuter location nodes, and device browser profiles without collecting personally identifiable information (PII). All attribution data remains proprietary to the advertiser.',
+        ),
+        TermsSectionItem(
+          id: '4',
+          title: '4. Campaign Verification, Budgeting & Billing',
+          content: 'Submitted campaigns undergo administrative review within 4 to 12 hours. Budgets are charged on a daily or total cap schedule. Statutory 18% GST is applied to ad spend, and GST tax credit invoices are generated upon approval of payment.',
+        ),
+        TermsSectionItem(
+          id: '5',
+          title: '5. Cancellation, Re-scheduling & Refund Policy',
+          content: 'Advertisers may pause active campaigns at any time via the dashboard. Wallet credits corresponding to unspent flight time are returned immediately to the advertiser wallet. Cash refunds to source accounts are processed within 5 to 7 business days upon request.',
+        ),
+      ]);
+    } else if (isFinance) {
       pageTitle.value = 'Finance Officer Terms & Reconciliation Rules';
       pageSubtitle.value = 'Revenue ledger standards, payment gateway settlements, and statutory GST reconciliation';
       sections.assignAll([
@@ -197,7 +229,9 @@ class TermsConditionsController extends GetxController {
     try {
       isLoading.value = true;
       dynamic res;
-      if (Get.isRegistered<FinanceService>() && activeRole.contains('FINANCE')) {
+      if (Get.isRegistered<AdvertiserService>() && activeRole.contains('ADV')) {
+        res = await AdvertiserService.to.getContentPage('terms', role: activeRole);
+      } else if (Get.isRegistered<FinanceService>() && activeRole.contains('FINANCE')) {
         res = await FinanceService.to.getContentPage('terms', role: activeRole);
       } else if (Get.isRegistered<FleetService>()) {
         res = await FleetService.to.getContentPage('terms', role: activeRole);

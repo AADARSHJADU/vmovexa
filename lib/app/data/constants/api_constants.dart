@@ -175,6 +175,7 @@ class ApiConstants {
   static String contentPage(String type) => '/content/$type';
   static const String contentFaqs = '/content/faqs';
   static const String supportTickets = '/me/support/tickets';
+  static const String createSupportTicket = '/support/tickets';
 
   // Finance Endpoints
   static const String financeKpis = '/finance/kpis';

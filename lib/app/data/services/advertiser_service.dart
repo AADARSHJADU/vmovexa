@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import '../constants/api_constants.dart';
 import '../models/api_response_model.dart';
 import '../models/campaign_model.dart';
+import '../models/advertiser_report_model.dart';
+import '../models/advertiser_billing_model.dart';
 import 'http_client_service.dart';
 
 class AdvertiserService extends GetxService {
@@ -268,6 +270,15 @@ class AdvertiserService extends GetxService {
     );
   }
 
+  /// GET /api/v1/campaigns/:id/analytics (Raw full payload matching fronted campaignAnalytics)
+  Future<ApiResponseModel<Map<String, dynamic>>> getCampaignAnalyticsMap(String id) async {
+    return _http.get<Map<String, dynamic>>(
+      ApiConstants.campaignAnalytics(id),
+      requiresAuth: true,
+      create: (data) => data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{},
+    );
+  }
+
   /// GET /api/v1/campaigns/:id/analytics
   Future<ApiResponseModel<CampaignStats>> getCampaignAnalytics(String id) async {
     return _http.get<CampaignStats>(
@@ -276,6 +287,20 @@ class AdvertiserService extends GetxService {
       create: (data) {
         final map = data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{};
         return CampaignStats.fromJson(map);
+      },
+    );
+  }
+
+  /// GET /api/v1/campaigns/:id/reviews (Structured object containing count, averages, reviews)
+  Future<ApiResponseModel<CampaignReviewsData>> getCampaignReviewsData(String id) async {
+    return _http.get<CampaignReviewsData>(
+      ApiConstants.campaignReviews(id),
+      requiresAuth: true,
+      create: (data) {
+        if (data is Map) {
+          return CampaignReviewsData.fromJson(Map<String, dynamic>.from(data));
+        }
+        return CampaignReviewsData();
       },
     );
   }
@@ -375,6 +400,50 @@ class AdvertiserService extends GetxService {
     );
   }
 
+  /// GET /api/v1/reports
+  Future<ApiResponseModel<List<AdvertiserReportModel>>> getReports([Map<String, dynamic>? queryParams]) async {
+    return _http.get<List<AdvertiserReportModel>>(
+      ApiConstants.reports,
+      queryParams: queryParams,
+      requiresAuth: true,
+      create: (data) {
+        if (data is List) {
+          return data
+              .whereType<Map>()
+              .map((item) => AdvertiserReportModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        } else if (data is Map && (data['rows'] is List || data['items'] is List || data['data'] is List)) {
+          final list = (data['rows'] ?? data['items'] ?? data['data']) as List;
+          return list
+              .whereType<Map>()
+              .map((item) => AdvertiserReportModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        }
+        return <AdvertiserReportModel>[];
+      },
+    );
+  }
+
+  /// POST /api/v1/reports/generate
+  Future<ApiResponseModel<AdvertiserReportModel>> generateReport(Map<String, dynamic> body) async {
+    return _http.post<AdvertiserReportModel>(
+      ApiConstants.reportGenerate,
+      body: body,
+      requiresAuth: true,
+      create: (data) {
+        if (data is Map) {
+          return AdvertiserReportModel.fromJson(Map<String, dynamic>.from(data));
+        }
+        return AdvertiserReportModel(
+          id: '${DateTime.now().millisecondsSinceEpoch}',
+          title: 'Proof-of-Play Performance Audit',
+          format: (body['format'] ?? 'csv').toString().toUpperCase(),
+          generatedOn: 'Just now',
+        );
+      },
+    );
+  }
+
   // ==========================================================
   // SECTION 5: Advertiser Organization & Profile
   // ==========================================================
@@ -395,6 +464,127 @@ class AdvertiserService extends GetxService {
       body: data,
       requiresAuth: true,
       create: (res) => res is Map ? Map<String, dynamic>.from(res) : <String, dynamic>{},
+    );
+  }
+
+  // ==========================================================
+  // SECTION 6: Billing & Invoices (Admin Panel Parity)
+  // ==========================================================
+
+  /// GET /api/v1/billing/invoices
+  Future<ApiResponseModel<List<AdvertiserInvoiceModel>>> getBillingInvoices() async {
+    return _http.get<List<AdvertiserInvoiceModel>>(
+      ApiConstants.billingInvoices,
+      requiresAuth: true,
+      create: (data) {
+        if (data is List) {
+          return data
+              .whereType<Map>()
+              .map((item) => AdvertiserInvoiceModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        } else if (data is Map && data['rows'] is List) {
+          return (data['rows'] as List)
+              .whereType<Map>()
+              .map((item) => AdvertiserInvoiceModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        } else if (data is Map && data['items'] is List) {
+          return (data['items'] as List)
+              .whereType<Map>()
+              .map((item) => AdvertiserInvoiceModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        }
+        return <AdvertiserInvoiceModel>[];
+      },
+    );
+  }
+
+  /// GET /api/v1/billing/transactions
+  Future<ApiResponseModel<List<AdvertiserTransactionModel>>> getBillingTransactions({
+    Map<String, dynamic>? queryParams,
+  }) async {
+    return _http.get<List<AdvertiserTransactionModel>>(
+      ApiConstants.billingTransactions,
+      queryParams: queryParams,
+      requiresAuth: true,
+      create: (data) {
+        if (data is List) {
+          return data
+              .whereType<Map>()
+              .map((item) => AdvertiserTransactionModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        } else if (data is Map && data['rows'] is List) {
+          return (data['rows'] as List)
+              .whereType<Map>()
+              .map((item) => AdvertiserTransactionModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        } else if (data is Map && data['items'] is List) {
+          return (data['items'] as List)
+              .whereType<Map>()
+              .map((item) => AdvertiserTransactionModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        }
+        return <AdvertiserTransactionModel>[];
+      },
+    );
+  }
+
+  /// GET /api/v1/billing/wallet
+  Future<ApiResponseModel<Map<String, dynamic>>> getBillingWallet() async {
+    return _http.get<Map<String, dynamic>>(
+      ApiConstants.billingWallet,
+      requiresAuth: true,
+      create: (data) => data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{},
+    );
+  }
+
+  /// GET /api/v1/billing/invoices/:id
+  Future<ApiResponseModel<AdvertiserInvoiceModel>> getBillingInvoiceOne(String id) async {
+    return _http.get<AdvertiserInvoiceModel>(
+      ApiConstants.billingInvoiceOne(id),
+      requiresAuth: true,
+      create: (data) => AdvertiserInvoiceModel.fromJson(data is Map ? Map<String, dynamic>.from(data) : {}),
+    );
+  }
+
+  /// GET /api/v1/notifications/settings
+  Future<ApiResponseModel<dynamic>> getNotificationSettings() async {
+    return _http.get(ApiConstants.notificationSettings, requiresAuth: true);
+  }
+
+  /// PATCH /api/v1/notifications/settings
+  Future<ApiResponseModel<dynamic>> updateNotificationSettings(Map<String, dynamic> data) async {
+    return _http.patch(ApiConstants.notificationSettings, body: data, requiresAuth: true);
+  }
+
+  /// GET /api/v1/content/:type?role=...
+  Future<ApiResponseModel<dynamic>> getContentPage(String type, {String? role}) async {
+    final Map<String, dynamic> params = {};
+    if (role != null && role.isNotEmpty) {
+      params['role'] = role;
+      params['role_code'] = role;
+    }
+    return _http.get(
+      ApiConstants.contentPage(type),
+      queryParams: params.isNotEmpty ? params : null,
+      requiresAuth: false,
+    );
+  }
+
+  /// POST /api/v1/support/tickets
+  Future<ApiResponseModel<dynamic>> createTicket(Map<String, dynamic> data) async {
+    return _http.post(
+      ApiConstants.createSupportTicket,
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /api/v1/me/support/tickets
+  Future<ApiResponseModel<dynamic>> getMyTickets({int page = 1, int limit = 20}) async {
+    return _http.get(
+      ApiConstants.supportTickets,
+      queryParams: {'page': page, 'limit': limit},
+      requiresAuth: true,
     );
   }
 }

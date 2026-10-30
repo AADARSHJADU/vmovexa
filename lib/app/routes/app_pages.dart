@@ -215,8 +215,21 @@ import '../modules/roles/advertiser/campaign_details/views/campaign_details_view
 import '../modules/roles/advertiser/campaign_analytics/bindings/campaign_analytics_binding.dart';
 import '../modules/roles/advertiser/campaign_analytics/views/campaign_analytics_view.dart';
 
+import '../modules/roles/advertiser/reports/bindings/advertiser_reports_binding.dart';
+import '../modules/roles/advertiser/reports/views/advertiser_reports_view.dart';
+
+import '../modules/roles/advertiser/billing/bindings/advertiser_billing_binding.dart';
+import '../modules/roles/advertiser/billing/views/advertiser_billing_view.dart';
+
 import '../modules/roles/advertiser/profile/bindings/advertiser_profile_binding.dart';
 import '../modules/roles/advertiser/profile/views/advertiser_profile_view.dart';
+import '../modules/roles/advertiser/profile/views/advertiser_edit_profile_view.dart';
+import '../modules/roles/advertiser/change_password/bindings/advertiser_change_password_binding.dart';
+import '../modules/roles/advertiser/change_password/views/advertiser_change_password_view.dart';
+import '../modules/roles/advertiser/notification_settings/bindings/advertiser_notification_settings_binding.dart';
+import '../modules/roles/advertiser/notification_settings/views/advertiser_notification_settings_view.dart';
+import '../modules/roles/advertiser/help_support/bindings/advertiser_help_support_binding.dart';
+import '../modules/roles/advertiser/help_support/views/advertiser_help_support_view.dart';
 
 import '../modules/roles/government/dashboard/bindings/government_dashboard_binding.dart';
 import '../modules/roles/government/dashboard/views/government_dashboard_view.dart';
@@ -552,9 +565,45 @@ class AppPages {
       transition: Transition.rightToLeft,
     ),
     GetPage(
+      name: Routes.ADVERTISER_REPORTS,
+      page: () => const AdvertiserReportsView(),
+      binding: AdvertiserReportsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.ADVERTISER_BILLING,
+      page: () => const AdvertiserBillingView(),
+      binding: AdvertiserBillingBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
       name: Routes.ADVERTISER_PROFILE,
       page: () => const AdvertiserProfileView(),
       binding: AdvertiserProfileBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.ADVERTISER_EDIT_PROFILE,
+      page: () => const AdvertiserEditProfileView(),
+      binding: AdvertiserProfileBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.ADVERTISER_CHANGE_PASSWORD,
+      page: () => const AdvertiserChangePasswordView(),
+      binding: AdvertiserChangePasswordBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.ADVERTISER_NOTIFICATION_SETTINGS,
+      page: () => const AdvertiserNotificationSettingsView(),
+      binding: AdvertiserNotificationSettingsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.ADVERTISER_HELP_SUPPORT,
+      page: () => const AdvertiserHelpSupportView(),
+      binding: AdvertiserHelpSupportBinding(),
       transition: Transition.rightToLeft,
     ),
     GetPage(

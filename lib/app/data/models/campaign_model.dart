@@ -292,6 +292,8 @@ class CampaignModel {
   final String? qrRedirectUrl;
   final String? promoCode;
   final String? budgetType;
+  final String paymentStatus;
+  final bool manualPause;
   final Map<String, dynamic>? paymentBreakdown;
   final CampaignStats? stats;
   final String? createdAt;
@@ -341,6 +343,8 @@ class CampaignModel {
     this.qrRedirectUrl,
     this.promoCode,
     this.budgetType,
+    this.paymentStatus = 'unpaid',
+    this.manualPause = false,
     this.paymentBreakdown,
     this.stats,
     this.createdAt,
@@ -398,6 +402,10 @@ class CampaignModel {
     final draftVal = json['isDraft'] ?? json['is_draft'];
     final bool parsedDraft = draftVal == true || draftVal == 1 || draftVal == '1' || draftVal == 'true' || json['status'] == 'draft';
 
+    final payStatusVal = json['payment_status'] ?? json['paymentStatus'];
+    final manualPauseVal = json['manual_pause'] ?? json['manualPause'];
+    final bool parsedManualPause = manualPauseVal == true || manualPauseVal == 1 || manualPauseVal == '1' || manualPauseVal == 'true';
+
     return CampaignModel(
       id: json['id']?.toString() ?? '',
       code: json['code']?.toString(),
@@ -441,6 +449,8 @@ class CampaignModel {
       qrRedirectUrl: json['qrRedirectUrl']?.toString() ?? json['qr_redirect_url']?.toString(),
       promoCode: json['promoCode']?.toString() ?? json['promo_code']?.toString(),
       budgetType: json['budgetType']?.toString() ?? json['budget_type']?.toString(),
+      paymentStatus: payStatusVal?.toString().toLowerCase() ?? 'unpaid',
+      manualPause: parsedManualPause,
       paymentBreakdown: paymentBreakdown,
       stats: campaignStats,
       createdAt: json['createdAt']?.toString() ?? json['created_at']?.toString(),
@@ -622,11 +632,20 @@ class CampaignModel {
   bool get isApproved => status.toLowerCase() == 'approved';
   bool get isCompleted => status.toLowerCase() == 'completed';
   bool get isDraftStatus => status.toLowerCase() == 'draft' || isDraft;
+  bool get isPaid => paymentStatus.toLowerCase() == 'paid';
 
-  bool get canStart => isPaused || isApproved;
+  /// Returns stage bucket according to Lifecycle Engine
+  String get stageOf {
+    final s = status.toLowerCase();
+    if (s == 'approved' && isPaid) return 'paid';
+    return s;
+  }
+
+  bool get canStart => isPaused || (isApproved && isPaid);
   bool get canPause => isLive;
   bool get canEnd => isLive || isPaused;
   bool get canSubmit => isDraftStatus;
+  bool get canSharePaymentLink => isApproved && !isPaid;
 
   String get thumbnailUrl {
     if (mediaUrl != null && mediaUrl!.isNotEmpty) return mediaUrl!;
@@ -1045,6 +1064,70 @@ class CampaignReviewModel {
       comment: json['comment'] ?? json['review'],
       customerName: json['customerName'] ?? json['customer_name'] ?? json['user_name'] ?? 'Viewer',
       scannedAt: json['scannedAt'] ?? json['scanned_at'] ?? json['createdAt'],
+    );
+  }
+}
+
+/// Comprehensive reviews data structure matching Admin Panel
+class CampaignReviewsData {
+  final int count;
+  final double driverAvg;
+  final double busAvg;
+  final double serviceAvg;
+  final List<CampaignReviewItem> reviews;
+
+  CampaignReviewsData({
+    this.count = 0,
+    this.driverAvg = 0.0,
+    this.busAvg = 0.0,
+    this.serviceAvg = 0.0,
+    this.reviews = const [],
+  });
+
+  factory CampaignReviewsData.fromJson(Map<String, dynamic> json) {
+    final avgs = json['averages'] is Map ? Map<String, dynamic>.from(json['averages']) : <String, dynamic>{};
+    final list = json['reviews'] is List
+        ? (json['reviews'] as List)
+            .whereType<Map>()
+            .map((r) => CampaignReviewItem.fromJson(Map<String, dynamic>.from(r)))
+            .toList()
+        : <CampaignReviewItem>[];
+
+    return CampaignReviewsData(
+      count: int.tryParse(json['count']?.toString() ?? '0') ?? list.length,
+      driverAvg: double.tryParse(avgs['driver']?.toString() ?? '0') ?? 0.0,
+      busAvg: double.tryParse(avgs['bus']?.toString() ?? '0') ?? 0.0,
+      serviceAvg: double.tryParse(avgs['service']?.toString() ?? '0') ?? 0.0,
+      reviews: list,
+    );
+  }
+}
+
+class CampaignReviewItem {
+  final String id;
+  final double driverRating;
+  final double busRating;
+  final double serviceRating;
+  final String? comment;
+  final String? createdAt;
+
+  CampaignReviewItem({
+    required this.id,
+    this.driverRating = 5.0,
+    this.busRating = 5.0,
+    this.serviceRating = 5.0,
+    this.comment,
+    this.createdAt,
+  });
+
+  factory CampaignReviewItem.fromJson(Map<String, dynamic> json) {
+    return CampaignReviewItem(
+      id: json['id']?.toString() ?? '',
+      driverRating: double.tryParse(json['driverRating']?.toString() ?? json['driver_rating']?.toString() ?? '5.0') ?? 5.0,
+      busRating: double.tryParse(json['busRating']?.toString() ?? json['bus_rating']?.toString() ?? '5.0') ?? 5.0,
+      serviceRating: double.tryParse(json['serviceRating']?.toString() ?? json['service_rating']?.toString() ?? '5.0') ?? 5.0,
+      comment: json['comment']?.toString(),
+      createdAt: json['createdAt']?.toString() ?? json['created_at']?.toString(),
     );
   }
 }

@@ -185,24 +185,18 @@ class AdvertiserDrawerWidget extends StatelessWidget {
                   ),
                   _buildMenuItem(
                     icon: Icons.description_outlined,
-                    label: 'Proof-of-Play Reports',
+                    label: 'Report & Analytics',
                     onTap: () {
                       Navigator.pop(context);
-                      if (Get.isRegistered<AdvertiserDashboardController>()) {
-                        final c = Get.find<AdvertiserDashboardController>();
-                        c.tab4Mode.value = 'reports';
-                        c.changeTab(4);
-                      }
+                      Get.toNamed(Routes.ADVERTISER_REPORTS);
                     },
                   ),
                   _buildMenuItem(
                     icon: Icons.account_balance_wallet_outlined,
-                    label: 'Billing & Wallet',
+                    label: 'Billing & Revenue',
                     onTap: () {
                       Navigator.pop(context);
-                      if (Get.isRegistered<AdvertiserDashboardController>()) {
-                        Get.find<AdvertiserDashboardController>().switchToBilling();
-                      }
+                      Get.toNamed(Routes.ADVERTISER_BILLING);
                     },
                   ),
 
@@ -212,7 +206,7 @@ class AdvertiserDrawerWidget extends StatelessWidget {
                   _buildSectionHeader('ACCOUNT & PREFERENCES'),
                   _buildMenuItem(
                     icon: Icons.person_outline_rounded,
-                    label: 'Brand Profile',
+                    label: 'Profile',
                     onTap: () {
                       Navigator.pop(context);
                       _switchTab(4);

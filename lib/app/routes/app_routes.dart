@@ -88,7 +88,13 @@ abstract class Routes {
   static const CREATE_CAMPAIGN = '/create-campaign';
   static const CAMPAIGN_DETAILS = '/campaign-details';
   static const CAMPAIGN_ANALYTICS = '/campaign-analytics';
+  static const ADVERTISER_REPORTS = '/advertiser-reports';
+  static const ADVERTISER_BILLING = '/advertiser-billing';
   static const ADVERTISER_PROFILE = '/advertiser-profile';
+  static const ADVERTISER_EDIT_PROFILE = '/advertiser-edit-profile';
+  static const ADVERTISER_CHANGE_PASSWORD = '/advertiser-change-password';
+  static const ADVERTISER_NOTIFICATION_SETTINGS = '/advertiser-notification-settings';
+  static const ADVERTISER_HELP_SUPPORT = '/advertiser-help-support';
   static const GOVERNMENT_DASHBOARD = '/government-dashboard';
   static const GOVERNMENT_CREATE_CAMPAIGN = '/government-create-campaign';
   static const GOV_CAMPAIGN_DETAILS = '/gov-campaign-details';

@@ -16,8 +16,7 @@ class AdvertiserDashboardController extends GetxController {
   final List<String> reportRanges = ['20 May 2026 - 10 Jun 2026', '15 May 2026 - 30 May 2026'];
 
   void switchToBillingPayment() {
-    tab4Mode.value = 'billing';
-    selectedNavIndex.value = 4;
+    Get.toNamed(Routes.ADVERTISER_BILLING);
   }
 
   // Loading & Refreshing States
@@ -52,8 +51,12 @@ class AdvertiserDashboardController extends GetxController {
   ];
   final List<String> sortOptions = ['Recent', 'Name', 'Budget-High', 'Budget-Low', 'Screens'];
 
-  // Lifecycle & Flow stage filter
+  // Lifecycle & Flow (Tab 2) state
+  final RxString activeLifecycleTab = 'pipeline'.obs; // 'pipeline' | 'roles' | 'matrix'
+  final RxInt selectedPipelineStep = 1.obs;
+  final RxBool showDiagram = true.obs;
   final RxString activeLifecycleStage = 'all'.obs;
+  final RxString busyCampaignId = ''.obs;
 
   AdvertiserService get _service => AdvertiserService.to;
 
@@ -314,31 +317,201 @@ class AdvertiserDashboardController extends GetxController {
   // Lifecycle & Flow Filtering (Tab 2)
   // ==========================================================
 
+  void setLifecycleTab(String tab) {
+    activeLifecycleTab.value = tab;
+  }
+
+  void selectPipelineStep(int step) {
+    selectedPipelineStep.value = step;
+  }
+
+  void toggleDiagram() {
+    showDiagram.value = !showDiagram.value;
+  }
+
   void setLifecycleStage(String stage) {
     activeLifecycleStage.value = stage;
   }
 
   int getCountForStage(String stage) {
     if (stage == 'all') return allCampaigns.length;
-    return allCampaigns.where((c) {
-      final s = c.status.toLowerCase();
-      if (stage == 'paid') {
-        return s == 'approved' && c.paymentBreakdown != null;
-      }
-      return s == stage;
-    }).length;
+    return allCampaigns.where((c) => c.stageOf == stage).length;
   }
 
   List<CampaignModel> get lifecycleCampaigns {
     final stage = activeLifecycleStage.value.toLowerCase();
     if (stage == 'all') return allCampaigns.toList();
-    return allCampaigns.where((c) {
-      final s = c.status.toLowerCase();
-      if (stage == 'paid') {
-        return s == 'approved' && c.paymentBreakdown != null;
+    return allCampaigns.where((c) => c.stageOf == stage).toList();
+  }
+
+  /// Dispatches payment link to customer
+  Future<void> sharePaymentLinkToCustomer(CampaignModel c, {String channel = 'all'}) async {
+    busyCampaignId.value = c.id;
+    try {
+      final res = await _service.sharePaymentLink(c.id, {'channel': channel});
+      if (res.isSuccess) {
+        Get.snackbar(
+          'Success',
+          'Payment link dispatched to the customer via $channel.',
+          backgroundColor: const Color(0xFF10B981),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          margin: const EdgeInsets.all(16),
+        );
+        fetchCampaigns();
+      } else {
+        Get.snackbar(
+          'Error',
+          res.message ?? 'Could not send payment link',
+          backgroundColor: const Color(0xFFEF4444),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          margin: const EdgeInsets.all(16),
+        );
       }
-      return s == stage;
-    }).toList();
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to share payment link: $e',
+        backgroundColor: const Color(0xFFEF4444),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+      );
+    } finally {
+      busyCampaignId.value = '';
+    }
+  }
+
+  /// Channel picker dialog for sharing payment link
+  void openSharePaymentLinkDialog(CampaignModel c) {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
+          color: Color(0xFF1E293B),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Send Payment Link',
+                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white70, size: 20),
+                  onPressed: () => Get.back(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Campaign: ${c.displayTitle} (${c.displayCode})',
+              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Select Dispatch Channel:',
+              style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            _buildShareOptionTile(
+              icon: Icons.all_inclusive_rounded,
+              title: 'All Channels (Recommended)',
+              subtitle: 'Dispatches via SMS, Email and WhatsApp simultaneously',
+              color: const Color(0xFF6366F1),
+              onTap: () {
+                Get.back();
+                sharePaymentLinkToCustomer(c, channel: 'all');
+              },
+            ),
+            _buildShareOptionTile(
+              icon: Icons.sms_outlined,
+              title: 'SMS Message',
+              subtitle: 'Sends direct checkout SMS to ${c.clientPhone ?? 'client phone'}',
+              color: const Color(0xFF0EA5E9),
+              onTap: () {
+                Get.back();
+                sharePaymentLinkToCustomer(c, channel: 'sms');
+              },
+            ),
+            _buildShareOptionTile(
+              icon: Icons.email_outlined,
+              title: 'Email Invoice',
+              subtitle: 'Delivers full tax invoice link to ${c.clientEmail ?? 'client email'}',
+              color: const Color(0xFFF59E0B),
+              onTap: () {
+                Get.back();
+                sharePaymentLinkToCustomer(c, channel: 'email');
+              },
+            ),
+            _buildShareOptionTile(
+              icon: Icons.chat_bubble_outline_rounded,
+              title: 'WhatsApp Message',
+              subtitle: 'Sends interactive WhatsApp pay button to client',
+              color: const Color(0xFF10B981),
+              onTap: () {
+                Get.back();
+                sharePaymentLinkToCustomer(c, channel: 'whatsapp');
+              },
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+      isScrollControlled: true,
+    );
+  }
+
+  Widget _buildShareOptionTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFF0F172A),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFF334155)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: color, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 2),
+                  Text(subtitle, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10)),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded, color: Color(0xFF94A3B8), size: 18),
+          ],
+        ),
+      ),
+    );
   }
 
   // ==========================================================
@@ -346,8 +519,7 @@ class AdvertiserDashboardController extends GetxController {
   // ==========================================================
 
   void switchToBilling() {
-    tab4Mode.value = 'billing';
-    selectedNavIndex.value = 4;
+    Get.toNamed(Routes.ADVERTISER_BILLING);
   }
 
   void switchToProfile() {

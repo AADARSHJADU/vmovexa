@@ -4,11 +4,15 @@ import 'package:get/get.dart';
 import 'package:vmovexa/app/theme/app_theme.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
 import '../../../../../widgets/custom_button.dart';
-import '../../../../../widgets/custom_text_field.dart';
 import '../../../../../routes/app_routes.dart';
 import 'package:vmovexa/app/data/models/campaign_model.dart';
 import '../controllers/advertiser_dashboard_controller.dart';
 import '../../widgets/advertiser_drawer_widget.dart';
+import 'campaign_lifecycle_flow_widget.dart';
+import '../../campaign_analytics/controllers/campaign_analytics_controller.dart';
+import '../../campaign_analytics/views/campaign_analytics_view.dart';
+import '../../profile/controllers/advertiser_profile_controller.dart';
+import '../../profile/views/advertiser_profile_view.dart';
 
 class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
   const AdvertiserDashboardView({super.key});
@@ -84,12 +88,8 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
 
   Widget _buildDynamicTab4Body() {
     String mode = controller.tab4Mode.value;
-    if (mode == 'billing') {
-      return _buildBillingTab();
-    } else if (mode == 'help') {
+    if (mode == 'help') {
       return _buildHelpSupportTab();
-    } else if (mode == 'reports') {
-      return _buildReportsTab();
     } else {
       return _buildSettingsTab();
     }
@@ -272,7 +272,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           children: [
             Expanded(
               child: CustomButton(
-                text: '+ Create Campaign',
+                text: 'Create Campaign',
                 isGradient: true,
                 height: 42,
                 onTap: controller.goToCreateCampaign,
@@ -827,116 +827,238 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           ),
         ),
 
-        // Stages Filter Bar
-        Obx(() {
-          return SizedBox(
-            height: 42,
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              scrollDirection: Axis.horizontal,
-              itemCount: stages.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
-              itemBuilder: (context, index) {
-                final s = stages[index];
-                final key = s['key']!;
-                final label = s['label']!;
-                final isSelected = controller.activeLifecycleStage.value == key;
-                final count = controller.getCountForStage(key);
+        // Scrollable Content
+        Expanded(
+          child: RefreshIndicator(
+            color: const Color(0xFF8B5CF6),
+            backgroundColor: const Color(0xFF1E293B),
+            onRefresh: () => controller.loadDashboardData(isRefresh: true),
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+              children: [
+                // 1. Featured Lifecycle Diagram / Engine Widget (Visual Pipeline, Roles & Actions, Status Matrix)
+                CampaignLifecycleFlowWidget(controller: controller),
 
-                return GestureDetector(
-                  onTap: () => controller.setLifecycleStage(key),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      gradient: isSelected ? AppTheme.primaryGradient : null,
-                      color: isSelected ? null : AppColors.cardBg,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: isSelected ? Colors.transparent : AppColors.cardBorder,
+                const SizedBox(height: 12),
+
+                // 2. Stage Filter Header
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      const Text(
+                        'Campaigns by Stage',
+                        style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                       ),
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          label,
-                          style: TextStyle(
-                            color: isSelected ? Colors.white : AppColors.textSecondary,
-                            fontSize: 11,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? Colors.white.withValues(alpha: 0.25)
-                                : AppColors.background,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            '$count',
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : AppColors.textMuted,
-                              fontSize: 9.5,
-                              fontWeight: FontWeight.bold,
+                      const SizedBox(width: 8),
+                      Obx(() => Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1E293B),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: AppColors.cardBorder),
+                            ),
+                            child: Text(
+                              '${controller.lifecycleCampaigns.length} campaigns',
+                              style: const TextStyle(color: Color(0xFF818CF8), fontSize: 10, fontWeight: FontWeight.bold),
+                            ),
+                          )),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // 3. Stages Filter Bar (9 Stages)
+               /* Obx(() {
+                  return SizedBox(
+                    height: 40,
+                    child: ListView.separated(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      scrollDirection: Axis.horizontal,
+                      itemCount: stages.length,
+                      separatorBuilder: (context, index) => const SizedBox(width: 8),
+                      itemBuilder: (context, index) {
+                        final s = stages[index];
+                        final key = s['key']!;
+                        final label = s['label']!;
+                        final isSelected = controller.activeLifecycleStage.value == key;
+                        final count = controller.getCountForStage(key);
+
+                        return GestureDetector(
+                          onTap: () => controller.setLifecycleStage(key),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                            decoration: BoxDecoration(
+                              gradient: isSelected ? AppTheme.primaryGradient : null,
+                              color: isSelected ? null : AppColors.cardBg,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: isSelected ? Colors.transparent : AppColors.cardBorder,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  label,
+                                  style: TextStyle(
+                                    color: isSelected ? Colors.white : AppColors.textSecondary,
+                                    fontSize: 11,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? Colors.white.withValues(alpha: 0.25)
+                                        : Colors.black.withValues(alpha: 0.3),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    '$count',
+                                    style: TextStyle(
+                                      color: isSelected ? Colors.white : AppColors.textMuted,
+                                      fontSize: 9.5,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ),
-                      ],
+                        );
+                      },
                     ),
+                  );
+                }),*/
+                SizedBox(
+                  height: 40,
+                  child: ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: stages.length,
+                    separatorBuilder: (context, index) => const SizedBox(width: 8),
+                    itemBuilder: (context, index) {
+                      final s = stages[index];
+                      final key = s['key']!;
+                      final label = s['label']!;
+
+                      // Rx values are read inside this Obx's own builder
+                      return Obx(() {
+                        final isSelected = controller.activeLifecycleStage.value == key;
+                        final count = controller.getCountForStage(key);
+
+                        return GestureDetector(
+                          onTap: () => controller.setLifecycleStage(key),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                            decoration: BoxDecoration(
+                              gradient: isSelected ? AppTheme.primaryGradient : null,
+                              color: isSelected ? null : AppColors.cardBg,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: isSelected ? Colors.transparent : AppColors.cardBorder,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  label,
+                                  style: TextStyle(
+                                    color: isSelected ? Colors.white : AppColors.textSecondary,
+                                    fontSize: 11,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? Colors.white.withValues(alpha: 0.25)
+                                        : Colors.black.withValues(alpha: 0.3),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    '$count',
+                                    style: TextStyle(
+                                      color: isSelected ? Colors.white : AppColors.textMuted,
+                                      fontSize: 9.5,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      });
+                    },
                   ),
-                );
-              },
-            ),
-          );
-        }),
-
-        const SizedBox(height: 12),
-
-        // Campaigns List for current stage
-        Expanded(
-          child: Obx(() {
-            final list = controller.lifecycleCampaigns;
-            if (list.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.account_tree_outlined, color: AppColors.textMuted, size: 48),
-                    const SizedBox(height: 12),
-                    Text(
-                      'No campaigns in ${controller.activeLifecycleStage.value.replaceAll('_', ' ')} stage',
-                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Select another stage or create a new campaign.',
-                      style: TextStyle(color: AppColors.textMuted, fontSize: 11),
-                    ),
-                  ],
                 ),
-              );
-            }
 
-            return ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              itemCount: list.length,
-              itemBuilder: (context, index) {
-                final c = list[index];
-                return _buildLifecycleCampaignCard(c);
-              },
-            );
-          }),
+                const SizedBox(height: 12),
+
+                // 4. Campaigns List for current stage
+                Obx(() {
+                  final list = controller.lifecycleCampaigns;
+                  if (list.isEmpty) {
+                    return Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: AppColors.cardBg,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.cardBorder),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.rocket_launch_outlined, color: AppColors.textMuted, size: 44),
+                          const SizedBox(height: 10),
+                          Text(
+                            'No campaigns in ${controller.activeLifecycleStage.value.replaceAll('_', ' ')} stage',
+                            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Select another stage or create a new campaign.',
+                            style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: list.length,
+                    itemBuilder: (context, index) {
+                      final c = list[index];
+                      return _buildLifecycleCampaignCard(c);
+                    },
+                  );
+                }),
+
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
         ),
       ],
     );
   }
 
   Widget _buildLifecycleCampaignCard(CampaignModel c) {
+    final bool isPaid = c.isPaid;
+    final String stage = c.stageOf;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(16),
@@ -945,6 +1067,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header: Title + Status + Payment Status Badge
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -956,79 +1079,232 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: c.statusColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: c.statusColor.withValues(alpha: 0.3)),
-                ),
-                child: Text(
-                  c.statusLabel,
-                  style: TextStyle(color: c.statusColor, fontSize: 9, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            '${c.displayClient} • ${c.dateRangeText}',
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 10.5),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Budget: ${c.formattedBudget}',
-                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-              ),
               Row(
                 children: [
-                  if (c.canStart)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 6),
-                      child: GestureDetector(
-                        onTap: () => controller.startCampaign(c.id),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
-                          ),
-                          child: const Text('Start', style: TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.bold)),
-                        ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: c.statusColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: c.statusColor.withValues(alpha: 0.3)),
+                    ),
+                    child: Text(
+                      stage.replaceAll('_', ' ').toUpperCase(),
+                      style: TextStyle(color: c.statusColor, fontSize: 9, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: isPaid ? const Color(0xFF10B981).withValues(alpha: 0.15) : const Color(0xFFEF4444).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                        color: isPaid ? const Color(0xFF10B981).withValues(alpha: 0.4) : const Color(0xFFEF4444).withValues(alpha: 0.4),
                       ),
                     ),
-                  if (c.canPause)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 6),
-                      child: GestureDetector(
-                        onTap: () => controller.pauseCampaign(c.id),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF97316).withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: const Color(0xFFF97316).withValues(alpha: 0.4)),
-                          ),
-                          child: const Text('Pause', style: TextStyle(color: Color(0xFFF97316), fontSize: 10, fontWeight: FontWeight.bold)),
-                        ),
+                    child: Text(
+                      isPaid ? 'PAID' : 'UNPAID',
+                      style: TextStyle(
+                        color: isPaid ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                        fontSize: 8.5,
+                        fontWeight: FontWeight.bold,
                       ),
-                    ),
-                  GestureDetector(
-                    onTap: () => controller.goToCampaignDetails(c),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        gradient: AppTheme.primaryGradient,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Text('Details ›', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+
+          // Code
+          Text(
+            c.displayCode,
+            style: const TextStyle(
+              color: Color(0xFF94A3B8),
+              fontFamily: 'monospace',
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          // Client & Metrics
+          Wrap(
+            spacing: 12,
+            runSpacing: 4,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.currency_rupee_rounded, size: 12, color: Color(0xFFF59E0B)),
+                  const SizedBox(width: 2),
+                  Text(
+                    'Budget: ${c.formattedBudget}',
+                    style: const TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.remove_red_eye_outlined, size: 12, color: Color(0xFF0EA5E9)),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${c.impressionsCount} imp',
+                    style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 10),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.tv_rounded, size: 12, color: Color(0xFF818CF8)),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${c.screensCount} screens',
+                    style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 10),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+          const Divider(color: AppColors.cardBorder, height: 1),
+          const SizedBox(height: 10),
+
+          // Contextual Action Buttons
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              // 1. Send Payment link (when approved & unpaid)
+              if (c.canSharePaymentLink)
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: GestureDetector(
+                    onTap: () => controller.openSharePaymentLinkDialog(c),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF3B82F6).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.5)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(Icons.share_rounded, color: Color(0xFF60A5FA), size: 13),
+                          SizedBox(width: 4),
+                          Text('Send Payment Link', style: TextStyle(color: Color(0xFF60A5FA), fontSize: 10, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+              // 2. Start Ad (when approved & paid or paused)
+              if (c.canStart)
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: GestureDetector(
+                    onTap: () => controller.startCampaign(c.id),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.5)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(Icons.play_arrow_rounded, color: Color(0xFF34D399), size: 14),
+                          SizedBox(width: 2),
+                          Text('Start Ad', style: TextStyle(color: Color(0xFF34D399), fontSize: 10, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+              // 3. Pause Ad (when live)
+              if (c.canPause)
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: GestureDetector(
+                    onTap: () => controller.pauseCampaign(c.id),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF97316).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFFF97316).withValues(alpha: 0.5)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(Icons.pause_rounded, color: Color(0xFFFB923C), size: 14),
+                          SizedBox(width: 2),
+                          Text('Pause Ad', style: TextStyle(color: Color(0xFFFB923C), fontSize: 10, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+              // 4. End broadcast (when live or paused)
+              if (c.canEnd)
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: GestureDetector(
+                    onTap: () => controller.confirmEndCampaign(c),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEF4444).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.5)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(Icons.stop_rounded, color: Color(0xFFF87171), size: 14),
+                          SizedBox(width: 2),
+                          Text('End', style: TextStyle(color: Color(0xFFF87171), fontSize: 10, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+              // 5. View Details
+              GestureDetector(
+                onTap: () => controller.goToCampaignDetails(c),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text('View ›', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                ),
+              ),
+              const SizedBox(width: 6),
+
+              // 6. Analytics
+              GestureDetector(
+                onTap: () => controller.goToCampaignAnalytics(c),
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E293B),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.cardBorder),
+                  ),
+                  child: const Icon(Icons.bar_chart_rounded, color: Color(0xFF818CF8), size: 15),
+                ),
               ),
             ],
           ),
@@ -1675,1182 +1951,55 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
 
 
   // ==========================================
-  // ANALYTICS TAB (Index 2)
+  // ANALYTICS & HEATMAPS TAB (Index 3)
   // ==========================================
   Widget _buildAnalyticsTab() {
+    final analyticsCtrl = Get.isRegistered<CampaignAnalyticsController>()
+        ? Get.find<CampaignAnalyticsController>()
+        : Get.put(CampaignAnalyticsController());
+
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Row(
             children: [
-              SvgPicture.asset('assets/icons/advertiser_ic/campaignAnalytics.svg'),
-              // Icon(Icons.bar_chart_rounded, color: Color(0xFF8B5CF6), size: 24),
-              SizedBox(width: 10),
-              Text(
-                'Campaign Analytics',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+              SvgPicture.asset(
+                'assets/icons/advertiser_ic/campaignAnalytics.svg',
+                width: 22,
+                height: 22,
+                colorFilter: const ColorFilter.mode(Color(0xFF8B5CF6), BlendMode.srcIn),
               ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            physics: const BouncingScrollPhysics(),
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.cardBg,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.cardBorder, width: 1),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 60,
-                      height: 60,
-                      color: const Color(0xFF1E293B),
-                      child: const Center(
-                        child: Icon(
-                          Icons.movie_filter_outlined,
-                          color: Color(0xFF8B5CF6),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'Summer Sale 2026',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(
-                                    0xFF10B981,
-                                  ).withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: const Text(
-                                  'Live',
-                                  style: TextStyle(
-                                    color: Color(0xFF10B981),
-                                    fontSize: 8,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            'Retail • Offer / Promotion',
-                            style: TextStyle(
-                              color: AppColors.textSecondary,
-                              fontSize: 9.5,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          const Text(
-                            '20 May 2026 - 10 Jun 2026 (21 Days)',
-                            style: TextStyle(
-                              color: AppColors.textMuted,
-                              fontSize: 8.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 14),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildMiniStatBlock(
-                      'assets/icons/advertiser_ic/totalEmpression.svg',
-                      Color(0xffcf66f1),
-                      'Total Impressions',
-                      '15.2M',
-                      const Color(0xFF8B5CF6),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildMiniStatBlock(
-                      'assets/icons/advertiser_ic/userTwo.svg',
-                      Color(0xFF3B82F6),
-                      'Total Reach',
-                      '8.7M',
-                      const Color(0xFF3B82F6),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildMiniStatBlock(
-                      'assets/icons/advertiser_ic/monitor.svg',
-                      Color(0xFF10B981),
-                      'Active Screens',
-                      '1,182',
-                      const Color(0xFF10B981),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18),
-
-              _buildPerformanceChart(),
-              const SizedBox(height: 20),
-
-              _buildQrAnalyticsCard(),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: AppColors.cardBg,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.cardBorder),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                     Row(
-                       children: [
-                         SvgPicture.asset('assets/icons/fleet_operator_icons/locationA.svg'),
-                         SizedBox(width: 5),
-                         Text(
-                          'Top Performing Cities',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.bold,
-                          ),
-                         ),
-                       ],
-                     ),
-                    const SizedBox(height: 10),
-                    _buildCityBarRow('Delhi (22%)', 0.8),
-                    _buildCityBarRow('Mumbai (17%)', 0.65),
-                    _buildCityBarRow('Bengaluru (13%)', 0.5),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMiniStatBlock(String icon,Color iconColor,String label, String val, Color c) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.cardBorder),
-      ),
-      child: Column(
-        children: [
-          SvgPicture.asset(icon,color:iconColor,),
-          // SvgPicture.asset('assets/icons/advertiser_ic/totalEmpression.svg',color: Color(0xffcf66f1),),
-          Text(
-            val,
-            style: TextStyle(
-              color: c,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: const TextStyle(color: Colors.white, fontSize: 8),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCityBarRow(String label, double p) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 9.5,
-            ),
-          ),
-          const SizedBox(height: 4),
-          LinearProgressIndicator(
-            value: p,
-            backgroundColor: const Color(0xFF1E293B),
-            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF8B5CF6)),
-            minHeight: 2,
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ==========================================
-  // REPORTS TAB (Index 3)
-  // ==========================================
-  Widget _buildPerformanceChart() {
-    return Container(
-      height: 180,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        children: [
-          Expanded(
-            child: CustomPaint(
-              size: const Size(double.infinity, double.infinity),
-              painter: ChartPainter(),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildLegendItem('Impressions', const Color(0xFFEC4899)),
-              const SizedBox(width: 14),
-              _buildLegendItem('Reach', const Color(0xFF3B82F6)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLegendItem(String label, Color color) {
-    return Row(
-      children: [
-        Container(
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 6),
-        Text(
-          label,
-          style: const TextStyle(color: AppColors.textSecondary, fontSize: 9),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildReportsTab() {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Row(
-            children: [
-             SvgPicture.asset('assets/icons/fleet_operator_icons/privacyPolicyA.svg',),
-              SizedBox(width: 10),
-              Text(
-                'Reports',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-          child: Row(
-            children: [
-              Expanded(
-                child: CustomTextField(
-                  hintText: 'Select Campaign',
-                  isDropdown: true,
-                  dropdownValue: controller.selectedReportCampaign.value,
-                  dropdownItems: controller.reportCampaigns,
-                  onDropdownChanged: (val) =>
-                      controller.selectedReportCampaign.value = val!,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: CustomTextField(
-                  hintText: 'Select Date Range',
-                  isDropdown: true,
-                  dropdownValue: controller.selectedReportRange.value,
-                  dropdownItems: controller.reportRanges,
-                  onDropdownChanged: (val) =>
-                      controller.selectedReportRange.value = val!,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 14),
-
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            physics: const BouncingScrollPhysics(),
-            children: [
-              const Text(
-                'Report Summary',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              _buildReportCard(
-                'Campaign Performance',
-                'Overview of campaign performance metrics.',
-                Icons.bar_chart_rounded,
-                [
-                  _buildSubStatCol('Total Impressions', '15.2M', '▲ 18.6%'),
-                  _buildSubStatCol('Total Reach', '8.7M', '▲ 16.3%'),
-                  _buildSubStatCol('Active Screens', '1,182', '▲ 9.4%'),
-                  _buildSubStatCol('Duration', '21 Days', 'Active'),
-                ],
-                'Download PDF',
-              ),
-              const SizedBox(height: 16),
-
-              _buildReportCard(
-                'Financial Report',
-                'Detailed spending and budget overview.',
-                Icons.currency_rupee_rounded,
-                [
-                  _buildSubStatCol('Total Budget', '₹2,50,000', '100%'),
-                  _buildSubStatCol('Amount Spent', '₹1,48,750', '59.5%'),
-                  _buildSubStatCol('Remaining Budget', '₹1,01,250', '40.5%'),
-                  _buildSubStatCol('GST (18%)', '₹22,477', 'Paid'),
-                ],
-                'Download Invoice',
-              ),
-              const SizedBox(height: 16),
-
-              _buildReportCard(
-                'Audience Report',
-                'Insights about audience and engagement.',
-                Icons.people_outline_rounded,
-                [
-                  _buildSubStatCol('Top Cities', 'Delhi, Mum', 'Focus'),
-                  _buildSubStatCol('Best Routes', 'MG Road', 'High traffic'),
-                  _buildSubStatCol('Peak Time', '6 PM-10 PM', 'Evening'),
-                  _buildSubStatCol('Avg Frequency', '2.3 times', 'Per user'),
-                ],
-                'Export CSV',
-              ),
-              const SizedBox(height: 24),
-
-              const Text(
-                'Export Options',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 10),
-              _buildExportOptionsGrid(),
-              const SizedBox(height: 20),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildReportCard(
-    String title,
-    String desc,
-    IconData icon,
-    List<Widget> stats,
-    String btnText,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  // Icon(icon, color: const Color(0xFF8B5CF6), size: 16),
-                  // const SizedBox(width: 8),
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-               InkWell(
-                 onTap: (){
-                   controller.switchToBillingPayment();
-                 },
-                 child: Text(
-                  'View Details ›',
-                  style: TextStyle(
-                    color: Color(0xFF8B5CF6),
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.bold,
-                  ),
-                               ),
-               ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            desc,
-            style: const TextStyle(color:Colors.white, fontSize: 11),
-          ),
-          const Divider(color: AppColors.cardBorder, height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: stats,
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.cardBorder),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              icon: SvgPicture.asset('assets/icons/advertiser_ic/download.svg',width: 15,height: 15,),
-              label: Text(
-                btnText,
-                style: const TextStyle(color: Colors.white, fontSize: 10),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSubStatCol(String label, String value, String sub) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(color: Colors.white,fontWeight: FontWeight.w500, fontSize: 10),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          sub,
-          style: const TextStyle(color: Color(0xFF10B981), fontSize: 7),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildExportOptionsGrid() {
-    final formats = [
-      {
-        'title': 'PDF',
-        'desc': 'Download PDF',
-        'icon': 'assets/icons/advertiser_ic/pdf.svg',
-      },
-      {
-        'title': 'Excel',
-        'desc': 'Download Excel',
-        'icon': "assets/icons/advertiser_ic/excel.svg",
-      },
-      {
-        'title': 'CSV',
-        'desc': 'Download CSV',
-        'icon': "assets/icons/advertiser_ic/csv.svg",
-      },
-    ];
-
-    return Row(
-      children: formats.map((f) {
-        return Expanded(
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.cardBg,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.cardBorder, width: 1),
-            ),
-            child: Column(
-              children: [
-                // Icon(
-                //   f['icon'] as IconData,
-                //   color: const Color(0xFF8B5CF6),
-                //   size: 18,
-                // ),
-                SvgPicture.asset(f['icon'].toString(),width: 25,height: 25,),
-                const SizedBox(height: 6),
-                Text(
-                  f['title'] as String,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  f['desc'] as String,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 8,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  // ==========================================
-  // BILLING TAB (Index 4 - Sub View Mode)
-  // ==========================================
-  Widget _buildBillingTab() {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                 SvgPicture.asset('assets/icons/advertiser_ic/billingPayments.svg',width: 25,height: 25,),
-                  SizedBox(width: 10),
-                  Text(
-                    'Billing & Payments',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              InkWell(
-                  onTap: (){
-                    controller.switchToProfile();
-                  },
-                  child: SvgPicture.asset('assets/icons/fleet_operator_icons/profileHeaderSettingA.svg',width: 25,height: 25,)),
-              // IconButton(
-              //   icon: const Icon(
-              //     Icons.settings_outlined,
-              //     color: Colors.white,
-              //     size: 20,
-              //   ),
-              //   onPressed: controller.switchToProfile,
-              // ),
-            ],
-          ),
-        ),
-
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            physics: const BouncingScrollPhysics(),
-            children: [
-              _buildWalletBalanceCard(),
-              const SizedBox(height: 20),
-              _buildPaymentMethodsSection(),
-              const SizedBox(height: 20),
-              _buildRecentTransactionsSection(),
-              const SizedBox(height: 20),
-              _buildInvoicesSection(),
-              const SizedBox(height: 20),
-              _buildBillingFooter(),
-              const SizedBox(height: 16),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildWalletBalanceCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Current Balance',
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 10),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  '₹1,01,250',
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Text(
+                  'Analytics & Heatmaps',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  '40.5% of total budget remaining',
-                  style: TextStyle(color: Color(0xFF10B981), fontSize: 9.5),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  height: 4,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E293B),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 80,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF10B981),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              _buildBalanceStatLine('Total Budget', '₹2,50,000'),
-              _buildBalanceStatLine('Amount Spent', '₹1,48,750'),
-              _buildBalanceStatLine('Remaining', '₹1,01,250'),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBalanceStatLine(String label, String val) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 8.5),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            val,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPaymentMethodsSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text(
-                'Payment Methods',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                'Manage ›',
-                style: TextStyle(
-                  color: Color(0xFF8B5CF6),
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const Divider(color: AppColors.cardBorder, height: 24),
-          Row(
-            children: [
-              SvgPicture.asset("assets/icons/advertiser_ic/visa.svg",width: 25,height: 25,),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      '•••• •••• •••• 4567',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'Expires 12/28',
-                      style: TextStyle(color: AppColors.textMuted, fontSize: 9),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Text(
-                  'Primary',
-                  style: TextStyle(
-                    color: Color(0xFF10B981),
-                    fontSize: 8,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
+              Obx(() => IconButton(
+                    icon: analyticsCtrl.refreshing.value
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Color(0xFF8B5CF6),
+                            ),
+                          )
+                        : const Icon(Icons.refresh_rounded, color: Colors.white, size: 22),
+                    onPressed: analyticsCtrl.refreshing.value ? null : () => analyticsCtrl.handleRefresh(),
+                    tooltip: 'Refresh Analytics',
+                  )),
             ],
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.cardBorder),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              icon:  Icon(Icons.add, color:Color(0xffb864de), size: 14),
-              label: const Text(
-                'Add New Payment Method',
-                style: TextStyle(color: Colors.white, fontSize: 10.5),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRecentTransactionsSection() {
-    final txs = [
-      {
-        'title': 'Payment for Campaign CMP-2026-000124',
-        'date': '07 Aug 2026, 10:41 AM',
-        'amt': '₹1,48,750',
-        'badge': 'Paid',
-        'col': const Color(0xFF10B981),
-      },
-      {
-        'title': 'Payment for Campaign CMP-2026-000089',
-        'date': '15 Jul 2026, 11:22 AM',
-        'amt': '₹75,000',
-        'badge': 'Paid',
-        'col': const Color(0xFF10B981),
-      },
-      {
-        'title': 'Payment for Campaign CMP-2026-000067',
-        'date': '23 Jun 2026, 09:18 AM',
-        'amt': '₹50,000',
-        'badge': 'Paid',
-        'col': const Color(0xFF10B981),
-      },
-      {
-        'title': 'Refund for Campaign CMP-2026-000045',
-        'date': '10 Jun 2026, 04:35 PM',
-        'amt': '-₹15,000',
-        'badge': 'Refunded',
-        'col': Colors.blueAccent,
-      },
-    ];
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text(
-                'Recent Transactions',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                'View All',
-                style: TextStyle(
-                  color: Color(0xFF8B5CF6),
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Column(
-            children: txs.map((tx) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      // decoration: BoxDecoration(
-                      //   color: (tx['badge'] as String) == 'Refunded'
-                      //       ? Colors.red.withOpacity(0.12)
-                      //       : const Color(0xFF10B981).withOpacity(0.12),
-                      //   shape: BoxShape.circle,
-                      // ),
-                      child:
-                      (tx['badge'] as String) == 'Refunded' ?
-                      SvgPicture.asset("assets/icons/advertiser_ic/arrowUp.svg",width: 18,height: 18,):
-                      SvgPicture.asset("assets/icons/advertiser_ic/download.svg",width: 18,height: 18,)
-                      // child: Icon(
-                      //   (tx['badge'] as String) == 'Refunded'
-                      //       ? Icons.arrow_upward_rounded
-                      //       : Icons.arrow_downward_rounded,
-                      //   color: (tx['badge'] as String) == 'Refunded'
-                      //       ? Colors.redAccent
-                      //       : const Color(0xFF10B981),
-                      //   size: 14,
-                      // ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            tx['title'] as String,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            tx['date'] as String,
-                            style: const TextStyle(
-                              color: AppColors.textMuted,
-                              fontSize: 8.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          tx['amt'] as String,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: (tx['col'] as Color).withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            tx['badge'] as String,
-                            style: TextStyle(
-                              color: tx['col'] as Color,
-                              fontSize: 7,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInvoicesSection() {
-    final invs = [
-      {'title': 'INV-2026-000124', 'date': '07 Aug 2026', 'amt': '₹1,48,750'},
-      {'title': 'INV-2026-000089', 'date': '15 Jul 2026', 'amt': '₹75,000'},
-      {'title': 'INV-2026-000067', 'date': '23 Jun 2026', 'amt': '₹50,000'},
-    ];
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text(
-                'Invoices',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                'View All',
-                style: TextStyle(
-                  color: Color(0xFF8B5CF6),
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Column(
-            children: invs.map((inv) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Row(
-                  children: [
-                  SvgPicture.asset("assets/icons/advertiser_ic/pdf.svg",width: 15,height: 15,),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            inv['title'] as String,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            inv['date'] as String,
-                            style: const TextStyle(
-                              color: AppColors.textMuted,
-                              fontSize: 8.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Text(
-                      inv['amt'] as String,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    OutlinedButton.icon(
-                      onPressed: () {},
-                      style: OutlinedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5)
-                        ),
-                        side: const BorderSide(color: AppColors.cardBorder),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 6,
-                        ),
-                      ),
-                      icon:SvgPicture.asset("assets/icons/advertiser_ic/download.svg",width: 15,height: 15,),
-                      label: const Text(
-                        'Download',
-                        style: TextStyle(color: Colors.white, fontSize: 8.5),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBillingFooter() {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.cardBg,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.cardBorder),
-            ),
-            child: Row(
-              children:  [
-                SvgPicture.asset("assets/icons/fleet_operator_icons/securityA.svg",width: 20,height: 21,),
-                SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'Secure Payments\nYour payments are encrypted and 100% secure.',
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 8.5,
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
-        const SizedBox(width: 10),
         Expanded(
-          child: GestureDetector(
-            onTap: controller.switchToHelp,
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.cardBg,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.cardBorder),
-              ),
-              child: Row(
-                children: [
-                  SvgPicture.asset("assets/icons/fleet_operator_icons/helpSupportA.svg",width: 20,height: 21,),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'Need Help?\nContact Billing Support',
-                      style: TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 8.5,
-                      ),
-                    ),
-                  ),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    color: AppColors.textMuted,
-                    size: 12,
-                  ),
-                ],
-              ),
-            ),
-          ),
+          child: CampaignAnalyticsContent(controller: analyticsCtrl),
         ),
       ],
     );
@@ -2860,272 +2009,46 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
   // PROFILE / SETTINGS TAB (Index 4 - Sub View Mode)
   // ==========================================
   Widget _buildSettingsTab() {
+    final profileCtrl = Get.isRegistered<AdvertiserProfileController>()
+        ? Get.find<AdvertiserProfileController>()
+        : Get.put(AdvertiserProfileController());
+
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Row(
             children: [
-              SvgPicture.asset('assets/icons/profile.svg'),
-              SizedBox(width: 10),
-              Text(
-                'Settings',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            physics: const BouncingScrollPhysics(),
-            children: [
-              // Account Section
-              _buildSettingsSectionHeader('Account'),
-              _buildSettingsCard([
-                _buildSettingsRow(
-                  'Personal Information',
-                  'Update your personal details',
-                  'assets/icons/profile.svg',
-                  onTap: () => Get.toNamed(Routes.ADVERTISER_PROFILE),
-                ),
-                const Divider(color: AppColors.cardBorder, height: 16),
-                _buildSettingsRow(
-                  'Change Password',
-                  'Update your account password',
-                  'assets/icons/fleet_operator_icons/changePasswordA.svg',
-                  onTap: () => Get.toNamed(Routes.CHANGE_PASSWORD),
-                ),
-                // const Divider(color: AppColors.cardBorder, height: 16),
-                // _buildSettingsRow('Two-Factor Authentication', 'Add an extra layer of security', 'assets/icons/profile.svg'),
-              ]),
-              const SizedBox(height: 18),
-
-              // Preferences Section
-              _buildSettingsSectionHeader('Preferences'),
-              _buildSettingsCard([
-                _buildSettingsRow(
-                  'Notification Settings',
-                  'Manage your notification preferences',
-                  'assets/icons/fleet_operator_icons/notification.svg',
-                  onTap: () => Get.toNamed(Routes.NOTIFICATION_SETTINGS),
-                ),
-                // const Divider(color: AppColors.cardBorder, height: 16),
-                // _buildSettingsRow('Language', 'Choose your preferred language','assets/icons/profile.svg', value: 'English'),
-                // const Divider(color: AppColors.cardBorder, height: 16),
-                // _buildSettingsSwitchRow('Dark Mode', 'Choose your theme preference', 'assets/icons/profile.svg'),
-              ]),
-              const SizedBox(height: 18),
-
-              // Security Section
-              _buildSettingsSectionHeader('Security'),
-              _buildSettingsCard([
-                _buildSettingsRow(
-                  'Privacy Policy',
-                  'View our privacy policy',
-                  'assets/icons/fleet_operator_icons/privacyPolicyA.svg',
-                  onTap: () => Get.toNamed(Routes.PRIVACY_POLICY),
-                ),
-                const Divider(color: AppColors.cardBorder, height: 16),
-                _buildSettingsRow(
-                  'Terms & Conditions',
-                  'View terms and conditions',
-                  'assets/icons/fleet_operator_icons/securityA.svg',
-                  onTap: () => Get.toNamed(Routes.TERMS_CONDITIONS),
-                ),
-                // const Divider(color: AppColors.cardBorder, height: 16),
-                // _buildSettingsRow('Device Sessions', 'Manage your active sessions', 'assets/icons/profile.svg'),
-              ]),
-              const SizedBox(height: 18),
-
-              // Support Section
-              _buildSettingsSectionHeader('Support'),
-              _buildSettingsCard([
-                _buildSettingsRow(
-                  'Help Center',
-                  'Find answers to common questions',
-                  'assets/icons/fleet_operator_icons/helpSupportA.svg',
-                  onTap: controller.switchToHelp,
-                ),
-                const Divider(color: AppColors.cardBorder, height: 16),
-                _buildSettingsRow(
-                  'Contact Support',
-                  'Get in touch with our support team',
-                  'assets/icons/fleet_operator_icons/supportHistoryA.svg',
-                  onTap: controller.switchToHelp,
-                ),
-                const Divider(color: AppColors.cardBorder, height: 16),
-                _buildSettingsRow(
-                  'About VMOVEXA',
-                  'Learn more about VMOVEXA',
-                  'assets/icons/fleet_operator_icons/AboutA.svg',
-                ),
-              ]),
-              const SizedBox(height: 18),
-
-              // App Section
-              _buildSettingsSectionHeader('App'),
-              _buildSettingsCard([
-                _buildSettingsRow(
-                  'App Version',
-                  'You are using the latest version',
-                  'assets/icons/profile.svg',
-                  value: 'v1.0.0',
-                ),
-              ]),
-              const SizedBox(height: 24),
-
-              // Logout Button
-              OutlinedButton.icon(
-                onPressed: controller.logout,
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.redAccent, width: 1.5),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                icon: const Icon(
-                  Icons.logout_rounded,
-                  color: Colors.redAccent,
-                  size: 16,
-                ),
-                label: const Text(
-                  'Logout',
+              SvgPicture.asset('assets/icons/profile.svg', width: 22, height: 22),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Text(
+                  'Profile',
                   style: TextStyle(
-                    color: Colors.redAccent,
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSettingsSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 8, top: 4),
-      child: Text(
-        title.toUpperCase(),
-        style: const TextStyle(
-          color: Color(0xFF8B5CF6),
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSettingsCard(List<Widget> children) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(children: children),
-    );
-  }
-
-  Widget _buildSettingsRow(
-    String label,
-    String subtitle,
-    String icon, {
-    VoidCallback? onTap,
-    String? value,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Row(
-        children: [
-          label=="Contact Support"|| label=='About VMOVEXA' || label=='App Version'?
-          SvgPicture.asset(icon,width: 22,height: 22,)
-              :
-          SvgPicture.asset(icon,width: 20,height: 20,),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 11.5,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: const TextStyle(color: Colors.white, fontSize: 8.5),
-                ),
-              ],
-            ),
-          ),
-          if (value != null) ...[
-            Text(
-              value,
-              style: const TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 11,
               ),
-            ),
-            const SizedBox(width: 8),
-          ],
-          const Icon(
-            Icons.chevron_right_rounded,
-            color: AppColors.textMuted,
-            size: 18,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSettingsSwitchRow(String label, String subtitle, String icon) {
-    return Row(
-      children: [
-        SvgPicture.asset(icon),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.bold,
-                ),
+              IconButton(
+                icon: const Icon(Icons.edit_note_rounded, color: Color(0xFF8B5CF6), size: 24),
+                onPressed: () => Get.toNamed(Routes.ADVERTISER_EDIT_PROFILE),
+                tooltip: 'Edit Profile',
               ),
-              const SizedBox(height: 2),
-              Text(
-                subtitle,
-                style: const TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 8.5,
-                ),
+              IconButton(
+                icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 22),
+                onPressed: () => profileCtrl.loadProfileData(),
+                tooltip: 'Refresh Profile',
               ),
             ],
           ),
         ),
-        Switch(
-          value: true,
-          onChanged: (val) {},
-          activeColor: const Color(0xFF8B5CF6),
-          activeTrackColor: const Color(0xFF8B5CF6).withOpacity(0.3),
+        Expanded(
+          child: AdvertiserProfileContent(
+            controller: profileCtrl,
+            showHeaderBanner: true,
+          ),
         ),
       ],
     );

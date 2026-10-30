@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/data/services/advertiser_service.dart';
 import 'package:vmovexa/app/data/services/finance_service.dart';
 import 'package:vmovexa/app/data/services/fleet_service.dart';
 import 'package:vmovexa/app/data/services/storage_service.dart';
@@ -86,8 +87,39 @@ class PrivacyPolicyController extends GetxController {
     final activeRole = role ?? resolveRole();
     final isFinance = activeRole.contains('FINANCE');
     final isTech = activeRole.contains('TECH');
+    final isAdv = activeRole.contains('ADV');
 
-    if (isFinance) {
+    if (isAdv) {
+      pageTitle.value = 'Advertiser Privacy & Data Policy';
+      pageSubtitle.value = 'Audience analytics privacy, aggregated impression metrics, and campaign commercial confidentiality';
+      sections.assignAll([
+        PolicySectionItem(
+          id: '1',
+          title: '1. Commuter Anonymization & Edge Privacy',
+          content: 'VMOVEXA transit displays and optical sensors compute aggregated demographic and footfall counts entirely at the edge. No facial images, personal identifiers, or biometric templates of commuters are captured, stored, or transmitted to cloud servers.',
+        ),
+        PolicySectionItem(
+          id: '2',
+          title: '2. Aggregated Impression Telemetry & Proof-of-Play',
+          content: 'Playback logs, vehicle route telemetry, and impression verification statistics are aggregated into hourly and daily audit records. Advertisers receive detailed performance metrics without compromising individual vehicle passenger privacy.',
+        ),
+        PolicySectionItem(
+          id: '3',
+          title: '3. Commercial Campaign Confidentiality',
+          content: 'Unreleased ad creatives, flight target corridors, budgeting parameters, and conversion ROI analytics remain strictly confidential and are isolated within the advertiser account under encrypted enterprise tenant boundaries.',
+        ),
+        PolicySectionItem(
+          id: '4',
+          title: '4. Dynamic QR Attribution & Cookie-Free Tracking',
+          content: 'Passenger interactions with campaign QR codes use server-side session redirects without third-party tracking cookies or cross-site tracking fingerprints, ensuring full compliance with modern global data privacy standards.',
+        ),
+        PolicySectionItem(
+          id: '5',
+          title: '5. Data Retention & DPDP / GDPR Compliance',
+          content: 'Campaign audit trails and proof-of-play records are retained for a statutory period of 24 months for advertiser tax reconciliation and compliance verification, after which raw logs are automatically purged.',
+        ),
+      ]);
+    } else if (isFinance) {
       pageTitle.value = 'Financial Data & Ledger Privacy Policy';
       pageSubtitle.value = 'Banking credential security, PCI-DSS compliance, and statutory financial record retention';
       sections.assignAll([
@@ -187,7 +219,9 @@ class PrivacyPolicyController extends GetxController {
     try {
       isLoading.value = true;
       dynamic res;
-      if (Get.isRegistered<FinanceService>() && activeRole.contains('FINANCE')) {
+      if (Get.isRegistered<AdvertiserService>() && activeRole.contains('ADV')) {
+        res = await AdvertiserService.to.getContentPage('privacy', role: activeRole);
+      } else if (Get.isRegistered<FinanceService>() && activeRole.contains('FINANCE')) {
         res = await FinanceService.to.getContentPage('privacy', role: activeRole);
       } else if (Get.isRegistered<FleetService>()) {
         res = await FleetService.to.getContentPage('privacy', role: activeRole);
