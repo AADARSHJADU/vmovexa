@@ -152,6 +152,16 @@ class ApiConstants {
   static String emergencyBroadcastReject(String id) => '/emergency-broadcasts/$id/reject';
   static String emergencyBroadcastRevoke(String id) => '/emergency-broadcasts/$id/revoke';
 
+  // Billing & Invoices Endpoints
+  static const String billingInvoices = '/billing/invoices';
+  static String billingInvoiceOne(String id) => '/billing/invoices/$id';
+  static String billingInvoiceHtml(String id) => '/billing/invoices/$id/html';
+  static String billingInvoicePay(String id) => '/billing/invoices/$id/pay';
+  static const String billingSubscription = '/billing/subscription';
+  static const String billingTransactions = '/billing/transactions';
+  static const String billingPlans = '/billing/plans';
+  static const String billingWallet = '/billing/wallet';
+
   /// Generates Google Static Map URL using the official API key and dark styling
   static String buildGoogleStaticMapUrl({
     double? lat,

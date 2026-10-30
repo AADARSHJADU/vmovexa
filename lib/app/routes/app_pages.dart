@@ -199,6 +199,8 @@ import '../modules/roles/government/create_campaign/bindings/gov_create_campaign
 import '../modules/roles/government/create_campaign/views/gov_create_campaign_view.dart';
 import '../modules/roles/government/campaign_details/bindings/gov_campaign_details_binding.dart';
 import '../modules/roles/government/campaign_details/views/gov_campaign_details_view.dart';
+import '../modules/roles/government/billing_invoices/bindings/gov_billing_invoices_binding.dart';
+import '../modules/roles/government/billing_invoices/views/gov_billing_invoices_view.dart';
 
 class AppPages {
    static const INITIAL = Routes.SPLASH;
@@ -490,6 +492,12 @@ class AppPages {
       name: Routes.GOV_CAMPAIGN_DETAILS,
       page: () => const GovCampaignDetailsView(),
       binding: GovCampaignDetailsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.GOV_BILLING,
+      page: () => const GovBillingInvoicesView(),
+      binding: GovBillingInvoicesBinding(),
       transition: Transition.rightToLeft,
     ),
 

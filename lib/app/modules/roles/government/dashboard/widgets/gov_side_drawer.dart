@@ -257,7 +257,7 @@ class GovSideDrawer extends StatelessWidget {
                       title: 'Billing & Invoices',
                       onTap: () {
                         Get.back();
-                        _showBillingInfoDialog(context);
+                        Get.toNamed(Routes.GOV_BILLING);
                       },
                     ),
                     _buildNavItem(
@@ -551,81 +551,6 @@ class GovSideDrawer extends StatelessWidget {
             },
           ),
         ],
-      ),
-    );
-  }
-
-  void _showBillingInfoDialog(BuildContext context) {
-    Get.dialog(
-      Dialog(
-        backgroundColor: AppColors.cardBg,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Government Agency Billing',
-                    style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: AppColors.textMuted, size: 18),
-                    onPressed: () => Get.back(),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFF10B981), width: 1),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.verified_rounded, color: Color(0xFF10B981), size: 20),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Sovereign Clearance Tier', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                          Text('Direct Ministry of Transport & Municipal Exemption', style: TextStyle(color: Color(0xFF10B981), fontSize: 10)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 14),
-              const Text(
-                'Public Welfare and Emergency Broadcast services are zero-rated under State Public Information Act.',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
-              ),
-              const SizedBox(height: 18),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Get.back(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3B82F6),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  child: const Text('Close', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
