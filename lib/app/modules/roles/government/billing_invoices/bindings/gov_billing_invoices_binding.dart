@@ -10,3 +10,4 @@ class GovBillingInvoicesBinding extends Bindings {
     );
   }
 }
+

@@ -2677,39 +2677,33 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
 
   Widget _buildBottomNav() {
     return Container(
+      height: 60,
       decoration: const BoxDecoration(
         color: AppColors.cardBg,
         border: Border(top: BorderSide(color: AppColors.cardBorder, width: 1.2)),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _buildNavItem(0, Icons.home_filled, 'Home'),
           _buildNavItem(1, Icons.campaign_rounded, 'Campaigns'),
           // Middle glowing Emergency button
-          GestureDetector(
-            onTap: () => controller.updateNavIndex(2),
-            // child: Container(
-            //   width: 52,
-            //   height: 52,
-            //   margin: const EdgeInsets.only(bottom: 8, top: 4),
-            //   decoration: BoxDecoration(
-            //     color: const Color(0xFFEF4444),
-            //     shape: BoxShape.circle,
-            //     boxShadow: [
-            //       BoxShadow(
-            //         color: const Color(0xFFEF4444).withOpacity(0.4),
-            //         blurRadius: 12,
-            //         spreadRadius: 2,
-            //       ),
-            //     ],
-            //   ),
-            //   child: const Center(
-            //     child: Icon(Icons.warning_amber_rounded, color: Colors.white, size: 24),
-            //   ),
-            // ),
-            child: SvgPicture.asset('assets/icons/emergencyBottom.svg',width: 55
-              ,height: 55,),
+          Expanded(
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => controller.updateNavIndex(2),
+                splashColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
+                highlightColor: const Color(0xFFEF4444).withValues(alpha: 0.1),
+                child: Center(
+                  child: SvgPicture.asset(
+                    'assets/icons/emergencyBottom.svg',
+                    width: 52,
+                    height: 52,
+                  ),
+                ),
+              ),
+            ),
           ),
           _buildNavItem(3, Icons.analytics_rounded, 'Analytics'),
           _buildNavItem(4, Icons.person, 'Profile'),
@@ -2721,17 +2715,28 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
   Widget _buildNavItem(int idx, IconData icon, String label) {
     final isSelected = controller.selectedNavIndex.value == idx;
     final color = isSelected ? const Color(0xFF3B82F6) : AppColors.textMuted;
-    return GestureDetector(
-      onTap: () => controller.updateNavIndex(idx),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: color, size: 20),
-            const SizedBox(height: 4),
-            Text(label, style: TextStyle(color: color, fontSize: 8.5, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
-          ],
+    return Expanded(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => controller.updateNavIndex(idx),
+          splashColor: const Color(0xFF3B82F6).withValues(alpha: 0.15),
+          highlightColor: const Color(0xFF3B82F6).withValues(alpha: 0.08),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: color, size: 22),
+              const SizedBox(height: 3),
+              Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 9.5,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
