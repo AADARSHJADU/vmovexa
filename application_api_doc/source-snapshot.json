@@ -1,9 +1,9 @@
 {
-  "updated": "2026-10-28",
+  "updated": "2026-10-31",
   "files": [
     {
       "path": "backend/scripts/generate-app-api-docs.js",
-      "sha256": "cde6c32225c573c2f4a4f534ea5528384098e3f3e45f5e44eb65527c4eb89be5"
+      "sha256": "578381fd47414bc8736513cb6570ac1810dc7eb2d40b88b5f7e8b56498c2686c"
     },
     {
       "path": "backend/src/app.js",
@@ -47,7 +47,7 @@
     },
     {
       "path": "backend/src/modules/auth/auth.controller.js",
-      "sha256": "ee37ebb192c2e387f98891cd9c484e1aa8dba4b29f7d3dee8596047d75373bfc"
+      "sha256": "cacb352299439caa1e5b52aafbdd29a96748f9bd4d03957ec1472cb1d1d85b6b"
     },
     {
       "path": "backend/src/modules/auth/auth.routes.js",
@@ -135,7 +135,7 @@
     },
     {
       "path": "backend/src/modules/finance/finance.controller.js",
-      "sha256": "61f01677a715b5dc98a25cee37aa6ead815d7ea5bc4e72f64262d17cbcdd3892"
+      "sha256": "318ef2474daa7d560024f7fc04c5f7298e121230a6ef35417c6fa5d82dfa1045"
     },
     {
       "path": "backend/src/modules/finance/finance.routes.js",
@@ -167,7 +167,7 @@
     },
     {
       "path": "backend/src/modules/notifications/notification.controller.js",
-      "sha256": "6dbf38c36e7f22de68770871a0ff09852be950c5b9b6e837b043a1213ca7aa30"
+      "sha256": "d7b7ee0089336780227e344201eddb64e5d34816798e181087401cdd86991ed6"
     },
     {
       "path": "backend/src/modules/notifications/notification.routes.js",
@@ -191,7 +191,7 @@
     },
     {
       "path": "backend/src/modules/payments/billing.controller.js",
-      "sha256": "4afcc1fdd32e22a64817f33764168853d9dd7514548db5dd16057c0b934b48bb"
+      "sha256": "cc167938ef41d4fac42a75d683f0634cfc7fa02fdea6d3edbd7ca3f4c37d9630"
     },
     {
       "path": "backend/src/modules/payments/billing.routes.js",
@@ -227,7 +227,7 @@
     },
     {
       "path": "backend/src/modules/reports/report.routes.js",
-      "sha256": "3a14e263054aa0b285147ca58c5996ca0565a75f24b8358fda0c7ebe717cc138"
+      "sha256": "582724be69125093c1f18905b74290947d2531abdb481bdd4fc7a0ecd9c382b8"
     },
     {
       "path": "backend/src/modules/reports/report.validation.js",
@@ -275,15 +275,15 @@
     },
     {
       "path": "backend/src/modules/work-orders/workOrder.controller.js",
-      "sha256": "cecae86dcf0e1059fe61a14eb21ae133c5a304f1aa040bf7a16d5b8bfc7e2f5c"
+      "sha256": "1ceaae3b753f8d9f525c34f39444076cd763df0ca4d4fd7c353851b93d20648c"
     },
     {
       "path": "backend/src/modules/work-orders/workOrder.routes.js",
-      "sha256": "73861918f15b6b225b7c5be8ec6803bc347a0591ed913f2aaaf4a2072af09782"
+      "sha256": "db32182d79b71043415ab60853282a2fba6cd921946d404e7c93c61f3708874b"
     },
     {
       "path": "backend/src/modules/work-orders/workOrder.validation.js",
-      "sha256": "824548c5aaf615b37e3ebfcfa07439693c37992412b140127b350d7217f19646"
+      "sha256": "985bcd0f8a29a02614108d0f9ccf231a3a4550c2248616e27251275906767728"
     },
     {
       "path": "backend/src/mqtt/handlers.js",

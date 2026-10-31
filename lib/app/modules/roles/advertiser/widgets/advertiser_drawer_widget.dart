@@ -217,7 +217,7 @@ class AdvertiserDrawerWidget extends StatelessWidget {
                     label: 'Alerts & Messages',
                     onTap: () {
                       Navigator.pop(context);
-                      Get.toNamed(Routes.NOTIFICATIONS_LIST);
+                      Get.toNamed(Routes.ADVERTISER_NOTIFICATIONS);
                     },
                   ),
                   _buildMenuItem(
@@ -225,7 +225,7 @@ class AdvertiserDrawerWidget extends StatelessWidget {
                     label: 'Change Password',
                     onTap: () {
                       Navigator.pop(context);
-                      Get.toNamed(Routes.CHANGE_PASSWORD);
+                      Get.toNamed(Routes.ADVERTISER_CHANGE_PASSWORD);
                     },
                   ),
                   _buildMenuItem(
@@ -233,7 +233,7 @@ class AdvertiserDrawerWidget extends StatelessWidget {
                     label: 'Help & Documentation',
                     onTap: () {
                       Navigator.pop(context);
-                      Get.toNamed(Routes.HELP_SUPPORT);
+                      Get.toNamed(Routes.ADVERTISER_HELP_SUPPORT);
                     },
                   ),
                   _buildMenuItem(

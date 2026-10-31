@@ -1,3 +1,11 @@
+# Handoff changes — 31 October 2026
+
+- Updated total endpoint count to 431 routes (427 mapped role endpoints across 10 functional portals + 4 core sanity/health endpoints).
+- Incorporated `POST /api/v1/work-orders/dispatch` into technician NOC portal and route manifest.
+- Documented full Vehicle Slots & Timetables architecture (8 routes: `/api/v1/vehicle-slots`, conflict prevention engine `/check-conflict`, and timetable grid `/timetable/grid`).
+- Standardized and enriched all 10 role documents in `roles/` (`auth.md`, `fleet-manager.md`, `driver.md`, `advertiser.md`, `finance.md`, `technician.md`, `government.md`, `notifications-websocket.md`, `superadmin.md`, `common-services.md`) with categorized summary tables, HTTP methods, access guards, permissions, and cross-reference links.
+- Updated source snapshot SHA256 hashes and verification suite.
+
 # Handoff changes — 28 October 2026
 
 Compared with the earlier hand-maintained package:

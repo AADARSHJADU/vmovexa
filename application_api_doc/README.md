@@ -1,13 +1,13 @@
 # VMOVEXA ONE — App Developer API Handoff
 
-Updated: **28 October 2026**. Source: current backend working tree, including recent GPS changes. This package replaces the earlier role documents and their endpoint counts.
+Updated: **31 October 2026**. Source: current backend working tree, including recent GPS changes, work-order dispatch pipeline, vehicle slots scheduling engine, and campaign multi-media updates. This package provides comprehensive role documents and exact endpoint counts.
 
 ## Start here
 
 1. [App developer guide](APP_DEVELOPER_GUIDE.md): API origin, authentication, token refresh, response formats, uploads and request examples.
-2. [Complete API reference](API_REFERENCE.md): **430 method/path entries**, including aliases, gateway webhook and health routes; access guards and all **100 route-attached Joi validation schemas**.
+2. [Complete API reference](API_REFERENCE.md): **431 method/path entries**, including aliases, gateway webhook and health routes; access guards and all **101 route-attached Joi validation schemas**.
 3. [Realtime and GPS contract](REALTIME_AND_GPS.md): Socket.IO, MQTT, lock/staleness, hardware configuration and current limitations.
-4. [Postman collection](VMOVEXA.postman_collection.json): importable templates for all 430 entries. Set `baseUrl`, `accessToken` and route ID variables. Templates require real payload values before execution.
+4. [Postman collection](VMOVEXA.postman_collection.json): importable templates for all 431 entries. Set `baseUrl`, `accessToken` and route ID variables. Templates require real payload values before execution.
 5. [Controller contract excerpts](CONTROLLER_CONTRACTS.md): exact handler code for field spelling, service forwarding and response branches where available.
 6. [Audit and limitations](GAP_ANALYSIS_REPORT.md) and [change notes](CHANGELOG.md).
 

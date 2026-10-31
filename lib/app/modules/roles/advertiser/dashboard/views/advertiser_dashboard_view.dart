@@ -116,7 +116,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 24),
-                    onPressed: () => Get.toNamed(Routes.NOTIFICATIONS_LIST),
+                    onPressed: () => Get.toNamed(Routes.ADVERTISER_NOTIFICATIONS),
                   ),
                   const SizedBox(width: 4),
                   GestureDetector(

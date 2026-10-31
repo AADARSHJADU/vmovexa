@@ -1,6 +1,6 @@
 # VMOVEXA API reference
 
-Updated: 2026-10-28. 430 method/path combinations derived from current route wiring, including aliases, webhooks and health routes. Default prefix: /api/v1 (deployment API_PREFIX may override it).
+Updated: 2026-10-31. 431 method/path combinations derived from current route wiring, including aliases, webhooks and health routes. Default prefix: /api/v1 (deployment API_PREFIX may override it).
 
 Read [APP_DEVELOPER_GUIDE.md](APP_DEVELOPER_GUIDE.md) first for response envelopes, auth, GPS semantics, upload/download exceptions and limits. This is a request-validation and access-guard reference, not a claim that all responses have a machine-verified schema.
 
@@ -6250,11 +6250,9 @@ Controller response helpers: `success`; see global envelope rules.
 | Field | Type | Presence | Rules |
 |---|---|---|---|
 | `status` | string | required | one of ["submitted","approved","dispatched","on_site","resolved","closed","rejected","Submitted","Approved","Dispatched","On_Site","Resolved","Closed","Rejected"] |
-| `resolutionNotes` | string | optional | also allows ["",null] |
-| `resolution_notes` | string | optional | also allows ["",null] |
-| `notes` | string | optional | also allows ["",null] |
-
-Root schema permits additional keys; acceptance is not a guarantee that every key is persisted.
+| `resolutionNotes` | string | optional | trim {"enabled":true}; max {"limit":5000}; also allows ["",null] |
+| `resolution_notes` | string | optional | trim {"enabled":true}; max {"limit":5000}; also allows ["",null] |
+| `notes` | string | optional | trim {"enabled":true}; max {"limit":5000}; also allows ["",null] |
 
 Route source: `backend/src/modules/work-orders/technicianPortal.routes.js`. Implementation: `backend/src/modules/work-orders/workOrder.controller.js.setStatus`.
 
@@ -6282,7 +6280,9 @@ Authentication: Bearer access token required. Tenant scope: not attached on rout
 
 No explicit permission middleware attached; controller/service checks may still apply.
 
-Controller response helpers: `success`; see global envelope rules.
+Observed controller query fields: `read`, `search`, `severity`. These names are read by the handler; requiredness/types may be enforced further in the service.
+
+Controller response helpers: `paginated`; see global envelope rules.
 
 No Joi request schema attached. This does **not** mean no body/query is accepted. Consult the linked controller/service and the integration guide; unvalidated response/body fields are not inferred as a strict schema.
 
@@ -7055,7 +7055,7 @@ Route source: `backend/src/modules/campaigns/campaign.routes.js`. Implementation
 
 Authentication: Bearer access token required. Tenant scope: yes. Access gate: not attached on route.
 
-Permission (any one): `reports.view`, `fleet.reports.view`, `government.reports.view`.
+Permission (any one): `reports.view`, `fleet.reports.view`, `government.reports.view`, `finance.reports.view`.
 
 Controller response helpers: `paginated`; see global envelope rules.
 
@@ -7070,7 +7070,7 @@ Route source: `backend/src/modules/reports/report.routes.js`. Implementation: `b
 
 Authentication: Bearer access token required. Tenant scope: yes. Access gate: not attached on route.
 
-Permission (any one): `reports.generate`, `reports.export`.
+Permission (any one): `reports.generate`, `reports.export`, `finance.reports.create`, `finance.reports.export`, `finance.reports.manage`.
 
 Path parameters: `id` (required).
 
@@ -7089,7 +7089,7 @@ Route source: `backend/src/modules/reports/report.routes.js`. Implementation: `b
 
 Authentication: Bearer access token required. Tenant scope: yes. Access gate: not attached on route.
 
-Permission (any one): `reports.view`, `fleet.reports.view`, `government.reports.view`.
+Permission (any one): `reports.view`, `fleet.reports.view`, `government.reports.view`, `finance.reports.view`.
 
 Path parameters: `id` (required).
 
@@ -7108,7 +7108,7 @@ Route source: `backend/src/modules/reports/report.routes.js`. Implementation: `b
 
 Authentication: Bearer access token required. Tenant scope: yes. Access gate: not attached on route.
 
-Permission (any one): `reports.generate`, `reports.export`.
+Permission (any one): `reports.generate`, `reports.export`, `finance.reports.create`, `finance.reports.export`, `finance.reports.manage`.
 
 Observed controller body fields: `format`, `params`, `reportType`, `type`. These names are read by the handler; requiredness/types may be enforced further in the service.
 
@@ -8607,17 +8607,13 @@ Controller response helpers: `created`; see global envelope rules.
 
 | Field | Type | Presence | Rules |
 |---|---|---|---|
-| `vehicleId` | number | optional | integer; also allows [null] |
-| `busNumber` | string | optional | also allows ["",null] |
-| `depotId` | number | optional | integer; also allows [null] |
-| `depotName` | string | optional | also allows ["",null] |
-| `issueCategory` | string | required | — |
-| `urgency` | string | optional | one of ["critical","high","normal","low","Critical","High","Normal","Low"] |
-| `description` | string | optional | also allows ["",null] |
-| `instructions` | string | optional | also allows ["",null] |
-| `organizationId` | number | optional | integer; also allows [null] |
-
-Root schema permits additional keys; acceptance is not a guarantee that every key is persisted.
+| `organizationId` | number | optional | integer; sign {"sign":"positive"}; also allows [null] |
+| `fleetId` | number | optional | integer; sign {"sign":"positive"}; also allows [null] |
+| `vehicleId` | number | required | integer; sign {"sign":"positive"} |
+| `issueCategory` | string | required | trim {"enabled":true}; max {"limit":160} |
+| `urgency` | string | optional | one of ["critical","high","normal","low","Critical","High","Normal","Low"]; default "normal" |
+| `description` | string | optional | trim {"enabled":true}; max {"limit":5000}; also allows ["",null]; default null |
+| `instructions` | string | optional | trim {"enabled":true}; max {"limit":5000}; also allows ["",null]; default null |
 
 Route source: `backend/src/modules/work-orders/workOrder.routes.js`. Implementation: `backend/src/modules/work-orders/workOrder.controller.js.create`.
 
@@ -8659,16 +8655,12 @@ Controller response helpers: `success`; see global envelope rules.
 
 | Field | Type | Presence | Rules |
 |---|---|---|---|
-| `vehicleId` | number | optional | integer; also allows [null] |
-| `busNumber` | string | optional | also allows ["",null] |
-| `depotId` | number | optional | integer; also allows [null] |
-| `depotName` | string | optional | also allows ["",null] |
-| `issueCategory` | string | optional | also allows ["",null] |
+| `vehicleId` | number | optional | integer; sign {"sign":"positive"}; also allows [null] |
+| `fleetId` | number | optional | integer; sign {"sign":"positive"}; also allows [null] |
+| `issueCategory` | string | optional | trim {"enabled":true}; max {"limit":160}; also allows ["",null] |
 | `urgency` | string | optional | one of ["critical","high","normal","low","Critical","High","Normal","Low"] |
-| `description` | string | optional | also allows ["",null] |
-| `instructions` | string | optional | also allows ["",null] |
-
-Root schema permits additional keys; acceptance is not a guarantee that every key is persisted.
+| `description` | string | optional | trim {"enabled":true}; max {"limit":5000}; also allows ["",null] |
+| `instructions` | string | optional | trim {"enabled":true}; max {"limit":5000}; also allows ["",null] |
 
 Route source: `backend/src/modules/work-orders/workOrder.routes.js`. Implementation: `backend/src/modules/work-orders/workOrder.controller.js.update`.
 
@@ -8710,15 +8702,13 @@ Controller response helpers: `success`; see global envelope rules.
 
 | Field | Type | Presence | Rules |
 |---|---|---|---|
-| `technicianId` | number | required | integer |
-| `slaHours` | number | optional | integer; min {"limit":1}; also allows [null] |
+| `technicianId` | number | required | integer; sign {"sign":"positive"} |
+| `slaHours` | number | optional | integer; min {"limit":1}; max {"limit":720}; also allows [null] |
 | `slaDueAt` | date | optional | also allows [null] |
-| `eta` | string | optional | also allows ["",null] |
-| `instructions` | string | optional | also allows ["",null] |
+| `eta` | string | optional | trim {"enabled":true}; max {"limit":80}; also allows ["",null] |
+| `instructions` | string | optional | trim {"enabled":true}; max {"limit":5000}; also allows ["",null] |
 
-Root schema permits additional keys; acceptance is not a guarantee that every key is persisted.
-
-Root constraints: `{"dependencies":[{"rel":"or","peers":["slaHours","slaDueAt"]},{"rel":"or","peers":["technicianId"]}]}`.
+Root constraints: `{"dependencies":[{"rel":"or","peers":["slaHours","slaDueAt"]}]}`.
 
 Route source: `backend/src/modules/work-orders/workOrder.routes.js`. Implementation: `backend/src/modules/work-orders/workOrder.controller.js.assign`.
 
@@ -8742,10 +8732,8 @@ Controller response helpers: `success`; see global envelope rules.
 | Field | Type | Presence | Rules |
 |---|---|---|---|
 | `rating` | number | required | integer; min {"limit":1}; max {"limit":5} |
-| `comment` | string | optional | also allows ["",null] |
-| `tags` | array | optional | also allows [null]; items: [{"type":"string"}] |
-
-Root schema permits additional keys; acceptance is not a guarantee that every key is persisted.
+| `comment` | string | optional | trim {"enabled":true}; max {"limit":2000}; also allows ["",null] |
+| `tags` | array | optional | also allows [null]; items: [{"type":"string","rules":[{"name":"trim","args":{"enabled":true}},{"name":"max","args":{"limit":50}}]}] |
 
 Route source: `backend/src/modules/work-orders/workOrder.routes.js`. Implementation: `backend/src/modules/work-orders/workOrder.controller.js.rate`.
 
@@ -8770,9 +8758,7 @@ Controller response helpers: `success`; see global envelope rules.
 
 | Field | Type | Presence | Rules |
 |---|---|---|---|
-| `reason` | string | optional | also allows ["",null] |
-
-Root schema permits additional keys; acceptance is not a guarantee that every key is persisted.
+| `reason` | string | optional | trim {"enabled":true}; max {"limit":1000}; also allows ["",null] |
 
 Route source: `backend/src/modules/work-orders/workOrder.routes.js`. Implementation: `backend/src/modules/work-orders/workOrder.controller.js.reject`.
 
@@ -8798,15 +8784,44 @@ Controller response helpers: `success`; see global envelope rules.
 | Field | Type | Presence | Rules |
 |---|---|---|---|
 | `status` | string | required | one of ["submitted","approved","dispatched","on_site","resolved","closed","rejected","Submitted","Approved","Dispatched","On_Site","Resolved","Closed","Rejected"] |
-| `resolutionNotes` | string | optional | also allows ["",null] |
-| `resolution_notes` | string | optional | also allows ["",null] |
-| `notes` | string | optional | also allows ["",null] |
-
-Root schema permits additional keys; acceptance is not a guarantee that every key is persisted.
+| `resolutionNotes` | string | optional | trim {"enabled":true}; max {"limit":5000}; also allows ["",null] |
+| `resolution_notes` | string | optional | trim {"enabled":true}; max {"limit":5000}; also allows ["",null] |
+| `notes` | string | optional | trim {"enabled":true}; max {"limit":5000}; also allows ["",null] |
 
 Route source: `backend/src/modules/work-orders/workOrder.routes.js`. Implementation: `backend/src/modules/work-orders/workOrder.controller.js.setStatus`.
 
 [Controller excerpt](CONTROLLER_CONTRACTS.md#patch-api-v1-work-orders-id-status).
+
+<a id="post-api-v1-work-orders-dispatch"></a>
+### POST `/api/v1/work-orders/dispatch`
+
+Authentication: Bearer access token required. Tenant scope: yes. Access gate: not attached on route.
+
+Permission (all): `work_orders.assign`.
+
+Controller response helpers: `created`; see global envelope rules.
+
+**Validated body** (Joi; conversion enabled; unknown keys stripped unless schema allows them)
+
+| Field | Type | Presence | Rules |
+|---|---|---|---|
+| `organizationId` | number | required | integer; sign {"sign":"positive"} |
+| `fleetId` | number | optional | integer; sign {"sign":"positive"}; also allows [null] |
+| `vehicleId` | number | required | integer; sign {"sign":"positive"} |
+| `issueCategory` | string | required | trim {"enabled":true}; max {"limit":160} |
+| `urgency` | string | optional | one of ["critical","high","normal","low","Critical","High","Normal","Low"]; default "normal" |
+| `description` | string | optional | trim {"enabled":true}; max {"limit":5000}; also allows ["",null]; default null |
+| `instructions` | string | optional | trim {"enabled":true}; max {"limit":5000}; also allows ["",null]; default null |
+| `technicianId` | number | required | integer; sign {"sign":"positive"} |
+| `slaDueAt` | date | optional | also allows [null] |
+| `slaHours` | number | optional | integer; min {"limit":1}; max {"limit":720}; also allows [null] |
+| `eta` | string | optional | trim {"enabled":true}; max {"limit":80}; also allows ["",null]; default null |
+
+Root constraints: `{"dependencies":[{"rel":"or","peers":["slaDueAt","slaHours"]}]}`.
+
+Route source: `backend/src/modules/work-orders/workOrder.routes.js`. Implementation: `backend/src/modules/work-orders/workOrder.controller.js.dispatch`.
+
+[Controller excerpt](CONTROLLER_CONTRACTS.md#post-api-v1-work-orders-dispatch).
 
 <a id="get-health"></a>
 ### GET `/health`

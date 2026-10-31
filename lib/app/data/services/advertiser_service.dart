@@ -4,6 +4,7 @@ import '../models/api_response_model.dart';
 import '../models/campaign_model.dart';
 import '../models/advertiser_report_model.dart';
 import '../models/advertiser_billing_model.dart';
+import '../models/notification_model.dart';
 import 'http_client_service.dart';
 
 class AdvertiserService extends GetxService {
@@ -586,6 +587,48 @@ class AdvertiserService extends GetxService {
       queryParams: {'page': page, 'limit': limit},
       requiresAuth: true,
     );
+  }
+
+  /// GET /api/v1/notifications
+  Future<ApiResponseModel<List<AppNotificationModel>>> getNotifications({
+    int page = 1,
+    int limit = 50,
+  }) async {
+    return _http.get<List<AppNotificationModel>>(
+      ApiConstants.notifications,
+      queryParams: {'page': page, 'limit': limit},
+      requiresAuth: true,
+      create: (data) {
+        if (data is List) {
+          return data
+              .whereType<Map>()
+              .map((item) => AppNotificationModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        } else if (data is Map && (data['rows'] is List || data['items'] is List || data['notifications'] is List)) {
+          final list = (data['rows'] ?? data['items'] ?? data['notifications']) as List;
+          return list
+              .whereType<Map>()
+              .map((item) => AppNotificationModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        }
+        return <AppNotificationModel>[];
+      },
+    );
+  }
+
+  /// POST /api/v1/notifications/:id/read
+  Future<ApiResponseModel<dynamic>> markNotificationRead(String id) async {
+    return _http.post(ApiConstants.notificationRead(id), requiresAuth: true);
+  }
+
+  /// POST /api/v1/notifications/read-all
+  Future<ApiResponseModel<dynamic>> markAllNotificationsRead() async {
+    return _http.post(ApiConstants.notificationReadAll, requiresAuth: true);
+  }
+
+  /// DELETE /api/v1/notifications/:id
+  Future<ApiResponseModel<dynamic>> deleteNotification(String id) async {
+    return _http.delete(ApiConstants.notificationDelete(id), requiresAuth: true);
   }
 }
 

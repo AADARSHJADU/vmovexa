@@ -5,6 +5,7 @@ import 'package:vmovexa/app/data/models/work_order_model.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
 import '../controller/tech_work_orders_controller.dart';
 import 'work_order_resolution_sheet.dart';
+import 'dispatch_work_order_sheet.dart';
 
 class TechWorkOrdersView extends StatelessWidget {
   const TechWorkOrdersView({super.key});
@@ -28,6 +29,25 @@ class TechWorkOrdersView extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.refresh_rounded, color: Colors.white70),
             onPressed: () => controller.fetchWorkOrders(),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: ElevatedButton.icon(
+              onPressed: () => DispatchWorkOrderSheet.show(context),
+              icon: const Icon(Icons.flash_on_rounded, size: 16, color: Colors.white),
+              label: const Text(
+                'Dispatch',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF6366F1),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                elevation: 0,
+              ),
+            ),
           ),
         ],
       ),
@@ -148,7 +168,7 @@ class TechWorkOrdersView extends StatelessWidget {
                   child: ListView.separated(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     itemCount: orders.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    separatorBuilder: (_, index) => const SizedBox(height: 10),
                     itemBuilder: (context, index) {
                       final order = orders[index];
                       return _WorkOrderCard(

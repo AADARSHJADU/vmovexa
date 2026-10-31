@@ -119,6 +119,7 @@ class ApiConstants {
   static String incidentResolution(String id) => '/incidents/$id/resolution';
 
   static const String workOrders = '/work-orders';
+  static const String workOrdersDispatch = '/work-orders/dispatch';
   static String workOrderOne(String id) => '/work-orders/$id';
   static String workOrderApprove(String id) => '/work-orders/$id/approve';
   static String workOrderAssign(String id) => '/work-orders/$id/assign';

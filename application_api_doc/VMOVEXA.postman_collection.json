@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "VMOVEXA App API 2026-10-28",
+    "name": "VMOVEXA App API 2026-10-31",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "description": "Generated request templates. Replace all placeholders. Empty bodies are not proof that an endpoint takes no parameters. Requests can modify real data; execute only against an intended test environment. Response contracts: APP_DEVELOPER_GUIDE.md."
   },
@@ -9449,7 +9449,7 @@
         },
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"issueCategory\": \"<replace>\"\n}",
+          "raw": "{\n  \"vehicleId\": 1,\n  \"issueCategory\": \"<replace>\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -9660,6 +9660,40 @@
         "body": {
           "mode": "raw",
           "raw": "{\n  \"status\": \"submitted\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST /api/v1/work-orders/dispatch",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/work-orders/dispatch",
+        "description": "See API_REFERENCE.md#post-api-v1-work-orders-dispatch\nbackend/src/modules/work-orders/workOrder.controller.js.dispatch",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"organizationId\": 1,\n  \"vehicleId\": 1,\n  \"issueCategory\": \"<replace>\",\n  \"technicianId\": 1\n}",
           "options": {
             "raw": {
               "language": "json"

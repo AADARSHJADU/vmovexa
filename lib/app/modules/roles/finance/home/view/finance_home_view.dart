@@ -118,15 +118,15 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
             ),
           ],
         ),
-        const SizedBox(height: 12),
-        // Create Invoice Action Button (Blue CTA)
-        CustomButton(
-          height: 40,
-          text:  'Create Invoice',
-          prefixIcon: const Icon(Icons.add, size: 18, color: Colors.white),
-          isGradient: true,
-          onTap:  () => controller.onCreateInvoiceTap(),
-        ),
+        // const SizedBox(height: 12),
+        // // Create Invoice Action Button (Blue CTA)
+        // CustomButton(
+        //   height: 40,
+        //   text:  'Create Invoice',
+        //   prefixIcon: const Icon(Icons.add, size: 18, color: Colors.white),
+        //   isGradient: true,
+        //   onTap:  () => controller.onCreateInvoiceTap(),
+        // ),
         // SizedBox(
         //   width: double.infinity,
         //   child: ElevatedButton.icon(

@@ -1,6 +1,6 @@
 # Controller contract excerpts
 
-Generated 2026-10-28. Exact controller code is included for request field spelling and response branching. These excerpts are reference material, not runnable client code. They call services whose rules are not fully described by this file. No production environment values or credentials are imported.
+Generated 2026-10-31. Exact controller code is included for request field spelling and response branching. These excerpts are reference material, not runnable client code. They call services whose rules are not fully described by this file. No production environment values or credentials are imported.
 
 <a id="get-api-v1"></a>
 ## GET /api/v1
@@ -1164,6 +1164,16 @@ async function me(req, res) {
     throw new AppError('AUTH_FORBIDDEN', 'Your organization account has been suspended/frozen.');
   }
 
+  // Ensure subscription status in DB and memory reflects current period end
+  if (user?.organization?.subscription) {
+    const sub = user.organization.subscription;
+    const now = new Date();
+    if (sub.current_period_end && new Date(sub.current_period_end) <= now && sub.status !== 'expired') {
+      sub.status = 'expired';
+      await sub.save().catch(() => {});
+    }
+  }
+
   const json = user.toJSON();
   json.permissions = authService.permissionsOf(user);
   if (req.user && req.user.impersonatorId) {
@@ -2154,7 +2164,7 @@ async function getInvoiceHtml(req, res) {
   }
 
   // Accurate Statutory GST and Subtotal Calculation
-  const subtotalNum = Number(invoice.subtotal != null ? invoice.subtotal : (campBreakdown.subtotal != null ? campBreakdown.subtotal : campBreakdown.baseAmount || 0));
+  let subtotalNum = Number(invoice.subtotal != null ? invoice.subtotal : (campBreakdown.subtotal != null ? campBreakdown.subtotal : campBreakdown.baseAmount || 0));
 
   const campCgst = Number(campBreakdown.cgst || 0);
   const campSgst = Number(campBreakdown.sgst || 0);
@@ -2166,10 +2176,35 @@ async function getInvoiceHtml(req, res) {
   const invSgst = invoice.sgst_amount != null ? Number(invoice.sgst_amount) : 0;
   const invIgst = invoice.igst_amount != null ? Number(invoice.igst_amount) : 0;
 
-  const rawTaxNum = invTaxAmount !== null ? invTaxAmount : (campGstTotal > 0 ? campGstTotal : +(subtotalNum * 0.18).toFixed(2));
-  
-  // Tax exempt ONLY if explicitly marked 'exempt' OR total tax is strictly 0 and total equals subtotal
-  const isTaxExempt = invoice.gst_type === 'exempt' || (rawTaxNum === 0 && Number(invoice.total || 0) === subtotalNum && campGstTotal === 0);
+  // Determine if campaign or invoice has explicitly zero GST / flat pricing
+  const isCampZeroTax = Boolean(
+    matchedCampaign && (
+      campBreakdown.gstAmount === 0 ||
+      (campCgst === 0 && campSgst === 0 && campIgst === 0 && (
+        (campBreakdown.totalAmount != null && Math.abs(Number(campBreakdown.totalAmount) - subtotalNum) < 0.01) ||
+        (matchedCampaign.budget != null && Math.abs(Number(matchedCampaign.budget) - subtotalNum) < 0.01)
+      ))
+    )
+  );
+
+  // Reconcile with actual bank settlement payment if present
+  const paidSettledAmount = campPayment && Number(campPayment.amount) > 0 ? Number(campPayment.amount) : null;
+
+  let rawTaxNum = 0;
+  if (isCampZeroTax || invoice.gst_type === 'exempt') {
+    rawTaxNum = 0;
+  } else if (invTaxAmount !== null) {
+    rawTaxNum = invTaxAmount;
+  } else if (campGstTotal > 0) {
+    rawTaxNum = campGstTotal;
+  } else if (paidSettledAmount !== null && paidSettledAmount <= subtotalNum) {
+    rawTaxNum = 0;
+  } else {
+    rawTaxNum = +(subtotalNum * 0.18).toFixed(2);
+  }
+
+  // Tax exempt if marked 'exempt', or if campaign explicitly zero tax, or total equals subtotal with 0 tax
+  const isTaxExempt = invoice.gst_type === 'exempt' || isCampZeroTax || (rawTaxNum === 0 && (campGstTotal === 0 || paidSettledAmount === subtotalNum));
 
   let cgstVal = 0;
   let sgstVal = 0;
@@ -2197,19 +2232,50 @@ async function getInvoiceHtml(req, res) {
   }
 
   const taxAmountNum = isTaxExempt ? 0 : +(cgstVal + sgstVal + igstVal || rawTaxNum).toFixed(2);
-  const totalNum = Number(invoice.total != null ? invoice.total : (campBreakdown.totalAmount != null ? campBreakdown.totalAmount : subtotalNum + taxAmountNum));
+  let totalNum = Number(
+    paidSettledAmount != null
+      ? paidSettledAmount
+      : (invoice.total != null && !isCampZeroTax
+          ? invoice.total
+          : (campBreakdown.totalAmount != null ? campBreakdown.totalAmount : subtotalNum + taxAmountNum))
+  );
 
-  // Auto-heal DB record only for standard GST invoices if tax breakup was mismatched with dynamic settings
-  if (!isTaxExempt && invoice.id && taxAmountNum > 0) {
-    const targetGstType = (cgstVal > 0 && igstVal === 0) ? 'intra_state' : 'inter_state';
-    if (invoice.gst_type !== targetGstType || Number(invoice.cgst_amount) !== cgstVal || Number(invoice.igst_amount) !== igstVal) {
+  if (isTaxExempt) {
+    subtotalNum = totalNum;
+  }
+
+  // Auto-heal DB record so future views and API queries are 100% consistent
+  if (invoice.id) {
+    if (isTaxExempt && (Number(invoice.tax_amount) > 0 || Number(invoice.total) !== totalNum)) {
       await db.Invoice.update({
-        gst_type: targetGstType,
-        cgst_amount: cgstVal,
-        sgst_amount: sgstVal,
-        igst_amount: igstVal,
-        tax_amount: taxAmountNum,
+        gst_type: null,
+        cgst_amount: 0,
+        sgst_amount: 0,
+        igst_amount: 0,
+        tax_amount: 0,
+        subtotal: totalNum,
+        total: totalNum,
       }, { where: { id: invoice.id } }).catch(() => {});
+      if (db.GstRecord) {
+        await db.GstRecord.update({
+          taxable_amount: totalNum,
+          cgst: 0,
+          sgst: 0,
+          igst: 0,
+          total_gst: 0,
+        }, { where: { invoice_id: invoice.id } }).catch(() => {});
+      }
+    } else if (!isTaxExempt && taxAmountNum > 0) {
+      const targetGstType = (cgstVal > 0 && igstVal === 0) ? 'intra_state' : 'inter_state';
+      if (invoice.gst_type !== targetGstType || Number(invoice.cgst_amount) !== cgstVal || Number(invoice.igst_amount) !== igstVal) {
+        await db.Invoice.update({
+          gst_type: targetGstType,
+          cgst_amount: cgstVal,
+          sgst_amount: sgstVal,
+          igst_amount: igstVal,
+          tax_amount: taxAmountNum,
+        }, { where: { id: invoice.id } }).catch(() => {});
+      }
     }
   }
 
@@ -5625,7 +5691,7 @@ async function markInvoicePaid(req, res) {
 
 ```javascript
 async function kpis(req, res) {
-  return apiResponse.success(res, await service.kpis());
+  return apiResponse.success(res, await service.kpis(req.query));
 }
 ```
 
@@ -7258,8 +7324,46 @@ async function clearAll(req, res) {
 
 ```javascript
 async function list(req, res) {
-  const rows = await db.Notification.findAll({ where: { user_id: req.user.id }, order: [['id', 'DESC']], limit: 50 });
-  return apiResponse.success(res, rows);
+  const { page, limit, offset } = getPagination(req.query);
+  const where = { user_id: req.user.id };
+  const search = String(req.query.search || '').trim();
+  const severity = String(req.query.severity || '').trim().toLowerCase();
+  const read = String(req.query.read || '').trim().toLowerCase();
+
+  if (search) {
+    where[Op.or] = [
+      { title: { [Op.like]: `%${search}%` } },
+      { body: { [Op.like]: `%${search}%` } },
+    ];
+  }
+  if (severity === 'critical') where.severity = { [Op.in]: ['critical', 'error', 'danger', 'emergency'] };
+  else if (severity === 'warning') where.severity = { [Op.in]: ['warning', 'warn'] };
+  else if (severity === 'info') where.severity = { [Op.in]: ['info', 'success'] };
+  else if (severity) where.severity = severity;
+  if (read === 'false' || read === 'unread') where.read_at = null;
+  else if (read === 'true' || read === 'read') where.read_at = { [Op.ne]: null };
+
+  const baseWhere = { user_id: req.user.id };
+  const [result, unread, critical, warning, info] = await Promise.all([
+    db.Notification.findAndCountAll({ where, order: [['id', 'DESC']], limit, offset }),
+    db.Notification.count({ where: { ...baseWhere, read_at: null } }),
+    db.Notification.count({ where: { ...baseWhere, severity: { [Op.in]: ['critical', 'error', 'danger', 'emergency'] } } }),
+    db.Notification.count({ where: { ...baseWhere, severity: { [Op.in]: ['warning', 'warn'] } } }),
+    db.Notification.count({ where: { ...baseWhere, severity: { [Op.in]: ['info', 'success'] } } }),
+  ]);
+  const meta = buildMeta(page, limit, result.count);
+  meta.stats = { all: await db.Notification.count({ where: baseWhere }), unread, critical, warning, info };
+  const rows = result.rows.map((r) => {
+    const item = r && typeof r.toJSON === 'function' ? r.toJSON() : (r || {});
+    const isRead = Boolean(item.read_at);
+    return {
+      ...item,
+      read_at: item.read_at,
+      read: isRead,
+      is_read: isRead,
+    };
+  });
+  return apiResponse.paginated(res, rows, meta);
 }
 ```
 
@@ -8584,5 +8688,14 @@ async function reject(req, res) {
 ```javascript
 async function setStatus(req, res) {
   return apiResponse.success(res, await service.setStatus(req.params.id, req.body.status, req.body, req), 'Status updated.');
+}
+```
+
+<a id="post-api-v1-work-orders-dispatch"></a>
+## POST /api/v1/work-orders/dispatch
+
+```javascript
+async function dispatch(req, res) {
+  return apiResponse.created(res, await service.dispatch(req.body, req), 'Work order dispatched.');
 }
 ```

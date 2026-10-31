@@ -213,4 +213,70 @@ class TechWorkOrdersController extends GetxController {
       isSubmitting.value = false;
     }
   }
+
+  /// Dispatch Work Order (POST /api/v1/work-orders/dispatch)
+  Future<bool> dispatchOrder({
+    required int vehicleId,
+    required String issueCategory,
+    required int technicianId,
+    int? organizationId,
+    int? fleetId,
+    String urgency = 'normal',
+    String? description,
+    String? instructions,
+    int slaHours = 24,
+    String? eta,
+  }) async {
+    isSubmitting.value = true;
+    try {
+      final payload = <String, dynamic>{
+        'vehicleId': vehicleId,
+        'issueCategory': issueCategory.trim(),
+        'technicianId': technicianId,
+        'organizationId': organizationId ?? 1,
+        if (fleetId != null && fleetId > 0) 'fleetId': fleetId,
+        'urgency': urgency.toLowerCase(),
+        if (description != null && description.trim().isNotEmpty) 'description': description.trim(),
+        if (instructions != null && instructions.trim().isNotEmpty) 'instructions': instructions.trim(),
+        'slaHours': slaHours,
+        if (eta != null && eta.trim().isNotEmpty) 'eta': eta.trim(),
+      };
+
+      final res = await TechnicianService.to.dispatchWorkOrder(payload);
+      if (res.success) {
+        Get.snackbar(
+          'Work Order Dispatched',
+          'Work order dispatched successfully to technician.',
+          backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          margin: const EdgeInsets.all(12),
+        );
+        await fetchWorkOrders();
+        return true;
+      } else {
+        Get.snackbar(
+          'Dispatch Failed',
+          res.displayErrorMessage,
+          backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          margin: const EdgeInsets.all(12),
+        );
+        return false;
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        e.toString(),
+        backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(12),
+      );
+      return false;
+    } finally {
+      isSubmitting.value = false;
+    }
+  }
 }

@@ -237,35 +237,35 @@ class InvoiceView extends GetView<InvoiceController> {
                 fontWeight: FontWeight.w700,
               ),
             )),
-        const Spacer(),
-        Container(
-          height: 40,
-          decoration: BoxDecoration(
-            gradient: AppTheme.primaryGradient,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: ElevatedButton.icon(
-            onPressed: controller.onGenerateInvoice,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              shadowColor: Colors.transparent,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              elevation: 0,
-            ),
-            icon: const Icon(Icons.add_circle_outline, size: 16),
-            label: Text(
-              'Generate Invoice',
-              style: GoogleFonts.raleway(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ),
+        // const Spacer(),
+        // Container(
+        //   height: 40,
+        //   decoration: BoxDecoration(
+        //     gradient: AppTheme.primaryGradient,
+        //     borderRadius: BorderRadius.circular(10),
+        //   ),
+        //   child: ElevatedButton.icon(
+        //     onPressed: controller.onGenerateInvoice,
+        //     style: ElevatedButton.styleFrom(
+        //       backgroundColor: Colors.transparent,
+        //       shadowColor: Colors.transparent,
+        //       foregroundColor: Colors.white,
+        //       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        //       shape: RoundedRectangleBorder(
+        //         borderRadius: BorderRadius.circular(10),
+        //       ),
+        //       elevation: 0,
+        //     ),
+        //     icon: const Icon(Icons.add_circle_outline, size: 16),
+        //     label: Text(
+        //       'Generate Invoice',
+        //       style: GoogleFonts.raleway(
+        //         fontSize: 12,
+        //         fontWeight: FontWeight.w600,
+        //       ),
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }

@@ -64,6 +64,7 @@ abstract class Routes {
   static const SETUP_COMPLETE = '/setup-complete';
   static const LIVE_TRACKING = '/live-tracking';
   static const FLEET_TRIPS = '/fleet-trips';
+  static const FLEET_VEHICLE_SLOTS = '/fleet-vehicle-slots';
   static const TRIP_DETAILS = '/trip-details';
   static const TECHNICIAN_REQUESTS = '/technician-requests';
   static const CREATE_TECHNICIAN_REQUEST = '/create-technician-request';
@@ -95,6 +96,7 @@ abstract class Routes {
   static const ADVERTISER_CHANGE_PASSWORD = '/advertiser-change-password';
   static const ADVERTISER_NOTIFICATION_SETTINGS = '/advertiser-notification-settings';
   static const ADVERTISER_HELP_SUPPORT = '/advertiser-help-support';
+  static const ADVERTISER_NOTIFICATIONS = '/advertiser-notifications';
   static const GOVERNMENT_DASHBOARD = '/government-dashboard';
   static const GOVERNMENT_CREATE_CAMPAIGN = '/government-create-campaign';
   static const GOV_CAMPAIGN_DETAILS = '/gov-campaign-details';

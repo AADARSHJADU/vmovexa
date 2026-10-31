@@ -151,6 +151,8 @@ import '../modules/roles/fleet_operator/live_tracking/views/live_tracking_view.d
 
 import '../modules/roles/fleet_operator/trips_list/bindings/trips_list_binding.dart';
 import '../modules/roles/fleet_operator/trips_list/views/trips_list_view.dart';
+import '../modules/roles/fleet_operator/vehicle_slots/bindings/vehicle_slots_binding.dart';
+import '../modules/roles/fleet_operator/vehicle_slots/views/vehicle_slots_view.dart';
 
 import '../modules/roles/fleet_operator/trip_details/bindings/trip_details_binding.dart';
 import '../modules/roles/fleet_operator/trip_details/views/trip_details_view.dart';
@@ -230,6 +232,8 @@ import '../modules/roles/advertiser/notification_settings/bindings/advertiser_no
 import '../modules/roles/advertiser/notification_settings/views/advertiser_notification_settings_view.dart';
 import '../modules/roles/advertiser/help_support/bindings/advertiser_help_support_binding.dart';
 import '../modules/roles/advertiser/help_support/views/advertiser_help_support_view.dart';
+import '../modules/roles/advertiser/notifications/bindings/advertiser_notifications_binding.dart';
+import '../modules/roles/advertiser/notifications/views/advertiser_notifications_view.dart';
 
 import '../modules/roles/government/dashboard/bindings/government_dashboard_binding.dart';
 import '../modules/roles/government/dashboard/views/government_dashboard_view.dart';
@@ -429,6 +433,12 @@ class AppPages {
       transition: Transition.rightToLeft,
     ),
     GetPage(
+      name: Routes.FLEET_VEHICLE_SLOTS,
+      page: () => const VehicleSlotsView(),
+      binding: VehicleSlotsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
       name: Routes.TRIP_DETAILS,
       page: () => const TripDetailsView(),
       binding: TripDetailsBinding(),
@@ -604,6 +614,12 @@ class AppPages {
       name: Routes.ADVERTISER_HELP_SUPPORT,
       page: () => const AdvertiserHelpSupportView(),
       binding: AdvertiserHelpSupportBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.ADVERTISER_NOTIFICATIONS,
+      page: () => const AdvertiserNotificationsView(),
+      binding: AdvertiserNotificationsBinding(),
       transition: Transition.rightToLeft,
     ),
     GetPage(

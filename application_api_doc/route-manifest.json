@@ -1,7 +1,7 @@
 {
-  "updated": "2026-10-28",
+  "updated": "2026-10-31",
   "source": "backend/src/routes/index.js + app health mounts + webhook mounts",
-  "count": 430,
+  "count": 431,
   "routes": [
     {
       "method": "GET",
@@ -19267,9 +19267,6 @@
       "validation": {
         "body": {
           "type": "object",
-          "flags": {
-            "unknown": true
-          },
           "keys": {
             "status": {
               "type": "string",
@@ -19296,6 +19293,20 @@
             },
             "resolutionNotes": {
               "type": "string",
+              "rules": [
+                {
+                  "name": "trim",
+                  "args": {
+                    "enabled": true
+                  }
+                },
+                {
+                  "name": "max",
+                  "args": {
+                    "limit": 5000
+                  }
+                }
+              ],
               "allow": [
                 "",
                 null
@@ -19303,6 +19314,20 @@
             },
             "resolution_notes": {
               "type": "string",
+              "rules": [
+                {
+                  "name": "trim",
+                  "args": {
+                    "enabled": true
+                  }
+                },
+                {
+                  "name": "max",
+                  "args": {
+                    "limit": 5000
+                  }
+                }
+              ],
               "allow": [
                 "",
                 null
@@ -19310,6 +19335,20 @@
             },
             "notes": {
               "type": "string",
+              "rules": [
+                {
+                  "name": "trim",
+                  "args": {
+                    "enabled": true
+                  }
+                },
+                {
+                  "name": "max",
+                  "args": {
+                    "limit": 5000
+                  }
+                }
+              ],
               "allow": [
                 "",
                 null
@@ -19365,11 +19404,15 @@
       "handler": "backend/src/modules/notifications/notification.controller.js.list",
       "observedInputs": {
         "body": [],
-        "query": [],
+        "query": [
+          "read",
+          "search",
+          "severity"
+        ],
         "params": []
       },
       "responseHelpers": [
-        "success"
+        "paginated"
       ]
     },
     {
@@ -21465,7 +21508,8 @@
           "permissions": [
             "reports.view",
             "fleet.reports.view",
-            "government.reports.view"
+            "government.reports.view",
+            "finance.reports.view"
           ]
         }
       ],
@@ -21493,7 +21537,10 @@
           "mode": "any",
           "permissions": [
             "reports.generate",
-            "reports.export"
+            "reports.export",
+            "finance.reports.create",
+            "finance.reports.export",
+            "finance.reports.manage"
           ]
         }
       ],
@@ -21524,7 +21571,8 @@
           "permissions": [
             "reports.view",
             "fleet.reports.view",
-            "government.reports.view"
+            "government.reports.view",
+            "finance.reports.view"
           ]
         }
       ],
@@ -21554,7 +21602,10 @@
           "mode": "any",
           "permissions": [
             "reports.generate",
-            "reports.export"
+            "reports.export",
+            "finance.reports.create",
+            "finance.reports.export",
+            "finance.reports.manage"
           ]
         }
       ],
@@ -25280,56 +25331,83 @@
       "validation": {
         "body": {
           "type": "object",
-          "flags": {
-            "unknown": true
-          },
           "keys": {
+            "organizationId": {
+              "type": "number",
+              "rules": [
+                {
+                  "name": "integer"
+                },
+                {
+                  "name": "sign",
+                  "args": {
+                    "sign": "positive"
+                  }
+                }
+              ],
+              "allow": [
+                null
+              ]
+            },
+            "fleetId": {
+              "type": "number",
+              "rules": [
+                {
+                  "name": "integer"
+                },
+                {
+                  "name": "sign",
+                  "args": {
+                    "sign": "positive"
+                  }
+                }
+              ],
+              "allow": [
+                null
+              ]
+            },
             "vehicleId": {
               "type": "number",
+              "flags": {
+                "presence": "required"
+              },
               "rules": [
                 {
                   "name": "integer"
-                }
-              ],
-              "allow": [
-                null
-              ]
-            },
-            "busNumber": {
-              "type": "string",
-              "allow": [
-                "",
-                null
-              ]
-            },
-            "depotId": {
-              "type": "number",
-              "rules": [
+                },
                 {
-                  "name": "integer"
+                  "name": "sign",
+                  "args": {
+                    "sign": "positive"
+                  }
                 }
-              ],
-              "allow": [
-                null
-              ]
-            },
-            "depotName": {
-              "type": "string",
-              "allow": [
-                "",
-                null
               ]
             },
             "issueCategory": {
               "type": "string",
               "flags": {
                 "presence": "required"
-              }
+              },
+              "rules": [
+                {
+                  "name": "trim",
+                  "args": {
+                    "enabled": true
+                  }
+                },
+                {
+                  "name": "max",
+                  "args": {
+                    "limit": 160
+                  }
+                }
+              ]
             },
             "urgency": {
               "type": "string",
               "flags": {
-                "only": true
+                "only": true,
+                "default": "normal"
               },
               "allow": [
                 "critical",
@@ -25344,6 +25422,23 @@
             },
             "description": {
               "type": "string",
+              "flags": {
+                "default": null
+              },
+              "rules": [
+                {
+                  "name": "trim",
+                  "args": {
+                    "enabled": true
+                  }
+                },
+                {
+                  "name": "max",
+                  "args": {
+                    "limit": 5000
+                  }
+                }
+              ],
               "allow": [
                 "",
                 null
@@ -25351,19 +25446,25 @@
             },
             "instructions": {
               "type": "string",
-              "allow": [
-                "",
-                null
-              ]
-            },
-            "organizationId": {
-              "type": "number",
+              "flags": {
+                "default": null
+              },
               "rules": [
                 {
-                  "name": "integer"
+                  "name": "trim",
+                  "args": {
+                    "enabled": true
+                  }
+                },
+                {
+                  "name": "max",
+                  "args": {
+                    "limit": 5000
+                  }
                 }
               ],
               "allow": [
+                "",
                 null
               ]
             }
@@ -25431,48 +25532,57 @@
       "validation": {
         "body": {
           "type": "object",
-          "flags": {
-            "unknown": true
-          },
           "keys": {
             "vehicleId": {
               "type": "number",
               "rules": [
                 {
                   "name": "integer"
+                },
+                {
+                  "name": "sign",
+                  "args": {
+                    "sign": "positive"
+                  }
                 }
               ],
               "allow": [
                 null
               ]
             },
-            "busNumber": {
-              "type": "string",
-              "allow": [
-                "",
-                null
-              ]
-            },
-            "depotId": {
+            "fleetId": {
               "type": "number",
               "rules": [
                 {
                   "name": "integer"
+                },
+                {
+                  "name": "sign",
+                  "args": {
+                    "sign": "positive"
+                  }
                 }
               ],
               "allow": [
-                null
-              ]
-            },
-            "depotName": {
-              "type": "string",
-              "allow": [
-                "",
                 null
               ]
             },
             "issueCategory": {
               "type": "string",
+              "rules": [
+                {
+                  "name": "trim",
+                  "args": {
+                    "enabled": true
+                  }
+                },
+                {
+                  "name": "max",
+                  "args": {
+                    "limit": 160
+                  }
+                }
+              ],
               "allow": [
                 "",
                 null
@@ -25496,6 +25606,20 @@
             },
             "description": {
               "type": "string",
+              "rules": [
+                {
+                  "name": "trim",
+                  "args": {
+                    "enabled": true
+                  }
+                },
+                {
+                  "name": "max",
+                  "args": {
+                    "limit": 5000
+                  }
+                }
+              ],
               "allow": [
                 "",
                 null
@@ -25503,6 +25627,20 @@
             },
             "instructions": {
               "type": "string",
+              "rules": [
+                {
+                  "name": "trim",
+                  "args": {
+                    "enabled": true
+                  }
+                },
+                {
+                  "name": "max",
+                  "args": {
+                    "limit": 5000
+                  }
+                }
+              ],
               "allow": [
                 "",
                 null
@@ -25571,21 +25709,12 @@
       "validation": {
         "body": {
           "type": "object",
-          "flags": {
-            "unknown": true
-          },
           "dependencies": [
             {
               "rel": "or",
               "peers": [
                 "slaHours",
                 "slaDueAt"
-              ]
-            },
-            {
-              "rel": "or",
-              "peers": [
-                "technicianId"
               ]
             }
           ],
@@ -25598,6 +25727,12 @@
               "rules": [
                 {
                   "name": "integer"
+                },
+                {
+                  "name": "sign",
+                  "args": {
+                    "sign": "positive"
+                  }
                 }
               ]
             },
@@ -25612,6 +25747,12 @@
                   "args": {
                     "limit": 1
                   }
+                },
+                {
+                  "name": "max",
+                  "args": {
+                    "limit": 720
+                  }
                 }
               ],
               "allow": [
@@ -25620,12 +25761,29 @@
             },
             "slaDueAt": {
               "type": "date",
+              "flags": {
+                "format": "iso"
+              },
               "allow": [
                 null
               ]
             },
             "eta": {
               "type": "string",
+              "rules": [
+                {
+                  "name": "trim",
+                  "args": {
+                    "enabled": true
+                  }
+                },
+                {
+                  "name": "max",
+                  "args": {
+                    "limit": 80
+                  }
+                }
+              ],
               "allow": [
                 "",
                 null
@@ -25633,6 +25791,20 @@
             },
             "instructions": {
               "type": "string",
+              "rules": [
+                {
+                  "name": "trim",
+                  "args": {
+                    "enabled": true
+                  }
+                },
+                {
+                  "name": "max",
+                  "args": {
+                    "limit": 5000
+                  }
+                }
+              ],
               "allow": [
                 "",
                 null
@@ -25672,9 +25844,6 @@
       "validation": {
         "body": {
           "type": "object",
-          "flags": {
-            "unknown": true
-          },
           "keys": {
             "rating": {
               "type": "number",
@@ -25701,6 +25870,20 @@
             },
             "comment": {
               "type": "string",
+              "rules": [
+                {
+                  "name": "trim",
+                  "args": {
+                    "enabled": true
+                  }
+                },
+                {
+                  "name": "max",
+                  "args": {
+                    "limit": 2000
+                  }
+                }
+              ],
               "allow": [
                 "",
                 null
@@ -25713,7 +25896,21 @@
               ],
               "items": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "rules": [
+                    {
+                      "name": "trim",
+                      "args": {
+                        "enabled": true
+                      }
+                    },
+                    {
+                      "name": "max",
+                      "args": {
+                        "limit": 50
+                      }
+                    }
+                  ]
                 }
               ]
             }
@@ -25751,12 +25948,23 @@
       "validation": {
         "body": {
           "type": "object",
-          "flags": {
-            "unknown": true
-          },
           "keys": {
             "reason": {
               "type": "string",
+              "rules": [
+                {
+                  "name": "trim",
+                  "args": {
+                    "enabled": true
+                  }
+                },
+                {
+                  "name": "max",
+                  "args": {
+                    "limit": 1000
+                  }
+                }
+              ],
               "allow": [
                 "",
                 null
@@ -25799,9 +26007,6 @@
       "validation": {
         "body": {
           "type": "object",
-          "flags": {
-            "unknown": true
-          },
           "keys": {
             "status": {
               "type": "string",
@@ -25828,6 +26033,20 @@
             },
             "resolutionNotes": {
               "type": "string",
+              "rules": [
+                {
+                  "name": "trim",
+                  "args": {
+                    "enabled": true
+                  }
+                },
+                {
+                  "name": "max",
+                  "args": {
+                    "limit": 5000
+                  }
+                }
+              ],
               "allow": [
                 "",
                 null
@@ -25835,6 +26054,20 @@
             },
             "resolution_notes": {
               "type": "string",
+              "rules": [
+                {
+                  "name": "trim",
+                  "args": {
+                    "enabled": true
+                  }
+                },
+                {
+                  "name": "max",
+                  "args": {
+                    "limit": 5000
+                  }
+                }
+              ],
               "allow": [
                 "",
                 null
@@ -25842,6 +26075,20 @@
             },
             "notes": {
               "type": "string",
+              "rules": [
+                {
+                  "name": "trim",
+                  "args": {
+                    "enabled": true
+                  }
+                },
+                {
+                  "name": "max",
+                  "args": {
+                    "limit": 5000
+                  }
+                }
+              ],
               "allow": [
                 "",
                 null
@@ -25862,6 +26109,257 @@
       },
       "responseHelpers": [
         "success"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/work-orders/dispatch",
+      "routeSource": "backend/src/modules/work-orders/workOrder.routes.js",
+      "authenticated": true,
+      "optionalAuth": false,
+      "tenantScoped": true,
+      "accessGate": false,
+      "permissionGuards": [
+        {
+          "mode": "all",
+          "permissions": [
+            "work_orders.assign"
+          ]
+        }
+      ],
+      "validation": {
+        "body": {
+          "type": "object",
+          "dependencies": [
+            {
+              "rel": "or",
+              "peers": [
+                "slaDueAt",
+                "slaHours"
+              ]
+            }
+          ],
+          "keys": {
+            "organizationId": {
+              "type": "number",
+              "flags": {
+                "presence": "required"
+              },
+              "rules": [
+                {
+                  "name": "integer"
+                },
+                {
+                  "name": "sign",
+                  "args": {
+                    "sign": "positive"
+                  }
+                }
+              ]
+            },
+            "fleetId": {
+              "type": "number",
+              "rules": [
+                {
+                  "name": "integer"
+                },
+                {
+                  "name": "sign",
+                  "args": {
+                    "sign": "positive"
+                  }
+                }
+              ],
+              "allow": [
+                null
+              ]
+            },
+            "vehicleId": {
+              "type": "number",
+              "flags": {
+                "presence": "required"
+              },
+              "rules": [
+                {
+                  "name": "integer"
+                },
+                {
+                  "name": "sign",
+                  "args": {
+                    "sign": "positive"
+                  }
+                }
+              ]
+            },
+            "issueCategory": {
+              "type": "string",
+              "flags": {
+                "presence": "required"
+              },
+              "rules": [
+                {
+                  "name": "trim",
+                  "args": {
+                    "enabled": true
+                  }
+                },
+                {
+                  "name": "max",
+                  "args": {
+                    "limit": 160
+                  }
+                }
+              ]
+            },
+            "urgency": {
+              "type": "string",
+              "flags": {
+                "only": true,
+                "default": "normal"
+              },
+              "allow": [
+                "critical",
+                "high",
+                "normal",
+                "low",
+                "Critical",
+                "High",
+                "Normal",
+                "Low"
+              ]
+            },
+            "description": {
+              "type": "string",
+              "flags": {
+                "default": null
+              },
+              "rules": [
+                {
+                  "name": "trim",
+                  "args": {
+                    "enabled": true
+                  }
+                },
+                {
+                  "name": "max",
+                  "args": {
+                    "limit": 5000
+                  }
+                }
+              ],
+              "allow": [
+                "",
+                null
+              ]
+            },
+            "instructions": {
+              "type": "string",
+              "flags": {
+                "default": null
+              },
+              "rules": [
+                {
+                  "name": "trim",
+                  "args": {
+                    "enabled": true
+                  }
+                },
+                {
+                  "name": "max",
+                  "args": {
+                    "limit": 5000
+                  }
+                }
+              ],
+              "allow": [
+                "",
+                null
+              ]
+            },
+            "technicianId": {
+              "type": "number",
+              "flags": {
+                "presence": "required"
+              },
+              "rules": [
+                {
+                  "name": "integer"
+                },
+                {
+                  "name": "sign",
+                  "args": {
+                    "sign": "positive"
+                  }
+                }
+              ]
+            },
+            "slaDueAt": {
+              "type": "date",
+              "flags": {
+                "format": "iso"
+              },
+              "allow": [
+                null
+              ]
+            },
+            "slaHours": {
+              "type": "number",
+              "rules": [
+                {
+                  "name": "integer"
+                },
+                {
+                  "name": "min",
+                  "args": {
+                    "limit": 1
+                  }
+                },
+                {
+                  "name": "max",
+                  "args": {
+                    "limit": 720
+                  }
+                }
+              ],
+              "allow": [
+                null
+              ]
+            },
+            "eta": {
+              "type": "string",
+              "flags": {
+                "default": null
+              },
+              "rules": [
+                {
+                  "name": "trim",
+                  "args": {
+                    "enabled": true
+                  }
+                },
+                {
+                  "name": "max",
+                  "args": {
+                    "limit": 80
+                  }
+                }
+              ],
+              "allow": [
+                "",
+                null
+              ]
+            }
+          }
+        }
+      },
+      "handler": "backend/src/modules/work-orders/workOrder.controller.js.dispatch",
+      "observedInputs": {
+        "body": [],
+        "query": [],
+        "params": []
+      },
+      "responseHelpers": [
+        "created"
       ]
     },
     {

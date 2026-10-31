@@ -178,6 +178,15 @@ class FleetOpDrawer extends StatelessWidget {
                     },
                   ),
                   _buildDrawerItem(
+                    icon: Icons.calendar_month_rounded,
+                    title: 'Vehicle Slots & Timetables',
+                    color: Colors.cyanAccent,
+                    onTap: () {
+                      Get.back();
+                      Get.toNamed(Routes.FLEET_VEHICLE_SLOTS);
+                    },
+                  ),
+                  _buildDrawerItem(
                     icon: Icons.memory_rounded,
                     title: 'GPS / Edge Tracking Units',
                     color: Colors.orangeAccent,

@@ -611,4 +611,14 @@ class TechnicianService extends GetxService {
       requiresAuth: true,
     );
   }
+
+  /// POST /work-orders/dispatch
+  /// Atomic create + assign work order with SLA & technician
+  Future<ApiResponseModel<dynamic>> dispatchWorkOrder(Map<String, dynamic> data) async {
+    return _http.post(
+      ApiConstants.workOrdersDispatch,
+      body: data,
+      requiresAuth: true,
+    );
+  }
 }
