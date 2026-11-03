@@ -247,6 +247,12 @@ class ApiConstants {
   static const String billingCronCheckExpiries = '/billing/cron/check-expiries';
   static String webhookGateway(String gateway) => '/webhooks/$gateway';
 
+  // Platform Users & Personnel Governance (SuperAdmin Scope)
+  static const String users = '/users';
+  static String userOne(String id) => '/users/$id';
+  static String userStatus(String id) => '/users/$id/status';
+  static String userPermissions(String id) => '/users/$id/permissions';
+
   // Campaigns & Advertiser Endpoints
   static const String campaigns = '/campaigns';
   static String campaignOne(String id) => '/campaigns/$id';

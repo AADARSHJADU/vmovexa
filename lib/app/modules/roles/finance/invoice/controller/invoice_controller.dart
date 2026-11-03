@@ -200,6 +200,7 @@ class InvoiceController extends GetxController {
   }
 
   void onInvoiceTap(InvoiceModel invoice) {
+    FinanceService.to.getInvoice(invoice.id);
     Get.bottomSheet(
       Container(
         padding: const EdgeInsets.all(20),

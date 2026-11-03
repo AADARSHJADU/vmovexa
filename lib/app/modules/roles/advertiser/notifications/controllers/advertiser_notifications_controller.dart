@@ -9,7 +9,8 @@ class AdvertiserNotificationItem {
   final String title;
   final String desc;
   final String category; // 'Campaigns' | 'Payments' | 'System'
-  final String icon; // 'check' | 'live' | 'payment' | 'invoice' | 'alert' | 'report' | 'complete'
+  final String
+  icon; // 'check' | 'live' | 'payment' | 'invoice' | 'alert' | 'report' | 'complete'
   final String time;
   final RxBool isRead;
   final DateTime? createdAt;
@@ -30,7 +31,8 @@ class AdvertiserNotificationsController extends GetxController {
   final AdvertiserService _service = AdvertiserService.to;
 
   // Master observable lists
-  final RxList<AdvertiserNotificationItem> allNotifications = <AdvertiserNotificationItem>[].obs;
+  final RxList<AdvertiserNotificationItem> allNotifications =
+      <AdvertiserNotificationItem>[].obs;
   final RxBool isLoading = false.obs;
 
   // Filter Tabs: 'All' | 'Campaigns' | 'Payments' | 'System'
@@ -52,9 +54,12 @@ class AdvertiserNotificationsController extends GetxController {
   // --- Dynamic Tab Counts ---
   int get allCount => allNotifications.length;
   int get unreadCount => allNotifications.where((n) => !n.isRead.value).length;
-  int get campaignsCount => allNotifications.where((n) => n.category == 'Campaigns').length;
-  int get paymentsCount => allNotifications.where((n) => n.category == 'Payments').length;
-  int get systemCount => allNotifications.where((n) => n.category == 'System').length;
+  int get campaignsCount =>
+      allNotifications.where((n) => n.category == 'Campaigns').length;
+  int get paymentsCount =>
+      allNotifications.where((n) => n.category == 'Payments').length;
+  int get systemCount =>
+      allNotifications.where((n) => n.category == 'System').length;
 
   // --- Filtered and Paginated Items ---
   List<AdvertiserNotificationItem> get filteredNotifications {
@@ -63,14 +68,16 @@ class AdvertiserNotificationsController extends GetxController {
 
     return allNotifications.where((n) {
       final matchesTab = tab == 'All' || n.category == tab;
-      final matchesSearch = q.isEmpty ||
+      final matchesSearch =
+          q.isEmpty ||
           n.title.toLowerCase().contains(q) ||
           n.desc.toLowerCase().contains(q);
       return matchesTab && matchesSearch;
     }).toList();
   }
 
-  int get totalPages => max(1, (filteredNotifications.length / pageSize).ceil());
+  int get totalPages =>
+      max(1, (filteredNotifications.length / pageSize).ceil());
 
   List<AdvertiserNotificationItem> get paginatedNotifications {
     final filtered = filteredNotifications;
@@ -124,12 +131,12 @@ class AdvertiserNotificationsController extends GetxController {
         allNotifications.assignAll(items);
       } else {
         // Fallback demo items if backend user has 0 notifications yet
-        allNotifications.assignAll(_getDefaultDemoNotifications());
+        // allNotifications.assignAll(_getDefaultDemoNotifications());
       }
     } catch (e) {
       debugPrint('[AdvertiserNotifications] Error loading: $e');
       if (allNotifications.isEmpty) {
-        allNotifications.assignAll(_getDefaultDemoNotifications());
+        // allNotifications.assignAll(_getDefaultDemoNotifications());
       }
     } finally {
       isLoading.value = false;
@@ -243,8 +250,10 @@ class AdvertiserNotificationsController extends GetxController {
     if (t.contains('live') || t.contains('broadcasting')) return 'live';
     if (t.contains('approved') || t.contains('verified')) return 'check';
     if (t.contains('payment') || t.contains('wallet')) return 'payment';
-    if (t.contains('invoice') || t.contains('tax') || t.contains('gst')) return 'invoice';
-    if (t.contains('report') || t.contains('audit') || t.contains('analytics')) return 'report';
+    if (t.contains('invoice') || t.contains('tax') || t.contains('gst'))
+      return 'invoice';
+    if (t.contains('report') || t.contains('audit') || t.contains('analytics'))
+      return 'report';
     if (t.contains('completed') || t.contains('concluded')) return 'complete';
     return 'alert';
   }
@@ -254,7 +263,8 @@ class AdvertiserNotificationsController extends GetxController {
       AdvertiserNotificationItem(
         id: 'NOTIF-001',
         title: 'Campaign Creative Approved',
-        desc: 'Your 16:9 creative asset for "Metro Festive Flash 2026" has been verified and scheduled.',
+        desc:
+            'Your 16:9 creative asset for "Metro Festive Flash 2026" has been verified and scheduled.',
         category: 'Campaigns',
         icon: 'check',
         time: 'Just now',
@@ -263,7 +273,8 @@ class AdvertiserNotificationsController extends GetxController {
       AdvertiserNotificationItem(
         id: 'NOTIF-002',
         title: 'Campaign Live On Transit Displays',
-        desc: '32 buses on Corridor 4 have synchronized creative playback with active GPS telemetry.',
+        desc:
+            '32 buses on Corridor 4 have synchronized creative playback with active GPS telemetry.',
         category: 'Campaigns',
         icon: 'live',
         time: '2 hours ago',
@@ -272,7 +283,8 @@ class AdvertiserNotificationsController extends GetxController {
       AdvertiserNotificationItem(
         id: 'NOTIF-003',
         title: 'Tax Invoice Generated',
-        desc: 'GST tax invoice #INV-ADV-2026-0014 for ₹12,500 is ready for PDF download.',
+        desc:
+            'GST tax invoice #INV-ADV-2026-0014 for ₹12,500 is ready for PDF download.',
         category: 'Payments',
         icon: 'invoice',
         time: 'Yesterday',
@@ -281,7 +293,8 @@ class AdvertiserNotificationsController extends GetxController {
       AdvertiserNotificationItem(
         id: 'NOTIF-004',
         title: 'Proof-of-Play Audit Ready',
-        desc: 'Daily impression delivery report with 14,280 passenger impressions compiled.',
+        desc:
+            'Daily impression delivery report with 14,280 passenger impressions compiled.',
         category: 'Campaigns',
         icon: 'report',
         time: 'Yesterday',
@@ -290,7 +303,8 @@ class AdvertiserNotificationsController extends GetxController {
       AdvertiserNotificationItem(
         id: 'NOTIF-005',
         title: 'Wallet Auto-Debit Cleared',
-        desc: 'Daily campaign flight charge of ₹2,500 successfully deducted from advertiser balance.',
+        desc:
+            'Daily campaign flight charge of ₹2,500 successfully deducted from advertiser balance.',
         category: 'Payments',
         icon: 'payment',
         time: '2 days ago',
@@ -299,7 +313,8 @@ class AdvertiserNotificationsController extends GetxController {
       AdvertiserNotificationItem(
         id: 'NOTIF-006',
         title: 'System Security Verification',
-        desc: 'Your advertiser account security preferences were updated successfully.',
+        desc:
+            'Your advertiser account security preferences were updated successfully.',
         category: 'System',
         icon: 'alert',
         time: '3 days ago',
@@ -308,4 +323,3 @@ class AdvertiserNotificationsController extends GetxController {
     ];
   }
 }
-

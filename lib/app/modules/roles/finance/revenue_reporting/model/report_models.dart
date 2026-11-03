@@ -56,6 +56,7 @@ class ReportTypeOption {
   final IconData icon;
   final Color color;
   final Color bgColor;
+  final String badge;
 
   const ReportTypeOption({
     required this.id,
@@ -64,6 +65,7 @@ class ReportTypeOption {
     required this.icon,
     required this.color,
     required this.bgColor,
+    this.badge = '',
   });
 }
 
@@ -76,6 +78,11 @@ class RecentReport {
   final ReportFormat format;
   final String fileSizeText;
   final String? content;
+  final String reportType;
+  final String badge;
+  final String? fileUrl;
+  final double totalBilled;
+  final double pendingDues;
   final double totalRevenue;
   final double subRevenue;
   final double campaignRevenue;
@@ -91,6 +98,11 @@ class RecentReport {
     required this.format,
     required this.fileSizeText,
     this.content,
+    this.reportType = 'campaign_revenue',
+    this.badge = 'Ad Spend',
+    this.fileUrl,
+    this.totalBilled = 0.0,
+    this.pendingDues = 0.0,
     this.totalRevenue = 0.0,
     this.subRevenue = 0.0,
     this.campaignRevenue = 0.0,
@@ -101,16 +113,37 @@ class RecentReport {
 
   factory RecentReport.fromJson(Map<String, dynamic> json) {
     final id = (json['id'] ?? json['_id'] ?? 'REP-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}').toString();
-    final title = (json['title'] ?? json['name'] ?? 'Financial Statement').toString();
-    final period = (json['period'] ?? '—').toString();
+
+    // Parse params if nested
+    Map<String, dynamic> params = {};
+    if (json['params'] is Map) {
+      params = Map<String, dynamic>.from(json['params']);
+    }
+
+    final repType = (json['report_type'] ?? params['reportType'] ?? 'campaign_revenue').toString();
+    final title = (params['title'] ?? json['title'] ?? json['name'] ?? 'Financial Statement').toString();
+    final period = (params['period'] ?? json['period'] ?? '—').toString();
     final dateText = json['created_at'] != null
         ? json['created_at'].toString().split('T').first
         : (json['generatedOn'] ?? json['dateText'] ?? '—').toString();
     final fileSizeText = (json['file_size'] ?? json['fileSize'] ?? json['fileSizeText'] ?? '24.8 KB').toString();
     final content = json['content']?.toString();
+    final fileUrl = json['file_url']?.toString();
+
+    // Determine badge from repType matching Admin Panel
+    String badge = 'Ad Spend';
+    if (repType == 'subscription_revenue') {
+      badge = 'Recurring';
+    } else if (repType == 'gst_tax') {
+      badge = 'Tax / GST';
+    } else if (repType == 'overdue_dues') {
+      badge = 'Receivables';
+    }
 
     // Summary sub-object or top level
     final summaryMap = json['summary'] is Map ? Map<String, dynamic>.from(json['summary']) : json;
+    final totalBilled = double.tryParse((summaryMap['totalBilled'] ?? summaryMap['total_billed'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
+    final pendingDues = double.tryParse((summaryMap['pendingDues'] ?? summaryMap['pending_dues'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
     final totalRevenue = double.tryParse((summaryMap['totalRevenue'] ?? summaryMap['total_revenue'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
     final subRevenue = double.tryParse((summaryMap['subRevenue'] ?? summaryMap['sub_revenue'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
     final campaignRevenue = double.tryParse((summaryMap['campaignRevenue'] ?? summaryMap['campaign_revenue'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
@@ -126,6 +159,11 @@ class RecentReport {
       format: ReportFormat.csv,
       fileSizeText: fileSizeText,
       content: content,
+      reportType: repType,
+      badge: badge,
+      fileUrl: fileUrl,
+      totalBilled: totalBilled > 0 ? totalBilled : totalRevenue,
+      pendingDues: pendingDues,
       totalRevenue: totalRevenue,
       subRevenue: subRevenue,
       campaignRevenue: campaignRevenue,

@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:vmovexa/app/data/services/finance_service.dart';
 import 'package:vmovexa/app/routes/app_routes.dart';
@@ -20,30 +22,34 @@ class RevenueReportingController extends GetxController {
   final RxString endDate = ''.obs;
   final RxString activePreset = 'this_month'.obs;
 
-  // ---------------- Live KPIs ----------------
+  // ---------------- Live KPIs (Mirroring Admin Panel 1:1) ----------------
+  final RxDouble totalBilled = 0.0.obs;
   final RxDouble totalRevenue = 0.0.obs;
   final RxDouble subRevenue = 0.0.obs;
   final RxDouble campaignRevenue = 0.0.obs;
   final RxDouble taxTotal = 0.0.obs;
+  final RxDouble pendingDues = 0.0.obs;
   final RxInt activeSubs = 0.obs;
   final RxInt activeCampaigns = 0.obs;
 
-  // ---------------- Report Type Selection ----------------
+  // ---------------- Report Type Selection (Frontend 1:1) ----------------
   final RxString selectedReportType = 'campaign_revenue'.obs;
 
   final List<ReportTypeOption> reportTypes = const [
     ReportTypeOption(
       id: 'campaign_revenue',
-      label: 'Campaign Revenue',
-      desc: 'Total ad spend, payments collected & impressions delivered',
+      label: 'Campaign Ad Revenue',
+      badge: 'Ad Spend',
+      desc: 'Ad spend collections, impression ledger & advertiser invoicing',
       icon: Icons.analytics_outlined,
       color: Color(0xFF3B82F6),
       bgColor: Color(0xFF1E3A8A),
     ),
     ReportTypeOption(
       id: 'subscription_revenue',
-      label: 'Subscription Revenue',
-      desc: 'Active SaaS plans, MRR & billing cycle summary',
+      label: 'SaaS Subscription MRR',
+      badge: 'Recurring',
+      desc: 'Fleet operator recurring plans, license fees & renewal billings',
       icon: Icons.sync_rounded,
       color: Color(0xFF6366F1),
       bgColor: Color(0xFF312E81),
@@ -51,7 +57,8 @@ class RevenueReportingController extends GetxController {
     ReportTypeOption(
       id: 'gst_tax',
       label: 'GST & Tax Statement',
-      desc: 'CGST / SGST / IGST breakup for GST return filing',
+      badge: 'Tax / GST',
+      desc: 'CGST, SGST, IGST tax breakdown for audit & GSTR filing',
       icon: Icons.receipt_long_outlined,
       color: Color(0xFF10B981),
       bgColor: Color(0xFF064E3B),
@@ -59,17 +66,27 @@ class RevenueReportingController extends GetxController {
     ReportTypeOption(
       id: 'overdue_dues',
       label: 'Overdue Receivables',
-      desc: 'Clients & tenants with unpaid / overdue invoices',
+      badge: 'Receivables',
+      desc: 'Outstanding client invoices & pending tenant balances',
       icon: Icons.warning_amber_rounded,
       color: Color(0xFFF59E0B),
       bgColor: Color(0xFF78350F),
     ),
   ];
 
-  // ---------------- Archive & Search ----------------
+  // ---------------- Archive, Category Filter & Search (Frontend 1:1) ----------------
   final RxList<RecentReport> archiveReports = <RecentReport>[].obs;
   final TextEditingController searchController = TextEditingController();
   final RxString archiveSearch = ''.obs;
+  final RxString selectedCategoryFilter = 'all'.obs;
+
+  final List<Map<String, String>> categoryFilterOptions = const [
+    {'id': 'all', 'label': 'All Categories'},
+    {'id': 'campaign_revenue', 'label': 'Campaign Ad Revenue'},
+    {'id': 'subscription_revenue', 'label': 'SaaS Subscription MRR'},
+    {'id': 'gst_tax', 'label': 'GST Tax Audit'},
+    {'id': 'overdue_dues', 'label': 'Overdue Receivables'},
+  ];
 
   // ---------------- Last Generated Report ----------------
   final Rx<RecentReport?> generatedReport = Rx<RecentReport?>(null);
@@ -111,6 +128,10 @@ class RevenueReportingController extends GetxController {
         startDate.value = DateFormat('yyyy-MM-dd').format(DateTime(now.year, 1, 1));
         endDate.value = todayStr;
         break;
+      case 'all':
+        startDate.value = '2024-01-01';
+        endDate.value = todayStr;
+        break;
     }
     loadReportSummary();
   }
@@ -132,7 +153,7 @@ class RevenueReportingController extends GetxController {
             surface: Color(0xFF1E293B),
             onSurface: Colors.white,
           ),
-          dialogBackgroundColor: const Color(0xFF0F172A),
+          dialogTheme: const DialogThemeData(backgroundColor: Color(0xFF0F172A)),
         ),
         child: child!,
       ),
@@ -171,10 +192,14 @@ class RevenueReportingController extends GetxController {
       );
       if (res.success && res.data != null) {
         final d = res.data!;
-        totalRevenue.value = double.tryParse((d['totalRevenue'] ?? d['total_revenue'] ?? 0).toString().replaceAll(',', '')) ?? 0.0;
-        subRevenue.value = double.tryParse((d['subRevenue'] ?? d['sub_revenue'] ?? 0).toString().replaceAll(',', '')) ?? 0.0;
-        campaignRevenue.value = double.tryParse((d['campaignRevenue'] ?? d['campaign_revenue'] ?? 0).toString().replaceAll(',', '')) ?? 0.0;
-        taxTotal.value = double.tryParse((d['taxTotal'] ?? d['tax_total'] ?? 0).toString().replaceAll(',', '')) ?? 0.0;
+        final billed = double.tryParse((d['totalBilled'] ?? d['total_billed'] ?? d['gross_invoiced'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
+        final dues = double.tryParse((d['pendingDues'] ?? d['pending_dues'] ?? d['outstanding_receivables'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
+        totalRevenue.value = double.tryParse((d['totalRevenue'] ?? d['total_revenue'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
+        totalBilled.value = billed > 0 ? billed : totalRevenue.value;
+        pendingDues.value = dues;
+        subRevenue.value = double.tryParse((d['subRevenue'] ?? d['sub_revenue'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
+        campaignRevenue.value = double.tryParse((d['campaignRevenue'] ?? d['campaign_revenue'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
+        taxTotal.value = double.tryParse((d['taxTotal'] ?? d['tax_total'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
         activeSubs.value = int.tryParse((d['activeSubs'] ?? d['active_subscriptions'] ?? 0).toString()) ?? 0;
         activeCampaigns.value = int.tryParse((d['activeCampaigns'] ?? d['active_campaigns'] ?? 0).toString()) ?? 0;
       }
@@ -212,43 +237,57 @@ class RevenueReportingController extends GetxController {
     archiveReports.assignAll([
       RecentReport(
         id: 'REP-1042',
-        title: 'Campaign Revenue Statement',
+        title: 'Campaign Ad Revenue Statement',
+        reportType: 'campaign_revenue',
+        badge: 'Ad Spend',
         period: '01 Oct 2026 → 27 Oct 2026',
         dateText: '27 Oct 2026',
         format: ReportFormat.csv,
         fileSizeText: '24.8 KB',
+        totalBilled: 24850000.0,
         totalRevenue: 24850000.0,
         subRevenue: 4850000.0,
         campaignRevenue: 20000000.0,
         taxTotal: 873000.0,
+        pendingDues: 0.0,
         activeSubs: 22,
         activeCampaigns: 15,
       ),
       RecentReport(
         id: 'REP-1041',
         title: 'GST & Tax Compliance Report',
+        reportType: 'gst_tax',
+        badge: 'Tax / GST',
         period: '01 Sep 2026 → 30 Sep 2026',
         dateText: '30 Sep 2026',
         format: ReportFormat.csv,
         fileSizeText: '32.1 KB',
+        totalBilled: 19800000.0,
         totalRevenue: 19800000.0,
         subRevenue: 4200000.0,
         campaignRevenue: 15600000.0,
         taxTotal: 712000.0,
+        pendingDues: 120000.0,
         activeSubs: 20,
         activeCampaigns: 12,
       ),
     ]);
   }
 
-  /// Filtered reports getter
+  /// Filtered reports getter (with Category filter & Search query matching Frontend)
   List<RecentReport> get filteredReports {
     final query = archiveSearch.value.trim().toLowerCase();
-    if (query.isEmpty) return archiveReports;
+    final catFilter = selectedCategoryFilter.value;
+
     return archiveReports.where((r) {
-      return r.title.toLowerCase().contains(query) ||
+      final matchesSearch = query.isEmpty ||
+          r.title.toLowerCase().contains(query) ||
           r.id.toLowerCase().contains(query) ||
           r.period.toLowerCase().contains(query);
+
+      final matchesCat = catFilter == 'all' || r.reportType == catFilter;
+
+      return matchesSearch && matchesCat;
     }).toList();
   }
 
@@ -264,30 +303,38 @@ class RevenueReportingController extends GetxController {
 
     try {
       final payload = {
-        'reportType': 'revenue',
+        'reportType': selectedReportType.value,
+        'format': 'csv',
         'params': {
           'title': autoTitle,
           'period': periodText,
           'reportType': selectedReportType.value,
           'startDate': startDate.value,
           'endDate': endDate.value,
+          'format': 'csv',
         },
       };
 
       final res = await FinanceService.to.generateReport(payload);
       final reportId = (res.data?['id'] ?? 'REP-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}').toString();
+      final fileUrl = res.data?['file_url']?.toString();
 
       final newReport = RecentReport(
         id: reportId,
         title: autoTitle,
+        reportType: selectedReportType.value,
+        badge: typeOption.badge,
         period: periodText,
         dateText: DateFormat('dd MMM yyyy').format(DateTime.now()),
         format: ReportFormat.csv,
         fileSizeText: '26.4 KB',
+        fileUrl: fileUrl,
+        totalBilled: totalBilled.value,
         totalRevenue: totalRevenue.value,
         subRevenue: subRevenue.value,
         campaignRevenue: campaignRevenue.value,
         taxTotal: taxTotal.value,
+        pendingDues: pendingDues.value,
         activeSubs: activeSubs.value,
         activeCampaigns: activeCampaigns.value,
       );
@@ -295,47 +342,140 @@ class RevenueReportingController extends GetxController {
       generatedReport.value = newReport;
       archiveReports.insert(0, newReport);
 
+      // Save to device storage as well
+      await downloadReportCsv(newReport);
+
       Get.to(() => const ReportGeneratedView());
-      Get.snackbar(
-        'Report Compiled',
-        'Financial report generated successfully!',
-        backgroundColor: const Color(0xFF10B981),
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-      );
     } catch (_) {
       // In case server generation response falls back, create client instance
       final newReport = RecentReport(
         id: 'REP-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
         title: autoTitle,
+        reportType: selectedReportType.value,
+        badge: typeOption.badge,
         period: periodText,
         dateText: DateFormat('dd MMM yyyy').format(DateTime.now()),
         format: ReportFormat.csv,
         fileSizeText: '26.4 KB',
+        totalBilled: totalBilled.value,
         totalRevenue: totalRevenue.value,
         subRevenue: subRevenue.value,
         campaignRevenue: campaignRevenue.value,
         taxTotal: taxTotal.value,
+        pendingDues: pendingDues.value,
         activeSubs: activeSubs.value,
         activeCampaigns: activeCampaigns.value,
       );
 
       generatedReport.value = newReport;
       archiveReports.insert(0, newReport);
+
+      await downloadReportCsv(newReport);
+
       Get.to(() => const ReportGeneratedView());
     } finally {
       isGenerating.value = false;
     }
   }
 
-  /// Download / Export CSV Functionality matching Admin Panel
-  void downloadReportCsv(RecentReport report) {
-    final currencyFormatter = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 2);
-    final csvContent = report.content ??
-        'Report ID,Title,Period,Total Revenue,Subscription Revenue,Campaign Revenue,Total Tax,Active Subscriptions,Active Campaigns,Generated On\n'
-        '"${report.id}","${report.title}","${report.period}","${currencyFormatter.format(report.totalRevenue)}","${currencyFormatter.format(report.subRevenue)}","${currencyFormatter.format(report.campaignRevenue)}","${currencyFormatter.format(report.taxTotal)}","${report.activeSubs}","${report.activeCampaigns}","${report.dateText}"\n';
+  /// Real CSV Download & Mobile Device Storage Saver
+  Future<void> downloadReportCsv(RecentReport report) async {
+    isGenerating.value = true;
+    try {
+      // 1. Fetch fresh report record if available
+      String? resolvedContent = report.content;
+      String? remoteFileUrl = report.fileUrl;
 
-    Clipboard.setData(ClipboardData(text: csvContent));
+      try {
+        final res = await FinanceService.to.getReport(report.id);
+        if (res.success && res.data != null) {
+          final d = res.data!;
+          resolvedContent = (d['content'] ?? d['csv'] ?? d['csv_content'] ?? resolvedContent)?.toString();
+          if (d['file_url'] != null) {
+            remoteFileUrl = d['file_url'].toString();
+          }
+        }
+      } catch (_) {}
+
+      // 2. Generate standard CSV content if not provided
+      final currencyFormatter = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 2);
+      final csvContent = resolvedContent ??
+          'Title,Period,Report Type,Total Billed,Total Revenue,Total Tax,Pending Dues\n'
+          '"${report.title}","${report.period}","${report.reportType}","${currencyFormatter.format(report.totalBilled)}","${currencyFormatter.format(report.totalRevenue)}","${currencyFormatter.format(report.taxTotal)}","${currencyFormatter.format(report.pendingDues)}"\n';
+
+      // 3. Write file directly to phone storage (/storage/emulated/0/Download)
+      final savedPath = await _saveReportToDevice(report, csvContent, remoteFileUrl: remoteFileUrl);
+
+      // 4. Show success BottomSheet with path and actions
+      _showDownloadSuccessSheet(report, savedPath, csvContent);
+    } catch (e) {
+      Get.snackbar(
+        'Download Error',
+        'Could not save report to device: $e',
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isGenerating.value = false;
+    }
+  }
+
+  /// Writes report directly to Android public Downloads directory (/storage/emulated/0/Download)
+  Future<String> _saveReportToDevice(RecentReport report, String csvContent, {String? remoteFileUrl}) async {
+    final cleanId = report.id.replaceAll('#', '').replaceAll(' ', '_');
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final fileName = 'VMOVEXA_Report_${cleanId}_$timestamp.csv';
+
+    // If server provides a file_url, try downloading directly
+    List<int>? fileBytes;
+    if (remoteFileUrl != null && remoteFileUrl.isNotEmpty) {
+      try {
+        String fullUrl = remoteFileUrl;
+        if (!fullUrl.startsWith('http')) {
+          fullUrl = 'https://api.vmovexa.com$remoteFileUrl';
+        }
+        final resp = await http.get(Uri.parse(fullUrl));
+        if (resp.statusCode == 200) {
+          fileBytes = resp.bodyBytes;
+        }
+      } catch (_) {}
+    }
+
+    // 1. Try Android Public Download folder
+    try {
+      final downloadDir = Directory('/storage/emulated/0/Download');
+      if (await downloadDir.exists()) {
+        final targetFile = File('${downloadDir.path}/$fileName');
+        if (fileBytes != null) {
+          await targetFile.writeAsBytes(fileBytes);
+        } else {
+          await targetFile.writeAsString(csvContent);
+        }
+        return targetFile.path;
+      }
+    } catch (_) {}
+
+    // 2. Try System Temp / Application Documents fallback
+    try {
+      final tempDir = Directory.systemTemp;
+      final targetFile = File('${tempDir.path}/$fileName');
+      if (fileBytes != null) {
+        await targetFile.writeAsBytes(fileBytes);
+      } else {
+        await targetFile.writeAsString(csvContent);
+      }
+      return targetFile.path;
+    } catch (e) {
+      debugPrint('Fallback storage write error: $e');
+    }
+
+    return fileName;
+  }
+
+  /// Displays download completion bottom sheet with file path
+  void _showDownloadSuccessSheet(RecentReport report, String filePath, String csvContent) {
+    Clipboard.setData(ClipboardData(text: filePath));
 
     Get.bottomSheet(
       Container(
@@ -343,6 +483,7 @@ class RevenueReportingController extends GetxController {
         decoration: const BoxDecoration(
           color: Color(0xFF181827),
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          border: Border(top: BorderSide(color: Color(0xFF28283E))),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -351,24 +492,25 @@ class RevenueReportingController extends GetxController {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF3B82F6).withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(10),
+                    color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.table_chart_rounded, color: Color(0xFF60A5FA), size: 20),
+                  child: const Icon(Icons.download_done_rounded, color: Color(0xFF10B981), size: 24),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'CSV Download & Export Ready',
-                        style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                        'CSV Downloaded & Saved',
+                        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                       ),
+                      const SizedBox(height: 2),
                       Text(
-                        '${report.title} (${report.fileSizeText})',
+                        report.title,
                         style: const TextStyle(color: Colors.white54, fontSize: 11),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -377,21 +519,32 @@ class RevenueReportingController extends GetxController {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            const Divider(color: Color(0xFF28283E)),
-            const SizedBox(height: 12),
+            const SizedBox(height: 18),
+            const Text(
+              'File saved to device storage:',
+              style: TextStyle(color: Colors.white54, fontSize: 11, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 6),
             Container(
+              width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: const Color(0xFF0F0F1A),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: const Color(0xFF28283E)),
               ),
-              child: Text(
-                csvContent.trim(),
-                style: const TextStyle(color: Colors.white70, fontSize: 11, fontFamily: 'monospace'),
-                maxLines: 5,
-                overflow: TextOverflow.ellipsis,
+              child: Row(
+                children: [
+                  const Icon(Icons.insert_drive_file_outlined, color: Color(0xFF60A5FA), size: 16),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      filePath,
+                      style: const TextStyle(color: Color(0xFF93C5FD), fontSize: 11, fontFamily: 'monospace'),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 18),
@@ -411,47 +564,34 @@ class RevenueReportingController extends GetxController {
                 const SizedBox(width: 10),
                 Expanded(
                   flex: 2,
-                  child:
-                  CustomButton(
-                    text:  'Save / Download CSV',
-                    onTap:(){
+                  child: CustomButton(
+                    text: 'Copy File Path',
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: filePath));
                       Get.back();
                       Get.snackbar(
-                        'CSV Downloaded',
-                        'Report data for "${report.title}" downloaded and copied to clipboard!',
+                        'Path Copied',
+                        'File path copied to clipboard.',
                         backgroundColor: const Color(0xFF10B981),
                         colorText: Colors.white,
                         snackPosition: SnackPosition.BOTTOM,
                       );
                     },
                   ),
-
-
-                  // ElevatedButton.icon(
-                  //   onPressed: () {
-                  //     Get.back();
-                  //     Get.snackbar(
-                  //       'CSV Downloaded',
-                  //       'Report data for "${report.title}" downloaded and copied to clipboard!',
-                  //       backgroundColor: const Color(0xFF10B981),
-                  //       colorText: Colors.white,
-                  //       snackPosition: SnackPosition.BOTTOM,
-                  //     );
-                  //   },
-                  //   icon: const Icon(Icons.download_rounded, color: Colors.white, size: 16),
-                  //   label: const Text('Save / Download CSV', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  //   style: ElevatedButton.styleFrom(
-                  //     backgroundColor: const Color(0xFF3B82F6),
-                  //     padding: const EdgeInsets.symmetric(vertical: 12),
-                  //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  //   ),
-                  // ),
                 ),
               ],
             ),
           ],
         ),
       ),
+    );
+
+    Get.snackbar(
+      'CSV Downloaded',
+      'Report "${report.title}" saved to device Downloads.',
+      backgroundColor: const Color(0xFF10B981),
+      colorText: Colors.white,
+      snackPosition: SnackPosition.BOTTOM,
     );
   }
 
@@ -466,7 +606,7 @@ class RevenueReportingController extends GetxController {
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: const Color(0xFFEF4444).withOpacity(0.2),
+                color: const Color(0xFFEF4444).withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(Icons.delete_forever_rounded, color: Color(0xFFEF4444), size: 20),

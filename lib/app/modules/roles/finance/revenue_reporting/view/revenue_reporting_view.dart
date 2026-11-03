@@ -158,7 +158,7 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF3B82F6).withOpacity(0.15),
+                  color: const Color(0xFF3B82F6).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(Icons.calendar_month_rounded, color: Color(0xFF60A5FA), size: 16),
@@ -237,7 +237,7 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
             ],
           ),
           const SizedBox(height: 12),
-          // 4 Quick Presets matching Admin Panel
+          // 5 Quick Presets matching Admin Panel
           Wrap(
             spacing: 8,
             runSpacing: 6,
@@ -246,6 +246,7 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
               _buildPresetChip('Last 30 Days', 'last_30'),
               _buildPresetChip('This Quarter', 'this_quarter'),
               _buildPresetChip('This Year', 'this_year'),
+              _buildPresetChip('All Time', 'all'),
             ],
           ),
         ],
@@ -292,7 +293,7 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
   }
 
   // ==========================================
-  // SECTION 2: 4 LIVE KPI CARDS
+  // SECTION 2: 4 LIVE KPI CARDS (Matching Admin Panel)
   // ==========================================
   Widget _build4LiveKpiCards(NumberFormat currencyFormatter) {
     return Obx(() {
@@ -307,37 +308,45 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
         childAspectRatio: 1.35,
         children: [
           _buildKpiCard(
-            icon: Icons.people_outline_rounded,
+            icon: Icons.receipt_long_rounded,
             iconColor: const Color(0xFF818CF8),
-            bgColor: const Color(0xFF312E81).withOpacity(0.3),
-            label: 'ACTIVE SUBSCRIPTIONS',
-            value: isLoading ? '...' : controller.activeSubs.value.toString(),
-            sub: '${currencyFormatter.format(controller.subRevenue.value)} SaaS',
-          ),
-          _buildKpiCard(
-            icon: Icons.campaign_rounded,
-            iconColor: const Color(0xFF60A5FA),
-            bgColor: const Color(0xFF1E3A8A).withOpacity(0.3),
-            label: 'CAMPAIGNS',
-            value: isLoading ? '...' : controller.activeCampaigns.value.toString(),
-            sub: '${currencyFormatter.format(controller.campaignRevenue.value)} ads',
+            bgColor: const Color(0xFF312E81).withValues(alpha: 0.3),
+            label: 'GROSS INVOICED',
+            value: isLoading
+                ? '...'
+                : currencyFormatter.format(
+                    controller.totalBilled.value > 0
+                        ? controller.totalBilled.value
+                        : controller.totalRevenue.value,
+                  ),
+            sub: 'Billed across period',
+            isMoney: true,
           ),
           _buildKpiCard(
             icon: Icons.payments_rounded,
             iconColor: const Color(0xFF34D399),
-            bgColor: const Color(0xFF064E3B).withOpacity(0.3),
-            label: 'TOTAL REVENUE',
+            bgColor: const Color(0xFF064E3B).withValues(alpha: 0.3),
+            label: 'REALIZED COLLECTIONS',
             value: isLoading ? '...' : currencyFormatter.format(controller.totalRevenue.value),
-            sub: 'Paid invoices collected',
+            sub: 'Settled & realized',
             isMoney: true,
           ),
           _buildKpiCard(
-            icon: Icons.receipt_long_rounded,
+            icon: Icons.account_balance_rounded,
             iconColor: const Color(0xFFFBBF24),
-            bgColor: const Color(0xFF78350F).withOpacity(0.3),
-            label: 'TOTAL TAX (GST)',
+            bgColor: const Color(0xFF78350F).withValues(alpha: 0.3),
+            label: 'TOTAL GST ACCRUED',
             value: isLoading ? '...' : currencyFormatter.format(controller.taxTotal.value),
-            sub: 'CGST + SGST total',
+            sub: 'CGST + SGST + IGST',
+            isMoney: true,
+          ),
+          _buildKpiCard(
+            icon: Icons.warning_amber_rounded,
+            iconColor: const Color(0xFFF87171),
+            bgColor: const Color(0xFF7F1D1D).withValues(alpha: 0.3),
+            label: 'OUTSTANDING RECEIVABLES',
+            value: isLoading ? '...' : currencyFormatter.format(controller.pendingDues.value),
+            sub: 'Unpaid invoices balance',
             isMoney: true,
           ),
         ],
@@ -439,7 +448,7 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: isSelected ? rt.bgColor.withOpacity(0.3) : const Color(0xFF181827),
+                    color: isSelected ? rt.bgColor.withValues(alpha: 0.3) : const Color(0xFF181827),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: isSelected ? rt.color : const Color(0xFF28283E),
@@ -451,7 +460,7 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: rt.color.withOpacity(0.2),
+                          color: rt.color.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(rt.icon, color: rt.color, size: 18),
@@ -461,13 +470,39 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              rt.label,
-                              style: TextStyle(
-                                color: isSelected ? Colors.white : Colors.white70,
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    rt.label,
+                                    style: TextStyle(
+                                      color: isSelected ? Colors.white : Colors.white70,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                if (rt.badge.isNotEmpty) ...[
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                                    decoration: BoxDecoration(
+                                      color: rt.color.withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      rt.badge,
+                                      style: TextStyle(
+                                        color: rt.color,
+                                        fontSize: 9.5,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
                             const SizedBox(height: 2),
                             Text(
@@ -582,6 +617,41 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
             ),
           ),
+          const SizedBox(height: 10),
+          // Category Filter Horizontal Chips
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Obx(() => Row(
+              children: controller.categoryFilterOptions.map((opt) {
+                final isSelected = controller.selectedCategoryFilter.value == opt['id'];
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: InkWell(
+                    onTap: () => controller.selectedCategoryFilter.value = opt['id']!,
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: isSelected ? const Color(0xFF3B82F6) : const Color(0xFF1C1C2D),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: isSelected ? const Color(0xFF60A5FA) : const Color(0xFF28283E),
+                        ),
+                      ),
+                      child: Text(
+                        opt['label']!,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.white70,
+                          fontSize: 11,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            )),
+          ),
           const SizedBox(height: 14),
           // Archive List
           Obx(() {
@@ -621,7 +691,7 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF3B82F6).withOpacity(0.15),
+                  color: const Color(0xFF3B82F6).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(Icons.description_rounded, color: Color(0xFF60A5FA), size: 18),
@@ -643,7 +713,7 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF1E3A8A).withOpacity(0.4),
+                            color: const Color(0xFF1E3A8A).withValues(alpha: 0.4),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
@@ -651,6 +721,21 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
                             style: const TextStyle(color: Color(0xFF93C5FD), fontSize: 9.5, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
                           ),
                         ),
+                        if (rep.badge.isNotEmpty) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF232338),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: const Color(0xFF33334D)),
+                            ),
+                            child: Text(
+                              rep.badge,
+                              style: const TextStyle(color: Color(0xFFA5B4FC), fontSize: 9, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
                         const SizedBox(width: 6),
                         Text(
                           rep.fileSizeText,
@@ -706,7 +791,7 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
                 onPressed: () => controller.confirmDeleteReport(rep),
                 icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 16),
                 style: IconButton.styleFrom(
-                  backgroundColor: const Color(0xFF7F1D1D).withOpacity(0.2),
+                  backgroundColor: const Color(0xFF7F1D1D).withValues(alpha: 0.2),
                   padding: const EdgeInsets.all(6),
                   minimumSize: const Size(28, 28),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,

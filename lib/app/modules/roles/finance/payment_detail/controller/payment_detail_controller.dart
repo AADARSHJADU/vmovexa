@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/data/services/finance_service.dart';
 import 'package:vmovexa/app/routes/app_routes.dart';
+import 'package:vmovexa/app/utils/device_file_saver.dart';
 import '../../../../../widgets/custom_button.dart';
 import '../model/payment_detail_model.dart';
 
@@ -222,9 +223,9 @@ class PaymentDetailController extends GetxController {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF064E3B).withOpacity(0.5),
+                      color: const Color(0xFF064E3B).withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFF10B981).withOpacity(0.3)),
+                      border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
                     ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
@@ -257,15 +258,38 @@ class PaymentDetailController extends GetxController {
               const Divider(color: Colors.white12),
               const SizedBox(height: 16),
               CustomButton(
-                text: "Copy Receipt Summary",
-                onTap: (){
+                text: "Download & Save Receipt",
+                onTap: () async {
                   Get.back();
-                  copyToClipboard(
-                    'VMOVEXA PAYMENT RECEIPT\nReceipt: ${pay.code}\nAmount: ₹${pay.amount.toStringAsFixed(2)}\nClient: ${pay.clientName}\nUTR: ${pay.paymentRef}\nDate: ${pay.settlementDateFormatted}',
-                    'receipt',
-                    'Receipt Text',
+                  final receiptText = '==================================================\n'
+                      '         VMOVEXA OFFICIAL SETTLEMENT RECEIPT      \n'
+                      '==================================================\n'
+                      'Receipt Code: ${pay.code}\n'
+                      'Settled Amount: ₹${pay.amount.toStringAsFixed(2)}\n'
+                      'Payer Entity: ${pay.clientName}\n'
+                      'Payment Channel: ${pay.readableMethod}\n'
+                      'Bank UTR / Reference: ${pay.paymentRef}\n'
+                      'Settlement Date: ${pay.settlementDateFormatted}\n'
+                      'Gateway: ${pay.gatewayName}\n'
+                      'Status: 100% Settled & Verified\n'
+                      '==================================================\n';
+
+                  final cleanCode = pay.code.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
+                  final fileName = 'Payment_Receipt_$cleanCode.txt';
+
+                  final savedPath = await DeviceFileSaver.saveFile(
+                    fileName: fileName,
+                    content: receiptText,
+                  );
+
+                  DeviceFileSaver.showSuccessSnackbar(
+                    title: 'Payment Receipt Downloaded',
+                    filePath: savedPath,
+                    copyContent: receiptText,
                   );
                 },
+                isGradient: true,
+                prefixIcon: const Icon(Icons.download_rounded, color: Colors.white, size: 16),
               ),
             ],
           ),

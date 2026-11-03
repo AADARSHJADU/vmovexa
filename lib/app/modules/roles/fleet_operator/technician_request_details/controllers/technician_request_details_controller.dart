@@ -38,12 +38,12 @@ class TechnicianRequestDetailsController extends GetxController {
       if (res.success && res.data != null) {
         order.value = res.data;
       } else if (order.value == null) {
-        order.value = _getDefaultOrder();
+        // order.value = _getDefaultOrder();
       }
     } catch (e) {
       debugPrint('Error fetching work order details: $e');
       if (order.value == null) {
-        order.value = _getDefaultOrder();
+        // order.value = _getDefaultOrder();
       }
     } finally {
       isLoading.value = false;

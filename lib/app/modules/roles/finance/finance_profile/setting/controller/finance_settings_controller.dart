@@ -69,6 +69,27 @@ class FinanceSettingsController extends GetxController {
     }
   }
 
+  /// PUT /api/v1/finance/settings
+  Future<bool> updateCorporateSettings(Map<String, dynamic> data) async {
+    try {
+      if (Get.isRegistered<FinanceService>()) {
+        final res = await FinanceService.to.updateSettings(data);
+        if (res.success) {
+          await fetchCorporateSettings();
+          Get.snackbar(
+            'Settings Saved',
+            'Corporate finance settings updated successfully.',
+            backgroundColor: const Color(0xFF10B981),
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+          );
+          return true;
+        }
+      }
+    } catch (_) {}
+    return false;
+  }
+
   void _buildMenus() {
     accountItems.assignAll([
       SettingsMenuItem(

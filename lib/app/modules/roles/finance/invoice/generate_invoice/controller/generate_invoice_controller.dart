@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/data/services/finance_service.dart';
+import 'package:vmovexa/app/utils/device_file_saver.dart';
 import '../../controller/invoice_controller.dart';
 import '../../../home/controller/finance_home_controller.dart';
 
@@ -98,15 +99,57 @@ class GenerateInvoiceController extends GetxController {
 
   Future<void> onDownloadInvoice() async {
     isDownloading.value = true;
-    await Future.delayed(const Duration(milliseconds: 700));
-    isDownloading.value = false;
-    Get.snackbar(
-      'Download Started',
-      'Invoice preview download initiated',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color(0xFF10B981),
-      colorText: Colors.white,
-    );
+    try {
+      final buffer = StringBuffer();
+      buffer.writeln('==================================================');
+      buffer.writeln('          VMOVEXA ENTERPRISE TAX INVOICE          ');
+      buffer.writeln('==================================================');
+      buffer.writeln('Invoice No: ${invoiceNumber.value}');
+      buffer.writeln('Invoice Date: $invoiceDateText');
+      buffer.writeln('Due Date: $dueDateFormatted');
+      buffer.writeln('PO Reference: ${poReferenceCtrl.text.trim().isEmpty ? 'N/A' : poReferenceCtrl.text.trim()}');
+      buffer.writeln('--------------------------------------------------');
+      buffer.writeln('BILLED TO:');
+      buffer.writeln('Customer: ${customerNameCtrl.text.trim().isEmpty ? 'Valued Client' : customerNameCtrl.text.trim()}');
+      buffer.writeln('GSTIN: ${gstinCtrl.text.trim().isEmpty ? 'Unregistered' : gstinCtrl.text.trim()}');
+      buffer.writeln('Address: ${billingAddressCtrl.text.trim().isEmpty ? 'N/A' : billingAddressCtrl.text.trim()}');
+      buffer.writeln('--------------------------------------------------');
+      buffer.writeln('LINE ITEMS:');
+      buffer.writeln('Item | Qty | Unit Rate (INR) | Total (INR)');
+      for (final it in items) {
+        buffer.writeln('${it.description} | ${it.quantity} | ₹${it.rate.toStringAsFixed(2)} | ₹${it.amount.toStringAsFixed(2)}');
+      }
+      buffer.writeln('--------------------------------------------------');
+      buffer.writeln('Subtotal: ₹${subtotal.value.toStringAsFixed(2)}');
+      buffer.writeln('CGST (9%): ₹${cgst.toStringAsFixed(2)}');
+      buffer.writeln('SGST (9%): ₹${sgst.toStringAsFixed(2)}');
+      buffer.writeln('TOTAL AMOUNT DUE: ₹${grandTotal.toStringAsFixed(2)}');
+      buffer.writeln('==================================================');
+
+      final cleanInv = invoiceNumber.value.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
+      final fileName = 'Tax_Invoice_$cleanInv.txt';
+
+      final savedPath = await DeviceFileSaver.saveFile(
+        fileName: fileName,
+        content: buffer.toString(),
+      );
+
+      DeviceFileSaver.showSuccessSnackbar(
+        title: 'Tax Invoice Downloaded',
+        filePath: savedPath,
+        copyContent: buffer.toString(),
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Download Error',
+        'Could not save invoice file: $e',
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isDownloading.value = false;
+    }
   }
 
   @override

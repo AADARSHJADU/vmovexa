@@ -100,16 +100,16 @@ class FinanceHelpSupportController extends GetxController {
               );
             }).toList());
           } else {
-            _seedDefaultFinanceFaqs();
+            // _seedDefaultFinanceFaqs();
           }
         } else {
-          _seedDefaultFinanceFaqs();
+          // _seedDefaultFinanceFaqs();
         }
       } else {
-        _seedDefaultFinanceFaqs();
+        // _seedDefaultFinanceFaqs();
       }
     } catch (_) {
-      _seedDefaultFinanceFaqs();
+      // _seedDefaultFinanceFaqs();
     } finally {
       applyFaqSearch();
       isLoading.value = false;

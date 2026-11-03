@@ -172,7 +172,13 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                   decoration: BoxDecoration(
-                    color: bgColor,
+                    // color: bgColor,
+                    gradient: isCurrent ? AppTheme.primaryGradient : null,
+                    color: !isCurrent
+                        ? (isPassed
+                        ? kGreen.withValues(alpha: 0.15)
+                        : Colors.transparent)
+                        : null,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Column(

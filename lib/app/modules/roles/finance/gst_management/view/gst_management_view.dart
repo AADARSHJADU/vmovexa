@@ -342,16 +342,19 @@ class GSTManagementView extends GetView<GSTManagementController> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              summary.gstin,
-                              style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
-                            ),
-                            const SizedBox(height: 2),
-                            Text('State: ${summary.state} · Regular Taxpayer', style: const TextStyle(color: Colors.white54, fontSize: 11)),
-                          ],
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                summary.gstin,
+                                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                              ),
+                              const SizedBox(height: 2),
+                              Text('State: ${summary.state} \n· Regular Taxpayer',
+                                  style: const TextStyle(color: Colors.white54, fontSize: 11)),
+                            ],
+                          ),
                         ),
                         // Container(
                         //   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),

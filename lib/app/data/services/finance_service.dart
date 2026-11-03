@@ -73,6 +73,15 @@ class FinanceService extends GetxService {
     );
   }
 
+  /// GET /reports/:id
+  Future<ApiResponseModel<Map<String, dynamic>>> getReport(String id) async {
+    return _http.get<Map<String, dynamic>>(
+      ApiConstants.reportOne(id),
+      requiresAuth: true,
+      create: (data) => data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{},
+    );
+  }
+
   /// DELETE /reports/:id
   Future<ApiResponseModel<dynamic>> deleteReport(String id) async {
     return _http.delete<dynamic>(
@@ -292,6 +301,15 @@ class FinanceService extends GetxService {
       queryParams: queryParams,
       requiresAuth: true,
       create: (data) => data,
+    );
+  }
+
+  /// GET /organizations/:id
+  Future<ApiResponseModel<Map<String, dynamic>>> getOrganization(String id) async {
+    return _http.get<Map<String, dynamic>>(
+      ApiConstants.organizationOne(id),
+      requiresAuth: true,
+      create: (data) => data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{},
     );
   }
 
@@ -853,6 +871,94 @@ class FinanceService extends GetxService {
       ApiConstants.webhookGateway(gateway),
       body: payload,
       requiresAuth: false,
+    );
+  }
+
+  // ==========================================================
+  // SECTION 16: Finance Personnel Governance (SuperAdmin Scope)
+  // ==========================================================
+
+  /// GET /users?roleCode=ROLE-FINANCE-OFFICER
+  Future<ApiResponseModel<dynamic>> getFinanceOfficers({
+    int page = 1,
+    int limit = 50,
+    String? search,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'roleCode': 'ROLE-FINANCE-OFFICER',
+      'page': page,
+      'limit': limit,
+      if (search != null && search.isNotEmpty) 'search': search,
+    };
+    return _http.get(
+      ApiConstants.users,
+      queryParams: queryParams,
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /users/:id
+  Future<ApiResponseModel<Map<String, dynamic>>> getFinanceOfficer(String id) async {
+    return _http.get<Map<String, dynamic>>(
+      ApiConstants.userOne(id),
+      requiresAuth: true,
+      create: (data) => data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{},
+    );
+  }
+
+  /// POST /users
+  Future<ApiResponseModel<Map<String, dynamic>>> createFinanceOfficer(Map<String, dynamic> data) async {
+    return _http.post<Map<String, dynamic>>(
+      ApiConstants.users,
+      body: {
+        'roleCode': 'ROLE-FINANCE-OFFICER',
+        ...data,
+      },
+      requiresAuth: true,
+      create: (res) => res is Map ? Map<String, dynamic>.from(res) : <String, dynamic>{},
+    );
+  }
+
+  /// PATCH /users/:id
+  Future<ApiResponseModel<dynamic>> updateFinanceOfficer(String id, Map<String, dynamic> data) async {
+    return _http.patch(
+      ApiConstants.userOne(id),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// PATCH /users/:id/status
+  Future<ApiResponseModel<dynamic>> updateFinanceOfficerStatus(String id, String status) async {
+    return _http.patch(
+      ApiConstants.userStatus(id),
+      body: {'status': status},
+      requiresAuth: true,
+    );
+  }
+
+  /// DELETE /users/:id
+  Future<ApiResponseModel<dynamic>> deleteFinanceOfficer(String id) async {
+    return _http.delete(
+      ApiConstants.userOne(id),
+      requiresAuth: true,
+    );
+  }
+
+  /// GET /users/:id/permissions
+  Future<ApiResponseModel<dynamic>> getFinanceOfficerPermissions(String id) async {
+    return _http.get(
+      ApiConstants.userPermissions(id),
+      requiresAuth: true,
+    );
+  }
+
+  /// PUT /users/:id/permissions
+  Future<ApiResponseModel<dynamic>> updateFinanceOfficerPermissions(String id, Map<String, dynamic> permissions) async {
+    return _http.put(
+      ApiConstants.userPermissions(id),
+      body: permissions,
+      requiresAuth: true,
     );
   }
 }

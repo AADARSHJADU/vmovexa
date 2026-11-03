@@ -62,12 +62,12 @@ class ReportGeneratedView extends GetView<RevenueReportingController> {
                   width: 72,
                   height: 72,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF064E3B).withOpacity(0.4),
+                    color: const Color(0xFF064E3B).withValues(alpha: 0.4),
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: const Color(0xFF10B981).withOpacity(0.5), width: 2),
+                    border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.5), width: 2),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF10B981).withOpacity(0.2),
+                        color: const Color(0xFF10B981).withValues(alpha: 0.2),
                         blurRadius: 20,
                         offset: const Offset(0, 6),
                       ),
@@ -131,9 +131,9 @@ class ReportGeneratedView extends GetView<RevenueReportingController> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF1E3A8A).withOpacity(0.4),
+                              color: const Color(0xFF1E3A8A).withValues(alpha: 0.4),
                               borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.4)),
+                              border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.4)),
                             ),
                             child: Text(
                               rep.id,

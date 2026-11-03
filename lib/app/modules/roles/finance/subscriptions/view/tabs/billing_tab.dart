@@ -13,7 +13,11 @@ class BillingTab extends GetView<ManageSubscriptionController> {
       children: [
         TabSectionCard(
           title: 'Billing History',
-          trailing: OutlinedPillButton(icon: Icons.download_outlined, label: 'Export', onTap: () {}),
+          trailing: OutlinedPillButton(
+            icon: Icons.download_outlined,
+            label: 'Export',
+            onTap: () => controller.exportBillingHistory(),
+          ),
           child: const TabEmptyState(
             icon: Icons.receipt_long_outlined,
             title: 'No Invoices Yet',

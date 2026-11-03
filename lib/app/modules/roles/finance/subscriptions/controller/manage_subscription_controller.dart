@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/data/services/finance_service.dart';
+import 'package:vmovexa/app/utils/device_file_saver.dart';
 import '../model/subscription_model.dart';
 
 class ManageSubscriptionController extends GetxController {
@@ -63,9 +64,45 @@ class ManageSubscriptionController extends GetxController {
   Future<void> fetchSubscriptionDetails() async {
     try {
       if (Get.isRegistered<FinanceService>()) {
-        final res = await FinanceService.to.getSubscriptions(search: subscription.companyName);
-        if (res.success && res.data != null) {
-          // Additional details if returned
+        // Fetch detailed organization profile (GET /api/v1/organizations/:id)
+        if (subscription.id.isNotEmpty) {
+          final orgRes = await FinanceService.to.getOrganization(subscription.id);
+          if (orgRes.success && orgRes.data != null && orgRes.data!.isNotEmpty) {
+            final data = orgRes.data!;
+            final plan = data['plan'] ?? data['subscription_plan'] ?? data['tier'];
+            if (plan != null) {
+              if (plan is Map && plan['name'] != null) {
+                planName.value = plan['name'].toString();
+              } else if (plan is String && plan.isNotEmpty) {
+                planName.value = plan;
+              }
+            }
+            if (data['billing_cycle'] != null) {
+              billingCycle.value = data['billing_cycle'].toString().capitalizeFirst ?? 'Annual';
+            }
+            if (data['currency'] != null) {
+              currency.value = data['currency'].toString();
+            }
+          }
+
+          // Fetch single subscription profile (GET /api/v1/finance/subscriptions/:id)
+          final subRes = await FinanceService.to.getSubscription(subscription.id);
+          if (subRes.success && subRes.data != null && subRes.data!.isNotEmpty) {
+            final sData = subRes.data!;
+            if (sData['next_billing_date'] != null) {
+              nextBillingDate.value = sData['next_billing_date'].toString();
+            }
+            if (sData['start_date'] != null) {
+              startDate.value = sData['start_date'].toString();
+            }
+            if (sData['end_date'] != null) {
+              endDate.value = sData['end_date'].toString();
+            }
+            if (sData['amount'] != null) {
+              planAmount.value = '₹${sData['amount']}';
+              totalAmount.value = '₹${sData['amount']}';
+            }
+          }
         }
       }
     } catch (_) {}
@@ -138,5 +175,38 @@ class ManageSubscriptionController extends GetxController {
     } finally {
       isSaving.value = false;
     }
+  }
+
+  /// Exports tenant billing history to device Downloads
+  Future<void> exportBillingHistory() async {
+    final buffer = StringBuffer();
+    buffer.writeln('TENANT SUBSCRIPTION BILLING STATEMENT');
+    buffer.writeln('==================================================');
+    buffer.writeln('Company / Tenant: ${subscription.companyName}');
+    buffer.writeln('Tenant ID: ${subscription.id}');
+    buffer.writeln('Active Plan: ${planName.value}');
+    buffer.writeln('Status: ${status.value.label}');
+    buffer.writeln('Billing Cycle: ${billingCycle.value}');
+    buffer.writeln('Plan Fee: ${planAmount.value}');
+    buffer.writeln('Active Period: ${startDate.value} - ${endDate.value}');
+    buffer.writeln('Next Billing Date: ${nextBillingDate.value}');
+    buffer.writeln('--------------------------------------------------');
+    buffer.writeln('BILLING INVOICES LEDGER:');
+    buffer.writeln('Invoice No,Date,Cycle,Amount,Status');
+    buffer.writeln('"INV-SUB-${subscription.id.isNotEmpty ? subscription.id : '1001'}","${startDate.value}","${billingCycle.value}","${planAmount.value}","${status.value.label}"');
+
+    final cleanName = subscription.companyName.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
+    final fileName = 'Billing_History_${cleanName.isNotEmpty ? cleanName : 'Tenant'}_${DateTime.now().millisecondsSinceEpoch}.csv';
+
+    final savedPath = await DeviceFileSaver.saveFile(
+      fileName: fileName,
+      content: buffer.toString(),
+    );
+
+    DeviceFileSaver.showSuccessSnackbar(
+      title: 'Billing History Exported',
+      filePath: savedPath,
+      copyContent: buffer.toString(),
+    );
   }
 }

@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:vmovexa/app/data/services/finance_service.dart';
+import 'package:vmovexa/app/utils/device_file_saver.dart';
 import 'package:vmovexa/app/widgets/custom_button.dart';
 import '../model/gst_model.dart';
 
@@ -132,7 +132,7 @@ class GSTManagementController extends GetxController with GetSingleTickerProvide
     loadGSTData();
   }
 
-  /// Action 1: Download GSTR-1 JSON (Calls GET /finance/gst/gstr1-json)
+  /// Action 1: Download GSTR-1 JSON (Calls GET /finance/gst/gstr1-json & saves to device Downloads)
   Future<void> downloadGstr1Json() async {
     downloadingGstr1.value = true;
     try {
@@ -163,20 +163,24 @@ class GSTManagementController extends GetxController with GetSingleTickerProvide
       };
 
       final jsonString = const JsonEncoder.withIndent('  ').convert(gstr1Payload);
-      Clipboard.setData(ClipboardData(text: jsonString));
+      final monthStr = selectedMonth.value.month.toString().padLeft(2, '0');
+      final fileName = 'GSTR1_${selectedMonth.value.year}_$monthStr.json';
 
-      Get.snackbar(
-        'GSTR-1 JSON Exported',
-        'GSTR-1 JSON outward supplies compiled and copied to clipboard!',
-        backgroundColor: const Color(0xFF10B981),
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
+      final savedPath = await DeviceFileSaver.saveFile(
+        fileName: fileName,
+        content: jsonString,
       );
-    } catch (_) {
+
+      DeviceFileSaver.showSuccessSnackbar(
+        title: 'GSTR-1 JSON Downloaded',
+        filePath: savedPath,
+        copyContent: jsonString,
+      );
+    } catch (e) {
       Get.snackbar(
-        'GSTR-1 Exported',
-        'GSTR-1 JSON outward supplies compiled and copied to clipboard!',
-        backgroundColor: const Color(0xFF10B981),
+        'Export Notice',
+        'Error saving GSTR-1 file: $e',
+        backgroundColor: Colors.redAccent,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -185,49 +189,63 @@ class GSTManagementController extends GetxController with GetSingleTickerProvide
     }
   }
 
-  /// Action 2: Download GSTR-3B Computation CSV matching Admin Panel
-  void downloadGstr3bCsv() {
+  /// Action 2: Download GSTR-3B Computation CSV matching Admin Panel (Saves to device Downloads)
+  Future<void> downloadGstr3bCsv() async {
     downloadingGstr3b.value = true;
-    final model = gstSummary.value;
-    final breakupList = model?.breakup ?? [];
+    try {
+      final model = gstSummary.value;
+      final breakupList = model?.breakup ?? [];
 
-    final buffer = StringBuffer();
-    buffer.writeln('Tax Head,Rate,Taxable Value (INR),Output Tax (INR),ITC Available (INR),Net Cash Payable (INR)');
-    for (final b in breakupList) {
-      buffer.writeln('"${b.taxHead}","${b.rate}","${b.taxable}","${b.amount}","${b.itc}","${b.netPayable}"');
+      final buffer = StringBuffer();
+      buffer.writeln('Tax Head,Rate,Taxable Value (INR),Output Tax (INR),ITC Available (INR),Net Cash Payable (INR)');
+      for (final b in breakupList) {
+        buffer.writeln('"${b.taxHead}","${b.rate}","${b.taxable}","${b.amount}","${b.itc}","${b.netPayable}"');
+      }
+      buffer.writeln('"Total",,"${model?.taxableValue ?? 0}","${model?.totalGst ?? 0}","0","${model?.totalGst ?? 0}"');
+
+      final monthStr = selectedMonth.value.month.toString().padLeft(2, '0');
+      final fileName = 'GSTR3B_Computation_${selectedMonth.value.year}_$monthStr.csv';
+
+      final savedPath = await DeviceFileSaver.saveFile(
+        fileName: fileName,
+        content: buffer.toString(),
+      );
+
+      DeviceFileSaver.showSuccessSnackbar(
+        title: 'GSTR-3B CSV Downloaded',
+        filePath: savedPath,
+        copyContent: buffer.toString(),
+      );
+    } finally {
+      downloadingGstr3b.value = false;
     }
-    buffer.writeln('"Total",,"${model?.taxableValue ?? 0}","${model?.totalGst ?? 0}","0","${model?.totalGst ?? 0}"');
-
-    Clipboard.setData(ClipboardData(text: buffer.toString()));
-    downloadingGstr3b.value = false;
-
-    Get.snackbar(
-      'GSTR-3B CSV Exported',
-      'GSTR-3B Monthly Computation CSV copied to clipboard!',
-      backgroundColor: const Color(0xFF10B981),
-      colorText: Colors.white,
-      snackPosition: SnackPosition.BOTTOM,
-    );
   }
 
-  /// Action 3: Download GSTR-2B Statement CSV matching Admin Panel
-  void downloadGstr2bCsv() {
+  /// Action 3: Download GSTR-2B Statement CSV matching Admin Panel (Saves to device Downloads)
+  Future<void> downloadGstr2bCsv() async {
     downloadingGstr2b.value = true;
-    const csvContent =
-        'Supplier GSTIN,Supplier Legal Name,Invoice Number,Invoice Date,Invoice Value,Taxable Value,IGST,CGST,SGST,ITC Eligibility\n'
-        '"27AAACV4982K1Z3","Tata Motors Commercial","INV-2026-0891","2026-09-02","590000","500000","0","45000","45000","Eligible"\n'
-        '"27AABCM2918Q1Z1","Airtel IoT Solutions","AIRTEL-90182","2026-09-05","118000","100000","0","9000","9000","Eligible"\n';
+    try {
+      const csvContent =
+          'Supplier GSTIN,Supplier Legal Name,Invoice Number,Invoice Date,Invoice Value,Taxable Value,IGST,CGST,SGST,ITC Eligibility\n'
+          '"27AAACV4982K1Z3","Tata Motors Commercial","INV-2026-0891","2026-09-02","590000","500000","0","45000","45000","Eligible"\n'
+          '"27AABCM2918Q1Z1","Airtel IoT Solutions","AIRTEL-90182","2026-09-05","118000","100000","0","9000","9000","Eligible"\n';
 
-    Clipboard.setData(const ClipboardData(text: csvContent));
-    downloadingGstr2b.value = false;
+      final monthStr = selectedMonth.value.month.toString().padLeft(2, '0');
+      final fileName = 'GSTR2B_Statement_${selectedMonth.value.year}_$monthStr.csv';
 
-    Get.snackbar(
-      'GSTR-2B CSV Exported',
-      'GSTR-2B Auto-Drafted ITC file copied to clipboard!',
-      backgroundColor: const Color(0xFF10B981),
-      colorText: Colors.white,
-      snackPosition: SnackPosition.BOTTOM,
-    );
+      final savedPath = await DeviceFileSaver.saveFile(
+        fileName: fileName,
+        content: csvContent,
+      );
+
+      DeviceFileSaver.showSuccessSnackbar(
+        title: 'GSTR-2B CSV Downloaded',
+        filePath: savedPath,
+        copyContent: csvContent,
+      );
+    } finally {
+      downloadingGstr2b.value = false;
+    }
   }
 
   /// Action 4: Form GST REG-06 Certificate preview modal
@@ -282,27 +300,37 @@ class GSTManagementController extends GetxController with GetSingleTickerProvide
             _certRow('Jurisdiction:', model?.jurisdiction ?? 'Commissionerate: Mumbai East, Division: BKC'),
             const SizedBox(height: 18),
             CustomButton(
-              text: 'Copy Certificate Summary',
-              onTap: () {
+              text: 'Download & Save Certificate',
+              onTap: () async {
                 Get.back();
-                Clipboard.setData(ClipboardData(
-                  text: 'FORM GST REG-06 CERTIFICATE\n'
-                      'Legal Name: ${model?.legalName}\n'
-                      'GSTIN: ${model?.gstin}\n'
-                      'State: ${model?.state}\n'
-                      'Jurisdiction: ${model?.jurisdiction}\n',
-                ));
-                Get.snackbar(
-                  'Copied',
-                  'REG-06 certificate details copied to clipboard!',
-                  backgroundColor: const Color(0xFF10B981),
-                  colorText: Colors.white,
-                  snackPosition: SnackPosition.BOTTOM,
+                final certContent = 'GOVERNMENT OF INDIA - FORM GST REG-06\n'
+                    'REGISTRATION CERTIFICATE\n'
+                    '--------------------------------------------------\n'
+                    'Registration Number (GSTIN): ${model?.gstin ?? '27M4BCY934D12S'}\n'
+                    'Legal Name: ${model?.legalName ?? 'VMOVEXA PRIVATE LIMITED'}\n'
+                    'State: ${model?.state ?? 'Maharashtra (27)'}\n'
+                    'Taxpayer Type: Regular Taxpayer\n'
+                    'Administrative Jurisdiction: ${model?.jurisdiction ?? 'Commissionerate: Mumbai East, Division: BKC'}\n'
+                    'Status: Active & Verified\n'
+                    'Issued For: VMOVEXA ENTERPRISE TRANSIT PLATFORM\n';
+
+                final gstinClean = (model?.gstin ?? '27M4BCY934D12S').replaceAll(' ', '_');
+                final fileName = 'GST_REG06_Certificate_$gstinClean.txt';
+
+                final savedPath = await DeviceFileSaver.saveFile(
+                  fileName: fileName,
+                  content: certContent,
+                );
+
+                DeviceFileSaver.showSuccessSnackbar(
+                  title: 'GST Certificate Downloaded',
+                  filePath: savedPath,
+                  copyContent: certContent,
                 );
               },
               isGradient: true,
               height: 46,
-              prefixIcon: const Icon(Icons.copy_rounded, color: Colors.white, size: 16),
+              prefixIcon: const Icon(Icons.download_rounded, color: Colors.white, size: 16),
             ),
           ],
         ),

@@ -141,14 +141,14 @@ class _DispatchWorkOrderSheetState extends State<DispatchWorkOrderSheet> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Text(
-                          'POST /api/v1/work-orders/dispatch',
-                          style: TextStyle(
-                            color: AppColors.textMuted,
-                            fontSize: 11,
-                            fontFamily: 'monospace',
-                          ),
-                        ),
+                        // Text(
+                        //   'POST /api/v1/work-orders/dispatch',
+                        //   style: TextStyle(
+                        //     color: AppColors.textMuted,
+                        //     fontSize: 11,
+                        //     fontFamily: 'monospace',
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
