@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/data/constants/api_constants.dart';
 import 'package:vmovexa/app/modules/roles/driver/profile/controller/driver_profile_controller.dart';
 
 import '../model/driver_document.dart';
@@ -90,15 +91,41 @@ class DriverProfileView extends GetView<DriverProfileController> {
             children: [
               Stack(
                 children: [
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(colors: [kPurple, kIndigo]),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.person, color: Colors.white, size: 30),
-                  ),
+                  Obx(() {
+                    final raw = controller.avatarUrl.value.trim();
+                    final resolved = ApiConstants.resolveFileUrl(raw);
+                    final isUploading = controller.isUploadingAvatar.value;
+
+                    return Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(colors: [kPurple, kIndigo]),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: kPurple.withValues(alpha: 0.5), width: 1.5),
+                      ),
+                      child: isUploading
+                          ? const Center(
+                              child: SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                              ),
+                            )
+                          : ClipOval(
+                              child: resolved.isNotEmpty
+                                  ? Image.network(
+                                      resolved,
+                                      fit: BoxFit.cover,
+                                      width: 60,
+                                      height: 60,
+                                      errorBuilder: (context, error, stackTrace) =>
+                                          const Icon(Icons.person, color: Colors.white, size: 30),
+                                    )
+                                  : const Icon(Icons.person, color: Colors.white, size: 30),
+                            ),
+                    );
+                  }),
                   Positioned(
                     bottom: 0,
                     right: 0,
@@ -228,25 +255,30 @@ class DriverProfileView extends GetView<DriverProfileController> {
   // ---------------- Documents card ----------------
   Widget _buildDocumentsCard() {
     return Obx(
-          () => Container(
+      () => Container(
         width: double.infinity,
+        padding: controller.documents.isEmpty ? const EdgeInsets.all(20) : EdgeInsets.zero,
         decoration: BoxDecoration(
           color: kCardBg,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: kBorder),
         ),
-        child: Column(
-          children: List.generate(controller.documents.length, (index) {
-            final doc = controller.documents[index];
-            final isLast = index == controller.documents.length - 1;
-            return Column(
-              children: [
-                _DocumentRow(document: doc, onTap: () => controller.onDocumentTap(doc)),
-                if (!isLast) _rowDivider(),
-              ],
-            );
-          }),
-        ),
+        child: controller.documents.isEmpty
+            ? const Center(
+                child: Text('No documents uploaded yet', style: TextStyle(color: Colors.white54, fontSize: 13)),
+              )
+            : Column(
+                children: List.generate(controller.documents.length, (index) {
+                  final doc = controller.documents[index];
+                  final isLast = index == controller.documents.length - 1;
+                  return Column(
+                    children: [
+                      _DocumentRow(document: doc, onTap: () => controller.onDocumentTap(doc)),
+                      if (!isLast) _rowDivider(),
+                    ],
+                  );
+                }),
+              ),
       ),
     );
   }
@@ -281,7 +313,7 @@ class DriverProfileView extends GetView<DriverProfileController> {
     );
   }
 
-  Widget _rowDivider() => Divider(color: Colors.white.withOpacity(0.06), height: 1, indent: 14, endIndent: 14);
+  Widget _rowDivider() => Divider(color: Colors.white.withValues(alpha: 0.06), height: 1, indent: 14, endIndent: 14);
 
   // ---------------- Logout ----------------
   Widget _buildLogoutButton() {
@@ -373,7 +405,7 @@ class _MenuRow extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(9),
               decoration: BoxDecoration(
-                color: DriverProfileView.kPurple.withOpacity(0.12),
+                color: DriverProfileView.kPurple.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: DriverProfileView.kPurple, size: 17),
@@ -417,7 +449,7 @@ class _DocumentRow extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(9),
               decoration: BoxDecoration(
-                color: DriverProfileView.kPurple.withOpacity(0.12),
+                color: DriverProfileView.kPurple.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(document.icon, color: DriverProfileView.kPurple, size: 16),
@@ -429,7 +461,7 @@ class _DocumentRow extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
               decoration: BoxDecoration(
-                color: document.status.color.withOpacity(0.15),
+                color: document.status.color.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(

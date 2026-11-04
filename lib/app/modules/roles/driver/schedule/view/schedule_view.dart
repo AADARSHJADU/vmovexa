@@ -51,13 +51,16 @@ class ScheduleView extends GetView<ScheduleController> {
 
   // ---------------- Header ----------------
   Widget _buildHeader() {
+    final canPop = Navigator.canPop(Get.context!);
     return Row(
       children: [
-        GestureDetector(
-          onTap: controller.onBackPressed,
-          child: const Icon(Icons.arrow_back, color: Colors.white),
-        ),
-        const SizedBox(width: 10),
+        if (canPop) ...[
+          GestureDetector(
+            onTap: controller.onBackPressed,
+            child: const Icon(Icons.arrow_back, color: Colors.white),
+          ),
+          const SizedBox(width: 10),
+        ],
         const Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,7 +71,7 @@ class ScheduleView extends GetView<ScheduleController> {
             ],
           ),
         ),
-        GestureDetector(
+        /*GestureDetector(
           onTap: controller.onCalendarTap,
           child: Container(
             padding: const EdgeInsets.all(9),
@@ -79,7 +82,7 @@ class ScheduleView extends GetView<ScheduleController> {
             ),
             child: const Icon(Icons.calendar_today_outlined, color: kPurple, size: 17),
           ),
-        ),
+        ),*/
       ],
     );
   }
@@ -122,6 +125,19 @@ class ScheduleView extends GetView<ScheduleController> {
   }
 
   Widget _buildTodayTimeline() {
+    if (controller.todayTrips.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+        decoration: BoxDecoration(
+          color: kCardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: kBorder),
+        ),
+        alignment: Alignment.center,
+        child: const Text('No trips scheduled for today', style: TextStyle(color: Colors.white54, fontSize: 13)),
+      );
+    }
     return Column(
       children: List.generate(controller.todayTrips.length, (index) {
         final trip = controller.todayTrips[index];
@@ -172,12 +188,26 @@ class ScheduleView extends GetView<ScheduleController> {
           const SizedBox(height: 18),
           const Text('Upcoming Trips', style: TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w700)),
           const SizedBox(height: 10),
-          ...controller.upcomingTrips.map(
-            (trip) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: _UpcomingTripCard(trip: trip, onTap: () => controller.onTripTap(trip)),
+          if (controller.upcomingTrips.isEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: kCardBg,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: kBorder),
+              ),
+              alignment: Alignment.center,
+              child: const Text('No upcoming trips found', style: TextStyle(color: Colors.white54, fontSize: 13)),
+            )
+          else
+            ...controller.upcomingTrips.map(
+              (trip) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _UpcomingTripCard(trip: trip, onTap: () => controller.onTripTap(trip)),
+              ),
             ),
-          ),
           const SizedBox(height: 4),
           _buildInfoBanner(),
         ],

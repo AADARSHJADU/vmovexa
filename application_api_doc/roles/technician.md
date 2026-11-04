@@ -3,7 +3,7 @@
 > **Role:** `ROLE-TECHNICIAN` / `ROLE-SUPERADMIN`  
 > **Base Path:** `https://api.vmovexa.com/api/v1` (Local: `http://localhost:4000/api/v1`)  
 > **Total Endpoints:** 43 APIs (All 100% verified against backend route manifests)  
-> **Updated:** 2026-10-31  
+> **Updated:** 2026-11-04  
 > **Hardware Supported:** Edge Compute Boxes (Geniatech APC3588Q / RK3588), GPS Trackers, Bus Displays
 
 See [app developer guide](../APP_DEVELOPER_GUIDE.md) and [complete request reference](../API_REFERENCE.md). For realtime events see [REALTIME_AND_GPS.md](../REALTIME_AND_GPS.md).
@@ -64,13 +64,13 @@ See [app developer guide](../APP_DEVELOPER_GUIDE.md) and [complete request refer
 ### 5. Maintenance Tickets & Work Orders (10 APIs)
 | Method | Endpoint | Permissions | Description | Reference |
 |---|---|---|---|---|
-| `GET` | `/api/v1/work-orders` | `work_orders.view` | List maintenance tickets across fleet | [Reference](../API_REFERENCE.md#get-api-v1-work-orders) |
-| `POST` | `/api/v1/work-orders` | `work_orders.create`, `work_orders.assign` | Create new maintenance work order | [Reference](../API_REFERENCE.md#post-api-v1-work-orders) |
-| `GET` | `/api/v1/work-orders/:id` | `work_orders.view` | Get ticket details with diagnosed faults | [Reference](../API_REFERENCE.md#get-api-v1-work-orders-id) |
+| `GET` | `/api/v1/work-orders` | `work_orders.view`, `drivers.work_orders.view`, `drivers.portal.view` | List maintenance tickets across fleet | [Reference](../API_REFERENCE.md#get-api-v1-work-orders) |
+| `POST` | `/api/v1/work-orders` | `work_orders.create`, `work_orders.assign`, `drivers.work_orders.create`, `drivers.portal.view` | Create new maintenance work order | [Reference](../API_REFERENCE.md#post-api-v1-work-orders) |
+| `GET` | `/api/v1/work-orders/:id` | `work_orders.view`, `drivers.work_orders.view`, `drivers.portal.view` | Get ticket details with diagnosed faults | [Reference](../API_REFERENCE.md#get-api-v1-work-orders-id) |
 | `PATCH` | `/api/v1/work-orders/:id` | `work_orders.create`, `work_orders.edit`, `work_orders.update`, `work_orders.assign` | Update ticket priority, vehicle, or description | [Reference](../API_REFERENCE.md#patch-api-v1-work-orders-id) |
 | `PATCH` | `/api/v1/work-orders/:id/approve` | `work_orders.assign` | Supervisor approve completed maintenance | [Reference](../API_REFERENCE.md#patch-api-v1-work-orders-id-approve) |
 | `PATCH` | `/api/v1/work-orders/:id/assign` | `work_orders.assign` | Assign field technician to maintenance ticket | [Reference](../API_REFERENCE.md#patch-api-v1-work-orders-id-assign) |
-| `POST` | `/api/v1/work-orders/:id/rate` | `work_orders.view` | Rate technician repair quality & add feedback tags | [Reference](../API_REFERENCE.md#post-api-v1-work-orders-id-rate) |
+| `POST` | `/api/v1/work-orders/:id/rate` | `work_orders.view`, `drivers.work_orders.view`, `drivers.portal.view` | Rate technician repair quality & add feedback tags | [Reference](../API_REFERENCE.md#post-api-v1-work-orders-id-rate) |
 | `PATCH` | `/api/v1/work-orders/:id/reject` | `work_orders.assign` | Supervisor reject repair with remediation notes | [Reference](../API_REFERENCE.md#patch-api-v1-work-orders-id-reject) |
 | `PATCH` | `/api/v1/work-orders/:id/status` | `work_orders.update`, `work_orders.assign` | Transition ticket status (in_progress, on_hold, completed) | [Reference](../API_REFERENCE.md#patch-api-v1-work-orders-id-status) |
 | `POST` | `/api/v1/work-orders/dispatch` | `work_orders.assign` | Atomic create + assign work order with SLA & technician | [Reference](../API_REFERENCE.md#post-api-v1-work-orders-dispatch) |

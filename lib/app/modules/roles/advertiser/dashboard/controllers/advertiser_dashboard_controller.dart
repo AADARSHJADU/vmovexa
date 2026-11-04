@@ -99,7 +99,7 @@ class AdvertiserDashboardController extends GetxController {
   Future<void> fetchCampaigns() async {
     try {
       final res = await _service.getCampaigns(ownerType: 'advertiser');
-      if (res.isSuccess && res.data != null) {
+      if (res.success && res.data != null) {
         allCampaigns.assignAll(res.data!);
         _applyFilter();
         debugPrint('✅ [Campaigns] loaded ${allCampaigns.length} campaigns');
@@ -116,7 +116,7 @@ class AdvertiserDashboardController extends GetxController {
     isAnalyticsLoading.value = true;
     try {
       final res = await _service.getOverviewAnalytics();
-      if (res.isSuccess && res.data != null) {
+      if (res.success && res.data != null) {
         overviewStats.assignAll(res.data!);
         _parsePerfSeries(res.data!);
       }
@@ -131,7 +131,7 @@ class AdvertiserDashboardController extends GetxController {
   Future<void> fetchMqttStatus() async {
     try {
       final res = await _service.getMqttStatus();
-      if (res.isSuccess && res.data != null) {
+      if (res.success && res.data != null) {
         mqttStatus.assignAll(res.data!);
       }
     } catch (e) {
@@ -179,12 +179,12 @@ class AdvertiserDashboardController extends GetxController {
     isBillingLoading.value = true;
     try {
       final walletRes = await _service.getWalletBalance();
-      if (walletRes.isSuccess && walletRes.data != null) {
+      if (walletRes.success && walletRes.data != null) {
         walletData.assignAll(walletRes.data!);
       }
 
       final invoicesRes = await _service.getInvoices();
-      if (invoicesRes.isSuccess && invoicesRes.data != null) {
+      if (invoicesRes.success && invoicesRes.data != null) {
         final d = invoicesRes.data;
         if (d is List) {
           invoicesList.assignAll(d);
@@ -194,7 +194,7 @@ class AdvertiserDashboardController extends GetxController {
       }
 
       final txRes = await _service.getTransactions();
-      if (txRes.isSuccess && txRes.data != null) {
+      if (txRes.success && txRes.data != null) {
         final d = txRes.data;
         if (d is List) {
           transactionsList.assignAll(d);
@@ -349,7 +349,7 @@ class AdvertiserDashboardController extends GetxController {
     busyCampaignId.value = c.id;
     try {
       final res = await _service.sharePaymentLink(c.id, {'channel': channel});
-      if (res.isSuccess) {
+      if (res.success) {
         Get.snackbar(
           'Success',
           'Payment link dispatched to the customer via $channel.',
@@ -631,7 +631,7 @@ class AdvertiserDashboardController extends GetxController {
 
   Future<void> startCampaign(String id) async {
     final res = await _service.startCampaign(id);
-    if (res.isSuccess) {
+    if (res.success) {
       Get.snackbar('Success', 'Campaign started successfully',
           backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
       fetchCampaigns();
@@ -643,7 +643,7 @@ class AdvertiserDashboardController extends GetxController {
 
   Future<void> pauseCampaign(String id) async {
     final res = await _service.pauseCampaign(id);
-    if (res.isSuccess) {
+    if (res.success) {
       Get.snackbar('Success', 'Campaign paused successfully',
           backgroundColor: const Color(0xFFF97316), colorText: Colors.white);
       fetchCampaigns();
@@ -655,7 +655,7 @@ class AdvertiserDashboardController extends GetxController {
 
   Future<void> endCampaign(String id) async {
     final res = await _service.endCampaign(id);
-    if (res.isSuccess) {
+    if (res.success) {
       Get.snackbar('Success', 'Campaign completed successfully',
           backgroundColor: const Color(0xFF3B82F6), colorText: Colors.white);
       fetchCampaigns();
@@ -688,7 +688,7 @@ class AdvertiserDashboardController extends GetxController {
 
   Future<void> deleteCampaign(String id) async {
     final res = await _service.deleteCampaign(id);
-    if (res.isSuccess) {
+    if (res.success) {
       Get.snackbar('Success', 'Campaign deleted',
           backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
       fetchCampaigns();

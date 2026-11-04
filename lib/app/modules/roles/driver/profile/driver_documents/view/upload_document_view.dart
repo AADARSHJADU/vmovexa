@@ -32,7 +32,7 @@ class UploadDocumentView extends GetView<UploadDocumentController> {
                     children: [
                       Container(
                         padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(color: kPurple.withOpacity(0.15), borderRadius: BorderRadius.circular(12)),
+                        decoration: BoxDecoration(color: kPurple.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
                         child: Icon(controller.documentIcon, color: kPurple, size: 20),
                       ),
                       const SizedBox(width: 12),
@@ -84,15 +84,25 @@ class UploadDocumentView extends GetView<UploadDocumentController> {
       children: [
         GestureDetector(
           onTap: controller.onBackPressed,
-          child: const Icon(Icons.arrow_back, color: Colors.white),
+          child: const Padding(
+            padding: EdgeInsets.all(4.0),
+            child: Icon(Icons.arrow_back, color: Colors.white),
+          ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 8),
         const Expanded(
           child: Text('Upload Document', style: TextStyle(color: Colors.white, fontSize: 17.5, fontWeight: FontWeight.w700)),
         ),
         GestureDetector(
           onTap: controller.onInfoTap,
-          child: const Icon(Icons.info_outline, color: kPurple, size: 20),
+          child: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: kPurple.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.info_outline, color: kPurple, size: 18),
+          ),
         ),
       ],
     );
@@ -105,7 +115,7 @@ class UploadDocumentView extends GetView<UploadDocumentController> {
       decoration: BoxDecoration(
         color: kFieldBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: kPurple.withOpacity(0.25)),
+        border: Border.all(color: kPurple.withValues(alpha: 0.25)),
       ),
       child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,11 +128,11 @@ class UploadDocumentView extends GetView<UploadDocumentController> {
               children: [
                 Text('Tips', style: TextStyle(color: kPurple, fontSize: 12.5, fontWeight: FontWeight.w700)),
                 SizedBox(height: 6),
-                Text('\u2022 Ensure all details are clearly visible.', style: TextStyle(color: Colors.white54, fontSize: 11)),
+                Text('• Ensure all details are clearly visible.', style: TextStyle(color: Colors.white54, fontSize: 11)),
                 SizedBox(height: 3),
-                Text('\u2022 Document should be original and valid.', style: TextStyle(color: Colors.white54, fontSize: 11)),
+                Text('• Document should be original and valid.', style: TextStyle(color: Colors.white54, fontSize: 11)),
                 SizedBox(height: 3),
-                Text('\u2022 Avoid glare and blurry images.', style: TextStyle(color: Colors.white54, fontSize: 11)),
+                Text('• Avoid glare and blurry images.', style: TextStyle(color: Colors.white54, fontSize: 11)),
               ],
             ),
           ),
@@ -151,13 +161,13 @@ class _PickOptionCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: kCardBg,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: kPurple.withOpacity(0.35)),
+          border: Border.all(color: kPurple.withValues(alpha: 0.35)),
         ),
         child: Column(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: kPurple.withOpacity(0.15), shape: BoxShape.circle),
+              decoration: BoxDecoration(color: kPurple.withValues(alpha: 0.15), shape: BoxShape.circle),
               child: Icon(icon, color: kPurple, size: 24),
             ),
             const SizedBox(height: 10),

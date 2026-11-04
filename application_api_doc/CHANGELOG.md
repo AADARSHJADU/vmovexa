@@ -1,3 +1,12 @@
+# Handoff changes — 4 November 2026
+
+- Updated total endpoint count to **435 routes** (431 mapped role endpoints across 10 functional portals + 4 core sanity/health endpoints).
+- Documented 4 new Driver Work Orders APIs in `roles/driver.md` (`GET /api/v1/me/driver/work-orders`, `POST /api/v1/me/driver/work-orders`, `GET /api/v1/me/driver/work-orders/:id`, `POST /api/v1/me/driver/work-orders/:id/rate`) allowing bus drivers to report in-transit vehicle hardware defects, track resolution progress, and rate technician fixes upon completion.
+- Updated work-order permission guards in `roles/technician.md` and reference manifests to reflect dual fleet/driver access modes (`drivers.work_orders.view`, `drivers.work_orders.create`, `drivers.portal.view`).
+- Documented emergency contact hotline field (`emergencyNumber`) validation in Government Emergency SOS Broadcasts (`roles/government.md`).
+- Documented Campaign Analytics authorization contract support for Government Agency role (`ROLE-GOVT-AGENCY`) and `owner_type === 'government'` (`roles/government.md` & `roles/advertiser.md`).
+- Re-generated `route-manifest.json`, `API_REFERENCE.md`, `CONTROLLER_CONTRACTS.md`, `VMOVEXA.postman_collection.json`, `source-snapshot.json`, and `verification.json` against current working tree code.
+
 # Handoff changes — 31 October 2026
 
 - Updated total endpoint count to 431 routes (427 mapped role endpoints across 10 functional portals + 4 core sanity/health endpoints).

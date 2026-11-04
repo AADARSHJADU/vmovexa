@@ -238,7 +238,7 @@ class UserModel {
       return Routes.FLEET_OP_DASHBOARD;
     } else if (r.contains('ADVERTIS')) {
       return Routes.ADVERTISER_DASHBOARD;
-    } else if (r.contains('GOVT-AGENCY')) {
+    } else if (r.contains('GOVT') || r.contains('GOVERN')) {
       return Routes.GOVERNMENT_DASHBOARD;
     } else if (r.contains('TECH')) {
       return Routes.TECHNICIAN_DASHBOARD;
@@ -249,4 +249,49 @@ class UserModel {
     }
     return Routes.FLEET_OP_DASHBOARD;
   }
+
+  UserModel copyWith({
+    String? id,
+    String? code,
+    String? enrollmentNo,
+    String? name,
+    String? email,
+    String? phone,
+    String? avatarUrl,
+    String? role,
+    String? roleId,
+    String? organizationId,
+    String? organizationName,
+    String? status,
+    OrganizationModel? organization,
+    List<String>? permissions,
+    String? branch,
+    String? officeAddress,
+    String? language,
+    String? timezone,
+    String? companyName,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      code: code ?? this.code,
+      enrollmentNo: enrollmentNo ?? this.enrollmentNo,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      role: role ?? this.role,
+      roleId: roleId ?? this.roleId,
+      organizationId: organizationId ?? this.organizationId,
+      organizationName: organizationName ?? this.organizationName,
+      status: status ?? this.status,
+      organization: organization ?? this.organization,
+      permissions: permissions ?? this.permissions,
+      branch: branch ?? this.branch,
+      officeAddress: officeAddress ?? this.officeAddress,
+      language: language ?? this.language,
+      timezone: timezone ?? this.timezone,
+      companyName: companyName ?? this.companyName,
+    );
+  }
 }
+

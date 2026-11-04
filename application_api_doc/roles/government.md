@@ -1,9 +1,9 @@
 # Government & Transit Authority Portal — API Documentation
 
-> **Role:** `ROLE-GOVERNMENT-OFFICER` / `ROLE-SUPERADMIN`  
+> **Role:** `ROLE-GOVERNMENT-OFFICER` / `ROLE-GOVT-AGENCY` / `ROLE-SUPERADMIN`  
 > **Base Path:** `https://api.vmovexa.com/api/v1` (Local: `http://localhost:4000/api/v1`)  
 > **Total Endpoints:** 21 APIs (All 100% verified against backend route manifests)  
-> **Updated:** 2026-10-31  
+> **Updated:** 2026-11-04  
 > **Emergency Authority:** Priority overrides on edge displays for public safety alerts (Disaster, AMBER, Traffic, Weather)
 
 See [app developer guide](../APP_DEVELOPER_GUIDE.md) and [complete request reference](../API_REFERENCE.md). For realtime events see [REALTIME_AND_GPS.md](../REALTIME_AND_GPS.md).
@@ -47,5 +47,10 @@ See [app developer guide](../APP_DEVELOPER_GUIDE.md) and [complete request refer
 
 ### 1. Screen Interruption Engine
 - When `POST /api/v1/emergency-broadcasts` is activated with `severity: "critical"`, the edge display agent halts commercial playback immediately and displays the full-screen emergency layout with siren sound and ticker text.
+- Validated payload supports `emergencyNumber` (official departmental helpline / toll-free contact, max 40 chars) alongside `headline`, `severity`, target corridors, and multi-media asset attachments (`image`, `video`, `pdf`).
 - `POST /api/v1/emergency-broadcasts/:id/revoke`: Restores scheduled commercial playlist.
+
+### 2. Campaign Telemetry & Impression Analytics
+- Public awareness campaigns owned by government departments (`owner_type: "government"`) are accessible to `ROLE-GOVT-AGENCY` via `GET /api/v1/campaigns/:id/analytics` and aggregate overview `GET /api/v1/government/analytics`.
+- Telemetry captures live Proof-of-Play broadcasts across bus displays, corridor densities, and citizen QR engagement.
 

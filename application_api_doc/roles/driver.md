@@ -2,8 +2,8 @@
 
 > **Role:** `ROLE-DRIVER`  
 > **Base Path:** `https://api.vmovexa.com/api/v1/me/driver` (Local: `http://localhost:4000/api/v1/me/driver`)  
-> **Total Endpoints:** 13 APIs (All 100% verified against backend route manifests)  
-> **Updated:** 2026-10-31  
+> **Total Endpoints:** 17 APIs (All 100% verified against backend route manifests)  
+> **Updated:** 2026-11-04  
 > **Authentication:** All endpoints require `Authorization: Bearer <access_token>` with driver permissions  
 > **Tenant Isolation:** Scoped automatically to driver's assigned organization
 
@@ -11,7 +11,7 @@ See [app developer guide](../APP_DEVELOPER_GUIDE.md) and [complete request refer
 
 ---
 
-## 📋 Complete Endpoints Summary (13 APIs)
+## 📋 Complete Endpoints Summary (17 APIs)
 
 | Method | Endpoint | Permissions | Description | Reference |
 |---|---|---|---|---|
@@ -28,6 +28,10 @@ See [app developer guide](../APP_DEVELOPER_GUIDE.md) and [complete request refer
 | `POST` | `/api/v1/me/driver/trip/end` | `drivers.duty.manage` | Complete transit trip with final odometer / covered km | [Reference](../API_REFERENCE.md#post-api-v1-me-driver-trip-end) |
 | `POST` | `/api/v1/me/driver/trip/start` | `drivers.duty.manage` | Start transit trip for assigned slot | [Reference](../API_REFERENCE.md#post-api-v1-me-driver-trip-start) |
 | `GET` | `/api/v1/me/driver/trips` | `drivers.portal.view` | List driver historical trips & performance | [Reference](../API_REFERENCE.md#get-api-v1-me-driver-trips) |
+| `GET` | `/api/v1/me/driver/work-orders` | `drivers.work_orders.view`, `drivers.portal.view` | List maintenance tickets reported by driver | [Reference](../API_REFERENCE.md#get-api-v1-me-driver-work-orders) |
+| `POST` | `/api/v1/me/driver/work-orders` | `drivers.work_orders.create`, `drivers.work_orders.view`, `drivers.portal.view` | Report vehicle defect or hardware malfunction | [Reference](../API_REFERENCE.md#post-api-v1-me-driver-work-orders) |
+| `GET` | `/api/v1/me/driver/work-orders/:id` | `drivers.work_orders.view`, `drivers.portal.view` | View single defect ticket status & technician notes | [Reference](../API_REFERENCE.md#get-api-v1-me-driver-work-orders-id) |
+| `POST` | `/api/v1/me/driver/work-orders/:id/rate` | `drivers.work_orders.view`, `drivers.portal.view` | Rate technician repair quality upon resolution | [Reference](../API_REFERENCE.md#post-api-v1-me-driver-work-orders-id-rate) |
 
 ---
 
@@ -41,4 +45,9 @@ See [app developer guide](../APP_DEVELOPER_GUIDE.md) and [complete request refer
 
 ### 2. Emergency & Incident Reporting
 - `POST /api/v1/me/driver/incidents`: Validates full incident telemetry payload including coordinates, severity, casualties, audioNotes, and photo URLs. [Contract](../CONTROLLER_CONTRACTS.md#post-api-v1-me-driver-incidents)
+
+### 3. Vehicle Defect & Maintenance Reporting
+1. **Report Issue:** `POST /api/v1/me/driver/work-orders` with defect description, category, and priority (`low`, `medium`, `high`, `critical`). [Contract](../CONTROLLER_CONTRACTS.md#post-api-v1-me-driver-work-orders)
+2. **Track Repair:** `GET /api/v1/me/driver/work-orders` to check if a technician has been dispatched and review progress notes.
+3. **Inspect & Rate:** `POST /api/v1/me/driver/work-orders/:id/rate` with rating score (1-5) and feedback once the technician completes work. [Contract](../CONTROLLER_CONTRACTS.md#post-api-v1-me-driver-work-orders-id-rate)
 

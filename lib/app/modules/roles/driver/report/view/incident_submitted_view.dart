@@ -19,47 +19,54 @@ class IncidentSubmittedView extends GetView<ReportIncidentController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: kBg,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: Column(
-                children: [
-                  _buildHeader(),
-                  const SizedBox(height: 18),
-                  _buildStepper(),
-                ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        controller.onGoToHome();
+      },
+      child: Scaffold(
+        backgroundColor: kBg,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: Column(
+                  children: [
+                    _buildHeader(),
+                    const SizedBox(height: 18),
+                    _buildStepper(),
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-                children: [
-                  _buildSuccessBadge(),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Incident Reported Successfully!',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800),
-                  ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    'Thank you for helping us keep operations safe and improve the system.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white54, fontSize: 12),
-                  ),
-                  const SizedBox(height: 18),
-                  _buildDetailsCard(),
-                  const SizedBox(height: 16),
-                  _buildWhatsNextCard(),
-                ],
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+                  children: [
+                    _buildSuccessBadge(),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Incident Reported Successfully!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Thank you for helping us keep operations safe and improve the system.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white54, fontSize: 12),
+                    ),
+                    const SizedBox(height: 18),
+                    _buildDetailsCard(),
+                    const SizedBox(height: 16),
+                    _buildWhatsNextCard(),
+                  ],
+                ),
               ),
-            ),
-            _buildFooterButtons(),
-          ],
+              _buildFooterButtons(),
+            ],
+          ),
         ),
       ),
     );
@@ -69,8 +76,12 @@ class IncidentSubmittedView extends GetView<ReportIncidentController> {
     return Row(
       children: [
         GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: controller.onGoToHome,
-          child: const Icon(Icons.arrow_back, color: Colors.white),
+          child: const Padding(
+            padding: EdgeInsets.all(4.0),
+            child: Icon(Icons.arrow_back, color: Colors.white),
+          ),
         ),
         const SizedBox(width: 10),
         const Expanded(
@@ -320,25 +331,27 @@ class IncidentSubmittedView extends GetView<ReportIncidentController> {
       child: Column(
         children: [
           GestureDetector(
-            onTap: controller.onGoToHome,
+            behavior: HitTestBehavior.opaque,
+            onTap: controller.onViewIncidentsList,
             child: Container(
               width: double.infinity,
               height: 50,
-              decoration: BoxDecoration(gradient:AppTheme.primaryGradient, borderRadius: BorderRadius.circular(12)),
+              decoration: BoxDecoration(gradient: AppTheme.primaryGradient, borderRadius: BorderRadius.circular(12)),
               alignment: Alignment.center,
               child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.home_outlined, color: Colors.white, size: 17),
-                  SizedBox(width: 8),
-                  Text('Go to Home', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
-                ],
-              ),
+                 mainAxisAlignment: MainAxisAlignment.center,
+                 children: [
+                   Icon(Icons.list_alt_rounded, color: Colors.white, size: 18),
+                   SizedBox(width: 8),
+                   Text('View Incidents Log', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+                 ],
+               ),
             ),
           ),
           const SizedBox(height: 10),
           GestureDetector(
-            onTap: controller.onShareReport,
+            behavior: HitTestBehavior.opaque,
+            onTap: controller.onGoToHome,
             child: Container(
               width: double.infinity,
               height: 50,
@@ -350,9 +363,9 @@ class IncidentSubmittedView extends GetView<ReportIncidentController> {
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.share_outlined, color: kPurple, size: 16),
+                  Icon(Icons.home_outlined, color: kPurple, size: 17),
                   SizedBox(width: 8),
-                  Text('Share Report', style: TextStyle(color: kPurple, fontSize: 14, fontWeight: FontWeight.w700)),
+                  Text('Go to Home', style: TextStyle(color: kPurple, fontSize: 14, fontWeight: FontWeight.w700)),
                 ],
               ),
             ),

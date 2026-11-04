@@ -462,7 +462,7 @@ class CreateCampaignController extends GetxController {
     isLoadingFleets.value = true;
     try {
       final res = await _service.getFleetOptions();
-      if (res.isSuccess && res.data != null && res.data!.isNotEmpty) {
+      if (res.success && res.data != null && res.data!.isNotEmpty) {
         availableFleets.assignAll(res.data!);
         _buildAllTransitRoutes(res.data!);
       }
@@ -1074,7 +1074,7 @@ class CreateCampaignController extends GetxController {
 
       if (isEditMode.value && editingCampaignId.value.isNotEmpty) {
         final res = await _service.updateCampaign(editingCampaignId.value, payload);
-        if (res.isSuccess) {
+        if (res.success) {
           createdCampaign.value = res.data;
           isSubmitted.value = true;
           Get.snackbar('Success', 'Campaign updated successfully',
@@ -1085,7 +1085,7 @@ class CreateCampaignController extends GetxController {
         }
       } else {
         final res = await _service.createCampaign(payload);
-        if (res.isSuccess) {
+        if (res.success) {
           createdCampaign.value = res.data;
           isSubmitted.value = true;
         } else {

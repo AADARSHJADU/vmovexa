@@ -1,6 +1,6 @@
 # VMOVEXA API reference
 
-Updated: 2026-10-31. 431 method/path combinations derived from current route wiring, including aliases, webhooks and health routes. Default prefix: /api/v1 (deployment API_PREFIX may override it).
+Updated: 2026-11-04. 435 method/path combinations derived from current route wiring, including aliases, webhooks and health routes. Default prefix: /api/v1 (deployment API_PREFIX may override it).
 
 Read [APP_DEVELOPER_GUIDE.md](APP_DEVELOPER_GUIDE.md) first for response envelopes, auth, GPS semantics, upload/download exceptions and limits. This is a request-validation and access-guard reference, not a claim that all responses have a machine-verified schema.
 
@@ -228,8 +228,8 @@ Controller response helpers: `created`; see global envelope rules.
 | Field | Type | Presence | Rules |
 |---|---|---|---|
 | `name` | string | required | trim {"enabled":true} |
-| `company_name` | string | optional | trim {"enabled":true}; min {"limit":1}; also allows [null] |
-| `companyName` | string | optional | trim {"enabled":true}; min {"limit":1}; conditional: [{"ref":{"path":["company_name"]},"is":{"type":"any","flags":{"presence":"required"}},"then":{"type":"any","flags":{"presence":"optional"}},"otherwise":{"type":"any","flags":{"presence":"required"}}}] |
+| `companyName` | string | optional | trim {"enabled":true}; also allows ["",null] |
+| `company_name` | string | optional | trim {"enabled":true}; also allows ["",null] |
 | `email` | string | required | email; trim {"enabled":true} |
 | `phone` | string | required | trim {"enabled":true}; pattern {"regex":"/^[+]?[0-9\\s\\-()]{7,20}$/"} |
 | `password` | string | optional | also allows ["",null] |
@@ -2444,8 +2444,8 @@ Controller response helpers: `created`; see global envelope rules.
 | Field | Type | Presence | Rules |
 |---|---|---|---|
 | `name` | string | required | trim {"enabled":true} |
-| `company_name` | string | optional | trim {"enabled":true}; min {"limit":1}; also allows [null] |
-| `companyName` | string | optional | trim {"enabled":true}; min {"limit":1}; conditional: [{"ref":{"path":["company_name"]},"is":{"type":"any","flags":{"presence":"required"}},"then":{"type":"any","flags":{"presence":"optional"}},"otherwise":{"type":"any","flags":{"presence":"required"}}}] |
+| `companyName` | string | optional | trim {"enabled":true}; also allows ["",null] |
+| `company_name` | string | optional | trim {"enabled":true}; also allows ["",null] |
 | `email` | string | required | email; trim {"enabled":true} |
 | `phone` | string | required | trim {"enabled":true}; pattern {"regex":"/^[+]?[0-9\\s\\-()]{7,20}$/"} |
 | `password` | string | optional | also allows ["",null] |
@@ -3961,6 +3961,9 @@ Controller response helpers: `created`; see global envelope rules.
 | `organizationId` | number | optional | integer; also allows [null] |
 | `tickerText` | string | optional | also allows ["",null] |
 | `ticker_text` | string | optional | also allows ["",null] |
+| `emergencyNumber` | string | optional | max {"limit":40}; also allows ["",null] |
+| `emergency_number` | string | optional | max {"limit":40}; also allows ["",null] |
+| `media` | array | optional | max {"limit":100}; items: [{"type":"object","keys":{"mediaUrl":{"type":"string","flags":{"presence":"required"},"rules":[{"name":"uri","args":{"options":{"scheme":["http","https"]}}}]},"mediaType":{"type":"string","flags":{"only":true,"presence":"required"},"allow":["image","video","pdf","url"]},"name":{"type":"string","rules":[{"name":"max","args":{"limit":255}}],"allow":[""]},"displayDurationSec":{"type":"number","flags":{"presence":"required"},"rules":[{"name":"integer"},{"name":"min","args":{"limit":1}},{"name":"max","args":{"limit":300}}]}}}] |
 | `mediaUrl` | string | optional | also allows ["",null] |
 | `media_url` | string | optional | also allows ["",null] |
 | `mediaType` | string | optional | also allows ["",null] |
@@ -4055,6 +4058,9 @@ Controller response helpers: `success`; see global envelope rules.
 | `target_area` | string | optional | also allows ["",null] |
 | `tickerText` | string | optional | also allows ["",null] |
 | `ticker_text` | string | optional | also allows ["",null] |
+| `emergencyNumber` | string | optional | max {"limit":40}; also allows ["",null] |
+| `emergency_number` | string | optional | max {"limit":40}; also allows ["",null] |
+| `media` | array | optional | max {"limit":100}; items: [{"type":"object","keys":{"mediaUrl":{"type":"string","flags":{"presence":"required"},"rules":[{"name":"uri","args":{"options":{"scheme":["http","https"]}}}]},"mediaType":{"type":"string","flags":{"only":true,"presence":"required"},"allow":["image","video","pdf","url"]},"name":{"type":"string","rules":[{"name":"max","args":{"limit":255}}],"allow":[""]},"displayDurationSec":{"type":"number","flags":{"presence":"required"},"rules":[{"name":"integer"},{"name":"min","args":{"limit":1}},{"name":"max","args":{"limit":300}}]}}}] |
 | `mediaUrl` | string | optional | also allows ["",null] |
 | `media_url` | string | optional | also allows ["",null] |
 | `mediaType` | string | optional | also allows ["",null] |
@@ -4105,6 +4111,9 @@ Controller response helpers: `success`; see global envelope rules.
 | `target_area` | string | optional | also allows ["",null] |
 | `tickerText` | string | optional | also allows ["",null] |
 | `ticker_text` | string | optional | also allows ["",null] |
+| `emergencyNumber` | string | optional | max {"limit":40}; also allows ["",null] |
+| `emergency_number` | string | optional | max {"limit":40}; also allows ["",null] |
+| `media` | array | optional | max {"limit":100}; items: [{"type":"object","keys":{"mediaUrl":{"type":"string","flags":{"presence":"required"},"rules":[{"name":"uri","args":{"options":{"scheme":["http","https"]}}}]},"mediaType":{"type":"string","flags":{"only":true,"presence":"required"},"allow":["image","video","pdf","url"]},"name":{"type":"string","rules":[{"name":"max","args":{"limit":255}}],"allow":[""]},"displayDurationSec":{"type":"number","flags":{"presence":"required"},"rules":[{"name":"integer"},{"name":"min","args":{"limit":1}},{"name":"max","args":{"limit":300}}]}}}] |
 | `mediaUrl` | string | optional | also allows ["",null] |
 | `media_url` | string | optional | also allows ["",null] |
 | `mediaType` | string | optional | also allows ["",null] |
@@ -5535,10 +5544,11 @@ Controller response helpers: `created`; see global envelope rules.
 
 | Field | Type | Presence | Rules |
 |---|---|---|---|
-| `key` | string | required | min {"limit":2}; max {"limit":200} |
-| `namespace` | string | optional | max {"limit":80}; default "common" |
+| `key` | string | required | trim {"enabled":true}; min {"limit":2}; max {"limit":200}; pattern {"regex":"/^[a-z0-9]+(?:[._-][a-z0-9]+)*$/"} |
+| `namespace` | string | optional | trim {"enabled":true}; max {"limit":80}; pattern {"regex":"/^[a-z0-9_-]+$/"}; default "common" |
 | `description` | string | optional | also allows ["",null] |
-| `translations` | object | optional | — |
+| `translations` | object | required | — |
+| `translations.en` | string | required | trim {"enabled":true}; min {"limit":1} |
 
 Route source: `backend/src/modules/content/content.routes.js`. Implementation: `backend/src/modules/content/content.controller.js.createTranslationKey`.
 
@@ -5621,7 +5631,7 @@ Controller response helpers: `created`; see global envelope rules.
 
 | Field | Type | Presence | Rules |
 |---|---|---|---|
-| `code` | string | required | min {"limit":2}; max {"limit":16} |
+| `code` | string | required | trim {"enabled":true}; case {"direction":"lower"}; min {"limit":2}; max {"limit":16}; pattern {"regex":"/^[a-z]{2,3}(?:-[a-z0-9]{2,8})*$/"} |
 | `name` | string | required | min {"limit":1}; max {"limit":120} |
 | `native_name` | string | optional | max {"limit":120}; also allows ["",null] |
 | `direction` | string | optional | one of ["ltr","rtl"]; default "ltr" |
@@ -6165,6 +6175,74 @@ No Joi request schema attached. This does **not** mean no body/query is accepted
 Route source: `backend/src/modules/driver-portal/driverPortal.routes.js`. Implementation: `backend/src/modules/driver-portal/driverPortal.controller.js.trips`.
 
 [Controller excerpt](CONTROLLER_CONTRACTS.md#get-api-v1-me-driver-trips).
+
+<a id="get-api-v1-me-driver-work-orders"></a>
+### GET `/api/v1/me/driver/work-orders`
+
+Authentication: Bearer access token required. Tenant scope: not attached on route. Access gate: not attached on route.
+
+Permission (any one): `drivers.work_orders.view`, `drivers.portal.view`.
+
+Controller response helpers: `paginated`; see global envelope rules.
+
+No Joi request schema attached. This does **not** mean no body/query is accepted. Consult the linked controller/service and the integration guide; unvalidated response/body fields are not inferred as a strict schema.
+
+Route source: `backend/src/modules/driver-portal/driverPortal.routes.js`. Implementation: `backend/src/modules/driver-portal/driverPortal.controller.js.workOrders`.
+
+[Controller excerpt](CONTROLLER_CONTRACTS.md#get-api-v1-me-driver-work-orders).
+
+<a id="post-api-v1-me-driver-work-orders"></a>
+### POST `/api/v1/me/driver/work-orders`
+
+Authentication: Bearer access token required. Tenant scope: not attached on route. Access gate: not attached on route.
+
+Permission (any one): `drivers.work_orders.create`, `drivers.work_orders.view`, `drivers.portal.view`.
+
+Controller response helpers: `created`; see global envelope rules.
+
+No Joi request schema attached. This does **not** mean no body/query is accepted. Consult the linked controller/service and the integration guide; unvalidated response/body fields are not inferred as a strict schema.
+
+Route source: `backend/src/modules/driver-portal/driverPortal.routes.js`. Implementation: `backend/src/modules/driver-portal/driverPortal.controller.js.createWorkOrder`.
+
+[Controller excerpt](CONTROLLER_CONTRACTS.md#post-api-v1-me-driver-work-orders).
+
+<a id="get-api-v1-me-driver-work-orders-id"></a>
+### GET `/api/v1/me/driver/work-orders/:id`
+
+Authentication: Bearer access token required. Tenant scope: not attached on route. Access gate: not attached on route.
+
+Permission (any one): `drivers.work_orders.view`, `drivers.portal.view`.
+
+Path parameters: `id` (required).
+
+Observed controller params fields: `id`. These names are read by the handler; requiredness/types may be enforced further in the service.
+
+Controller response helpers: `success`; see global envelope rules.
+
+No Joi request schema attached. This does **not** mean no body/query is accepted. Consult the linked controller/service and the integration guide; unvalidated response/body fields are not inferred as a strict schema.
+
+Route source: `backend/src/modules/driver-portal/driverPortal.routes.js`. Implementation: `backend/src/modules/driver-portal/driverPortal.controller.js.workOrderById`.
+
+[Controller excerpt](CONTROLLER_CONTRACTS.md#get-api-v1-me-driver-work-orders-id).
+
+<a id="post-api-v1-me-driver-work-orders-id-rate"></a>
+### POST `/api/v1/me/driver/work-orders/:id/rate`
+
+Authentication: Bearer access token required. Tenant scope: not attached on route. Access gate: not attached on route.
+
+Permission (any one): `drivers.work_orders.view`, `drivers.portal.view`.
+
+Path parameters: `id` (required).
+
+Observed controller params fields: `id`. These names are read by the handler; requiredness/types may be enforced further in the service.
+
+Controller response helpers: `success`; see global envelope rules.
+
+No Joi request schema attached. This does **not** mean no body/query is accepted. Consult the linked controller/service and the integration guide; unvalidated response/body fields are not inferred as a strict schema.
+
+Route source: `backend/src/modules/driver-portal/driverPortal.routes.js`. Implementation: `backend/src/modules/driver-portal/driverPortal.controller.js.rateWorkOrder`.
+
+[Controller excerpt](CONTROLLER_CONTRACTS.md#post-api-v1-me-driver-work-orders-id-rate).
 
 <a id="get-api-v1-me-support-tickets"></a>
 ### GET `/api/v1/me/support/tickets`
@@ -8584,7 +8662,7 @@ Route source: `backend/src/modules/payments/webhook.routes.js`. Implementation: 
 
 Authentication: Bearer access token required. Tenant scope: yes. Access gate: not attached on route.
 
-Permission (all): `work_orders.view`.
+Permission (any one): `work_orders.view`, `drivers.work_orders.view`, `drivers.portal.view`.
 
 Controller response helpers: `paginated`; see global envelope rules.
 
@@ -8599,7 +8677,7 @@ Route source: `backend/src/modules/work-orders/workOrder.routes.js`. Implementat
 
 Authentication: Bearer access token required. Tenant scope: yes. Access gate: not attached on route.
 
-Permission (any one): `work_orders.create`, `work_orders.assign`.
+Permission (any one): `work_orders.create`, `work_orders.assign`, `drivers.work_orders.create`, `drivers.portal.view`.
 
 Controller response helpers: `created`; see global envelope rules.
 
@@ -8624,7 +8702,7 @@ Route source: `backend/src/modules/work-orders/workOrder.routes.js`. Implementat
 
 Authentication: Bearer access token required. Tenant scope: yes. Access gate: not attached on route.
 
-Permission (all): `work_orders.view`.
+Permission (any one): `work_orders.view`, `drivers.work_orders.view`, `drivers.portal.view`.
 
 Path parameters: `id` (required).
 
@@ -8719,7 +8797,7 @@ Route source: `backend/src/modules/work-orders/workOrder.routes.js`. Implementat
 
 Authentication: Bearer access token required. Tenant scope: yes. Access gate: not attached on route.
 
-Permission (all): `work_orders.view`.
+Permission (any one): `work_orders.view`, `drivers.work_orders.view`, `drivers.portal.view`.
 
 Path parameters: `id` (required).
 

@@ -140,7 +140,7 @@ class NotificationsDriverView extends GetView<NotificationsDriverController> {
           ),
           const SizedBox(width: 8),
           GestureDetector(
-            // onTap: controller.onManagePushSettings,
+            onTap: controller.onManagePushSettings,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(

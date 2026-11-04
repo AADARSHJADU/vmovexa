@@ -70,7 +70,7 @@ class CampaignAnalyticsController extends GetxController {
   Future<void> loadCampaigns() async {
     try {
       final res = await _service.getCampaigns(page: 1, limit: 100);
-      if (res.isSuccess && res.data != null) {
+      if (res.success && res.data != null) {
         campaigns.assignAll(res.data!);
       }
     } catch (e) {
@@ -82,7 +82,7 @@ class CampaignAnalyticsController extends GetxController {
   Future<void> loadCampaignAnalytics(String targetId) async {
     try {
       final res = await _service.getCampaignAnalyticsMap(targetId);
-      if (res.isSuccess && res.data != null) {
+      if (res.success && res.data != null) {
         analyticsData.assignAll(res.data!);
       } else {
         analyticsData.clear();
@@ -90,7 +90,7 @@ class CampaignAnalyticsController extends GetxController {
 
       if (targetId.isNotEmpty && targetId != 'all') {
         final revRes = await _service.getCampaignReviewsData(targetId);
-        if (revRes.isSuccess && revRes.data != null) {
+        if (revRes.success && revRes.data != null) {
           reviewsData.value = revRes.data;
         } else {
           reviewsData.value = null;

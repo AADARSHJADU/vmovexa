@@ -1,9 +1,9 @@
 {
-  "updated": "2026-10-31",
+  "updated": "2026-11-04",
   "files": [
     {
       "path": "backend/scripts/generate-app-api-docs.js",
-      "sha256": "578381fd47414bc8736513cb6570ac1810dc7eb2d40b88b5f7e8b56498c2686c"
+      "sha256": "a97517a4a52ad102209e0a2cbe829297534aca9929f231d4116d08b6160d68fa"
     },
     {
       "path": "backend/src/app.js",
@@ -67,7 +67,7 @@
     },
     {
       "path": "backend/src/modules/campaigns/campaign.controller.js",
-      "sha256": "9447049e13b33c74f1c4356b24d13fc63b99503959cb4d43834675db0922621d"
+      "sha256": "7006853616c01312ef2335d9f0e91ab74ab8efec15e767f0072cc2981270edd8"
     },
     {
       "path": "backend/src/modules/campaigns/campaign.routes.js",
@@ -75,7 +75,7 @@
     },
     {
       "path": "backend/src/modules/campaigns/campaign.validation.js",
-      "sha256": "1274358a8836a7393a48f75049ba089c0c3bc690abc3c5cb0c493dc4a3036903"
+      "sha256": "4264399bb90b595f862991a6ad526cf5a8a0e273e1d308a33bb05c02b12e3833"
     },
     {
       "path": "backend/src/modules/content/content.controller.js",
@@ -87,7 +87,7 @@
     },
     {
       "path": "backend/src/modules/content/content.validation.js",
-      "sha256": "63b762a587fe5301e5a9829a2c5fed2de6ce5d5a215e17e5e8e575e2f848a659"
+      "sha256": "1ca3a7ef99043b238efbc37edf5c412170f9313f0f677e47e0774e1ecefd5b3b"
     },
     {
       "path": "backend/src/modules/dashboard/dashboard.controller.js",
@@ -111,11 +111,11 @@
     },
     {
       "path": "backend/src/modules/driver-portal/driverPortal.controller.js",
-      "sha256": "42c8b9ff3aa1112b3488d4f1b8a12b36bbacb0bb3b2790856105fcb197cd42db"
+      "sha256": "78811174732e07c5b094700ef30057e9ad9b91db45fc9b7ba19941dafcc62ca9"
     },
     {
       "path": "backend/src/modules/driver-portal/driverPortal.routes.js",
-      "sha256": "3521b83e50d519261e532f08e14a59ce5329a6dfe7a84b672262c0dfde2b9066"
+      "sha256": "083e74fe80a0288dced302ec75fa0119896e6c74db01224401d107f618478c4b"
     },
     {
       "path": "backend/src/modules/driver-portal/driverPortal.validation.js",
@@ -279,7 +279,7 @@
     },
     {
       "path": "backend/src/modules/work-orders/workOrder.routes.js",
-      "sha256": "db32182d79b71043415ab60853282a2fba6cd921946d404e7c93c61f3708874b"
+      "sha256": "a5031e4d30cbf416b68eb43ed30e22158263f3841f61574bc0ff1a18eb0972fa"
     },
     {
       "path": "backend/src/modules/work-orders/workOrder.validation.js",

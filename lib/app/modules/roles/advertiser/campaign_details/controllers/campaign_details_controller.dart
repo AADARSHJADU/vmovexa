@@ -72,7 +72,7 @@ class CampaignDetailsController extends GetxController {
     isLoading.value = true;
     try {
       final res = await _service.getCampaignById(campaign.value.id);
-      if (res.isSuccess && res.data != null) {
+      if (res.success && res.data != null) {
         campaign.value = res.data!;
         _syncFormDefaults();
         if (campaign.value.stats != null) {
@@ -84,7 +84,7 @@ class CampaignDetailsController extends GetxController {
 
       // Fetch reviews
       final reviewsRes = await _service.getCampaignReviews(campaign.value.id);
-      if (reviewsRes.isSuccess && reviewsRes.data != null) {
+      if (reviewsRes.success && reviewsRes.data != null) {
         reviews.assignAll(reviewsRes.data!);
       }
     } catch (e) {
@@ -100,7 +100,7 @@ class CampaignDetailsController extends GetxController {
     isActionLoading.value = true;
     try {
       final res = await _service.startCampaign(campaign.value.id);
-      if (res.isSuccess) {
+      if (res.success) {
         Get.snackbar('Success', 'Campaign started! Broadcast is now live on screens',
             backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
         await refreshCampaignDetails();
@@ -121,7 +121,7 @@ class CampaignDetailsController extends GetxController {
     isActionLoading.value = true;
     try {
       final res = await _service.pauseCampaign(campaign.value.id);
-      if (res.isSuccess) {
+      if (res.success) {
         Get.snackbar('Success', 'Campaign paused successfully',
             backgroundColor: const Color(0xFFF97316), colorText: Colors.white);
         await refreshCampaignDetails();
@@ -142,7 +142,7 @@ class CampaignDetailsController extends GetxController {
     isActionLoading.value = true;
     try {
       final res = await _service.endCampaign(campaign.value.id);
-      if (res.isSuccess) {
+      if (res.success) {
         Get.snackbar('Success', 'Campaign completed and broadcast stopped',
             backgroundColor: const Color(0xFF3B82F6), colorText: Colors.white);
         await refreshCampaignDetails();
@@ -205,7 +205,7 @@ class CampaignDetailsController extends GetxController {
 
     if (confirmed == true) {
       final res = await _service.deleteCampaign(campaign.value.id);
-      if (res.isSuccess) {
+      if (res.success) {
         Get.back();
         Get.snackbar('Success', 'Campaign deleted',
             backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
@@ -244,7 +244,7 @@ class CampaignDetailsController extends GetxController {
         if (channel == 'email') 'recipientEmail': recipient.trim(),
       };
       final res = await _service.sharePaymentLink(campaign.value.id, payload);
-      if (res.isSuccess) {
+      if (res.success) {
         Get.back(); // close modal if open
         Get.snackbar('Link Sent', res.message ?? 'Payment checkout link queued successfully',
             backgroundColor: const Color(0xFF10B981), colorText: Colors.white);

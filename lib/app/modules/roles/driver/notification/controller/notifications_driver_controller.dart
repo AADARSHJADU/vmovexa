@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import 'package:vmovexa/app/data/services/driver_service.dart';
 import '../model/driver_notification_model.dart';
 
 class NotificationsDriverController extends GetxController {
+  DriverService get _driverService => DriverService.to;
+
   // ---------------- Loading ----------------
   final RxBool isLoading = false.obs;
 
@@ -41,10 +44,56 @@ class NotificationsDriverController extends GetxController {
   Future<void> fetchNotifications() async {
     isLoading.value = true;
     try {
-      // TODO: replace with real API/repository call
-      allNotifications.assignAll(_mockNotifications());
+      final res = await _driverService.getNotifications(page: 1, limit: 30);
+      if (res.success && res.data != null && res.data!.isNotEmpty) {
+        final list = res.data!.map((item) {
+          final catStr = (item['type'] ?? item['category'] ?? '').toString().toLowerCase();
+          NotificationCategory category = NotificationCategory.update;
+          IconData icon = Icons.info_outline;
+
+          if (catStr.contains('alert') || catStr.contains('warning') || catStr.contains('danger')) {
+            category = NotificationCategory.alert;
+            icon = Icons.warning_amber_rounded;
+          } else if (catStr.contains('system')) {
+            category = NotificationCategory.system;
+            icon = Icons.directions_bus_filled_outlined;
+          }
+
+          return DriverNotification(
+            id: item['id']?.toString() ?? 'notif_${DateTime.now().millisecondsSinceEpoch}',
+            title: item['title']?.toString() ?? 'Notification',
+            message: item['message']?.toString() ?? (item['body']?.toString() ?? ''),
+            timeAgo: item['time_ago']?.toString() ?? (item['created_at'] != null ? _formatDate(item['created_at'].toString()) : 'Recently'),
+            icon: icon,
+            category: category,
+            isRead: item['is_read'] == true || item['read'] == true,
+          );
+        }).toList();
+
+        allNotifications.assignAll(list);
+      } else {
+        allNotifications.clear();
+      }
+    } catch (e) {
+      debugPrint('NotificationsDriverController fetch error: $e');
+      allNotifications.clear();
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  String _formatDate(String raw) {
+    try {
+      final dt = DateTime.parse(raw).toLocal();
+      final diff = DateTime.now().difference(dt);
+      if (diff.inMinutes < 60) {
+        return '${diff.inMinutes} min ago';
+      } else if (diff.inHours < 24) {
+        return '${diff.inHours} hr ago';
+      }
+      return '${diff.inDays} days ago';
+    } catch (_) {
+      return 'Recently';
     }
   }
 
@@ -56,85 +105,13 @@ class NotificationsDriverController extends GetxController {
   void onNotificationTap(DriverNotification notification) {
     notification.isRead = true;
     allNotifications.refresh();
-    // TODO: navigate to the relevant screen based on notification.category/type
   }
 
-  void onOpenFilterSheet() {
-    // TODO: hook up an advanced filter bottom sheet
-  }
+  void onOpenFilterSheet() {}
 
   void onManagePushSettings() {
     Get.toNamed('/notification-settings');
   }
 
   void onBackPressed() => Get.back();
-
-  // ---------------- Mock data ----------------
-  List<DriverNotification> _mockNotifications() {
-    return [
-      DriverNotification(
-        id: 'n1',
-        title: 'Traffic congestion on Western Express Highway.',
-        message: 'Expect minor delays on your route.',
-        timeAgo: '10 min ago',
-        icon: Icons.warning_amber_rounded,
-        category: NotificationCategory.alert,
-        isRead: false,
-      ),
-      DriverNotification(
-        id: 'n2',
-        title: 'Diversion on SV Road due to road work.',
-        message: 'Follow alternate route via Link Road.',
-        timeAgo: '25 min ago',
-        icon: Icons.campaign_outlined,
-        category: NotificationCategory.update,
-        isRead: false,
-      ),
-      DriverNotification(
-        id: 'n3',
-        title: 'Schedule update for Route MH12A.',
-        message: 'Return trip timing has been updated.',
-        timeAgo: '1 hr ago',
-        icon: Icons.calendar_today_outlined,
-        category: NotificationCategory.update,
-        isRead: false,
-      ),
-      DriverNotification(
-        id: 'n4',
-        title: 'Vehicle inspection completed successfully.',
-        message: 'Your vehicle is cleared for today\'s operations.',
-        timeAgo: '1 hr ago',
-        icon: Icons.directions_bus_filled_outlined,
-        category: NotificationCategory.system,
-        isRead: false,
-      ),
-      DriverNotification(
-        id: 'n5',
-        title: 'Low fuel alert.',
-        message: 'Fuel level is below 15%. Please refuel at earliest.',
-        timeAgo: '2 hr ago',
-        icon: Icons.local_gas_station_outlined,
-        category: NotificationCategory.alert,
-        isRead: false,
-      ),
-      DriverNotification(
-        id: 'n6',
-        title: 'Road conditions update.',
-        message: 'Heavy traffic reported near Andheri Depot.',
-        timeAgo: '3 hr ago',
-        icon: Icons.alt_route_outlined,
-        category: NotificationCategory.update,
-        isRead: true,
-      ),
-      DriverNotification(
-        id: 'n7',
-        title: 'New routes assigned.',
-        message: 'You have been assigned new routes for tomorrow.',
-        timeAgo: '5 hr ago',
-        icon: Icons.info_outline,
-        category: NotificationCategory.system,
-        isRead: true,
-      ),
-    ];
-  }
 }

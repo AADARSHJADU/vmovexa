@@ -76,7 +76,7 @@ class _ClientAddressMapPickerState extends State<ClientAddressMapPicker> {
         if (mounted) {
           setState(() {
             _predictions.clear();
-            if (res.isSuccess && res.data != null) {
+            if (res.success && res.data != null) {
               _predictions.addAll(res.data!);
             }
             _showDropdown = _predictions.isNotEmpty;

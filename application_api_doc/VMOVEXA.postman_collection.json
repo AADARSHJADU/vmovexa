@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "VMOVEXA App API 2026-10-31",
+    "name": "VMOVEXA App API 2026-11-04",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "description": "Generated request templates. Replace all placeholders. Empty bodies are not proof that an endpoint takes no parameters. Requests can modify real data; execute only against an intended test environment. Response contracts: APP_DEVELOPER_GUIDE.md."
   },
@@ -5771,7 +5771,7 @@
         },
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"key\": \"<replace>\"\n}",
+          "raw": "{\n  \"key\": \"<replace>\",\n  \"translations\": {\n    \"en\": \"<replace>\"\n  }\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -6569,6 +6569,86 @@
         "header": [],
         "url": "{{baseUrl}}/api/v1/me/driver/trips",
         "description": "See API_REFERENCE.md#get-api-v1-me-driver-trips\nbackend/src/modules/driver-portal/driverPortal.controller.js.trips",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET /api/v1/me/driver/work-orders",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/me/driver/work-orders",
+        "description": "See API_REFERENCE.md#get-api-v1-me-driver-work-orders\nbackend/src/modules/driver-portal/driverPortal.controller.js.workOrders",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST /api/v1/me/driver/work-orders",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/me/driver/work-orders",
+        "description": "See API_REFERENCE.md#post-api-v1-me-driver-work-orders\nbackend/src/modules/driver-portal/driverPortal.controller.js.createWorkOrder",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET /api/v1/me/driver/work-orders/:id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/me/driver/work-orders/{{id}}",
+        "description": "See API_REFERENCE.md#get-api-v1-me-driver-work-orders-id\nbackend/src/modules/driver-portal/driverPortal.controller.js.workOrderById",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST /api/v1/me/driver/work-orders/:id/rate",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/me/driver/work-orders/{{id}}/rate",
+        "description": "See API_REFERENCE.md#post-api-v1-me-driver-work-orders-id-rate\nbackend/src/modules/driver-portal/driverPortal.controller.js.rateWorkOrder",
         "auth": {
           "type": "bearer",
           "bearer": [

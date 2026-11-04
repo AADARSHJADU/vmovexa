@@ -1,6 +1,6 @@
 # Controller contract excerpts
 
-Generated 2026-10-31. Exact controller code is included for request field spelling and response branching. These excerpts are reference material, not runnable client code. They call services whose rules are not fully described by this file. No production environment values or credentials are imported.
+Generated 2026-11-04. Exact controller code is included for request field spelling and response branching. These excerpts are reference material, not runnable client code. They call services whose rules are not fully described by this file. No production environment values or credentials are imported.
 
 <a id="get-api-v1"></a>
 ## GET /api/v1
@@ -543,89 +543,99 @@ async function createAdvertiser(req, res) {
 
   const { advertiser, user, role } = result;
 
-  // 5. Asynchronous Background Notification Dispatch (Queued in NotificationLog, processed via Cron/Worker)
+  // 5. Asynchronous Background Notification Dispatch (Queued in NotificationLog for Cron/Worker)
   if (user) {
     const appUrl = process.env.APP_BASE_URL || 'http://localhost:5173';
     const loginUrl = `${appUrl}/login`;
     const superAdminEmail = req.user?.email || 'root@vmovexa.com';
     const superAdminId = req.user?.id || null;
 
-    try {
-      const notificationLogService = require('../../services/notificationLog.service');
+    // Run queuing asynchronously so createAdvertiser returns HTTP response immediately
+    setImmediate(async () => {
+      try {
+        const notificationLogService = require('../../services/notificationLog.service');
 
-      // A. Queue In-App notification for the new Advertiser
-      await notificationLogService.enqueueNotification({
-        userId: user.id,
-        recipient: user.email || user.phone || 'Advertiser',
-        channel: 'in_app',
-        eventKey: 'user_welcome_credentials',
-        title: 'Welcome to VMOVEXA! Advertiser Account Ready',
-        body: `Welcome ${user.name}! Your Commercial Advertiser account has been provisioned. Enrollment ID: ${user.enrollment_no}. You can now create and launch transit display ad campaigns.`,
-        metadata: {
-          severity: 'info',
-          data: { enrollmentNo: user.enrollment_no, email: user.email, advertiserId: advertiser.id },
-        },
-      });
-
-      // B. Queue SMS with login credentials if phone number provided (DB template + fallback)
-      if (user.phone) {
-        const smsSvc = require('../../services/sms.service');
-        const tplSms = smsSvc.renderTemplateByCode
-          ? await smsSvc.renderTemplateByCode('user_welcome_credentials', {
-              user_name: user.name,
-              role_name: role?.name || 'Advertiser',
-              user_email: user.email,
-              temporary_password: plainPassword,
-            })
-          : null;
+        // A. Queue In-App notification for the new Advertiser (status: pending, picked by Cron)
         await notificationLogService.enqueueNotification({
           userId: user.id,
-          recipient: user.phone,
-          channel: 'sms',
-          eventKey: 'user_welcome_credentials',
-          title: 'Advertiser Account Credentials SMS',
-          body: tplSms || `[VMOVEXA] Welcome ${user.name}! Your Advertiser account is ready. Enrollment: ${user.enrollment_no}, Login: ${user.email}, Pass: ${plainPassword}. Login: ${loginUrl}`,
-        });
-      }
-
-      // C. Send Branded HTML Email with login credentials & SuperAdmin notification
-      if (user.email) {
-        const emailService = require('../../services/email.service');
-        await emailService.sendUserProvisioningEmails({
-          user,
-          role: role || { name: 'Commercial Advertiser', code: 'ROLE-ADVERTISER' },
-          password: plainPassword,
-          superAdminEmail,
-        }).catch((emailErr) => {
-          logger.notification?.warn(`Direct email dispatch warning for advertiser ${user.email}: ${emailErr.message}`);
-        });
-      }
-
-      // D. Queue In-App & WebSocket Notification to SuperAdmin
-      if (superAdminId) {
-        await notificationLogService.enqueueNotification({
-          userId: superAdminId,
-          recipient: superAdminEmail,
+          recipient: user.email || user.phone || 'Advertiser',
           channel: 'in_app',
-          eventKey: 'user_provisioned_superadmin',
-          title: 'New Commercial Advertiser Onboarded',
-          body: `Commercial Advertiser "${advertiser.name}" (${advertiser.code}) was onboarded successfully. Credentials dispatched via Email & SMS.`,
+          eventKey: 'user_welcome_credentials',
+          title: 'Welcome to VMOVEXA! Advertiser Account Ready',
+          body: `Welcome ${user.name}! Your Commercial Advertiser account has been provisioned. Enrollment ID: ${user.enrollment_no}. You can now create and launch transit display ad campaigns.`,
           metadata: {
             severity: 'info',
-            data: { advertiserId: advertiser.id, code: advertiser.code, userId: user.id },
+            data: { enrollmentNo: user.enrollment_no, email: user.email, advertiserId: advertiser.id },
           },
-        });
-      }
+        }).catch(() => {});
 
-      // Trigger background worker tick immediately
-      setImmediate(() => {
-        notificationLogService.processPendingNotifications().catch((err) => {
-          logger.notification?.warn(`Background notification queue error: ${err.message}`);
-        });
-      });
-    } catch (notifErr) {
-      console.warn(`Advertiser onboarding notification queuing warning: ${notifErr.message}`);
-    }
+        // B. Queue SMS with login credentials if phone number provided (status: pending, picked by Cron)
+        if (user.phone) {
+          const smsSvc = require('../../services/sms.service');
+          const tplSms = smsSvc.renderTemplateByCode
+            ? await smsSvc.renderTemplateByCode('advertiser/created', {
+                user_name: user.name,
+                company_name: advertiserDisplayName,
+                user_email: user.email,
+                enrollment_no: user.enrollment_no || '—',
+                temp_password: plainPassword,
+                login_url: loginUrl,
+              }).catch(() => null)
+            : null;
+          await notificationLogService.enqueueNotification({
+            userId: user.id,
+            recipient: user.phone,
+            channel: 'sms',
+            eventKey: 'advertiser_created',
+            title: 'Advertiser Account Credentials SMS',
+            body: tplSms || `[VMOVEXA] Welcome ${user.name}! Your Advertiser account for ${advertiserDisplayName} is ready. ID: ${user.enrollment_no}, Login: ${user.email}, Pass: ${plainPassword}. Login: ${loginUrl}`,
+          }).catch(() => {});
+        }
+
+        // C. Queue Welcome & Credentials Email (status: pending, processed by background Cron)
+        if (user.email) {
+          await notificationLogService.enqueueNotification({
+            userId: user.id,
+            recipient: user.email,
+            channel: 'email',
+            eventKey: 'advertiser_created',
+            title: `Your VMOVEXA Advertiser Account Credentials (${user.enrollment_no || 'ADV'})`,
+            body: `Login credentials and instructions for commercial advertiser ${user.name}`,
+            metadata: {
+              action: 'provisioning_email',
+              payload: {
+                user,
+                role: role || { name: 'Commercial Advertiser', code: 'ROLE-ADVERTISER' },
+                password: plainPassword,
+                superAdminEmail,
+                extra: {
+                  company_name: advertiserDisplayName,
+                  skipDirectSms: true,
+                },
+              },
+            },
+          }).catch(() => {});
+        }
+
+        // D. Queue In-App & WebSocket Notification to SuperAdmin (status: pending, picked by Cron)
+        if (superAdminId) {
+          await notificationLogService.enqueueNotification({
+            userId: superAdminId,
+            recipient: superAdminEmail,
+            channel: 'in_app',
+            eventKey: 'user_provisioned_superadmin',
+            title: 'New Commercial Advertiser Onboarded',
+            body: `Commercial Advertiser "${advertiser.name}" (${advertiser.code}) was onboarded successfully.`,
+            metadata: {
+              severity: 'info',
+              data: { advertiserId: advertiser.id, code: advertiser.code, userId: user.id },
+            },
+          }).catch(() => {});
+        }
+      } catch (notifErr) {
+        logger?.notification?.warn?.(`Advertiser onboarding notification queuing warning: ${notifErr.message}`);
+      }
+    });
   }
 
   return apiResponse.created(res, advertiser, 'Commercial advertiser onboarded successfully.');
@@ -3573,89 +3583,99 @@ async function createAdvertiser(req, res) {
 
   const { advertiser, user, role } = result;
 
-  // 5. Asynchronous Background Notification Dispatch (Queued in NotificationLog, processed via Cron/Worker)
+  // 5. Asynchronous Background Notification Dispatch (Queued in NotificationLog for Cron/Worker)
   if (user) {
     const appUrl = process.env.APP_BASE_URL || 'http://localhost:5173';
     const loginUrl = `${appUrl}/login`;
     const superAdminEmail = req.user?.email || 'root@vmovexa.com';
     const superAdminId = req.user?.id || null;
 
-    try {
-      const notificationLogService = require('../../services/notificationLog.service');
+    // Run queuing asynchronously so createAdvertiser returns HTTP response immediately
+    setImmediate(async () => {
+      try {
+        const notificationLogService = require('../../services/notificationLog.service');
 
-      // A. Queue In-App notification for the new Advertiser
-      await notificationLogService.enqueueNotification({
-        userId: user.id,
-        recipient: user.email || user.phone || 'Advertiser',
-        channel: 'in_app',
-        eventKey: 'user_welcome_credentials',
-        title: 'Welcome to VMOVEXA! Advertiser Account Ready',
-        body: `Welcome ${user.name}! Your Commercial Advertiser account has been provisioned. Enrollment ID: ${user.enrollment_no}. You can now create and launch transit display ad campaigns.`,
-        metadata: {
-          severity: 'info',
-          data: { enrollmentNo: user.enrollment_no, email: user.email, advertiserId: advertiser.id },
-        },
-      });
-
-      // B. Queue SMS with login credentials if phone number provided (DB template + fallback)
-      if (user.phone) {
-        const smsSvc = require('../../services/sms.service');
-        const tplSms = smsSvc.renderTemplateByCode
-          ? await smsSvc.renderTemplateByCode('user_welcome_credentials', {
-              user_name: user.name,
-              role_name: role?.name || 'Advertiser',
-              user_email: user.email,
-              temporary_password: plainPassword,
-            })
-          : null;
+        // A. Queue In-App notification for the new Advertiser (status: pending, picked by Cron)
         await notificationLogService.enqueueNotification({
           userId: user.id,
-          recipient: user.phone,
-          channel: 'sms',
-          eventKey: 'user_welcome_credentials',
-          title: 'Advertiser Account Credentials SMS',
-          body: tplSms || `[VMOVEXA] Welcome ${user.name}! Your Advertiser account is ready. Enrollment: ${user.enrollment_no}, Login: ${user.email}, Pass: ${plainPassword}. Login: ${loginUrl}`,
-        });
-      }
-
-      // C. Send Branded HTML Email with login credentials & SuperAdmin notification
-      if (user.email) {
-        const emailService = require('../../services/email.service');
-        await emailService.sendUserProvisioningEmails({
-          user,
-          role: role || { name: 'Commercial Advertiser', code: 'ROLE-ADVERTISER' },
-          password: plainPassword,
-          superAdminEmail,
-        }).catch((emailErr) => {
-          logger.notification?.warn(`Direct email dispatch warning for advertiser ${user.email}: ${emailErr.message}`);
-        });
-      }
-
-      // D. Queue In-App & WebSocket Notification to SuperAdmin
-      if (superAdminId) {
-        await notificationLogService.enqueueNotification({
-          userId: superAdminId,
-          recipient: superAdminEmail,
+          recipient: user.email || user.phone || 'Advertiser',
           channel: 'in_app',
-          eventKey: 'user_provisioned_superadmin',
-          title: 'New Commercial Advertiser Onboarded',
-          body: `Commercial Advertiser "${advertiser.name}" (${advertiser.code}) was onboarded successfully. Credentials dispatched via Email & SMS.`,
+          eventKey: 'user_welcome_credentials',
+          title: 'Welcome to VMOVEXA! Advertiser Account Ready',
+          body: `Welcome ${user.name}! Your Commercial Advertiser account has been provisioned. Enrollment ID: ${user.enrollment_no}. You can now create and launch transit display ad campaigns.`,
           metadata: {
             severity: 'info',
-            data: { advertiserId: advertiser.id, code: advertiser.code, userId: user.id },
+            data: { enrollmentNo: user.enrollment_no, email: user.email, advertiserId: advertiser.id },
           },
-        });
-      }
+        }).catch(() => {});
 
-      // Trigger background worker tick immediately
-      setImmediate(() => {
-        notificationLogService.processPendingNotifications().catch((err) => {
-          logger.notification?.warn(`Background notification queue error: ${err.message}`);
-        });
-      });
-    } catch (notifErr) {
-      console.warn(`Advertiser onboarding notification queuing warning: ${notifErr.message}`);
-    }
+        // B. Queue SMS with login credentials if phone number provided (status: pending, picked by Cron)
+        if (user.phone) {
+          const smsSvc = require('../../services/sms.service');
+          const tplSms = smsSvc.renderTemplateByCode
+            ? await smsSvc.renderTemplateByCode('advertiser/created', {
+                user_name: user.name,
+                company_name: advertiserDisplayName,
+                user_email: user.email,
+                enrollment_no: user.enrollment_no || '—',
+                temp_password: plainPassword,
+                login_url: loginUrl,
+              }).catch(() => null)
+            : null;
+          await notificationLogService.enqueueNotification({
+            userId: user.id,
+            recipient: user.phone,
+            channel: 'sms',
+            eventKey: 'advertiser_created',
+            title: 'Advertiser Account Credentials SMS',
+            body: tplSms || `[VMOVEXA] Welcome ${user.name}! Your Advertiser account for ${advertiserDisplayName} is ready. ID: ${user.enrollment_no}, Login: ${user.email}, Pass: ${plainPassword}. Login: ${loginUrl}`,
+          }).catch(() => {});
+        }
+
+        // C. Queue Welcome & Credentials Email (status: pending, processed by background Cron)
+        if (user.email) {
+          await notificationLogService.enqueueNotification({
+            userId: user.id,
+            recipient: user.email,
+            channel: 'email',
+            eventKey: 'advertiser_created',
+            title: `Your VMOVEXA Advertiser Account Credentials (${user.enrollment_no || 'ADV'})`,
+            body: `Login credentials and instructions for commercial advertiser ${user.name}`,
+            metadata: {
+              action: 'provisioning_email',
+              payload: {
+                user,
+                role: role || { name: 'Commercial Advertiser', code: 'ROLE-ADVERTISER' },
+                password: plainPassword,
+                superAdminEmail,
+                extra: {
+                  company_name: advertiserDisplayName,
+                  skipDirectSms: true,
+                },
+              },
+            },
+          }).catch(() => {});
+        }
+
+        // D. Queue In-App & WebSocket Notification to SuperAdmin (status: pending, picked by Cron)
+        if (superAdminId) {
+          await notificationLogService.enqueueNotification({
+            userId: superAdminId,
+            recipient: superAdminEmail,
+            channel: 'in_app',
+            eventKey: 'user_provisioned_superadmin',
+            title: 'New Commercial Advertiser Onboarded',
+            body: `Commercial Advertiser "${advertiser.name}" (${advertiser.code}) was onboarded successfully.`,
+            metadata: {
+              severity: 'info',
+              data: { advertiserId: advertiser.id, code: advertiser.code, userId: user.id },
+            },
+          }).catch(() => {});
+        }
+      } catch (notifErr) {
+        logger?.notification?.warn?.(`Advertiser onboarding notification queuing warning: ${notifErr.message}`);
+      }
+    });
   }
 
   return apiResponse.created(res, advertiser, 'Commercial advertiser onboarded successfully.');
@@ -4318,7 +4338,7 @@ async function createGovernment(req, res) {
         }
       }
 
-      // 3. Branded welcome & credentials email (Queued in NotificationLog for reliable background delivery)
+      // 3. Branded welcome & credentials email (Queued in NotificationLog for reliable background Cron delivery)
       if (createdUser?.email) {
         await notificationLogService.enqueueNotification({
           userId: createdUser.id,
@@ -4335,25 +4355,36 @@ async function createGovernment(req, res) {
               password: rawPassword,
               creator: req?.user,
               superAdminEmail: effectiveSuperAdminEmail,
+              extra: {
+                agency_name: createdAgency.name,
+                jurisdiction: createdAgency.jurisdiction || 'Statewide Transit Network',
+                skipDirectSms: true,
+              },
             },
           },
         }).catch(() => {});
-
-        // Safely trigger queue drain immediately
-        notificationLogService.processPendingNotifications().catch(() => {});
       }
 
-      // 4. SMS Notification (DB-managed template, respects ENABLE_LIVE_SMS vs Log-Only)
-      if (createdUser?.phone && smsService?.sendSms) {
-        const tplMsg = smsService.renderTemplateByCode
-          ? await smsService.renderTemplateByCode('gov_agency_authorized', {
+      // 4. SMS Notification (Queued in NotificationLog for background Cron delivery)
+      if (createdUser?.phone) {
+        const appUrl = process.env.APP_BASE_URL || 'http://localhost:5173';
+        const tplMsg = smsService?.renderTemplateByCode
+          ? await smsService.renderTemplateByCode('government/created', {
               agency_name: createdAgency.name,
-              login_id: createdUser.email || createdUser.enrollment_no,
-            })
+              user_name: createdUser.name,
+              user_email: createdUser.email || '—',
+              enrollment_no: createdUser.enrollment_no || '—',
+              temp_password: rawPassword,
+              login_url: `${appUrl}/login`,
+            }).catch(() => null)
           : null;
-        await smsService.sendSms({
-          to: createdUser.phone,
-          message: tplMsg || `VMOVEXA Gov Portal: Your agency ${createdAgency.name} has been authorized. Login ID: ${createdUser.email || createdUser.enrollment_no}.`,
+        await notificationLogService.enqueueNotification({
+          userId: createdUser.id,
+          recipient: createdUser.phone,
+          channel: 'sms',
+          eventKey: 'government_authorized',
+          title: 'Government Authority Credentials SMS',
+          body: tplMsg || `[VMOVEXA] Official Authority: Agency ${createdAgency.name} authorized. Officer: ${createdUser.name}, ID: ${createdUser.enrollment_no}, Login: ${createdUser.email}, Pass: ${rawPassword}. Login: ${appUrl}/login`,
         }).catch(() => {});
       }
     } catch (_) {}
@@ -6133,7 +6164,7 @@ async function createGovernment(req, res) {
         }
       }
 
-      // 3. Branded welcome & credentials email (Queued in NotificationLog for reliable background delivery)
+      // 3. Branded welcome & credentials email (Queued in NotificationLog for reliable background Cron delivery)
       if (createdUser?.email) {
         await notificationLogService.enqueueNotification({
           userId: createdUser.id,
@@ -6150,25 +6181,36 @@ async function createGovernment(req, res) {
               password: rawPassword,
               creator: req?.user,
               superAdminEmail: effectiveSuperAdminEmail,
+              extra: {
+                agency_name: createdAgency.name,
+                jurisdiction: createdAgency.jurisdiction || 'Statewide Transit Network',
+                skipDirectSms: true,
+              },
             },
           },
         }).catch(() => {});
-
-        // Safely trigger queue drain immediately
-        notificationLogService.processPendingNotifications().catch(() => {});
       }
 
-      // 4. SMS Notification (DB-managed template, respects ENABLE_LIVE_SMS vs Log-Only)
-      if (createdUser?.phone && smsService?.sendSms) {
-        const tplMsg = smsService.renderTemplateByCode
-          ? await smsService.renderTemplateByCode('gov_agency_authorized', {
+      // 4. SMS Notification (Queued in NotificationLog for background Cron delivery)
+      if (createdUser?.phone) {
+        const appUrl = process.env.APP_BASE_URL || 'http://localhost:5173';
+        const tplMsg = smsService?.renderTemplateByCode
+          ? await smsService.renderTemplateByCode('government/created', {
               agency_name: createdAgency.name,
-              login_id: createdUser.email || createdUser.enrollment_no,
-            })
+              user_name: createdUser.name,
+              user_email: createdUser.email || '—',
+              enrollment_no: createdUser.enrollment_no || '—',
+              temp_password: rawPassword,
+              login_url: `${appUrl}/login`,
+            }).catch(() => null)
           : null;
-        await smsService.sendSms({
-          to: createdUser.phone,
-          message: tplMsg || `VMOVEXA Gov Portal: Your agency ${createdAgency.name} has been authorized. Login ID: ${createdUser.email || createdUser.enrollment_no}.`,
+        await notificationLogService.enqueueNotification({
+          userId: createdUser.id,
+          recipient: createdUser.phone,
+          channel: 'sms',
+          eventKey: 'government_authorized',
+          title: 'Government Authority Credentials SMS',
+          body: tplMsg || `[VMOVEXA] Official Authority: Agency ${createdAgency.name} authorized. Officer: ${createdUser.name}, ID: ${createdUser.enrollment_no}, Login: ${createdUser.email}, Pass: ${rawPassword}. Login: ${appUrl}/login`,
         }).catch(() => {});
       }
     } catch (_) {}
@@ -7262,6 +7304,45 @@ async function trips(req, res) {
 }
 ```
 
+<a id="get-api-v1-me-driver-work-orders"></a>
+## GET /api/v1/me/driver/work-orders
+
+```javascript
+async function workOrders(req, res) {
+  const { rows, meta } = await workOrderService.driverWorkOrders(req, req.query);
+  return apiResponse.paginated(res, rows, meta);
+}
+```
+
+<a id="post-api-v1-me-driver-work-orders"></a>
+## POST /api/v1/me/driver/work-orders
+
+```javascript
+async function createWorkOrder(req, res) {
+  const wo = await workOrderService.driverCreateWorkOrder(req, req.body);
+  return apiResponse.created(res, wo, 'Work order submitted successfully.');
+}
+```
+
+<a id="get-api-v1-me-driver-work-orders-id"></a>
+## GET /api/v1/me/driver/work-orders/:id
+
+```javascript
+async function workOrderById(req, res) {
+  return apiResponse.success(res, await workOrderService.driverWorkOrderById(req, req.params.id));
+}
+```
+
+<a id="post-api-v1-me-driver-work-orders-id-rate"></a>
+## POST /api/v1/me/driver/work-orders/:id/rate
+
+```javascript
+async function rateWorkOrder(req, res) {
+  const result = await workOrderService.rate(req.params.id, req.body, req);
+  return apiResponse.success(res, result, 'Technician rated successfully.');
+}
+```
+
 <a id="get-api-v1-me-support-tickets"></a>
 ## GET /api/v1/me/support/tickets
 
@@ -7467,7 +7548,7 @@ async function getSms(req, res) {
   if (rows) rows.forEach((r) => { map[r.key] = r.value; });
 
   return apiResponse.success(res, {
-    twilio_account_sid: map.twilio_account_sid || 'ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    twilio_account_sid: map.twilio_account_sid || 'AC_TWILIO_ACCOUNT_SID_EXAMPLE',
     twilio_auth_token: map.twilio_auth_token ? (map.twilio_auth_token.length > 8 ? `${map.twilio_auth_token.slice(0, 4)}••••${map.twilio_auth_token.slice(-4)}` : '••••••••') : '',
     twilio_from_number: map.twilio_from_number || '+18005550199',
     sender_id: map.dlt_sender_id || 'VMVEXA',

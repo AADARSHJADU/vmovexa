@@ -169,16 +169,28 @@ class DriverHelpSupportView extends GetView<DriverHelpSupportController> {
   // ---------------- Tickets list ----------------
   Widget _buildTicketsList() {
     return Obx(
-      () => Column(
-        children: controller.supportTickets
-            .map(
-              (ticket) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: _TicketCard(ticket: ticket, onTap: () => controller.onTicketTap(ticket)),
+      () => controller.supportTickets.isEmpty
+          ? Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+              decoration: BoxDecoration(
+                color: kCardBg,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: kBorder),
               ),
+              alignment: Alignment.center,
+              child: const Text('No support tickets found', style: TextStyle(color: Colors.white54, fontSize: 13)),
             )
-            .toList(),
-      ),
+          : Column(
+              children: controller.supportTickets
+                  .map(
+                    (ticket) => Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: _TicketCard(ticket: ticket, onTap: () => controller.onTicketTap(ticket)),
+                    ),
+                  )
+                  .toList(),
+            ),
     );
   }
 

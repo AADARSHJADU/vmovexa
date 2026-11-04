@@ -217,14 +217,14 @@ class FinanceDrawerWidget extends StatelessWidget {
                       Get.toNamed(Routes.FINANCE_NOTIFICATIONS);
                     },
                   ),
-                  _buildMenuItem(
-                    icon: Icons.settings_outlined,
-                    label: 'Finance Settings',
-                    onTap: () {
-                      Navigator.pop(context);
-                      Get.toNamed(Routes.FINANCE_SETTINGS);
-                    },
-                  ),
+                  // _buildMenuItem(
+                  //   icon: Icons.settings_outlined,
+                  //   label: 'Finance Settings',
+                  //   onTap: () {
+                  //     Navigator.pop(context);
+                  //     Get.toNamed(Routes.FINANCE_SETTINGS);
+                  //   },
+                  // ),
                   _buildMenuItem(
                     icon: Icons.person_outline,
                     label: 'Finance Profile',

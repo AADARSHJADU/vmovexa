@@ -21,7 +21,52 @@ class ApiConstants {
   static void setBaseUrl(String url) {
     baseUrl = url;
   }
+///
+  // Fleet Operator Endpoints
+  static const String dashboardKpis = '/dashboard/admin/kpis';
+  static const String liveSummary = '/dashboard/live-summary';
+  static const String fleets = '/fleets';
+  static String fleetOne(String id) => '/fleets/$id';
+  static String fleetAssignVehicle(String id) => '/fleets/$id/assign-vehicle';
+  static String fleetUnassignVehicle(String id) => '/fleets/$id/unassign-vehicle';
+  static String fleetApprove(String id) => '/fleets/$id/approve';
+  static String fleetReject(String id) => '/fleets/$id/reject';
+  static const String fleetQuotas = '/fleets/quotas';
+  static const String gpsDevices = '/gps-devices';
+  static String gpsDeviceOne(String id) => '/gps-devices/$id';
+  static String gpsDeviceAssign(String id) => '/gps-devices/$id/assign';
+  static String gpsDeviceApprove(String id) => '/gps-devices/$id/approve';
+  static String gpsDeviceReject(String id) => '/gps-devices/$id/reject';
+  static String workOrderOne(String id) => '/work-orders/$id';
+  static const String activityLogsCategories = '/activity-logs/categories';
+  static const String activityLogsFilters = '/activity-logs/filters';
+  static String notificationRead(String id) => '/notifications/$id/read';
+  static const String notificationReadAll = '/notifications/read-all';
+  static String notificationDelete(String id) => '/notifications/$id';
+  static const String incidents = '/incidents';
+  static String incidentOne(String id) => '/incidents/$id';
+  static String incidentStatus(String id) => '/incidents/$id/status';
+  static String incidentResolution(String id) => '/incidents/$id/resolution';
+  static const String techWorkOrders = '/me/technician/work-orders';
+  static const String workOrders = '/work-orders';
+  static const String workOrdersDispatch = '/work-orders/dispatch';
+  static const String vehicles = '/vehicles';
+  static String vehicleOne(String id) => '/vehicles/$id';
+  static String vehicleTelemetry(String id) => '/vehicles/$id/telemetry';
+  static String vehicleAssignDriver(String id) => '/vehicles/$id/assign-driver';
+  static String vehicleAssignGps(String id) => '/vehicles/$id/assign-gps';
+  static String vehicleApprove(String id) => '/vehicles/$id/approve';
+  static String vehicleReject(String id) => '/vehicles/$id/reject';
+  static String vehicleDocuments(String id) => '/vehicles/$id/documents';
+  static String vehicleDocumentApprove(String id, String docId) => '/vehicles/$id/documents/$docId/approve';
+  static String vehicleDocumentReject(String id, String docId) => '/vehicles/$id/documents/$docId/reject';
 
+  // Vehicle Slots (Timetable Scheduling)
+  static const String vehicleSlots = '/vehicle-slots';
+  static String vehicleSlotOne(String id) => '/vehicle-slots/$id';
+  static const String vehicleSlotsCheckConflict = '/vehicle-slots/check-conflict';
+  static const String vehicleSlotsTimetableGrid = '/vehicle-slots/timetable/grid';
+  ///
   // Auth Endpoints
   static const String loginEmail = '/auth/login-email';
   static const String loginPhone = '/auth/login-phone';
@@ -52,34 +97,24 @@ class ApiConstants {
   // Staff Invitations Endpoints
   static const String invitationsValidate = '/invitations/validate';
   static const String invitationsAccept = '/invitations';
+  static const String authAcceptInvite = '/auth/accept-invite';
+  static String invitationResend(String id) => '/invitations/$id/resend';
 
   // Fleet Operator Endpoints
-  static const String dashboardKpis = '/dashboard/admin/kpis';
-  static const String liveSummary = '/dashboard/live-summary';
-  static const String fleets = '/fleets';
-  static String fleetOne(String id) => '/fleets/$id';
-  static String fleetAssignVehicle(String id) => '/fleets/$id/assign-vehicle';
-  static String fleetUnassignVehicle(String id) => '/fleets/$id/unassign-vehicle';
-  static String fleetApprove(String id) => '/fleets/$id/approve';
-  static String fleetReject(String id) => '/fleets/$id/reject';
-  static const String fleetQuotas = '/fleets/quotas';
-
-  static const String vehicles = '/vehicles';
-  static String vehicleOne(String id) => '/vehicles/$id';
-  static String vehicleTelemetry(String id) => '/vehicles/$id/telemetry';
-  static String vehicleAssignDriver(String id) => '/vehicles/$id/assign-driver';
-  static String vehicleAssignGps(String id) => '/vehicles/$id/assign-gps';
-  static String vehicleApprove(String id) => '/vehicles/$id/approve';
-  static String vehicleReject(String id) => '/vehicles/$id/reject';
-  static String vehicleDocuments(String id) => '/vehicles/$id/documents';
-  static String vehicleDocumentApprove(String id, String docId) => '/vehicles/$id/documents/$docId/approve';
-  static String vehicleDocumentReject(String id, String docId) => '/vehicles/$id/documents/$docId/reject';
-
-  // Vehicle Slots (Timetable Scheduling)
-  static const String vehicleSlots = '/vehicle-slots';
-  static String vehicleSlotOne(String id) => '/vehicle-slots/$id';
-  static const String vehicleSlotsCheckConflict = '/vehicle-slots/check-conflict';
-  static const String vehicleSlotsTimetableGrid = '/vehicle-slots/timetable/grid';
+  // static const String dashboardKpis = '/dashboard/admin/kpis';
+  // static const String liveSummary = '/dashboard/live-summary';
+  // static const String fleets = '/fleets';
+  // static String fleetOne(String id) => '/fleets/$id';
+  // static String fleetAssignVehicle(String id) => '/fleets/$id/assign-vehicle';
+  // static String fleetUnassignVehicle(String id) => '/fleets/$id/unassign-vehicle';
+  // static String fleetApprove(String id) => '/fleets/$id/approve';
+  // static String fleetReject(String id) => '/fleets/$id/reject';
+  //
+  // static const String vehicles = '/vehicles';
+  // static String vehicleOne(String id) => '/vehicles/$id';
+  // static String vehicleTelemetry(String id) => '/vehicles/$id/telemetry';
+  // static String vehicleAssignDriver(String id) => '/vehicles/$id/assign-driver';
+  // static String vehicleAssignGps(String id) => '/vehicles/$id/assign-gps';
 
   static const String drivers = '/drivers';
   static String driverOne(String id) => '/drivers/$id';
@@ -107,60 +142,15 @@ class ApiConstants {
   static String tripOne(String id) => '/trips/$id';
   static String tripEnd(String id) => '/trips/$id/end';
 
-  static const String gpsDevices = '/gps-devices';
-  static String gpsDeviceOne(String id) => '/gps-devices/$id';
-  static String gpsDeviceAssign(String id) => '/gps-devices/$id/assign';
-  static String gpsDeviceApprove(String id) => '/gps-devices/$id/approve';
-  static String gpsDeviceReject(String id) => '/gps-devices/$id/reject';
+  // static const String gpsDevices = '/gps-devices';
+  // static String gpsDeviceOne(String id) => '/gps-devices/$id';
+  //
+  // static const String incidents = '/incidents';
+  // static String incidentOne(String id) => '/incidents/$id';
 
-  static const String incidents = '/incidents';
-  static String incidentOne(String id) => '/incidents/$id';
-  static String incidentStatus(String id) => '/incidents/$id/status';
-  static String incidentResolution(String id) => '/incidents/$id/resolution';
-
-  static const String workOrders = '/work-orders';
-  static const String workOrdersDispatch = '/work-orders/dispatch';
-  static String workOrderOne(String id) => '/work-orders/$id';
-  static String workOrderApprove(String id) => '/work-orders/$id/approve';
-  static String workOrderAssign(String id) => '/work-orders/$id/assign';
-  static String workOrderRate(String id) => '/work-orders/$id/rate';
-  static String workOrderReject(String id) => '/work-orders/$id/reject';
-  static String workOrderStatus(String id) => '/work-orders/$id/status';
-
-  // Technician Self-Service Endpoints
-  static const String techStats = '/me/technician/stats';
-  static const String techWorkOrders = '/me/technician/work-orders';
-  static String techWorkOrderOne(String id) => '/me/technician/work-orders/$id';
-  static String techWorkOrderStatus(String id) => '/me/technician/work-orders/$id/status';
-
-  // Edge Devices & IoT Telemetry
-  static const String edgeDevices = '/edge-devices';
-  static String edgeDeviceOne(String id) => '/edge-devices/$id';
-  static String edgeDeviceTelemetry(String id) => '/edge-devices/$id/telemetry';
-  static String edgeDeviceReboot(String id) => '/edge-devices/$id/reboot';
-  static String edgeDeviceConfig(String id) => '/edge-devices/$id/config';
-  static String edgeDeviceFactoryReset(String id) => '/edge-devices/$id/factory-reset';
-  static String edgeDeviceConnectivityTests(String id) => '/edge-devices/$id/connectivity-tests';
-  static String edgeDeviceToggle(String id) => '/edge-devices/$id/toggle';
-  static String edgeDeviceAssign(String id) => '/edge-devices/$id/assign';
-  static String edgeDeviceHandshake(String boxId) => '/edge-devices/handshake/$boxId';
-  static const String edgeDevicePackageDownload = '/edge-devices/package/download';
-  static const String edgeDeviceSetupScript = '/edge-devices/setup-script';
-
-  // Digital Transit Displays
-  static const String displays = '/displays';
-  static String displayOne(String id) => '/displays/$id';
-  static String displayConfig(String id) => '/displays/$id/config';
-
-  static const String activityLogs = '/activity-logs';
-  static const String activityLogsCategories = '/activity-logs/categories';
-  static const String activityLogsFilters = '/activity-logs/filters';
-  static String activityLogOne(String id) => '/activity-logs/$id';
+  static const String activityLogs = '/users/activity';
   static const String notifications = '/notifications';
   static const String notificationSettings = '/notifications/settings';
-  static String notificationRead(String id) => '/notifications/$id/read';
-  static const String notificationReadAll = '/notifications/read-all';
-  static String notificationDelete(String id) => '/notifications/$id';
 
   // Google APIs & Telematics Proxy
   static const String googlePlacesDemo = '/google-apis/demo/places';
@@ -169,14 +159,64 @@ class ApiConstants {
   static const String googleStaticMapDemo = '/google-apis/demo/static-map';
   static const String googleMapsApiKey = 'AIzaSyBqlBrjGRXwr0b2gEq8R0d_BlPBH4FcPSw';
 
-  // Uploads & Content Endpoints
-  static const String uploads = '/uploads';
-  static const String uploadAvatar = '/uploads/avatar';
-  static const String content = '/content';
-  static String contentPage(String type) => '/content/$type';
-  static const String contentFaqs = '/content/faqs';
-  static const String supportTickets = '/me/support/tickets';
-  static const String createSupportTicket = '/support/tickets';
+
+  // Government Endpoints
+  static const String government = '/government';
+  static String governmentOne(String id) => '/government/$id';
+  static const String governmentAnalytics = '/government/analytics';
+  static const String governmentClearanceLevels = '/government/clearance-levels';
+  static const String governmentDepartmentCategories = '/government/department-categories';
+  static const String governmentJurisdictions = '/government/jurisdictions';
+  static const String governmentMetaOptions = '/government/meta/options';
+
+// Government & Public Campaigns Endpoints
+  static const String campaigns = '/campaigns';
+  static String campaignOne(String id) => '/campaigns/$id';
+  static String campaignApprove(String id) => '/campaigns/$id/approve';
+  static String campaignReject(String id) => '/campaigns/$id/reject';
+  static String campaignPause(String id) => '/campaigns/$id/pause';
+  static String campaignStart(String id) => '/campaigns/$id/start';
+  static const String campaignFleetOptions = '/campaigns/fleet-options';
+  static const String campaignTrackingLive = '/campaigns/tracking/live';
+  static const String campaignTrackingRoutes = '/campaigns/tracking/routes';
+
+// Emergency Broadcasts Endpoints
+  static const String emergencyBroadcasts = '/emergency-broadcasts';
+  static String emergencyBroadcastOne(String id) => '/emergency-broadcasts/$id';
+  static String emergencyBroadcastApprove(String id) => '/emergency-broadcasts/$id/approve';
+  static String emergencyBroadcastReject(String id) => '/emergency-broadcasts/$id/reject';
+  static String emergencyBroadcastRevoke(String id) => '/emergency-broadcasts/$id/revoke';
+
+// Billing & Invoices Endpoints
+  static const String billingInvoices = '/billing/invoices';
+  static String billingInvoiceOne(String id) => '/billing/invoices/$id';
+  static String billingInvoiceHtml(String id) => '/billing/invoices/$id/html';
+  static String billingInvoicePay(String id) => '/billing/invoices/$id/pay';
+  static const String billingSubscription = '/billing/subscription';
+  static const String billingTransactions = '/billing/transactions';
+  static const String billingPlans = '/billing/plans';
+  static const String billingWallet = '/billing/wallet';
+
+  // Driver Self-Service Endpoints (ROLE-DRIVER) — Base: /me/driver
+  static const String driverProfile     = '/me/driver/profile';
+  static const String driverSchedule    = '/me/driver/schedule';
+  static const String driverActiveRoute = '/me/driver/active-route';
+  static const String driverTrips       = '/me/driver/trips';
+  static const String driverTripStart   = '/me/driver/trip/start';
+  static const String driverTripEnd     = '/me/driver/trip/end';
+  static const String driverDocuments   = '/me/driver/documents';
+  static String driverDocumentOne(String id) => '/me/driver/documents/$id';
+  static const String driverIncidents   = '/me/driver/incidents';
+  static String driverIncidentOne(String id) => '/me/driver/incidents/$id';
+  static const String driverDutyStatus  = '/me/driver/duty-status';
+  static const String driverWorkOrders  = '/me/driver/work-orders';
+  static String driverWorkOrderOne(String id) => '/me/driver/work-orders/$id';
+  static String driverWorkOrderRate(String id) => '/me/driver/work-orders/$id/rate';
+
+  // static const String activityLogs = '/users/activity';
+  // static const String notifications = '/notifications';
+  // static const String notificationSettings = '/notifications/settings';
+
 
   // Finance Endpoints
   static const String financeKpis = '/finance/kpis';
@@ -209,7 +249,7 @@ class ApiConstants {
   static String organizationStatus(String id) => '/organizations/$id/status';
   static String organizationApprove(String id) => '/organizations/$id/approve';
   static String organizationReject(String id) => '/organizations/$id/reject';
-  static const String billingPlans = '/billing/plans';
+  // static const String billingPlans = '/billing/plans';
   static String billingPlanOne(String id) => '/billing/plans/$id';
 
   // Billing Gateways
@@ -220,10 +260,10 @@ class ApiConstants {
   static String billingGatewayTestConnection(String id) => '/billing/gateways/$id/test-connection';
 
   // Billing Invoices (Subscription SaaS)
-  static const String billingInvoices = '/billing/invoices';
-  static String billingInvoiceOne(String id) => '/billing/invoices/$id';
-  static String billingInvoiceHtml(String id) => '/billing/invoices/$id/html';
-  static String billingInvoicePay(String id) => '/billing/invoices/$id/pay';
+  // static const String billingInvoices = '/billing/invoices';
+  // static String billingInvoiceOne(String id) => '/billing/invoices/$id';
+  // static String billingInvoiceHtml(String id) => '/billing/invoices/$id/html';
+  // static String billingInvoicePay(String id) => '/billing/invoices/$id/pay';
 
   // Billing Revenue & Settlements
   static const String billingRevenueSummary = '/billing/revenue/summary';
@@ -232,16 +272,16 @@ class ApiConstants {
   static const String billingRevenueTopTenants = '/billing/revenue/top-tenants';
 
   // Billing Subscriptions
-  static const String billingSubscription = '/billing/subscription';
+  // static const String billingSubscription = '/billing/subscription';
   static const String billingSubscriptionCheckStatus = '/billing/subscription/check-status';
   static const String billingSubscriptionOrder = '/billing/subscription/order';
   static const String billingSubscriptionConfirm = '/billing/subscription/confirm';
   static const String billingSubscriptionVerifySession = '/billing/subscription/verify-session';
 
   // Billing Transactions & Wallet
-  static const String billingTransactions = '/billing/transactions';
+  // static const String billingTransactions = '/billing/transactions';
   static const String billingTransactionsManualOffline = '/billing/transactions/manual-offline';
-  static const String billingWallet = '/billing/wallet';
+  // static const String billingWallet = '/billing/wallet';
 
   // Cron & Webhook
   static const String billingCronCheckExpiries = '/billing/cron/check-expiries';
@@ -253,25 +293,52 @@ class ApiConstants {
   static String userStatus(String id) => '/users/$id/status';
   static String userPermissions(String id) => '/users/$id/permissions';
 
+  // Technician Self-Service Endpoints
+  static const String techStats = '/me/technician/stats';
+  // static const String techWorkOrders = '/me/technician/work-orders';
+  static String techWorkOrderOne(String id) => '/me/technician/work-orders/$id';
+  static String techWorkOrderStatus(String id) => '/me/technician/work-orders/$id/status';
+
+  // Edge Devices & IoT Telemetry
+  static const String edgeDevices = '/edge-devices';
+  static String edgeDeviceOne(String id) => '/edge-devices/$id';
+  static String edgeDeviceTelemetry(String id) => '/edge-devices/$id/telemetry';
+  static String edgeDeviceReboot(String id) => '/edge-devices/$id/reboot';
+  static String edgeDeviceConfig(String id) => '/edge-devices/$id/config';
+  static String edgeDeviceFactoryReset(String id) => '/edge-devices/$id/factory-reset';
+  static String edgeDeviceConnectivityTests(String id) => '/edge-devices/$id/connectivity-tests';
+  static String edgeDeviceToggle(String id) => '/edge-devices/$id/toggle';
+  static String edgeDeviceAssign(String id) => '/edge-devices/$id/assign';
+  static String edgeDeviceHandshake(String boxId) => '/edge-devices/handshake/$boxId';
+  static const String edgeDevicePackageDownload = '/edge-devices/package/download';
+  static const String edgeDeviceSetupScript = '/edge-devices/setup-script';
+  static String displayConfig(String id) => '/displays/$id/config';
+  static const String displays = '/displays';
+  static String workOrderApprove(String id) => '/work-orders/$id/approve';
+  static String workOrderAssign(String id) => '/work-orders/$id/assign';
+  static String workOrderRate(String id) => '/work-orders/$id/rate';
+  static String workOrderReject(String id) => '/work-orders/$id/reject';
+  static String workOrderStatus(String id) => '/work-orders/$id/status';
+
   // Campaigns & Advertiser Endpoints
-  static const String campaigns = '/campaigns';
-  static String campaignOne(String id) => '/campaigns/$id';
-  static const String campaignFleetOptions = '/campaigns/fleet-options';
+  // static const String campaigns = '/campaigns';
+  // static String campaignOne(String id) => '/campaigns/$id';
+  // static const String campaignFleetOptions = '/campaigns/fleet-options';
   static const String campaignMqttStatus = '/campaigns/mqtt-status';
   static const String campaignSlotAvailability = '/campaigns/slots/availability';
-  static const String campaignTrackingLive = '/campaigns/tracking/live';
-  static const String campaignTrackingRoutes = '/campaigns/tracking/routes';
+  // static const String campaignTrackingLive = '/campaigns/tracking/live';
+  // static const String campaignTrackingRoutes = '/campaigns/tracking/routes';
   static const String campaignAnalyticsOverview = '/campaigns/analytics/overview';
   static const String campaignAnalyticsAll = '/campaigns/analytics';
   static String campaignAnalytics(String id) => (id.isNotEmpty && id != 'all') ? '/campaigns/$id/analytics' : '/campaigns/analytics';
   static String campaignReviews(String id) => '/campaigns/$id/reviews';
   static String campaignSubmit(String id) => '/campaigns/$id/submit';
-  static String campaignApprove(String id) => '/campaigns/$id/approve';
-  static String campaignReject(String id) => '/campaigns/$id/reject';
+  // static String campaignApprove(String id) => '/campaigns/$id/approve';
+  // static String campaignReject(String id) => '/campaigns/$id/reject';
   static String campaignVerify(String id) => '/campaigns/$id/verify';
-  static String campaignStart(String id) => '/campaigns/$id/start';
+  // static String campaignStart(String id) => '/campaigns/$id/start';
   static String campaignStop(String id) => '/campaigns/$id/stop';
-  static String campaignPause(String id) => '/campaigns/$id/pause';
+  // static String campaignPause(String id) => '/campaigns/$id/pause';
   static String campaignEnd(String id) => '/campaigns/$id/end';
   static String campaignComplete(String id) => '/campaigns/$id/complete';
   static String campaignPay(String id) => '/campaigns/$id/pay';
@@ -287,6 +354,54 @@ class ApiConstants {
   static String advertiserStatus(String id) => '/advertisers/$id/status';
   static const String campaignAdvertisers = '/campaigns/advertisers';
   static String campaignAdvertiserOne(String id) => '/campaigns/advertisers/$id';
+
+  /// Generates Google Static Map URL using the official API key and dark styling
+  static String buildGoogleStaticMapUrl({
+    double? lat,
+    double? lng,
+    double? centerLat,
+    double? centerLng,
+    int zoom = 12,
+    int width = 600,
+    int height = 300,
+    String mapType = 'roadmap',
+    dynamic markers,
+  }) {
+    final effectiveLat = lat ?? centerLat ?? 23.2599;
+    final effectiveLng = lng ?? centerLng ?? 77.4126;
+    String markersParam = '';
+    if (markers is List && markers.isNotEmpty) {
+      for (final m in markers) {
+        if (m is Map) {
+          final mLat = m['lat'];
+          final mLng = m['lng'];
+          final color = m['color'] ?? 'red';
+          if (mLat != null && mLng != null) {
+            markersParam += '&markers=color:$color%7C$mLat,$mLng';
+          }
+        } else if (m is GoogleMapMarker) {
+          final labelStr = m.label.isNotEmpty ? '%7Clabel:${m.label}' : '';
+          markersParam += '&markers=color:${m.color}$labelStr%7C${m.lat},${m.lng}';
+        }
+      }
+    } else {
+      markersParam = '&markers=color:red%7C$effectiveLat,$effectiveLng';
+    }
+    final styleParam = mapType == 'satellite' || mapType == 'hybrid'
+        ? ''
+        : '&style=element:geometry%7Ccolor:0x1b2438&style=element:labels.icon%7Cvisibility:off&style=element:labels.text.fill%7Ccolor:0x8fa3bf&style=element:labels.text.stroke%7Ccolor:0x1b2438';
+    return 'https://maps.googleapis.com/maps/api/staticmap?center=$effectiveLat,$effectiveLng&zoom=$zoom&size=${width}x$height&scale=2&maptype=$mapType$styleParam$markersParam&key=$googleMapsApiKey';
+  }
+
+
+  // Uploads & Content Endpoints
+  static const String uploads = '/uploads';
+  static const String uploadAvatar = '/uploads/avatar';
+  static const String content = '/content';
+  static const String contentFaqs = '/content/faqs';
+  static String contentPage(String type) => '/content/$type';
+  static const String supportTickets = '/me/support/tickets';
+  static const String createSupportTicket = '/support/tickets';
 
   /// Resolves a relative file URL (e.g. /uploads/avatar/xxx.jpg) to full URL
   static String resolveFileUrl(String? url) {
@@ -306,4 +421,17 @@ class ApiConstants {
   // Request timeouts
   static const Duration connectTimeout = Duration(seconds: 15);
   static const Duration receiveTimeout = Duration(seconds: 15);
+}
+class GoogleMapMarker {
+  final double lat;
+  final double lng;
+  final String color;
+  final String label;
+
+  const GoogleMapMarker({
+    required this.lat,
+    required this.lng,
+    this.color = 'red',
+    this.label = '',
+  });
 }

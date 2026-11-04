@@ -14,7 +14,7 @@ class HttpClientService extends GetxService {
   static HttpClientService get to => Get.find<HttpClientService>();
 
   final http.Client _client = http.Client();
-  Completer<bool>? _refreshCompleter;
+  bool _isRefreshingToken = false;
 
   /// Helper to build full Uri
   Uri _buildUri(String endpoint, [Map<String, dynamic>? queryParams]) {
@@ -43,7 +43,6 @@ class HttpClientService extends GetxService {
     final headers = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'X-Client-Type': 'app',
     };
 
     if (requiresAuth && Get.isRegistered<StorageService>()) {
@@ -177,7 +176,6 @@ class HttpClientService extends GetxService {
       }
     }
     request.headers['Accept'] = 'application/json';
-    request.headers['X-Client-Type'] = 'app';
 
     request.fields['purpose'] = purpose;
     if (additionalFields != null) {
@@ -303,17 +301,7 @@ class HttpClientService extends GetxService {
 
       // Check for 401 Unauthorized - handle silent token refresh
       if (response.statusCode == 401 && requiresAuth && !isRetry) {
-        bool refreshed = false;
-        if (_refreshCompleter != null) {
-          refreshed = await _refreshCompleter!.future;
-        } else {
-          final completer = Completer<bool>();
-          _refreshCompleter = completer;
-          refreshed = await _handleTokenRefresh();
-          completer.complete(refreshed);
-          _refreshCompleter = null;
-        }
-
+        final refreshed = await _handleTokenRefresh();
         if (refreshed) {
           // Retry the original request once with new token
           return await _sendRequest<T>(
@@ -335,7 +323,6 @@ class HttpClientService extends GetxService {
           return ApiResponseModel.failure(
             message: 'Session expired. Please log in again.',
             error: 'UNAUTHORIZED',
-            code: 'UNAUTHORIZED',
             statusCode: 401,
           );
         }
@@ -388,6 +375,9 @@ class HttpClientService extends GetxService {
 
   /// Attempt silent token refresh via POST /auth/refresh
   Future<bool> _handleTokenRefresh() async {
+    if (_isRefreshingToken) return false;
+    _isRefreshingToken = true;
+
     try {
       if (!Get.isRegistered<StorageService>()) return false;
       final refreshToken = StorageService.to.getRefreshToken();
@@ -396,15 +386,8 @@ class HttpClientService extends GetxService {
       final refreshUri = _buildUri(ApiConstants.refreshToken);
       final response = await _client.post(
         refreshUri,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'X-Client-Type': 'app',
-        },
-        body: jsonEncode({
-          'refreshToken': refreshToken,
-          'refresh_token': refreshToken,
-        }),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'refresh_token': refreshToken}),
       ).timeout(ApiConstants.receiveTimeout);
 
       if (response.statusCode == 200) {
@@ -424,6 +407,8 @@ class HttpClientService extends GetxService {
     } catch (e) {
       debugPrint('Failed to refresh token: $e');
       return false;
+    } finally {
+      _isRefreshingToken = false;
     }
   }
 }

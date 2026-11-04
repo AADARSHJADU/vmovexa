@@ -12,6 +12,8 @@ class AuthService extends GetxService {
   HttpClientService get _http => HttpClientService.to;
   StorageService get _storage => StorageService.to;
 
+  UserModel? get currentUser => _storage.getUser();
+
   /// 1.1 POST /auth/login-email
   Future<ApiResponseModel<AuthResponseModel>> loginEmail({
     required String email,
@@ -153,10 +155,7 @@ class AuthService extends GetxService {
   ) async {
     final response = await _http.post<AuthResponseModel>(
       ApiConstants.refreshToken,
-      body: {
-        'refreshToken': refreshToken,
-        'refresh_token': refreshToken,
-      },
+      body: {'refresh_token': refreshToken},
       requiresAuth: false,
       create: (data) => AuthResponseModel.fromJson(
         data is Map ? Map<String, dynamic>.from(data) : {},
@@ -221,8 +220,6 @@ class AuthService extends GetxService {
     return _http.post(
       ApiConstants.changePassword,
       body: {
-        'currentPassword': currentPassword,
-        'newPassword': newPassword,
         'current_password': currentPassword,
         'new_password': newPassword,
       },
@@ -346,5 +343,30 @@ class AuthService extends GetxService {
     }
 
     return response;
+  }
+
+  /// POST /api/v1/auth/accept-invite
+  Future<ApiResponseModel<dynamic>> acceptInvite({
+    required String token,
+    required String password,
+    String? name,
+  }) async {
+    return _http.post(
+      ApiConstants.authAcceptInvite,
+      body: {
+        'token': token.trim(),
+        'password': password,
+        if (name != null && name.trim().isNotEmpty) 'name': name.trim(),
+      },
+      requiresAuth: false,
+    );
+  }
+
+  /// POST /api/v1/invitations/:id/resend
+  Future<ApiResponseModel<dynamic>> resendInvitation(String id) async {
+    return _http.post(
+      ApiConstants.invitationResend(id),
+      requiresAuth: true,
+    );
   }
 }

@@ -1,7 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../../routes/app_routes.dart';
+import 'package:vmovexa/app/data/services/auth_service.dart';
+import 'package:vmovexa/app/routes/app_routes.dart';
 
 class DriverDashboardController extends GetxController {
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final RxInt selectedNavIndex = 0.obs;
 
   @override
@@ -13,8 +16,26 @@ class DriverDashboardController extends GetxController {
     }
   }
 
-  void onNavItemTapped(int index) {
+  void openDrawer() {
+    if (scaffoldKey.currentState?.isDrawerOpen != true) {
+      scaffoldKey.currentState?.openDrawer();
+    }
+  }
 
+  void closeDrawer() {
+    if (scaffoldKey.currentState?.isDrawerOpen == true) {
+      scaffoldKey.currentState?.closeDrawer();
+    }
+  }
+
+  void setNavIndex(int index) {
+    if (scaffoldKey.currentState?.isDrawerOpen == true) {
+      scaffoldKey.currentState?.closeDrawer();
+    }
+    selectedNavIndex.value = index;
+  }
+
+  void onNavItemTapped(int index) {
     selectedNavIndex.value = index;
   }
 
@@ -42,7 +63,10 @@ class DriverDashboardController extends GetxController {
     Get.toNamed(Routes.ADD_GPS);
   }
 
-  void logout() {
+  Future<void> logout() async {
+    if (Get.isRegistered<AuthService>()) {
+      await AuthService.to.logout();
+    }
     Get.offAllNamed(Routes.LOGIN);
   }
 }

@@ -5,6 +5,11 @@ import 'package:vmovexa/app/modules/roles/driver/profile/driver_documents/view/d
 import 'package:vmovexa/app/modules/roles/driver/profile/view/driver_profile_view.dart';
 import 'package:vmovexa/app/modules/roles/driver/report/bindings/report_incident_binding.dart';
 import 'package:vmovexa/app/modules/roles/driver/report/view/incident_details_view.dart';
+import 'package:vmovexa/app/modules/roles/driver/schedule/bindings/schedule_binding.dart';
+import 'package:vmovexa/app/modules/roles/driver/schedule/view/schedule_view.dart';
+import 'package:vmovexa/app/modules/roles/driver/report/bindings/driver_incidents_list_binding.dart';
+import 'package:vmovexa/app/modules/roles/driver/report/view/driver_incidents_list_view.dart';
+import 'package:vmovexa/app/modules/roles/driver/report/view/driver_incident_detail_view.dart';
 import 'package:vmovexa/app/modules/roles/finance/revenue_reporting/bindings/revenue_reporting_binding.dart';
 import 'package:vmovexa/app/modules/roles/finance/revenue_reporting/view/revenue_reporting_view.dart';
 import 'package:vmovexa/app/modules/roles/finance/subscriptions/bindings/subscriptions_binding.dart';
@@ -241,6 +246,8 @@ import '../modules/roles/government/create_campaign/bindings/gov_create_campaign
 import '../modules/roles/government/create_campaign/views/gov_create_campaign_view.dart';
 import '../modules/roles/government/campaign_details/bindings/gov_campaign_details_binding.dart';
 import '../modules/roles/government/campaign_details/views/gov_campaign_details_view.dart';
+import '../modules/roles/government/billing_invoices/bindings/gov_billing_invoices_binding.dart';
+import '../modules/roles/government/billing_invoices/views/gov_billing_invoices_view.dart';
 
 class AppPages {
    static const INITIAL = Routes.SPLASH;
@@ -640,6 +647,12 @@ class AppPages {
       binding: GovCampaignDetailsBinding(),
       transition: Transition.rightToLeft,
     ),
+    GetPage(
+      name: Routes.GOV_BILLING,
+      page: () => const GovBillingInvoicesView(),
+      binding: GovBillingInvoicesBinding(),
+      transition: Transition.rightToLeft,
+    ),
 
     //technician flow routes
     GetPage(
@@ -738,6 +751,23 @@ class AppPages {
       name: Routes.DRIVER_REPORT_INCIDENT,
       page: () => const IncidentDetailsView(),
       binding: ReportIncidentBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DRIVER_SCHEDULE,
+      page: () => const ScheduleView(),
+      binding: ScheduleBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DRIVER_INCIDENTS_LIST,
+      page: () => const DriverIncidentsListView(),
+      binding: DriverIncidentsListBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DRIVER_INCIDENT_DETAILS,
+      page: () => const DriverIncidentDetailView(),
       transition: Transition.rightToLeft,
     ),
     GetPage(

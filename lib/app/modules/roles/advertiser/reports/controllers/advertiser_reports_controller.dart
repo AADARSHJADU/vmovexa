@@ -51,7 +51,7 @@ class AdvertiserReportsController extends GetxController {
   Future<void> loadCampaigns() async {
     try {
       final res = await _service.getCampaigns(page: 1, limit: 100);
-      if (res.isSuccess && res.data != null) {
+      if (res.success && res.data != null) {
         campaigns.assignAll(res.data!);
       }
     } catch (e) {
@@ -62,7 +62,7 @@ class AdvertiserReportsController extends GetxController {
   Future<void> loadReports() async {
     try {
       final res = await _service.getReports();
-      if (res.isSuccess && res.data != null && res.data!.isNotEmpty) {
+      if (res.success && res.data != null && res.data!.isNotEmpty) {
         reports.assignAll(res.data!);
       } else if (reports.isEmpty) {
         // Populate standard default initial reports if server has none yet
