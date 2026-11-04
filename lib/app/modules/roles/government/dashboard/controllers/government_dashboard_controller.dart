@@ -40,6 +40,7 @@ class GovernmentDashboardController extends GetxController {
 
   // Emergency Broadcast Form Fields
   final alertMessageController = TextEditingController();
+  final emergencyNumberController = TextEditingController();
   final RxString selectedSeverity = 'Critical'.obs; // Critical, High, Medium, Low
   final RxString selectedAlertArea = 'Entire Transit Network'.obs;
   final RxBool broadcastToVehicles = true.obs;
@@ -209,6 +210,8 @@ class GovernmentDashboardController extends GetxController {
         'severity': selectedSeverity.value.toLowerCase(),
         'targetScope': selectedAlertArea.value == 'Entire Transit Network' ? 'all' : 'partial',
         'targetArea': selectedAlertArea.value,
+        if (emergencyNumberController.text.trim().isNotEmpty)
+          'emergencyNumber': emergencyNumberController.text.trim(),
         'pushNotification': sendPushNotification.value,
         'sirenSound': broadcastToDisplays.value,
         'audioChime': broadcastToVehicles.value,
@@ -229,6 +232,7 @@ class GovernmentDashboardController extends GetxController {
         );
 
         alertMessageController.clear();
+        emergencyNumberController.clear();
         attachedMediaUrl.value = '';
         attachedMediaName.value = '';
 
@@ -416,6 +420,7 @@ class GovernmentDashboardController extends GetxController {
   void onClose() {
     campaignSearchController.dispose();
     alertMessageController.dispose();
+    emergencyNumberController.dispose();
     super.onClose();
   }
 }

@@ -375,4 +375,264 @@ class CampaignDetailsController extends GetxController {
       isScrollControlled: true,
     );
   }
+
+  final RxBool isRecordingOfflinePayment = false.obs;
+
+  Future<bool> recordOfflinePayment({
+    required double amount,
+    required String referenceNumber,
+    required String bankName,
+    String offlineMethod = 'bank_transfer',
+    String? remarks,
+  }) async {
+    isRecordingOfflinePayment.value = true;
+    try {
+      final payload = {
+        'amount': amount,
+        'offlineMethod': offlineMethod,
+        'referenceNumber': referenceNumber.trim(),
+        'utrNumber': referenceNumber.trim(),
+        'bankName': bankName.trim(),
+        'currency': 'INR',
+        if (remarks != null && remarks.trim().isNotEmpty) 'remarks': remarks.trim(),
+      };
+
+      final res = await _service.recordOfflinePayment(campaign.value.id, payload);
+      if (res.success) {
+        Get.back(); // close modal
+        Get.snackbar(
+          'Payment Recorded',
+          'Offline payment clearance submitted. Awaiting finance confirmation.',
+          backgroundColor: const Color(0xFF10B981),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        await refreshCampaignDetails();
+        return true;
+      } else {
+        Get.snackbar(
+          'Error',
+          res.message ?? 'Could not record offline payment.',
+          backgroundColor: const Color(0xFFEF4444),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return false;
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to record offline payment: $e',
+        backgroundColor: const Color(0xFFEF4444),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    } finally {
+      isRecordingOfflinePayment.value = false;
+    }
+  }
+
+  void showOfflinePaymentModal() {
+    const methods = [
+      {'id': 'bank_transfer', 'label': 'Bank Transfer'},
+      {'id': 'neft', 'label': 'NEFT'},
+      {'id': 'rtgs', 'label': 'RTGS'},
+      {'id': 'imps', 'label': 'IMPS'},
+      {'id': 'upi_manual', 'label': 'UPI / QR'},
+      {'id': 'cheque', 'label': 'Cheque'},
+    ];
+
+    String selectedMethod = 'bank_transfer';
+    final utrController = TextEditingController();
+    final bankController = TextEditingController();
+    final remarksController = TextEditingController();
+    final double defaultAmount = campaign.value.rawBudget ?? 0.0;
+
+    Get.bottomSheet(
+      StatefulBuilder(builder: (context, setState) {
+        return Container(
+          padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(context).viewInsets.bottom + 20),
+          decoration: const BoxDecoration(
+            color: Color(0xFF1E293B),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Record Offline Payment',
+                      style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white70, size: 20),
+                      onPressed: () => Get.back(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // Amount info
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F172A),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFF334155)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Total Budget Amount:', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                      Text(
+                        '₹${defaultAmount.toStringAsFixed(2)}',
+                        style: const TextStyle(color: Color(0xFF10B981), fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+
+                // Clearance method selector
+                const Text('Clearance Method', style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: methods.map((m) {
+                    final isSel = selectedMethod == m['id'];
+                    return ChoiceChip(
+                      label: Text(m['label']!),
+                      selected: isSel,
+                      selectedColor: const Color(0xFF2563EB),
+                      backgroundColor: const Color(0xFF0F172A),
+                      labelStyle: TextStyle(
+                        color: isSel ? Colors.white : Colors.white60,
+                        fontSize: 11,
+                        fontWeight: isSel ? FontWeight.bold : FontWeight.normal,
+                      ),
+                      onSelected: (val) {
+                        if (val) setState(() => selectedMethod = m['id']!);
+                      },
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 14),
+
+                // UTR / Reference number
+                const Text('UTR / Transaction Reference No. *', style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F172A),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFF334155)),
+                  ),
+                  child: TextField(
+                    controller: utrController,
+                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                    decoration: const InputDecoration(
+                      hintText: 'e.g. UTR1234567890 / Bank Ref ID',
+                      hintStyle: TextStyle(color: Color(0xFF64748B), fontSize: 12),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Bank Name
+                const Text('Remitting Bank Name *', style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F172A),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFF334155)),
+                  ),
+                  child: TextField(
+                    controller: bankController,
+                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                    decoration: const InputDecoration(
+                      hintText: 'e.g. State Bank of India, HDFC, ICICI',
+                      hintStyle: TextStyle(color: Color(0xFF64748B), fontSize: 12),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Remarks
+                const Text('Remarks (Optional)', style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F172A),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFF334155)),
+                  ),
+                  child: TextField(
+                    controller: remarksController,
+                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                    decoration: const InputDecoration(
+                      hintText: 'Notes for finance approval team...',
+                      hintStyle: TextStyle(color: Color(0xFF64748B), fontSize: 12),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 18),
+
+                // Submit button
+                Obx(() {
+                  final loading = isRecordingOfflinePayment.value;
+                  return SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: loading
+                          ? null
+                          : () {
+                              if (utrController.text.trim().isEmpty) {
+                                Get.snackbar('Required', 'Please enter UTR / Reference number', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+                                return;
+                              }
+                              if (bankController.text.trim().isEmpty) {
+                                Get.snackbar('Required', 'Please enter remitting bank name', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+                                return;
+                              }
+                              recordOfflinePayment(
+                                amount: defaultAmount,
+                                referenceNumber: utrController.text.trim(),
+                                bankName: bankController.text.trim(),
+                                offlineMethod: selectedMethod,
+                                remarks: remarksController.text.trim(),
+                              );
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF10B981),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.symmetric(vertical: 13),
+                      ),
+                      child: loading
+                          ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          : const Text('Submit Offline Payment', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        );
+      }),
+      isScrollControlled: true,
+    );
+  }
 }
