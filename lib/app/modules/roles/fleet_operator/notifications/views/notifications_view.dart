@@ -104,7 +104,42 @@ class NotificationsView extends GetView<NotificationsController> {
             Expanded(
               child: Obx(
                 () {
+                  if (c.isLoading.value) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: Color(0xFF6366F1)),
+                    );
+                  }
+
                   final all = c.filteredNotifications;
+
+                  if (all.isEmpty) {
+                    return RefreshIndicator(
+                      color: const Color(0xFF6366F1),
+                      backgroundColor: AppColors.cardBg,
+                      onRefresh: () => c.loadNotifications(),
+                      child: ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        children: [
+                          const SizedBox(height: 100),
+                          Icon(Icons.notifications_none_rounded, size: 54, color: Colors.grey.withOpacity(0.4)),
+                          const SizedBox(height: 14),
+                          const Center(
+                            child: Text(
+                              'No notifications found',
+                              style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          const Center(
+                            child: Text(
+                              'You have no alerts at this time.',
+                              style: TextStyle(color: Colors.grey, fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
 
                   // Define groupings dynamically based on time string prefixes
                   final todayList = all.where((n) => n.time.startsWith('Today') || (!n.time.contains(',') && !n.time.contains('Yesterday') && !n.time.contains('Week') && !n.time.contains('Earlier'))).toList();
@@ -112,42 +147,47 @@ class NotificationsView extends GetView<NotificationsController> {
                   final thisWeekList = all.where((n) => n.time.startsWith('This Week')).toList();
                   final earlierList = all.where((n) => n.time.startsWith('Earlier')).toList();
 
-                  return ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    physics: const BouncingScrollPhysics(),
-                    children: [
-                      // Today Group
-                      if (todayList.isNotEmpty || (!isAdvertiser && yesterdayList.isEmpty)) ...[
-                        _buildGroupHeader('Today', todayList),
-                        const SizedBox(height: 10),
-                        ...todayList.map((n) => _buildNotificationCard(n)),
-                        const SizedBox(height: 16),
-                      ],
+                  return RefreshIndicator(
+                    color: const Color(0xFF6366F1),
+                    backgroundColor: AppColors.cardBg,
+                    onRefresh: () => c.loadNotifications(),
+                    child: ListView(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: [
+                        // Today Group
+                        if (todayList.isNotEmpty) ...[
+                          _buildGroupHeader('Today', todayList),
+                          const SizedBox(height: 10),
+                          ...todayList.map((n) => _buildNotificationCard(n)),
+                          const SizedBox(height: 16),
+                        ],
 
-                      // Yesterday Group
-                      if (yesterdayList.isNotEmpty) ...[
-                        _buildGroupHeader('Yesterday', yesterdayList),
-                        const SizedBox(height: 10),
-                        ...yesterdayList.map((n) => _buildNotificationCard(n)),
-                        const SizedBox(height: 16),
-                      ],
+                        // Yesterday Group
+                        if (yesterdayList.isNotEmpty) ...[
+                          _buildGroupHeader('Yesterday', yesterdayList),
+                          const SizedBox(height: 10),
+                          ...yesterdayList.map((n) => _buildNotificationCard(n)),
+                          const SizedBox(height: 16),
+                        ],
 
-                      // This Week Group
-                      if (thisWeekList.isNotEmpty) ...[
-                        _buildGroupHeader('This Week', thisWeekList),
-                        const SizedBox(height: 10),
-                        ...thisWeekList.map((n) => _buildNotificationCard(n)),
-                        const SizedBox(height: 16),
-                      ],
+                        // This Week Group
+                        if (thisWeekList.isNotEmpty) ...[
+                          _buildGroupHeader('This Week', thisWeekList),
+                          const SizedBox(height: 10),
+                          ...thisWeekList.map((n) => _buildNotificationCard(n)),
+                          const SizedBox(height: 16),
+                        ],
 
-                      // Earlier Group
-                      if (earlierList.isNotEmpty) ...[
-                        _buildGroupHeader('Earlier', earlierList),
-                        const SizedBox(height: 10),
-                        ...earlierList.map((n) => _buildNotificationCard(n)),
-                        const SizedBox(height: 20),
+                        // Earlier Group
+                        if (earlierList.isNotEmpty) ...[
+                          _buildGroupHeader('Earlier', earlierList),
+                          const SizedBox(height: 10),
+                          ...earlierList.map((n) => _buildNotificationCard(n)),
+                          const SizedBox(height: 20),
+                        ],
                       ],
-                    ],
+                    ),
                   );
                 },
               ),

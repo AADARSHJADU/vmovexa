@@ -38,7 +38,6 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                         _buildEmergencyBroadcastTab(),
                         _buildAnalyticsTab(),
                         GovernmentProfileView(),
-                        // _buildMoreTab(),
                       ],
                     ),
                   ),
@@ -1239,6 +1238,90 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
           ),
           const SizedBox(height: 12),
 
+          // Active Emergency Alert status card with Revoke Action
+          Obx(() {
+            final active = controller.activeAlert.value;
+            if (active != null) {
+              return Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(bottom: 14),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xFFEF4444).withOpacity(0.2),
+                      const Color(0xFFEF4444).withOpacity(0.06),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFEF4444), width: 1.5),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            SvgPicture.asset("assets/icons/active-alert.svg", width: 24, height: 24),
+                            const SizedBox(width: 8),
+                            Text(
+                              'ACTIVE ${active.displaySeverity.toUpperCase()} ALERT',
+                              style: const TextStyle(color: Color(0xFFEF4444), fontSize: 11.5, fontWeight: FontWeight.bold, letterSpacing: 0.8),
+                            ),
+                          ],
+                        ),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            Get.defaultDialog(
+                              title: 'Revoke Alert?',
+                              titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              middleText: 'Are you sure you want to stop this override and resume normal transit displays?',
+                              middleTextStyle: const TextStyle(color: Colors.white70),
+                              backgroundColor: const Color(0xFF15151F),
+                              textConfirm: 'Revoke Now',
+                              textCancel: 'Cancel',
+                              confirmTextColor: Colors.white,
+                              cancelTextColor: Colors.white60,
+                              buttonColor: const Color(0xFFEF4444),
+                              onConfirm: () {
+                                Get.back();
+                                if (active.id != null) {
+                                  controller.revokeEmergencyAlert(active.id!);
+                                }
+                              },
+                            );
+                          },
+                          icon: const Icon(Icons.cancel_outlined, color: Colors.white, size: 14),
+                          label: const Text('Revoke', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFEF4444),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      active.message ?? 'Public emergency broadcast currently active across transit network.',
+                      style: const TextStyle(color: Colors.white, fontSize: 11, height: 1.3),
+                    ),
+                    if (active.emergencyNumber != null && active.emergencyNumber!.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        'Helpline: ${active.emergencyNumber}',
+                        style: const TextStyle(color: Color(0xFFFCA5A5), fontSize: 10.5, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ],
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          }),
+
           // EMERGENCY ALERT red glow banner
           Container(
             width: double.infinity,
@@ -1312,6 +1395,21 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
             hintText: 'Enter alert message...',
             controller: controller.alertMessageController,
             maxLines: 3,
+          ),
+          const SizedBox(height: 18),
+
+          // Departmental Helpline Contact Number
+          const Row(
+            children: [
+              Icon(Icons.phone_in_talk_rounded, color: Color(0xFFEF4444), size: 16),
+              SizedBox(width: 8),
+              Text('Emergency Helpline / Contact', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          CustomTextField(
+            hintText: 'e.g. 112, 108, or official toll-free helpline',
+            controller: controller.emergencyNumberController,
           ),
           const SizedBox(height: 18),
 
@@ -2581,98 +2679,6 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
         }).toList(),
       );
     });
-  }
-
-  // ==========================================
-  // TAB 4: MORE PREFERENCES
-  // ==========================================
-  Widget _buildMoreTab() {
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      physics: const BouncingScrollPhysics(),
-      children: [
-        const SizedBox(height: 10),
-        _buildSettingsHeader(),
-        const SizedBox(height: 20),
-        Obx(() => _buildSettingsItem('Account Info', Icons.person_outline_rounded, '${controller.officerName}, ${controller.officerDepartment}')),
-        _buildSettingsItem('Target Settings', Icons.gps_fixed_rounded, 'Bhopal Region Default'),
-        _buildSettingsItem('Emergency Parameters', Icons.warning_amber_rounded, 'Critical Alert triggers'),
-        _buildSettingsItem('Help & Support', Icons.help_outline_rounded, 'Submit ticketing or queries'),
-        const SizedBox(height: 32),
-        OutlinedButton.icon(
-          onPressed: () => controller.logout(),
-          style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: Color(0xFFEF4444)),
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-          icon: const Icon(Icons.logout_rounded, color: Color(0xFFEF4444), size: 16),
-          label: const Text('Logout Portal', style: TextStyle(color: Color(0xFFEF4444), fontSize: 11, fontWeight: FontWeight.bold)),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSettingsHeader() {
-    return Obx(() {
-      return Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.cardBorder, width: 1.2),
-        ),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 24,
-              backgroundColor: const Color(0xFF3B82F6).withOpacity(0.12),
-              child: const Icon(Icons.gavel_rounded, color: Color(0xFF3B82F6), size: 24),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(controller.officerName, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 4),
-                  Text(controller.officerEmail, style: const TextStyle(color: AppColors.textMuted, fontSize: 10), maxLines: 1, overflow: TextOverflow.ellipsis),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    });
-  }
-
-  Widget _buildSettingsItem(String label, IconData icon, String detail) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.cardBorder, width: 1),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: const Color(0xFF3B82F6), size: 16),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 2),
-                Text(detail, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
-              ],
-            ),
-          ),
-          const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 16),
-        ],
-      ),
-    );
   }
 
   Widget _buildBottomNav() {

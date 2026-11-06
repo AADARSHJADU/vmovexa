@@ -43,7 +43,7 @@ class DriverHelpSupportController extends GetxController {
     try {
       _loadQuickHelp();
       _loadContactChannels();
-      _loadPopularArticles();
+      await _loadPopularArticles();
       await _loadSupportTickets();
     } catch (e) {
       debugPrint('DriverHelpSupportController fetch error: $e');
@@ -170,12 +170,27 @@ class DriverHelpSupportController extends GetxController {
     supportTickets.clear();
   }
 
-  void _loadPopularArticles() {
-    popularArticles.assignAll([
-      PopularArticle(id: 'article_1', title: 'How to report a vehicle breakdown or route hazard?'),
-      PopularArticle(id: 'article_2', title: 'Managing duty status: toggle on-duty, off-duty, and breaks'),
-      PopularArticle(id: 'article_3', title: 'Uploading and updating your commercial driving license'),
-    ]);
+  Future<void> _loadPopularArticles() async {
+    try {
+      final res = await HttpClientService.to.get('${ApiConstants.contentPage}/driver-help', requiresAuth: true);
+      if (res.success && res.data != null && res.data is Map) {
+        final data = res.data as Map;
+        final articlesRaw = data['articles'] ?? data['faqs'] ?? [];
+        if (articlesRaw is List && articlesRaw.isNotEmpty) {
+          popularArticles.assignAll(
+            articlesRaw.map((a) {
+              final m = Map<String, dynamic>.from(a as Map);
+              return PopularArticle(
+                id: (m['id'] ?? '').toString(),
+                title: (m['title'] ?? m['question'] ?? '').toString(),
+              );
+            }).toList(),
+          );
+          return;
+        }
+      }
+    } catch (_) {}
+    popularArticles.clear();
   }
 
   // ---------------- Actions ----------------

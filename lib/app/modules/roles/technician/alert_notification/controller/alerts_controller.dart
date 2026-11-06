@@ -92,10 +92,10 @@ class AlertsController extends GetxController {
           return;
         }
       }
-      allAlerts.assignAll(_mockAlerts());
+      allAlerts.clear();
       visibleCount.value = pageSize;
     } catch (_) {
-      allAlerts.assignAll(_mockAlerts());
+      allAlerts.clear();
       visibleCount.value = pageSize;
     } finally {
       isLoading.value = false;
@@ -184,67 +184,5 @@ class AlertsController extends GetxController {
     if (isToday) return time;
     if (isYesterday) return 'Yesterday $time';
     return '${dt.day}/${dt.month}/${dt.year} $time';
-  }
-
-  // ---------------- Fallback mock data ----------------
-  List<AlertItem> _mockAlerts() {
-    final now = DateTime.now();
-    return [
-      AlertItem(
-        id: 'alert_1',
-        title: 'Display Offline',
-        message: 'Bus MH12 AD 9101 is offline.',
-        deviceId: 'VMX-DISP-003',
-        vehicleNumber: 'Bus MH12 AD 9101',
-        depotLocation: 'Mumbai West Depot',
-        timestamp: DateTime(now.year, now.month, now.day, 10, 30),
-        severity: AlertSeverity.critical,
-        isRead: false,
-      ),
-      AlertItem(
-        id: 'alert_2',
-        title: 'GPS Signal Lost',
-        message: 'GPS signal lost for Bus MH12 AF 1357.',
-        deviceId: 'VMX-DISP-005',
-        vehicleNumber: 'Bus MH12 AF 1357',
-        depotLocation: 'Mumbai Central Depot',
-        timestamp: DateTime(now.year, now.month, now.day, 10, 15),
-        severity: AlertSeverity.warning,
-        isRead: false,
-      ),
-      AlertItem(
-        id: 'alert_3',
-        title: 'Low Storage',
-        message: 'Storage is below 10% for Bus MH12 AE 2468.',
-        deviceId: 'VMX-DISP-004',
-        vehicleNumber: 'Bus MH12 AE 2468',
-        depotLocation: 'Mumbai West Depot',
-        timestamp: DateTime(now.year, now.month, now.day, 9, 45),
-        severity: AlertSeverity.warning,
-        isRead: false,
-      ),
-      AlertItem(
-        id: 'alert_4',
-        title: 'Configuration Updated',
-        message: 'Hardware configuration updated for Bus MH12 AB 1234.',
-        deviceId: 'VMX-DISP-001',
-        vehicleNumber: 'Bus MH12 AB 1234',
-        depotLocation: 'Mumbai Central Depot',
-        timestamp: DateTime(now.year, now.month, now.day, 9, 20),
-        severity: AlertSeverity.info,
-        isRead: false,
-      ),
-      AlertItem(
-        id: 'alert_5',
-        title: 'Diagnostics Completed',
-        message: 'Diagnostics completed for Bus MH12 AC 5678.',
-        deviceId: 'VMX-DISP-002',
-        vehicleNumber: 'Bus MH12 AC 5678',
-        depotLocation: 'Andheri Depot',
-        timestamp: DateTime(now.year, now.month, now.day - 1, 18, 30),
-        severity: AlertSeverity.resolved,
-        isRead: false,
-      ),
-    ];
   }
 }

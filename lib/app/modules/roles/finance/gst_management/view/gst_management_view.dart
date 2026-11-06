@@ -33,22 +33,7 @@ class GSTManagementView extends GetView<GSTManagementController> {
                   );
                 }
 
-                final summary = controller.gstSummary.value ??
-                    GstSummaryModel(
-                      taxableValue: 10250000.0,
-                      cgst: 922500.0,
-                      sgst: 922500.0,
-                      igst: 0.0,
-                      totalGst: 1845000.0,
-                      netPayable: 1845000.0,
-                      legalName: 'VMOVEXA PRIVATE LIMITED',
-                      gstin: '27M4BCY934D12S',
-                      state: 'Maharashtra (State Code: 27)',
-                      filingFrequency: 'Monthly (GSTR-1 & GSTR-3B)',
-                      jurisdiction: 'Commissionerate: Mumbai East, Division: BKC',
-                      gstinList: [],
-                      breakup: [],
-                    );
+                final summary = controller.gstSummary.value ?? GstSummaryModel.empty();
 
                 return TabBarView(
                   controller: controller.tabController,
@@ -332,42 +317,40 @@ class GSTManagementView extends GetView<GSTManagementController> {
                 ),
                 const SizedBox(height: 14),
                 if (summary.gstinList.isEmpty)
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: kInputBg,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF28283E)),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                  summary.gstin != '—' && summary.gstin.isNotEmpty
+                      ? Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: kInputBg,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFF28283E)),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                summary.gstin,
-                                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      summary.gstin,
+                                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text('State: ${summary.state} \n· Regular Taxpayer',
+                                        style: const TextStyle(color: Colors.white54, fontSize: 11)),
+                                  ],
+                                ),
                               ),
-                              const SizedBox(height: 2),
-                              Text('State: ${summary.state} \n· Regular Taxpayer',
-                                  style: const TextStyle(color: Colors.white54, fontSize: 11)),
                             ],
                           ),
-                        ),
-                        // Container(
-                        //   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        //   decoration: BoxDecoration(
-                        //     color: const Color(0xFF064E3B).withValues(alpha: 0.5),
-                        //     borderRadius: BorderRadius.circular(6),
-                        //     border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
-                        //   ),
-                        //   child: const Text('● Verified', style: TextStyle(color: Color(0xFF34D399), fontSize: 10, fontWeight: FontWeight.bold)),
-                        // ),
-                      ],
-                    ),
-                  )
+                        )
+                      : Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 24),
+                          alignment: Alignment.center,
+                          child: const Text('No GSTIN registrations found', style: TextStyle(color: Colors.white38, fontSize: 12)),
+                        )
                 else
                   ...summary.gstinList.map((reg) => Container(
                         margin: const EdgeInsets.only(bottom: 8),
@@ -558,7 +541,15 @@ class GSTManagementView extends GetView<GSTManagementController> {
                   style: TextStyle(color: Colors.white38, fontSize: 10),
                 ),
                 const SizedBox(height: 14),
-                ...summary.breakup.map((row) => Container(
+                if (summary.breakup.isEmpty)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    alignment: Alignment.center,
+                    child: const Text('No GST tax breakup records available', style: TextStyle(color: Colors.white38, fontSize: 12)),
+                  )
+                else
+                  ...summary.breakup.map((row) => Container(
                       margin: const EdgeInsets.only(bottom: 10),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(

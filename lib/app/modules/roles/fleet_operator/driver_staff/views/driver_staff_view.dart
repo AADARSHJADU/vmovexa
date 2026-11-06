@@ -38,96 +38,14 @@ class DriverStaffController extends GetxController {
       if (res.success && res.data != null && res.data!.isNotEmpty) {
         drivers.assignAll(res.data!);
       } else {
-        _loadDefaultDrivers();
+        drivers.clear();
       }
     } catch (_) {
-      _loadDefaultDrivers();
+      drivers.clear();
     } finally {
       isLoading.value = false;
       _filterDrivers();
     }
-  }
-
-  void _loadDefaultDrivers() {
-    drivers.assignAll([
-      DriverItemModel(
-        id: '1',
-        name: 'Ramesh Kumar Verma',
-        empId: 'EMP-01',
-        badgeId: 'MP09-DRV-01',
-        phone: '+91 98260 12345',
-        email: 'ramesh.verma@transit.in',
-        licenseNumber: 'MP09-2019-009124',
-        licenseType: 'Commercial Heavy (HMV)',
-        dlExpiry: '2029-08-30',
-        issuingAuthority: 'RTO Indore',
-        depotName: 'Vijay Nagar Depot',
-        assignedVehicleReg: 'MP09-CV-9821',
-        status: 'on_duty',
-        documentsVerified: true,
-        aadhaarVerified: true,
-        activeShift: 'Morning Shift (06:00 AM - 02:00 PM)',
-        rating: 4.9,
-      ),
-      DriverItemModel(
-        id: '2',
-        name: 'Sunil Sharma',
-        empId: 'EMP-02',
-        badgeId: 'MP09-DRV-02',
-        phone: '+91 98270 99887',
-        email: 'sunil.sharma@transit.in',
-        licenseNumber: 'MP09-2021-004412',
-        licenseType: 'Commercial Heavy (HMV)',
-        dlExpiry: '2028-11-15',
-        issuingAuthority: 'RTO Bhopal',
-        depotName: 'Rajwada Hub',
-        assignedVehicleReg: 'MP09-TA-4412',
-        status: 'available',
-        documentsVerified: true,
-        aadhaarVerified: true,
-        activeShift: 'Evening Shift (02:00 PM - 10:00 PM)',
-        rating: 4.7,
-      ),
-      DriverItemModel(
-        id: '3',
-        name: 'Amit Patel',
-        empId: 'EMP-03',
-        badgeId: 'MP09-DRV-03',
-        phone: '+91 98930 55441',
-        email: 'amit.patel@transit.in',
-        licenseNumber: 'MP09-2018-001109',
-        licenseType: 'Commercial Heavy (HMV)',
-        dlExpiry: '2026-10-30',
-        issuingAuthority: 'RTO Ujjain',
-        depotName: 'Bhawarkua Depot',
-        assignedVehicleReg: 'MP09-EV-1109',
-        status: 'pending_approval',
-        documentsVerified: false,
-        aadhaarVerified: false,
-        dlStatus: 'expiring_soon',
-        activeShift: 'Split Roster (07:00 AM - 07:00 PM)',
-        rating: 4.8,
-      ),
-      DriverItemModel(
-        id: '4',
-        name: 'Deepak Joshi',
-        empId: 'EMP-04',
-        badgeId: 'MP09-DRV-04',
-        phone: '+91 97550 88221',
-        email: 'deepak.joshi@transit.in',
-        licenseNumber: 'MP09-2022-007788',
-        licenseType: 'Commercial Heavy (HMV)',
-        dlExpiry: '2030-05-20',
-        issuingAuthority: 'RTO Indore',
-        depotName: 'Palasia Depot',
-        assignedVehicleReg: null,
-        status: 'off_duty',
-        documentsVerified: true,
-        aadhaarVerified: true,
-        activeShift: 'Night Feeder (10:00 PM - 06:00 AM)',
-        rating: 4.6,
-      ),
-    ]);
   }
 
   void _filterDrivers() {

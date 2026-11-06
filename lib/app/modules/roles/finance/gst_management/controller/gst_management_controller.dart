@@ -49,81 +49,13 @@ class GSTManagementController extends GetxController with GetSingleTickerProvide
         final payload = d['data'] is Map ? Map<String, dynamic>.from(d['data']) : d;
         gstSummary.value = GstSummaryModel.fromJson(payload);
       } else {
-        _assignFallbackGst();
+        gstSummary.value = null;
       }
     } catch (_) {
-      _assignFallbackGst();
+      gstSummary.value = null;
     } finally {
       isLoading.value = false;
     }
-  }
-
-  void _assignFallbackGst() {
-    gstSummary.value = GstSummaryModel(
-      taxableValue: 10250000.0,
-      cgst: 922500.0,
-      sgst: 922500.0,
-      igst: 0.0,
-      totalGst: 1845000.0,
-      netPayable: 1845000.0,
-      legalName: 'VMOVEXA PRIVATE LIMITED',
-      gstin: '27M4BCY934D12S',
-      state: 'Maharashtra (State Code: 27)',
-      filingFrequency: 'Monthly (GSTR-1 & GSTR-3B)',
-      jurisdiction: 'Commissionerate: Mumbai East, Division: BKC',
-      gstinList: [
-        MultiStateGstin(
-          gstin: '27M4BCY934D12S',
-          state: 'Maharashtra (27)',
-          invoicesCount: 48,
-          taxableAmount: 10250000.0,
-          totalTax: 1845000.0,
-          status: 'Active',
-        ),
-        MultiStateGstin(
-          gstin: '29AABCV9912K1Z9',
-          state: 'Karnataka (29)',
-          invoicesCount: 16,
-          taxableAmount: 3450000.0,
-          totalTax: 621000.0,
-          status: 'Active',
-        ),
-      ],
-      breakup: [
-        GstBreakupItem(
-          taxHead: 'CGST (Central Tax)',
-          rate: '9.0%',
-          taxable: 10250000.0,
-          amount: 922500.0,
-          itc: 0.0,
-          netPayable: 922500.0,
-        ),
-        GstBreakupItem(
-          taxHead: 'SGST (State Tax)',
-          rate: '9.0%',
-          taxable: 10250000.0,
-          amount: 922500.0,
-          itc: 0.0,
-          netPayable: 922500.0,
-        ),
-        GstBreakupItem(
-          taxHead: 'IGST (Integrated Tax)',
-          rate: '18.0%',
-          taxable: 0.0,
-          amount: 0.0,
-          itc: 0.0,
-          netPayable: 0.0,
-        ),
-        GstBreakupItem(
-          taxHead: 'Compensation Cess',
-          rate: '0.0%',
-          taxable: 0.0,
-          amount: 0.0,
-          itc: 0.0,
-          netPayable: 0.0,
-        ),
-      ],
-    );
   }
 
   /// Change selected month

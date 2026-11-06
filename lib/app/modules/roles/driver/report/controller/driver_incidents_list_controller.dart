@@ -160,6 +160,54 @@ class DriverIncidentsListController extends GetxController {
     );
   }
 
+  final RxBool isSubmittingWorkOrder = false.obs;
+
+  Future<bool> createDefectWorkOrder({
+    required String issueCategory,
+    required String urgency,
+    required String description,
+  }) async {
+    isSubmittingWorkOrder.value = true;
+    try {
+      final res = await _driverService.reportDriverWorkOrder(
+        issueCategory: issueCategory,
+        priority: urgency.toLowerCase(),
+        description: description,
+      );
+      if (res.success) {
+        Get.snackbar(
+          'Defect Reported',
+          'Work order dispatched to NOC & technical maintenance team.',
+          backgroundColor: const Color(0xFF15151F),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        await fetchWorkOrders();
+        return true;
+      } else {
+        Get.snackbar(
+          'Submission Error',
+          res.message ?? 'Could not submit defect report.',
+          backgroundColor: const Color(0xFF15151F),
+          colorText: Colors.redAccent,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return false;
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to report defect: $e',
+        backgroundColor: const Color(0xFF15151F),
+        colorText: Colors.redAccent,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    } finally {
+      isSubmittingWorkOrder.value = false;
+    }
+  }
+
   Future<void> rateWorkOrder(String workOrderId, int rating, String feedback) async {
     try {
       final res = await _driverService.rateDriverWorkOrder(workOrderId, rating: rating, feedback: feedback);

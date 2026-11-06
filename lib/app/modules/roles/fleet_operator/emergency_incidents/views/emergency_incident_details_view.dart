@@ -14,6 +14,10 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
 
   @override
   Widget build(BuildContext context) {
+    if (!Get.isRegistered<EmergencyIncidentsController>()) {
+      Get.put(EmergencyIncidentsController());
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(

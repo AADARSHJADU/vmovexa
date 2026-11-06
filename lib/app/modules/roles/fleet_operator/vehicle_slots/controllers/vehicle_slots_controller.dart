@@ -168,113 +168,20 @@ class VehicleSlotsController extends GetxController {
           slots.assignAll(loaded);
           totalSlots.value = loaded.length;
         } else {
-          _useFallbackSlots();
+          slots.clear();
+          totalSlots.value = 0;
         }
       } else {
-        _useFallbackSlots();
+        slots.clear();
+        totalSlots.value = 0;
       }
     } catch (_) {
-      _useFallbackSlots();
+      slots.clear();
+      totalSlots.value = 0;
     } finally {
       _updateStats();
       isLoading.value = false;
     }
-  }
-
-  void _useFallbackSlots() {
-    slots.assignAll([
-      VehicleSlotModel(
-        id: '1',
-        slotCode: 'SLOT-101',
-        slotName: 'Morning Peak Red Line',
-        vehicleId: '1',
-        busNumber: 'DL-01-AB-1234',
-        routeId: '1',
-        routeName: 'Central Depot - Airport Express',
-        routeCode: 'R-101',
-        driverId: '1',
-        driverName: 'Ramesh Kumar',
-        shiftType: 'morning_peak',
-        startTime: '07:30',
-        endTime: '11:00',
-        operatingDays: 'Mon,Tue,Wed,Thu,Fri,Sat',
-        headwayMinutes: 15,
-        status: 'active',
-      ),
-      VehicleSlotModel(
-        id: '2',
-        slotCode: 'SLOT-102',
-        slotName: 'Midday City Feeder',
-        vehicleId: '2',
-        busNumber: 'DL-01-CD-5678',
-        routeId: '2',
-        routeName: 'Sector 62 - Connaught Place',
-        routeCode: 'R-202',
-        driverId: '2',
-        driverName: 'Suresh Sharma',
-        shiftType: 'regular_day',
-        startTime: '11:30',
-        endTime: '16:00',
-        operatingDays: 'Mon,Tue,Wed,Thu,Fri',
-        headwayMinutes: 20,
-        status: 'active',
-      ),
-      VehicleSlotModel(
-        id: '3',
-        slotCode: 'SLOT-103',
-        slotName: 'Evening Commuter Express',
-        vehicleId: '3',
-        busNumber: 'DL-01-EF-9012',
-        routeId: '1',
-        routeName: 'Central Depot - Airport Express',
-        routeCode: 'R-101',
-        driverId: '3',
-        driverName: 'Amit Verma',
-        shiftType: 'evening_peak',
-        startTime: '16:30',
-        endTime: '20:30',
-        operatingDays: 'Mon,Tue,Wed,Thu,Fri,Sat',
-        headwayMinutes: 12,
-        status: 'active',
-      ),
-      VehicleSlotModel(
-        id: '4',
-        slotCode: 'SLOT-104',
-        slotName: 'Night Shift Depot Return',
-        vehicleId: '4',
-        busNumber: 'DL-01-GH-3456',
-        routeId: '3',
-        routeName: 'Interstate Hub - Tech Park',
-        routeCode: 'R-303',
-        driverId: '4',
-        driverName: 'Rajesh Yadav',
-        shiftType: 'night_shuttle',
-        startTime: '20:45',
-        endTime: '23:30',
-        operatingDays: 'Daily',
-        headwayMinutes: 30,
-        status: 'active',
-      ),
-      VehicleSlotModel(
-        id: '5',
-        slotCode: 'SLOT-105',
-        slotName: 'Weekend Special Route',
-        vehicleId: '1',
-        busNumber: 'DL-01-AB-1234',
-        routeId: '2',
-        routeName: 'Sector 62 - Connaught Place',
-        routeCode: 'R-202',
-        driverId: '1',
-        driverName: 'Ramesh Kumar',
-        shiftType: 'morning_peak',
-        startTime: '08:00',
-        endTime: '11:30',
-        operatingDays: 'Sat,Sun',
-        headwayMinutes: 20,
-        status: 'paused',
-      ),
-    ]);
-    totalSlots.value = slots.length;
   }
 
   void _updateStats() {

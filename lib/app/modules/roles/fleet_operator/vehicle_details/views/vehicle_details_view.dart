@@ -7,6 +7,7 @@ import '../../../../../widgets/custom_back_button.dart';
 import '../../../../../widgets/custom_button.dart';
 import '../../../../../data/models/fleet_models.dart';
 import '../../../../../data/constants/api_constants.dart';
+import '../../../../../routes/app_routes.dart';
 import '../controllers/vehicle_details_controller.dart';
 
 class VehicleDetailsView extends GetView<VehicleDetailsController> {
@@ -772,14 +773,36 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
               ],
             ),
           ),
-          OutlinedButton.icon(
-            onPressed: controller.callDriver,
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Color(0xFF6366F1)),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            icon: const Icon(Icons.call_outlined, color: Colors.white, size: 14),
-            label: const Text('Call', style: TextStyle(color: Colors.white, fontSize: 11)),
+          Row(
+            children: [
+              OutlinedButton(
+                onPressed: () {
+                  Get.toNamed(Routes.ASSIGN_DRIVER, arguments: {
+                    'vehicleId': controller.vehicleId ?? '',
+                    'vehicleName': controller.registrationNumber,
+                  });
+                },
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.white24),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                  minimumSize: const Size(0, 32),
+                ),
+                child: const Text('Change', style: TextStyle(color: Colors.white70, fontSize: 11)),
+              ),
+              const SizedBox(width: 6),
+              OutlinedButton.icon(
+                onPressed: controller.callDriver,
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xFF6366F1)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                  minimumSize: const Size(0, 32),
+                ),
+                icon: const Icon(Icons.call_outlined, color: Colors.white, size: 14),
+                label: const Text('Call', style: TextStyle(color: Colors.white, fontSize: 11)),
+              ),
+            ],
           ),
         ],
       ),
@@ -809,6 +832,26 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
             children: [
               _buildGpsParam('Signal Strength', 'Strong (98%)'),
               _buildGpsParam('Live Ping', 'Real-time sync'),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton.icon(
+                onPressed: () {
+                  Get.toNamed(Routes.ASSIGN_GPS, arguments: {
+                    'vehicleId': controller.vehicleId ?? '',
+                    'vehicleName': controller.registrationNumber,
+                  });
+                },
+                icon: const Icon(Icons.link_rounded, size: 14, color: Color(0xFF818CF8)),
+                label: const Text(
+                  'Change / Link GPS',
+                  style: TextStyle(color: Color(0xFF818CF8), fontSize: 11, fontWeight: FontWeight.bold),
+                ),
+                style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero),
+              ),
             ],
           ),
         ],

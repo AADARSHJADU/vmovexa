@@ -70,8 +70,8 @@ class AdvertiserNotificationsController extends GetxController {
       final matchesTab = tab == 'All' || n.category == tab;
       final matchesSearch =
           q.isEmpty ||
-          n.title.toLowerCase().contains(q) ||
-          n.desc.toLowerCase().contains(q);
+              n.title.toLowerCase().contains(q) ||
+              n.desc.toLowerCase().contains(q);
       return matchesTab && matchesSearch;
     }).toList();
   }

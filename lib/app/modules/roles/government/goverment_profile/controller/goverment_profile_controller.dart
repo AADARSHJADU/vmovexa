@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:vmovexa/app/routes/app_routes.dart';
 import 'package:vmovexa/app/data/constants/api_constants.dart';
 import 'package:vmovexa/app/data/models/api_response_model.dart';
 import 'package:vmovexa/app/data/models/government_models.dart';
@@ -399,9 +400,9 @@ class GovernmentProfileController extends GetxController {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       Get.back();
-                      logout();
+                      await logout();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFEF4444),
@@ -421,6 +422,9 @@ class GovernmentProfileController extends GetxController {
   }
 
   Future<void> logout() async {
-    await _authService.logout();
+    try {
+      await _authService.logout();
+    } catch (_) {}
+    Get.offAllNamed(Routes.LOGIN);
   }
 }

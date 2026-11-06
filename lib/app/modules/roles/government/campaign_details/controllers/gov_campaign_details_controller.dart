@@ -172,70 +172,41 @@ class GovCampaignDetailsController extends GetxController {
   }
 
   void _buildActivityFeed(GovCampaignModel c) {
-    activityFeed.assignAll([
-      {
-        'displayId': 'DISP-${c.id?.substring(0, 4) ?? '01'}',
-        'status': c.status?.toLowerCase() == 'active' ? 'Live' : 'Paused',
-        'location': c.displayLocations,
-        'time': 'Just now',
-        'icon': Icons.wifi,
-        'color': c.statusColor,
-      },
-      {
-        'displayId': 'MP-TRANS-204',
-        'status': 'Live',
-        'location': 'MP Nagar Main Transit, Bhopal',
-        'time': '8 mins ago',
-        'icon': Icons.live_tv_rounded,
-        'color': const Color(0xFF10B981),
-      },
-      {
-        'displayId': 'ISBT-CORR-09',
-        'status': 'Live',
-        'location': 'Habib Ganj Station Gateway, Bhopal',
-        'time': '22 mins ago',
-        'icon': Icons.route_rounded,
-        'color': const Color(0xFF3B82F6),
-      },
-    ]);
+    if (c.status?.toLowerCase() == 'active' || c.status?.toLowerCase() == 'live') {
+      final cid = c.id ?? '';
+      activityFeed.assignAll([
+        {
+          'displayId': 'DISP-${cid.length >= 4 ? cid.substring(0, 4) : cid}',
+          'status': 'Live',
+          'location': c.displayLocations.isNotEmpty ? c.displayLocations : 'Transit Corridor',
+          'time': 'Active',
+          'icon': Icons.wifi,
+          'color': c.statusColor,
+        },
+      ]);
+    } else {
+      activityFeed.clear();
+    }
   }
 
   void _buildTopQrCampaigns(GovCampaignModel c) {
-    topQrCampaigns.assignAll([
-      {
-        'rank': 1,
-        'title': c.displayName,
-        'scans': qrTotalScans.value > 0 ? qrTotalScans.value : 1420,
-        'unique': qrUniqueScans.value > 0 ? qrUniqueScans.value : 980,
-        'rate': '${qrScanRate.value}%',
-        'avg': qrAvgScansPerDay.value > 0 ? qrAvgScansPerDay.value : 210,
-        'percentage': 48.0,
-        'color': const Color(0xFF10B981),
-        'image': c.resolvedMediaUrl,
-      },
-      {
-        'rank': 2,
-        'title': 'Traffic Safety Awareness',
-        'scans': 2850,
-        'unique': 1940,
-        'rate': '2.4%',
-        'avg': 410,
-        'percentage': 32.5,
-        'color': const Color(0xFF3B82F6),
-        'image': 'https://images.unsplash.com/photo-1547683905-f686c993aae5?q=80&w=200',
-      },
-      {
-        'rank': 3,
-        'title': 'Clean City Bhopal Drive',
-        'scans': 1640,
-        'unique': 1120,
-        'rate': '1.8%',
-        'avg': 234,
-        'percentage': 19.5,
-        'color': const Color(0xFFF59E0B),
-        'image': 'https://images.unsplash.com/photo-1473448912268-2022ce9509d8?q=80&w=200',
-      },
-    ]);
+    if (qrTotalScans.value > 0) {
+      topQrCampaigns.assignAll([
+        {
+          'rank': 1,
+          'title': c.displayName,
+          'scans': qrTotalScans.value,
+          'unique': qrUniqueScans.value,
+          'rate': '${qrScanRate.value}%',
+          'avg': qrAvgScansPerDay.value,
+          'percentage': 100.0,
+          'color': const Color(0xFF10B981),
+          'image': c.resolvedMediaUrl,
+        },
+      ]);
+    } else {
+      topQrCampaigns.clear();
+    }
   }
 
   void updateTab(String tab) {

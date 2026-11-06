@@ -18,8 +18,8 @@ class MultiStateGstin {
 
   factory MultiStateGstin.fromJson(Map<String, dynamic> json) {
     return MultiStateGstin(
-      gstin: (json['gstin'] ?? '27M4BCY934D12S').toString(),
-      state: (json['state'] ?? 'Maharashtra (27)').toString(),
+      gstin: (json['gstin'] ?? '—').toString(),
+      state: (json['state'] ?? '—').toString(),
       invoicesCount: int.tryParse((json['invoicesCount'] ?? json['invoices_count'] ?? 0).toString()) ?? 0,
       taxableAmount: double.tryParse((json['taxableAmount'] ?? json['taxable_amount'] ?? 0).toString().replaceAll(',', '')) ?? 0.0,
       totalTax: double.tryParse((json['totalTax'] ?? json['total_tax'] ?? 0).toString().replaceAll(',', '')) ?? 0.0,
@@ -96,6 +96,24 @@ class GstSummaryModel {
     required this.breakup,
   });
 
+  factory GstSummaryModel.empty() {
+    return GstSummaryModel(
+      taxableValue: 0.0,
+      cgst: 0.0,
+      sgst: 0.0,
+      igst: 0.0,
+      totalGst: 0.0,
+      netPayable: 0.0,
+      legalName: '—',
+      gstin: '—',
+      state: '—',
+      filingFrequency: '—',
+      jurisdiction: '—',
+      gstinList: [],
+      breakup: [],
+    );
+  }
+
   factory GstSummaryModel.fromJson(Map<String, dynamic> json) {
     final taxableValue = double.tryParse((json['taxableValue'] ?? json['taxable_value'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
     final cgst = double.tryParse((json['cgst'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
@@ -104,11 +122,11 @@ class GstSummaryModel {
     final totalGst = double.tryParse((json['totalGst'] ?? json['total_gst'] ?? json['total_gst_collected'] ?? (cgst + sgst + igst)).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
     final netPayable = double.tryParse((json['netPayable'] ?? json['net_payable'] ?? totalGst).toString().replaceAll(',', '').replaceAll('₹', '')) ?? totalGst;
 
-    final legalName = (json['legalName'] ?? json['legal_name'] ?? 'VMOVEXA PRIVATE LIMITED').toString();
-    final gstin = (json['gstin'] ?? '27M4BCY934D12S').toString();
-    final state = (json['state'] ?? 'Maharashtra (State Code: 27)').toString();
-    final filingFrequency = (json['filingFrequency'] ?? json['filing_frequency'] ?? 'Monthly (GSTR-1 & GSTR-3B)').toString();
-    final jurisdiction = (json['jurisdiction'] ?? 'Commissionerate: Mumbai East, Division: BKC').toString();
+    final legalName = (json['legalName'] ?? json['legal_name'] ?? '—').toString();
+    final gstin = (json['gstin'] ?? json['gstin_number'] ?? '—').toString();
+    final state = (json['state'] ?? '—').toString();
+    final filingFrequency = (json['filingFrequency'] ?? json['filing_frequency'] ?? '—').toString();
+    final jurisdiction = (json['jurisdiction'] ?? '—').toString();
 
     // Roster
     final rawGstinList = json['gstinList'] is List ? json['gstinList'] as List : (json['gstin_list'] is List ? json['gstin_list'] as List : []);

@@ -175,51 +175,11 @@ class OnboardTenantController extends GetxController {
         }
       }
 
-      // Fallback standard tiers if empty from backend
-      if (list.isEmpty) {
-        list = [
-          SubscriptionPlanItem(
-            id: 1,
-            name: 'Starter Tier',
-            monthlyPrice: 25000,
-            busesLimit: 25,
-            depotsLimit: 2,
-            adRevenueShareRate: 65,
-          ),
-          SubscriptionPlanItem(
-            id: 2,
-            name: 'Growth Tier',
-            monthlyPrice: 45000,
-            busesLimit: 50,
-            depotsLimit: 5,
-            adRevenueShareRate: 70,
-          ),
-          SubscriptionPlanItem(
-            id: 3,
-            name: 'Enterprise Tier',
-            monthlyPrice: 85000,
-            busesLimit: 100,
-            depotsLimit: 10,
-            adRevenueShareRate: 75,
-          ),
-        ];
-      }
-
       plans.assignAll(list);
-      selectedPlan.value = list.first;
+      selectedPlan.value = list.isNotEmpty ? list.first : null;
     } catch (_) {
-      // Fallback
-      plans.assignAll([
-        SubscriptionPlanItem(
-          id: 1,
-          name: 'Starter Tier',
-          monthlyPrice: 25000,
-          busesLimit: 25,
-          depotsLimit: 2,
-          adRevenueShareRate: 65,
-        ),
-      ]);
-      selectedPlan.value = plans.first;
+      plans.clear();
+      selectedPlan.value = null;
     } finally {
       loadingPlans.value = false;
     }

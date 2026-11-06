@@ -77,18 +77,26 @@ class AdvertiserHelpSupportView extends GetView<AdvertiserHelpSupportController>
                     const SizedBox(height: 20),
 
                     // Quick Action Guides
-                    const Text(
-                      'ADVERTISER RUNBOOKS & GUIDES',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    _buildGuidesGrid(context),
-                    const SizedBox(height: 24),
+                    Obx(() {
+                      if (controller.guides.isEmpty) return const SizedBox.shrink();
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'ADVERTISER RUNBOOKS & GUIDES',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          _buildGuidesGrid(context),
+                          const SizedBox(height: 24),
+                        ],
+                      );
+                    }),
 
                     // FAQs Accordion
                     Row(

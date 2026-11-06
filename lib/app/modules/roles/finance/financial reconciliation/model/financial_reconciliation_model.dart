@@ -39,58 +39,13 @@ class ReconciliationSummaryModel {
     );
   }
 
-  factory ReconciliationSummaryModel.fallback() {
+  factory ReconciliationSummaryModel.empty() {
     return ReconciliationSummaryModel(
-      totalTransactions: 128,
-      matched: 114,
-      unmatched: 9,
-      inProgress: 5,
-      accounts: [
-        ReconciliationAccountModel(
-          id: 'acc-hdfc-01',
-          name: 'HDFC Corporate Transit Collection',
-          category: 'Transit Collection',
-          accountNumber: '•••• •••• 9821',
-          totalTxns: 48,
-          matched: 45,
-          unmatched: 3,
-          ledgerBalance: '₹14,50,000',
-          status: 'Reconciled',
-        ),
-        ReconciliationAccountModel(
-          id: 'acc-icici-nodal',
-          name: 'ICICI Bank Nodal Escrow Account',
-          category: 'Nodal Escrow',
-          accountNumber: '•••• •••• 4410',
-          totalTxns: 36,
-          matched: 34,
-          unmatched: 2,
-          ledgerBalance: '₹8,25,000',
-          status: 'Reconciled',
-        ),
-        ReconciliationAccountModel(
-          id: 'acc-razorpay-va',
-          name: 'Razorpay Smart Collect Virtual Account',
-          category: 'Virtual Gateway',
-          accountNumber: 'VPA: vmovexa.collection@razorpay',
-          totalTxns: 28,
-          matched: 24,
-          unmatched: 4,
-          ledgerBalance: '₹4,80,000',
-          status: 'Pending',
-        ),
-        ReconciliationAccountModel(
-          id: 'acc-axis-payout',
-          name: 'Axis Bank Corporate Operating & Payouts',
-          category: 'Corporate Operating',
-          accountNumber: '•••• •••• 1152',
-          totalTxns: 16,
-          matched: 11,
-          unmatched: 5,
-          ledgerBalance: '₹2,65,000',
-          status: 'Pending',
-        ),
-      ],
+      totalTransactions: 0,
+      matched: 0,
+      unmatched: 0,
+      inProgress: 0,
+      accounts: [],
     );
   }
 }
@@ -188,66 +143,6 @@ class ReconciliationTransactionModel {
       status: status,
       isMatched: status == 'Matched' || (json['isMatched'] == true),
     );
-  }
-
-  static List<ReconciliationTransactionModel> fallbackList() {
-    return [
-      ReconciliationTransactionModel(
-        id: 'txn-1',
-        date: '27 Oct 2026',
-        refNumber: 'TXN-9821-4821',
-        description: 'Razorpay Escrow Transfer - Campaign Payout',
-        bankStatement: 1420500.0,
-        bookLedger: 1420500.0,
-        variance: 0.0,
-        status: 'Matched',
-        isMatched: true,
-      ),
-      ReconciliationTransactionModel(
-        id: 'txn-2',
-        date: '26 Oct 2026',
-        refNumber: 'TXN-9821-4819',
-        description: 'HDFC Corporate Card Settlement - Fleet Fuel',
-        bankStatement: 85400.0,
-        bookLedger: 85400.0,
-        variance: 0.0,
-        status: 'Matched',
-        isMatched: true,
-      ),
-      ReconciliationTransactionModel(
-        id: 'txn-3',
-        date: '25 Oct 2026',
-        refNumber: 'TXN-9821-4812',
-        description: 'Client Wire Deposit - Enterprise Media Campaign',
-        bankStatement: 250000.0,
-        bookLedger: 250000.0,
-        variance: 0.0,
-        status: 'Matched',
-        isMatched: true,
-      ),
-      ReconciliationTransactionModel(
-        id: 'txn-4',
-        date: '24 Oct 2026',
-        refNumber: 'TXN-9821-4805',
-        description: 'Automated Tax Surcharge Adjustment',
-        bankStatement: 12450.0,
-        bookLedger: 12450.0,
-        variance: 0.0,
-        status: 'Matched',
-        isMatched: true,
-      ),
-      ReconciliationTransactionModel(
-        id: 'txn-5',
-        date: '23 Oct 2026',
-        refNumber: 'TXN-9821-4798',
-        description: 'Bank Gateway Clearing Fee',
-        bankStatement: 3200.0,
-        bookLedger: 3200.0,
-        variance: 0.0,
-        status: 'Matched',
-        isMatched: true,
-      ),
-    ];
   }
 }
 

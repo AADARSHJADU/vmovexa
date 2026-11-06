@@ -96,7 +96,7 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
                         physics: const AlwaysScrollableScrollPhysics(),
                         children: [
                           SizedBox(height: MediaQuery.of(context).size.height * 0.15),
-                          _buildWorkOrdersEmptyState(ctrl),
+                          _buildWorkOrdersEmptyState(ctrl,context),
                         ],
                       ),
                     );
@@ -122,36 +122,41 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: ctrl.onReportNewIncident,
-        backgroundColor: Colors.transparent,
-        elevation: 6,
-        label: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(colors: [Color(0xFFE52D27), Color(0xFFB31217)]),
-            borderRadius: BorderRadius.circular(30),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFFE52D27).withOpacity(0.4),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
+      floatingActionButton: Obx(() {
+        final isWorkOrderTab = ctrl.selectedViewTab.value == 1;
+        return FloatingActionButton.extended(
+          onPressed: isWorkOrderTab ? () => _showCreateWorkOrderSheet(context, ctrl) : ctrl.onReportNewIncident,
+          backgroundColor: Colors.transparent,
+          elevation: 6,
+          label: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              gradient: isWorkOrderTab
+                  ? const LinearGradient(colors: [Color(0xFF6A5CFF), Color(0xFFB042FF)])
+                  : const LinearGradient(colors: [Color(0xFFE52D27), Color(0xFFB31217)]),
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: [
+                BoxShadow(
+                  color: (isWorkOrderTab ? const Color(0xFF6A5CFF) : const Color(0xFFE52D27)).withOpacity(0.4),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(isWorkOrderTab ? Icons.build_rounded : Icons.warning_amber_rounded, color: Colors.white, size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  isWorkOrderTab ? 'Report Defect' : 'Report Incident',
+                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
           ),
-          child: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.warning_amber_rounded, color: Colors.white, size: 20),
-              SizedBox(width: 8),
-              Text(
-                'Report Incident',
-                style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        ),
-      ),
+        );
+      }),
     );
   }
 
@@ -762,7 +767,7 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
     );
   }
 
-  Widget _buildWorkOrdersEmptyState(DriverIncidentsListController ctrl) {
+  Widget _buildWorkOrdersEmptyState(DriverIncidentsListController ctrl,context) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -788,9 +793,197 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white38, fontSize: 12),
             ),
+            const SizedBox(height: 18),
+            ElevatedButton.icon(
+              onPressed: () => _showCreateWorkOrderSheet(context, ctrl),
+              icon: const Icon(Icons.add_rounded, size: 16),
+              label: const Text('Report Vehicle Defect'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: kIndigo,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              ),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+
+  // ---------------- Create Work Order Sheet ----------------
+  void _showCreateWorkOrderSheet(BuildContext context, DriverIncidentsListController ctrl) {
+    const categories = [
+      'Engine / Mechanical',
+      'Brakes / Steering',
+      'Electrical / Battery',
+      'Tyres / Wheels',
+      'Body / Damage',
+      'Air Conditioning / HVAC',
+      'GPS / Tracking Device',
+      'Display Screen / Media',
+      'Other',
+    ];
+
+    String selectedCat = categories.first;
+    String selectedUrg = 'normal';
+    final descCtrl = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: kCardBg,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Padding(
+              padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(context).viewInsets.bottom + 20),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Report Vehicle Defect',
+                          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white70),
+                          onPressed: () => Navigator.pop(ctx),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Issue Category dropdown
+                    const Text('Issue Category', style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: kFieldBg,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: kBorder),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: selectedCat,
+                          isExpanded: true,
+                          dropdownColor: kCardBg,
+                          style: const TextStyle(color: Colors.white, fontSize: 13),
+                          icon: const Icon(Icons.arrow_drop_down, color: Colors.white70),
+                          items: categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                          onChanged: (val) {
+                            if (val != null) setState(() => selectedCat = val);
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+
+                    // Urgency chips
+                    const Text('Urgency / Priority', style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: ['critical', 'high', 'normal', 'low'].map((u) {
+                        final isSel = selectedUrg == u;
+                        Color c = kGreen;
+                        if (u == 'critical') c = kRed;
+                        if (u == 'high') c = kOrange;
+                        if (u == 'normal') c = Colors.amber;
+
+                        return Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 3),
+                            child: GestureDetector(
+                              onTap: () => setState(() => selectedUrg = u),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: isSel ? c.withOpacity(0.2) : kFieldBg,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: isSel ? c : kBorder, width: isSel ? 1.5 : 1),
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  u.toUpperCase(),
+                                  style: TextStyle(
+                                    color: isSel ? Colors.white : Colors.white60,
+                                    fontSize: 9.5,
+                                    fontWeight: isSel ? FontWeight.bold : FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 14),
+
+                    // Description textfield
+                    const Text('Defect Description', style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: descCtrl,
+                      maxLines: 3,
+                      style: const TextStyle(color: Colors.white, fontSize: 13),
+                      decoration: InputDecoration(
+                        hintText: 'Describe vehicle malfunction or defect symptoms...',
+                        hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
+                        filled: true,
+                        fillColor: kFieldBg,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+
+                    // Submit button
+                    Obx(() {
+                      final loading = ctrl.isSubmittingWorkOrder.value;
+                      return SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: loading
+                              ? null
+                              : () async {
+                                  if (descCtrl.text.trim().isEmpty) {
+                                    Get.snackbar('Required', 'Please describe the defect.', backgroundColor: kCardBg, colorText: Colors.redAccent);
+                                    return;
+                                  }
+                                  final ok = await ctrl.createDefectWorkOrder(
+                                    issueCategory: selectedCat,
+                                    urgency: selectedUrg,
+                                    description: descCtrl.text.trim(),
+                                  );
+                                  if (ok && context.mounted) {
+                                    Navigator.pop(ctx);
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: kIndigo,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          child: loading
+                              ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                              : const Text('Dispatch Work Order', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
