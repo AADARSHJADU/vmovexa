@@ -559,6 +559,7 @@ class CreateCampaignController extends GetxController {
         ),
       );
     }
+    selectedTargets.refresh();
   }
 
   void toggleBus(TransitRouteModel route, TransitVehicleModel vehicle) {
@@ -609,6 +610,7 @@ class CreateCampaignController extends GetxController {
         selectedTargets[idx] = updatedTarget;
       }
     }
+    selectedTargets.refresh();
   }
 
   void toggleScreen(TransitRouteModel route, TransitVehicleModel vehicle, TransitScreenModel screen) {
@@ -662,18 +664,51 @@ class CreateCampaignController extends GetxController {
         selectedTargets[idx] = updated;
       }
     }
+    selectedTargets.refresh();
   }
 
   void selectAllRoutes() {
     for (final route in filteredTransitRoutes) {
       if (!isRouteSelected(route.id)) {
-        toggleRoute(route);
+        final vIds = route.vehicles.map((v) => v.id).toList();
+        final sIds = route.vehicles.expand((v) => v.screens.map((s) => s.id)).toList();
+
+        selectedTargets.add(
+          SelectedTargetModel(
+            fleetId: route.fleetId,
+            fleetName: route.fleetName,
+            organizationId: route.organizationId,
+            routeId: route.id,
+            routeName: route.name,
+            routeCode: route.code,
+            city: route.city,
+            vehicleIds: vIds,
+            screenIds: sIds,
+            vehicleCount: route.vehicleCount,
+            totalScreens: route.totalScreens,
+            screensPerVehicle: route.screensPerVehicle,
+          ),
+        );
       }
     }
+    selectedTargets.refresh();
   }
 
   void clearAllRoutes() {
     selectedTargets.clear();
+    selectedTargets.refresh();
+  }
+
+  void toggleRouteExpanded(int routeId) {
+    final current = expandedRoutes[routeId] ?? false;
+    expandedRoutes[routeId] = !current;
+    expandedRoutes.refresh();
+  }
+
+  void toggleBusExpanded(String busKey) {
+    final current = expandedBuses[busKey] ?? false;
+    expandedBuses[busKey] = !current;
+    expandedBuses.refresh();
   }
 
   // ==========================================================

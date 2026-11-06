@@ -6,13 +6,14 @@ import '../../../../../routes/app_routes.dart';
 
 class CampaignDetailsController extends GetxController {
   late Rx<CampaignModel> campaign;
+  final RxBool isNotFound = false.obs;
 
   // Active section tab: 'overview', 'media_fleet', 'schedule_budget', 'payment_qr'
   final RxString activeSectionTab = 'overview'.obs;
 
-  final RxInt qrScans = 1420.obs;
-  final RxInt vmovexaLeads = 320.obs;
-  final RxDouble qrConversion = 22.5.obs;
+  final RxInt qrScans = 0.obs;
+  final RxInt vmovexaLeads = 0.obs;
+  final RxDouble qrConversion = 0.0.obs;
 
   final RxBool isLoading = false.obs;
   final RxBool isActionLoading = false.obs;
@@ -28,21 +29,23 @@ class CampaignDetailsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    String? initialId;
     final dynamic arg = Get.arguments;
     if (arg is CampaignModel) {
       campaign = arg.obs;
+      initialId = arg.id;
     } else if (arg is Map && arg['campaign'] is CampaignModel) {
       campaign = (arg['campaign'] as CampaignModel).obs;
+      initialId = (arg['campaign'] as CampaignModel).id;
+    } else if (arg is Map && (arg['id'] != null || arg['campaignId'] != null)) {
+      initialId = (arg['id'] ?? arg['campaignId']).toString();
+      campaign = CampaignModel(id: initialId, title: 'Loading Campaign...', status: 'loading').obs;
+    } else if (arg is String && arg.isNotEmpty) {
+      initialId = arg;
+      campaign = CampaignModel(id: initialId, title: 'Loading Campaign...', status: 'loading').obs;
     } else {
-      campaign = CampaignModel(
-        id: 'CMP-2026-000124',
-        title: 'Summer Sale 2026',
-        brandName: 'City Mart',
-        startDate: '2026-05-20',
-        endDate: '2026-06-10',
-        budget: 250000.0,
-        status: 'pending_approval',
-      ).obs;
+      campaign = CampaignModel(id: '', title: '', status: '').obs;
+      isNotFound.value = true;
     }
 
     _syncFormDefaults();
@@ -54,7 +57,9 @@ class CampaignDetailsController extends GetxController {
       qrConversion.value = campaign.value.stats!.conversionRate;
     }
 
-    refreshCampaignDetails();
+    if (initialId != null && initialId.isNotEmpty) {
+      refreshCampaignDetails();
+    }
   }
 
   void _syncFormDefaults() {
@@ -74,6 +79,7 @@ class CampaignDetailsController extends GetxController {
       final res = await _service.getCampaignById(campaign.value.id);
       if (res.success && res.data != null) {
         campaign.value = res.data!;
+        isNotFound.value = false;
         _syncFormDefaults();
         if (campaign.value.stats != null) {
           qrScans.value = campaign.value.stats!.qrScans;
@@ -86,6 +92,22 @@ class CampaignDetailsController extends GetxController {
       final reviewsRes = await _service.getCampaignReviews(campaign.value.id);
       if (reviewsRes.success && reviewsRes.data != null) {
         reviews.assignAll(reviewsRes.data!);
+      }
+
+      // Fetch live analytics metrics if stats are 0
+      if (qrScans.value == 0) {
+        try {
+          final analyticsRes = await _service.getCampaignAnalyticsMap(campaign.value.id);
+          if (analyticsRes.success && analyticsRes.data != null) {
+            final a = analyticsRes.data!;
+            final scans = int.tryParse((a['totalScans'] ?? a['qrScans'] ?? a['scans'])?.toString() ?? '0') ?? 0;
+            final leads = int.tryParse(a['leads']?.toString() ?? '0') ?? (scans > 0 ? (scans * 0.22).round() : 0);
+            final conv = double.tryParse(a['conversionRate']?.toString() ?? '0') ?? (scans > 0 ? ((leads / scans) * 100) : 0.0);
+            if (scans > 0) qrScans.value = scans;
+            if (leads > 0) vmovexaLeads.value = leads;
+            if (conv > 0) qrConversion.value = double.parse(conv.toStringAsFixed(1));
+          }
+        } catch (_) {}
       }
     } catch (e) {
       debugPrint('Error refreshing campaign details: $e');

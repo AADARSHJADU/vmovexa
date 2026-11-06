@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/data/constants/api_constants.dart';
 import 'package:vmovexa/app/data/services/storage_service.dart';
 import 'package:vmovexa/app/routes/app_routes.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
 import 'package:vmovexa/app/theme/app_theme.dart';
 import '../dashboard/controllers/advertiser_dashboard_controller.dart';
+import '../profile/controllers/advertiser_profile_controller.dart';
 
 class AdvertiserDrawerWidget extends StatelessWidget {
   const AdvertiserDrawerWidget({super.key});
@@ -15,31 +17,9 @@ class AdvertiserDrawerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String userName = 'Commercial Advertiser';
-    String userEmail = 'advertiser@vmovexa.com';
-    String userRole = 'COMMERCIAL ADVERTISER';
-    String initial = 'A';
-
-    try {
-      if (Get.isRegistered<StorageService>()) {
-        final u = StorageService.to.getUser();
-        if (u != null) {
-          final name = (u.companyName != null && u.companyName!.isNotEmpty)
-              ? u.companyName!
-              : (u.organizationName != null && u.organizationName!.isNotEmpty)
-                  ? u.organizationName!
-                  : (u.name ?? '');
-          if (name.isNotEmpty) {
-            userName = name;
-            initial = name[0].toUpperCase();
-          }
-          final email = u.email ?? '';
-          if (email.isNotEmpty) {
-            userEmail = email;
-          }
-        }
-      }
-    } catch (_) {}
+    final profileCtrl = Get.isRegistered<AdvertiserProfileController>()
+        ? Get.find<AdvertiserProfileController>()
+        : Get.put(AdvertiserProfileController());
 
     return Drawer(
       backgroundColor: kDarkBg,
@@ -48,86 +28,141 @@ class AdvertiserDrawerWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Advertiser Profile Header
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: kCardBg,
-                border: Border(
-                  bottom: BorderSide(color: kBorderColor, width: 1),
+            InkWell(
+              onTap: () {
+                Navigator.pop(context);
+                _switchTab(4); // Navigate to Profile Tab
+              },
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: const BoxDecoration(
+                  color: kCardBg,
+                  border: Border(
+                    bottom: BorderSide(color: kBorderColor, width: 1),
+                  ),
                 ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: AppTheme.primaryGradient,
-                    ),
-                    child: Center(
-                      child: Text(
-                        initial,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                child: Obx(() {
+                  final u = profileCtrl.user.value ??
+                      (Get.isRegistered<StorageService>() ? StorageService.to.getUser() : null);
+
+                  final name = profileCtrl.displayName.value.isNotEmpty
+                      ? profileCtrl.displayName.value
+                      : (u?.companyName?.isNotEmpty == true
+                          ? u!.companyName!
+                          : (u?.organizationName?.isNotEmpty == true
+                              ? u!.organizationName!
+                              : (u?.name?.isNotEmpty == true ? u!.name! : 'Commercial Advertiser')));
+
+                  final email = profileCtrl.email.value.isNotEmpty
+                      ? profileCtrl.email.value
+                      : (u?.email ?? 'advertiser@vmovexa.com');
+
+                  final role = profileCtrl.displayRole.value.isNotEmpty
+                      ? profileCtrl.displayRole.value
+                      : (u?.role ?? 'COMMERCIAL ADVERTISER');
+
+                  final rawAvatar = profileCtrl.avatarUrl.value.isNotEmpty
+                      ? profileCtrl.avatarUrl.value
+                      : (u?.avatarUrl ?? '');
+                  final resolvedAvatar = ApiConstants.resolveFileUrl(rawAvatar);
+
+                  final initial = name.trim().isNotEmpty ? name.trim()[0].toUpperCase() : 'A';
+
+                  return Row(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: AppTheme.primaryGradient,
+                          border: Border.all(
+                            color: const Color(0xFF8B5CF6).withValues(alpha: 0.5),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: ClipOval(
+                          child: resolvedAvatar.isNotEmpty
+                              ? Image.network(
+                                  resolvedAvatar,
+                                  width: 48,
+                                  height: 48,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (ctx, err, stack) => _buildInitials(initial),
+                                  loadingBuilder: (ctx, child, progress) {
+                                    if (progress == null) return child;
+                                    return Center(
+                                      child: SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          value: progress.expectedTotalBytes != null
+                                              ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
+                                              : null,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                )
+                              : _buildInitials(initial),
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          userName,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          userEmail,
-                          style: const TextStyle(
-                            color: AppColors.textMuted,
-                            fontSize: 11.5,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF6366F1).withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(
-                              color: const Color(0xFF6366F1).withValues(alpha: 0.35),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              name,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          child: Text(
-                            userRole,
-                            style: const TextStyle(
-                              color: Color(0xFF818CF8),
-                              fontSize: 9.5,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.5,
+                            const SizedBox(height: 2),
+                            Text(
+                              email,
+                              style: const TextStyle(
+                                color: AppColors.textMuted,
+                                fontSize: 11.5,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
+                            const SizedBox(height: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF6366F1).withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: const Color(0xFF6366F1).withValues(alpha: 0.35),
+                                ),
+                              ),
+                              child: Text(
+                                role,
+                                style: const TextStyle(
+                                  color: Color(0xFF818CF8),
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                ],
+                      ),
+                    ],
+                  );
+                }),
               ),
             ),
 
@@ -399,6 +434,19 @@ class AdvertiserDrawerWidget extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  Widget _buildInitials(String initial) {
+    return Center(
+      child: Text(
+        initial,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     );
   }
 }

@@ -10,10 +10,10 @@ class AdvertiserDashboardController extends GetxController {
 
   final RxInt selectedNavIndex = 0.obs;
   final RxString tab4Mode = 'profile'.obs; // 'profile', 'billing', 'help'
-  final RxString selectedReportCampaign = 'Summer Sale 2026'.obs;
-  final RxString selectedReportRange = '20 May 2026 - 10 Jun 2026'.obs;
-  final List<String> reportCampaigns = ['Summer Sale 2026', 'Monsoon Offer', 'New Product Launch'];
-  final List<String> reportRanges = ['20 May 2026 - 10 Jun 2026', '15 May 2026 - 30 May 2026'];
+  final RxString selectedReportCampaign = 'All Campaigns'.obs;
+  final RxString selectedReportRange = 'All Time'.obs;
+  final RxList<String> reportCampaigns = <String>['All Campaigns'].obs;
+  final RxList<String> reportRanges = <String>['All Time'].obs;
 
   void switchToBillingPayment() {
     Get.toNamed(Routes.ADVERTISER_BILLING);
@@ -102,12 +102,34 @@ class AdvertiserDashboardController extends GetxController {
       if (res.success && res.data != null) {
         allCampaigns.assignAll(res.data!);
         _applyFilter();
+        _syncReportOptions();
         debugPrint('✅ [Campaigns] loaded ${allCampaigns.length} campaigns');
       } else {
         debugPrint('⚠️ [Campaigns] fetchCampaigns returned: ${res.message}');
       }
     } catch (e, stack) {
       debugPrint('❌ Error fetching campaigns: $e\n$stack');
+    }
+  }
+
+  void _syncReportOptions() {
+    final titles = <String>['All Campaigns'];
+    final ranges = <String>['All Time'];
+    for (final c in allCampaigns) {
+      if (c.displayTitle.isNotEmpty && !titles.contains(c.displayTitle)) {
+        titles.add(c.displayTitle);
+      }
+      if (c.dateRangeText.isNotEmpty && c.dateRangeText != '—' && !ranges.contains(c.dateRangeText)) {
+        ranges.add(c.dateRangeText);
+      }
+    }
+    reportCampaigns.assignAll(titles);
+    reportRanges.assignAll(ranges);
+    if (!titles.contains(selectedReportCampaign.value)) {
+      selectedReportCampaign.value = titles.first;
+    }
+    if (!ranges.contains(selectedReportRange.value)) {
+      selectedReportRange.value = ranges.first;
     }
   }
 

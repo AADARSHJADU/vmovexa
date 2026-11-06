@@ -824,145 +824,147 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
             );
           }
 
-          return ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: controller.filteredTransitRoutes.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 10),
-            itemBuilder: (context, index) {
-              final route = controller.filteredTransitRoutes[index];
-              final isRouteSel = controller.isRouteSelected(route.id);
-              final target = controller.getTargetForRoute(route.id);
-              final isExpanded = controller.expandedRoutes[route.id] ?? false;
+          return Column(
+            children: controller.filteredTransitRoutes.map((route) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Obx(() {
+                  final isRouteSel = controller.isRouteSelected(route.id);
+                  final target = controller.getTargetForRoute(route.id);
+                  final isExpanded = controller.expandedRoutes[route.id] ?? false;
 
-              return Container(
-                decoration: BoxDecoration(
-                  color: isRouteSel ? const Color(0xFF1E293B) : AppColors.cardBg,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: isRouteSel ? const Color(0xFF8B5CF6) : AppColors.cardBorder),
-                ),
-                child: Column(
-                  children: [
-                    // Route Header Row
-                    ListTile(
-                      dense: true,
-                      leading: Checkbox(
-                        value: isRouteSel,
-                        activeColor: const Color(0xFF8B5CF6),
-                        onChanged: (_) => controller.toggleRoute(route),
-                      ),
-                      title: Row(
-                        children: [
-                          Expanded(
-                            child: Text(route.name, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: isRouteSel ? const Color(0xFF1E293B) : AppColors.cardBg,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: isRouteSel ? const Color(0xFF8B5CF6) : AppColors.cardBorder),
+                    ),
+                    child: Column(
+                      children: [
+                        // Route Header Row
+                        ListTile(
+                          dense: true,
+                          onTap: () => controller.toggleRoute(route),
+                          leading: Checkbox(
+                            value: isRouteSel,
+                            activeColor: const Color(0xFF8B5CF6),
+                            onChanged: (_) => controller.toggleRoute(route),
                           ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(color: const Color(0xFF0F172A), borderRadius: BorderRadius.circular(4)),
-                            child: Text(route.code, style: const TextStyle(color: AppColors.textSecondary, fontSize: 9.5, fontFamily: 'monospace')),
-                          ),
-                        ],
-                      ),
-                      subtitle: Text('${route.fleetName} • ${route.city}', style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                          title: Row(
                             children: [
-                              Text(
-                                '${target?.vehicleCount ?? route.vehicleCount} buses',
-                                style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                              Expanded(
+                                child: Text(route.name, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
                               ),
-                              Text(
-                                '${target?.totalScreens ?? route.totalScreens} screens',
-                                style: const TextStyle(color: Color(0xFF8B5CF6), fontSize: 10, fontWeight: FontWeight.bold),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(color: const Color(0xFF0F172A), borderRadius: BorderRadius.circular(4)),
+                                child: Text(route.code, style: const TextStyle(color: AppColors.textSecondary, fontSize: 9.5, fontFamily: 'monospace')),
                               ),
                             ],
                           ),
-                          IconButton(
-                            icon: Icon(isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, color: AppColors.textMuted, size: 20),
-                            onPressed: () => controller.expandedRoutes[route.id] = !isExpanded,
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Expanded Buses & Screens
-                    if (isExpanded)
-                      Container(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                        child: route.vehicles.isEmpty
-                            ? Container(
-                                padding: const EdgeInsets.all(10),
-                                alignment: Alignment.centerLeft,
-                                child: const Text('No individual buses registered on this route; targets complete route.', style: TextStyle(color: AppColors.textMuted, fontSize: 10)),
-                              )
-                            : Column(
-                                children: route.vehicles.map((vehicle) {
-                                  final isBusSel = target?.vehicleIds.contains(vehicle.id) ?? false;
-                                  final busKey = '${route.id}-${vehicle.id}';
-                                  final isBusExp = controller.expandedBuses[busKey] ?? false;
-
-                                  return Container(
-                                    margin: const EdgeInsets.only(top: 6),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF0F172A),
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(color: AppColors.cardBorder),
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        ListTile(
-                                          dense: true,
-                                          visualDensity: VisualDensity.compact,
-                                          leading: Checkbox(
-                                            value: isBusSel,
-                                            activeColor: const Color(0xFF8B5CF6),
-                                            onChanged: (_) => controller.toggleBus(route, vehicle),
-                                          ),
-                                          title: Text(vehicle.busNumber, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                                          trailing: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Text('${vehicle.screens.isNotEmpty ? vehicle.screens.length : vehicle.displaysCount} screens', style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 10)),
-                                              if (vehicle.screens.isNotEmpty)
-                                                IconButton(
-                                                  icon: Icon(isBusExp ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, color: AppColors.textMuted, size: 16),
-                                                  onPressed: () => controller.expandedBuses[busKey] = !isBusExp,
-                                                ),
-                                            ],
-                                          ),
-                                        ),
-                                        if (isBusExp && vehicle.screens.isNotEmpty)
-                                          Padding(
-                                            padding: const EdgeInsets.fromLTRB(20, 0, 10, 8),
-                                            child: Wrap(
-                                              spacing: 6,
-                                              runSpacing: 6,
-                                              children: vehicle.screens.map((screen) {
-                                                final isScrSel = target?.screenIds.contains(screen.id) ?? false;
-                                                return FilterChip(
-                                                  label: Text(screen.code, style: TextStyle(color: isScrSel ? Colors.white : AppColors.textSecondary, fontSize: 9.5)),
-                                                  selected: isScrSel,
-                                                  selectedColor: const Color(0xFF8B5CF6),
-                                                  backgroundColor: const Color(0xFF1E293B),
-                                                  onSelected: (_) => controller.toggleScreen(route, vehicle, screen),
-                                                );
-                                              }).toList(),
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  );
-                                }).toList(),
+                          subtitle: Text('${route.fleetName} • ${route.city}', style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    '${target?.vehicleCount ?? route.vehicleCount} buses',
+                                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    '${target?.totalScreens ?? route.totalScreens} screens',
+                                    style: const TextStyle(color: Color(0xFF8B5CF6), fontSize: 10, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
                               ),
-                      ),
-                  ],
-                ),
+                              IconButton(
+                                icon: Icon(isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, color: AppColors.textMuted, size: 20),
+                                onPressed: () => controller.toggleRouteExpanded(route.id),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Expanded Buses & Screens
+                        if (isExpanded)
+                          Container(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                            child: route.vehicles.isEmpty
+                                ? Container(
+                                    padding: const EdgeInsets.all(10),
+                                    alignment: Alignment.centerLeft,
+                                    child: const Text('No individual buses registered on this route; targets complete route.', style: TextStyle(color: AppColors.textMuted, fontSize: 10)),
+                                  )
+                                : Column(
+                                    children: route.vehicles.map((vehicle) {
+                                      final isBusSel = target?.vehicleIds.contains(vehicle.id) ?? false;
+                                      final busKey = '${route.id}-${vehicle.id}';
+                                      final isBusExp = controller.expandedBuses[busKey] ?? false;
+
+                                      return Container(
+                                        margin: const EdgeInsets.only(top: 6),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF0F172A),
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(color: AppColors.cardBorder),
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            ListTile(
+                                              dense: true,
+                                              visualDensity: VisualDensity.compact,
+                                              onTap: () => controller.toggleBus(route, vehicle),
+                                              leading: Checkbox(
+                                                value: isBusSel,
+                                                activeColor: const Color(0xFF8B5CF6),
+                                                onChanged: (_) => controller.toggleBus(route, vehicle),
+                                              ),
+                                              title: Text(vehicle.busNumber, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                                              trailing: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Text('${vehicle.screens.isNotEmpty ? vehicle.screens.length : vehicle.displaysCount} screens', style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 10)),
+                                                  if (vehicle.screens.isNotEmpty)
+                                                    IconButton(
+                                                      icon: Icon(isBusExp ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, color: AppColors.textMuted, size: 16),
+                                                      onPressed: () => controller.toggleBusExpanded(busKey),
+                                                    ),
+                                                ],
+                                              ),
+                                            ),
+                                            if (isBusExp && vehicle.screens.isNotEmpty)
+                                              Padding(
+                                                padding: const EdgeInsets.fromLTRB(20, 0, 10, 8),
+                                                child: Wrap(
+                                                  spacing: 6,
+                                                  runSpacing: 6,
+                                                  children: vehicle.screens.map((screen) {
+                                                    final isScrSel = target?.screenIds.contains(screen.id) ?? false;
+                                                    return FilterChip(
+                                                      label: Text(screen.code, style: TextStyle(color: isScrSel ? Colors.white : AppColors.textSecondary, fontSize: 9.5)),
+                                                      selected: isScrSel,
+                                                      selectedColor: const Color(0xFF8B5CF6),
+                                                      backgroundColor: const Color(0xFF1E293B),
+                                                      onSelected: (_) => controller.toggleScreen(route, vehicle, screen),
+                                                    );
+                                                  }).toList(),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                          ),
+                      ],
+                    ),
+                  );
+                }),
               );
-            },
+            }).toList(),
           );
         }),
       ],

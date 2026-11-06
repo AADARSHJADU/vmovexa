@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/data/constants/api_constants.dart';
+import 'package:vmovexa/app/data/services/storage_service.dart';
 import 'package:vmovexa/app/theme/app_theme.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
 import '../../../../../widgets/custom_button.dart';
@@ -13,6 +15,7 @@ import '../../campaign_analytics/controllers/campaign_analytics_controller.dart'
 import '../../campaign_analytics/views/campaign_analytics_view.dart';
 import '../../profile/controllers/advertiser_profile_controller.dart';
 import '../../profile/views/advertiser_profile_view.dart';
+import '../../help_support/controllers/advertiser_help_support_controller.dart';
 
 class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
   const AdvertiserDashboardView({super.key});
@@ -122,14 +125,42 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                   GestureDetector(
                     onTap: controller.switchToProfile,
                     child: Container(
-                      width: 34,
-                      height: 34,
+                      width: 36,
+                      height: 36,
                       decoration: BoxDecoration(
                         gradient: AppTheme.primaryGradient,
                         shape: BoxShape.circle,
+                        border: Border.all(
+                          color: const Color(0xFF8B5CF6).withValues(alpha: 0.5),
+                          width: 1.5,
+                        ),
                       ),
-                      child: const Center(
-                        child: Icon(Icons.person_outline_rounded, color: Colors.white, size: 18),
+                      child: ClipOval(
+                        child: Builder(builder: (_) {
+                          final profileCtrl = Get.isRegistered<AdvertiserProfileController>()
+                              ? Get.find<AdvertiserProfileController>()
+                              : null;
+                          final u = profileCtrl?.user.value ??
+                              (Get.isRegistered<StorageService>() ? StorageService.to.getUser() : null);
+                          final rawAvatar = (profileCtrl != null && profileCtrl.avatarUrl.value.isNotEmpty)
+                              ? profileCtrl.avatarUrl.value
+                              : (u?.avatarUrl ?? '');
+                          final resolvedAvatar = ApiConstants.resolveFileUrl(rawAvatar);
+                          if (resolvedAvatar.isNotEmpty) {
+                            return Image.network(
+                              resolvedAvatar,
+                              width: 36,
+                              height: 36,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => const Center(
+                                child: Icon(Icons.person_outline_rounded, color: Colors.white, size: 18),
+                              ),
+                            );
+                          }
+                          return const Center(
+                            child: Icon(Icons.person_outline_rounded, color: Colors.white, size: 18),
+                          );
+                        }),
                       ),
                     ),
                   ),
@@ -2168,8 +2199,8 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               // My Support Tickets
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text(
+                children: [
+                  const Text(
                     'My Support Tickets',
                     style: TextStyle(
                       color: Colors.white,
@@ -2177,12 +2208,15 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Text(
-                    'View All ›',
-                    style: TextStyle(
-                      color: Color(0xFF8B5CF6),
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
+                  GestureDetector(
+                    onTap: () => Get.toNamed(Routes.ADVERTISER_HELP_SUPPORT),
+                    child: const Text(
+                      'View All ›',
+                      style: TextStyle(
+                        color: Color(0xFF8B5CF6),
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
@@ -2194,8 +2228,8 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               // Popular Articles
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text(
+                children: [
+                  const Text(
                     'Popular Articles',
                     style: TextStyle(
                       color: Colors.white,
@@ -2203,12 +2237,15 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Text(
-                    'View All ›',
-                    style: TextStyle(
-                      color: Color(0xFF8B5CF6),
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
+                  GestureDetector(
+                    onTap: () => Get.toNamed(Routes.ADVERTISER_HELP_SUPPORT),
+                    child: const Text(
+                      'View All ›',
+                      style: TextStyle(
+                        color: Color(0xFF8B5CF6),
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
@@ -2450,545 +2487,213 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
   }
 
   Widget _buildTicketsCard() {
-    final tickets = [
-      {
-        'id': 'CMP-2026-000124',
-        'title': 'Campaign not displaying on screens',
-        'date': '08 May 2026, 11:30 AM',
-        'badge': 'In Progress',
-        'col': const Color(0xFFF59E0B),
-        'icon':'assets/icons/fleet_operator_icons/privacyPolicyA.svg',
-      },
-      {
-        'id': 'CMP-2026-000089',
-        'title': 'Invoice download issue',
-        'date': '06 May 2026, 04:20 PM',
-        'badge': 'Resolved',
-        'col': const Color(0xFF10B981),
-        'icon':'assets/icons/fleet_operator_icons/privacyPolicyA.svg',
-      },
-      {
-        'id': 'CMP-2026-000067',
-        'title': 'Payment failed but amount deducted',
-        'date': '03 May 2026, 09:15 AM',
-        'badge': 'Closed',
-        'col': AppColors.textMuted,
-        'icon':'assets/icons/fleet_operator_icons/privacyPolicyA.svg',
-      },
-    ];
+    final helpCtrl = Get.isRegistered<AdvertiserHelpSupportController>()
+        ? Get.find<AdvertiserHelpSupportController>()
+        : Get.put(AdvertiserHelpSupportController());
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        children: tickets.map((t) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SvgPicture.asset(t['icon'].toString(),width: 15,height: 15,),
-                SizedBox(width: 10,),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        t['id'] as String,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
+    if (helpCtrl.myTickets.isEmpty && !helpCtrl.isLoadingTickets.value) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        helpCtrl.loadMyTickets();
+      });
+    }
+
+    return Obx(() {
+      final tickets = helpCtrl.myTickets;
+      if (helpCtrl.isLoadingTickets.value) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: AppColors.cardBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.cardBorder, width: 1.2),
+          ),
+          child: const Center(
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(color: Color(0xFF8B5CF6), strokeWidth: 2),
+            ),
+          ),
+        );
+      }
+
+      if (tickets.isEmpty) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppColors.cardBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.cardBorder, width: 1.2),
+          ),
+          child: const Center(
+            child: Text(
+              'No active support tickets found',
+              style: TextStyle(color: Color(0xFF64748B), fontSize: 11),
+            ),
+          ),
+        );
+      }
+
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        ),
+        child: Column(
+          children: tickets.take(5).map((t) {
+            final id = (t['code'] ?? t['id'] ?? 'TICKET').toString();
+            final title = (t['subject'] ?? t['title'] ?? 'Support Inquiry').toString();
+            final date = (t['created_at'] ?? t['date'] ?? 'Recent').toString();
+            final status = (t['status'] ?? 'open').toString().toLowerCase();
+            final col = status == 'resolved'
+                ? const Color(0xFF10B981)
+                : (status == 'closed' ? AppColors.textMuted : const Color(0xFFF59E0B));
+
+            return InkWell(
+              onTap: () => Get.toNamed(Routes.ADVERTISER_HELP_SUPPORT),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/icons/fleet_operator_icons/privacyPolicyA.svg',
+                      width: 15,
+                      height: 15,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            id,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 9,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            date,
+                            style: const TextStyle(
+                              color: AppColors.textMuted,
+                              fontSize: 8,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: col.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        status.toUpperCase(),
+                        style: TextStyle(
+                          color: col,
+                          fontSize: 8,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        t['title'] as String,
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 9,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        t['date'] as String,
-                        style: const TextStyle(
-                          color: AppColors.textMuted,
-                          fontSize: 8,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: (t['col'] as Color).withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    t['badge'] as String,
-                    style: TextStyle(
-                      color: t['col'] as Color,
-                      fontSize: 8,
-                      fontWeight: FontWeight.bold,
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      color: AppColors.textMuted,
+                      size: 16,
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                const Icon(
-                  Icons.chevron_right_rounded,
-                  color: AppColors.textMuted,
-                  size: 16,
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
-    );
+              ),
+            );
+          }).toList(),
+        ),
+      );
+    });
   }
 
   Widget _buildPopularArticlesCard() {
-    final list = [
-      'How to create and launch a campaign?',
-      'What are the best practices for creatives?',
-      'How billing and payments work?',
-    ];
+    final helpCtrl = Get.isRegistered<AdvertiserHelpSupportController>()
+        ? Get.find<AdvertiserHelpSupportController>()
+        : Get.put(AdvertiserHelpSupportController());
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        children: list.map((a) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    SvgPicture.asset('assets/icons/fleet_operator_icons/privacyPolicyA.svg',),
-                    const SizedBox(width: 10),
-                    Text(
-                      a,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 9.5,
-                      ),
-                    ),
-                  ],
-                ),
-                const Icon(
-                  Icons.chevron_right_rounded,
-                  color: AppColors.textMuted,
-                  size: 16,
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
+    return Obx(() {
+      final list = helpCtrl.allFaqs.isNotEmpty
+          ? helpCtrl.allFaqs.take(3).map((f) => f.q).toList()
+          : [
+              'How to create and launch a campaign?',
+              'What are the best practices for creatives?',
+              'How billing and payments work?',
+            ];
 
-  Widget _buildQrAnalyticsCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children:  [
-                  // Icon(
-                  //   Icons.qr_code_scanner_rounded,
-                  //   color: Color(0xFF8B5CF6),
-                  //   size: 20,
-                  // ),
-                  SvgPicture.asset('assets/icons/advertiser_ic/qrAnalytics.svg',width: 18,height: 18,),
-                  SizedBox(width: 8),
-                  Text(
-                    'QR Analytics',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              GestureDetector(
-                onTap: () {},
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        ),
+        child: Column(
+          children: list.map((a) {
+            return InkWell(
+              onTap: () => Get.toNamed(Routes.ADVERTISER_HELP_SUPPORT),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 12),
                 child: Row(
-                  children: const [
-                    Text(
-                      'View QR Details',
-                      style: TextStyle(
-                        color: Color(0xFF8B5CF6),
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          SvgPicture.asset(
+                            'assets/icons/fleet_operator_icons/privacyPolicyA.svg',
+                            width: 14,
+                            height: 14,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              a,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 9.5,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    SizedBox(width: 2),
-                    Icon(
+                    const Icon(
                       Icons.chevron_right_rounded,
-                      color: Color(0xFF8B5CF6),
-                      size: 14,
+                      color: AppColors.textMuted,
+                      size: 16,
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            child: Row(
-              children: [
-                _buildQrStatItem(
-                  'Total QR Scans',
-                  '1,245',
-                  '18.6%',
-                  'vs last 21 days',
-                ),
-                _buildQrVerticalDivider(),
-                _buildQrStatItem(
-                  'Unique Scanners',
-                  '1,032',
-                  '15.3%',
-                  'vs last 21 days',
-                ),
-                _buildQrVerticalDivider(),
-                _buildQrStatItem(
-                  'Scan Rate',
-                  '8.1%',
-                  '1.2%',
-                  'vs. Impressions',
-                ),
-                _buildQrVerticalDivider(),
-                _buildQrStatItem(
-                  'Leads Generated',
-                  '256',
-                  '20.4%',
-                  'vs last 21 days',
-                ),
-                _buildQrVerticalDivider(),
-                _buildQrStatItem(
-                  'Lead Conversion Rate',
-                  '20.6%',
-                  null,
-                  'vs QR scans',
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            'QR Scans by Day',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 150,
-            child: CustomPaint(
-              size: const Size(double.infinity, 150),
-              painter: QrBarChartPainter(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQrStatItem(
-    String label,
-    String value,
-    String? trendPercent,
-    String comparison,
-  ) {
-    return SizedBox(
-      width: 110,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: AppColors.textMuted,
-              fontSize: 8.5,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          if (trendPercent != null)
-            Row(
-              children: [
-                const Icon(
-                  Icons.arrow_drop_up_rounded,
-                  color: Color(0xFF10B981),
-                  size: 14,
-                ),
-                Text(
-                  '$trendPercent',
-                  style: const TextStyle(
-                    color: Color(0xFF10B981),
-                    fontSize: 8.5,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            )
-          else
-            const SizedBox(height: 14),
-          const SizedBox(height: 2),
-          Text(
-            comparison,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 8),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQrVerticalDivider() {
-    return Container(
-      height: 52,
-      width: 1,
-      color: AppColors.cardBorder,
-      margin: const EdgeInsets.symmetric(horizontal: 10),
-    );
-  }
-}
-
-class ChartPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final double paddingLeft = 24.0;
-    final double paddingBottom = 16.0;
-    final double paddingTop = 10.0;
-    final double paddingRight = 10.0;
-
-    final double width = size.width - paddingLeft - paddingRight;
-    final double height = size.height - paddingTop - paddingBottom;
-
-    final paintGrid = Paint()
-      ..color = AppColors.cardBorder
-      ..strokeWidth = 1.0;
-
-    for (int i = 0; i < 4; i++) {
-      double y = paddingTop + height - (height * i / 3);
-      canvas.drawLine(
-        Offset(paddingLeft, y),
-        Offset(size.width - paddingRight, y),
-        paintGrid,
-      );
-    }
-
-    final List<double> p1 = [0.2, 0.45, 0.35, 0.65, 0.58, 0.85];
-    final List<double> p2 = [0.1, 0.3, 0.2, 0.45, 0.38, 0.55];
-
-    _drawSmoothCurve(
-      canvas,
-      paddingLeft,
-      paddingTop,
-      width,
-      height,
-      p1,
-      const Color(0xFFEC4899),
-    );
-    _drawSmoothCurve(
-      canvas,
-      paddingLeft,
-      paddingTop,
-      width,
-      height,
-      p2,
-      const Color(0xFF3B82F6),
-    );
-  }
-
-  void _drawSmoothCurve(
-    Canvas canvas,
-    double ox,
-    double oy,
-    double w,
-    double h,
-    List<double> values,
-    Color color,
-  ) {
-    final path = Path();
-    final paintLine = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
-
-    double px0 = ox;
-    double py0 = oy + h - (h * values[0]);
-    path.moveTo(px0, py0);
-
-    for (int i = 1; i < values.length; i++) {
-      double px1 = ox + (w * i / 5);
-      double py1 = oy + h - (h * values[i]);
-
-      double cx0 = px0 + (px1 - px0) / 2;
-      double cy0 = py0;
-      double cx1 = px0 + (px1 - px0) / 2;
-      double cy1 = py1;
-
-      path.cubicTo(cx0, cy0, cx1, cy1, px1, py1);
-
-      px0 = px1;
-      py0 = py1;
-    }
-    canvas.drawPath(path, paintLine);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class QrBarChartPainter extends CustomPainter {
-  final List<String> days = [
-    '13 May',
-    '14 May',
-    '15 May',
-    '16 May',
-    '17 May',
-    '18 May',
-    '19 May',
-  ];
-  final List<int> values = [120, 150, 165, 130, 180, 220, 280];
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final double paddingLeft = 24.0;
-    final double paddingBottom = 16.0;
-    final double paddingTop = 15.0;
-    final double paddingRight = 10.0;
-
-    final double width = size.width - paddingLeft - paddingRight;
-    final double height = size.height - paddingTop - paddingBottom;
-
-    final paintGrid = Paint()
-      ..color = AppColors.cardBorder
-      ..strokeWidth = 0.8;
-
-    final textPainter = TextPainter(textDirection: TextDirection.ltr);
-
-    final List<int> yLabels = [0, 100, 200, 300];
-    for (int i = 0; i < yLabels.length; i++) {
-      double val = yLabels[i].toDouble();
-      double y = paddingTop + height - (height * val / 300);
-
-      canvas.drawLine(
-        Offset(paddingLeft, y),
-        Offset(size.width - paddingRight, y),
-        paintGrid,
-      );
-
-      textPainter.text = TextSpan(
-        text: yLabels[i].toString(),
-        style: const TextStyle(color: AppColors.textMuted, fontSize: 8),
-      );
-      textPainter.layout();
-      textPainter.paint(
-        canvas,
-        Offset(paddingLeft - textPainter.width - 6, y - textPainter.height / 2),
-      );
-    }
-
-    final double colWidth = width / days.length;
-    final double barWidth = colWidth * 0.45;
-
-    for (int i = 0; i < days.length; i++) {
-      double xCenter = paddingLeft + (colWidth * (i + 0.5));
-      double barHeight = (values[i] / 300) * height;
-
-      final double left = xCenter - barWidth / 2;
-      final double top = paddingTop + height - barHeight;
-      final double right = xCenter + barWidth / 2;
-      final double bottom = paddingTop + height;
-
-      final RRect rrect = RRect.fromRectAndCorners(
-        Rect.fromLTRB(left, top, right, bottom),
-        topLeft: const Radius.circular(4),
-        topRight: const Radius.circular(4),
-      );
-
-      final barPaint = Paint()
-        ..shader = const LinearGradient(
-          colors: [Color(0xFFC084FC), Color(0xFF8B5CF6)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ).createShader(Rect.fromLTRB(left, top, right, bottom));
-
-      canvas.drawRRect(rrect, barPaint);
-
-      textPainter.text = TextSpan(
-        text: values[i].toString(),
-        style: const TextStyle(
-          color: Color(0xFFC084FC),
-          fontSize: 8.5,
-          fontWeight: FontWeight.bold,
+            );
+          }).toList(),
         ),
       );
-      textPainter.layout();
-      textPainter.paint(
-        canvas,
-        Offset(xCenter - textPainter.width / 2, top - textPainter.height - 3),
-      );
-
-      textPainter.text = TextSpan(
-        text: days[i],
-        style: const TextStyle(color: AppColors.textMuted, fontSize: 7.5),
-      );
-      textPainter.layout();
-      textPainter.paint(
-        canvas,
-        Offset(
-          xCenter - textPainter.width / 2,
-          size.height - paddingBottom + 4,
-        ),
-      );
-    }
+    });
   }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

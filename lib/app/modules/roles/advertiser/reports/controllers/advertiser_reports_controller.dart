@@ -62,36 +62,14 @@ class AdvertiserReportsController extends GetxController {
   Future<void> loadReports() async {
     try {
       final res = await _service.getReports();
-      if (res.success && res.data != null && res.data!.isNotEmpty) {
+      if (res.success && res.data != null) {
         reports.assignAll(res.data!);
-      } else if (reports.isEmpty) {
-        // Populate standard default initial reports if server has none yet
-        reports.assignAll([
-          AdvertiserReportModel(
-            id: 'REP-1082',
-            title: 'Proof-of-Play Performance Audit',
-            format: 'PDF',
-            generatedOn: '30/10/2026 10:15',
-            status: 'ready',
-          ),
-          AdvertiserReportModel(
-            id: 'REP-1081',
-            title: 'Transit Corridors Broadcast Statement',
-            format: 'XLSX',
-            generatedOn: '29/10/2026 18:40',
-            status: 'ready',
-          ),
-          AdvertiserReportModel(
-            id: 'REP-1079',
-            title: 'DOOH Telemetry & QR Attribution Log',
-            format: 'CSV',
-            generatedOn: '28/10/2026 14:20',
-            status: 'ready',
-          ),
-        ]);
+      } else {
+        reports.clear();
       }
     } catch (e) {
       debugPrint('Error loading reports: $e');
+      reports.clear();
     }
   }
 

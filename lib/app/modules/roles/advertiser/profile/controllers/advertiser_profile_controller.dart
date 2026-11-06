@@ -22,14 +22,14 @@ class AdvertiserProfileController extends GetxController {
 
   // User Profile Reactive Data
   final Rx<UserModel?> user = Rx<UserModel?>(null);
-  final RxString displayName = 'Advertiser Partner'.obs;
+  final RxString displayName = ''.obs;
   final RxString displayRole = 'COMMERCIAL ADVERTISER'.obs;
-  final RxString orgName = 'Corporate Transit Advertising'.obs;
-  final RxString advId = 'ADV-001'.obs;
+  final RxString orgName = ''.obs;
+  final RxString advId = ''.obs;
   final RxString avatarUrl = ''.obs;
   final RxString email = ''.obs;
   final RxString phone = ''.obs;
-  final RxString branch = 'Regional Advertising Desk'.obs;
+  final RxString branch = ''.obs;
   final RxString address = ''.obs;
   final RxString language = 'en'.obs;
   final RxString timeZone = 'Asia/Kolkata'.obs;
@@ -85,25 +85,27 @@ class AdvertiserProfileController extends GetxController {
 
   void _applyUserData(UserModel u) {
     user.value = u;
-    displayName.value = u.name ?? 'Advertiser Partner';
+    displayName.value = u.name ?? 'Advertiser';
     displayRole.value = u.role ?? 'COMMERCIAL ADVERTISER';
-    orgName.value = u.companyName ?? u.organizationName ?? 'Corporate Transit Advertising';
-    advId.value = u.code ?? (u.id != null ? 'ADV-${u.id}' : 'ADV-001');
+    orgName.value = (u.companyName != null && u.companyName!.isNotEmpty)
+        ? u.companyName!
+        : (u.organizationName ?? '—');
+    advId.value = u.code ?? (u.id != null ? 'ADV-${u.id}' : '—');
     avatarUrl.value = u.avatarUrl ?? '';
     email.value = u.email ?? '';
     phone.value = u.phone ?? '';
-    branch.value = u.branch ?? 'Regional Advertising Desk';
+    branch.value = u.branch ?? '—';
     address.value = u.officeAddress ?? '';
     language.value = u.language ?? 'en';
     timeZone.value = u.timezone ?? 'Asia/Kolkata';
 
     // Populate controllers for Edit Profile
-    nameController.text = displayName.value;
-    emailController.text = email.value;
-    phoneController.text = phone.value;
-    companyController.text = orgName.value;
-    branchController.text = branch.value;
-    addressController.text = address.value;
+    nameController.text = u.name ?? '';
+    emailController.text = u.email ?? '';
+    phoneController.text = u.phone ?? '';
+    companyController.text = u.companyName ?? u.organizationName ?? '';
+    branchController.text = u.branch ?? '';
+    addressController.text = u.officeAddress ?? '';
   }
 
   /// Fetch full fresh data from APIs (GET /auth/me, GET /campaigns, GET /billing/wallet)

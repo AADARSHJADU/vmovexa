@@ -271,21 +271,6 @@ class CampaignAnalyticsController extends GetxController {
           });
         }
       }
-    } else if (impressions > 0 || currentCampaign != null) {
-      final totalImp = impressions > 0 ? impressions : 12400;
-      final totalPl = playbacks > 0 ? playbacks : 1850;
-      final factors = [0.11, 0.13, 0.12, 0.15, 0.18, 0.20, 0.11];
-      final now = DateTime.now();
-      for (int i = 6; i >= 0; i--) {
-        final day = now.subtract(Duration(days: i));
-        final idx = 6 - i;
-        list.add({
-          'date': DateFormat('MMM d').format(day),
-          'rawDate': day.toIso8601String().split('T')[0],
-          'impressions': (totalImp * factors[idx % factors.length]).round(),
-          'playbacks': (totalPl * factors[idx % factors.length]).round(),
-        });
-      }
     }
 
     if (list.isEmpty) return [];
@@ -327,10 +312,10 @@ class CampaignAnalyticsController extends GetxController {
       return targets.whereType<Map>().map((t) {
         return {
           'name': t['routeName'] ?? t['fleetName'] ?? 'Transit Route',
-          'code': t['routeCode'] ?? 'RT-${t['id'] ?? '101'}',
-          'city': t['city'] ?? 'Metro City',
-          'screens': int.tryParse(t['screensCount']?.toString() ?? '1') ?? 1,
-          'vehicles': int.tryParse(t['vehiclesCount']?.toString() ?? '1') ?? 1,
+          'code': t['routeCode'] ?? (t['id'] != null ? 'RT-${t['id']}' : '—'),
+          'city': t['city'] ?? '—',
+          'screens': int.tryParse(t['screensCount']?.toString() ?? '0') ?? 0,
+          'vehicles': int.tryParse(t['vehiclesCount']?.toString() ?? '0') ?? 0,
           'startPoint': t['startPoint']?.toString(),
           'endPoint': t['endPoint']?.toString(),
         };
@@ -339,11 +324,11 @@ class CampaignAnalyticsController extends GetxController {
     if (currentCampaign?.targets != null && currentCampaign!.targets.isNotEmpty) {
       return currentCampaign!.targets.map((t) {
         return {
-          'name': t.fleetName ?? 'City Transit Corridor',
-          'code': t.routeId != null ? 'RT-${t.routeId}' : 'RT-101',
-          'city': t.city ?? 'Metro City',
-          'screens': t.screensCount > 0 ? t.screensCount : 1,
-          'vehicles': t.vehiclesCount > 0 ? t.vehiclesCount : 1,
+          'name': t.fleetName ?? (t.routeId != null ? 'Route ${t.routeId}' : 'Transit Corridor'),
+          'code': t.routeId != null ? 'RT-${t.routeId}' : '—',
+          'city': t.city ?? '—',
+          'screens': t.screensCount,
+          'vehicles': t.vehiclesCount,
           'startPoint': null,
           'endPoint': null,
         };

@@ -47,6 +47,42 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                   return const Center(child: CircularProgressIndicator(color: Color(0xFF8B5CF6)));
                 }
 
+                if (controller.isNotFound.value || (controller.campaign.value.id.isEmpty && !controller.isLoading.value)) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.search_off_rounded, size: 64, color: AppColors.textMuted),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Campaign Not Found',
+                            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'The requested campaign does not exist or you do not have permission to view it.',
+                            style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 24),
+                          ElevatedButton.icon(
+                            onPressed: () => Get.back(),
+                            icon: const Icon(Icons.arrow_back),
+                            label: const Text('Back to Campaigns'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF8B5CF6),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
                 final c = controller.campaign.value;
 
                 return SingleChildScrollView(
@@ -946,12 +982,27 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    width: 68,
+                    height: 68,
+                    padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.qr_code_rounded, size: 48, color: Colors.black),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: Image.network(
+                        'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${Uri.encodeComponent(c.qrRedirectUrl?.isNotEmpty == true ? c.qrRedirectUrl! : (c.promoCode?.isNotEmpty == true ? 'http://vmovexa.com/api/v1/qr/${c.promoCode}' : 'http://vmovexa.com/api/v1/qr/${c.id}'))}',
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, __, ___) => const Icon(Icons.qr_code_2_rounded, size: 48, color: Colors.black),
+                        loadingBuilder: (context, child, progress) {
+                          if (progress == null) return child;
+                          return const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF8B5CF6))));
+                        },
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -959,12 +1010,12 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Code: ${c.promoCode?.isNotEmpty == true ? c.promoCode! : 'VMX-QR-${c.id}'}',
+                          'Code: ${c.promoCode?.isNotEmpty == true ? c.promoCode! : (c.code?.isNotEmpty == true ? c.code! : 'VMX-QR-${c.id}')}',
                           style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Redirect: ${c.qrRedirectUrl ?? 'https://vmovexa.com/ad/${c.id}'}',
+                          'Redirect: ${c.qrRedirectUrl?.isNotEmpty == true ? c.qrRedirectUrl! : 'http://vmovexa.com/api/v1/qr/${c.promoCode ?? c.id}'}',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 10),
@@ -977,14 +1028,14 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
               const SizedBox(height: 14),
               const Divider(color: AppColors.cardBorder, height: 1),
               const SizedBox(height: 12),
-              Row(
+              Obx(() => Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildMetricStat('QR Scans', '${controller.qrScans.value}'),
                   _buildMetricStat('Leads Generated', '${controller.vmovexaLeads.value}'),
                   _buildMetricStat('Conversion', '${controller.qrConversion.value}%'),
                 ],
-              ),
+              )),
             ],
           ),
         ),

@@ -26,7 +26,7 @@ class AdvertiserHelpSupportController extends GetxController {
   final RxString pageTitle = 'Advertiser Help & Documentation'.obs;
   final RxString pageSummary = 'Find answers to campaign creation, target route selection, creative specs, and live ROI telemetry.'.obs;
   final RxString deskBadge = 'Advertiser Growth Desk'.obs;
-  final RxString contactPhone = '+91 98765 43210'.obs;
+  final RxString contactPhone = ''.obs;
   final RxString contactEmail = 'support@vmovexa.com'.obs;
   final RxString deskDesc = 'Dedicated campaign strategist and creative verification desk. 4-hour SLA response.'.obs;
 
@@ -128,6 +128,8 @@ class AdvertiserHelpSupportController extends GetxController {
           final c = sectionsMap['contact'] as Map;
           if (c['badge'] != null) deskBadge.value = c['badge'].toString();
           if (c['description'] != null) deskDesc.value = c['description'].toString();
+          if (c['phone'] != null && c['phone'].toString().isNotEmpty) contactPhone.value = c['phone'].toString();
+          if (c['email'] != null && c['email'].toString().isNotEmpty) contactEmail.value = c['email'].toString();
         }
 
         if (sectionsMap['faqs'] is List && (sectionsMap['faqs'] as List).isNotEmpty) {
