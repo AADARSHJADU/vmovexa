@@ -70,8 +70,8 @@ class AdvertiserNotificationsController extends GetxController {
       final matchesTab = tab == 'All' || n.category == tab;
       final matchesSearch =
           q.isEmpty ||
-          n.title.toLowerCase().contains(q) ||
-          n.desc.toLowerCase().contains(q);
+              n.title.toLowerCase().contains(q) ||
+              n.desc.toLowerCase().contains(q);
       return matchesTab && matchesSearch;
     }).toList();
   }
@@ -130,14 +130,10 @@ class AdvertiserNotificationsController extends GetxController {
         final items = res.data!.map((n) => _mapFromApiModel(n)).toList();
         allNotifications.assignAll(items);
       } else {
-        // Fallback demo items if backend user has 0 notifications yet
-        // allNotifications.assignAll(_getDefaultDemoNotifications());
+        allNotifications.clear();
       }
     } catch (e) {
       debugPrint('[AdvertiserNotifications] Error loading: $e');
-      if (allNotifications.isEmpty) {
-        // allNotifications.assignAll(_getDefaultDemoNotifications());
-      }
     } finally {
       isLoading.value = false;
       // Adjust current page if needed
@@ -256,70 +252,5 @@ class AdvertiserNotificationsController extends GetxController {
       return 'report';
     if (t.contains('completed') || t.contains('concluded')) return 'complete';
     return 'alert';
-  }
-
-  List<AdvertiserNotificationItem> _getDefaultDemoNotifications() {
-    return [
-      AdvertiserNotificationItem(
-        id: 'NOTIF-001',
-        title: 'Campaign Creative Approved',
-        desc:
-            'Your 16:9 creative asset for "Metro Festive Flash 2026" has been verified and scheduled.',
-        category: 'Campaigns',
-        icon: 'check',
-        time: 'Just now',
-        isRead: false,
-      ),
-      AdvertiserNotificationItem(
-        id: 'NOTIF-002',
-        title: 'Campaign Live On Transit Displays',
-        desc:
-            '32 buses on Corridor 4 have synchronized creative playback with active GPS telemetry.',
-        category: 'Campaigns',
-        icon: 'live',
-        time: '2 hours ago',
-        isRead: false,
-      ),
-      AdvertiserNotificationItem(
-        id: 'NOTIF-003',
-        title: 'Tax Invoice Generated',
-        desc:
-            'GST tax invoice #INV-ADV-2026-0014 for ₹12,500 is ready for PDF download.',
-        category: 'Payments',
-        icon: 'invoice',
-        time: 'Yesterday',
-        isRead: true,
-      ),
-      AdvertiserNotificationItem(
-        id: 'NOTIF-004',
-        title: 'Proof-of-Play Audit Ready',
-        desc:
-            'Daily impression delivery report with 14,280 passenger impressions compiled.',
-        category: 'Campaigns',
-        icon: 'report',
-        time: 'Yesterday',
-        isRead: true,
-      ),
-      AdvertiserNotificationItem(
-        id: 'NOTIF-005',
-        title: 'Wallet Auto-Debit Cleared',
-        desc:
-            'Daily campaign flight charge of ₹2,500 successfully deducted from advertiser balance.',
-        category: 'Payments',
-        icon: 'payment',
-        time: '2 days ago',
-        isRead: true,
-      ),
-      AdvertiserNotificationItem(
-        id: 'NOTIF-006',
-        title: 'System Security Verification',
-        desc:
-            'Your advertiser account security preferences were updated successfully.',
-        category: 'System',
-        icon: 'alert',
-        time: '3 days ago',
-        isRead: true,
-      ),
-    ];
   }
 }

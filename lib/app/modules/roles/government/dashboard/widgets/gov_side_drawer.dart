@@ -573,7 +573,10 @@ class GovSideDrawer extends StatelessWidget {
           ElevatedButton(
             onPressed: () async {
               Get.back();
-              await authService.logout();
+              try {
+                await authService.logout();
+              } catch (_) {}
+              Get.offAllNamed(Routes.LOGIN);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),

@@ -43,10 +43,10 @@ class FinancialReconciliationController extends GetxController {
       if (res.success && res.data != null) {
         summary.value = ReconciliationSummaryModel.fromJson(res.data!);
       } else {
-        summary.value = ReconciliationSummaryModel.fallback();
+        summary.value = ReconciliationSummaryModel.empty();
       }
     } catch (_) {
-      summary.value = ReconciliationSummaryModel.fallback();
+      summary.value = ReconciliationSummaryModel.empty();
     } finally {
       isLoadingSummary.value = false;
     }
@@ -106,13 +106,13 @@ class FinancialReconciliationController extends GetxController {
               .map((item) => ReconciliationTransactionModel.fromJson(item as Map<String, dynamic>))
               .toList();
         } else {
-          transactions.value = ReconciliationTransactionModel.fallbackList();
+          transactions.clear();
         }
       } else {
-        transactions.value = ReconciliationTransactionModel.fallbackList();
+        transactions.clear();
       }
     } catch (_) {
-      transactions.value = ReconciliationTransactionModel.fallbackList();
+      transactions.clear();
     } finally {
       isLoadingTxns.value = false;
     }

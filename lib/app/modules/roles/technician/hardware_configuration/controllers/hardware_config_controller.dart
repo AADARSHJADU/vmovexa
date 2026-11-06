@@ -174,44 +174,14 @@ class HardwareConfigController extends GetxController {
           await loadEdgeConfig(selectedDevice.value!.id.toString());
         }
       } else {
-        // Fallback default mock device if server returns empty list
-        if (selectedDevice.value == null) {
-          final fallback = EdgeDeviceModel(
-            id: 'edge_default_01',
-            boxId: 'VMX-BOX-8841',
-            status: 'online',
-            mac: '00:1A:2B:3C:4D:5E',
-            agentVersion: 'v2.4.1',
-            simNetwork: 'Jio 5G',
-            vehicleId: '101',
-            vehicleReg: 'MH12 AB 1234',
-            depotName: 'Mumbai Central Depot',
-            isActive: true,
-          );
-          deviceList.assignAll([fallback]);
-          selectedDevice.value = fallback;
-          selectedDeviceId.value = fallback.id.toString();
-        }
+        deviceList.clear();
+        selectedDevice.value = null;
+        selectedDeviceId.value = '';
       }
     } catch (_) {
-      // In case of error, ensure fallback is available
-      if (selectedDevice.value == null) {
-        final fallback = EdgeDeviceModel(
-          id: 'edge_default_01',
-          boxId: 'VMX-BOX-8841',
-          status: 'online',
-          mac: '00:1A:2B:3C:4D:5E',
-          agentVersion: 'v2.4.1',
-          simNetwork: 'Jio 5G',
-          vehicleId: '101',
-          vehicleReg: 'MH12 AB 1234',
-          depotName: 'Mumbai Central Depot',
-          isActive: true,
-        );
-        deviceList.assignAll([fallback]);
-        selectedDevice.value = fallback;
-        selectedDeviceId.value = fallback.id.toString();
-      }
+      deviceList.clear();
+      selectedDevice.value = null;
+      selectedDeviceId.value = '';
     } finally {
       isLoadingDevices.value = false;
     }

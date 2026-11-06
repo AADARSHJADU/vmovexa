@@ -484,11 +484,13 @@ class AppPages {
     GetPage(
       name: Routes.FLEET_INCIDENT_DETAILS,
       page: () => const EmergencyIncidentDetailsView(),
+      binding: EmergencyIncidentsBinding(),
       transition: Transition.rightToLeft,
     ),
     GetPage(
       name: Routes.FLEET_REPORT_INCIDENT,
       page: () => const ReportIncidentView(),
+      binding: EmergencyIncidentsBinding(),
       transition: Transition.rightToLeft,
     ),
     GetPage(

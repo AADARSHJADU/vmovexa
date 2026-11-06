@@ -100,45 +100,20 @@ class FinanceHelpSupportController extends GetxController {
               );
             }).toList());
           } else {
-            // _seedDefaultFinanceFaqs();
+            allFaqs.clear();
           }
         } else {
-          // _seedDefaultFinanceFaqs();
+          allFaqs.clear();
         }
       } else {
-        // _seedDefaultFinanceFaqs();
+        allFaqs.clear();
       }
     } catch (_) {
-      // _seedDefaultFinanceFaqs();
+      allFaqs.clear();
     } finally {
       applyFaqSearch();
       isLoading.value = false;
     }
-  }
-
-  void _seedDefaultFinanceFaqs() {
-    allFaqs.assignAll([
-      FaqItem(
-        question: 'How do I generate a corporate GST tax invoice?',
-        answer: 'Navigate to Invoices > Generate Invoice from the sidebar. Select tenant organization, input SAC/HSN codes, itemize line items with GST rates (18%), and click "Generate Corporate Invoice".',
-      ),
-      FaqItem(
-        question: 'How does automated bank reconciliation work?',
-        answer: 'Under Financial Reconciliation, upload MT940 / CSV bank statement. Our reconciliation engine auto-matches transactions by UTR, invoice reference number, and amount within a 99.4% precision index.',
-      ),
-      FaqItem(
-        question: 'Where can I export GSTR-1 compliant JSON files?',
-        answer: 'Go to GST & Compliance portal, select the target month and fiscal year, and click "Export GSTR-1 JSON". The exported payload can be uploaded directly to the Government GSTN portal.',
-      ),
-      FaqItem(
-        question: 'How to record manual offline payment receipts (Cheque/NEFT)?',
-        answer: 'Open the unpaid invoice details page, click "Mark Paid", choose payment method (NEFT, RTGS, Cheque), enter bank reference UTR number, and confirm settlement.',
-      ),
-      FaqItem(
-        question: 'What are the payment gateway settlement cycles?',
-        answer: 'Razorpay and Stripe settlements follow standard T+1 banking day cycles into VMOVEXA designated treasury bank accounts configured under Corporate Settings.',
-      ),
-    ]);
   }
 
   Future<void> loadMyTickets() async {

@@ -72,7 +72,10 @@ class GovBillingInvoicesController extends GetxController {
       await _fetchData();
     } catch (e) {
       debugPrint('Error loading billing data: $e');
-      _populateSovereignDefaults();
+      allInvoices.clear();
+      allTransactions.clear();
+      _calculateSummary();
+      _applyFilters();
     } finally {
       isLoading.value = false;
     }
@@ -216,204 +219,11 @@ class GovBillingInvoicesController extends GetxController {
       }
     } catch (_) {}
 
-    // If API returned empty for invoices, populate Sovereign Government Invoices
-    if (invoices.isEmpty) {
-      invoices = _getSovereignInvoices(orgName, orgAddress);
-    }
-    if (transactions.isEmpty) {
-      transactions = _getSovereignTransactions();
-    }
-
     allInvoices.assignAll(invoices);
     allTransactions.assignAll(transactions);
 
     _calculateSummary();
     _applyFilters();
-  }
-
-  void _populateSovereignDefaults() {
-    final user = _authService.currentUser;
-    final orgName = user?.organization?.name ?? 'State Public Transit Department';
-    final orgAddress = user?.officeAddress ?? 'Ministry of Transport, Central Secretariat, New Delhi';
-
-    subscription.value = GovSubscriptionModel(
-      organizationName: orgName,
-      officeAddress: orgAddress,
-    );
-
-    allInvoices.assignAll(_getSovereignInvoices(orgName, orgAddress));
-    allTransactions.assignAll(_getSovereignTransactions());
-
-    _calculateSummary();
-    _applyFilters();
-  }
-
-  List<GovInvoiceModel> _getSovereignInvoices(String orgName, String orgAddress) {
-    return [
-      GovInvoiceModel(
-        id: '1001',
-        code: 'INV-2026-GOV-001',
-        title: 'Public Transit Safety Broadcasts — Q1 Sovereign Grant',
-        poReference: 'STAT-TRANSIT-2026-A1',
-        issueDate: DateTime.now().subtract(const Duration(days: 4)),
-        dueDate: DateTime.now().add(const Duration(days: 26)),
-        paidAt: DateTime.now().subtract(const Duration(days: 4)),
-        status: 'exempt',
-        subtotal: 0.0,
-        taxAmount: 0.0,
-        totalAmount: 0.0,
-        customerName: orgName,
-        billingAddress: orgAddress,
-        gstin: '07AAACG0000A1Z5',
-        paymentMethod: 'Statutory Zero-Rated Exemption',
-        utr: 'MINISTRY-EXEMPT-2026-08',
-        items: [
-          GovInvoiceItemModel(
-            description: 'Emergency Audio Siren & Screen Takeover Override Authorization',
-            hsnCode: '998313',
-            quantity: 1,
-            unitRate: 0.0,
-            total: 0.0,
-            taxPercent: 0.0,
-          ),
-          GovInvoiceItemModel(
-            description: 'State Transit Fleet GPS Radar & Real-Time Corridor Tracking',
-            hsnCode: '998412',
-            quantity: 24,
-            unitRate: 0.0,
-            total: 0.0,
-            taxPercent: 0.0,
-          ),
-        ],
-      ),
-      GovInvoiceModel(
-        id: '1002',
-        code: 'TAX-2026-08942',
-        title: 'Municipal Transit Displays Infrastructure & Bandwidth',
-        poReference: 'MUNI-CORRIDOR-892',
-        issueDate: DateTime.now().subtract(const Duration(days: 18)),
-        dueDate: DateTime.now().subtract(const Duration(days: 4)),
-        paidAt: DateTime.now().subtract(const Duration(days: 12)),
-        status: 'paid',
-        subtotal: 42500.0,
-        taxAmount: 7650.0,
-        totalAmount: 50150.0,
-        customerName: orgName,
-        billingAddress: orgAddress,
-        gstin: '07AAACG0000A1Z5',
-        paymentMethod: 'Treasury Direct RTGS',
-        utr: 'UTR-SBIN20260481920',
-        items: [
-          GovInvoiceItemModel(
-            description: 'Edge Display Hardware Health Telemetry & Display Cloud Sync',
-            hsnCode: '998313',
-            quantity: 48,
-            unitRate: 750.0,
-            total: 36000.0,
-            taxPercent: 18.0,
-          ),
-          GovInvoiceItemModel(
-            description: 'SLA Guaranteed 99.9% Uptime High-Priority Data Ingestion',
-            hsnCode: '998412',
-            quantity: 1,
-            unitRate: 6500.0,
-            total: 6500.0,
-            taxPercent: 18.0,
-          ),
-        ],
-      ),
-      GovInvoiceModel(
-        id: '1003',
-        code: 'TAX-2026-08102',
-        title: 'Corridor Citizen Information Campaign Flight #8102',
-        poReference: 'CMP-GOV-8102',
-        issueDate: DateTime.now().subtract(const Duration(days: 35)),
-        dueDate: DateTime.now().subtract(const Duration(days: 10)),
-        paidAt: DateTime.now().subtract(const Duration(days: 28)),
-        status: 'paid',
-        subtotal: 18000.0,
-        taxAmount: 3240.0,
-        totalAmount: 21240.0,
-        customerName: orgName,
-        billingAddress: orgAddress,
-        gstin: '07AAACG0000A1Z5',
-        paymentMethod: 'State Transport Fund',
-        utr: 'UTR-CBIN20260381023',
-        items: [
-          GovInvoiceItemModel(
-            description: 'Metro Feeder Route Public Health Awareness Broadcast',
-            hsnCode: '998313',
-            quantity: 1,
-            unitRate: 18000.0,
-            total: 18000.0,
-            taxPercent: 18.0,
-          ),
-        ],
-      ),
-      GovInvoiceModel(
-        id: '1004',
-        code: 'INV-2026-GOV-004',
-        title: 'Annual Sovereign Multi-Corridor Telematics Clearance',
-        poReference: 'ANNUAL-STAT-2026',
-        issueDate: DateTime.now().subtract(const Duration(days: 60)),
-        dueDate: DateTime.now().subtract(const Duration(days: 30)),
-        paidAt: DateTime.now().subtract(const Duration(days: 55)),
-        status: 'paid',
-        subtotal: 95000.0,
-        taxAmount: 17100.0,
-        totalAmount: 112100.0,
-        customerName: orgName,
-        billingAddress: orgAddress,
-        gstin: '07AAACG0000A1Z5',
-        paymentMethod: 'Treasury Budget Allocation',
-        utr: 'TREASURY-DISPATCH-99120',
-        items: [
-          GovInvoiceItemModel(
-            description: 'State Transit Telematics & Emergency Command Hub Access',
-            hsnCode: '998313',
-            quantity: 1,
-            unitRate: 95000.0,
-            total: 95000.0,
-            taxPercent: 18.0,
-          ),
-        ],
-      ),
-    ];
-  }
-
-  List<GovTransactionModel> _getSovereignTransactions() {
-    return [
-      GovTransactionModel(
-        id: '201',
-        transactionId: 'TXN-TREASURY-8849201',
-        description: 'Municipal Transit Displays Infrastructure & Bandwidth',
-        createdAt: DateTime.now().subtract(const Duration(days: 12)),
-        amount: 50150.0,
-        status: 'success',
-        paymentMethod: 'Treasury Direct RTGS',
-        utr: 'UTR-SBIN20260481920',
-      ),
-      GovTransactionModel(
-        id: '202',
-        transactionId: 'TXN-FUND-7729103',
-        description: 'Corridor Citizen Information Campaign Flight #8102',
-        createdAt: DateTime.now().subtract(const Duration(days: 28)),
-        amount: 21240.0,
-        status: 'success',
-        paymentMethod: 'State Transport Fund Transfer',
-        utr: 'UTR-CBIN20260381023',
-      ),
-      GovTransactionModel(
-        id: '203',
-        transactionId: 'TXN-ANNUAL-9912044',
-        description: 'Annual Sovereign Multi-Corridor Telematics Clearance',
-        createdAt: DateTime.now().subtract(const Duration(days: 55)),
-        amount: 112100.0,
-        status: 'success',
-        paymentMethod: 'Treasury Budget Allocation',
-        utr: 'TREASURY-DISPATCH-99120',
-      ),
-    ];
   }
 
   void _calculateSummary() {

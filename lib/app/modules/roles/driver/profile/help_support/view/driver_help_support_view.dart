@@ -197,26 +197,42 @@ class DriverHelpSupportView extends GetView<DriverHelpSupportController> {
   // ---------------- Articles list ----------------
   Widget _buildArticlesList() {
     return Obx(
-      () => Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: kCardBg,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: kBorder),
-        ),
-        child: Column(
-          children: List.generate(controller.popularArticles.length, (index) {
-            final article = controller.popularArticles[index];
-            final isLast = index == controller.popularArticles.length - 1;
-            return Column(
-              children: [
-                _ArticleRow(article: article, onTap: () => controller.onArticleTap(article)),
-                if (!isLast) Divider(color: Colors.white.withOpacity(0.06), height: 1, indent: 14, endIndent: 14),
-              ],
-            );
-          }),
-        ),
-      ),
+      () {
+        if (controller.popularArticles.isEmpty) {
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+            decoration: BoxDecoration(
+              color: kCardBg,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: kBorder),
+            ),
+            alignment: Alignment.center,
+            child: const Text('No help articles available', style: TextStyle(color: Colors.white54, fontSize: 13)),
+          );
+        }
+
+        return Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: kCardBg,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: kBorder),
+          ),
+          child: Column(
+            children: List.generate(controller.popularArticles.length, (index) {
+              final article = controller.popularArticles[index];
+              final isLast = index == controller.popularArticles.length - 1;
+              return Column(
+                children: [
+                  _ArticleRow(article: article, onTap: () => controller.onArticleTap(article)),
+                  if (!isLast) Divider(color: Colors.white.withOpacity(0.06), height: 1, indent: 14, endIndent: 14),
+                ],
+              );
+            }),
+          ),
+        );
+      },
     );
   }
 }

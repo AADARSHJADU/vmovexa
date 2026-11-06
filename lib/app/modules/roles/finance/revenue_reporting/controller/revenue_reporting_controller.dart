@@ -225,53 +225,12 @@ class RevenueReportingController extends GetxController {
 
         final parsed = items.map((e) => RecentReport.fromJson(Map<String, dynamic>.from(e))).toList();
         archiveReports.assignAll(parsed);
+      } else {
+        archiveReports.clear();
       }
     } catch (_) {
-      if (archiveReports.isEmpty) {
-        _assignFallbackArchive();
-      }
+      archiveReports.clear();
     }
-  }
-
-  void _assignFallbackArchive() {
-    archiveReports.assignAll([
-      RecentReport(
-        id: 'REP-1042',
-        title: 'Campaign Ad Revenue Statement',
-        reportType: 'campaign_revenue',
-        badge: 'Ad Spend',
-        period: '01 Oct 2026 → 27 Oct 2026',
-        dateText: '27 Oct 2026',
-        format: ReportFormat.csv,
-        fileSizeText: '24.8 KB',
-        totalBilled: 24850000.0,
-        totalRevenue: 24850000.0,
-        subRevenue: 4850000.0,
-        campaignRevenue: 20000000.0,
-        taxTotal: 873000.0,
-        pendingDues: 0.0,
-        activeSubs: 22,
-        activeCampaigns: 15,
-      ),
-      RecentReport(
-        id: 'REP-1041',
-        title: 'GST & Tax Compliance Report',
-        reportType: 'gst_tax',
-        badge: 'Tax / GST',
-        period: '01 Sep 2026 → 30 Sep 2026',
-        dateText: '30 Sep 2026',
-        format: ReportFormat.csv,
-        fileSizeText: '32.1 KB',
-        totalBilled: 19800000.0,
-        totalRevenue: 19800000.0,
-        subRevenue: 4200000.0,
-        campaignRevenue: 15600000.0,
-        taxTotal: 712000.0,
-        pendingDues: 120000.0,
-        activeSubs: 20,
-        activeCampaigns: 12,
-      ),
-    ]);
   }
 
   /// Filtered reports getter (with Category filter & Search query matching Frontend)

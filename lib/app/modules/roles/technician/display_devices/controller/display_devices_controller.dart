@@ -92,13 +92,13 @@ class DisplayDevicesController extends GetxController {
     isLoading.value = true;
     try {
       final res = await TechnicianService.to.getEdgeDevices(page: 1, limit: 100);
-      if (res.success && res.data != null && res.data!.isNotEmpty) {
+      if (res.success && res.data != null) {
         allDevices.assignAll(res.data!);
       } else {
-        allDevices.assignAll(_mockDevices());
+        allDevices.clear();
       }
     } catch (_) {
-      allDevices.assignAll(_mockDevices());
+      allDevices.clear();
     } finally {
       isLoading.value = false;
     }
@@ -297,75 +297,5 @@ class DisplayDevicesController extends GetxController {
   /// Register New Device
   void onRegisterNewDevice() {
     Get.toNamed(Routes.REGISTER_DISPLAY_DEVICE);
-  }
-
-  // ---------------- Mock data matching Admin Panel ----------------
-  List<EdgeDeviceModel> _mockDevices() {
-    return [
-      EdgeDeviceModel(
-        id: 1,
-        boxId: 'VMX-BOX-8801',
-        deviceId: 'VMX-BOX-8801',
-        name: 'Front Bulkhead Player',
-        mac: '00:1A:2B:3C:4D:5E',
-        vehicleRegistration: 'MH12 AB 1234',
-        depotName: 'Mumbai Central Depot',
-        status: 'online',
-        isActive: true,
-        agentVersion: 'v2.4.1',
-        simNetwork: 'Airtel 4G IoT',
-        ipAddress: '192.168.4.10',
-        lastHeartbeat: '2 mins ago',
-        createdAt: '2026-10-10',
-      ),
-      EdgeDeviceModel(
-        id: 2,
-        boxId: 'VMX-BOX-8802',
-        deviceId: 'VMX-BOX-8802',
-        name: 'Rear Passenger Screen',
-        mac: '00:1A:2B:3C:4D:5F',
-        vehicleRegistration: 'MH12 AB 5678',
-        depotName: 'Andheri Depot',
-        status: 'offline',
-        isActive: true,
-        agentVersion: 'v2.4.0',
-        simNetwork: 'Jio 5G',
-        ipAddress: '192.168.4.11',
-        lastHeartbeat: '15 mins ago',
-        createdAt: '2026-10-09',
-      ),
-      EdgeDeviceModel(
-        id: 3,
-        boxId: 'VMX-BOX-8803',
-        deviceId: 'VMX-BOX-8803',
-        name: 'Side Banner Player',
-        mac: '00:1A:2B:3C:4D:60',
-        vehicleRegistration: 'MH12 AB 9101',
-        depotName: 'Thane Depot',
-        status: 'warning',
-        isActive: false,
-        agentVersion: 'v2.3.9',
-        simNetwork: 'Wi-Fi',
-        ipAddress: '192.168.4.12',
-        lastHeartbeat: '2 hours ago',
-        createdAt: '2026-10-08',
-      ),
-      EdgeDeviceModel(
-        id: 4,
-        boxId: 'VMX-BOX-8804',
-        deviceId: 'VMX-BOX-8804',
-        name: 'Driver Console Link',
-        mac: '00:1A:2B:3C:4D:61',
-        vehicleRegistration: 'MH12 AB 1122',
-        depotName: 'Borivali Depot',
-        status: 'online',
-        isActive: true,
-        agentVersion: 'v2.4.1',
-        simNetwork: 'Airtel 4G IoT',
-        ipAddress: '192.168.4.13',
-        lastHeartbeat: 'Just now',
-        createdAt: '2026-10-05',
-      ),
-    ];
   }
 }

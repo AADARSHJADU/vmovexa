@@ -133,21 +133,14 @@ class GpsInstallationController extends GetxController {
           selectedVehicleId.value = vehicleList.first.id;
         }
       } else {
-        // Fallback default vehicles matching admin panel mock data
-        if (vehicleList.isEmpty) {
-          final fallback = _mockVehicles();
-          vehicleList.assignAll(fallback);
-          selectedVehicle.value = fallback.first;
-          selectedVehicleId.value = fallback.first.id;
-        }
+        vehicleList.clear();
+        selectedVehicle.value = null;
+        selectedVehicleId.value = '';
       }
     } catch (_) {
-      if (vehicleList.isEmpty) {
-        final fallback = _mockVehicles();
-        vehicleList.assignAll(fallback);
-        selectedVehicle.value = fallback.first;
-        selectedVehicleId.value = fallback.first.id;
-      }
+      vehicleList.clear();
+      selectedVehicle.value = null;
+      selectedVehicleId.value = '';
     } finally {
       isLoadingVehicles.value = false;
     }
@@ -161,38 +154,6 @@ class GpsInstallationController extends GetxController {
       selectedVehicle.value = match;
       vehicleError.value = null;
     }
-  }
-
-  List<VehicleItemModel> _mockVehicles() {
-    return [
-      VehicleItemModel(
-        id: '1',
-        registrationNumber: 'MH12 AB 1234',
-        vehicleType: 'Tata Starbus Ultra AC',
-        depotName: 'Mumbai Central Depot',
-        depotId: '1',
-        fleetId: '1',
-        vin: 'VMX-VIN-901',
-      ),
-      VehicleItemModel(
-        id: '2',
-        registrationNumber: 'MH12 AB 5678',
-        vehicleType: 'Ashok Leyland Electric',
-        depotName: 'Andheri Depot',
-        depotId: '2',
-        fleetId: '1',
-        vin: 'VMX-VIN-902',
-      ),
-      VehicleItemModel(
-        id: '3',
-        registrationNumber: 'MH12 AB 9101',
-        vehicleType: 'Volvo B11R Multi-Axle',
-        depotName: 'Thane Depot',
-        depotId: '3',
-        fleetId: '1',
-        vin: 'VMX-VIN-903',
-      ),
-    ];
   }
 
   // ==========================================================

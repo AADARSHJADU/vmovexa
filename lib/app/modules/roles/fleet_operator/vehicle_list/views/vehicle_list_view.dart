@@ -30,95 +30,14 @@ class VehicleListController extends GetxController {
       if (res.success && res.data != null && res.data!.isNotEmpty) {
         vehicles.assignAll(res.data!);
       } else {
-        _loadDefaultVehicles();
+        vehicles.clear();
       }
     } catch (_) {
-      _loadDefaultVehicles();
+      vehicles.clear();
     } finally {
       isLoading.value = false;
       _filterVehicles();
     }
-  }
-
-  void _loadDefaultVehicles() {
-    vehicles.assignAll([
-      VehicleItemModel(
-        id: 'veh_01',
-        registrationNumber: 'MP09-CV-9821',
-        make: 'Tata Motors',
-        model: 'Starbus Ultra EV',
-        year: 2025,
-        capacity: 42,
-        fuelType: 'electric',
-        status: 'on_route',
-        assignedDriverName: 'Ramesh Verma',
-        speedKmh: 34.5,
-        batterySocPct: 82,
-        fleetName: 'BRTS Electric Corridor',
-        displaysCount: 6,
-        leftDisplays: 2,
-        rightDisplays: 2,
-        rearDisplays: 1,
-        emergencyDisplays: 1,
-      ),
-      VehicleItemModel(
-        id: 'veh_02',
-        registrationNumber: 'MP09-TA-4412',
-        make: 'Ashok Leyland',
-        model: 'CityTransit Diesel BS6',
-        year: 2024,
-        capacity: 38,
-        fuelType: 'diesel',
-        status: 'in_depot',
-        assignedDriverName: 'Sunil Sharma',
-        speedKmh: 0.0,
-        batterySocPct: null,
-        fleetName: 'City Feeder Fleet',
-        displaysCount: 6,
-        leftDisplays: 2,
-        rightDisplays: 2,
-        rearDisplays: 1,
-        emergencyDisplays: 1,
-      ),
-      VehicleItemModel(
-        id: 'veh_03',
-        registrationNumber: 'MP09-EV-1109',
-        make: 'Eicher Motors',
-        model: 'Skyline Pro Electric',
-        year: 2025,
-        capacity: 32,
-        fuelType: 'electric',
-        status: 'on_route',
-        assignedDriverName: 'Amit Patel',
-        speedKmh: 42.0,
-        batterySocPct: 64,
-        fleetName: 'BRTS Electric Corridor',
-        displaysCount: 8,
-        leftDisplays: 3,
-        rightDisplays: 3,
-        rearDisplays: 1,
-        emergencyDisplays: 1,
-      ),
-      VehicleItemModel(
-        id: 'veh_04',
-        registrationNumber: 'MP09-TR-7788',
-        make: 'Tata Motors',
-        model: 'Marcopolo Low Floor',
-        year: 2023,
-        capacity: 45,
-        fuelType: 'cng',
-        status: 'maintenance',
-        assignedDriverName: null,
-        speedKmh: 0.0,
-        batterySocPct: null,
-        fleetName: 'Airport Shuttle Division',
-        displaysCount: 6,
-        leftDisplays: 2,
-        rightDisplays: 2,
-        rearDisplays: 1,
-        emergencyDisplays: 1,
-      ),
-    ]);
   }
 
   void _filterVehicles() {
@@ -477,8 +396,6 @@ class VehicleListView extends StatelessWidget {
         statusColor = const Color(0xFF94A3B8);
         statusLabel = v.status.toUpperCase();
     }
-
-    final isElectric = v.fuelType.toLowerCase() == 'electric';
 
     return InkWell(
       onTap: () => controller.navigateToVehicleDetails(v),

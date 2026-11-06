@@ -336,8 +336,11 @@ class GovernmentDashboardController extends GetxController {
     return u?.email ?? 'authority@gov.in';
   }
 
-  void logout() {
-    _authService.logout();
+  void logout() async {
+    try {
+      await _authService.logout();
+    } catch (_) {}
+    Get.offAllNamed(Routes.LOGIN);
   }
 
   String get currentDateFormatted {

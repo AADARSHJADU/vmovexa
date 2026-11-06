@@ -583,6 +583,14 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
             return const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator(color: kPrimaryIndigo)));
           }
 
+          if (controller.plans.isEmpty) {
+            return Container(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              alignment: Alignment.center,
+              child: const Text('No subscription plans available', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
+            );
+          }
+
           return Column(
             children: controller.plans.map((p) {
               final isSelected = controller.selectedPlan.value?.id == p.id;

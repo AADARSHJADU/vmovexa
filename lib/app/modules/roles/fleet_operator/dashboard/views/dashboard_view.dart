@@ -6,7 +6,6 @@ import '../controllers/dashboard_controller.dart';
 import '../widgets/fleet_op_drawer.dart';
 import '../../../../../theme/app_colors.dart';
 import '../../../../../routes/app_routes.dart';
-import '../../fleet_list/views/fleet_list_view.dart';
 import '../../vehicle_list/views/vehicle_list_view.dart';
 import '../../driver_staff/views/driver_staff_view.dart';
 import '../../profile/views/profile_view.dart';
@@ -24,12 +23,10 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
         child: Obx(() {
           switch (controller.selectedNavIndex.value) {
             case 1:
-              return const FleetListView(isEmbedded: true);
-            case 2:
               return const VehicleListView();
-            case 3:
+            case 2:
               return const DriverStaffListView();
-            case 4:
+            case 3:
               return const ProfileView();
             default:
               return _buildDashboardHome(context);
@@ -37,7 +34,7 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
         }),
       ),
 
-      // 5 Bottom Navigation Bar Tabs
+      // 4 Bottom Navigation Bar Tabs (Dashboard, Vehicles, Drivers, Profile)
       bottomNavigationBar: Obx(
         () => Container(
           decoration: const BoxDecoration(
@@ -57,10 +54,6 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
               BottomNavigationBarItem(
                 icon: Icon(Icons.dashboard_rounded),
                 label: 'Dashboard',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.directions_bus_rounded),
-                label: 'Fleets',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.directions_car_rounded),
@@ -187,8 +180,8 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                   _buildQuickActions(),
                   const SizedBox(height: 22),
 
-                  // 4. Active Fleet Groups Preview
-                  _buildActiveFleetsSection(),
+                  // 4. Assigned Fleet Vehicles Preview
+                  _buildAssignedVehiclesSection(),
                   const SizedBox(height: 22),
 
                   // 5. Live Telematics & Alerts Strip
@@ -303,7 +296,7 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF9333EA).withOpacity(0.25),
+                        color: const Color(0xFF9333EA).withValues(alpha: 0.25),
                         blurRadius: 16,
                         offset: const Offset(0, 4),
                       ),
@@ -312,21 +305,20 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap:  (){
-                        Get.toNamed(Routes.ADD_FLEET);
+                      onTap: () {
+                        Get.toNamed(Routes.ADD_VEHICLE);
                       },
                       borderRadius: BorderRadius.circular(12),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric( vertical: 10),
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 10),
                         child: Row(
-                          // mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
+                          children: [
                             Icon(Icons.add, color: Colors.white, size: 20),
                             SizedBox(width: 6),
                             Text(
-                              'Register Fleet',
+                              'Add Vehicle',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
@@ -340,22 +332,6 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                   ),
                 ),
               ),
-              // Expanded(
-              //   child: ElevatedButton.icon(
-              //     onPressed: () => Get.toNamed(Routes.ADD_FLEET),
-              //     style: ElevatedButton.styleFrom(
-              //       backgroundColor: const Color(0xFF2563EB),
-              //       elevation: 0,
-              //       padding: const EdgeInsets.symmetric(vertical: 10),
-              //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              //     ),
-              //     icon: const Icon(Icons.add, color: Colors.white, size: 16),
-              //     label: const Text(
-              //       'Register Fleet',
-              //       style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-              //     ),
-              //   ),
-              // ),
             ],
           ),
         ],
@@ -365,7 +341,11 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
 
   Widget _buildKpiCardsGrid() {
     return Obx(() {
-      final k = controller.kpis.value;
+      final totalVeh = controller.totalVehiclesCount;
+      final onRoute = controller.onRouteCount;
+      final inDepot = controller.inDepotCount;
+      final assignedDrivers = controller.assignedDriversCount;
+      final assignedGps = controller.assignedGpsCount;
 
       return GridView.count(
         crossAxisCount: 2,
@@ -376,27 +356,18 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
         childAspectRatio: 1.45,
         children: [
           _buildKpiCard(
-            title: 'FLEETS',
-            value: '${k.totalFleets}',
-            subtitle: 'All Active',
-            subtitleColor: const Color(0xFF10B981),
-            icon: Icons.directions_bus_rounded,
-            iconColor: Colors.indigoAccent,
-            onTap: controller.goToFleetList,
-          ),
-          _buildKpiCard(
-            title: 'VEHICLES',
-            value: '${k.totalVehicles}',
-            subtitle: '${k.activeVehicles} on route',
+            title: 'FLEET VEHICLES',
+            value: '$totalVeh',
+            subtitle: '$inDepot in depot • $onRoute on route',
             subtitleColor: Colors.lightBlueAccent,
             icon: Icons.directions_car_rounded,
             iconColor: Colors.lightBlueAccent,
             onTap: controller.goToVehicles,
           ),
           _buildKpiCard(
-            title: 'DRIVERS',
-            value: '${k.totalDrivers}',
-            subtitle: '${k.activeDrivers} assigned',
+            title: 'ASSIGNED\nDRIVERS',
+            value: '$assignedDrivers',
+            subtitle: '$assignedDrivers of $totalVeh assigned',
             subtitleColor: const Color(0xFF10B981),
             icon: Icons.badge_outlined,
             iconColor: const Color(0xFF10B981),
@@ -404,12 +375,21 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
           ),
           _buildKpiCard(
             title: 'GPS UNITS',
-            value: '${k.totalGps}',
-            subtitle: '${k.onlineGps} online',
+            value: '$assignedGps',
+            subtitle: '$assignedGps of $totalVeh connected',
             subtitleColor: Colors.amberAccent,
             icon: Icons.memory_rounded,
             iconColor: Colors.amberAccent,
             onTap: controller.goToGpsDevices,
+          ),
+          _buildKpiCard(
+            title: 'LIVE TELEMATICS',
+            value: '$onRoute',
+            subtitle: '$onRoute moving on route',
+            subtitleColor: const Color(0xFFF43F5E),
+            icon: Icons.my_location_rounded,
+            iconColor: const Color(0xFFF43F5E),
+            onTap: controller.goToLiveTracking,
           ),
         ],
       );
@@ -498,7 +478,7 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
 
   Widget _buildQuickActions() {
     final actions = [
-      {'title': 'Fleets', 'icon': Icons.directions_bus_rounded, 'color': Colors.indigoAccent, 'onTap': controller.goToFleetList},
+      {'title': 'Routes', 'icon': Icons.alt_route_rounded, 'color': Colors.indigoAccent, 'onTap': () => Get.toNamed(Routes.ROUTES_LIST)},
       {'title': 'Vehicles', 'icon': Icons.directions_car_rounded, 'color': Colors.lightBlueAccent, 'onTap': controller.goToVehicles},
       {'title': 'Drivers', 'icon': Icons.badge_outlined, 'color': const Color(0xFF10B981), 'onTap': controller.goToDrivers},
       {'title': 'Trips', 'icon': Icons.schedule_rounded, 'color': Colors.purpleAccent, 'onTap': controller.goToTrips},
@@ -572,7 +552,7 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
     );
   }
 
-  Widget _buildActiveFleetsSection() {
+  Widget _buildAssignedVehiclesSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -580,7 +560,7 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text(
-              'ACTIVE FLEET GROUPS',
+              'ASSIGNED FLEET VEHICLES',
               style: TextStyle(
                 color: AppColors.textMuted,
                 fontSize: 11,
@@ -589,7 +569,7 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
               ),
             ),
             TextButton(
-              onPressed: controller.goToFleetList,
+              onPressed: controller.goToVehicles,
               style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero),
               child: const Text(
                 'View All →',
@@ -600,7 +580,7 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
         ),
         const SizedBox(height: 8),
         Obx(() {
-          if (controller.activeFleets.isEmpty) {
+          if (controller.assignedVehicles.isEmpty) {
             return Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -609,108 +589,159 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                 border: Border.all(color: AppColors.cardBorder),
               ),
               child: const Center(
-                child: Text('No fleet divisions registered yet.', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                child: Text('No vehicles registered in this fleet yet.', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
               ),
             );
           }
 
           return Column(
-            children: controller.activeFleets.map((fleet) => _buildFleetCard(fleet)).toList(),
+            children: controller.assignedVehicles.map((vehicle) => _buildVehicleCard(vehicle)).toList(),
           );
         }),
       ],
     );
   }
 
-  Widget _buildFleetCard(FleetItemModel fleet) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  fleet.name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: const Text(
-                  'ACTIVE',
-                  style: TextStyle(color: Color(0xFF10B981), fontSize: 9, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ),
-          if (fleet.description.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(
-              fleet.description,
-              style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              _buildFleetBadge(Icons.directions_bus_rounded, '${fleet.vehicleCount} Vehicles', Colors.indigoAccent),
-              const SizedBox(width: 8),
-              _buildFleetBadge(Icons.badge_outlined, '${fleet.driverCount} Drivers', const Color(0xFF10B981)),
-              if (fleet.depotName != null) ...[
-                const SizedBox(width: 8),
+  Widget _buildVehicleCard(VehicleItemModel vehicle) {
+    final statusStr = vehicle.status.toLowerCase();
+    Color statusColor = const Color(0xFF94A3B8);
+    String statusLabel = vehicle.status;
+    if (statusStr == 'on_route' || statusStr == 'active') {
+      statusColor = const Color(0xFF10B981);
+      statusLabel = 'ON ROUTE';
+    } else if (statusStr == 'in_depot' || statusStr == 'idle') {
+      statusColor = Colors.lightBlueAccent;
+      statusLabel = 'IN DEPOT';
+    } else if (statusStr == 'maintenance') {
+      statusColor = Colors.amberAccent;
+      statusLabel = 'MAINTENANCE';
+    }
+
+    final hasGps = vehicle.gpsDeviceId != null && vehicle.gpsDeviceId!.isNotEmpty;
+    final driverName = (vehicle.assignedDriverName != null && vehicle.assignedDriverName!.isNotEmpty)
+        ? vehicle.assignedDriverName!
+        : 'Unassigned';
+
+    return InkWell(
+      onTap: () => Get.toNamed(Routes.VEHICLE_DETAILS, arguments: {'id': vehicle.id}),
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
                 Expanded(
-                  child: _buildFleetBadge(Icons.warehouse_rounded, fleet.depotName!, Colors.amberAccent),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: Colors.lightBlueAccent.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(Icons.directions_car_rounded, size: 18, color: Colors.lightBlueAccent),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              vehicle.registrationNumber,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.3,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              [vehicle.make, vehicle.model].where((s) => s.isNotEmpty).join(' • '),
+                              style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: statusColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: statusColor.withValues(alpha: 0.4)),
+                  ),
+                  child: Text(
+                    statusLabel.toUpperCase(),
+                    style: TextStyle(color: statusColor, fontSize: 9, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFleetBadge(IconData icon, String text, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: color),
-          const SizedBox(width: 4),
-          Flexible(
-            child: Text(
-              text,
-              style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.03),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.badge_outlined, size: 13, color: Color(0xFF10B981)),
+                      const SizedBox(width: 4),
+                      Text(
+                        driverName,
+                        style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Icon(Icons.memory_rounded, size: 13, color: hasGps ? Colors.amberAccent : AppColors.textMuted),
+                      const SizedBox(width: 4),
+                      Text(
+                        hasGps ? 'GPS Linked' : 'No GPS',
+                        style: TextStyle(
+                          color: hasGps ? Colors.amberAccent : AppColors.textMuted,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Icon(Icons.speed_rounded, size: 13, color: Colors.cyanAccent),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${(vehicle.speedKmh ?? 0).toStringAsFixed(0)} km/h',
+                        style: const TextStyle(color: Colors.cyanAccent, fontSize: 11, fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -742,19 +773,19 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
             child: const Icon(Icons.security_update_good_rounded, color: Color(0xFF818CF8), size: 22),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'IoT Telematics Gateway Online',
                   style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 2),
-                Text(
-                  '32 GPS trackers streaming live coordinates & sensor telemetry.',
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 11),
-                ),
+                const SizedBox(height: 2),
+                Obx(() => Text(
+                  '${controller.assignedGpsCount} GPS trackers streaming live coordinates & sensor telemetry.',
+                  style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                )),
               ],
             ),
           ),

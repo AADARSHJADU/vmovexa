@@ -314,8 +314,70 @@ class GovBillingInvoicesView extends GetView<GovBillingInvoicesController> {
       );
     });
   }
-
   Widget _buildQuotaMini({
+    required String label,
+    required int used,
+    required int limit,
+    required double percent,
+    required Color color,
+    String? customValue,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F172A),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.cardBorder, width: 0.8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  customValue ?? '$used / $limit',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(3),
+            child: LinearProgressIndicator(
+              value: percent,
+              backgroundColor: const Color(0xFF1E293B),
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+              minHeight: 4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+ /* Widget _buildQuotaMini({
     required String label,
     required int used,
     required int limit,
@@ -359,7 +421,7 @@ class GovBillingInvoicesView extends GetView<GovBillingInvoicesController> {
         ],
       ),
     );
-  }
+  }*/
 
   // ----------------------------------------------------
   // 3. 3 KPI SUMMARY CARDS
@@ -413,8 +475,72 @@ class GovBillingInvoicesView extends GetView<GovBillingInvoicesController> {
       );
     });
   }
-
   Widget _buildKpiCard({
+    required String title,
+    required String value,
+    required String subtext,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 8.5,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(
+                icon,
+                color: color,
+                size: 14,
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            subtext,
+            style: TextStyle(
+              color: color,
+              fontSize: 8.5,
+              fontWeight: FontWeight.w600,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+/*  Widget _buildKpiCard({
     required String title,
     required String value,
     required String subtext,
@@ -469,7 +595,7 @@ class GovBillingInvoicesView extends GetView<GovBillingInvoicesController> {
         ],
       ),
     );
-  }
+  }*/
 
   // ----------------------------------------------------
   // 4. SEGMENTED TABS

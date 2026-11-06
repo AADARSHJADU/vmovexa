@@ -15,7 +15,22 @@ class FleetOpDashboardController extends GetxController {
 
   final Rx<UserModel?> user = Rx<UserModel?>(null);
   final Rx<FleetKpisModel> kpis = FleetKpisModel().obs;
-  final RxList<FleetItemModel> activeFleets = <FleetItemModel>[].obs;
+  final RxList<VehicleItemModel> assignedVehicles = <VehicleItemModel>[].obs;
+
+  int get totalVehiclesCount => kpis.value.totalVehicles > 0 ? kpis.value.totalVehicles : assignedVehicles.length;
+  int get onRouteCount => kpis.value.activeVehicles > 0
+      ? kpis.value.activeVehicles
+      : assignedVehicles.where((v) => v.status.toLowerCase() == 'on_route' || v.status.toLowerCase() == 'active' || v.status.toLowerCase() == 'moving').length;
+  int get inDepotCount {
+    final count = assignedVehicles.where((v) => v.status.toLowerCase() == 'in_depot' || v.status.toLowerCase() == 'idle').length;
+    return count > 0 ? count : (totalVehiclesCount - onRouteCount).clamp(0, 9999);
+  }
+  int get assignedDriversCount => kpis.value.activeDrivers > 0
+      ? kpis.value.activeDrivers
+      : assignedVehicles.where((v) => (v.assignedDriverName != null && v.assignedDriverName!.isNotEmpty) || v.assignedDriverId != null).length;
+  int get assignedGpsCount => kpis.value.onlineGps > 0
+      ? kpis.value.onlineGps
+      : assignedVehicles.where((v) => v.gpsDeviceId != null && v.gpsDeviceId!.isNotEmpty).length;
 
   @override
   void onInit() {
@@ -47,7 +62,7 @@ class FleetOpDashboardController extends GetxController {
     try {
       await Future.wait([
         _loadKpis(),
-        _loadActiveFleets(),
+        _loadAssignedVehicles(),
       ]);
     } finally {
       isLoading.value = false;
@@ -59,7 +74,7 @@ class FleetOpDashboardController extends GetxController {
     try {
       await Future.wait([
         _loadKpis(),
-        _loadActiveFleets(),
+        _loadAssignedVehicles(),
       ]);
     } finally {
       isRefreshing.value = false;
@@ -72,82 +87,35 @@ class FleetOpDashboardController extends GetxController {
       if (res.success && res.data != null) {
         kpis.value = res.data!;
       } else {
-        _loadDefaultKpis();
+        kpis.value = FleetKpisModel();
       }
     } catch (_) {
-      _loadDefaultKpis();
+      kpis.value = FleetKpisModel();
     }
   }
 
-  void _loadDefaultKpis() {
-    kpis.value = FleetKpisModel(
-      totalFleets: 4,
-      activeFleets: 4,
-      totalVehicles: 38,
-      activeVehicles: 31,
-      totalDrivers: 45,
-      activeDrivers: 38,
-      totalGps: 36,
-      onlineGps: 32,
-      openIncidents: 2,
-      activeTrips: 14,
-    );
-  }
-
-  Future<void> _loadActiveFleets() async {
+  Future<void> _loadAssignedVehicles() async {
     try {
-      final res = await FleetService.to.getFleets(limit: 4);
+      final res = await FleetService.to.getVehicles(limit: 4);
       if (res.success && res.data != null && res.data!.isNotEmpty) {
-        activeFleets.assignAll(res.data!);
+        assignedVehicles.assignAll(res.data!);
       } else {
-        _loadDefaultFleets();
+        assignedVehicles.clear();
       }
     } catch (_) {
-      _loadDefaultFleets();
+      assignedVehicles.clear();
     }
-  }
-
-  void _loadDefaultFleets() {
-    activeFleets.assignAll([
-      FleetItemModel(
-        id: 'flt_01',
-        name: 'BRTS Corridor High-Speed Electric',
-        description: 'Dedicated iBus electric fleet running on AB Road corridor',
-        status: 'active',
-        vehicleCount: 24,
-        driverCount: 31,
-        depotName: 'North Depot - Vijay Nagar',
-      ),
-      FleetItemModel(
-        id: 'flt_02',
-        name: 'City Feeder Diesel BS6 Division',
-        description: 'East-West suburban metro connector feeder buses',
-        status: 'active',
-        vehicleCount: 18,
-        driverCount: 20,
-        depotName: 'East Ring Road Depot',
-      ),
-      FleetItemModel(
-        id: 'flt_03',
-        name: 'Airport Express AC Shuttles',
-        description: 'Non-stop premium electric shuttle to Indore Airport',
-        status: 'active',
-        vehicleCount: 12,
-        driverCount: 15,
-        depotName: 'Airport Transit Yard',
-      ),
-    ]);
-  }
-
-  void goToFleetList() {
-    selectedNavIndex.value = 1;
   }
 
   void goToVehicles() {
-    selectedNavIndex.value = 2;
+    selectedNavIndex.value = 1;
   }
 
   void goToDrivers() {
+    selectedNavIndex.value = 2;
+  }
+
+  void goToProfile() {
     selectedNavIndex.value = 3;
   }
 
@@ -160,11 +128,11 @@ class FleetOpDashboardController extends GetxController {
   }
 
   void goToGpsDevices() {
-    Get.toNamed(Routes.ADD_GPS);
+    Get.toNamed(Routes.GPS_LIST);
   }
 
   void goToTrips() {
-    Get.toNamed(Routes.TRIP_DETAILS);
+    Get.toNamed(Routes.FLEET_TRIPS);
   }
 
   void openDepotsDialog() {

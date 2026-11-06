@@ -44,7 +44,7 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
               return const Center(child: CircularProgressIndicator(color: Color(0xFF1C68FD)));
             }
 
-            final summary = controller.summary.value ?? ReconciliationSummaryModel.fallback();
+            final summary = controller.summary.value ?? ReconciliationSummaryModel.empty();
 
             return SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

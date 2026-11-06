@@ -41,62 +41,19 @@ class FinanceNotificationsController extends GetxController with GetSingleTicker
               items.map((e) => FinanceNotificationModel.fromJson(Map<String, dynamic>.from(e as Map))).toList(),
             );
           } else {
-            _seedInitialFinanceAlerts();
+            allNotifications.clear();
           }
         } else {
-          _seedInitialFinanceAlerts();
+          allNotifications.clear();
         }
       } else {
-        _seedInitialFinanceAlerts();
+        allNotifications.clear();
       }
     } catch (_) {
-      _seedInitialFinanceAlerts();
+      allNotifications.clear();
     } finally {
       applyFilters();
       isLoading.value = false;
-    }
-  }
-
-  void _seedInitialFinanceAlerts() {
-    if (allNotifications.isEmpty) {
-      allNotifications.assignAll([
-        FinanceNotificationModel(
-          id: '1',
-          title: 'Invoice Generated',
-          description: 'Invoice INV-2026-1045 generated for VMOVEXA Advertising Pvt. Ltd.',
-          category: 'Invoices',
-          time: '10:30 AM',
-          dateGroup: 'Today',
-          isUnread: true,
-        ),
-        FinanceNotificationModel(
-          id: '2',
-          title: 'Payment Received',
-          description: 'Payment of ₹2,45,000 received from TransRoute Logistics for INV-2026-1042.',
-          category: 'Payments',
-          time: '09:15 AM',
-          dateGroup: 'Today',
-          isUnread: true,
-        ),
-        FinanceNotificationModel(
-          id: '3',
-          title: 'Subscription Expiring Soon',
-          description: 'Enterprise Plan for Indore City Transport will expire in 3 days.',
-          category: 'Subscriptions',
-          time: 'Yesterday',
-          dateGroup: 'Yesterday',
-          isUnread: false,
-        ),
-        FinanceNotificationModel(
-          id: '4',
-          title: 'GST Reconciliation Complete',
-          description: 'Monthly GSTR-1 draft JSON generated with 18 matched invoices.',
-          category: 'Invoices',
-          time: '24 Oct 2026',
-          dateGroup: '24 Oct 2026',
-          isUnread: false,
-        ),
-      ]);
     }
   }
 

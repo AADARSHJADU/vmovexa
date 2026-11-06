@@ -110,7 +110,7 @@ class VehicleAnalyticsController extends GetxController {
       0.0,
       (acc, t) => acc + t.distanceKm,
     );
-    return sum > 0 ? sum : 79.1;
+    return double.parse(sum.toStringAsFixed(1));
   }
 
   int get activeTripsCount => trips
@@ -125,10 +125,14 @@ class VehicleAnalyticsController extends GetxController {
 
   int get fleetUtilizationRate => totalVehiclesCount > 0
       ? ((onRouteCount / totalVehiclesCount) * 100).round()
-      : 50;
+      : 0;
 
   int get telemetryUnitsOnline =>
-      onRouteCount > 0 ? onRouteCount : (vehicles.isNotEmpty ? vehicles.length : 32);
+      vehicles.where((v) =>
+          (v.gpsDeviceId != null && v.gpsDeviceId!.isNotEmpty) ||
+          (v.edgeDeviceBoxId != null && v.edgeDeviceBoxId!.isNotEmpty) ||
+          v.status.toLowerCase() == 'on_route' ||
+          v.status.toLowerCase() == 'active').length;
 
   // --- Filtered Lists for Active Report ---
   List<VehicleItemModel> get filteredVehicles {
@@ -174,51 +178,95 @@ class VehicleAnalyticsController extends GetxController {
     }).toList();
   }
 
-  // --- Weekly Performance Trend Bar Chart Data (Identical to Admin Panel) ---
+  // --- Weekly Performance Trend Bar Chart Data (Calculated Dynamically from Real API Trips) ---
   List<DailyMetricPoint> get chartData {
-    switch (chartMetric.value) {
-      case 'speed':
-        return [
-          DailyMetricPoint(label: 'Mon', value: 42, unit: 'km/h', gradientColors: const [Color(0xFF059669), Color(0xFF14B8A6), Color(0xFFA3E635)]),
-          DailyMetricPoint(label: 'Tue', value: 46, unit: 'km/h', gradientColors: const [Color(0xFF059669), Color(0xFF14B8A6), Color(0xFFA3E635)]),
-          DailyMetricPoint(label: 'Wed', value: 39, unit: 'km/h', gradientColors: const [Color(0xFF059669), Color(0xFF14B8A6), Color(0xFFA3E635)]),
-          DailyMetricPoint(label: 'Thu', value: 49, unit: 'km/h', gradientColors: const [Color(0xFF059669), Color(0xFF14B8A6), Color(0xFFA3E635)], isPeak: true),
-          DailyMetricPoint(label: 'Fri', value: 45, unit: 'km/h', gradientColors: const [Color(0xFF059669), Color(0xFF14B8A6), Color(0xFFA3E635)]),
-          DailyMetricPoint(label: 'Sat', value: 44, unit: 'km/h', gradientColors: const [Color(0xFF059669), Color(0xFF14B8A6), Color(0xFFA3E635)]),
-          DailyMetricPoint(label: 'Sun', value: 47, unit: 'km/h', gradientColors: const [Color(0xFF059669), Color(0xFF14B8A6), Color(0xFFA3E635)]),
-        ];
-      case 'trips':
-        return [
-          DailyMetricPoint(label: 'Mon', value: 4, unit: 'trips', gradientColors: const [Color(0xFF7C3AED), Color(0xFF8B5CF6), Color(0xFFEC4899)]),
-          DailyMetricPoint(label: 'Tue', value: 6, unit: 'trips', gradientColors: const [Color(0xFF7C3AED), Color(0xFF8B5CF6), Color(0xFFEC4899)]),
-          DailyMetricPoint(label: 'Wed', value: 3, unit: 'trips', gradientColors: const [Color(0xFF7C3AED), Color(0xFF8B5CF6), Color(0xFFEC4899)]),
-          DailyMetricPoint(label: 'Thu', value: 8, unit: 'trips', gradientColors: const [Color(0xFF7C3AED), Color(0xFF8B5CF6), Color(0xFFEC4899)], isPeak: true),
-          DailyMetricPoint(label: 'Fri', value: 7, unit: 'trips', gradientColors: const [Color(0xFF7C3AED), Color(0xFF8B5CF6), Color(0xFFEC4899)]),
-          DailyMetricPoint(label: 'Sat', value: 5, unit: 'trips', gradientColors: const [Color(0xFF7C3AED), Color(0xFF8B5CF6), Color(0xFFEC4899)]),
-          DailyMetricPoint(label: 'Sun', value: 2, unit: 'trips', gradientColors: const [Color(0xFF7C3AED), Color(0xFF8B5CF6), Color(0xFFEC4899)]),
-        ];
-      case 'efficiency':
-        return [
-          DailyMetricPoint(label: 'Mon', value: 92, unit: '%', gradientColors: const [Color(0xFFD97706), Color(0xFFF97316), Color(0xFFFACC15)]),
-          DailyMetricPoint(label: 'Tue', value: 94, unit: '%', gradientColors: const [Color(0xFFD97706), Color(0xFFF97316), Color(0xFFFACC15)]),
-          DailyMetricPoint(label: 'Wed', value: 89, unit: '%', gradientColors: const [Color(0xFFD97706), Color(0xFFF97316), Color(0xFFFACC15)]),
-          DailyMetricPoint(label: 'Thu', value: 96, unit: '%', gradientColors: const [Color(0xFFD97706), Color(0xFFF97316), Color(0xFFFACC15)], isPeak: true),
-          DailyMetricPoint(label: 'Fri', value: 95, unit: '%', gradientColors: const [Color(0xFFD97706), Color(0xFFF97316), Color(0xFFFACC15)]),
-          DailyMetricPoint(label: 'Sat', value: 91, unit: '%', gradientColors: const [Color(0xFFD97706), Color(0xFFF97316), Color(0xFFFACC15)]),
-          DailyMetricPoint(label: 'Sun', value: 97, unit: '%', gradientColors: const [Color(0xFFD97706), Color(0xFFF97316), Color(0xFFFACC15)]),
-        ];
-      case 'distance':
-      default:
-        return [
-          DailyMetricPoint(label: 'Mon', value: 34.5, unit: 'km', gradientColors: const [Color(0xFF2563EB), Color(0xFF6366F1), Color(0xFF22D3EE)]),
-          DailyMetricPoint(label: 'Tue', value: 48.2, unit: 'km', gradientColors: const [Color(0xFF2563EB), Color(0xFF6366F1), Color(0xFF22D3EE)]),
-          DailyMetricPoint(label: 'Wed', value: 29.8, unit: 'km', gradientColors: const [Color(0xFF2563EB), Color(0xFF6366F1), Color(0xFF22D3EE)]),
-          DailyMetricPoint(label: 'Thu', value: 54.0, unit: 'km', gradientColors: const [Color(0xFF2563EB), Color(0xFF6366F1), Color(0xFF22D3EE)]),
-          DailyMetricPoint(label: 'Fri', value: 68.7, unit: 'km', gradientColors: const [Color(0xFF2563EB), Color(0xFF6366F1), Color(0xFF22D3EE)], isPeak: true),
-          DailyMetricPoint(label: 'Sat', value: 42.1, unit: 'km', gradientColors: const [Color(0xFF2563EB), Color(0xFF6366F1), Color(0xFF22D3EE)]),
-          DailyMetricPoint(label: 'Sun', value: 21.4, unit: 'km', gradientColors: const [Color(0xFF2563EB), Color(0xFF6366F1), Color(0xFF22D3EE)]),
-        ];
+    final days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    final Map<int, List<TripItemModel>> dayTrips = {for (int i = 1; i <= 7; i++) i: []};
+
+    for (final t in trips) {
+      DateTime? dt;
+      if (t.startedAt != null && t.startedAt!.isNotEmpty) {
+        dt = DateTime.tryParse(t.startedAt!);
+      } else if (t.endedAt != null && t.endedAt!.isNotEmpty) {
+        dt = DateTime.tryParse(t.endedAt!);
+      }
+      if (dt != null) {
+        final w = dt.weekday; // 1 = Monday, 7 = Sunday
+        dayTrips[w]?.add(t);
+      }
     }
+
+    final List<DailyMetricPoint> points = [];
+    final metric = chartMetric.value;
+    double maxVal = 0.0;
+
+    for (int i = 1; i <= 7; i++) {
+      final list = dayTrips[i] ?? [];
+      double val = 0.0;
+      String unit = 'km';
+      List<Color> colors = const [Color(0xFF2563EB), Color(0xFF6366F1), Color(0xFF22D3EE)];
+
+      switch (metric) {
+        case 'speed':
+          unit = 'km/h';
+          colors = const [Color(0xFF059669), Color(0xFF14B8A6), Color(0xFFA3E635)];
+          if (list.isNotEmpty) {
+            final speeds = list.map((t) => t.avgSpeed ?? t.currentSpeed ?? 0.0).where((s) => s > 0).toList();
+            val = speeds.isNotEmpty ? double.parse((speeds.reduce((a, b) => a + b) / speeds.length).toStringAsFixed(1)) : 0.0;
+          }
+          break;
+        case 'trips':
+          unit = 'trips';
+          colors = const [Color(0xFF7C3AED), Color(0xFF8B5CF6), Color(0xFFEC4899)];
+          val = list.length.toDouble();
+          break;
+        case 'efficiency':
+          unit = '%';
+          colors = const [Color(0xFFD97706), Color(0xFFF97316), Color(0xFFFACC15)];
+          if (list.isNotEmpty) {
+            final completed = list.where((t) => t.status == 'completed').length;
+            val = ((completed / list.length) * 100).roundToDouble();
+          }
+          break;
+        case 'distance':
+        default:
+          unit = 'km';
+          colors = const [Color(0xFF2563EB), Color(0xFF6366F1), Color(0xFF22D3EE)];
+          if (list.isNotEmpty) {
+            val = list.fold<double>(0.0, (acc, t) => acc + t.distanceKm);
+            val = double.parse(val.toStringAsFixed(1));
+          }
+          break;
+      }
+
+      if (val > maxVal) maxVal = val;
+
+      points.add(
+        DailyMetricPoint(
+          label: days[i - 1],
+          value: val,
+          unit: unit,
+          gradientColors: colors,
+          isPeak: false,
+        ),
+      );
+    }
+
+    if (maxVal > 0) {
+      final peakIndex = points.indexWhere((p) => p.value == maxVal);
+      if (peakIndex != -1) {
+        final p = points[peakIndex];
+        points[peakIndex] = DailyMetricPoint(
+          label: p.label,
+          value: p.value,
+          unit: p.unit,
+          gradientColors: p.gradientColors,
+          isPeak: true,
+        );
+      }
+    }
+
+    return points;
   }
 
   double get maxChartValue {
