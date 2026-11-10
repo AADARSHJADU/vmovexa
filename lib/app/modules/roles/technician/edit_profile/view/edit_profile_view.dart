@@ -37,7 +37,7 @@ class EditProfileView extends GetView<EditProfileController> {
                   // Personal Information Section (Editable)
                   _buildSectionHeader(
                     svgPath: 'assets/icons/profile.svg',
-                    title: 'Personal Information',
+                    title: 'personal_information'.tr,
                   ),
                   const SizedBox(height: 12),
                   _buildPersonalFields(context),
@@ -46,7 +46,7 @@ class EditProfileView extends GetView<EditProfileController> {
                   // Work Information Section (Read-Only)
                   _buildSectionHeader(
                     svgPath: 'assets/icons/fleet_operator_icons/fleetsManagedA.svg',
-                    title: 'Work Information',
+                    title: 'work_information'.tr,
                   ),
                   const SizedBox(height: 12),
                   _buildWorkFields(),
@@ -55,7 +55,7 @@ class EditProfileView extends GetView<EditProfileController> {
                   // Account & Security Section (Read-Only & Change Password)
                   _buildSectionHeader(
                     svgPath: 'assets/icons/fleet_operator_icons/securityA.svg',
-                    title: 'Account & Security',
+                    title: 'account_and_security'.tr,
                   ),
                   const SizedBox(height: 12),
                   _buildSecurityFields(),
@@ -87,22 +87,22 @@ class EditProfileView extends GetView<EditProfileController> {
             ),
           ),
           const SizedBox(width: 8),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Edit Profile',
-                  style: TextStyle(
+                  'edit_profile'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
-                  'Update your personal and account details.',
-                  style: TextStyle(
+                  'update_personal_and_account'.tr,
+                  style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 12,
                   ),
@@ -152,45 +152,45 @@ class EditProfileView extends GetView<EditProfileController> {
       child: Column(
         children: [
           _buildEditableTextField(
-            label: 'Full Name',
+            label: 'full_name'.tr,
             controller: controller.nameController,
-            hint: 'Enter your full name',
+            hint: 'enter_full_name'.tr,
             svgPath: 'assets/icons/profile.svg',
           ),
           const SizedBox(height: 16),
           _buildEditableTextField(
-            label: 'Email Address',
+            label: 'email_address'.tr,
             controller: controller.emailController,
-            hint: 'Enter your email address',
+            hint: 'enter_email'.tr,
             svgPath: 'assets/icons/gmail.svg',
             keyboardType: TextInputType.emailAddress,
           ),
           const SizedBox(height: 16),
           _buildEditableTextField(
-            label: 'Phone Number',
+            label: 'phone_number'.tr,
             controller: controller.phoneController,
-            hint: 'Enter your phone number',
+            hint: 'enter_phone_number'.tr,
             svgPath: 'assets/icons/fleet_operator_icons/phone.svg',
             keyboardType: TextInputType.phone,
           ),
           const SizedBox(height: 16),
           _buildDatePickerField(
             context: context,
-            label: 'Date of Birth',
+            label: 'date_of_birth'.tr,
             controller: controller.dobController,
             svgPath: 'assets/icons/calendar.svg',
           ),
           const SizedBox(height: 16),
           _buildGenderDropdownField(
-            label: 'Gender',
+            label: 'gender'.tr,
             controller: controller.genderController,
             svgPath: 'assets/icons/new_fleet-op-ic/lucide_venus-and-mars.svg',
           ),
           const SizedBox(height: 16),
           _buildEditableTextField(
-            label: 'Address',
+            label: 'address'.tr,
             controller: controller.addressController,
-            hint: 'Enter your address',
+            hint: 'enter_address'.tr,
             svgPath: 'assets/icons/fleet_operator_icons/locationA.svg',
             maxLines: 3,
           ),
@@ -211,31 +211,31 @@ class EditProfileView extends GetView<EditProfileController> {
       child: Obx(() => Column(
             children: [
               _buildReadOnlyField(
-                label: 'Role',
+                label: 'role_label'.tr,
                 value: controller.role.value,
                 svgPath: 'assets/icons/fleet_operator_icons/employeeIdA.svg',
               ),
               const SizedBox(height: 16),
               _buildReadOnlyField(
-                label: 'Department',
+                label: 'department'.tr,
                 value: controller.department.value,
                 svgPath: 'assets/icons/fleet_operator_icons/officeA.svg',
               ),
               const SizedBox(height: 16),
               _buildReadOnlyField(
-                label: 'Reporting Manager',
+                label: 'reporting_manager'.tr,
                 value: controller.reportingManager.value,
                 svgPath: 'assets/icons/profile.svg',
               ),
               const SizedBox(height: 16),
               _buildReadOnlyField(
-                label: 'Work Location',
+                label: 'work_location'.tr,
                 value: controller.workLocation.value,
                 svgPath: 'assets/icons/fleet_operator_icons/locationA.svg',
               ),
               const SizedBox(height: 16),
               _buildReadOnlyField(
-                label: 'Joined On',
+                label: 'joined_on'.tr,
                 value: controller.joinedDate.value,
                 svgPath: 'assets/icons/calendar.svg',
               ),
@@ -256,13 +256,13 @@ class EditProfileView extends GetView<EditProfileController> {
       child: Obx(() => Column(
             children: [
               _buildReadOnlyField(
-                label: 'Username',
+                label: 'username'.tr,
                 value: controller.username.value,
                 svgPath: 'assets/icons/gmail.svg',
               ),
               const SizedBox(height: 16),
               _buildReadOnlyField(
-                label: 'Password',
+                label: 'password'.tr,
                 value: '••••••••',
                 svgPath: 'assets/icons/fleet_operator_icons/changePasswordA.svg',
                 suffixWidget: TextButton(
@@ -272,9 +272,9 @@ class EditProfileView extends GetView<EditProfileController> {
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                  child: const Text(
-                    'Change',
-                    style: TextStyle(
+                  child: Text(
+                    'change'.tr,
+                    style: const TextStyle(
                       color: kPurple,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -468,9 +468,9 @@ class EditProfileView extends GetView<EditProfileController> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Text(
-                      'Save Changes',
-                      style: TextStyle(
+                    Text(
+                      'save_changes'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 15,
                         fontWeight: FontWeight.bold,

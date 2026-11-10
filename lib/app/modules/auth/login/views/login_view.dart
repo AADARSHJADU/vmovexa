@@ -4,6 +4,8 @@ import '../controllers/login_controller.dart';
 import '../../../../widgets/custom_text_field.dart';
 import '../../../../widgets/custom_button.dart';
 import '../../../../widgets/social_button.dart';
+import '../../../../widgets/language_selector_sheet.dart';
+import '../../../../translations/services/localization_service.dart';
 import '../../../../theme/app_colors.dart';
 
 class LoginView extends GetView<LoginController> {
@@ -19,29 +21,64 @@ class LoginView extends GetView<LoginController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 20),
-              //const AppLogoHeader(height: 75),
-              //const SizedBox(height: 32),
+              // Top Bar with Language Selector
+              Align(
+                alignment: Alignment.centerRight,
+                child: InkWell(
+                  onTap: () => LanguageSelectorSheet.show(context),
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1B1B2A),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFF28283E)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.language_rounded, size: 16, color: Color(0xFF60A5FA)),
+                        const SizedBox(width: 6),
+                        Obx(() {
+                          final currentLang = Get.find<LocalizationService>().currentLanguage.value;
+                          return Text(
+                            currentLang.nativeName,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          );
+                        }),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: Colors.white54),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 10),
               Image.asset(
                 'assets/app_logo/logo_transparent.png',
                 height: 150,
                 width: 150,
               ),
 
-              const Text(
-                'Welcome Back',
+              Text(
+                'welcome_back'.tr,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Sign in to access your intelligent fleet dashboard.',
+              Text(
+                'sign_in_sub'.tr,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 14,
                 ),
@@ -49,7 +86,7 @@ class LoginView extends GetView<LoginController> {
               const SizedBox(height: 36),
 
               CustomTextField(
-                hintText: 'Business Email',
+                hintText: 'business_email'.tr,
                 prefixIcon: Icons.mail_outline_rounded,
                 keyboardType: TextInputType.emailAddress,
                 controller: controller.emailController,
@@ -58,7 +95,7 @@ class LoginView extends GetView<LoginController> {
 
               Obx(
                 () => CustomTextField(
-                  hintText: 'Password',
+                  hintText: 'password'.tr,
                   prefixIcon: Icons.lock_outline_rounded,
                   isPassword: true,
                   isObscured: controller.isPasswordObscured.value,
@@ -72,9 +109,9 @@ class LoginView extends GetView<LoginController> {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: controller.goToForgotPassword,
-                  child: const Text(
-                    'Forgot Password?',
-                    style: TextStyle(
+                  child: Text(
+                    'forgot_password'.tr,
+                    style: const TextStyle(
                       color: AppColors.textLink,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -87,7 +124,7 @@ class LoginView extends GetView<LoginController> {
 
               Obx(
                 () => CustomButton(
-                  text: 'Log In',
+                  text: 'log_in'.tr,
                   isLoading: controller.isLoading.value,
                   onTap: controller.login,
                 ),
@@ -95,21 +132,21 @@ class LoginView extends GetView<LoginController> {
               const SizedBox(height: 32),
 
               Row(
-                children: const [
-                  Expanded(
+                children: [
+                  const Expanded(
                     child: Divider(color: Color(0xFF1E202F), thickness: 1.2),
                   ),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 14),
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
                     child: Text(
-                      'Or Continue With',
-                      style: TextStyle(
+                      'or_continue_with'.tr,
+                      style: const TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 13,
                       ),
                     ),
                   ),
-                  Expanded(
+                  const Expanded(
                     child: Divider(color: Color(0xFF1E202F), thickness: 1.2),
                   ),
                 ],

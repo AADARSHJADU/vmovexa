@@ -38,9 +38,9 @@ class ReviewIncidentView extends GetView<ReportIncidentController> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 children: [
-                  const Text('Review Your Report', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700)),
+                  Text('review_your_report'.tr, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 3),
-                  const Text('Please review all the information below before submitting.', style: TextStyle(color: Colors.white54, fontSize: 11.5)),
+                  Text('review_before_submitting_long'.tr, style: const TextStyle(color: Colors.white54, fontSize: 11.5)),
                   const SizedBox(height: 16),
                   _buildReviewCard(),
                 ],
@@ -61,13 +61,13 @@ class ReviewIncidentView extends GetView<ReportIncidentController> {
           child: const Icon(Icons.arrow_back, color: Colors.white),
         ),
         const SizedBox(width: 10),
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Report Incident', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700)),
-              SizedBox(height: 2),
-              Text('Review the details before submitting.', style: TextStyle(color: Colors.white54, fontSize: 11.5)),
+              Text('report_incident'.tr, style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 2),
+              Text('review_before_submitting'.tr, style: const TextStyle(color: Colors.white54, fontSize: 11.5)),
             ],
           ),
         ),
@@ -139,25 +139,25 @@ class ReviewIncidentView extends GetView<ReportIncidentController> {
               icon: controller.selectedIncidentType.value?.icon ?? Icons.warning_amber_rounded,
               title: controller.selectedIncidentType.value?.label ?? '—',
               subtitle: controller.selectedIncidentType.value?.description ?? '',
-              label: 'Incident Type',
+              label: 'incident_type_label'.tr,
             ),
             _divider(),
             _ReviewRow(
               icon: Icons.description_outlined,
               title: controller.descriptionCtrl.text.trim().isEmpty ? '—' : controller.descriptionCtrl.text.trim(),
-              label: 'Incident Description',
+              label: 'defect_description'.tr,
             ),
             _divider(),
             _ReviewRow(
               icon: Icons.location_on_outlined,
               title: controller.locationCtrl.text,
-              label: 'Location',
+              label: 'location_label'.tr,
             ),
             _divider(),
             _ReviewRow(
               icon: Icons.calendar_today_outlined,
               title: '${controller.incidentDateText}  \u2022  ${controller.incidentDateText}',
-              label: 'Date & Time',
+              label: 'date_time_label'.tr,
             ),
             _divider(),
             _ReviewRow(
@@ -165,19 +165,19 @@ class ReviewIncidentView extends GetView<ReportIncidentController> {
               iconColor: controller.severity.value.color,
               title: controller.severity.value.label,
               subtitle: controller.severity.value.description,
-              label: 'Severity',
+              label: 'severity_label'.tr,
             ),
             _divider(),
             _ReviewRow(
               icon: Icons.groups_outlined,
               title: controller.affectedPartiesText,
-              label: 'Affected Parties',
+              label: 'affected_parties_label'.tr,
             ),
             _divider(),
             _ReviewRow(
               icon: Icons.build_outlined,
               title: controller.immediateActionCtrl.text.trim().isEmpty ? '—' : controller.immediateActionCtrl.text.trim(),
-              label: 'Immediate Action Taken',
+              label: 'immediate_action_taken'.tr,
             ),
             _divider(),
             _buildPhotosRow(),
@@ -188,7 +188,7 @@ class ReviewIncidentView extends GetView<ReportIncidentController> {
               subtitle: (controller.wantsContact.value == true && controller.contactNumberCtrl.text.trim().isNotEmpty)
                   ? controller.contactNumberCtrl.text.trim()
                   : null,
-              label: 'Contact Preference',
+              label: 'contact_preference_label'.tr,
               isLast: true,
             ),
           ],
@@ -213,11 +213,11 @@ class ReviewIncidentView extends GetView<ReportIncidentController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Photos', style: TextStyle(color: Colors.white38, fontSize: 10.5)),
+                Text('photos_label'.tr, style: const TextStyle(color: Colors.white38, fontSize: 10.5)),
                 const SizedBox(height: 2),
                 Obx(
                   () => Text(
-                    controller.photoPaths.isEmpty ? 'No photos uploaded' : '${controller.photoPaths.length} Photos Uploaded',
+                    controller.photoPaths.isEmpty ? 'no_photos_uploaded'.tr : '${controller.photoPaths.length} ${'photos_uploaded_count'.tr}',
                     style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -268,12 +268,12 @@ class ReviewIncidentView extends GetView<ReportIncidentController> {
                 height: 50,
                 decoration: BoxDecoration(color: kFieldBg, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withOpacity(0.1))),
                 alignment: Alignment.center,
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.arrow_back, color: Colors.white70, size: 16),
-                    SizedBox(width: 6),
-                    Text('Back', style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w700)),
+                    const Icon(Icons.arrow_back, color: Colors.white70, size: 16),
+                    const SizedBox(width: 6),
+                    Text('back'.tr, style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w700)),
                   ],
                 ),
               ),
@@ -291,12 +291,12 @@ class ReviewIncidentView extends GetView<ReportIncidentController> {
                   alignment: Alignment.center,
                   child: controller.isSubmitting.value
                       ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.4))
-                      : const Row(
+                      : Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('Submit Incident', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
-                            SizedBox(width: 6),
-                            Icon(Icons.arrow_forward, color: Colors.white, size: 16),
+                            Text('submit_incident'.tr, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+                            const SizedBox(width: 6),
+                            const Icon(Icons.arrow_forward, color: Colors.white, size: 16),
                           ],
                         ),
                 ),

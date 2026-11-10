@@ -5,6 +5,7 @@ import 'package:vmovexa/app/routes/app_routes.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
 import 'package:vmovexa/app/data/constants/api_constants.dart';
 import 'package:vmovexa/app/data/services/storage_service.dart';
+import 'package:vmovexa/app/widgets/language_selector_sheet.dart';
 import '../controller/technician_dashboard_controller.dart';
 
 class TechnicianDrawer extends StatelessWidget {
@@ -27,9 +28,9 @@ class TechnicianDrawer extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 children: [
-                  _buildSectionHeader('PRIMARY NAVIGATION'),
+                  _buildSectionHeader('primary_navigation_caps'.tr),
                   _buildDrawerItem(
-                    title: 'Overview Dashboard',
+                    title: 'overview_dashboard'.tr,
                     icon: 'assets/icons/home.svg',
                     isSelected: dashboardCtrl.selectedNavIndex.value == 0,
                     onTap: () {
@@ -38,7 +39,7 @@ class TechnicianDrawer extends StatelessWidget {
                     },
                   ),
                   _buildDrawerItem(
-                    title: 'Field Work Orders',
+                    title: 'field_work_orders'.tr,
                     icon: 'assets/icons/fleet_operator_icons/fleetsManagedA2.svg',
                     isSelected: dashboardCtrl.selectedNavIndex.value == 1,
                     onTap: () {
@@ -47,7 +48,7 @@ class TechnicianDrawer extends StatelessWidget {
                     },
                   ),
                   _buildDrawerItem(
-                    title: 'Edge Devices & Displays',
+                    title: 'edge_devices_displays'.tr,
                     icon: 'assets/icons/tv.svg',
                     isSelected: dashboardCtrl.selectedNavIndex.value == 2,
                     onTap: () {
@@ -56,7 +57,7 @@ class TechnicianDrawer extends StatelessWidget {
                     },
                   ),
                   _buildDrawerItem(
-                    title: 'Hardware Configuration',
+                    title: 'hardware_configuration'.tr,
                     icon: 'assets/icons/fleet_operator_icons/profileHeaderSettingA.svg',
                     isSelected: dashboardCtrl.selectedNavIndex.value == 3,
                     onTap: () {
@@ -66,9 +67,9 @@ class TechnicianDrawer extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 12),
-                  _buildSectionHeader('HARDWARE & DIAGNOSTICS'),
+                  _buildSectionHeader('hardware_diagnostics_caps'.tr),
                   _buildDrawerItem(
-                    title: 'GPS Installation',
+                    title: 'gps_installation'.tr,
                     icon: 'assets/icons/location.svg',
                     onTap: () {
                       Get.back();
@@ -76,7 +77,7 @@ class TechnicianDrawer extends StatelessWidget {
                     },
                   ),
                   _buildDrawerItem(
-                    title: 'Diagnostics Self-Test',
+                    title: 'diagnostics_self_test'.tr,
                     icon: 'assets/icons/doctor.svg',
                     onTap: () {
                       Get.back();
@@ -84,7 +85,7 @@ class TechnicianDrawer extends StatelessWidget {
                     },
                   ),
                   _buildDrawerItem(
-                    title: 'Connectivity Matrix',
+                    title: 'connectivity_matrix'.tr,
                     icon: 'assets/icons/hotspot.svg',
                     onTap: () {
                       Get.back();
@@ -92,7 +93,7 @@ class TechnicianDrawer extends StatelessWidget {
                     },
                   ),
                   _buildDrawerItem(
-                    title: 'Hardware Status & Health',
+                    title: 'hardware_status_health'.tr,
                     icon: 'assets/icons/monitor_heart.svg',
                     onTap: () {
                       Get.back();
@@ -101,9 +102,9 @@ class TechnicianDrawer extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 12),
-                  _buildSectionHeader('ACCOUNT & SETTINGS'),
+                  _buildSectionHeader('account_settings_caps'.tr),
                   _buildDrawerItem(
-                    title: 'Alerts & Notifications',
+                    title: 'alerts_notifications'.tr,
                     icon: 'assets/icons/notification.svg',
                     onTap: () {
                       Get.back();
@@ -111,12 +112,20 @@ class TechnicianDrawer extends StatelessWidget {
                     },
                   ),
                   _buildDrawerItem(
-                    title: 'Technician Profile',
+                    title: 'technician_profile'.tr,
                     icon: 'assets/icons/profile.svg',
                     isSelected: dashboardCtrl.selectedNavIndex.value == 4,
                     onTap: () {
                       Get.back();
                       dashboardCtrl.onNavItemTapped(4);
+                    },
+                  ),
+                  _buildDrawerItem(
+                    title: 'change_language'.tr,
+                    icon: 'assets/icons/settings.svg',
+                    onTap: () {
+                      Get.back();
+                      LanguageSelectorSheet.show(context);
                     },
                   ),
                 ],
@@ -132,9 +141,9 @@ class TechnicianDrawer extends StatelessWidget {
               child: ListTile(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 leading: const Icon(Icons.logout_rounded, color: Color(0xFFFF4D4D), size: 20),
-                title: const Text(
-                  'Logout Portal',
-                  style: TextStyle(
+                title: Text(
+                  'log_out'.tr,
+                  style: const TextStyle(
                     color: Color(0xFFFF4D4D),
                     fontSize: 13,
                     fontWeight: FontWeight.w700,

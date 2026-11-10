@@ -90,21 +90,21 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Bank Reconciliation',
-                  style: TextStyle(
+                  'bank_reconciliation'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
                     letterSpacing: -0.3,
                   ),
                 ),
-                SizedBox(height: 2),
-                Text(
+                const SizedBox(height: 2),
+                const Text(
                   'Reconcile corporate bank accounts, gateway escrow & ledgers',
                   style: TextStyle(color: Colors.white54, fontSize: 11),
                   maxLines: 1,
@@ -265,15 +265,15 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'LEDGER ACCOUNTS ROSTER',
-                    style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 0.8),
+                    'ledger_accounts_roster'.tr.toUpperCase(),
+                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 0.8),
                   ),
-                  SizedBox(height: 2),
-                  Text(
+                  const SizedBox(height: 2),
+                  const Text(
                     'Corporate banks, gateway escrow,and\npayoutledgers',
                     style: TextStyle(color: Colors.white38, fontSize: 11),
                   ),

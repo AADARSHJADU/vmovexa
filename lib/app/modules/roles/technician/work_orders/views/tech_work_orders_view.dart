@@ -21,9 +21,9 @@ class TechWorkOrdersView extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF0F172A),
         elevation: 0,
-        title: const Text(
-          'Field Work Orders',
-          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+        title: Text(
+          'field_work_orders'.tr,
+          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
@@ -35,9 +35,9 @@ class TechWorkOrdersView extends StatelessWidget {
             child: ElevatedButton.icon(
               onPressed: () => DispatchWorkOrderSheet.show(context),
               icon: const Icon(Icons.flash_on_rounded, size: 16, color: Colors.white),
-              label: const Text(
-                'Dispatch',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+              label: Text(
+                'dispatch'.tr,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF6366F1),
@@ -64,7 +64,7 @@ class TechWorkOrdersView extends StatelessWidget {
                       style: const TextStyle(color: Colors.white, fontSize: 13),
                       onChanged: controller.onSearchChanged,
                       decoration: InputDecoration(
-                        hintText: 'Search ticket ID, vehicle, issue...',
+                        hintText: 'search_work_orders_hint'.tr,
                         hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
                         prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 20),
                         filled: true,
@@ -90,14 +90,14 @@ class TechWorkOrdersView extends StatelessWidget {
                 child: Row(
                   children: [
                     _buildFilterTab(
-                      label: 'All Tickets',
+                      label: 'all_tickets'.tr,
                       count: controller.totalCount,
                       isSelected: controller.selectedStatusFilter.value == 'all',
                       onTap: () => controller.setStatusFilter('all'),
                     ),
                     const SizedBox(width: 8),
                     _buildFilterTab(
-                      label: 'Dispatched',
+                      label: 'dispatched'.tr,
                       count: controller.dispatchedCount,
                       isSelected: controller.selectedStatusFilter.value == 'dispatched',
                       color: const Color(0xFF38BDF8),
@@ -105,7 +105,7 @@ class TechWorkOrdersView extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     _buildFilterTab(
-                      label: 'On-Site',
+                      label: 'on_site'.tr,
                       count: controller.onSiteCount,
                       isSelected: controller.selectedStatusFilter.value == 'on_site',
                       color: const Color(0xFFF59E0B),
@@ -113,7 +113,7 @@ class TechWorkOrdersView extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     _buildFilterTab(
-                      label: 'Resolved',
+                      label: 'resolved'.tr,
                       count: controller.resolvedCount,
                       isSelected: controller.selectedStatusFilter.value == 'resolved',
                       color: const Color(0xFF10B981),
@@ -145,14 +145,14 @@ class TechWorkOrdersView extends StatelessWidget {
                         children: [
                           const Icon(Icons.assignment_turned_in_outlined, color: AppColors.textMuted, size: 48),
                           const SizedBox(height: 12),
-                          const Text(
-                            'No Field Work Orders',
-                            style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                          Text(
+                            'no_field_work_orders'.tr,
+                            style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 4),
-                          const Text(
-                            'All hardware tickets in this queue have been cleared.',
-                            style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                          Text(
+                            'all_hardware_tickets_cleared'.tr,
+                            style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
                             textAlign: TextAlign.center,
                           ),
                         ],

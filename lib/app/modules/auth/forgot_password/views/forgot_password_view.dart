@@ -43,22 +43,22 @@ class ForgotPasswordView extends GetView<ForgotPasswordController> {
               const SizedBox(height: 36),
 
               // Title & Subtitle
-              const Text(
-                'Forgot Password?',
+              Text(
+                'forgot_password'.tr,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 12),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  'Enter your registered email address and we will send you a link to reset your password.',
+                  'reset_password_sub'.tr,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 14,
                     height: 1.4,
@@ -69,7 +69,7 @@ class ForgotPasswordView extends GetView<ForgotPasswordController> {
 
               // Email Input Field
               CustomTextField(
-                hintText: 'Enter your email address',
+                hintText: 'enter_email'.tr,
                 prefixIcon: Icons.mail_outline_rounded,
                 keyboardType: TextInputType.emailAddress,
                 controller: controller.emailController,
@@ -79,7 +79,7 @@ class ForgotPasswordView extends GetView<ForgotPasswordController> {
               // Primary Button
               Obx(
                 () => CustomButton(
-                  text: 'Send Reset Link',
+                  text: 'send_reset_link'.tr,
                   isLoading: controller.isLoading.value,
                   onTap: controller.sendResetLink,
                 ),
@@ -89,9 +89,9 @@ class ForgotPasswordView extends GetView<ForgotPasswordController> {
               // Back to Login link
               GestureDetector(
                 onTap: controller.backToLogin,
-                child: const Text(
-                  'Back to Login',
-                  style: TextStyle(
+                child: Text(
+                  'back_to_login'.tr,
+                  style: const TextStyle(
                     color: AppColors.textLink,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,

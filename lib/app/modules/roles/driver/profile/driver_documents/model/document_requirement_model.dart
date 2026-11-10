@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 enum DocumentReqStatus { uploaded, underReview, notUploaded, rejected }
 
@@ -6,13 +7,13 @@ extension DocumentReqStatusX on DocumentReqStatus {
   String get label {
     switch (this) {
       case DocumentReqStatus.uploaded:
-        return 'Verified';
+        return 'verified'.tr;
       case DocumentReqStatus.underReview:
-        return 'Under Review';
+        return 'under_review'.tr;
       case DocumentReqStatus.notUploaded:
-        return 'Upload';
+        return 'upload_action'.tr;
       case DocumentReqStatus.rejected:
-        return 'Rejected';
+        return 'rejected'.tr;
     }
   }
 

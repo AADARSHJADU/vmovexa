@@ -65,13 +65,13 @@ class SubscriptionsView extends GetView<SubscriptionsController> {
       children: [
         Row(
           children: [
-            const Text(
-              'Finance Portal  /  ',
-              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+            Text(
+              'finance_portal_breadcrumb'.tr,
+              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
             ),
-            const Text(
-              'Tenants',
-              style: TextStyle(
+            Text(
+              'tenants'.tr,
+              style: const TextStyle(
                 color: Color(0xFF60A5FA),
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
@@ -81,7 +81,7 @@ class SubscriptionsView extends GetView<SubscriptionsController> {
             IconButton(
               onPressed: controller.onRefresh,
               icon: const Icon(Icons.refresh, color: Colors.white70, size: 20),
-              tooltip: 'Refresh Tenants',
+              tooltip: 'refresh'.tr,
             ),
           ],
         ),
@@ -89,23 +89,23 @@ class SubscriptionsView extends GetView<SubscriptionsController> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Tenant Organizations',
-                    style: TextStyle(
+                    'tenant_organizations'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.3,
                     ),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
-                    'Manage fleet clients, active licenses, and onboarding',
-                    style: TextStyle(
+                    'manage_client_subscriptions'.tr,
+                    style: const TextStyle(
                       color: Color(0xFF94A3B8),
                       fontSize: 11.5,
                     ),
@@ -129,14 +129,14 @@ class SubscriptionsView extends GetView<SubscriptionsController> {
                     ),
                   ],
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.add, color: Colors.white, size: 16),
-                    SizedBox(width: 4),
+                    const Icon(Icons.add, color: Colors.white, size: 16),
+                    const SizedBox(width: 4),
                     Text(
-                      'Onboard Tenant',
-                      style: TextStyle(
+                      'onboard_new_tenant'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
                         fontWeight: FontWeight.w700,

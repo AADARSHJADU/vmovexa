@@ -319,7 +319,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                 children: [
                   _buildHomeMetricCard(
                     controller.kpiActiveCampaignsCount.toString().padLeft(2, '0'),
-                    'Active Campaigns',
+                    'active_campaigns'.tr,
                     'Realtime',
                     const Color(0xFF3B82F6),
                     "assets/icons/advertiser_ic/speaker.svg",
@@ -327,7 +327,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                   const SizedBox(width: 10),
                   _buildHomeMetricCard(
                     controller.kpiScheduledCampaignsCount.toString().padLeft(2, '0'),
-                    'Scheduled Campaigns',
+                    'scheduled_campaigns'.tr,
                     'Queued',
                     const Color(0xFF8B5CF6),
                     "assets/icons/advertiser_ic/calender.svg",
@@ -335,7 +335,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                   const SizedBox(width: 10),
                   _buildHomeMetricCard(
                     controller.kpiLiveCoveragePercentage,
-                    'Live\nCoverage',
+                    'live_coverage'.tr,
                     'Broadcasting',
                     const Color(0xFF10B981),
                     "assets/icons/lsicon_map.svg",
@@ -343,7 +343,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                   const SizedBox(width: 10),
                   _buildHomeMetricCard(
                     controller.kpiEmergencyAlertsCount.toString().padLeft(2, '0'),
-                    'Active\nAlerts',
+                    'active_alerts'.tr,
                     'Emergency',
                     const Color(0xFFEF4444),
                     "assets/icons/AlertsNew.svg",
@@ -358,8 +358,8 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
             const SizedBox(height: 20),
 
             // Live Communication Coverage Map
-            const Text('Live Communication Coverage',
-                style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+            Text('live_comm_coverage'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
             _buildLiveCoverageMapCard(),
             const SizedBox(height: 24),
@@ -368,12 +368,12 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Recent Campaigns',
-                    style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                Text('recent_campaigns'.tr,
+                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                 GestureDetector(
                   onTap: () => controller.selectedNavIndex.value = 1,
-                  child: const Text('View All',
-                      style: TextStyle(color: Color(0xFF3B82F6), fontSize: 11, fontWeight: FontWeight.bold)),
+                  child: Text('view_all'.tr,
+                      style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 11, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -2691,8 +2691,8 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildNavItem(0, Icons.home_filled, 'Home'),
-          _buildNavItem(1, Icons.campaign_rounded, 'Campaigns'),
+          _buildNavItem(0, Icons.home_filled, 'home'.tr),
+          _buildNavItem(1, Icons.campaign_rounded, 'campaigns'.tr),
           // Middle glowing Emergency button
           Expanded(
             child: Material(
@@ -2711,8 +2711,8 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
               ),
             ),
           ),
-          _buildNavItem(3, Icons.analytics_rounded, 'Analytics'),
-          _buildNavItem(4, Icons.person, 'Profile'),
+          _buildNavItem(3, Icons.analytics_rounded, 'analytics'.tr),
+          _buildNavItem(4, Icons.person, 'profile'.tr),
         ],
       ),
     );

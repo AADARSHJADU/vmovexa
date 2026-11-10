@@ -57,13 +57,13 @@ class AlertsView extends GetView<AlertsController> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Alerts', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800)),
-              SizedBox(height: 3),
-              Text('View and manage system alerts.', style: TextStyle(color: Colors.white, fontSize: 12.5)),
+              Text('alerts'.tr, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 3),
+              Text('view_manage_system_alerts'.tr, style: const TextStyle(color: Colors.white, fontSize: 12.5)),
             ],
           ),
         ),
@@ -97,7 +97,7 @@ class AlertsView extends GetView<AlertsController> {
               svgPath: AlertSeverity.critical.svgPath,
               color: const Color(0xFFFF4D4D),
               count: '${controller.criticalCount}',
-              label: 'Critical',
+              label: 'critical'.tr,
               onTap: () => controller.onFilterSeverity(AlertSeverity.critical),
             ),
           ),
@@ -107,7 +107,7 @@ class AlertsView extends GetView<AlertsController> {
               svgPath: AlertSeverity.warning.svgPath,
               color: const Color(0xFFFFA726),
               count: '${controller.warningCount}',
-              label: 'Warning',
+              label: 'warning'.tr,
               onTap: () => controller.onFilterSeverity(AlertSeverity.warning),
             ),
           ),
@@ -117,7 +117,7 @@ class AlertsView extends GetView<AlertsController> {
               svgPath: AlertSeverity.info.svgPath,
               color: const Color(0xFF3F7BF5),
               count: '${controller.infoCount}',
-              label: 'Info',
+              label: 'info'.tr,
               onTap: () => controller.onFilterSeverity(AlertSeverity.info),
             ),
           ),
@@ -127,7 +127,7 @@ class AlertsView extends GetView<AlertsController> {
               svgPath: AlertSeverity.resolved.svgPath,
               color: const Color(0xFF2ECC71),
               count: '${controller.resolvedCount}',
-              label: 'Resolved',
+              label: 'resolved'.tr,
               onTap: () => controller.onFilterSeverity(AlertSeverity.resolved),
             ),
           ),
@@ -148,13 +148,13 @@ class AlertsView extends GetView<AlertsController> {
       child: TextField(
         onChanged: controller.onSearchChanged,
         style: const TextStyle(color: Colors.white, fontSize: 13),
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           border: InputBorder.none,
           isDense: true,
-          contentPadding: EdgeInsets.symmetric(vertical: 14),
-          hintText: 'Search alerts by device, type or message',
-          hintStyle: TextStyle(color: Colors.white38, fontSize: 12.5),
-          prefixIcon: Icon(Icons.search, color: Colors.white38, size: 20),
+          contentPadding: const EdgeInsets.symmetric(vertical: 14),
+          hintText: 'search_alerts_hint'.tr,
+          hintStyle: const TextStyle(color: Colors.white38, fontSize: 12.5),
+          prefixIcon: const Icon(Icons.search, color: Colors.white38, size: 20),
         ),
       ),
     );
@@ -165,13 +165,13 @@ class AlertsView extends GetView<AlertsController> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text('Recent Alerts', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+        Text('recent_alerts'.tr, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
         GestureDetector(
           onTap: controller.onMarkAllAsRead,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Mark all as read', style: TextStyle(color: kPurple, fontSize: 12, fontWeight: FontWeight.w600)),
+              Text('mark_all_as_read'.tr, style: const TextStyle(color: kPurple, fontSize: 12, fontWeight: FontWeight.w600)),
               const SizedBox(width: 6),
               SvgPicture.asset(
                 'assets/icons/new_fleet-op-ic/mynaui_mail.svg',
@@ -191,9 +191,9 @@ class AlertsView extends GetView<AlertsController> {
     return Obx(() {
       final alerts = controller.visibleAlerts;
       if (alerts.isEmpty) {
-        return const Padding(
-          padding: EdgeInsets.symmetric(vertical: 40),
-          child: Center(child: Text('No alerts found', style: TextStyle(color: Colors.white38, fontSize: 13))),
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 40),
+          child: Center(child: Text('no_alerts_found'.tr, style: const TextStyle(color: Colors.white38, fontSize: 13))),
         );
       }
       return Column(
@@ -234,12 +234,12 @@ class AlertsView extends GetView<AlertsController> {
                   height: 18,
                   child: CircularProgressIndicator(color: kPurple, strokeWidth: 2),
                 )
-              : const Row(
+              : Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.refresh, color: kPurple, size: 16),
-                    SizedBox(width: 6),
-                    Text('Load More', style: TextStyle(color: kPurple, fontSize: 13, fontWeight: FontWeight.w600)),
+                    const Icon(Icons.refresh, color: kPurple, size: 16),
+                    const SizedBox(width: 6),
+                    Text('load_more'.tr, style: const TextStyle(color: kPurple, fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
                 ),
         ),

@@ -5,15 +5,15 @@ class ApiConstants {
   // Determine default base URL based on platform
   static String get defaultBaseUrl {
     if (kIsWeb) {
-      return 'https://hotpink-llama-677284.hostingersite.com/api/v1';
+      return 'https://api.vmovexa.com/api/v1';
     }
     try {
       if (Platform.isAndroid) {
         // Android Emulator loops back to host machine via 10.0.2.2
-        return 'https://hotpink-llama-677284.hostingersite.com/api/v1';
+        return 'https://api.vmovexa.com/api/v1';
       }
     } catch (_) {}
-    return 'https://hotpink-llama-677284.hostingersite.com/api/v1';
+    return 'https://api.vmovexa.com/api/v1';
   }
 
   static String baseUrl = defaultBaseUrl;

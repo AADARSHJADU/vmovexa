@@ -84,17 +84,17 @@ class FinanceNotificationsView extends GetView<FinanceNotificationsController> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
                         Text(
-                          'Finance Portal  /  ',
-                          style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+                          'finance_portal_breadcrumb'.tr,
+                          style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
                         ),
-                        Text(
+                        const Text(
                           'Alerts & Messages',
                           style: TextStyle(
                             color: Color(0xFF818CF8),
@@ -104,10 +104,10 @@ class FinanceNotificationsView extends GetView<FinanceNotificationsController> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
-                      'Financial Notifications',
-                      style: TextStyle(
+                      'financial_alerts'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
@@ -236,8 +236,8 @@ class FinanceNotificationsView extends GetView<FinanceNotificationsController> {
         child: TextField(
           onChanged: controller.onSearchChanged,
           style: const TextStyle(color: Colors.white, fontSize: 12),
-          decoration: const InputDecoration(
-            hintText: 'Search financial notifications...',
+          decoration: InputDecoration(
+            hintText: 'search_notifications_hint'.tr,
             hintStyle: TextStyle(color: Color(0xFF64748B), fontSize: 11.5),
             prefixIcon: Icon(Icons.search, color: Color(0xFF64748B), size: 16),
             border: InputBorder.none,
@@ -402,9 +402,9 @@ class FinanceNotificationsView extends GetView<FinanceNotificationsController> {
             child: const Icon(Icons.notifications_off_outlined, color: Color(0xFF64748B), size: 36),
           ),
           const SizedBox(height: 14),
-          const Text(
-            'No Notifications Found',
-            style: TextStyle(
+          Text(
+            'no_notifications_found'.tr,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 14.5,
               fontWeight: FontWeight.w700,

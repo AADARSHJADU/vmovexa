@@ -106,11 +106,11 @@ class DriverHomeView extends GetView<DriverHomeController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Good Morning, ${controller.driverName.value}!',
+            '${'good_morning'.tr}, ${controller.driverName.value}!',
             style: const TextStyle(color: Colors.white, fontSize: 21, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 4),
-          const Text('Have a safe and smooth journey.', style: TextStyle(color: Colors.white, fontSize: 12.5)),
+          Text('have_safe_journey'.tr, style: const TextStyle(color: Colors.white, fontSize: 12.5)),
         ],
       ),
     );
@@ -145,14 +145,14 @@ class DriverHomeView extends GetView<DriverHomeController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Document Verification Pending',
-                    style: TextStyle(color: Colors.amber, fontSize: 13, fontWeight: FontWeight.bold),
+                  Text(
+                    'doc_verification_pending'.tr,
+                    style: const TextStyle(color: Colors.amber, fontSize: 13, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 3),
-                  const Text(
-                    'Your KYC & driving documents are currently pending verification by Admin. Once verified, full route dispatch and schedule access will be unlocked.',
-                    style: TextStyle(color: Colors.white70, fontSize: 11.5, height: 1.3),
+                  Text(
+                    'doc_verification_pending_sub'.tr,
+                    style: const TextStyle(color: Colors.white70, fontSize: 11.5, height: 1.3),
                   ),
                   const SizedBox(height: 10),
                   GestureDetector(
@@ -163,9 +163,9 @@ class DriverHomeView extends GetView<DriverHomeController> {
                         color: Colors.amber,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Text(
-                        'Upload / View Documents →',
-                        style: TextStyle(color: Colors.black, fontSize: 11, fontWeight: FontWeight.bold),
+                      child: Text(
+                        'upload_view_docs'.tr,
+                        style: const TextStyle(color: Colors.black, fontSize: 11, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -198,8 +198,8 @@ class DriverHomeView extends GetView<DriverHomeController> {
                 children:  [
                   SvgPicture.asset('assets/icons/bus.svg'),
                   // Icon(Icons.directions_bus_filled_outlined, color: kPurple, size: 17),
-                  SizedBox(width: 8),
-                  Text("Today's Route", style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+                  const SizedBox(width: 8),
+                  Text("todays_route".tr, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
                 ],
               ),
               Obx(
@@ -235,7 +235,7 @@ class DriverHomeView extends GetView<DriverHomeController> {
                           ),
                         const SizedBox(width: 5),
                         Text(
-                          controller.isOnDuty.value ? 'On Duty' : 'Off Duty',
+                          controller.isOnDuty.value ? 'on_duty'.tr : 'off_duty'.tr,
                           style: TextStyle(
                             color: controller.isOnDuty.value ? kGreen : Colors.orangeAccent,
                             fontSize: 11,
@@ -284,14 +284,14 @@ class DriverHomeView extends GetView<DriverHomeController> {
               children: [
                 Expanded(
                   child: _RouteInfoColumn(
-                    label: 'Departure',
+                    label: 'departure'.tr,
                     value: controller.departureTime.value,
                     subValue: controller.departureLocation.value,
                   ),
                 ),
                 Expanded(
                   child: _RouteInfoColumn(
-                    label: 'Next Stop',
+                    label: 'next_stop'.tr,
                     value: controller.nextStopName.value,
                     subValue: controller.nextStopEta.value,
                     subValueColor: kPurple,
@@ -299,7 +299,7 @@ class DriverHomeView extends GetView<DriverHomeController> {
                 ),
                 Expanded(
                   child: _RouteInfoColumn(
-                    label: 'End of Route',
+                    label: 'end_of_route'.tr,
                     value: controller.endOfRouteTime.value,
                     subValue: controller.endOfRouteLocation.value,
                   ),
@@ -318,14 +318,14 @@ class DriverHomeView extends GetView<DriverHomeController> {
                 borderRadius: BorderRadius.circular(12),
               ),
               alignment: Alignment.center,
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.map_outlined, color: Colors.white, size: 17),
-                  SizedBox(width: 8),
-                  Text('View Route Details', style: TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w700)),
-                  SizedBox(width: 4),
-                  Icon(Icons.chevron_right, color: Colors.white, size: 17),
+                  const Icon(Icons.map_outlined, color: Colors.white, size: 17),
+                  const SizedBox(width: 8),
+                  Text('view_route_details'.tr, style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w700)),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.chevron_right, color: Colors.white, size: 17),
                 ],
               ),
             ),
@@ -354,17 +354,17 @@ class DriverHomeView extends GetView<DriverHomeController> {
               Row(
                 children:  [
                   SvgPicture.asset('assets/icons/calendar.svg'),
-                  SizedBox(width: 8),
-                  Text("Today's Schedule", style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+                  const SizedBox(width: 8),
+                  Text("todays_schedule".tr, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
                 ],
               ),
               GestureDetector(
                 onTap: controller.onViewFullSchedule,
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('View Full Schedule', style: TextStyle(color: kPurple, fontSize: 11.5, fontWeight: FontWeight.w600)),
-                    Icon(Icons.chevron_right, color: kPurple, size: 15),
+                    Text('view_full_schedule'.tr, style: const TextStyle(color: kPurple, fontSize: 11.5, fontWeight: FontWeight.w600)),
+                    const Icon(Icons.chevron_right, color: kPurple, size: 15),
                   ],
                 ),
               ),
@@ -373,10 +373,10 @@ class DriverHomeView extends GetView<DriverHomeController> {
           const SizedBox(height: 14),
           Obx(
             () => controller.schedule.isEmpty
-                ? const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     child: Center(
-                      child: Text('No scheduled trips for today', style: TextStyle(color: Colors.white38, fontSize: 12)),
+                      child: Text('no_scheduled_trips_today'.tr, style: const TextStyle(color: Colors.white38, fontSize: 12)),
                     ),
                   )
                 : Column(
@@ -412,10 +412,10 @@ class DriverHomeView extends GetView<DriverHomeController> {
               Row(
                 children:  [
                   SvgPicture.asset('assets/icons/advertiser_ic/speaker.svg'),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(
-                    'Operational Notifications',
-                      style: TextStyle(
+                    'operational_notifications'.tr,
+                      style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -425,11 +425,11 @@ class DriverHomeView extends GetView<DriverHomeController> {
               ),
               GestureDetector(
                 onTap: controller.onViewAllNotifications,
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('View All', style: TextStyle(color: kPurple, fontSize: 11.5, fontWeight: FontWeight.w600)),
-                    Icon(Icons.chevron_right, color: kPurple, size: 15),
+                    Text('view_all'.tr, style: const TextStyle(color: kPurple, fontSize: 11.5, fontWeight: FontWeight.w600)),
+                    const Icon(Icons.chevron_right, color: kPurple, size: 15),
                   ],
                 ),
               ),
@@ -438,10 +438,10 @@ class DriverHomeView extends GetView<DriverHomeController> {
           const SizedBox(height: 24),
           Obx(
             () => controller.notifications.isEmpty
-                ? const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     child: Center(
-                      child: Text('No operational notifications', style: TextStyle(color: Colors.white38, fontSize: 12)),
+                      child: Text('no_operational_notifications'.tr, style: const TextStyle(color: Colors.white38, fontSize: 12)),
                     ),
                   )
                 : Column(
@@ -471,7 +471,7 @@ class DriverHomeView extends GetView<DriverHomeController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Quick Actions', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+          Text('quick_actions'.tr, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
           const SizedBox(height: 14),
           Obx(
             () => Row(
@@ -679,12 +679,27 @@ class _QuickActionColumn extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            action.title,
+            _getQuickActionTitle(action.title),
             textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600),
           ),
         ],
       ),
     );
+  }
+
+  String _getQuickActionTitle(String title) {
+    switch (title.toLowerCase()) {
+      case 'my route':
+        return 'routes'.tr;
+      case 'schedule':
+        return 'schedule'.tr;
+      case 'notifications':
+        return 'notifications_stat'.tr;
+      case 'report incident':
+        return 'report_incident'.tr;
+      default:
+        return title;
+    }
   }
 }

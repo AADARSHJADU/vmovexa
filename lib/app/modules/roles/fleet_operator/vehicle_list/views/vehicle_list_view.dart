@@ -106,23 +106,23 @@ class VehicleListController extends GetxController {
         backgroundColor: const Color(0xFF1E293B),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
-          children: const [
-            Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 24),
-            SizedBox(width: 8),
+          children: [
+            const Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 24),
+            const SizedBox(width: 8),
             Text(
-              'Delete Vehicle',
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+              'delete_vehicle'.tr,
+              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ],
         ),
         content: Text(
-          'Are you sure you want to delete vehicle ${v.registrationNumber}?\nThis action cannot be undone.',
+          '${'confirm_delete_vehicle'.tr} ${v.registrationNumber}?\n${'action_cannot_undone'.tr}',
           style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white60)),
+            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white60)),
           ),
           ElevatedButton(
             onPressed: () => Get.back(result: true),
@@ -130,7 +130,7 @@ class VehicleListController extends GetxController {
               backgroundColor: Colors.redAccent,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('Delete', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: Text('delete'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -142,8 +142,8 @@ class VehicleListController extends GetxController {
         final res = await FleetService.to.deleteVehicle(v.id);
         if (res.success) {
           Get.snackbar(
-            'Vehicle Deleted',
-            'Vehicle ${v.registrationNumber} was deleted successfully.',
+            'delete_vehicle'.tr,
+            'vehicle_deleted_success'.tr,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM,
@@ -152,7 +152,7 @@ class VehicleListController extends GetxController {
           await loadVehicles();
         } else {
           Get.snackbar(
-            'Error',
+            'error'.tr,
             res.message ?? 'Failed to delete vehicle',
             backgroundColor: Colors.redAccent,
             colorText: Colors.white,
@@ -162,7 +162,7 @@ class VehicleListController extends GetxController {
         }
       } catch (e) {
         Get.snackbar(
-          'Error',
+          'error'.tr,
           e.toString(),
           backgroundColor: Colors.redAccent,
           colorText: Colors.white,
@@ -193,13 +193,13 @@ class VehicleListView extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Row(
+                Row(
                   children: [
-                    Icon(Icons.directions_car_rounded, color: Colors.lightBlueAccent, size: 24),
-                    SizedBox(width: 8),
+                    const Icon(Icons.directions_car_rounded, color: Colors.lightBlueAccent, size: 24),
+                    const SizedBox(width: 8),
                     Text(
-                      'Vehicles & Displays',
-                      style: TextStyle(
+                      'vehicles_displays'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -228,12 +228,12 @@ class VehicleListView extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Icon(Icons.add, color: Colors.white, size: 20),
-                            SizedBox(width: 6),
+                          children: [
+                            const Icon(Icons.add, color: Colors.white, size: 20),
+                            const SizedBox(width: 6),
                             Text(
-                              'Add Vehicle',
-                              style: TextStyle(
+                              'add_vehicle'.tr,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -245,19 +245,6 @@ class VehicleListView extends StatelessWidget {
                     ),
                   ),
                 ),
-                // ElevatedButton.icon(
-                //   onPressed: controller.navigateToAddVehicle,
-                //   style: ElevatedButton.styleFrom(
-                //     backgroundColor: const Color(0xFF2563EB),
-                //     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                //   ),
-                //   icon: const Icon(Icons.add, size: 16, color: Colors.white),
-                //   label: const Text(
-                //     'Add Vehicle',
-                //     style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                //   ),
-                // ),
               ],
             ),
           ),
@@ -276,10 +263,10 @@ class VehicleListView extends StatelessWidget {
               child: TextField(
                 controller: controller.searchController,
                 style: const TextStyle(color: Colors.white, fontSize: 13),
-                decoration: const InputDecoration(
-                  icon: Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 20),
-                  hintText: 'Search Registration, Model or Driver...',
-                  hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 13),
+                decoration: InputDecoration(
+                  icon: const Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 20),
+                  hintText: 'search_vehicle_hint'.tr,
+                  hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 13),
                   border: InputBorder.none,
                 ),
               ),
@@ -293,12 +280,20 @@ class VehicleListView extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Obx(
               () => Row(
-                children: ['All', 'On Route', 'In Depot', 'Maintenance', 'Electric EV'].map((tab) {
-                  final isSelected = controller.selectedTab.value == tab;
+                children: [
+                  {'key': 'All', 'label': 'all'.tr},
+                  {'key': 'On Route', 'label': 'on_route_status'.tr},
+                  {'key': 'In Depot', 'label': 'in_depot_status'.tr},
+                  {'key': 'Maintenance', 'label': 'maintenance_status'.tr},
+                  {'key': 'Electric EV', 'label': 'electric_ev'.tr},
+                ].map((tab) {
+                  final tabKey = tab['key']!;
+                  final tabLabel = tab['label']!;
+                  final isSelected = controller.selectedTab.value == tabKey;
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: InkWell(
-                      onTap: () => controller.selectTab(tab),
+                      onTap: () => controller.selectTab(tabKey),
                       borderRadius: BorderRadius.circular(20),
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -310,7 +305,7 @@ class VehicleListView extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          tab,
+                          tabLabel,
                           style: TextStyle(
                             color: isSelected ? Colors.white : AppColors.textMuted,
                             fontSize: 12,
@@ -341,7 +336,7 @@ class VehicleListView extends StatelessWidget {
                     children: [
                       Icon(Icons.directions_bus_filled_outlined, size: 48, color: Colors.white.withValues(alpha: 0.2)),
                       const SizedBox(height: 12),
-                      const Text('No vehicles found', style: TextStyle(color: AppColors.textMuted, fontSize: 14)),
+                      Text('no_vehicles_found'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 14)),
                     ],
                   ),
                 );
@@ -376,21 +371,21 @@ class VehicleListView extends StatelessWidget {
       case 'active':
       case 'moving':
         statusColor = const Color(0xFF10B981);
-        statusLabel = 'ON ROUTE';
+        statusLabel = 'on_route_status'.tr;
         break;
       case 'in_depot':
       case 'idle':
         statusColor = const Color(0xFF38BDF8);
-        statusLabel = 'IN DEPOT';
+        statusLabel = 'in_depot_status'.tr;
         break;
       case 'maintenance':
       case 'offline':
         statusColor = const Color(0xFFF59E0B);
-        statusLabel = 'MAINTENANCE';
+        statusLabel = 'maintenance_status'.tr;
         break;
       case 'pending_approval':
         statusColor = Colors.amber;
-        statusLabel = 'PENDING';
+        statusLabel = 'pending'.tr;
         break;
       default:
         statusColor = const Color(0xFF94A3B8);
@@ -510,34 +505,34 @@ class VehicleListView extends StatelessWidget {
                         }
                       },
                       itemBuilder: (_) => [
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'view',
                           child: Row(
                             children: [
-                              Icon(Icons.visibility_outlined, size: 16, color: Color(0xFF60A5FA)),
-                              SizedBox(width: 8),
-                              Text('View Specs', style: TextStyle(color: Colors.white, fontSize: 12)),
+                              const Icon(Icons.visibility_outlined, size: 16, color: Color(0xFF60A5FA)),
+                              const SizedBox(width: 8),
+                              Text('view_details'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
                             ],
                           ),
                         ),
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'edit',
                           child: Row(
                             children: [
-                              Icon(Icons.edit_outlined, size: 16, color: Colors.amberAccent),
-                              SizedBox(width: 8),
-                              Text('Edit Specs', style: TextStyle(color: Colors.white, fontSize: 12)),
+                              const Icon(Icons.edit_outlined, size: 16, color: Colors.amberAccent),
+                              const SizedBox(width: 8),
+                              Text('edit_vehicle'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
                             ],
                           ),
                         ),
                         const PopupMenuDivider(height: 1),
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'delete',
                           child: Row(
                             children: [
-                              Icon(Icons.delete_outline_rounded, size: 16, color: Colors.redAccent),
-                              SizedBox(width: 8),
-                              Text('Delete', style: TextStyle(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.bold)),
+                              const Icon(Icons.delete_outline_rounded, size: 16, color: Colors.redAccent),
+                              const SizedBox(width: 8),
+                              Text('delete'.tr, style: const TextStyle(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.bold)),
                             ],
                           ),
                         ),
@@ -589,7 +584,7 @@ class VehicleListView extends StatelessWidget {
                       const Icon(Icons.tv_rounded, size: 12, color: Color(0xFFC084FC)),
                       const SizedBox(width: 4),
                       Text(
-                        '${v.displaysCount} Displays',
+                        '${v.displaysCount} ${'displays'.tr}',
                         style: const TextStyle(color: Color(0xFFC084FC), fontSize: 10, fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -609,7 +604,7 @@ class VehicleListView extends StatelessWidget {
                     const Icon(Icons.person_outline_rounded, size: 15, color: AppColors.textMuted),
                     const SizedBox(width: 5),
                     Text(
-                      v.assignedDriverName ?? 'No Driver Assigned',
+                      v.assignedDriverName ?? 'no_driver_assigned'.tr,
                       style: TextStyle(
                         color: v.assignedDriverName != null ? Colors.white70 : AppColors.textMuted,
                         fontSize: 12,

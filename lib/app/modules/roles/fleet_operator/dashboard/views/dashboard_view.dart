@@ -50,22 +50,22 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
             selectedFontSize: 10,
             unselectedFontSize: 10,
             selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-            items: const [
+            items: [
               BottomNavigationBarItem(
-                icon: Icon(Icons.dashboard_rounded),
-                label: 'Dashboard',
+                icon: const Icon(Icons.dashboard_rounded),
+                label: 'dashboard'.tr,
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.directions_car_rounded),
-                label: 'Vehicles',
+                icon: const Icon(Icons.directions_car_rounded),
+                label: 'vehicles'.tr,
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.badge_outlined),
-                label: 'Drivers',
+                icon: const Icon(Icons.badge_outlined),
+                label: 'drivers'.tr,
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.person_outline_rounded),
-                label: 'Profile',
+                icon: const Icon(Icons.person_outline_rounded),
+                label: 'profile'.tr,
               ),
             ],
           ),
@@ -87,7 +87,7 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                 builder: (ctx) => IconButton(
                   icon: const Icon(Icons.menu_rounded, color: Colors.white, size: 28),
                   onPressed: () => Scaffold.of(ctx).openDrawer(),
-                  tooltip: 'Open Menu',
+                  tooltip: 'open_menu'.tr,
                 ),
               ),
               Image.asset('assets/app_logo/newLogo.png', width: 140, height: 36),
@@ -221,9 +221,9 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                     ),
                   ),
                   const SizedBox(width: 6),
-                  const Text(
-                    'GOOD MORNING,',
-                    style: TextStyle(
+                  Text(
+                    'good_morning'.tr,
+                    style: const TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
@@ -242,7 +242,7 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                         )
                       : const Icon(Icons.refresh_rounded, color: Colors.white70, size: 20),
                   onPressed: controller.refreshDashboard,
-                  tooltip: 'Refresh Metrics',
+                  tooltip: 'refresh_metrics'.tr,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                 ),
@@ -250,9 +250,9 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
             ],
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Fleet Operations Console',
-            style: TextStyle(
+          Text(
+            'fleet_ops_console'.tr,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -260,9 +260,9 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
             ),
           ),
           const SizedBox(height: 2),
-          const Text(
-            'Real-time telematics, vehicle dispatch & fleet supervision',
-            style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+          Text(
+            'fleet_ops_sub'.tr,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
           ),
           const SizedBox(height: 14),
 
@@ -282,9 +282,9 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                     ),
                   ),
                   icon: const Icon(Icons.explore_outlined, color: Color(0xFFF43F5E), size: 16),
-                  label: const Text(
-                    'Live Tracking',
-                    style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  label: Text(
+                    'live_tracking'.tr,
+                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -309,17 +309,17 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                         Get.toNamed(Routes.ADD_VEHICLE);
                       },
                       borderRadius: BorderRadius.circular(12),
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 10),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.add, color: Colors.white, size: 20),
-                            SizedBox(width: 6),
+                            const Icon(Icons.add, color: Colors.white, size: 20),
+                            const SizedBox(width: 6),
                             Text(
-                              'Add Vehicle',
-                              style: TextStyle(
+                              'add_vehicle'.tr,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -356,36 +356,36 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
         childAspectRatio: 1.45,
         children: [
           _buildKpiCard(
-            title: 'FLEET VEHICLES',
+            title: 'fleet_vehicles'.tr,
             value: '$totalVeh',
-            subtitle: '$inDepot in depot • $onRoute on route',
+            subtitle: '$inDepot ${'in_depot_count'.tr} • $onRoute ${'on_route_count'.tr}',
             subtitleColor: Colors.lightBlueAccent,
             icon: Icons.directions_car_rounded,
             iconColor: Colors.lightBlueAccent,
             onTap: controller.goToVehicles,
           ),
           _buildKpiCard(
-            title: 'ASSIGNED\nDRIVERS',
+            title: 'assigned_drivers_kpi'.tr,
             value: '$assignedDrivers',
-            subtitle: '$assignedDrivers of $totalVeh assigned',
+            subtitle: '$assignedDrivers of $totalVeh ${'assigned_count'.tr}',
             subtitleColor: const Color(0xFF10B981),
             icon: Icons.badge_outlined,
             iconColor: const Color(0xFF10B981),
             onTap: controller.goToDrivers,
           ),
           _buildKpiCard(
-            title: 'GPS UNITS',
+            title: 'gps_units'.tr,
             value: '$assignedGps',
-            subtitle: '$assignedGps of $totalVeh connected',
+            subtitle: '$assignedGps of $totalVeh ${'connected_count'.tr}',
             subtitleColor: Colors.amberAccent,
             icon: Icons.memory_rounded,
             iconColor: Colors.amberAccent,
             onTap: controller.goToGpsDevices,
           ),
           _buildKpiCard(
-            title: 'LIVE TELEMATICS',
+            title: 'live_telematics'.tr,
             value: '$onRoute',
-            subtitle: '$onRoute moving on route',
+            subtitle: '$onRoute ${'moving_on_route'.tr}',
             subtitleColor: const Color(0xFFF43F5E),
             icon: Icons.my_location_rounded,
             iconColor: const Color(0xFFF43F5E),
@@ -478,22 +478,22 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
 
   Widget _buildQuickActions() {
     final actions = [
-      {'title': 'Routes', 'icon': Icons.alt_route_rounded, 'color': Colors.indigoAccent, 'onTap': () => Get.toNamed(Routes.ROUTES_LIST)},
-      {'title': 'Vehicles', 'icon': Icons.directions_car_rounded, 'color': Colors.lightBlueAccent, 'onTap': controller.goToVehicles},
-      {'title': 'Drivers', 'icon': Icons.badge_outlined, 'color': const Color(0xFF10B981), 'onTap': controller.goToDrivers},
-      {'title': 'Trips', 'icon': Icons.schedule_rounded, 'color': Colors.purpleAccent, 'onTap': controller.goToTrips},
-      {'title': 'Tracking', 'icon': Icons.my_location_rounded, 'color': Colors.pinkAccent, 'onTap': controller.goToLiveTracking},
-      {'title': 'Emergency', 'icon': Icons.warning_amber_rounded, 'color': Colors.redAccent, 'onTap': () => Get.toNamed(Routes.FLEET_INCIDENTS)},
-      {'title': 'GPS', 'icon': Icons.memory_rounded, 'color': Colors.amberAccent, 'onTap': controller.goToGpsDevices},
-      {'title': 'Reports', 'icon': Icons.bar_chart_rounded, 'color': Colors.tealAccent, 'onTap': controller.goToReports},
+      {'title': 'routes'.tr, 'icon': Icons.alt_route_rounded, 'color': Colors.indigoAccent, 'onTap': () => Get.toNamed(Routes.ROUTES_LIST)},
+      {'title': 'vehicles'.tr, 'icon': Icons.directions_car_rounded, 'color': Colors.lightBlueAccent, 'onTap': controller.goToVehicles},
+      {'title': 'drivers'.tr, 'icon': Icons.badge_outlined, 'color': const Color(0xFF10B981), 'onTap': controller.goToDrivers},
+      {'title': 'trips'.tr, 'icon': Icons.schedule_rounded, 'color': Colors.purpleAccent, 'onTap': controller.goToTrips},
+      {'title': 'tracking'.tr, 'icon': Icons.my_location_rounded, 'color': Colors.pinkAccent, 'onTap': controller.goToLiveTracking},
+      {'title': 'emergency'.tr, 'icon': Icons.warning_amber_rounded, 'color': Colors.redAccent, 'onTap': () => Get.toNamed(Routes.FLEET_INCIDENTS)},
+      {'title': 'gps'.tr, 'icon': Icons.memory_rounded, 'color': Colors.amberAccent, 'onTap': controller.goToGpsDevices},
+      {'title': 'reports'.tr, 'icon': Icons.bar_chart_rounded, 'color': Colors.tealAccent, 'onTap': controller.goToReports},
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'QUICK ACTIONS',
-          style: TextStyle(
+        Text(
+          'quick_actions'.tr,
+          style: const TextStyle(
             color: AppColors.textMuted,
             fontSize: 11,
             fontWeight: FontWeight.bold,
@@ -559,9 +559,9 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'ASSIGNED FLEET VEHICLES',
-              style: TextStyle(
+            Text(
+              'assigned_fleet_vehicles'.tr,
+              style: const TextStyle(
                 color: AppColors.textMuted,
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
@@ -571,9 +571,9 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
             TextButton(
               onPressed: controller.goToVehicles,
               style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero),
-              child: const Text(
-                'View All →',
-                style: TextStyle(color: Color(0xFF6366F1), fontSize: 11, fontWeight: FontWeight.bold),
+              child: Text(
+                '${'view_all'.tr} →',
+                style: const TextStyle(color: Color(0xFF6366F1), fontSize: 11, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -588,8 +588,8 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.cardBorder),
               ),
-              child: const Center(
-                child: Text('No vehicles registered in this fleet yet.', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+              child: Center(
+                child: Text('no_vehicles_registered'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
               ),
             );
           }
@@ -608,19 +608,19 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
     String statusLabel = vehicle.status;
     if (statusStr == 'on_route' || statusStr == 'active') {
       statusColor = const Color(0xFF10B981);
-      statusLabel = 'ON ROUTE';
+      statusLabel = 'on_route_status'.tr;
     } else if (statusStr == 'in_depot' || statusStr == 'idle') {
       statusColor = Colors.lightBlueAccent;
-      statusLabel = 'IN DEPOT';
+      statusLabel = 'in_depot_status'.tr;
     } else if (statusStr == 'maintenance') {
       statusColor = Colors.amberAccent;
-      statusLabel = 'MAINTENANCE';
+      statusLabel = 'maintenance_status'.tr;
     }
 
     final hasGps = vehicle.gpsDeviceId != null && vehicle.gpsDeviceId!.isNotEmpty;
     final driverName = (vehicle.assignedDriverName != null && vehicle.assignedDriverName!.isNotEmpty)
         ? vehicle.assignedDriverName!
-        : 'Unassigned';
+        : 'unassigned'.tr;
 
     return InkWell(
       onTap: () => Get.toNamed(Routes.VEHICLE_DETAILS, arguments: {'id': vehicle.id}),
@@ -718,7 +718,7 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                       Icon(Icons.memory_rounded, size: 13, color: hasGps ? Colors.amberAccent : AppColors.textMuted),
                       const SizedBox(width: 4),
                       Text(
-                        hasGps ? 'GPS Linked' : 'No GPS',
+                        hasGps ? 'gps_linked'.tr : 'no_gps'.tr,
                         style: TextStyle(
                           color: hasGps ? Colors.amberAccent : AppColors.textMuted,
                           fontSize: 11,
@@ -777,13 +777,13 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'IoT Telematics Gateway Online',
-                  style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                Text(
+                  'iot_gateway_online'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 2),
                 Obx(() => Text(
-                  '${controller.assignedGpsCount} GPS trackers streaming live coordinates & sensor telemetry.',
+                  '${controller.assignedGpsCount} ${'gps_trackers_streaming'.tr}',
                   style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                 )),
               ],

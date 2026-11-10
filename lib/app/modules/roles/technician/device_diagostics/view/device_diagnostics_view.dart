@@ -76,17 +76,17 @@ class DeviceDiagnosticsView extends GetView<DeviceDiagnosticsController> {
               child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white70, size: 16),
             ),
             const SizedBox(width: 8),
-            const Text(
-              'Technician',
-              style: TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w500),
+            Text(
+              'technician'.tr,
+              style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w500),
             ),
             const Text(
               '  /  ',
               style: TextStyle(color: Colors.white24, fontSize: 12),
             ),
-            const Text(
-              'Device Diagnostics',
-              style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+            Text(
+              'device_diagnostics'.tr,
+              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -95,23 +95,23 @@ class DeviceDiagnosticsView extends GetView<DeviceDiagnosticsController> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Device Diagnostics',
-                    style: TextStyle(
+                    'device_diagnostics'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.5,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
-                    'Execute live subsystem hardware tests, signal telemetry, and thermal audits',
-                    style: TextStyle(
+                    'device_diagnostics_desc'.tr,
+                    style: const TextStyle(
                       color: Colors.white54,
                       fontSize: 12,
                       fontWeight: FontWeight.w400,

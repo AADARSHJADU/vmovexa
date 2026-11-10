@@ -31,9 +31,9 @@ class GovernmentProfileView extends StatelessWidget {
                   constraints: const BoxConstraints(),
                   onPressed: () => Scaffold.of(context).openDrawer(),
                 ),
-                const Text(
-                  'Officer Profile',
-                  style: TextStyle(
+                Text(
+                  'officer_profile'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -89,9 +89,9 @@ class GovernmentProfileView extends StatelessWidget {
                     const SizedBox(height: 24),
 
                     // 3. Account & Security Section
-                    const Text(
-                      'ACCOUNT & SECURITY',
-                      style: TextStyle(
+                    Text(
+                      'account_and_security'.tr.toUpperCase(),
+                      style: const TextStyle(
                         color: AppColors.textMuted,
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
@@ -103,9 +103,9 @@ class GovernmentProfileView extends StatelessWidget {
                     const SizedBox(height: 24),
 
                     // 4. Helpdesk & Legal Section
-                    const Text(
-                      'HELPDESK & LEGAL',
-                      style: TextStyle(
+                    Text(
+                      'help_and_legal'.tr.toUpperCase(),
+                      style: const TextStyle(
                         color: AppColors.textMuted,
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
@@ -127,9 +127,9 @@ class GovernmentProfileView extends StatelessWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
                       icon: const Icon(Icons.logout_rounded, color: Color(0xFFEF4444), size: 18),
-                      label: const Text(
-                        'Logout Account',
-                        style: TextStyle(
+                      label: Text(
+                        'log_out'.tr,
+                        style: const TextStyle(
                           color: Color(0xFFEF4444),
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -337,7 +337,7 @@ class GovernmentProfileView extends StatelessWidget {
           // 1. Campaigns
           Expanded(
             child: _buildStatItem(
-              label: 'CAMPAIGNS',
+              label: 'campaigns'.tr.toUpperCase(),
               value: isLoading ? '...' : campaigns.toString(),
               valueColor: Colors.white,
               iconColor: const Color(0xFF818CF8),
@@ -354,7 +354,7 @@ class GovernmentProfileView extends StatelessWidget {
           // 2. Broadcasts (Red accent matching Web)
           Expanded(
             child: _buildStatItem(
-              label: 'BROADCASTS',
+              label: 'broadcasts'.tr.toUpperCase(),
               value: isLoading ? '...' : broadcasts.toString(),
               valueColor: const Color(0xFFEF4444),
               iconColor: const Color(0xFFEF4444),
@@ -371,7 +371,7 @@ class GovernmentProfileView extends StatelessWidget {
           // 3. Monitored Units (Blue accent matching Web)
           Expanded(
             child: _buildStatItem(
-              label: 'MONITORED',
+              label: 'monitored'.tr.toUpperCase(),
               value: isLoading ? '...' : monitored.toString(),
               valueColor: const Color(0xFF3B82F6),
               iconColor: const Color(0xFF3B82F6),
@@ -447,7 +447,7 @@ class GovernmentProfileView extends StatelessWidget {
       child: Column(
         children: [
           _buildMenuRow(
-            label: 'Account Settings',
+            label: 'account_settings'.tr,
             subtitle: 'Department details, ministry clearance, and contact info',
             iconData: Icons.badge_outlined,
             iconColor: const Color(0xFF3B82F6),
@@ -455,7 +455,7 @@ class GovernmentProfileView extends StatelessWidget {
           ),
           const Divider(color: AppColors.cardBorder, height: 14),
           _buildMenuRow(
-            label: 'Security & Password',
+            label: 'security_password'.tr,
             subtitle: 'Change official password and security clearance',
             iconData: Icons.lock_outline_rounded,
             iconColor: const Color(0xFF8B5CF6),
@@ -463,7 +463,7 @@ class GovernmentProfileView extends StatelessWidget {
           ),
           const Divider(color: AppColors.cardBorder, height: 14),
           _buildMenuRow(
-            label: 'Notification Settings',
+            label: 'notification_settings'.tr,
             subtitle: 'Emergency broadcast alarms, compliance dispatches, and alerts',
             iconData: Icons.notifications_none_rounded,
             iconColor: const Color(0xFFF59E0B),
@@ -486,7 +486,7 @@ class GovernmentProfileView extends StatelessWidget {
       child: Column(
         children: [
           _buildMenuRow(
-            label: 'Help & Support',
+            label: 'help_support'.tr,
             subtitle: 'Public transit docs, regulatory FAQs, and ministry support',
             iconData: Icons.headset_mic_outlined,
             iconColor: const Color(0xFF10B981),
@@ -494,7 +494,7 @@ class GovernmentProfileView extends StatelessWidget {
           ),
           const Divider(color: AppColors.cardBorder, height: 14),
           _buildMenuRow(
-            label: 'Privacy Policy',
+            label: 'privacy_policy'.tr,
             subtitle: 'Sovereign citizen data privacy, security encryption, and audit',
             iconData: Icons.shield_outlined,
             iconColor: const Color(0xFF06B6D4),
@@ -502,7 +502,7 @@ class GovernmentProfileView extends StatelessWidget {
           ),
           const Divider(color: AppColors.cardBorder, height: 14),
           _buildMenuRow(
-            label: 'Terms & Conditions',
+            label: 'terms_conditions'.tr,
             subtitle: 'Statutory governance SLAs, public notices, and usage terms',
             iconData: Icons.description_outlined,
             iconColor: const Color(0xFF94A3B8),

@@ -32,19 +32,19 @@ class DriverHelpSupportView extends GetView<DriverHelpSupportController> {
                       const SizedBox(height: 16),
                       _buildSearchBar(),
                       const SizedBox(height: 20),
-                      _buildSectionTitle('Quick Help'),
+                      _buildSectionTitle('quick_help'.tr),
                       const SizedBox(height: 10),
                       _buildQuickHelpGrid(),
                       const SizedBox(height: 20),
-                      _buildSectionTitle('Contact Support'),
+                      _buildSectionTitle('contact_support'.tr),
                       const SizedBox(height: 10),
                       _buildContactChannelsRow(),
                       const SizedBox(height: 20),
-                      _buildSectionHeaderWithViewAll('My Support Tickets', controller.onViewAllTickets),
+                      _buildSectionHeaderWithViewAll('my_support_tickets'.tr, controller.onViewAllTickets),
                       const SizedBox(height: 10),
                       _buildTicketsList(),
                       const SizedBox(height: 20),
-                      _buildSectionHeaderWithViewAll('Popular Articles', controller.onViewAllArticles),
+                      _buildSectionHeaderWithViewAll('popular_articles'.tr, controller.onViewAllArticles),
                       const SizedBox(height: 10),
                       _buildArticlesList(),
                       const SizedBox(height: 16),
@@ -65,8 +65,8 @@ class DriverHelpSupportView extends GetView<DriverHelpSupportController> {
           child: const Icon(Icons.arrow_back, color: Colors.white),
         ),
         const SizedBox(width: 10),
-        const Expanded(
-          child: Text('Help & Support', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700)),
+        Expanded(
+          child: Text('help_support'.tr, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700)),
         ),
         GestureDetector(
           onTap: controller.onHeadsetTap,
@@ -89,13 +89,13 @@ class DriverHelpSupportView extends GetView<DriverHelpSupportController> {
         onChanged: controller.onSearchChanged,
         onSubmitted: (_) => controller.onSearchSubmit(),
         style: const TextStyle(color: Colors.white, fontSize: 13),
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           border: InputBorder.none,
           isDense: true,
-          contentPadding: EdgeInsets.symmetric(vertical: 14),
-          hintText: 'Search for help articles, FAQs...',
-          hintStyle: TextStyle(color: Colors.white38, fontSize: 12.5),
-          prefixIcon: Icon(Icons.search, color: Colors.white38, size: 20),
+          contentPadding: const EdgeInsets.symmetric(vertical: 14),
+          hintText: 'search_articles_faqs_hint'.tr,
+          hintStyle: const TextStyle(color: Colors.white38, fontSize: 12.5),
+          prefixIcon: const Icon(Icons.search, color: Colors.white38, size: 20),
         ),
       ),
     );
@@ -112,11 +112,11 @@ class DriverHelpSupportView extends GetView<DriverHelpSupportController> {
         _buildSectionTitle(title),
         GestureDetector(
           onTap: onViewAll,
-          child: const Row(
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('View All', style: TextStyle(color: kPurple, fontSize: 12, fontWeight: FontWeight.w600)),
-              Icon(Icons.chevron_right, color: kPurple, size: 15),
+              Text('view_all'.tr, style: const TextStyle(color: kPurple, fontSize: 12, fontWeight: FontWeight.w600)),
+              const Icon(Icons.chevron_right, color: kPurple, size: 15),
             ],
           ),
         ),
@@ -179,7 +179,7 @@ class DriverHelpSupportView extends GetView<DriverHelpSupportController> {
                 border: Border.all(color: kBorder),
               ),
               alignment: Alignment.center,
-              child: const Text('No support tickets found', style: TextStyle(color: Colors.white54, fontSize: 13)),
+              child: Text('no_tickets_found'.tr, style: const TextStyle(color: Colors.white54, fontSize: 13)),
             )
           : Column(
               children: controller.supportTickets
@@ -208,7 +208,7 @@ class DriverHelpSupportView extends GetView<DriverHelpSupportController> {
               border: Border.all(color: kBorder),
             ),
             alignment: Alignment.center,
-            child: const Text('No help articles available', style: TextStyle(color: Colors.white54, fontSize: 13)),
+            child: Text('no_help_articles'.tr, style: const TextStyle(color: Colors.white54, fontSize: 13)),
           );
         }
 

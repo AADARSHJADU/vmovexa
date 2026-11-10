@@ -20,13 +20,13 @@ class PasswordUpdatedView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(
-                children: const [
-                  CustomBackButton(),
+                children: [
+                  const CustomBackButton(),
                   Expanded(
                     child: Center(
                       child: Text(
-                        'Password Updated',
-                        style: TextStyle(
+                        'password_updated'.tr,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -34,14 +34,14 @@ class PasswordUpdatedView extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(width: 48), // Spacer to balance back button
+                  const SizedBox(width: 48), // Spacer to balance back button
                 ],
               ),
             ),
 
             Expanded(
               child: SingleChildScrollView(
-                padding:  EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                padding:  const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -51,9 +51,9 @@ class PasswordUpdatedView extends StatelessWidget {
                     const SizedBox(height: 32),
 
                     // Success Texts
-                    const Text(
-                      'Password Updated Successfully',
-                      style: TextStyle(
+                    Text(
+                      'password_updated'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -61,9 +61,9 @@ class PasswordUpdatedView extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 10),
-                    const Text(
-                      'Your account password has been changed.\nYou can now continue with your work.',
-                      style: TextStyle(
+                    Text(
+                      'password_updated_sub'.tr,
+                      style: const TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 12,
                         height: 1.4,

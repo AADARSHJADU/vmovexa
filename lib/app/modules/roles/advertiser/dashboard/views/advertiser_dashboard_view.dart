@@ -3056,26 +3056,26 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             unselectedItemColor: AppColors.textMuted,
             selectedFontSize: 9.5,
             unselectedFontSize: 9.5,
-            items: const [
+            items: [
               BottomNavigationBarItem(
-                icon: Icon(Icons.dashboard_rounded, size: 20),
-                label: 'Dashboard',
+                icon: const Icon(Icons.dashboard_rounded, size: 20),
+                label: 'dashboard'.tr,
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.campaign_rounded, size: 20),
-                label: 'Campaigns',
+                icon: const Icon(Icons.campaign_rounded, size: 20),
+                label: 'campaigns'.tr,
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.account_tree_outlined, size: 20),
-                label: 'Lifecycle & Flow',
+                icon: const Icon(Icons.account_tree_outlined, size: 20),
+                label: 'lifecycle_and_flow'.tr,
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.bar_chart_rounded, size: 20),
-                label: 'Analytics',
+                icon: const Icon(Icons.bar_chart_rounded, size: 20),
+                label: 'analytics'.tr,
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.person_outline_rounded, size: 20),
-                label: 'Profile',
+                icon: const Icon(Icons.person_outline_rounded, size: 20),
+                label: 'profile'.tr,
               ),
             ],
           ),
@@ -3230,9 +3230,9 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Welcome back,',
-                    style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+                  Text(
+                    'welcome_back'.tr,
+                    style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -3298,7 +3298,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           children: [
             Expanded(
               child: CustomButton(
-                text: 'Create Campaign',
+                text: 'create_campaign'.tr,
                 isGradient: true,
                 height: 42,
                 onTap: controller.goToCreateCampaign,
@@ -3336,7 +3336,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
       childAspectRatio: 1.32,
       children: [
         _buildKpiCard(
-          label: 'Active Campaigns',
+          label: 'active_campaigns'.tr,
           value: '${controller.activeCampaignsCount}',
           sub: '${controller.totalCampaignsCount} total campaigns',
           icon: Icons.campaign_rounded,
@@ -3344,7 +3344,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           bgColor: const Color(0xFF6366F1).withValues(alpha: 0.12),
         ),
         _buildKpiCard(
-          label: 'Impressions Delivered',
+          label: 'impressions'.tr,
           value: controller.impressionsDeliveredCount >= 1000
               ? '${(controller.impressionsDeliveredCount / 1000).toStringAsFixed(1)}K'
               : '${controller.impressionsDeliveredCount}',
@@ -3354,7 +3354,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           bgColor: const Color(0xFF0EA5E9).withValues(alpha: 0.12),
         ),
         _buildKpiCard(
-          label: 'QR Scan Leads',
+          label: 'qr_scans'.tr,
           value: '${controller.qrScansCount}',
           sub: 'Passenger engagements',
           icon: Icons.qr_code_scanner_rounded,
@@ -3362,7 +3362,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           bgColor: const Color(0xFF10B981).withValues(alpha: 0.12),
         ),
         _buildKpiCard(
-          label: 'Budget Spent',
+          label: 'budget_spent'.tr,
           value: controller.formatMoney(controller.totalSpentAmount),
           sub: 'of ${controller.formatMoney(controller.totalBudgetAmount)} total',
           icon: Icons.currency_rupee_rounded,
@@ -3466,13 +3466,13 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
-                    'Campaign Performance',
-                    style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                    'campaign_performance'.tr,
+                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 2),
-                  Text(
+                  const SizedBox(height: 2),
+                  const Text(
                     'Last 7 Days verified telemetry',
                     style: TextStyle(color: AppColors.textMuted, fontSize: 10),
                   ),
@@ -3485,7 +3485,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                   minimumSize: Size.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                child: const Text('View Analytics ›', style: TextStyle(color: Color(0xFF818CF8), fontSize: 11, fontWeight: FontWeight.bold)),
+                child: Text('${'analytics'.tr} ›', style: const TextStyle(color: Color(0xFF818CF8), fontSize: 11, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -3577,9 +3577,9 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Quick Actions',
-          style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+        Text(
+          'quick_actions'.tr,
+          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         SingleChildScrollView(
@@ -3588,35 +3588,35 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           child: Row(
             children: [
               _buildQuickActionChip(
-                label: 'Create Campaign',
+                label: 'create_campaign'.tr,
                 icon: Icons.add_circle_outline_rounded,
                 color: const Color(0xFF6366F1),
                 onTap: controller.goToCreateCampaign,
               ),
               const SizedBox(width: 10),
               _buildQuickActionChip(
-                label: 'Campaigns Hub',
+                label: 'campaigns_hub'.tr,
                 icon: Icons.campaign_outlined,
                 color: const Color(0xFF0EA5E9),
                 onTap: () => controller.changeTab(1),
               ),
               const SizedBox(width: 10),
               _buildQuickActionChip(
-                label: 'Lifecycle & Flow',
+                label: 'lifecycle_and_flow'.tr,
                 icon: Icons.account_tree_outlined,
                 color: const Color(0xFF8B5CF6),
                 onTap: () => controller.changeTab(2),
               ),
               const SizedBox(width: 10),
               _buildQuickActionChip(
-                label: 'Analytics',
+                label: 'analytics'.tr,
                 icon: Icons.bar_chart_rounded,
                 color: const Color(0xFF10B981),
                 onTap: () => controller.changeTab(3),
               ),
               const SizedBox(width: 10),
               _buildQuickActionChip(
-                label: 'Billing & Wallet',
+                label: 'billing_and_wallet'.tr,
                 icon: Icons.account_balance_wallet_outlined,
                 color: const Color(0xFFF59E0B),
                 onTap: controller.switchToBilling,
@@ -3665,9 +3665,9 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
-          'Recent Campaigns',
-          style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+        Text(
+          'recent_campaigns'.tr,
+          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
         ),
         TextButton(
           onPressed: () => controller.changeTab(1),
@@ -3676,7 +3676,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             minimumSize: Size.zero,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
-          child: const Text('View All ›', style: TextStyle(color: Color(0xFF818CF8), fontSize: 11, fontWeight: FontWeight.bold)),
+          child: Text('${'view_all'.tr} ›', style: const TextStyle(color: Color(0xFF818CF8), fontSize: 11, fontWeight: FontWeight.bold)),
         ),
       ],
     );
@@ -3697,9 +3697,9 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           children: [
             const Icon(Icons.campaign_outlined, color: AppColors.textMuted, size: 40),
             const SizedBox(height: 8),
-            const Text(
-              'No campaigns found',
-              style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+            Text(
+              'no_campaigns_found'.tr,
+              style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
             const Text(
@@ -3709,7 +3709,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             ),
             const SizedBox(height: 14),
             CustomButton(
-              text: 'Create Campaign',
+              text: 'create_campaign'.tr,
               isGradient: true,
               height: 38,
               width: 160,

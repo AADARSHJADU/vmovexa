@@ -88,9 +88,9 @@ class HardwareConfigurationView extends GetView<HardwareConfigController> {
                   children: [
                     Row(
                       children: [
-                        const Text(
-                          'Hardware Configuration',
-                          style: TextStyle(color: Colors.white, fontSize: 16.5, fontWeight: FontWeight.w700),
+                        Text(
+                          'hardware_configuration'.tr,
+                          style: const TextStyle(color: Colors.white, fontSize: 16.5, fontWeight: FontWeight.w700),
                         ),
                         const SizedBox(width: 8),
                         Container(
@@ -305,7 +305,11 @@ class HardwareConfigurationView extends GetView<HardwareConfigController> {
                       Icon(icons[index], size: 16, color: isActive ? Colors.white : Colors.white38),
                       const SizedBox(height: 3),
                       Text(
-                        controller.tabLabels[index],
+                        index == 0
+                            ? 'display_settings'.tr
+                            : index == 1
+                                ? 'network_settings'.tr
+                                : 'system_settings'.tr,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: isActive ? Colors.white : Colors.white38,

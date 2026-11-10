@@ -20,9 +20,9 @@ class VehicleSlotsView extends GetView<VehicleSlotsController> {
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
           onPressed: () => Get.back(),
         ),
-        title: const Text(
-          'Vehicle Slots & Timetable',
-          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+        title: Text(
+          'vehicle_slots_timetable'.tr,
+          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
@@ -34,9 +34,9 @@ class VehicleSlotsView extends GetView<VehicleSlotsController> {
             child: ElevatedButton.icon(
               onPressed: () => AddVehicleSlotSheet.show(context),
               icon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
-              label: const Text(
-                'Schedule',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+              label: Text(
+                'schedule'.tr,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF6366F1),
@@ -68,7 +68,7 @@ class VehicleSlotsView extends GetView<VehicleSlotsController> {
                         style: const TextStyle(color: Colors.white, fontSize: 13),
                         onChanged: controller.onSearchChanged,
                         decoration: InputDecoration(
-                          hintText: 'Search slot, corridor, bus, driver...',
+                          hintText: 'search_slots_hint'.tr,
                           hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
                           prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 18),
                           filled: true,
@@ -577,20 +577,20 @@ class VehicleSlotsView extends GetView<VehicleSlotsController> {
         children: [
           const Icon(Icons.event_busy_rounded, color: Color(0xFF475569), size: 54),
           const SizedBox(height: 12),
-          const Text(
-            'No Vehicle Slots Found',
-            style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+          Text(
+            'no_slots_scheduled'.tr,
+            style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 6),
-          const Text(
-            'Schedule transit corridor runs to prevent bus collisions',
-            style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+          Text(
+            'no_slots_scheduled_sub'.tr,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: () => AddVehicleSlotSheet.show(Get.context!),
             icon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
-            label: const Text('Schedule First Slot', style: TextStyle(color: Colors.white, fontSize: 12)),
+            label: Text('add_schedule_slot'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF6366F1),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),

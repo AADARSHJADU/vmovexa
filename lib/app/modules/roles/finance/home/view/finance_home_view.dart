@@ -78,7 +78,7 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
                 children: [
                   Obx(
                     () => Text(
-                      'Welcome, ${controller.userName.value}',
+                      '${'welcome_comma'.tr}${controller.userName.value}',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -89,9 +89,9 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const Text(
-                    'Overview of your revenue, invoices, and payments',
-                    style: TextStyle(
+                  Text(
+                    'overview_revenue_sub'.tr,
+                    style: const TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 11.5,
                       fontWeight: FontWeight.w500,
@@ -107,7 +107,7 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
             IconButton(
               onPressed: controller.onRefresh,
               icon: const Icon(Icons.refresh, color: Colors.white70, size: 20),
-              tooltip: 'Refresh metrics',
+              tooltip: 'refresh_metrics'.tr,
               style: IconButton.styleFrom(
                 backgroundColor: kDarkCardBg,
                 shape: RoundedRectangleBorder(
@@ -163,9 +163,9 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
             Expanded(
               child: Obx(
                 () => _buildKpiCard(
-                  title: 'TOTAL REVENUE',
+                  title: 'total_revenue_caps'.tr,
                   value: controller.totalRevenueStr.value,
-                  subtitle: 'Total earnings',
+                  subtitle: 'total_earnings_sub'.tr,
                   icon: Icons.check_circle_outline,
                   accentColor: const Color(0xFF10B981), // Emerald
                   onTap: () => controller.navigateToTab(2),
@@ -176,9 +176,9 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
             Expanded(
               child: Obx(
                 () => _buildKpiCard(
-                  title: 'TOTAL INVOICES',
+                  title: 'total_invoices_caps'.tr,
                   value: controller.totalInvoicesStr.value,
-                  subtitle: 'All issued bills',
+                  subtitle: 'all_issued_bills_sub'.tr,
                   icon: Icons.receipt_long_outlined,
                   accentColor: const Color(0xFF3B82F6), // Blue
                   onTap: () => controller.navigateToTab(1),
@@ -193,9 +193,9 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
             Expanded(
               child: Obx(
                 () => _buildKpiCard(
-                  title: 'TOTAL PAYMENTS',
+                  title: 'total_payments_caps'.tr,
                   value: controller.totalPaymentsStr.value,
-                  subtitle: 'Completed payments',
+                  subtitle: 'completed_payments_sub'.tr,
                   icon: Icons.bar_chart_outlined,
                   accentColor: const Color(0xFF818CF8), // Indigo
                   onTap: () => controller.navigateToTab(2),
@@ -206,9 +206,9 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
             Expanded(
               child: Obx(
                 () => _buildKpiCard(
-                  title: 'PENDING INVOICES',
+                  title: 'pending_invoices_caps'.tr,
                   value: controller.pendingInvoicesStr.value,
-                  subtitle: 'Unpaid invoices',
+                  subtitle: 'unpaid_invoices_sub'.tr,
                   icon: Icons.warning_amber_rounded,
                   accentColor: const Color(0xFFF59E0B), // Amber
                   onTap: () => controller.navigateToTab(1),
@@ -316,9 +316,9 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Quick Shortcuts',
-          style: TextStyle(
+        Text(
+          'quick_shortcuts'.tr,
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -329,8 +329,8 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
           children: [
             Expanded(
               child: _buildShortcutButton(
-                title: 'Invoices',
-                subtitle: 'Manage bills',
+                title: 'invoices'.tr,
+                subtitle: 'manage_bills_sub'.tr,
                 icon: Icons.receipt_long_outlined,
                 color: const Color(0xFF3B82F6),
                 onTap: () => controller.navigateToTab(1),
@@ -339,8 +339,8 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
             const SizedBox(width: 8),
             Expanded(
               child: _buildShortcutButton(
-                title: 'Invoice Design',
-                subtitle: 'Templates',
+                title: 'invoice_design'.tr,
+                subtitle: 'templates_sub'.tr,
                 icon: Icons.design_services_outlined,
                 color: const Color(0xFF818CF8),
                 onTap: () => controller.onCreateInvoiceTap(),
@@ -353,8 +353,8 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
           children: [
             Expanded(
               child: _buildShortcutButton(
-                title: 'Payments',
-                subtitle: 'Settled ledger',
+                title: 'payments'.tr,
+                subtitle: 'settled_ledger_sub'.tr,
                 icon: Icons.payments_outlined,
                 color: const Color(0xFF10B981),
                 onTap: () => controller.navigateToTab(2),
@@ -363,8 +363,8 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
             const SizedBox(width: 8),
             Expanded(
               child: _buildShortcutButton(
-                title: 'Reports',
-                subtitle: 'Revenue insights',
+                title: 'reports'.tr,
+                subtitle: 'revenue_insights_sub'.tr,
                 icon: Icons.bar_chart_outlined,
                 color: const Color(0xFFA855F7),
                 onTap: () => Get.toNamed(Routes.REVENUE_REPORTING),
@@ -451,22 +451,22 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Recent Invoices',
-                    style: TextStyle(
+                    'recent_invoices'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 0.5,
                     ),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
-                    'Latest bills and their payment status',
-                    style: TextStyle(
+                    'latest_bills_sub'.tr,
+                    style: const TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 11,
                     ),
@@ -475,9 +475,9 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
               ),
               TextButton(
                 onPressed: () => controller.navigateToTab(1),
-                child: const Text(
-                  'View All →',
-                  style: TextStyle(
+                child: Text(
+                  'view_all_arrow'.tr,
+                  style: const TextStyle(
                     color: Color(0xFF60A5FA),
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -489,12 +489,12 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
           const Divider(color: kBorderColor, height: 20),
           Obx(() {
             if (controller.recentInvoices.isEmpty) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20),
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
                 child: Center(
                   child: Text(
-                    'No invoices found',
-                    style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                    'no_invoices_found'.tr,
+                    style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
                   ),
                 ),
               );
@@ -539,7 +539,7 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
                             ),
                             const SizedBox(height: 3),
                             Text(
-                              'Issued: ${inv.invoiceDate.day.toString().padLeft(2, '0')}/${inv.invoiceDate.month.toString().padLeft(2, '0')}/${inv.invoiceDate.year}',
+                              '${'issued_colon'.tr}${inv.invoiceDate.day.toString().padLeft(2, '0')}/${inv.invoiceDate.month.toString().padLeft(2, '0')}/${inv.invoiceDate.year}',
                               style: const TextStyle(
                                 color: AppColors.textMuted,
                                 fontSize: 10.5,
@@ -597,9 +597,9 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 10),
               ),
-              child: const Text(
-                'View All Invoices →',
-                style: TextStyle(
+              child: Text(
+                'view_all_invoices_arrow'.tr,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -627,22 +627,22 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Active Subscriptions',
-                    style: TextStyle(
+                    'active_subscriptions'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 0.5,
                     ),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
-                    'Active client subscription plans',
-                    style: TextStyle(
+                    'active_client_plans_sub'.tr,
+                    style: const TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 11,
                     ),
@@ -651,9 +651,9 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
               ),
               TextButton(
                 onPressed: () => controller.navigateToTab(3),
-                child: const Text(
-                  'View All →',
-                  style: TextStyle(
+                child: Text(
+                  'view_all_arrow'.tr,
+                  style: const TextStyle(
                     color: Color(0xFF60A5FA),
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -665,12 +665,12 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
           const Divider(color: kBorderColor, height: 20),
           Obx(() {
             if (controller.activeSubscriptions.isEmpty) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20),
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
                 child: Center(
                   child: Text(
-                    'No subscriptions found',
-                    style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                    'no_subscriptions_found'.tr,
+                    style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
                   ),
                 ),
               );
@@ -719,7 +719,7 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
                             ),
                             const SizedBox(height: 3),
                             Text(
-                              'Cycle: ${sub.dateRangeText}',
+                              '${'cycle_colon'.tr}${sub.dateRangeText}',
                               style: const TextStyle(
                                 color: AppColors.textMuted,
                                 fontSize: 10.5,
@@ -733,7 +733,7 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            '${sub.userCount} buses',
+                            '${sub.userCount} ${'buses_count'.tr}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -777,9 +777,9 @@ class FinanceHomeView extends GetView<FinanceHomeController> {
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 10),
               ),
-              child: const Text(
-                'View All Subscriptions →',
-                style: TextStyle(
+              child: Text(
+                'view_all_subscriptions_arrow'.tr,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,

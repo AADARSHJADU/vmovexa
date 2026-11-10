@@ -410,6 +410,7 @@ import 'package:vmovexa/app/data/services/storage_service.dart';
 import 'package:vmovexa/app/routes/app_routes.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
 import 'package:vmovexa/app/theme/app_theme.dart';
+import 'package:vmovexa/app/widgets/language_selector_sheet.dart';
 import '../dashboard/controllers/advertiser_dashboard_controller.dart';
 import '../profile/controllers/advertiser_profile_controller.dart';
 
@@ -577,10 +578,10 @@ class AdvertiserDrawerWidget extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 children: [
                   // SECTION 1: OVERVIEW & CAMPAIGNS
-                  _buildSectionHeader('CAMPAIGN MANAGEMENT'),
+                  _buildSectionHeader('campaign_management'.tr),
                   _buildMenuItem(
                     icon: Icons.dashboard_outlined,
-                    label: 'Overview Dashboard',
+                    label: 'overview_dashboard'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       _switchTab(0);
@@ -588,7 +589,7 @@ class AdvertiserDrawerWidget extends StatelessWidget {
                   ),
                   _buildMenuItem(
                     icon: Icons.campaign_outlined,
-                    label: 'Campaigns Hub',
+                    label: 'campaigns_hub'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       _switchTab(1);
@@ -596,7 +597,7 @@ class AdvertiserDrawerWidget extends StatelessWidget {
                   ),
                   _buildMenuItem(
                     icon: Icons.add_circle_outline_rounded,
-                    label: 'Create New Campaign',
+                    label: 'create_new_campaign'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       Get.toNamed(Routes.CREATE_CAMPAIGN);
@@ -604,7 +605,7 @@ class AdvertiserDrawerWidget extends StatelessWidget {
                   ),
                   _buildMenuItem(
                     icon: Icons.account_tree_outlined,
-                    label: 'Lifecycle & Flow',
+                    label: 'lifecycle_and_flow'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       _switchTab(2);
@@ -614,10 +615,10 @@ class AdvertiserDrawerWidget extends StatelessWidget {
                   const SizedBox(height: 12),
 
                   // SECTION 2: PERFORMANCE & BILLING
-                  _buildSectionHeader('PERFORMANCE & BILLING'),
+                  _buildSectionHeader('performance_and_billing'.tr),
                   _buildMenuItem(
                     icon: Icons.bar_chart_outlined,
-                    label: 'Analytics & Heatmaps',
+                    label: 'analytics_and_heatmaps'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       _switchTab(3);
@@ -625,7 +626,7 @@ class AdvertiserDrawerWidget extends StatelessWidget {
                   ),
                   _buildMenuItem(
                     icon: Icons.description_outlined,
-                    label: 'Report & Analytics',
+                    label: 'report_and_analytics'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       Get.toNamed(Routes.ADVERTISER_REPORTS);
@@ -633,7 +634,7 @@ class AdvertiserDrawerWidget extends StatelessWidget {
                   ),
                   _buildMenuItem(
                     icon: Icons.account_balance_wallet_outlined,
-                    label: 'Billing & Revenue',
+                    label: 'billing_and_revenue'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       Get.toNamed(Routes.ADVERTISER_BILLING);
@@ -643,10 +644,10 @@ class AdvertiserDrawerWidget extends StatelessWidget {
                   const SizedBox(height: 12),
 
                   // SECTION 3: BRAND & SETTINGS
-                  _buildSectionHeader('ACCOUNT & PREFERENCES'),
+                  _buildSectionHeader('account_and_preferences'.tr),
                   _buildMenuItem(
                     icon: Icons.person_outline_rounded,
-                    label: 'Profile',
+                    label: 'profile'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       _switchTab(4);
@@ -654,7 +655,7 @@ class AdvertiserDrawerWidget extends StatelessWidget {
                   ),
                   _buildMenuItem(
                     icon: Icons.notifications_none_outlined,
-                    label: 'Alerts & Messages',
+                    label: 'alerts_and_messages'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       Get.toNamed(Routes.ADVERTISER_NOTIFICATIONS);
@@ -662,15 +663,23 @@ class AdvertiserDrawerWidget extends StatelessWidget {
                   ),
                   _buildMenuItem(
                     icon: Icons.lock_outline_rounded,
-                    label: 'Change Password',
+                    label: 'change_password'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       Get.toNamed(Routes.ADVERTISER_CHANGE_PASSWORD);
                     },
                   ),
                   _buildMenuItem(
+                    icon: Icons.language_rounded,
+                    label: 'change_language'.tr,
+                    onTap: () {
+                      Navigator.pop(context);
+                      LanguageSelectorSheet.show(context);
+                    },
+                  ),
+                  _buildMenuItem(
                     icon: Icons.help_outline_rounded,
-                    label: 'Help & Documentation',
+                    label: 'help_support'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       Get.toNamed(Routes.ADVERTISER_HELP_SUPPORT);
@@ -678,7 +687,7 @@ class AdvertiserDrawerWidget extends StatelessWidget {
                   ),
                   _buildMenuItem(
                     icon: Icons.privacy_tip_outlined,
-                    label: 'Privacy Policy',
+                    label: 'privacy_policy'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       Get.toNamed(Routes.PRIVACY_POLICY, arguments: {'role': 'ROLE-ADVERTISER'});
@@ -686,7 +695,7 @@ class AdvertiserDrawerWidget extends StatelessWidget {
                   ),
                   _buildMenuItem(
                     icon: Icons.gavel_outlined,
-                    label: 'Terms & Conditions',
+                    label: 'terms_conditions'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       Get.toNamed(Routes.TERMS_CONDITIONS, arguments: {'role': 'ROLE-ADVERTISER'});
@@ -710,9 +719,9 @@ class AdvertiserDrawerWidget extends StatelessWidget {
                 ),
                 tileColor: Colors.red.withValues(alpha: 0.08),
                 leading: const Icon(Icons.logout, color: Colors.redAccent, size: 22),
-                title: const Text(
-                  'Log Out',
-                  style: TextStyle(
+                title: Text(
+                  'log_out'.tr,
+                  style: const TextStyle(
                     color: Colors.redAccent,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -785,17 +794,17 @@ class AdvertiserDrawerWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             side: const BorderSide(color: kBorderColor),
           ),
-          title: const Text(
-            'Confirm Logout',
-            style: TextStyle(
+          title: Text(
+            'confirm_logout'.tr,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
           ),
-          content: const Text(
-            'Are you sure you want to log out of your Commercial Advertiser account?',
-            style: TextStyle(
+          content: Text(
+            'logout_confirmation_msg'.tr,
+            style: const TextStyle(
               color: Color(0xFF94A3B8),
               fontSize: 13,
             ),
@@ -803,9 +812,9 @@ class AdvertiserDrawerWidget extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Color(0xFF94A3B8)),
+              child: Text(
+                'cancel'.tr,
+                style: const TextStyle(color: Color(0xFF94A3B8)),
               ),
             ),
             Container(
@@ -827,9 +836,9 @@ class AdvertiserDrawerWidget extends StatelessWidget {
                     Get.offAllNamed(Routes.LOGIN);
                   }
                 },
-                child: const Text(
-                  'Log Out',
-                  style: TextStyle(
+                child: Text(
+                  'log_out'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),

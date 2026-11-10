@@ -77,17 +77,17 @@ class ConnectivityTroubleshootingView extends GetView<ConnectivityTroubleshootin
               child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white70, size: 16),
             ),
             const SizedBox(width: 8),
-            const Text(
-              'Technician',
-              style: TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w500),
+            Text(
+              'technician'.tr,
+              style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w500),
             ),
             const Text(
               '  /  ',
               style: TextStyle(color: Colors.white24, fontSize: 12),
             ),
-            const Text(
-              'Connectivity Troubleshooting',
-              style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+            Text(
+              'connectivity_troubleshooting'.tr,
+              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -96,23 +96,23 @@ class ConnectivityTroubleshootingView extends GetView<ConnectivityTroubleshootin
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Connectivity Troubleshooting',
-                    style: TextStyle(
+                    'connectivity_troubleshooting'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.5,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
-                    'Isolate network drops, ping latency issues, and perform remote network hardware reconnects',
-                    style: TextStyle(
+                    'connectivity_troubleshooting_desc'.tr,
+                    style: const TextStyle(
                       color: Colors.white54,
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
@@ -173,9 +173,9 @@ class ConnectivityTroubleshootingView extends GetView<ConnectivityTroubleshootin
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'TARGET UNIT DETAILS',
-                  style: TextStyle(
+                Text(
+                  'target_unit_details'.tr,
+                  style: const TextStyle(
                     color: Colors.white38,
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
@@ -193,15 +193,15 @@ class ConnectivityTroubleshootingView extends GetView<ConnectivityTroubleshootin
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(color: kPurple.withValues(alpha: 0.4)),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'Switch Device',
-                          style: TextStyle(color: kPurple, fontSize: 10.5, fontWeight: FontWeight.w700),
+                          'switch_device'.tr,
+                          style: const TextStyle(color: kPurple, fontSize: 10.5, fontWeight: FontWeight.w700),
                         ),
-                        SizedBox(width: 4),
-                        Icon(Icons.keyboard_arrow_down_rounded, color: kPurple, size: 14),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.keyboard_arrow_down_rounded, color: kPurple, size: 14),
                       ],
                     ),
                   ),

@@ -35,9 +35,9 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
                     const CustomBackButton(),
                     Column(
                       children: [
-                        const Text(
-                          'Live Tracking',
-                          style: TextStyle(
+                        Text(
+                          'live_tracking'.tr,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -56,9 +56,9 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
                               ),
                             ),
                             const SizedBox(width: 6),
-                            const Text(
-                              'Live',
-                              style: TextStyle(
+                            Text(
+                              'live'.tr,
+                              style: const TextStyle(
                                 color: Color(0xFF10B981),
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
@@ -280,12 +280,12 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
-                children: const [
-                  Icon(Icons.notes_rounded, color: Color(0xFF6366F1), size: 18),
-                  SizedBox(width: 8),
+                children: [
+                  const Icon(Icons.notes_rounded, color: Color(0xFF6366F1), size: 18),
+                  const SizedBox(width: 8),
                   Text(
-                    'Current Trip',
-                    style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                    'current_trip'.tr,
+                    style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -296,7 +296,7 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 ),
-                child: const Text('View Route', style: TextStyle(color: Colors.white, fontSize: 11)),
+                child: Text('view_route'.tr, style: const TextStyle(color: Colors.white, fontSize: 11)),
               ),
             ],
           ),

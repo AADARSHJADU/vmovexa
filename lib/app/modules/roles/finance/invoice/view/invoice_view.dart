@@ -28,6 +28,7 @@ class InvoiceView extends GetView<InvoiceController> {
             color: AppColors.primaryButtonBlue,
             backgroundColor: AppColors.cardBg,
             onRefresh: controller.refreshInvoices,
+    
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
               children: [
@@ -60,13 +61,13 @@ class InvoiceView extends GetView<InvoiceController> {
       children: [
         Row(
           children: [
-            const Text(
-              'Finance Portal  /  ',
-              style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+            Text(
+              'finance_portal_breadcrumb'.tr,
+              style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
             ),
-            const Text(
-              'Tax Invoices',
-              style: TextStyle(
+            Text(
+              'tax_invoices'.tr,
+              style: const TextStyle(
                 color: Color(0xFF60A5FA),
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
@@ -76,13 +77,13 @@ class InvoiceView extends GetView<InvoiceController> {
             IconButton(
               onPressed: controller.refreshInvoices,
               icon: const Icon(Icons.refresh, color: Colors.white70, size: 18),
-              tooltip: 'Refresh Invoices',
+              tooltip: 'refresh_invoices'.tr,
             ),
           ],
         ),
         const SizedBox(height: 2),
         Text(
-          'Tax Invoices & Billing',
+          'tax_invoices_billing'.tr,
           style: GoogleFonts.raleway(
             color: AppColors.textPrimary,
             fontSize: 20,
@@ -92,7 +93,7 @@ class InvoiceView extends GetView<InvoiceController> {
         ),
         const SizedBox(height: 3),
         Text(
-          'Issue GST-compliant invoices, track client receivables, and audit settlement status',
+          'issue_gst_invoices_sub'.tr,
           style: GoogleFonts.raleway(
             color: AppColors.textSecondary,
             fontSize: 11.5,
@@ -117,7 +118,7 @@ class InvoiceView extends GetView<InvoiceController> {
           Row(
             children: [
               Text(
-                'Invoice Summary',
+                'invoice_summary'.tr,
                 style: GoogleFonts.raleway(
                   color: AppColors.textPrimary,
                   fontSize: 14,
@@ -169,7 +170,7 @@ class InvoiceView extends GetView<InvoiceController> {
                   child: SummaryStatCard(
                     icon: Icons.description_outlined,
                     iconColor: AppColors.primaryButtonBlue,
-                    label: 'Total Invoices',
+                    label: 'total_invoices'.tr,
                     value: '${s.totalInvoices}',
                   ),
                 ),
@@ -177,7 +178,7 @@ class InvoiceView extends GetView<InvoiceController> {
                   child: SummaryStatCard(
                     icon: Icons.check_circle,
                     iconColor: AppColors.accentGreen,
-                    label: 'Paid Invoices',
+                    label: 'paid_invoices'.tr,
                     value: '${s.paidCount}',
                     amountLabel: '₹${_formatCompact(s.paidAmount)}',
                     amountColor: AppColors.accentGreen,
@@ -187,7 +188,7 @@ class InvoiceView extends GetView<InvoiceController> {
                   child: SummaryStatCard(
                     icon: Icons.access_time_rounded,
                     iconColor: const Color(0xFFF59E0B),
-                    label: 'Pending Invoices',
+                    label: 'pending_invoices'.tr,
                     value: '${s.pendingCount}',
                     amountLabel: '₹${_formatCompact(s.pendingAmount)}',
                     amountColor: const Color(0xFFF59E0B),
@@ -197,7 +198,7 @@ class InvoiceView extends GetView<InvoiceController> {
                   child: SummaryStatCard(
                     icon: Icons.cancel,
                     iconColor: const Color(0xFFEF4444),
-                    label: 'Overdue Invoices',
+                    label: 'overdue_invoices'.tr,
                     value: '${s.overdueCount}',
                     amountLabel: '₹${_formatCompact(s.overdueAmount)}',
                     amountColor: const Color(0xFFEF4444),
@@ -230,42 +231,13 @@ class InvoiceView extends GetView<InvoiceController> {
     return Row(
       children: [
         Obx(() => Text(
-              'All Invoices (${controller.filteredInvoices.length})',
+              '${'all_invoices'.tr} (${controller.filteredInvoices.length})',
               style: GoogleFonts.raleway(
                 color: AppColors.textPrimary,
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
               ),
             )),
-        // const Spacer(),
-        // Container(
-        //   height: 40,
-        //   decoration: BoxDecoration(
-        //     gradient: AppTheme.primaryGradient,
-        //     borderRadius: BorderRadius.circular(10),
-        //   ),
-        //   child: ElevatedButton.icon(
-        //     onPressed: controller.onGenerateInvoice,
-        //     style: ElevatedButton.styleFrom(
-        //       backgroundColor: Colors.transparent,
-        //       shadowColor: Colors.transparent,
-        //       foregroundColor: Colors.white,
-        //       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        //       shape: RoundedRectangleBorder(
-        //         borderRadius: BorderRadius.circular(10),
-        //       ),
-        //       elevation: 0,
-        //     ),
-        //     icon: const Icon(Icons.add_circle_outline, size: 16),
-        //     label: Text(
-        //       'Generate Invoice',
-        //       style: GoogleFonts.raleway(
-        //         fontSize: 12,
-        //         fontWeight: FontWeight.w600,
-        //       ),
-        //     ),
-        //   ),
-        // ),
       ],
     );
   }
@@ -283,7 +255,7 @@ class InvoiceView extends GetView<InvoiceController> {
         onChanged: controller.onSearchChanged,
         style: GoogleFonts.raleway(color: AppColors.textPrimary, fontSize: 13),
         decoration: InputDecoration(
-          hintText: 'Search by invoice ID, company or amount...',
+          hintText: 'search_invoices_hint'.tr,
           hintStyle: GoogleFonts.raleway(
             color: AppColors.textMuted,
             fontSize: 13,
@@ -298,17 +270,24 @@ class InvoiceView extends GetView<InvoiceController> {
 
   // ---------------- Status Tabs ----------------
   Widget _buildStatusTabs() {
-    final tabs = ['All', 'Paid', 'Pending', 'Overdue'];
+    final tabs = [
+      {'key': 'All', 'label': 'all_tab'.tr},
+      {'key': 'Paid', 'label': 'paid_tab'.tr},
+      {'key': 'Pending', 'label': 'pending_tab'.tr},
+      {'key': 'Overdue', 'label': 'overdue_tab'.tr},
+    ];
     return Obx(() {
       return SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
           children: tabs.map((tab) {
-            final isSelected = controller.selectedStatusTab.value == tab;
+            final tabKey = tab['key']!;
+            final tabLabel = tab['label']!;
+            final isSelected = controller.selectedStatusTab.value == tabKey;
             return Padding(
               padding: const EdgeInsets.only(right: 8),
               child: GestureDetector(
-                onTap: () => controller.selectedStatusTab.value = tab,
+                onTap: () => controller.selectedStatusTab.value = tabKey,
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
                   decoration: BoxDecoration(
@@ -329,7 +308,7 @@ class InvoiceView extends GetView<InvoiceController> {
                         : null,
                   ),
                   child: Text(
-                    tab,
+                    tabLabel,
                     style: GoogleFonts.raleway(
                       color: isSelected ? Colors.white : AppColors.textSecondary,
                       fontSize: 12,
@@ -357,10 +336,10 @@ class InvoiceView extends GetView<InvoiceController> {
       child: Row(
         children: [
           const SizedBox(width: 48),
-          Expanded(flex: 3, child: Text('Invoice ID', style: style)),
-          Expanded(flex: 2, child: Text('Invoice Date', style: style)),
-          Expanded(flex: 2, child: Text('Amount', style: style)),
-          Expanded(flex: 2, child: Text('Status', style: style)),
+          Expanded(flex: 3, child: Text('invoice_id_col'.tr, style: style)),
+          Expanded(flex: 2, child: Text('invoice_date_col'.tr, style: style)),
+          Expanded(flex: 2, child: Text('amount_col'.tr, style: style)),
+          Expanded(flex: 2, child: Text('status_col'.tr, style: style)),
           const SizedBox(width: 18),
         ],
       ),
@@ -376,7 +355,7 @@ class InvoiceView extends GetView<InvoiceController> {
           padding: const EdgeInsets.symmetric(vertical: 32),
           child: Center(
             child: Text(
-              'No invoices found',
+              'no_invoices_found'.tr,
               style: GoogleFonts.raleway(color: AppColors.textMuted),
             ),
           ),
@@ -407,7 +386,7 @@ class InvoiceView extends GetView<InvoiceController> {
                   : null,
               icon: const Icon(Icons.chevron_left, size: 16),
               label: Text(
-                'Previous',
+                'previous'.tr,
                 style: GoogleFonts.raleway(fontSize: 12),
               ),
               style: TextButton.styleFrom(
@@ -417,7 +396,7 @@ class InvoiceView extends GetView<InvoiceController> {
               ),
             ),
             Text(
-              'Page ${controller.currentPage.value} of ${controller.totalPages.value}',
+              '${'page_x_of_y'.tr} ${controller.currentPage.value} ${'of'.tr} ${controller.totalPages.value}',
               style: GoogleFonts.raleway(
                 color: AppColors.textSecondary,
                 fontSize: 12,
@@ -435,7 +414,7 @@ class InvoiceView extends GetView<InvoiceController> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Next', style: GoogleFonts.raleway(fontSize: 12,color: AppColors.accentPurple)),
+                  Text('next'.tr, style: GoogleFonts.raleway(fontSize: 12,color: AppColors.accentPurple)),
                   const SizedBox(width: 2),
                   const Icon(Icons.chevron_right, size: 16,color: AppColors.accentPurple),
                 ],

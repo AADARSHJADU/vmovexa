@@ -69,9 +69,9 @@ class TechnicianRequestsView extends GetView<TechnicianRequestsController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const CustomBackButton(),
-          const Text(
-            'Technician Requests',
-            style: TextStyle(
+          Text(
+            'technician_requests'.tr,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -80,7 +80,7 @@ class TechnicianRequestsView extends GetView<TechnicianRequestsController> {
           IconButton(
             icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 22),
             onPressed: () => controller.fetchWorkOrders(),
-            tooltip: 'Refresh Work Orders',
+            tooltip: 'refresh'.tr,
           ),
         ],
       ),
@@ -101,10 +101,10 @@ class TechnicianRequestsView extends GetView<TechnicianRequestsController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Central Technician Work Orders Desk',
-                  style: TextStyle(
+                  'central_tech_orders_desk'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
@@ -115,9 +115,9 @@ class TechnicianRequestsView extends GetView<TechnicianRequestsController> {
             ],
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Dispatch requests submitted to VMOVEXA Central Pool for hardware installation, screen repairs, and GPS calibration.',
-            style: TextStyle(
+          Text(
+            'tech_desk_sub'.tr,
+            style: const TextStyle(
               color: AppColors.textSecondary,
               fontSize: 11,
               height: 1.3,
@@ -125,7 +125,7 @@ class TechnicianRequestsView extends GetView<TechnicianRequestsController> {
           ),
           const SizedBox(height: 14),
           CustomButton(
-            text: 'New Technician Request',
+            text: 'new_technician_request'.tr,
             prefixIcon: const Icon(Icons.add_rounded, size: 18, color: Colors.white),
             onTap: controller.openCreateRequest,
             height: 48,
@@ -141,7 +141,7 @@ class TechnicianRequestsView extends GetView<TechnicianRequestsController> {
         children: [
           Expanded(
             child: _buildKpiCard(
-              title: 'TOTAL WORK ORDERS',
+              title: 'total_work_orders'.tr,
               value: '${controller.totalWorkOrdersCount} Requests',
               valColor: Colors.white,
             ),
@@ -149,16 +149,16 @@ class TechnicianRequestsView extends GetView<TechnicianRequestsController> {
           const SizedBox(width: 8),
           Expanded(
             child: _buildKpiCard(
-              title: 'PENDING DISPATCH',
-              value: '${controller.pendingDispatchCount} Awaiting Tech',
+              title: 'pending_dispatch'.tr,
+              value: '${controller.pendingDispatchCount} ${'awaiting_tech'.tr}',
               valColor: const Color(0xFFF59E0B),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: _buildKpiCard(
-              title: 'CRITICAL PRIORITY',
-              value: '${controller.criticalCount} High Urgency',
+              title: 'critical_priority'.tr,
+              value: '${controller.criticalCount} ${'high_urgency'.tr}',
               valColor: const Color(0xFFF43F5E),
             ),
           ),
@@ -231,7 +231,7 @@ class TechnicianRequestsView extends GetView<TechnicianRequestsController> {
               controller: controller.searchController,
               style: const TextStyle(color: Colors.white, fontSize: 12),
               decoration: InputDecoration(
-                hintText: 'Search work order code, issue, vehicle...',
+                hintText: 'search_work_orders_hint'.tr,
                 hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                 prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 18),
                 suffixIcon: Obx(() => controller.searchQuery.value.isNotEmpty

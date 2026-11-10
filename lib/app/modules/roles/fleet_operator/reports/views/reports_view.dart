@@ -80,19 +80,19 @@ class ReportsView extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  'Reports',
-                  style: TextStyle(
+                  'reports'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
-                  'Track and export campaign performance',
-                  style: TextStyle(
+                  'reports_sub'.tr,
+                  style: const TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 10,
                   ),

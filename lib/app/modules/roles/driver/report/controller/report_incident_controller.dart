@@ -18,11 +18,11 @@ class ReportIncidentController extends GetxController {
 
   // ---------------- Stepper ----------------
   final RxInt currentStep = 1.obs; // 1=Incident Details, 2=Additional Information, 3=Review, 4=Submit
-  final List<String> stepLabels = const [
-    'Incident Details',
-    'Additional Information',
-    'Review',
-    'Submit',
+  List<String> get stepLabels => [
+    'incident_details'.tr,
+    'additional_info'.tr,
+    'review'.tr,
+    'submit'.tr,
   ];
 
   // ==========================================================

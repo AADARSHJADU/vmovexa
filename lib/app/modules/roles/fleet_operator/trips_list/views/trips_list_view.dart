@@ -68,9 +68,9 @@ class TripsListView extends GetView<TripsListController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const CustomBackButton(),
-          const Text(
-            'Trips & Daily Schedules',
-            style: TextStyle(
+          Text(
+            'trips_daily_schedules'.tr,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -79,7 +79,7 @@ class TripsListView extends GetView<TripsListController> {
           IconButton(
             icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 22),
             onPressed: () => controller.fetchTrips(),
-            tooltip: 'Refresh Trips',
+            tooltip: 'refresh'.tr,
           ),
         ],
       ),
@@ -103,9 +103,9 @@ class TripsListView extends GetView<TripsListController> {
               Expanded(
                 child: Row(
                   children: [
-                    const Text(
-                      'Trips & Voyages Dispatch',
-                      style: TextStyle(
+                    Text(
+                      'trips_voyages_dispatch'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
@@ -135,9 +135,9 @@ class TripsListView extends GetView<TripsListController> {
             ],
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Live voyage telematics, origin-to-destination corridors, stops completed, and speed logs.',
-            style: TextStyle(
+          Text(
+            'trips_dispatch_sub'.tr,
+            style: const TextStyle(
               color: AppColors.textSecondary,
               fontSize: 11,
               height: 1.3,
@@ -157,9 +157,9 @@ class TripsListView extends GetView<TripsListController> {
                       shape: BoxShape.circle,
                     ),
                   ),
-                  label: const Text(
-                    'Live Tracking Radar',
-                    style: TextStyle(
+                  label: Text(
+                    'live_tracking_radar'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -193,33 +193,33 @@ class TripsListView extends GetView<TripsListController> {
         childAspectRatio: 1.7,
         children: [
           _buildKpiCard(
-            title: 'TOTAL ACTIVE RECORDS',
+            title: 'total_active_records'.tr,
             value: '${controller.totalRecordedCount} Trips',
-            subtitle: 'Assigned & tracked',
+            subtitle: 'assigned_tracked'.tr,
             icon: Icons.directions_bus_rounded,
             iconColor: const Color(0xFF3B82F6),
             valColor: Colors.white,
           ),
           _buildKpiCard(
-            title: 'IN PROGRESS',
+            title: 'in_progress'.tr,
             value: '${controller.inProgressCount} Moving',
-            subtitle: 'Live GNSS streaming',
+            subtitle: 'live_gnss_streaming'.tr,
             icon: Icons.speed_rounded,
             iconColor: const Color(0xFF10B981),
             valColor: const Color(0xFF10B981),
           ),
           _buildKpiCard(
-            title: 'COMPLETED',
+            title: 'completed'.tr,
             value: '${controller.completedCount} Logged',
-            subtitle: '100% verified log',
+            subtitle: 'verified_log'.tr,
             icon: Icons.check_circle_outline_rounded,
             iconColor: const Color(0xFF3B82F6),
             valColor: const Color(0xFF3B82F6),
           ),
           _buildKpiCard(
-            title: 'SCHEDULED',
+            title: 'scheduled_tab'.tr,
             value: '${controller.scheduledCount} Upcoming',
-            subtitle: 'Queued dispatch',
+            subtitle: 'queued_dispatch'.tr,
             icon: Icons.access_time_rounded,
             iconColor: const Color(0xFFF59E0B),
             valColor: const Color(0xFFF59E0B),
@@ -323,7 +323,7 @@ class TripsListView extends GetView<TripsListController> {
               controller: controller.searchController,
               style: const TextStyle(color: Colors.white, fontSize: 12),
               decoration: InputDecoration(
-                hintText: 'Search Trip, Origin, Destination...',
+                hintText: 'search_trips_hint'.tr,
                 hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                 prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 18),
                 suffixIcon: Obx(() => controller.searchQuery.value.isNotEmpty
@@ -346,13 +346,13 @@ class TripsListView extends GetView<TripsListController> {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                _buildFilterTab('All', 'All Trips'),
+                _buildFilterTab('All', 'all_trips'.tr),
                 const SizedBox(width: 8),
-                _buildFilterTab('in_progress', 'In Progress'),
+                _buildFilterTab('in_progress', 'in_progress'.tr),
                 const SizedBox(width: 8),
-                _buildFilterTab('completed', 'Completed'),
+                _buildFilterTab('completed', 'completed'.tr),
                 const SizedBox(width: 8),
-                _buildFilterTab('scheduled', 'Scheduled'),
+                _buildFilterTab('scheduled', 'scheduled_tab'.tr),
               ],
             ),
           ),
@@ -437,9 +437,14 @@ class TripsListView extends GetView<TripsListController> {
                 style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
-              const Text(
-                'No trip records found matching your active filter.',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
+              Text(
+                'no_trips_recorded'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'no_trips_sub'.tr,
+                style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 14),
@@ -452,7 +457,7 @@ class TripsListView extends GetView<TripsListController> {
                   side: const BorderSide(color: Color(0xFF3B82F6)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
-                child: const Text('Reset Filter', style: TextStyle(color: Color(0xFF3B82F6), fontSize: 11)),
+                child: Text('clear'.tr, style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 11)),
               ),
             ],
           ),

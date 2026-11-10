@@ -74,15 +74,15 @@ class DriverDocumentsView extends GetView<DriverDocumentsController> {
             children: [
               Row(
                 children: [
-                  const Text('Driver Documents', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800)),
+                  Text('driver_documents'.tr, style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800)),
                   const SizedBox(width: 8),
                   _buildStatusBadge(),
                 ],
               ),
               const SizedBox(height: 2),
-              const Text(
-                'Commercial driving license & KYC compliance attachments',
-                style: TextStyle(color: Colors.white54, fontSize: 11),
+              Text(
+                'driver_docs_sub'.tr,
+                style: const TextStyle(color: Colors.white54, fontSize: 11),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -114,7 +114,7 @@ class DriverDocumentsView extends GetView<DriverDocumentsController> {
             borderRadius: BorderRadius.circular(5),
             border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.3)),
           ),
-          child: const Text('REJECTED', style: TextStyle(color: Color(0xFFEF4444), fontSize: 8.5, fontWeight: FontWeight.bold)),
+          child: Text('rejected'.tr.toUpperCase(), style: const TextStyle(color: Color(0xFFEF4444), fontSize: 8.5, fontWeight: FontWeight.bold)),
         );
       }
       if (controller.isVerified.value) {
@@ -125,7 +125,7 @@ class DriverDocumentsView extends GetView<DriverDocumentsController> {
             borderRadius: BorderRadius.circular(5),
             border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
           ),
-          child: const Text('VERIFIED', style: TextStyle(color: Color(0xFF10B981), fontSize: 8.5, fontWeight: FontWeight.bold)),
+          child: Text('verified'.tr.toUpperCase(), style: const TextStyle(color: Color(0xFF10B981), fontSize: 8.5, fontWeight: FontWeight.bold)),
         );
       }
       return Container(
@@ -135,7 +135,7 @@ class DriverDocumentsView extends GetView<DriverDocumentsController> {
           borderRadius: BorderRadius.circular(5),
           border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.3)),
         ),
-        child: const Text('PENDING REVIEW', style: TextStyle(color: Color(0xFFF59E0B), fontSize: 8.5, fontWeight: FontWeight.bold)),
+        child: Text('under_review'.tr.toUpperCase(), style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 8.5, fontWeight: FontWeight.bold)),
       );
     });
   }
@@ -156,18 +156,18 @@ class DriverDocumentsView extends GetView<DriverDocumentsController> {
               children: [
                 Expanded(
                   child: _metricBox(
-                    label: 'DL NUMBER',
+                    label: 'dl_number'.tr,
                     value: controller.dlNumber.value,
-                    subtext: 'Commercial heavy DL',
+                    subtext: 'commercial_heavy_dl'.tr,
                     color: Colors.white,
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: _metricBox(
-                    label: 'ASSIGNED BUS',
+                    label: 'assigned_bus'.tr,
                     value: controller.assignedBus.value,
-                    subtext: 'Active vehicle',
+                    subtext: 'active_vehicle'.tr,
                     color: const Color(0xFF38BDF8),
                   ),
                 ),
@@ -178,16 +178,16 @@ class DriverDocumentsView extends GetView<DriverDocumentsController> {
               children: [
                 Expanded(
                   child: _metricBox(
-                    label: 'ACTIVE SHIFT',
+                    label: 'active_shift'.tr,
                     value: controller.activeShift.value,
-                    subtext: 'Roster duty',
+                    subtext: 'roster_duty'.tr,
                     color: const Color(0xFF10B981),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: _metricBox(
-                    label: 'DL VALIDITY',
+                    label: 'dl_validity'.tr,
                     value: controller.dlStatus.value,
                     subtext: 'Exp: ${controller.dlExpiry.value}',
                     color: const Color(0xFFFBBF24),
@@ -250,15 +250,15 @@ class DriverDocumentsView extends GetView<DriverDocumentsController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Documents Verification Rejected',
-                  style: TextStyle(color: Color(0xFFEF4444), fontSize: 12, fontWeight: FontWeight.bold),
+                Text(
+                  'doc_verification_rejected'.tr,
+                  style: const TextStyle(color: Color(0xFFEF4444), fontSize: 12, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   controller.rejectionReason.value.isNotEmpty
                       ? controller.rejectionReason.value
-                      : 'Please re-upload clear and legible document photos.',
+                      : 'reupload_clear_docs'.tr,
                   style: const TextStyle(color: Colors.white70, fontSize: 11),
                 ),
               ],
@@ -273,15 +273,15 @@ class DriverDocumentsView extends GetView<DriverDocumentsController> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
-          'Compliance & Legal Attachments',
-          style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700),
+        Text(
+          'compliance_legal_attachments'.tr,
+          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700),
         ),
         Obx(() {
           final uploadedCount = controller.documents.where((d) => d.status != DocumentReqStatus.notUploaded).length;
           final totalCount = controller.documents.length;
           return Text(
-            '$uploadedCount / $totalCount Attached',
+            '$uploadedCount / $totalCount ${'attached_fraction'.tr}',
             style: const TextStyle(color: kPurple, fontSize: 11, fontWeight: FontWeight.w600),
           );
         }),
@@ -319,18 +319,18 @@ class DriverDocumentsView extends GetView<DriverDocumentsController> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: kPurple.withValues(alpha: 0.2)),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.check_circle_outline, color: kPurple, size: 15),
-          SizedBox(width: 8),
+          const Icon(Icons.check_circle_outline, color: kPurple, size: 15),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Supported formats: JPG, PNG, PDF', style: TextStyle(color: Colors.white70, fontSize: 11)),
-                SizedBox(height: 1),
-                Text('File size up to 10MB • Clear and readable photos required', style: TextStyle(color: Colors.white38, fontSize: 10.5)),
+                Text('supported_formats_note'.tr, style: const TextStyle(color: Colors.white70, fontSize: 11)),
+                const SizedBox(height: 1),
+                Text('file_size_note'.tr, style: const TextStyle(color: Colors.white38, fontSize: 10.5)),
               ],
             ),
           ),
@@ -422,7 +422,7 @@ class _DocumentCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
-                              document.isMandatory ? 'Mandatory' : 'Optional',
+                              document.isMandatory ? 'mandatory'.tr : 'optional'.tr,
                               style: const TextStyle(color: Colors.white54, fontSize: 9, fontWeight: FontWeight.w600),
                             ),
                           ),
@@ -483,7 +483,7 @@ class _DocumentCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            document.fileName?.isNotEmpty == true ? document.fileName! : 'Attached File',
+                            document.fileName?.isNotEmpty == true ? document.fileName! : 'attached_file'.tr,
                             style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -509,12 +509,12 @@ class _DocumentCard extends StatelessWidget {
                           color: const Color(0xFF38BDF8).withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.visibility_outlined, color: Color(0xFF38BDF8), size: 12),
-                            SizedBox(width: 4),
-                            Text('View', style: TextStyle(color: Color(0xFF38BDF8), fontSize: 10, fontWeight: FontWeight.w700)),
+                            const Icon(Icons.visibility_outlined, color: Color(0xFF38BDF8), size: 12),
+                            const SizedBox(width: 4),
+                            Text('view_action'.tr, style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 10, fontWeight: FontWeight.w700)),
                           ],
                         ),
                       ),
@@ -549,12 +549,12 @@ class _DocumentCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: kPurple.withValues(alpha: 0.4)),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.file_upload_outlined, color: kPurple, size: 13),
-                        SizedBox(width: 4),
-                        Text('Upload Document', style: TextStyle(color: kPurple, fontSize: 10.5, fontWeight: FontWeight.bold)),
+                        const Icon(Icons.file_upload_outlined, color: kPurple, size: 13),
+                        const SizedBox(width: 4),
+                        Text('${'upload_action'.tr} ${'document_status'.tr.split(' ')[0]}', style: const TextStyle(color: kPurple, fontSize: 10.5, fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),

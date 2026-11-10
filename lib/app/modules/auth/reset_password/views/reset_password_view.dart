@@ -29,18 +29,18 @@ class ResetPasswordView extends GetView<ResetPasswordController> {
               const SizedBox(height: 40),
 
               // Title & Subtitle
-              const Text(
-                'Reset Password?',
-                style: TextStyle(
+              Text(
+                'update_password'.tr,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Enter your new password',
-                style: TextStyle(
+              Text(
+                'enter_password'.tr,
+                style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 14,
                 ),
@@ -50,7 +50,7 @@ class ResetPasswordView extends GetView<ResetPasswordController> {
               // New Password Input Field
               Obx(
                 () => CustomTextField(
-                  hintText: 'New Password',
+                  hintText: 'new_password'.tr,
                   prefixIcon: Icons.lock_outline_rounded,
                   isPassword: true,
                   isObscured: controller.isPasswordObscured.value,
@@ -79,7 +79,7 @@ class ResetPasswordView extends GetView<ResetPasswordController> {
               // Confirm Password Input Field
               Obx(
                 () => CustomTextField(
-                  hintText: 'Confirm password',
+                  hintText: 'confirm_new_password'.tr,
                   prefixIcon: Icons.lock_outline_rounded,
                   isPassword: true,
                   isObscured: controller.isConfirmPasswordObscured.value,
@@ -92,7 +92,7 @@ class ResetPasswordView extends GetView<ResetPasswordController> {
               // Primary Button
               Obx(
                 () => CustomButton(
-                  text: 'Update Password',
+                  text: 'update_password'.tr,
                   isLoading: controller.isLoading.value,
                   onTap: controller.updatePassword,
                 ),

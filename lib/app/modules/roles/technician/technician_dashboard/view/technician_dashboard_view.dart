@@ -70,7 +70,7 @@ class TechnicianDashboardView extends GetView<TechnicianDashboardController> {
                   height: 20,
                   colorFilter: const ColorFilter.mode(Color(0xFF818CF8), BlendMode.srcIn),
                 ),
-                label: 'Dashboard',
+                label: 'dashboard'.tr,
               ),
               BottomNavigationBarItem(
                 icon: SvgPicture.asset(
@@ -85,7 +85,7 @@ class TechnicianDashboardView extends GetView<TechnicianDashboardController> {
                   height: 20,
                   colorFilter: const ColorFilter.mode(Color(0xFF818CF8), BlendMode.srcIn),
                 ),
-                label: 'Field Orders',
+                label: 'field_orders'.tr,
               ),
               BottomNavigationBarItem(
                 icon: SvgPicture.asset(
@@ -100,7 +100,7 @@ class TechnicianDashboardView extends GetView<TechnicianDashboardController> {
                   height: 20,
                   colorFilter: const ColorFilter.mode(Color(0xFF818CF8), BlendMode.srcIn),
                 ),
-                label: 'Edge Devices',
+                label: 'edge_devices'.tr,
               ),
               BottomNavigationBarItem(
                 icon: SvgPicture.asset(
@@ -115,7 +115,7 @@ class TechnicianDashboardView extends GetView<TechnicianDashboardController> {
                   height: 20,
                   colorFilter: const ColorFilter.mode(Color(0xFF818CF8), BlendMode.srcIn),
                 ),
-                label: 'Hardware Config',
+                label: 'hardware_config'.tr,
               ),
               BottomNavigationBarItem(
                 icon: SvgPicture.asset(
@@ -130,7 +130,7 @@ class TechnicianDashboardView extends GetView<TechnicianDashboardController> {
                   height: 20,
                   colorFilter: const ColorFilter.mode(Color(0xFF818CF8), BlendMode.srcIn),
                 ),
-                label: 'Profile',
+                label: 'profile'.tr,
               ),
             ],
           ),

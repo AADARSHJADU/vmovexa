@@ -68,17 +68,17 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: const [
-          CustomBackButton(),
+        children: [
+          const CustomBackButton(),
           Text(
-            'Report Emergency Incident',
-            style: TextStyle(
+            'report_emergency_incident'.tr,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(width: 42),
+          const SizedBox(width: 42),
         ],
       ),
     );
@@ -98,7 +98,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Broadcasting an emergency will alert dispatch teams, control room supervisors, and mark the vehicle on live telemetry.',
+              'emergency_broadcast_warning'.tr,
               style: TextStyle(
                 color: Colors.red.shade200,
                 fontSize: 11.5,
@@ -122,9 +122,9 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Vehicle & Driver Selection',
-            style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+          Text(
+            'vehicle_driver_selection'.tr,
+            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
 
@@ -665,7 +665,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
   Widget _buildSubmitButton() {
     return Obx(() {
       return CustomButton(
-        text: 'Log & Broadcast Incident',
+        text: 'submit_report'.tr,
         onTap: controller.submitReportIncident,
         isLoading: controller.isSubmittingReport.value,
         height: 48,

@@ -12,6 +12,8 @@ class StorageService extends GetxService {
   static const String _keyRefreshToken = 'vmovexa_refresh_token';
   static const String _keyUser = 'vmovexa_user';
   static const String _keyRole = 'vmovexa_current_role';
+  static const String _keyLanguageCode = 'vmovexa_language_code';
+  static const String _keyCountryCode = 'vmovexa_country_code';
 
   Future<StorageService> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -78,6 +80,20 @@ class StorageService extends GetxService {
   bool isLoggedIn() {
     final token = getAccessToken();
     return token != null && token.isNotEmpty;
+  }
+
+  // Language persistence
+  Future<void> saveLanguage(String languageCode, String countryCode) async {
+    await _prefs.setString(_keyLanguageCode, languageCode);
+    await _prefs.setString(_keyCountryCode, countryCode);
+  }
+
+  String getLanguageCode() {
+    return _prefs.getString(_keyLanguageCode) ?? 'en';
+  }
+
+  String getCountryCode() {
+    return _prefs.getString(_keyCountryCode) ?? 'US';
   }
 
   // Clear session on logout

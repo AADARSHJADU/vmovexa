@@ -38,15 +38,15 @@ class DriverProfileView extends GetView<DriverProfileController> {
                 const SizedBox(height: 14),
                 _buildStatsRow(),
                 const SizedBox(height: 20),
-                _buildSectionTitle('Account'),
+                _buildSectionTitle('account_caps'.tr),
                 const SizedBox(height: 10),
                 _buildAccountCard(),
                 const SizedBox(height: 20),
-                _buildSectionTitle('Documents'),
+                _buildSectionTitle('documents_stat'.tr),
                 const SizedBox(height: 10),
                 _buildDocumentsCard(),
                 const SizedBox(height: 20),
-                _buildSectionTitle('Support'),
+                _buildSectionTitle('support_caps'.tr),
                 const SizedBox(height: 10),
                 _buildSupportCard(),
                 const SizedBox(height: 20),
@@ -65,9 +65,9 @@ class DriverProfileView extends GetView<DriverProfileController> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Expanded(
+        Expanded(
           child: Center(
-            child: Text('Profile', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700)),
+            child: Text('profile'.tr, style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700)),
           ),
         ),
       ],
@@ -179,7 +179,7 @@ class DriverProfileView extends GetView<DriverProfileController> {
                         children: [
                           Text(controller.companyName.value, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
                           const SizedBox(height: 2),
-                          Text('Driver ID: ${controller.driverId.value}', style: const TextStyle(color: Colors.white38, fontSize: 10.5)),
+                          Text('${'driver'.tr} ID: ${controller.driverId.value}', style: const TextStyle(color: Colors.white38, fontSize: 10.5)),
                         ],
                       ),
                     ),
@@ -199,13 +199,13 @@ class DriverProfileView extends GetView<DriverProfileController> {
     return Obx(
           () => Row(
         children: [
-          Expanded(child: _StatPill(icon: Icons.directions_bus_filled_outlined, count: '${controller.routesCount.value}', label: 'Routes', onTap: () => controller.onStatTap('Routes'))),
+          Expanded(child: _StatPill(icon: Icons.directions_bus_filled_outlined, count: '${controller.routesCount.value}', label: 'routes'.tr, onTap: () => controller.onStatTap('Routes'))),
           const SizedBox(width: 8),
-          Expanded(child: _StatPill(icon: Icons.calendar_today_outlined, count: '${controller.schedulesCount.value}', label: 'Schedules', onTap: () => controller.onStatTap('Schedules'))),
+          Expanded(child: _StatPill(icon: Icons.calendar_today_outlined, count: '${controller.schedulesCount.value}', label: 'schedules_stat'.tr, onTap: () => controller.onStatTap('Schedules'))),
           const SizedBox(width: 8),
-          Expanded(child: _StatPill(icon: Icons.notifications_none_rounded, count: '${controller.notificationsCount.value}', label: 'Notifications', onTap: () => controller.onStatTap('Notifications'))),
+          Expanded(child: _StatPill(icon: Icons.notifications_none_rounded, count: '${controller.notificationsCount.value}', label: 'notifications_stat'.tr, onTap: () => controller.onStatTap('Notifications'))),
           const SizedBox(width: 8),
-          Expanded(child: _StatPill(icon: Icons.description_outlined, count: '${controller.documentsCount.value}', label: 'Documents', onTap: () => controller.onStatTap('Documents'))),
+          Expanded(child: _StatPill(icon: Icons.description_outlined, count: '${controller.documentsCount.value}', label: 'documents_stat'.tr, onTap: () => controller.onStatTap('Documents'))),
         ],
       ),
     );
@@ -228,22 +228,22 @@ class DriverProfileView extends GetView<DriverProfileController> {
         children: [
           _MenuRow(
             icon: Icons.person_outline,
-            title: 'Personal Information',
-            subtitle: 'View and update your details',
+            title: 'personal_information'.tr,
+            subtitle: 'personal_info_sub'.tr,
             onTap: controller.onPersonalInformationTap,
           ),
           _rowDivider(),
           _MenuRow(
             icon: Icons.lock_outline,
-            title: 'Security',
-            subtitle: 'Change password',
+            title: 'security'.tr,
+            subtitle: 'change_password_sub'.tr,
             onTap: controller.onSecurityTap,
           ),
           _rowDivider(),
           _MenuRow(
             icon: Icons.notifications_none_rounded,
-            title: 'Notification Preferences',
-            subtitle: 'Manage notification settings',
+            title: 'notification_preferences'.tr,
+            subtitle: 'manage_notification_settings'.tr,
             onTap: controller.onNotificationPreferencesTap,
             isLast: true,
           ),
@@ -264,8 +264,8 @@ class DriverProfileView extends GetView<DriverProfileController> {
           border: Border.all(color: kBorder),
         ),
         child: controller.documents.isEmpty
-            ? const Center(
-                child: Text('No documents uploaded yet', style: TextStyle(color: Colors.white54, fontSize: 13)),
+            ? Center(
+                child: Text('no_documents_uploaded'.tr, style: const TextStyle(color: Colors.white54, fontSize: 13)),
               )
             : Column(
                 children: List.generate(controller.documents.length, (index) {
@@ -296,15 +296,15 @@ class DriverProfileView extends GetView<DriverProfileController> {
         children: [
           _MenuRow(
             icon: Icons.support_agent_outlined,
-            title: 'Help & Support',
-            subtitle: 'Get help and contact support',
+            title: 'help_support'.tr,
+            subtitle: 'support_sub'.tr,
             onTap: controller.onHelpSupportTap,
           ),
           _rowDivider(),
           _MenuRow(
             icon: Icons.info_outline,
-            title: 'About VMOVEXA',
-            subtitle: 'App version 1.0.0',
+            title: 'about_vmovexa'.tr,
+            subtitle: '${'app_version'.tr} 1.0.0',
             onTap: controller.onAboutTap,
             isLast: true,
           ),
@@ -327,12 +327,12 @@ class DriverProfileView extends GetView<DriverProfileController> {
           borderRadius: BorderRadius.circular(12),
         ),
         alignment: Alignment.center,
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.logout, color: Colors.white, size: 17),
-            SizedBox(width: 8),
-            Text('Logout', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+            const Icon(Icons.logout, color: Colors.white, size: 17),
+            const SizedBox(width: 8),
+            Text('logout'.tr, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
           ],
         ),
       ),

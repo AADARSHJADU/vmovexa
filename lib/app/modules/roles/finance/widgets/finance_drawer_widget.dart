@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:vmovexa/app/data/services/storage_service.dart';
 import 'package:vmovexa/app/routes/app_routes.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
+import 'package:vmovexa/app/widgets/language_selector_sheet.dart';
 import '../finance_dashboard/controller/finance_dashboard_controller.dart';
 import '../payments/controller/finance_payments_controller.dart';
 
@@ -18,7 +19,7 @@ class FinanceDrawerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     String userName = 'Finance Officer';
     String userEmail = 'finance@vmovexa.com';
-    String userRole = 'FINANCE OFFICER';
+    String userRole = 'finance_officer'.tr.toUpperCase();
     String initial = 'F';
 
     try {
@@ -128,10 +129,10 @@ class FinanceDrawerWidget extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 children: [
                   // SECTION 1: OVERVIEW
-                  _buildSectionHeader('OVERVIEW'),
+                  _buildSectionHeader('overview'.tr.toUpperCase()),
                   _buildMenuItem(
                     icon: Icons.dashboard_outlined,
-                    label: 'Overview Dashboard',
+                    label: 'overview_dashboard'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       _switchTab(0);
@@ -141,10 +142,10 @@ class FinanceDrawerWidget extends StatelessWidget {
                   const SizedBox(height: 12),
 
                   // SECTION 2: FINANCIAL MANAGEMENT
-                  _buildSectionHeader('FINANCIAL MANAGEMENT'),
+                  _buildSectionHeader('financial_management_caps'.tr),
                   _buildMenuItem(
                     icon: Icons.domain_outlined,
-                    label: 'Tenants',
+                    label: 'tenants'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       _switchTab(3);
@@ -152,7 +153,7 @@ class FinanceDrawerWidget extends StatelessWidget {
                   ),
                   _buildMenuItem(
                     icon: Icons.receipt_long_outlined,
-                    label: 'Invoices & Billing',
+                    label: 'invoices_billing'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       _switchTab(1);
@@ -160,7 +161,7 @@ class FinanceDrawerWidget extends StatelessWidget {
                   ),
                   _buildMenuItem(
                     icon: Icons.campaign_outlined,
-                    label: 'Campaign Payments',
+                    label: 'campaign_payments'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       _switchTab(2);
@@ -171,7 +172,7 @@ class FinanceDrawerWidget extends StatelessWidget {
                   ),
                   _buildMenuItem(
                     icon: Icons.payments_outlined,
-                    label: 'Payments Ledger',
+                    label: 'payments_ledger'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       _switchTab(2);
@@ -182,7 +183,7 @@ class FinanceDrawerWidget extends StatelessWidget {
                   ),
                   _buildMenuItem(
                     icon: Icons.bar_chart_outlined,
-                    label: 'Revenue Reports',
+                    label: 'revenue_reports'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       Get.toNamed(Routes.REVENUE_REPORTING);
@@ -190,7 +191,7 @@ class FinanceDrawerWidget extends StatelessWidget {
                   ),
                   _buildMenuItem(
                     icon: Icons.account_balance_outlined,
-                    label: 'GST & Tax Returns',
+                    label: 'gst_tax_returns'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       Get.toNamed(Routes.GST_MANAGEMENT);
@@ -198,7 +199,7 @@ class FinanceDrawerWidget extends StatelessWidget {
                   ),
                   _buildMenuItem(
                     icon: Icons.sync_alt_outlined,
-                    label: 'Bank Reconciliation',
+                    label: 'bank_reconciliation'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       Get.toNamed(Routes.FINANCIAL_RECONCILIATION);
@@ -208,10 +209,10 @@ class FinanceDrawerWidget extends StatelessWidget {
                   const SizedBox(height: 12),
 
                   // SECTION 3: ALERTS & SETTINGS
-                  _buildSectionHeader('ALERTS & SETTINGS'),
+                  _buildSectionHeader('alerts_and_settings_caps'.tr),
                   _buildMenuItem(
                     icon: Icons.notifications_none_outlined,
-                    label: 'Financial Alerts',
+                    label: 'financial_alerts'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       Get.toNamed(Routes.FINANCE_NOTIFICATIONS);
@@ -227,15 +228,23 @@ class FinanceDrawerWidget extends StatelessWidget {
                   // ),
                   _buildMenuItem(
                     icon: Icons.person_outline,
-                    label: 'Finance Profile',
+                    label: 'finance_profile'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       _switchTab(4);
                     },
                   ),
                   _buildMenuItem(
+                    icon: Icons.language_rounded,
+                    label: 'change_language'.tr,
+                    onTap: () {
+                      Navigator.pop(context);
+                      LanguageSelectorSheet.show(context);
+                    },
+                  ),
+                  _buildMenuItem(
                     icon: Icons.help_outline,
-                    label: 'Help & Documentation',
+                    label: 'help_support'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       Get.toNamed(Routes.FINANCE_HELP_SUPPORT);
@@ -243,7 +252,7 @@ class FinanceDrawerWidget extends StatelessWidget {
                   ),
                   _buildMenuItem(
                     icon: Icons.privacy_tip_outlined,
-                    label: 'Privacy Policy',
+                    label: 'privacy_policy'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       Get.toNamed(Routes.PRIVACY_POLICY, arguments: {'role': 'ROLE-FINANCE-OFFICER'});
@@ -251,7 +260,7 @@ class FinanceDrawerWidget extends StatelessWidget {
                   ),
                   _buildMenuItem(
                     icon: Icons.description_outlined,
-                    label: 'Terms & SLAs',
+                    label: 'terms_slas'.tr,
                     onTap: () {
                       Navigator.pop(context);
                       Get.toNamed(Routes.TERMS_CONDITIONS, arguments: {'role': 'ROLE-FINANCE-OFFICER'});
@@ -275,9 +284,9 @@ class FinanceDrawerWidget extends StatelessWidget {
                 ),
                 tileColor: Colors.red.withValues(alpha: 0.08),
                 leading: const Icon(Icons.logout, color: Colors.redAccent, size: 22),
-                title: const Text(
-                  'Log Out',
-                  style: TextStyle(
+                title: Text(
+                  'log_out'.tr,
+                  style: const TextStyle(
                     color: Colors.redAccent,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -301,10 +310,10 @@ class FinanceDrawerWidget extends StatelessWidget {
   void _handleLogout(BuildContext context) {
     Navigator.pop(context);
     Get.defaultDialog(
-      title: 'Confirm Logout',
-      middleText: 'Are you sure you want to log out of your Finance Officer account?',
-      textConfirm: 'Log Out',
-      textCancel: 'Cancel',
+      title: 'confirm_logout'.tr,
+      middleText: 'confirm_logout_finance_msg'.tr,
+      textConfirm: 'log_out'.tr,
+      textCancel: 'cancel'.tr,
       confirmTextColor: Colors.white,
       buttonColor: Colors.redAccent,
       onConfirm: () {

@@ -4,6 +4,7 @@ import 'package:vmovexa/app/data/constants/api_constants.dart';
 import 'package:vmovexa/app/data/services/auth_service.dart';
 import 'package:vmovexa/app/routes/app_routes.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
+import 'package:vmovexa/app/widgets/language_selector_sheet.dart';
 import '../controllers/government_dashboard_controller.dart';
 
 class GovSideDrawer extends StatelessWidget {
@@ -172,10 +173,10 @@ class GovSideDrawer extends StatelessWidget {
                   physics: const BouncingScrollPhysics(),
                   children: [
                     // --- OVERVIEW ---
-                    _buildSectionHeader('OVERVIEW'),
+                    _buildSectionHeader('overview'.tr.toUpperCase()),
                     _buildNavItem(
                       icon: Icons.dashboard_rounded,
-                      title: 'Dashboard',
+                      title: 'dashboard'.tr,
                       isActive: currentIndex == 0,
                       onTap: () {
                         Get.back();
@@ -186,10 +187,10 @@ class GovSideDrawer extends StatelessWidget {
                     const SizedBox(height: 12),
 
                     // --- PUBLIC SERVICES ---
-                    _buildSectionHeader('PUBLIC SERVICES'),
+                    _buildSectionHeader('public_services'.tr),
                     _buildNavItem(
                       icon: Icons.campaign_rounded,
-                      title: 'Campaigns Hub',
+                      title: 'campaigns_hub'.tr,
                       isActive: currentIndex == 1,
                       onTap: () {
                         Get.back();
@@ -198,7 +199,7 @@ class GovSideDrawer extends StatelessWidget {
                     ),
                     _buildNavItem(
                       icon: Icons.add_circle_outline_rounded,
-                      title: 'Launch New Campaign',
+                      title: 'launch_new_campaign'.tr,
                       onTap: () {
                         Get.back();
                         Get.toNamed(Routes.GOVERNMENT_CREATE_CAMPAIGN);
@@ -206,7 +207,7 @@ class GovSideDrawer extends StatelessWidget {
                     ),
                     _buildNavItem(
                       icon: Icons.warning_amber_rounded,
-                      title: 'Emergency Broadcast',
+                      title: 'emergency_broadcast'.tr,
                       badge: 'ALERT',
                       badgeColor: const Color(0xFFEF4444),
                       isActive: currentIndex == 2,
@@ -217,7 +218,7 @@ class GovSideDrawer extends StatelessWidget {
                     ),
                     _buildNavItem(
                       icon: Icons.radar_rounded,
-                      title: 'Sovereign Fleet Tracking',
+                      title: 'sovereign_fleet_tracking'.tr,
                       badge: 'LIVE',
                       badgeColor: const Color(0xFF10B981),
                       onTap: () {
@@ -229,10 +230,10 @@ class GovSideDrawer extends StatelessWidget {
                     const SizedBox(height: 12),
 
                     // --- ANALYTICS & REPORTS ---
-                    _buildSectionHeader('ANALYTICS & REPORTS'),
+                    _buildSectionHeader('analytics_and_reports'.tr),
                     _buildNavItem(
                       icon: Icons.analytics_outlined,
-                      title: 'Transit Analytics',
+                      title: 'transit_analytics'.tr,
                       isActive: currentIndex == 3,
                       onTap: () {
                         Get.back();
@@ -241,7 +242,7 @@ class GovSideDrawer extends StatelessWidget {
                     ),
                     _buildNavItem(
                       icon: Icons.insert_chart_outlined_rounded,
-                      title: 'Reports & Analytics',
+                      title: 'reports_and_analytics'.tr,
                       onTap: () {
                         Get.back();
                         _showReportsDialog(context, controller);
@@ -251,10 +252,10 @@ class GovSideDrawer extends StatelessWidget {
                     const SizedBox(height: 12),
 
                     // --- BILLING & ALERTS ---
-                    _buildSectionHeader('BILLING & ALERTS'),
+                    _buildSectionHeader('billing_and_alerts'.tr),
                     _buildNavItem(
                       icon: Icons.receipt_long_outlined,
-                      title: 'Billing & Invoices',
+                      title: 'billing_and_invoices'.tr,
                       onTap: () {
                         Get.back();
                         Get.toNamed(Routes.GOV_BILLING);
@@ -262,7 +263,7 @@ class GovSideDrawer extends StatelessWidget {
                     ),
                     _buildNavItem(
                       icon: Icons.notifications_none_rounded,
-                      title: 'Alerts & Messages',
+                      title: 'alerts_and_messages'.tr,
                       onTap: () {
                         Get.back();
                         Get.toNamed(Routes.NOTIFICATIONS_LIST);
@@ -272,10 +273,10 @@ class GovSideDrawer extends StatelessWidget {
                     const SizedBox(height: 12),
 
                     // --- ACCOUNT & LEGAL ---
-                    _buildSectionHeader('ACCOUNT & LEGAL'),
+                    _buildSectionHeader('account_and_legal'.tr),
                     _buildNavItem(
                       icon: Icons.person_outline_rounded,
-                      title: 'Profile',
+                      title: 'profile'.tr,
                       isActive: currentIndex == 4,
                       onTap: () {
                         Get.back();
@@ -284,7 +285,7 @@ class GovSideDrawer extends StatelessWidget {
                     ),
                     _buildNavItem(
                       icon: Icons.settings_outlined,
-                      title: 'Account Settings',
+                      title: 'account_settings'.tr,
                       onTap: () {
                         Get.back();
                         Get.toNamed(Routes.ACCOUNT_SETTINGS);
@@ -292,15 +293,23 @@ class GovSideDrawer extends StatelessWidget {
                     ),
                     _buildNavItem(
                       icon: Icons.help_outline_rounded,
-                      title: 'Help & Documentation',
+                      title: 'help_and_docs'.tr,
                       onTap: () {
                         Get.back();
                         Get.toNamed(Routes.HELP_SUPPORT);
                       },
                     ),
                     _buildNavItem(
+                      icon: Icons.language_rounded,
+                      title: 'change_language'.tr,
+                      onTap: () {
+                        Get.back();
+                        LanguageSelectorSheet.show(context);
+                      },
+                    ),
+                    _buildNavItem(
                       icon: Icons.privacy_tip_outlined,
-                      title: 'Privacy Policy',
+                      title: 'privacy_policy'.tr,
                       onTap: () {
                         Get.back();
                         Get.toNamed(Routes.PRIVACY_POLICY);
@@ -308,7 +317,7 @@ class GovSideDrawer extends StatelessWidget {
                     ),
                     _buildNavItem(
                       icon: Icons.description_outlined,
-                      title: 'Terms of Service',
+                      title: 'terms_conditions'.tr,
                       onTap: () {
                         Get.back();
                         Get.toNamed(Routes.TERMS_CONDITIONS);
@@ -335,14 +344,14 @@ class GovSideDrawer extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.3)),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.logout_rounded, color: Color(0xFFEF4444), size: 18),
-                      SizedBox(width: 8),
+                      const Icon(Icons.logout_rounded, color: Color(0xFFEF4444), size: 18),
+                      const SizedBox(width: 8),
                       Text(
-                        'Logout Portal',
-                        style: TextStyle(
+                        'logout'.tr,
+                        style: const TextStyle(
                           color: Color(0xFFEF4444),
                           fontSize: 12.5,
                           fontWeight: FontWeight.bold,
@@ -560,15 +569,15 @@ class GovSideDrawer extends StatelessWidget {
       AlertDialog(
         backgroundColor: AppColors.cardBg,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Logout Portal?', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-        content: const Text(
-          'Are you sure you want to log out from the Government Transit Portal?',
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+        title: Text('confirm_logout'.tr, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+        content: Text(
+          'logout_confirmation_msg'.tr,
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel', style: TextStyle(color: AppColors.textMuted)),
+            child: Text('cancel'.tr, style: const TextStyle(color: AppColors.textMuted)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -582,7 +591,7 @@ class GovSideDrawer extends StatelessWidget {
               backgroundColor: const Color(0xFFEF4444),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('Logout', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: Text('logout'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

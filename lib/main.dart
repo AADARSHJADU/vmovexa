@@ -12,10 +12,13 @@ import 'app/data/services/storage_service.dart';
 import 'app/data/services/http_client_service.dart';
 import 'app/data/services/auth_service.dart';
 import 'app/data/services/fleet_service.dart';
+import 'app/translations/app_translations.dart';
+import 'app/translations/services/localization_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Get.putAsync(() => StorageService().init());
+  Get.put(LocalizationService());
   Get.put(HttpClientService());
   Get.put(AuthService());
   Get.put(FleetService());
@@ -36,6 +39,9 @@ class VMovexaApp extends StatelessWidget {
       title: 'VMOVEXA',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
+      translations: AppTranslations(),
+      locale: LocalizationService.currentLocale,
+      fallbackLocale: LocalizationService.fallbackLocale,
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
     );

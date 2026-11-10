@@ -62,9 +62,9 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
             children: [
               Row(
                 children: [
-                  const Text(
-                    'Edge Devices',
-                    style: TextStyle(
+                  Text(
+                    'edge_devices'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
@@ -125,13 +125,13 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
         childAspectRatio: 2.1,
         children: [
           _buildStatCard(
-            title: 'TOTAL UNITS',
+            title: 'total_units_caps'.tr,
             count: controller.totalDevices.toString(),
             color: const Color(0xFF6366F1),
             icon: Icons.memory_rounded,
           ),
           _buildStatCard(
-            title: 'ONLINE UNITS',
+            title: 'online_units_caps'.tr,
             count: controller.onlineCount.toString(),
             color: const Color(0xFF10B981),
             icon: Icons.check_circle_rounded,
@@ -143,7 +143,7 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
             icon: Icons.power_rounded,
           ),
           _buildStatCard(
-            title: 'OFFLINE UNITS',
+            title: 'offline_units_caps'.tr,
             count: controller.offlineCount.toString(),
             color: const Color(0xFFEF4444),
             icon: Icons.signal_cellular_connected_no_internet_4_bar_rounded,
@@ -212,7 +212,7 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
       onChanged: controller.onSearchChanged,
       style: const TextStyle(color: Colors.white, fontSize: 13),
       decoration: InputDecoration(
-        hintText: 'Search Box ID, MAC, Vehicle, Network...',
+        hintText: 'search_devices_hint'.tr,
         hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
         prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 20),
         filled: true,

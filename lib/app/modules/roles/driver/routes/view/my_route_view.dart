@@ -27,8 +27,8 @@ class MyRouteView extends GetView<MyRouteController> {
           () => controller.isLoading.value && controller.route.value == null
               ? const Center(child: CircularProgressIndicator(color: kPurple))
               : controller.route.value == null
-                  ? const Center(
-                      child: Text('No route assigned', style: TextStyle(color: Colors.white, fontSize: 13)))
+                  ? Center(
+                      child: Text('no_route_assigned'.tr, style: const TextStyle(color: Colors.white, fontSize: 13)))
                   : RefreshIndicator(
                       color: kPurple,
                       backgroundColor: kCardBg,
@@ -68,13 +68,13 @@ class MyRouteView extends GetView<MyRouteController> {
           child: const Icon(Icons.arrow_back, color: Colors.white),
         ),
         const SizedBox(width: 10),
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Assigned Routes', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700)),
-              SizedBox(height: 2),
-              Text('View and manage your assigned routes.', style: TextStyle(color: Colors.white, fontSize: 12)),
+              Text('assigned_routes'.tr, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 2),
+              Text('assigned_routes_sub'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
             ],
           ),
         ),
@@ -130,7 +130,7 @@ class MyRouteView extends GetView<MyRouteController> {
                       Container(width: 6, height: 6, decoration: const BoxDecoration(color: kGreen, shape: BoxShape.circle)),
                       const SizedBox(width: 5),
                       Text(
-                        controller.isRouteStarted.value ? 'In Progress' : (route.isOnDuty ? 'On Duty' : 'Off Duty'),
+                        controller.isRouteStarted.value ? 'in_progress'.tr : (route.isOnDuty ? 'on_duty'.tr : 'off_duty'.tr),
                         style: const TextStyle(color: kGreen, fontSize: 10.5, fontWeight: FontWeight.w600),
                       ),
                     ],
@@ -145,13 +145,13 @@ class MyRouteView extends GetView<MyRouteController> {
           Row(
             children: [
               Expanded(
-                child: _SummaryStat(icon: 'assets/icons/calendar.svg', label: 'Start Time', value: route.startTime),
+                child: _SummaryStat(icon: 'assets/icons/calendar.svg', label: 'start_time'.tr, value: route.startTime),
               ),
               Expanded(
-                child: _SummaryStat(icon: 'assets/icons/clock.svg', label: 'End Time', value: route.endTime),
+                child: _SummaryStat(icon: 'assets/icons/clock.svg', label: 'end_time'.tr, value: route.endTime),
               ),
               Expanded(
-                child: _SummaryStat(icon: 'assets/icons/advertiser_ic/route.svg', label: 'Total Distance', value: '${route.totalDistanceKm} km'),
+                child: _SummaryStat(icon: 'assets/icons/advertiser_ic/route.svg', label: 'total_distance'.tr, value: '${route.totalDistanceKm} km'),
               ),
             ],
           ),
@@ -175,15 +175,15 @@ class MyRouteView extends GetView<MyRouteController> {
                     Get.dialog(
                       AlertDialog(
                         backgroundColor: const Color(0xFF15151F),
-                        title: const Text('End Current Trip?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                        content: const Text(
-                          'Are you sure you want to end this trip and complete the route?',
-                          style: TextStyle(color: Colors.white70),
+                        title: Text('end_current_trip_q'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        content: Text(
+                          'end_current_trip_msg'.tr,
+                          style: const TextStyle(color: Colors.white70),
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Get.back(),
-                            child: const Text('Cancel', style: TextStyle(color: Colors.white60)),
+                            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white60)),
                           ),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
@@ -191,7 +191,7 @@ class MyRouteView extends GetView<MyRouteController> {
                               Get.back();
                               controller.onEndRoute();
                             },
-                            child: const Text('End Trip', style: TextStyle(color: Colors.white)),
+                            child: Text('end_trip'.tr, style: const TextStyle(color: Colors.white)),
                           ),
                         ],
                       ),
@@ -226,7 +226,7 @@ class MyRouteView extends GetView<MyRouteController> {
                       Icon(isRunning ? Icons.stop_circle_outlined : Icons.play_arrow, color: Colors.white, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        isRunning ? 'End Trip / Complete Route' : 'Start Route',
+                        isRunning ? 'end_trip_complete_route'.tr : 'start_route'.tr,
                         style: const TextStyle(color: Colors.white, fontSize: 14.5, fontWeight: FontWeight.w700),
                       ),
                     ],
@@ -242,7 +242,7 @@ class MyRouteView extends GetView<MyRouteController> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text('Route Details', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+        Text('route_details'.tr, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
         /*GestureDetector(
           onTap: controller.onViewOnMap,
           child: const Row(
@@ -291,9 +291,9 @@ class MyRouteView extends GetView<MyRouteController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Route Information',
-            style: TextStyle(
+          Text(
+            'route_information'.tr,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -306,7 +306,7 @@ class MyRouteView extends GetView<MyRouteController> {
               Expanded(
                 child: _InfoColumn(
                   icon: Icons.route_outlined,
-                  label: 'Route Type',
+                  label: 'route_type'.tr,
                   value: route.routeType,
                 ),
               ),
@@ -321,7 +321,7 @@ class MyRouteView extends GetView<MyRouteController> {
               Expanded(
                 child: _InfoColumn(
                   icon: Icons.loop,
-                  label: 'Frequency',
+                  label: 'frequency'.tr,
                   value: route.frequency,
                 ),
               ),
@@ -336,7 +336,7 @@ class MyRouteView extends GetView<MyRouteController> {
               Expanded(
                 child: _InfoColumn(
                   icon: Icons.groups_outlined,
-                  label: 'Passengers (Est.)',
+                  label: 'passengers_est'.tr,
                   value: route.passengersEstimate,
                 ),
               ),
@@ -361,10 +361,10 @@ class MyRouteView extends GetView<MyRouteController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
-              Icon(Icons.directions_bus_outlined, color: kPurple, size: 16),
-              SizedBox(width: 8),
-              Text('Bus Information', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+            children: [
+              const Icon(Icons.directions_bus_outlined, color: kPurple, size: 16),
+              const SizedBox(width: 8),
+              Text('bus_information'.tr, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
             ],
           ),
           const SizedBox(height: 14),
@@ -373,7 +373,7 @@ class MyRouteView extends GetView<MyRouteController> {
             children: [
               Expanded(
                 child: _PlainInfoColumn(
-                  label: 'Bus Number',
+                  label: 'bus_number'.tr,
                   value: route.busNumber.replaceFirst('Bus ', ''),
                 ),
               ),
@@ -387,7 +387,7 @@ class MyRouteView extends GetView<MyRouteController> {
               ),
               Expanded(
                 child: _PlainInfoColumn(
-                  label: 'Vehicle ID',
+                  label: 'vehicle_id'.tr,
                   value: route.vehicleId,
                 ),
               ),
@@ -401,7 +401,7 @@ class MyRouteView extends GetView<MyRouteController> {
               ),
               Expanded(
                 child: _PlainInfoColumn(
-                  label: 'Bus Type',
+                  label: 'bus_type'.tr,
                   value: route.busType,
                 ),
               ),
@@ -504,7 +504,7 @@ class _StopRow extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
-                                  isStart ? 'Start' : 'End',
+                                  isStart ? 'start_point'.tr : 'end_point'.tr,
                                   style: TextStyle(color: isStart ? kGreen : kPurple, fontSize: 9.5, fontWeight: FontWeight.w600),
                                 ),
                               ),

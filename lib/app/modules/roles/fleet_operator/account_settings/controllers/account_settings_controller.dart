@@ -21,7 +21,7 @@ class AccountSettingsController extends GetxController {
   final RxString role = ''.obs;
 
   final RxString companyName = ''.obs;
-  final RxString branch = 'Bengaluru Head Office'.obs;
+  final RxString branch = ''.obs;
   final RxString officeAddress = ''.obs;
 
   final RxString language = 'English (India)'.obs;

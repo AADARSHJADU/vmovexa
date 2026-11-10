@@ -29,11 +29,11 @@ class ProfileView extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 22),
                   onPressed: controller.loadProfileData,
-                  tooltip: 'Refresh Profile',
+                  tooltip: 'refresh'.tr,
                 ),
-                const Text(
-                  'Operator Profile',
-                  style: TextStyle(
+                Text(
+                  'operator_profile'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -115,9 +115,9 @@ class ProfileView extends StatelessWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       icon: const Icon(Icons.logout_rounded, color: Color(0xFFEF4444), size: 18),
-                      label: const Text(
-                        'Logout Account',
-                        style: TextStyle(
+                      label: Text(
+                        'logout'.tr,
+                        style: const TextStyle(
                           color: Color(0xFFEF4444),
                           fontSize: 14,
                           fontWeight: FontWeight.bold,

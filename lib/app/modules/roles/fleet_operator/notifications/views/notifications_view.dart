@@ -29,9 +29,9 @@ class NotificationsView extends GetView<NotificationsController> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const CustomBackButton(),
-                  const Text(
-                    'Notifications',
-                    style: TextStyle(
+                  Text(
+                    'notifications'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -41,9 +41,9 @@ class NotificationsView extends GetView<NotificationsController> {
                     children: [
                       TextButton(
                         onPressed: c.markAllAsRead,
-                        child: const Text(
-                          'Mark all as read',
-                          style: TextStyle(color: AppColors.textLink, fontSize: 11, fontWeight: FontWeight.bold),
+                        child: Text(
+                          'mark_all_as_read'.tr,
+                          style: const TextStyle(color: AppColors.textLink, fontSize: 11, fontWeight: FontWeight.bold),
                         ),
                       ),
                       IconButton(

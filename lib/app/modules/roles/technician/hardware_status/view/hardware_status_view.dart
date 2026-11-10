@@ -96,17 +96,17 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
               child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white70, size: 16),
             ),
             const SizedBox(width: 8),
-            const Text(
-              'Technician',
-              style: TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w500),
+            Text(
+              'technician'.tr,
+              style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w500),
             ),
             const Text(
               '  /  ',
               style: TextStyle(color: Colors.white24, fontSize: 12),
             ),
-            const Text(
-              'Hardware Subsystems',
-              style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+            Text(
+              'hardware_subsystems_status'.tr,
+              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -115,13 +115,13 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Hardware Subsystems Status',
-                    style: TextStyle(
+                    'hardware_subsystems_status'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.w800,

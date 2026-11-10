@@ -61,13 +61,13 @@ class ScheduleView extends GetView<ScheduleController> {
           ),
           const SizedBox(width: 10),
         ],
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Schedule', style: TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w800)),
-              SizedBox(height: 2),
-              Text('View your daily and upcoming schedules.', style: TextStyle(color: Colors.white54, fontSize: 12)),
+              Text('schedule'.tr, style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 2),
+              Text('schedule_sub'.tr, style: const TextStyle(color: Colors.white54, fontSize: 12)),
             ],
           ),
         ),
@@ -92,8 +92,8 @@ class ScheduleView extends GetView<ScheduleController> {
     return Obx(
       () => Row(
         children: [
-          Expanded(child: _TabItem(label: 'Today', isActive: controller.selectedTabIndex.value == 0, onTap: () => controller.selectTab(0))),
-          Expanded(child: _TabItem(label: 'Upcoming', isActive: controller.selectedTabIndex.value == 1, onTap: () => controller.selectTab(1))),
+          Expanded(child: _TabItem(label: 'today'.tr, isActive: controller.selectedTabIndex.value == 0, onTap: () => controller.selectTab(0))),
+          Expanded(child: _TabItem(label: 'upcoming'.tr, isActive: controller.selectedTabIndex.value == 1, onTap: () => controller.selectTab(1))),
         ],
       ),
     );
@@ -107,9 +107,9 @@ class ScheduleView extends GetView<ScheduleController> {
         children: [
           _buildSummaryHeaderCard(
             icon: Icons.calendar_today,
-            title: "Today's Schedule",
+            title: "todays_schedule".tr,
             subtitle: controller.todayDateLabel.value,
-            badgeText: '${controller.todayTripCount} Trips',
+            badgeText: '${controller.todayTripCount} ${'trips'.tr}',
           ),
           const SizedBox(height: 18),
           Text(controller.todayGroupLabel.value, style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w700)),
@@ -135,7 +135,7 @@ class ScheduleView extends GetView<ScheduleController> {
           border: Border.all(color: kBorder),
         ),
         alignment: Alignment.center,
-        child: const Text('No trips scheduled for today', style: TextStyle(color: Colors.white54, fontSize: 13)),
+        child: Text('no_trips_scheduled_today'.tr, style: const TextStyle(color: Colors.white54, fontSize: 13)),
       );
     }
     return Column(
@@ -159,13 +159,13 @@ class ScheduleView extends GetView<ScheduleController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Schedule Summary', style: TextStyle(color: kPurple, fontSize: 13.5, fontWeight: FontWeight.w700)),
+          Text('schedule_summary'.tr, style: const TextStyle(color: kPurple, fontSize: 13.5, fontWeight: FontWeight.w700)),
           const SizedBox(height: 14),
           Row(
             children: [
-              Expanded(child: _SummaryStatColumn(icon: Icons.alt_route, value: '${controller.todayTripCount}', label: 'Trips')),
-              Expanded(child: _SummaryStatColumn(icon: Icons.route_outlined, value: '${controller.todayTotalDistanceKm.toStringAsFixed(1)} km', label: 'Total Distance')),
-              Expanded(child: _SummaryStatColumn(icon: Icons.access_time, value: controller.todayTotalDuration.value, label: 'Total Duration')),
+              Expanded(child: _SummaryStatColumn(icon: Icons.alt_route, value: '${controller.todayTripCount}', label: 'trips'.tr)),
+              Expanded(child: _SummaryStatColumn(icon: Icons.route_outlined, value: '${controller.todayTotalDistanceKm.toStringAsFixed(1)} km', label: 'total_distance'.tr)),
+              Expanded(child: _SummaryStatColumn(icon: Icons.access_time, value: controller.todayTotalDuration.value, label: 'total_duration'.tr)),
             ],
           ),
         ],
@@ -181,12 +181,12 @@ class ScheduleView extends GetView<ScheduleController> {
         children: [
           _buildSummaryHeaderCard(
             icon: Icons.calendar_today,
-            title: 'Upcoming Schedules',
-            subtitle: 'Your next scheduled trips.',
-            badgeText: '${controller.upcomingTripCount} Trips',
+            title: 'upcoming_schedules'.tr,
+            subtitle: 'next_scheduled_trips'.tr,
+            badgeText: '${controller.upcomingTripCount} ${'trips'.tr}',
           ),
           const SizedBox(height: 18),
-          const Text('Upcoming Trips', style: TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w700)),
+          Text('upcoming_trips'.tr, style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w700)),
           const SizedBox(height: 10),
           if (controller.upcomingTrips.isEmpty)
             Container(
@@ -199,7 +199,7 @@ class ScheduleView extends GetView<ScheduleController> {
                 border: Border.all(color: kBorder),
               ),
               alignment: Alignment.center,
-              child: const Text('No upcoming trips found', style: TextStyle(color: Colors.white54, fontSize: 13)),
+              child: Text('no_upcoming_trips_found'.tr, style: const TextStyle(color: Colors.white54, fontSize: 13)),
             )
           else
             ...controller.upcomingTrips.map(
@@ -280,13 +280,13 @@ class ScheduleView extends GetView<ScheduleController> {
         border: Border.all(color: Colors.white.withOpacity(0.06)),
       ),
       child: Row(
-        children: const [
-          Icon(Icons.access_time, color: Colors.white38, size: 15),
-          SizedBox(width: 8),
+        children: [
+          const Icon(Icons.access_time, color: Colors.white38, size: 15),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Timings may change due to traffic or operational updates. Please check notifications for the latest updates.',
-              style: TextStyle(color: Colors.white54, fontSize: 11),
+              'schedule_timing_notice'.tr,
+              style: const TextStyle(color: Colors.white54, fontSize: 11),
             ),
           ),
         ],
@@ -378,7 +378,7 @@ class _TodayTripTimelineRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(trip.startTime, style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600)),
-                  const Text('Start Time', style: TextStyle(color: Colors.white24, fontSize: 9.5)),
+                  Text('start_time'.tr, style: const TextStyle(color: Colors.white24, fontSize: 9.5)),
                   const SizedBox(height: 8),
                   GestureDetector(
                     onTap: onTap,
@@ -386,7 +386,7 @@ class _TodayTripTimelineRow extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(trip.endTime, style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600)),
-                  const Text('End Time', style: TextStyle(color: Colors.white24, fontSize: 9.5)),
+                  Text('end_time'.tr, style: const TextStyle(color: Colors.white24, fontSize: 9.5)),
                 ],
               ),
             ),
@@ -456,9 +456,9 @@ class _TripCard extends StatelessWidget {
           const SizedBox(height: 10),
           Row(
             children: [
-              Expanded(child: _MiniInfo(icon: Icons.location_on_outlined, label: 'Start Point', value: trip.startPoint)),
-              Expanded(child: _MiniInfo(icon: Icons.flag_outlined, label: 'End Point', value: trip.endPoint)),
-              Expanded(child: _MiniInfo(icon: Icons.route_outlined, label: 'Distance', value: '${trip.distanceKm} km')),
+              Expanded(child: _MiniInfo(icon: Icons.location_on_outlined, label: 'start_point'.tr, value: trip.startPoint)),
+              Expanded(child: _MiniInfo(icon: Icons.flag_outlined, label: 'end_point'.tr, value: trip.endPoint)),
+              Expanded(child: _MiniInfo(icon: Icons.route_outlined, label: 'distance'.tr, value: '${trip.distanceKm} km')),
             ],
           ),
         ],
@@ -571,10 +571,10 @@ class _UpcomingTripCard extends StatelessWidget {
             const SizedBox(height: 10),
             Row(
               children: [
-                Expanded(child: _MiniInfo(icon: Icons.access_time, label: 'Start Time', value: trip.startTime)),
-                Expanded(child: _MiniInfo(icon: Icons.location_on_outlined, label: 'Start Point', value: trip.startPoint)),
-                Expanded(child: _MiniInfo(icon: Icons.flag_outlined, label: 'End Point', value: trip.endPoint)),
-                Expanded(child: _MiniInfo(icon: Icons.route_outlined, label: 'Distance', value: '${trip.distanceKm} km')),
+                Expanded(child: _MiniInfo(icon: Icons.access_time, label: 'start_time'.tr, value: trip.startTime)),
+                Expanded(child: _MiniInfo(icon: Icons.location_on_outlined, label: 'start_point'.tr, value: trip.startPoint)),
+                Expanded(child: _MiniInfo(icon: Icons.flag_outlined, label: 'end_point'.tr, value: trip.endPoint)),
+                Expanded(child: _MiniInfo(icon: Icons.route_outlined, label: 'distance'.tr, value: '${trip.distanceKm} km')),
               ],
             ),
           ],

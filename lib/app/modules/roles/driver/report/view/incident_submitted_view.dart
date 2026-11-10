@@ -46,16 +46,16 @@ class IncidentSubmittedView extends GetView<ReportIncidentController> {
                   children: [
                     _buildSuccessBadge(),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Incident Reported Successfully!',
+                    Text(
+                      'incident_reported_success'.tr,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800),
+                      style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
-                      'Thank you for helping us keep operations safe and improve the system.',
+                    Text(
+                      'thank_you_keep_ops_safe'.tr,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white54, fontSize: 12),
+                      style: const TextStyle(color: Colors.white54, fontSize: 12),
                     ),
                     const SizedBox(height: 18),
                     _buildDetailsCard(),
@@ -84,13 +84,13 @@ class IncidentSubmittedView extends GetView<ReportIncidentController> {
           ),
         ),
         const SizedBox(width: 10),
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Report Incident', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700)),
-              SizedBox(height: 2),
-              Text('Your incident has been submitted successfully.', style: TextStyle(color: Colors.white54, fontSize: 11.5)),
+              Text('report_incident'.tr, style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 2),
+              Text('incident_submitted_success_sub'.tr, style: const TextStyle(color: Colors.white54, fontSize: 11.5)),
             ],
           ),
         ),
@@ -206,7 +206,7 @@ class IncidentSubmittedView extends GetView<ReportIncidentController> {
           children: [
             _detailRow(
               icon: Icons.confirmation_number_outlined,
-              label: 'Incident ID',
+              label: 'incident_id'.tr,
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -217,20 +217,20 @@ class IncidentSubmittedView extends GetView<ReportIncidentController> {
               ),
             ),
             _divider(),
-            _detailRow(icon: Icons.calendar_today_outlined, label: 'Date & Time', value: controller.submittedOnText),
+            _detailRow(icon: Icons.calendar_today_outlined, label: 'date_time_label'.tr, value: controller.submittedOnText),
             _divider(),
-            _detailRow(icon: Icons.location_on_outlined, label: 'Location',
+            _detailRow(icon: Icons.location_on_outlined, label: 'location_label'.tr,
                 value: controller.locationCtrl.text),
             _divider(),
             _detailRow(
               icon: Icons.warning_amber_rounded,
-              label: 'Incident Type',
+              label: 'incident_type_label'.tr,
               value: controller.selectedIncidentType.value?.label ?? '—',
             ),
             _divider(),
             _detailRow(
               icon: Icons.speed_outlined,
-              label: 'Severity',
+              label: 'severity_label'.tr,
               trailing: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                 decoration: BoxDecoration(color: controller.severity.value.color.withOpacity(0.15), borderRadius: BorderRadius.circular(20)),
@@ -286,13 +286,13 @@ class IncidentSubmittedView extends GetView<ReportIncidentController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('What happens next?', style: TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w700)),
+          Text('what_happens_next'.tr, style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w700)),
           const SizedBox(height: 12),
-          _nextStepRow(icon: Icons.visibility_outlined, title: 'Review', description: 'Our team will review the incident.'),
+          _nextStepRow(icon: Icons.visibility_outlined, title: 'review_title'.tr, description: 'review_incident_team_desc'.tr),
           const SizedBox(height: 12),
-          _nextStepRow(icon: Icons.bolt_outlined, title: 'Action', description: 'Appropriate action will be taken.'),
+          _nextStepRow(icon: Icons.bolt_outlined, title: 'action_title'.tr, description: 'appropriate_action_desc'.tr),
           const SizedBox(height: 12),
-          _nextStepRow(icon: Icons.notifications_none_rounded, title: 'Update', description: 'You\'ll be notified of any important updates.'),
+          _nextStepRow(icon: Icons.notifications_none_rounded, title: 'update_title'.tr, description: 'update_notified_desc'.tr),
         ],
       ),
     );
@@ -338,12 +338,12 @@ class IncidentSubmittedView extends GetView<ReportIncidentController> {
               height: 50,
               decoration: BoxDecoration(gradient: AppTheme.primaryGradient, borderRadius: BorderRadius.circular(12)),
               alignment: Alignment.center,
-              child: const Row(
+              child: Row(
                  mainAxisAlignment: MainAxisAlignment.center,
                  children: [
-                   Icon(Icons.list_alt_rounded, color: Colors.white, size: 18),
-                   SizedBox(width: 8),
-                   Text('View Incidents Log', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+                   const Icon(Icons.list_alt_rounded, color: Colors.white, size: 18),
+                   const SizedBox(width: 8),
+                   Text('view_incidents_log'.tr, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
                  ],
                ),
             ),
@@ -360,12 +360,12 @@ class IncidentSubmittedView extends GetView<ReportIncidentController> {
                 border: Border.all(color: kPurple),
               ),
               alignment: Alignment.center,
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.home_outlined, color: kPurple, size: 17),
-                  SizedBox(width: 8),
-                  Text('Go to Home', style: TextStyle(color: kPurple, fontSize: 14, fontWeight: FontWeight.w700)),
+                  const Icon(Icons.home_outlined, color: kPurple, size: 17),
+                  const SizedBox(width: 8),
+                  Text('go_to_home'.tr, style: const TextStyle(color: kPurple, fontSize: 14, fontWeight: FontWeight.w700)),
                 ],
               ),
             ),

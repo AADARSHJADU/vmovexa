@@ -45,10 +45,10 @@ class OtpVerifyView extends GetView<OtpVerifyController> {
               const SizedBox(height: 32),
 
               // Title & Subtitle
-              const Text(
-                'Verify Your Number',
+              Text(
+                'otp_verification'.tr,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -105,7 +105,7 @@ class OtpVerifyView extends GetView<OtpVerifyController> {
                     GestureDetector(
                       onTap: controller.canResend.value ? controller.resendOtp : null,
                       child: Text(
-                        controller.canResend.value ? 'Resend' : controller.formattedTimer,
+                        controller.canResend.value ? 'resend_code'.tr : controller.formattedTimer,
                         style: TextStyle(
                           color: controller.canResend.value
                               ? AppColors.textLink
@@ -123,7 +123,7 @@ class OtpVerifyView extends GetView<OtpVerifyController> {
               // Bottom Button
               Obx(
                 () => CustomButton(
-                  text: 'Verify & Continue',
+                  text: 'verify_proceed'.tr,
                   isLoading: controller.isLoading.value,
                   onTap: controller.verifyOtp,
                 ),

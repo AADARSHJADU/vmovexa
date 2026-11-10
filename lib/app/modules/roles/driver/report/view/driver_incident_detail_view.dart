@@ -76,12 +76,12 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
         children: [
           const Icon(Icons.error_outline, color: Colors.white38, size: 40),
           const SizedBox(height: 12),
-          const Text('Incident not found', style: TextStyle(color: Colors.white, fontSize: 16)),
+          Text('incident_not_found'.tr, style: const TextStyle(color: Colors.white, fontSize: 16)),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () => Get.back(),
             style: ElevatedButton.styleFrom(backgroundColor: kPurple),
-            child: const Text('Back to Incidents'),
+            child: Text('back_to_incidents'.tr),
           ),
         ],
       ),
@@ -98,13 +98,13 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
 
     final st = (item.status ?? 'open').toLowerCase();
     Color stColor = kBlue;
-    String stLabel = 'Open';
+    String stLabel = 'open'.tr;
     if (st == 'in_progress' || st == 'investigating') {
       stColor = Colors.amber;
-      stLabel = 'In Progress';
+      stLabel = 'in_progress'.tr;
     } else if (st == 'resolved' || st == 'closed') {
       stColor = kGreen;
-      stLabel = 'Resolved';
+      stLabel = 'resolved'.tr;
     }
 
     final ticket = item.ticketNumber ?? (item.id != null ? 'INC-${item.id!.substring(0, item.id!.length > 6 ? 6 : item.id!.length)}' : 'INC');
@@ -138,7 +138,7 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
                       style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
                     ),
                     const SizedBox(height: 1),
-                    const Text('Incident Report Details', style: TextStyle(color: Colors.white54, fontSize: 11)),
+                    Text('incident_report_details'.tr, style: const TextStyle(color: Colors.white54, fontSize: 11)),
                   ],
                 ),
               ),
@@ -185,7 +185,7 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
                             border: Border.all(color: sevColor.withOpacity(0.4)),
                           ),
                           child: Text(
-                            'SEVERITY: ${sev.toUpperCase()}',
+                            '${'severity_label'.tr.toUpperCase()}: ${(sev == 'critical' ? 'sev_critical'.tr : sev == 'high' ? 'sev_high'.tr : sev == 'medium' ? 'sev_medium'.tr : 'sev_low'.tr).toUpperCase()}',
                             style: TextStyle(color: sevColor, fontSize: 10, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -197,14 +197,14 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      item.title ?? 'Incident',
+                      item.title ?? 'incident_accident'.tr,
                       style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       (item.description != null && item.description!.isNotEmpty)
                           ? item.description!
-                          : 'No additional description provided.',
+                          : 'no_additional_description'.tr,
                       style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
                     ),
                   ],
@@ -236,7 +236,7 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Incident GPS Coordinates', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
+                            Text('incident_gps_coords'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
                             const SizedBox(height: 2),
                             Text(
                               'Lat: ${item.location!.lat!.toStringAsFixed(5)}, Lng: ${item.location!.lng!.toStringAsFixed(5)}',
@@ -263,11 +263,11 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
+                      Row(
                         children: [
-                          Icon(Icons.check_circle_rounded, color: kGreen, size: 18),
-                          SizedBox(width: 8),
-                          Text('Resolution & Admin Notes', style: TextStyle(color: kGreen, fontSize: 13, fontWeight: FontWeight.bold)),
+                          const Icon(Icons.check_circle_rounded, color: kGreen, size: 18),
+                          const SizedBox(width: 8),
+                          Text('resolution_admin_notes'.tr, style: const TextStyle(color: kGreen, fontSize: 13, fontWeight: FontWeight.bold)),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -278,7 +278,7 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
                       if (item.resolvedAt != null) ...[
                         const SizedBox(height: 6),
                         Text(
-                          'Resolved on: ${_formatFullDate(item.resolvedAt)}',
+                          '${'resolved_on'.tr}: ${_formatFullDate(item.resolvedAt)}',
                           style: const TextStyle(color: Colors.white38, fontSize: 10.5),
                         ),
                       ],
@@ -303,8 +303,8 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Attached Media & Photos', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
-                          Text('${item.mediaUrls.length} file(s)', style: const TextStyle(color: Colors.white38, fontSize: 11)),
+                          Text('attached_media_photos'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
+                          Text('${item.mediaUrls.length} ${'attached_files_count'.tr}', style: const TextStyle(color: Colors.white38, fontSize: 11)),
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -367,7 +367,7 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
               child: Image.network(
                 imageUrl,
                 fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => const Text('Could not load image', style: TextStyle(color: Colors.white)),
+                errorBuilder: (_, __, ___) => Text('could_not_load_image'.tr, style: const TextStyle(color: Colors.white)),
               ),
             ),
           ],

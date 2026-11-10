@@ -36,7 +36,7 @@ class ProfileView extends GetView<ProfileController> {
               // Account Section
               _buildSectionHeader(
                 svgPath: 'assets/icons/profile.svg',
-                title: 'Account',
+                title: 'account'.tr,
               ),
               const SizedBox(height: 10),
               _buildAccountCard(),
@@ -45,7 +45,7 @@ class ProfileView extends GetView<ProfileController> {
               // Preferences Section
               _buildSectionHeader(
                 svgPath: 'assets/icons/fleet_operator_icons/appPreferenceA.svg',
-                title: 'Preferences',
+                title: 'preferences'.tr,
               ),
               const SizedBox(height: 10),
               _buildPreferencesCard(),
@@ -54,7 +54,7 @@ class ProfileView extends GetView<ProfileController> {
               // Security Section
               _buildSectionHeader(
                 svgPath: 'assets/icons/fleet_operator_icons/securityA.svg',
-                title: 'Security',
+                title: 'security'.tr,
               ),
               const SizedBox(height: 10),
               _buildSecurityCard(),
@@ -91,22 +91,22 @@ class ProfileView extends GetView<ProfileController> {
           ),
         ),
         const SizedBox(width: 8),
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Technician Profile',
-                style: TextStyle(
+                'technician_profile'.tr,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              SizedBox(height: 2),
+              const SizedBox(height: 2),
               Text(
-                'View and manage your profile information.',
-                style: TextStyle(
+                'manage_profile_info'.tr,
+                style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 12,
                 ),
@@ -248,7 +248,7 @@ class ProfileView extends GetView<ProfileController> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Tech ID: ${data.techId}',
+                    '${'tech_id'.tr}: ${data.techId}',
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 10.5,
@@ -256,7 +256,7 @@ class ProfileView extends GetView<ProfileController> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Employee ID: ${data.employeeId}',
+                    '${'employee_id'.tr}: ${data.employeeId}',
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 10.5,
@@ -275,9 +275,9 @@ class ProfileView extends GetView<ProfileController> {
                 width: 12,
                 height: 12,
               ),
-              label: const Text(
-                'Edit Profile',
-                style: TextStyle(
+              label: Text(
+                'edit_profile'.tr,
+                style: const TextStyle(
                   color: kPurple,
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
@@ -336,15 +336,15 @@ class ProfileView extends GetView<ProfileController> {
         children: [
           _buildSettingsRow(
             svgPath: 'assets/icons/profile.svg',
-            title: 'Personal Information',
-            subtitle: 'Update your personal details',
+            title: 'personal_information'.tr,
+            subtitle: 'update_personal_details'.tr,
             onTap: controller.editProfile,
           ),
           _buildDivider(),
           _buildSettingsRow(
             svgPath: 'assets/icons/fleet_operator_icons/changePasswordA.svg',
-            title: 'Change Password',
-            subtitle: 'Update your account password',
+            title: 'change_password'.tr,
+            subtitle: 'update_account_password'.tr,
             onTap: controller.changePassword,
           ),
         ],
@@ -364,8 +364,8 @@ class ProfileView extends GetView<ProfileController> {
         children: [
           _buildSettingsRow(
             svgPath: 'assets/icons/fleet_operator_icons/notificationSettingA.svg',
-            title: 'Notification Settings',
-            subtitle: 'Manage your notification preferences',
+            title: 'notification_settings'.tr,
+            subtitle: 'manage_notification_pref'.tr,
             onTap: controller.goToNotificationSettings,
           ),
           // _buildDivider(),
@@ -424,15 +424,15 @@ class ProfileView extends GetView<ProfileController> {
         children: [
           _buildSettingsRow(
             svgPath: 'assets/icons/fleet_operator_icons/privacyPolicyA.svg',
-            title: 'Privacy Policy',
-            subtitle: 'View our privacy policy',
+            title: 'privacy_policy'.tr,
+            subtitle: 'view_privacy_policy'.tr,
             onTap: controller.goToPrivacyPolicy,
           ),
           _buildDivider(),
           _buildSettingsRow(
             svgPath: 'assets/icons/advertiser_ic/termConditionHeaderA.svg',
-            title: 'Terms & Conditions',
-            subtitle: 'View terms and conditions',
+            title: 'terms_conditions'.tr,
+            subtitle: 'view_terms_conditions'.tr,
             onTap: controller.goToTermsConditions,
           ),
           // _buildDivider(),
@@ -499,9 +499,9 @@ class ProfileView extends GetView<ProfileController> {
               ),
             ),
             const SizedBox(width: 8),
-            const Text(
-              'Log Out',
-              style: TextStyle(
+            Text(
+              'log_out'.tr,
+              style: const TextStyle(
                 color: Colors.redAccent,
                 fontSize: 14,
                 fontWeight: FontWeight.bold,

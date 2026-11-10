@@ -156,18 +156,18 @@ class DriverStaffController extends GetxController {
       AlertDialog(
         backgroundColor: const Color(0xFF1E293B),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Delete Driver Profile',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+        title: Text(
+          'delete_driver_profile'.tr,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
         ),
         content: Text(
-          'Are you sure you want to delete "${driver.name}" (${driver.displayBadgeId}) from the roster? This will unassign any active buses.',
+          '${'delete_driver_confirm'.tr}\n("${driver.name}" - ${driver.displayBadgeId})',
           style: const TextStyle(color: Colors.white70, fontSize: 13),
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white54)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -178,7 +178,7 @@ class DriverStaffController extends GetxController {
               backgroundColor: const Color(0xFFEF4444),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
-            child: const Text('Delete Driver', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: Text('delete_driver'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -262,13 +262,13 @@ class DriverStaffListView extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Row(
+                Row(
                   children: [
-                    Icon(Icons.badge_outlined, color: Color(0xFF10B981), size: 24),
-                    SizedBox(width: 8),
+                    const Icon(Icons.badge_outlined, color: Color(0xFF10B981), size: 24),
+                    const SizedBox(width: 8),
                     Text(
-                      'Drivers Roster',
-                      style: TextStyle(
+                      'drivers_roster'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
@@ -278,11 +278,6 @@ class DriverStaffListView extends StatelessWidget {
                 ),
                 Row(
                     children: [
-                      // IconButton(
-                      //   icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 20),
-                      //   tooltip: 'Refresh Roster',
-                      //   onPressed: controller.loadDrivers,
-                      // ),
                       Container(
                         decoration: BoxDecoration(
                           gradient: AppTheme.primaryGradient,
@@ -304,12 +299,12 @@ class DriverStaffListView extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
-                                children: const [
-                                  Icon(Icons.person_add_rounded, color: Colors.white, size: 20),
-                                  SizedBox(width: 6),
+                                children: [
+                                  const Icon(Icons.person_add_rounded, color: Colors.white, size: 20),
+                                  const SizedBox(width: 6),
                                   Text(
-                                    'Onboard Driver',
-                                    style: TextStyle(
+                                    'onboard_driver'.tr,
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
@@ -321,19 +316,6 @@ class DriverStaffListView extends StatelessWidget {
                           ),
                         ),
                       ),
-                      // ElevatedButton.icon(
-                      //   onPressed: controller.goToAddDriver,
-                      //   style: ElevatedButton.styleFrom(
-                      //     backgroundColor: const Color(0xFF10B981),
-                      //     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      //   ),
-                      //   icon: const Icon(Icons.person_add_rounded, size: 16, color: Colors.white),
-                      //   label: const Text(
-                      //     'Onboard Driver',
-                      //     style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                      //   ),
-                      // ),
                     ],
                   ),
 
@@ -348,19 +330,19 @@ class DriverStaffListView extends StatelessWidget {
               () => Row(
                 children: [
                   Expanded(
-                    child: _buildStatCard('TOTAL ROSTER', '${controller.totalDriversCount}', Colors.white),
+                    child: _buildStatCard('total_roster'.tr, '${controller.totalDriversCount}', Colors.white),
                   ),
                   const SizedBox(width: 6),
                   Expanded(
-                    child: _buildStatCard('VERIFIED', '${controller.verifiedCount}', const Color(0xFF10B981)),
+                    child: _buildStatCard('verified'.tr, '${controller.verifiedCount}', const Color(0xFF10B981)),
                   ),
                   const SizedBox(width: 6),
                   Expanded(
-                    child: _buildStatCard('EXPIRING / PEND', '${controller.pendingApprovalCount + controller.dlExpiryAlertsCount}', const Color(0xFFF59E0B)),
+                    child: _buildStatCard('expiring_pend'.tr, '${controller.pendingApprovalCount + controller.dlExpiryAlertsCount}', const Color(0xFFF59E0B)),
                   ),
                   const SizedBox(width: 6),
                   Expanded(
-                    child: _buildStatCard('SUSPENDED', '${controller.complianceBlockedCount}', const Color(0xFFEF4444)),
+                    child: _buildStatCard('suspended'.tr, '${controller.complianceBlockedCount}', const Color(0xFFEF4444)),
                   ),
                 ],
               ),
@@ -382,10 +364,10 @@ class DriverStaffListView extends StatelessWidget {
               child: TextField(
                 controller: controller.searchController,
                 style: const TextStyle(color: Colors.white, fontSize: 13),
-                decoration: const InputDecoration(
-                  icon: Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 20),
-                  hintText: 'Search by Driver Name, Badge ID, DL or Depot...',
-                  hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                decoration: InputDecoration(
+                  icon: const Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 20),
+                  hintText: 'search_drivers_hint'.tr,
+                  hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
                   border: InputBorder.none,
                 ),
               ),
@@ -400,11 +382,11 @@ class DriverStaffListView extends StatelessWidget {
             child: Obx(
               () => Row(
                 children: [
-                  _buildTabPill(controller, 'All', controller.totalDriversCount),
-                  _buildTabPill(controller, 'On Duty', controller.onDutyCount),
-                  _buildTabPill(controller, 'Pending Approval', controller.pendingApprovalCount),
-                  _buildTabPill(controller, 'Verified', controller.verifiedCount),
-                  _buildTabPill(controller, 'DL Expiry Alerts', controller.dlExpiryAlertsCount),
+                  _buildTabPill(controller, 'all'.tr, controller.totalDriversCount, tabKey: 'All'),
+                  _buildTabPill(controller, 'on_duty'.tr, controller.onDutyCount, tabKey: 'On Duty'),
+                  _buildTabPill(controller, 'pending'.tr, controller.pendingApprovalCount, tabKey: 'Pending Approval'),
+                  _buildTabPill(controller, 'verified'.tr, controller.verifiedCount, tabKey: 'Verified'),
+                  _buildTabPill(controller, 'dl_expiry_alerts'.tr, controller.dlExpiryAlertsCount, tabKey: 'DL Expiry Alerts'),
                 ],
               ),
             ),
@@ -426,13 +408,13 @@ class DriverStaffListView extends StatelessWidget {
                     children: [
                       Icon(Icons.person_off_outlined, size: 48, color: Colors.white.withValues(alpha: 0.2)),
                       const SizedBox(height: 12),
-                      const Text(
-                        'No drivers found on roster',
-                        style: TextStyle(color: AppColors.textMuted, fontSize: 14),
+                      Text(
+                        'no_drivers_roster'.tr,
+                        style: const TextStyle(color: AppColors.textMuted, fontSize: 14),
                       ),
                       const SizedBox(height: 14),
                       CustomButton(
-                        text: 'Add First Driver',
+                        text: 'add_first_driver'.tr,
                         prefixIcon: const Icon(Icons.add, size: 16, color: Colors.white),
                         onTap: controller.goToAddDriver,
                         width: 200,
@@ -490,12 +472,13 @@ class DriverStaffListView extends StatelessWidget {
     );
   }
 
-  Widget _buildTabPill(DriverStaffController controller, String label, int count) {
-    final isSelected = controller.selectedTab.value == label;
+  Widget _buildTabPill(DriverStaffController controller, String label, int count, {String? tabKey}) {
+    final key = tabKey ?? label;
+    final isSelected = controller.selectedTab.value == key;
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: InkWell(
-        onTap: () => controller.selectTab(label),
+        onTap: () => controller.selectTab(key),
         borderRadius: BorderRadius.circular(16),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -856,67 +839,67 @@ class DriverStaffListView extends StatelessWidget {
                     }
                   },
                   itemBuilder: (context) => [
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'view',
                       child: Row(
                         children: [
-                          Icon(Icons.remove_red_eye_outlined, color: Color(0xFF38BDF8), size: 16),
-                          SizedBox(width: 8),
-                          Text('View KYC Dossier', style: TextStyle(color: Colors.white, fontSize: 12)),
+                          const Icon(Icons.remove_red_eye_outlined, color: Color(0xFF38BDF8), size: 16),
+                          const SizedBox(width: 8),
+                          Text('view_kyc_dossier'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
                         ],
                       ),
                     ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'edit',
                       child: Row(
                         children: [
-                          Icon(Icons.edit_outlined, color: Color(0xFF94A3B8), size: 16),
-                          SizedBox(width: 8),
-                          Text('Edit Roster Details', style: TextStyle(color: Colors.white, fontSize: 12)),
+                          const Icon(Icons.edit_outlined, color: Color(0xFF94A3B8), size: 16),
+                          const SizedBox(width: 8),
+                          Text('edit_roster_details'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
                         ],
                       ),
                     ),
                     if (!d.isAvailable)
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'available',
                         child: Row(
                           children: [
-                            Icon(Icons.check_circle_outline_rounded, color: Color(0xFF10B981), size: 16),
-                            SizedBox(width: 8),
-                            Text('Set Active (Available)', style: TextStyle(color: Color(0xFF10B981), fontSize: 12)),
+                            const Icon(Icons.check_circle_outline_rounded, color: Color(0xFF10B981), size: 16),
+                            const SizedBox(width: 8),
+                            Text('set_active_available'.tr, style: const TextStyle(color: Color(0xFF10B981), fontSize: 12)),
                           ],
                         ),
                       ),
                     if (d.isAvailable || d.isOnDuty)
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'off_duty',
                         child: Row(
                           children: [
-                            Icon(Icons.pause_circle_outline_rounded, color: Color(0xFF94A3B8), size: 16),
-                            SizedBox(width: 8),
-                            Text('Set Off Duty', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                            const Icon(Icons.pause_circle_outline_rounded, color: Color(0xFF94A3B8), size: 16),
+                            const SizedBox(width: 8),
+                            Text('set_off_duty'.tr, style: const TextStyle(color: Colors.white70, fontSize: 12)),
                           ],
                         ),
                       ),
                     if (!d.isVerified)
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'verify',
                         child: Row(
                           children: [
-                            Icon(Icons.verified_outlined, color: Color(0xFF14B8A6), size: 16),
-                            SizedBox(width: 8),
-                            Text('Verify Driver KYC', style: TextStyle(color: Color(0xFF14B8A6), fontSize: 12)),
+                            const Icon(Icons.verified_outlined, color: Color(0xFF14B8A6), size: 16),
+                            const SizedBox(width: 8),
+                            Text('verify_driver_kyc'.tr, style: const TextStyle(color: Color(0xFF14B8A6), fontSize: 12)),
                           ],
                         ),
                       ),
                     const PopupMenuDivider(height: 6),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'delete',
                       child: Row(
                         children: [
-                          Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 16),
-                          SizedBox(width: 8),
-                          Text('Delete Driver', style: TextStyle(color: Color(0xFFEF4444), fontSize: 12)),
+                          const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 16),
+                          const SizedBox(width: 8),
+                          Text('delete_driver'.tr, style: const TextStyle(color: Color(0xFFEF4444), fontSize: 12)),
                         ],
                       ),
                     ),

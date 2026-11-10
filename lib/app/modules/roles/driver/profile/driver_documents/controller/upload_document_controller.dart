@@ -41,7 +41,7 @@ class UploadDocumentController extends GetxController {
 
   // ---------------- Stepper ----------------
   final RxInt currentStep = 1.obs; // 1=Upload, 2=Preview, 3=Submit, 4=Done
-  final List<String> stepLabels = const ['Upload', 'Preview', 'Submit', 'Done'];
+  List<String> get stepLabels => ['upload_action'.tr, 'preview'.tr, 'submit'.tr, 'done'.tr];
 
   // ---------------- File State ----------------
   final RxBool hasFile = false.obs;
@@ -50,10 +50,10 @@ class UploadDocumentController extends GetxController {
   final RxString fileName = ''.obs;
   final RxString fileSizeText = ''.obs;
   final RxString fileType = ''.obs;
-  final RxString documentStatus = 'Upload'.obs;
+  final RxString documentStatus = 'upload_action'.tr.obs;
   final Rxn<DateTime> uploadedOnDateTime = Rxn<DateTime>();
 
-  final RxString previewQualityLabel = 'Looks Good'.obs;
+  final RxString previewQualityLabel = 'looks_good'.tr.obs;
 
   static const List<String> _monthNames = [
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',

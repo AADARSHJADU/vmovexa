@@ -21,18 +21,18 @@ class RoutesListView extends GetView<RoutesListController> {
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             Text(
-              'Transit Routes',
-              style: TextStyle(
+              'transit_routes'.tr,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
             Text(
-              'Corridors, Waypoints & Fleet Deployments',
-              style: TextStyle(
+              'transit_corridors_sub'.tr,
+              style: const TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 11,
               ),
@@ -97,19 +97,19 @@ class RoutesListView extends GetView<RoutesListController> {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  'Route Network',
-                  style: TextStyle(
+                  'route_network'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
-                  'Manage corridors & waypoint schedules',
-                  style: TextStyle(
+                  'manage_corridors_sub'.tr,
+                  style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 11,
                   ),
@@ -135,16 +135,16 @@ class RoutesListView extends GetView<RoutesListController> {
               child: InkWell(
                 onTap: controller.goToAddRoute,
                 borderRadius: BorderRadius.circular(12),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.add_rounded, color: Colors.white, size: 18),
-                      SizedBox(width: 6),
+                      const Icon(Icons.add_rounded, color: Colors.white, size: 18),
+                      const SizedBox(width: 6),
                       Text(
-                        'Add Route',
-                        style: TextStyle(
+                        'add_route'.tr,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
@@ -172,33 +172,33 @@ class RoutesListView extends GetView<RoutesListController> {
         childAspectRatio: 2.2,
         children: [
           _buildStatCard(
-            'Total Routes',
+            'total_routes'.tr,
             controller.totalRoutesCount.toString(),
-            'Corridors registered',
+            'corridors_registered'.tr,
             Icons.alt_route_rounded,
             const Color(0xFF3B82F6),
             const Color(0xFF3B82F6).withValues(alpha: 0.15),
           ),
           _buildStatCard(
-            'Active Lines',
+            'active_lines'.tr,
             controller.activeCorridorsCount.toString(),
-            'Operational corridors',
+            'operational_corridors'.tr,
             Icons.check_circle_outline_rounded,
             const Color(0xFF10B981),
             const Color(0xFF10B981).withValues(alpha: 0.15),
           ),
           _buildStatCard(
-            'Pending Review',
+            'pending_review'.tr,
             controller.pendingReviewCount.toString(),
-            'Awaiting approval',
+            'awaiting_approval'.tr,
             Icons.hourglass_top_rounded,
             const Color(0xFFF59E0B),
             const Color(0xFFF59E0B).withValues(alpha: 0.15),
           ),
           _buildStatCard(
-            'Waypoints',
+            'waypoints'.tr,
             controller.totalWaypointsCount.toString(),
-            'Total scheduled stops',
+            'total_scheduled_stops'.tr,
             Icons.pin_drop_outlined,
             const Color(0xFF818CF8),
             const Color(0xFF818CF8).withValues(alpha: 0.15),
@@ -268,10 +268,10 @@ class RoutesListView extends GetView<RoutesListController> {
 
   Widget _buildFilterTabs() {
     final tabs = [
-      {'key': 'ALL', 'label': 'All Routes'},
-      {'key': 'active', 'label': 'Active'},
-      {'key': 'pending_approval', 'label': 'Pending'},
-      {'key': 'rejected', 'label': 'Rejected'},
+      {'key': 'ALL', 'label': 'all_routes'.tr},
+      {'key': 'active', 'label': 'active'.tr},
+      {'key': 'pending_approval', 'label': 'pending'.tr},
+      {'key': 'rejected', 'label': 'rejected'.tr},
     ];
 
     return Obx(() {
@@ -333,7 +333,7 @@ class RoutesListView extends GetView<RoutesListController> {
         onChanged: controller.onSearchChanged,
         style: const TextStyle(color: Colors.white, fontSize: 13),
         decoration: InputDecoration(
-          hintText: 'Search by corridor, code, stops...',
+          hintText: 'search_routes_hint'.tr,
           hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
           prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 20),
           suffixIcon: Obx(() {
@@ -388,9 +388,9 @@ class RoutesListView extends GetView<RoutesListController> {
                 child: const Icon(Icons.alt_route_rounded, color: AppColors.textMuted, size: 30),
               ),
               const SizedBox(height: 12),
-              const Text(
-                'No Transit Routes Found',
-                style: TextStyle(
+              Text(
+                'no_routes_found'.tr,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -400,7 +400,7 @@ class RoutesListView extends GetView<RoutesListController> {
               Text(
                 controller.searchQuery.value.isNotEmpty
                     ? 'No corridors match "${controller.searchQuery.value}".'
-                    : 'Create your first transit corridor with multiple stops and GPS coordinates.',
+                    : 'create_first_route'.tr,
                 style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
                 textAlign: TextAlign.center,
               ),
@@ -422,16 +422,16 @@ class RoutesListView extends GetView<RoutesListController> {
                   child: InkWell(
                     onTap: controller.goToAddRoute,
                     borderRadius: BorderRadius.circular(12),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 18, vertical: 11),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.add_rounded, color: Colors.white, size: 18),
-                          SizedBox(width: 8),
+                          const Icon(Icons.add_rounded, color: Colors.white, size: 18),
+                          const SizedBox(width: 8),
                           Text(
-                            'Create Transit Route',
-                            style: TextStyle(
+                            'add_route'.tr,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
@@ -730,7 +730,7 @@ class RoutesListView extends GetView<RoutesListController> {
                      const SizedBox(width: 8),
                      _buildMetricChip(
                        icon: Icons.location_on_outlined,
-                       text: '${route.stopsCount} stops',
+                       text: '${route.stopsCount} ${'stops'.tr}',
                        color: const Color(0xFF34D399),
                      ),
                    ],
@@ -743,7 +743,7 @@ class RoutesListView extends GetView<RoutesListController> {
                      const SizedBox(width: 8),
                      _buildMetricChip(
                        icon: Icons.directions_bus_rounded,
-                       text: '${route.assignedVehiclesCount} buses',
+                       text: '${route.assignedVehiclesCount} ${'buses'.tr}',
                        color: const Color(0xFFFBBF24),
                      ),
 

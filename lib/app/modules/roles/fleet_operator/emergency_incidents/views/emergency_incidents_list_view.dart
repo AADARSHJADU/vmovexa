@@ -54,9 +54,9 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: const Color(0xFFEF4444),
         icon: const Icon(Icons.add_alert_rounded, color: Colors.white),
-        label: const Text(
-          'Report Incident',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        label: Text(
+          'report_incident'.tr,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         onPressed: () {
           controller.loadReportResources();
@@ -73,9 +73,9 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const CustomBackButton(),
-          const Text(
-            'Emergency & SOS',
-            style: TextStyle(
+          Text(
+            'emergency_sos'.tr,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -85,7 +85,7 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
           IconButton(
             onPressed: () => controller.fetchIncidents(),
             icon: const Icon(Icons.refresh_rounded, color: Colors.white70),
-            tooltip: 'Refresh',
+            tooltip: 'refresh'.tr,
           ),
         ],
       ),
@@ -131,9 +131,9 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Safety & Incident Desk',
-                  style: TextStyle(
+                Text(
+                  'safety_incident_desk'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
@@ -141,7 +141,7 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  'Monitor breakdowns, accidents, driver SOS calls, and clearance status.',
+                  'safety_desk_sub'.tr,
                   style: TextStyle(
                     color: Colors.grey.shade400,
                     fontSize: 11.5,

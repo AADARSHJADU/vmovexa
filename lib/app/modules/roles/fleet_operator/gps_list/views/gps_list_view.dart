@@ -70,13 +70,13 @@ class GpsListView extends GetView<GpsListController> {
         children: [
           const CustomBackButton(),
           const SizedBox(width: 8),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'GPS & Telematics Units',
-                  style: TextStyle(
+                  'gps_telematics_units'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -84,8 +84,8 @@ class GpsListView extends GetView<GpsListController> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  'IoT tracking hardware & telematics binding',
-                  style: TextStyle(
+                  'iot_hardware_binding'.tr,
+                  style: const TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 11,
                   ),
@@ -96,7 +96,7 @@ class GpsListView extends GetView<GpsListController> {
           IconButton(
             icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 22),
             onPressed: controller.fetchDevices,
-            tooltip: 'Refresh list',
+            tooltip: 'refresh'.tr,
           ),
           Container(
             decoration: BoxDecoration(
@@ -115,16 +115,16 @@ class GpsListView extends GetView<GpsListController> {
               child: InkWell(
                 onTap: controller.goToAdd,
                 borderRadius: BorderRadius.circular(10),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.add_rounded, color: Colors.white, size: 16),
-                      SizedBox(width: 4),
+                      const Icon(Icons.add_rounded, color: Colors.white, size: 16),
+                      const SizedBox(width: 4),
                       Text(
-                        'Register',
-                        style: TextStyle(
+                        'register'.tr,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
@@ -153,14 +153,14 @@ class GpsListView extends GetView<GpsListController> {
         childAspectRatio: 1.8,
         children: [
           _buildStatCard(
-            title: 'TOTAL UNITS',
+            title: 'total_units'.tr,
             value: controller.totalCount.toString(),
             icon: Icons.memory_rounded,
             iconColor: const Color(0xFF3B82F6),
             bgColor: const Color(0xFF1E293B),
           ),
           _buildStatCard(
-            title: 'AVAILABLE / ACTIVE',
+            title: 'available_active'.tr,
             value: controller.availableCount.toString(),
             icon: Icons.check_circle_outline_rounded,
             iconColor: const Color(0xFF10B981),
@@ -168,7 +168,7 @@ class GpsListView extends GetView<GpsListController> {
             valueColor: const Color(0xFF10B981),
           ),
           _buildStatCard(
-            title: 'PENDING APPROVAL',
+            title: 'pending'.tr,
             value: controller.pendingCount.toString(),
             icon: Icons.pending_actions_rounded,
             iconColor: Colors.amberAccent,
@@ -176,7 +176,7 @@ class GpsListView extends GetView<GpsListController> {
             valueColor: Colors.amberAccent,
           ),
           _buildStatCard(
-            title: 'ASSIGNED / IN-USE',
+            title: 'bound_to_vehicle'.tr,
             value: controller.assignedCount.toString(),
             icon: Icons.directions_bus_rounded,
             iconColor: const Color(0xFF818CF8),
@@ -261,13 +261,13 @@ class GpsListView extends GetView<GpsListController> {
             child: TextField(
               controller: controller.searchController,
               style: const TextStyle(color: Colors.white, fontSize: 13),
-              decoration: const InputDecoration(
-                icon: Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 18),
-                hintText: 'Search by Code, IMEI, Vendor, Bus...',
-                hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 12),
+              decoration: InputDecoration(
+                icon: const Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 18),
+                hintText: 'search_devices_hint'.tr,
+                hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
                 border: InputBorder.none,
                 isDense: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(vertical: 12),
               ),
             ),
           ),
@@ -523,28 +523,28 @@ class GpsListView extends GetView<GpsListController> {
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
+            decoration: const BoxDecoration(
+              color: Color(0xFF1E293B),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.memory_rounded, color: AppColors.textMuted, size: 36),
           ),
           const SizedBox(height: 14),
-          const Text(
-            'No GPS Devices Found',
-            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          Text(
+            'no_gps_trackers_found'.tr,
+            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 6),
           Text(
             controller.searchQuery.isNotEmpty
                 ? 'No hardware units match your search query.'
-                : 'No GPS devices registered in this category yet.',
+                : 'no_gps_sub'.tr,
             style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
           CustomButton(
-            text: 'Register First GPS Unit',
+            text: 'register'.tr,
             prefixIcon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
             onTap: controller.goToAdd,
             width: 220,

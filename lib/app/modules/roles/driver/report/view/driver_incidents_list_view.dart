@@ -149,7 +149,7 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
                 Icon(isWorkOrderTab ? Icons.build_rounded : Icons.warning_amber_rounded, color: Colors.white, size: 18),
                 const SizedBox(width: 8),
                 Text(
-                  isWorkOrderTab ? 'Report Defect' : 'Report Incident',
+                  isWorkOrderTab ? 'report_defect'.tr : 'report_incident'.tr,
                   style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                 ),
               ],
@@ -168,16 +168,16 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Incidents & Work Orders',
-              style: TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w800),
+            Text(
+              'incidents_work_orders'.tr,
+              style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 2),
             Obx(
               () => Text(
                 ctrl.selectedViewTab.value == 0
-                    ? ' of  reported events'
-                    : ' of  maintenance tickets',
+                    ? '${ctrl.filteredIncidents.length} ${'reported_events_sub'.tr}'
+                    : '${ctrl.filteredWorkOrders.length} ${'maintenance_tickets_sub'.tr}',
                 style: const TextStyle(color: Colors.white54, fontSize: 12),
               ),
             ),
@@ -228,7 +228,7 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
                       const Icon(Icons.emergency_outlined, color: Colors.white, size: 14),
                       const SizedBox(width: 6),
                       Text(
-                        'Incidents ()',
+                        '${'incidents'.tr} (${ctrl.allIncidents.length})',
                         style: TextStyle(
                           color: tab == 0 ? Colors.white : Colors.white60,
                           fontSize: 12,
@@ -256,7 +256,7 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
                       const Icon(Icons.build_circle_outlined, color: Colors.white, size: 14),
                       const SizedBox(width: 6),
                       Text(
-                        'Work Orders ()',
+                        '${'work_orders'.tr} (${ctrl.allWorkOrders.length})',
                         style: TextStyle(
                           color: tab == 1 ? Colors.white : Colors.white60,
                           fontSize: 12,
@@ -287,7 +287,7 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
         onChanged: ctrl.updateSearch,
         style: const TextStyle(color: Colors.white, fontSize: 13),
         decoration: InputDecoration(
-          hintText: 'Search by issue, ticket code or details...',
+          hintText: 'search_driver_incidents_hint'.tr,
           hintStyle: const TextStyle(color: Colors.white38, fontSize: 12.5),
           prefixIcon: const Icon(Icons.search, color: Colors.white38, size: 18),
           suffixIcon: Obx(
@@ -401,13 +401,13 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
 
     final st = (item.status ?? 'open').toLowerCase();
     Color stColor = kBlue;
-    String stLabel = 'Open';
+    String stLabel = 'open'.tr;
     if (st == 'in_progress' || st == 'investigating') {
       stColor = Colors.amber;
-      stLabel = 'In Progress';
+      stLabel = 'in_progress'.tr;
     } else if (st == 'resolved' || st == 'closed') {
       stColor = kGreen;
-      stLabel = 'Resolved';
+      stLabel = 'resolved'.tr;
     }
 
     final ticket = item.ticketNumber ?? (item.id != null ? 'INC-' : 'INC');
@@ -516,10 +516,10 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
                     ],
                   ],
                 ),
-                const Row(
+                Row(
                   children: [
-                    Text('View details', style: TextStyle(color: kPurple, fontSize: 11, fontWeight: FontWeight.w600)),
-                    Icon(Icons.chevron_right, color: kPurple, size: 14),
+                    Text('view_details'.tr, style: const TextStyle(color: kPurple, fontSize: 11, fontWeight: FontWeight.w600)),
+                    const Icon(Icons.chevron_right, color: kPurple, size: 14),
                   ],
                 ),
               ],
@@ -543,10 +543,10 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
     String stLabel = item.status;
     if (st == 'dispatched' || st == 'on_site' || st == 'in_progress') {
       stColor = Colors.amber;
-      stLabel = 'In Repair';
+      stLabel = 'in_repair'.tr;
     } else if (st == 'resolved' || st == 'closed') {
       stColor = kGreen;
-      stLabel = 'Resolved';
+      stLabel = 'resolved'.tr;
     }
 
     final isResolved = st == 'resolved' || st == 'closed';
@@ -639,7 +639,7 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
               child: OutlinedButton.icon(
                 onPressed: () => _showRatingDialog(context, item, ctrl),
                 icon: const Icon(Icons.star_rounded, color: Colors.amber, size: 16),
-                label: const Text('Rate Technician Repair Quality', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                label: Text('rate_tech_quality'.tr, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.amber,
                   side: const BorderSide(color: Colors.amber),
@@ -675,12 +675,12 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Rate Repair ()', style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text('${'rate_repair'.tr} (${item.code})', style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                     IconButton(icon: const Icon(Icons.close, color: Colors.white70), onPressed: () => Navigator.pop(ctx)),
                   ],
                 ),
                 const SizedBox(height: 6),
-                Text('Technician: ', style: const TextStyle(color: Colors.white60, fontSize: 12)),
+                Text('${'technician_label'.tr} ${item.technician?.name ?? "NOC"}', style: const TextStyle(color: Colors.white60, fontSize: 12)),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -702,7 +702,7 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
                   maxLines: 3,
                   style: const TextStyle(color: Colors.white, fontSize: 13),
                   decoration: InputDecoration(
-                    hintText: 'Add feedback for technician NOC...',
+                    hintText: 'add_feedback_hint'.tr,
                     hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
                     filled: true,
                     fillColor: kFieldBg,
@@ -723,7 +723,7 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                    child: const Text('Submit Rating', style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: Text('submit_rating'.tr, style: const TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],
@@ -751,15 +751,15 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
               child: const Icon(Icons.check_circle_outline, color: kGreen, size: 36),
             ),
             const SizedBox(height: 14),
-            const Text(
-              'No Incidents Found',
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            Text(
+              'no_incidents_found'.tr,
+              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 6),
-            const Text(
-              'All transit operations are running normally without any recorded issues.',
+            Text(
+              'all_ops_normal_sub'.tr,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white38, fontSize: 12),
+              style: const TextStyle(color: Colors.white38, fontSize: 12),
             ),
           ],
         ),
@@ -783,21 +783,21 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
               child: const Icon(Icons.build_circle_outlined, color: kIndigo, size: 36),
             ),
             const SizedBox(height: 14),
-            const Text(
-              'No Work Orders Found',
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            Text(
+              'no_work_orders_found'.tr,
+              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 6),
-            const Text(
-              'No vehicle mechanical defects or hardware tickets are open for this driver.',
+            Text(
+              'no_work_orders_sub'.tr,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white38, fontSize: 12),
+              style: const TextStyle(color: Colors.white38, fontSize: 12),
             ),
             const SizedBox(height: 18),
             ElevatedButton.icon(
               onPressed: () => _showCreateWorkOrderSheet(context, ctrl),
               icon: const Icon(Icons.add_rounded, size: 16),
-              label: const Text('Report Vehicle Defect'),
+              label: Text('report_vehicle_defect'.tr),
               style: ElevatedButton.styleFrom(
                 backgroundColor: kIndigo,
                 foregroundColor: Colors.white,
@@ -848,9 +848,9 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'Report Vehicle Defect',
-                          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                        Text(
+                          'report_vehicle_defect'.tr,
+                          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         IconButton(
                           icon: const Icon(Icons.close, color: Colors.white70),
@@ -861,7 +861,7 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
                     const SizedBox(height: 12),
 
                     // Issue Category dropdown
-                    const Text('Issue Category', style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600)),
+                    Text('issue_category'.tr, style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -887,7 +887,7 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
                     const SizedBox(height: 14),
 
                     // Urgency chips
-                    const Text('Urgency / Priority', style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600)),
+                    Text('urgency_priority'.tr, style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 6),
                     Row(
                       children: ['critical', 'high', 'normal', 'low'].map((u) {
@@ -927,14 +927,14 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
                     const SizedBox(height: 14),
 
                     // Description textfield
-                    const Text('Defect Description', style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600)),
+                    Text('defect_description'.tr, style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 6),
                     TextField(
                       controller: descCtrl,
                       maxLines: 3,
                       style: const TextStyle(color: Colors.white, fontSize: 13),
                       decoration: InputDecoration(
-                        hintText: 'Describe vehicle malfunction or defect symptoms...',
+                        hintText: 'describe_malfunction_hint'.tr,
                         hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
                         filled: true,
                         fillColor: kFieldBg,
@@ -953,7 +953,7 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
                               ? null
                               : () async {
                                   if (descCtrl.text.trim().isEmpty) {
-                                    Get.snackbar('Required', 'Please describe the defect.', backgroundColor: kCardBg, colorText: Colors.redAccent);
+                                    Get.snackbar('required'.tr, 'please_describe_defect'.tr, backgroundColor: kCardBg, colorText: Colors.redAccent);
                                     return;
                                   }
                                   final ok = await ctrl.createDefectWorkOrder(
@@ -973,7 +973,7 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
                           ),
                           child: loading
                               ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                              : const Text('Dispatch Work Order', style: TextStyle(fontWeight: FontWeight.bold)),
+                              : Text('dispatch_work_order'.tr, style: const TextStyle(fontWeight: FontWeight.bold)),
                         ),
                       );
                     }),

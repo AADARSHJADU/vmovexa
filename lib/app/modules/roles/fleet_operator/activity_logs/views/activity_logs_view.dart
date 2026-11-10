@@ -125,9 +125,9 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                       ],
                     ),
                     const SizedBox(height: 2),
-                    const Text(
-                      'Activity Logs',
-                      style: TextStyle(
+                    Text(
+                      'activity_logs'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.w900,
@@ -148,7 +148,7 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                           )
                         : const Icon(Icons.refresh_rounded, color: Colors.white70, size: 20),
                     onPressed: controller.isLoading.value ? null : () => controller.loadLogs(),
-                    tooltip: 'Refresh Logs',
+                    tooltip: 'refresh'.tr,
                   )),
 
               const SizedBox(width: 4),
@@ -165,19 +165,19 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                   elevation: 0,
                 ),
                 icon: const Icon(Icons.download_rounded, size: 15, color: Colors.black),
-                label: const Text(
-                  'Export CSV',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900),
+                label: Text(
+                  'export_csv'.tr,
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900),
                 ),
                 onPressed: () => controller.handleExportCSV(),
               ),
             ],
           ),
-          const Padding(
-            padding: EdgeInsets.only(left: 48, top: 2),
+          Padding(
+            padding: const EdgeInsets.only(left: 48, top: 2),
             child: Text(
-              'View team activity logs, user actions, and system events',
-              style: TextStyle(color: Colors.white54, fontSize: 11),
+              'audit_trail_sub'.tr,
+              style: const TextStyle(color: Colors.white54, fontSize: 11),
             ),
           ),
         ],
@@ -193,7 +193,7 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
           // Total Events
           Expanded(
             child: _buildKpiCard(
-              title: 'TOTAL EVENTS',
+              title: 'total_logs'.tr,
               count: controller.totalItems.toString(),
               color: Colors.white,
               bgColor: Colors.white.withValues(alpha: 0.05),

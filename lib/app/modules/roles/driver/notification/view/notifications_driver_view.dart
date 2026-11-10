@@ -58,13 +58,13 @@ class NotificationsDriverView extends GetView<NotificationsDriverController> {
           child: const Icon(Icons.arrow_back, color: Colors.white),
         ),
         const SizedBox(width: 10),
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Notifications', style: TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w800)),
-              SizedBox(height: 2),
-              Text('Stay updated with important alerts and updates.', style: TextStyle(color: Colors.white54, fontSize: 11.5)),
+              Text('notifications'.tr, style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 2),
+              Text('stay_updated_alerts_sub'.tr, style: const TextStyle(color: Colors.white54, fontSize: 11.5)),
             ],
           ),
         ),
@@ -81,10 +81,10 @@ class NotificationsDriverView extends GetView<NotificationsDriverController> {
     return Obx(
       () => Row(
         children: [
-          Expanded(child: _TabItem(label: 'All', icon: null, isActive: controller.selectedTabIndex.value == 0, onTap: () => controller.selectTab(0))),
-          Expanded(child: _TabItem(label: 'Alerts', icon: Icons.warning_amber_rounded, isActive: controller.selectedTabIndex.value == 1, onTap: () => controller.selectTab(1))),
-          Expanded(child: _TabItem(label: 'Updates', icon: Icons.campaign_outlined, isActive: controller.selectedTabIndex.value == 2, onTap: () => controller.selectTab(2))),
-          Expanded(child: _TabItem(label: 'System', icon: Icons.settings_outlined, isActive: controller.selectedTabIndex.value == 3, onTap: () => controller.selectTab(3))),
+          Expanded(child: _TabItem(label: 'all_tab'.tr, icon: null, isActive: controller.selectedTabIndex.value == 0, onTap: () => controller.selectTab(0))),
+          Expanded(child: _TabItem(label: 'alerts_tab'.tr, icon: Icons.warning_amber_rounded, isActive: controller.selectedTabIndex.value == 1, onTap: () => controller.selectTab(1))),
+          Expanded(child: _TabItem(label: 'updates_tab'.tr, icon: Icons.campaign_outlined, isActive: controller.selectedTabIndex.value == 2, onTap: () => controller.selectTab(2))),
+          Expanded(child: _TabItem(label: 'system_tab'.tr, icon: Icons.settings_outlined, isActive: controller.selectedTabIndex.value == 3, onTap: () => controller.selectTab(3))),
         ],
       ),
     );
@@ -96,9 +96,9 @@ class NotificationsDriverView extends GetView<NotificationsDriverController> {
       final items = controller.filteredNotifications;
       if (items.isEmpty) {
         return ListView(
-          children: const [
-            SizedBox(height: 60),
-            Center(child: Text('No notifications', style: TextStyle(color: Colors.white38, fontSize: 13))),
+          children: [
+            const SizedBox(height: 60),
+            Center(child: Text('no_notifications'.tr, style: const TextStyle(color: Colors.white38, fontSize: 13))),
           ],
         );
       }
@@ -132,10 +132,10 @@ class NotificationsDriverView extends GetView<NotificationsDriverController> {
         children: [
           const Icon(Icons.notifications_none_rounded, color: kPurple, size: 20),
           const SizedBox(width: 10),
-          const Expanded(
+          Expanded(
             child: Text(
-              'Enable push notifications to never miss important updates.',
-              style: TextStyle(color: Colors.white54, fontSize: 11),
+              'enable_push_notifications_sub'.tr,
+              style: const TextStyle(color: Colors.white54, fontSize: 11),
             ),
           ),
           const SizedBox(width: 8),
@@ -147,7 +147,7 @@ class NotificationsDriverView extends GetView<NotificationsDriverController> {
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: kPurple.withOpacity(0.6)),
               ),
-              child: const Text('Manage', style: TextStyle(color: kPurple, fontSize: 12, fontWeight: FontWeight.w700)),
+              child: Text('manage_btn'.tr, style: const TextStyle(color: kPurple, fontSize: 12, fontWeight: FontWeight.w700)),
             ),
           ),
         ],

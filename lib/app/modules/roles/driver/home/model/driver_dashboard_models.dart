@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 enum ScheduleStatus { upcoming, pending, completed, inProgress }
 
@@ -6,13 +7,13 @@ extension ScheduleStatusX on ScheduleStatus {
   String get label {
     switch (this) {
       case ScheduleStatus.upcoming:
-        return 'Upcoming';
+        return 'upcoming'.tr;
       case ScheduleStatus.pending:
-        return 'Pending';
+        return 'pending'.tr;
       case ScheduleStatus.completed:
-        return 'Completed';
+        return 'completed'.tr;
       case ScheduleStatus.inProgress:
-        return 'In Progress';
+        return 'in_progress'.tr;
     }
   }
 

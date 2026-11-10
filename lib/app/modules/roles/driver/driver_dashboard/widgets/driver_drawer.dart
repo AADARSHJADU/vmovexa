@@ -4,6 +4,7 @@ import 'package:vmovexa/app/routes/app_routes.dart';
 import 'package:vmovexa/app/data/constants/api_constants.dart';
 import 'package:vmovexa/app/data/services/storage_service.dart';
 import 'package:vmovexa/app/data/services/auth_service.dart';
+import 'package:vmovexa/app/widgets/language_selector_sheet.dart';
 import '../../home/controller/driver_home_controller.dart';
 import '../../profile/controller/driver_profile_controller.dart';
 import '../controller/driver_dashboard_controller.dart';
@@ -95,12 +96,12 @@ class DriverDrawer extends StatelessWidget {
                 physics: const BouncingScrollPhysics(),
                 children: [
                   // --- SECTION 1: OVERVIEW ---
-                  _buildSectionHeader('OVERVIEW'),
+                  _buildSectionHeader('overview_caps'.tr),
                   Obx(() {
                     final isSelected = (dashboardCtrl?.selectedNavIndex.value ?? 0) == 0;
                     return _buildNavItem(
                       icon: Icons.dashboard_rounded,
-                      title: 'Dashboard',
+                      title: 'dashboard'.tr,
                       isSelected: isSelected,
                       iconColor: const Color(0xFF8B5CF6),
                       onTap: () {
@@ -117,10 +118,10 @@ class DriverDrawer extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   // --- SECTION 2: DISPATCH & ROUTES ---
-                  _buildSectionHeader('DISPATCH & ROUTES'),
+                  _buildSectionHeader('dispatch_routes_caps'.tr),
                   _buildNavItem(
                     icon: Icons.folder_shared_outlined,
-                    title: 'Documents',
+                    title: 'documents_stat'.tr,
                     iconColor: const Color(0xFF38BDF8),
                     badgeWidget: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -136,7 +137,7 @@ class DriverDrawer extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        isVerified ? 'Verified' : 'Pending',
+                        isVerified ? 'verified'.tr : 'pending'.tr,
                         style: TextStyle(
                           color: isVerified ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
                           fontSize: 9,
@@ -153,7 +154,7 @@ class DriverDrawer extends StatelessWidget {
                     final isSelected = (dashboardCtrl?.selectedNavIndex.value ?? -1) == 1;
                     return _buildNavItem(
                       icon: Icons.directions_bus_rounded,
-                      title: 'My Routes',
+                      title: 'routes'.tr,
                       iconColor: const Color(0xFF6366F1),
                       isSelected: isSelected,
                       onTap: () {
@@ -170,7 +171,7 @@ class DriverDrawer extends StatelessWidget {
                     final isSelected = (dashboardCtrl?.selectedNavIndex.value ?? -1) == 2;
                     return _buildNavItem(
                       icon: Icons.calendar_month_rounded,
-                      title: 'Shift Schedules',
+                      title: 'shift_schedules'.tr,
                       iconColor: const Color(0xFF06B6D4),
                       isSelected: isSelected,
                       onTap: () {
@@ -185,7 +186,7 @@ class DriverDrawer extends StatelessWidget {
                   }),
                   _buildNavItem(
                     icon: Icons.warning_amber_rounded,
-                    title: 'Report Incident',
+                    title: 'report_incident'.tr,
                     iconColor: const Color(0xFFF43F5E),
                     badgeWidget: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -212,7 +213,7 @@ class DriverDrawer extends StatelessWidget {
                     final isSelected = (dashboardCtrl?.selectedNavIndex.value ?? -1) == 3;
                     return _buildNavItem(
                       icon: Icons.assignment_outlined,
-                      title: 'Incidents Log',
+                      title: 'incidents_log'.tr,
                       iconColor: const Color(0xFFA855F7),
                       isSelected: isSelected,
                       onTap: () {
@@ -229,12 +230,12 @@ class DriverDrawer extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   // --- SECTION 3: ALERTS & ACCOUNT ---
-                  _buildSectionHeader('ALERTS & ACCOUNT'),
+                  _buildSectionHeader('alerts_account_caps'.tr),
                   Obx(() {
                     final unread = homeCtrl?.notificationCount.value ?? 0;
                     return _buildNavItem(
                       icon: Icons.notifications_active_outlined,
-                      title: 'Alerts & Messages',
+                      title: 'alerts_messages'.tr,
                       iconColor: const Color(0xFFFBBF24),
                       badgeWidget: unread > 0
                           ? Container(
@@ -263,7 +264,7 @@ class DriverDrawer extends StatelessWidget {
                     final isSelected = (dashboardCtrl?.selectedNavIndex.value ?? -1) == 4;
                     return _buildNavItem(
                       icon: Icons.person_outline_rounded,
-                      title: 'Profile',
+                      title: 'profile'.tr,
                       iconColor: const Color(0xFF10B981),
                       isSelected: isSelected,
                       onTap: () {
@@ -278,7 +279,7 @@ class DriverDrawer extends StatelessWidget {
                   }),
                   _buildNavItem(
                     icon: Icons.settings_outlined,
-                    title: 'Account Settings',
+                    title: 'account_settings'.tr,
                     iconColor: Colors.white70,
                     onTap: () {
                       Navigator.of(context).pop();
@@ -286,8 +287,17 @@ class DriverDrawer extends StatelessWidget {
                     },
                   ),
                   _buildNavItem(
+                    icon: Icons.language_rounded,
+                    title: 'change_language'.tr,
+                    iconColor: const Color(0xFF60A5FA),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      LanguageSelectorSheet.show(context);
+                    },
+                  ),
+                  _buildNavItem(
                     icon: Icons.help_outline_rounded,
-                    title: 'Help & Documentation',
+                    title: 'help_support'.tr,
                     iconColor: Colors.white70,
                     onTap: () {
                       Navigator.of(context).pop();
@@ -296,7 +306,7 @@ class DriverDrawer extends StatelessWidget {
                   ),
                   _buildNavItem(
                     icon: Icons.shield_outlined,
-                    title: 'Privacy Policy',
+                    title: 'privacy_policy'.tr,
                     iconColor: Colors.white70,
                     onTap: () {
                       Navigator.of(context).pop();
@@ -305,7 +315,7 @@ class DriverDrawer extends StatelessWidget {
                   ),
                   _buildNavItem(
                     icon: Icons.article_outlined,
-                    title: 'Terms of Service',
+                    title: 'terms_conditions'.tr,
                     iconColor: Colors.white70,
                     onTap: () {
                       Navigator.of(context).pop();
@@ -369,9 +379,9 @@ class DriverDrawer extends StatelessWidget {
                   color: Colors.white.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Text(
-                  'Driver',
-                  style: TextStyle(
+                child: Text(
+                  'driver'.tr,
+                  style: const TextStyle(
                     color: Color(0xFFB042FF),
                     fontSize: 9.5,
                     fontWeight: FontWeight.bold,
@@ -493,7 +503,7 @@ class DriverDrawer extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              isVerified ? 'Verified' : 'Verification Pending',
+                              isVerified ? 'verified'.tr : 'doc_verification_pending'.tr,
                               style: TextStyle(
                                 color: isVerified
                                     ? const Color(0xFF10B981)
@@ -630,13 +640,13 @@ class DriverDrawer extends StatelessWidget {
               color: const Color(0xFFEF4444).withValues(alpha: 0.25),
             ),
           ),
-          child: const Row(
+          child: Row(
             children: [
-              Icon(Icons.logout_rounded, color: Color(0xFFEF4444), size: 19),
-              SizedBox(width: 12),
+              const Icon(Icons.logout_rounded, color: Color(0xFFEF4444), size: 19),
+              const SizedBox(width: 12),
               Text(
-                'Logout Portal',
-                style: TextStyle(
+                'logout_portal'.tr,
+                style: const TextStyle(
                   color: Color(0xFFEF4444),
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
@@ -674,30 +684,30 @@ class DriverDrawer extends StatelessWidget {
                   child: const Icon(Icons.logout_rounded, color: Color(0xFFEF4444), size: 24),
                 ),
                 const SizedBox(width: 14),
-                const Column(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Logout from Portal',
-                      style: TextStyle(
+                      'logout_from_portal'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
-                      'End current driving session',
-                      style: TextStyle(color: Colors.white54, fontSize: 11),
+                      'end_current_driving_session'.tr,
+                      style: const TextStyle(color: Colors.white54, fontSize: 11),
                     ),
                   ],
                 ),
               ],
             ),
             const SizedBox(height: 18),
-            const Text(
-              'Are you sure you want to log out of your driver account? Active route dispatch and telematics updates will be paused.',
-              style: TextStyle(color: Colors.white70, fontSize: 12.5, height: 1.4),
+            Text(
+              'logout_driver_confirm_msg'.tr,
+              style: const TextStyle(color: Colors.white70, fontSize: 12.5, height: 1.4),
             ),
             const SizedBox(height: 22),
             Row(
@@ -710,7 +720,7 @@ class DriverDrawer extends StatelessWidget {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                     onPressed: () => Get.back(),
-                    child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+                    child: Text('cancel'.tr, style: const TextStyle(color: Colors.white70)),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -728,9 +738,9 @@ class DriverDrawer extends StatelessWidget {
                       }
                       Get.offAllNamed(Routes.LOGIN);
                     },
-                    child: const Text(
-                      'Yes, Logout',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    child: Text(
+                      'yes_logout'.tr,
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
