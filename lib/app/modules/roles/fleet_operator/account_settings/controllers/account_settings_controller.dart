@@ -149,7 +149,7 @@ class AccountSettingsController extends GetxController {
               decoration: InputDecoration(
                 filled: true,
                 fillColor: const Color(0xFF0F172A),
-                hintText: 'Enter $title',
+                hintText: 'enter_field_hint'.trParams({'field': title}),
                 hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 border: OutlineInputBorder(
@@ -248,8 +248,8 @@ class AccountSettingsController extends GetxController {
                 ),
                 child: const Icon(Icons.camera_alt_rounded, color: Color(0xFF3B82F6), size: 22),
               ),
-              title: const Text('Take Photo with Camera', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
-              subtitle: const Text('Capture new photo instantly', style: TextStyle(color: Color(0xFF64748B), fontSize: 11)),
+              title: Text('take_photo_camera'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+              subtitle: Text('capture_photo_desc'.tr, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11)),
               trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF64748B), size: 20),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               onTap: () {
@@ -267,8 +267,8 @@ class AccountSettingsController extends GetxController {
                 ),
                 child: const Icon(Icons.photo_library_rounded, color: Color(0xFF10B981), size: 22),
               ),
-              title: const Text('Choose from Gallery', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
-              subtitle: const Text('Pick image from your device photos', style: TextStyle(color: Color(0xFF64748B), fontSize: 11)),
+              title: Text('choose_from_gallery'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+              subtitle: Text('pick_gallery_desc'.tr, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11)),
               trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF64748B), size: 20),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               onTap: () {
@@ -286,8 +286,8 @@ class AccountSettingsController extends GetxController {
                 ),
                 child: const Icon(Icons.link_rounded, color: Color(0xFF8B5CF6), size: 22),
               ),
-              title: const Text('Enter Image URL', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
-              subtitle: const Text('Paste external avatar web link', style: TextStyle(color: Color(0xFF64748B), fontSize: 11)),
+              title: Text('enter_image_url'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+              subtitle: Text('paste_image_url_desc'.tr, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11)),
               trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF64748B), size: 20),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               onTap: () {

@@ -106,8 +106,8 @@ class NotificationSettingsController extends GetxController {
           stateVar.value = oldValue;
           _updateStatusLabels();
           Get.snackbar(
-            'Update Failed',
-            res.message ?? 'Unable to save setting change.',
+            'error'.tr,
+            res.message ?? 'unable_save_settings'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFFEF4444),
             colorText: Colors.white,
@@ -116,8 +116,8 @@ class NotificationSettingsController extends GetxController {
         } else {
           // Success feedback
           Get.snackbar(
-            'Preference Updated',
-            'Notification preference saved.',
+            'preference_updated'.tr,
+            'notification_preference_saved'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
@@ -131,7 +131,7 @@ class NotificationSettingsController extends GetxController {
       stateVar.value = oldValue;
       _updateStatusLabels();
       Get.snackbar(
-        'Error',
+        'error'.tr,
         'Failed to connect: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),
@@ -173,8 +173,8 @@ class NotificationSettingsController extends GetxController {
 
       Get.back();
       Get.snackbar(
-        'Preferences Saved',
-        'All notification settings are saved successfully.',
+        'preferences_saved'.tr,
+        'all_notification_settings_saved'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF10B981),
         colorText: Colors.white,
@@ -185,8 +185,8 @@ class NotificationSettingsController extends GetxController {
     } catch (e) {
       Get.back();
       Get.snackbar(
-        'Settings Applied',
-        'Preferences updated.',
+        'settings_applied'.tr,
+        'preferences_updated'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF10B981),
         colorText: Colors.white,

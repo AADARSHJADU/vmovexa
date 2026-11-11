@@ -36,7 +36,7 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        'Terms & Conditions',
+                        'terms_conditions'.tr,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -97,9 +97,9 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
                             minimumSize: const Size(double.infinity, 50),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
-                          child: const Text(
-                            'I Understand & Accept Terms',
-                            style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                          child: Text(
+                            'i_understand_accept_terms'.tr,
+                            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
@@ -182,7 +182,7 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
         style: const TextStyle(color: Colors.white, fontSize: 12),
         decoration: InputDecoration(
           icon: const Icon(Icons.search_rounded, color: Color(0xFF64748B), size: 18),
-          hintText: 'Search fleet terms, dispatch rules or vehicle SLAs...',
+          hintText: 'search_terms_clauses_hint'.tr,
           hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 12),
@@ -211,10 +211,10 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.cardBorder),
           ),
-          child: const Center(
+          child: Center(
             child: Text(
-              'No terms or clauses match your search query.',
-              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+              'no_terms_clauses_match'.tr,
+              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
             ),
           ),
         );
@@ -300,15 +300,15 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  'Questions about operator terms?',
-                  style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  'questions_operator_terms'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 3),
+                const SizedBox(height: 3),
                 Text(
-                  'Contact our legal and regulatory team at legal@vmovexa.com',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 10),
+                  'contact_legal_team_desc'.tr,
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
                 ),
               ],
             ),

@@ -590,10 +590,10 @@ class AccountSettingsView extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text('Two-Factor Authentication (2FA)', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 3),
-                    Text('Add an extra layer of security', style: TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
+                  children: [
+                    Text('two_factor_auth'.tr, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 3),
+                    Text('extra_layer_security'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
                   ],
                 ),
               ),
@@ -603,7 +603,7 @@ class AccountSettingsView extends StatelessWidget {
                   color: Colors.white10,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Text('Disabled', style: TextStyle(color: AppColors.textMuted, fontSize: 10)),
+                child: Text('status_disabled'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
               ),
             ],
           ),

@@ -251,9 +251,9 @@ class HelpSupportController extends GetxController {
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: const Color(0xFF334155)),
                 ),
-                child: const Text(
-                  'Standard Operating Procedure is active and enforced across depot dispatch, OBD-II telemetry handshakes, and maintenance workflows.',
-                  style: TextStyle(color: Colors.white70, fontSize: 12, height: 1.4),
+                child: Text(
+                  'sop_active_enforced_desc'.tr,
+                  style: const TextStyle(color: Colors.white70, fontSize: 12, height: 1.4),
                 ),
               ),
               const SizedBox(height: 18),
@@ -266,7 +266,7 @@ class HelpSupportController extends GetxController {
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
-                  child: const Text('Close Guide', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: Text('close_guide'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],

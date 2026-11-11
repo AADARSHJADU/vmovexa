@@ -36,7 +36,7 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        'Privacy Policy',
+                        'privacy_policy'.tr,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -97,9 +97,9 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
                             minimumSize: const Size(double.infinity, 50),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
-                          child: const Text(
-                            'Acknowledge & Confirm',
-                            style: TextStyle(
+                          child: Text(
+                            'acknowledge_and_confirm'.tr,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -186,7 +186,7 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
         style: const TextStyle(color: Colors.white, fontSize: 12),
         decoration: InputDecoration(
           icon: const Icon(Icons.search_rounded, color: Color(0xFF64748B), size: 18),
-          hintText: 'Search fleet privacy clauses or telemetry governance...',
+          hintText: 'search_privacy_clauses_hint'.tr,
           hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 12),
@@ -215,10 +215,10 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.cardBorder),
           ),
-          child: const Center(
+          child: Center(
             child: Text(
-              'No policy sections match your search.',
-              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+              'no_policy_sections_match'.tr,
+              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
             ),
           ),
         );
@@ -304,15 +304,15 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  'Questions about data privacy?',
-                  style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  'questions_data_privacy'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 3),
+                const SizedBox(height: 3),
                 Text(
-                  'Reach out to our Data Protection Officer at privacy@vmovexa.com',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 10),
+                  'reach_out_dpo_desc'.tr,
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
                 ),
               ],
             ),

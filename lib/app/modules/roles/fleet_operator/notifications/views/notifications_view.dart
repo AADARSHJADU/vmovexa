@@ -121,19 +121,19 @@ class NotificationsView extends GetView<NotificationsController> {
                         physics: const AlwaysScrollableScrollPhysics(),
                         children: [
                           const SizedBox(height: 100),
-                          Icon(Icons.notifications_none_rounded, size: 54, color: Colors.grey.withOpacity(0.4)),
+                          Icon(Icons.notifications_none_rounded, size: 54, color: Colors.grey.withValues(alpha: 0.4)),
                           const SizedBox(height: 14),
-                          const Center(
+                          Center(
                             child: Text(
-                              'No notifications found',
-                              style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                              'no_notifications_found'.tr,
+                              style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
                             ),
                           ),
                           const SizedBox(height: 6),
-                          const Center(
+                          Center(
                             child: Text(
-                              'You have no alerts at this time.',
-                              style: TextStyle(color: Colors.grey, fontSize: 12),
+                              'no_alerts_at_this_time'.tr,
+                              style: const TextStyle(color: Colors.grey, fontSize: 12),
                             ),
                           ),
                         ],
@@ -207,7 +207,7 @@ class NotificationsView extends GetView<NotificationsController> {
           style: const TextStyle(color: AppColors.textSecondary, fontSize: 12, fontWeight: FontWeight.bold),
         ),
         Text(
-          '${items.where((n) => n.isUnread.value).length} Unread',
+          'unread_count'.trParams({'count': items.where((n) => n.isUnread.value).length.toString()}),
           style: const TextStyle(color: AppColors.textLink, fontSize: 10.5, fontWeight: FontWeight.bold),
         ),
       ],
@@ -223,7 +223,7 @@ class NotificationsView extends GetView<NotificationsController> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFF6366F1).withOpacity(0.12) : AppColors.cardBg,
+              color: isSelected ? const Color(0xFF6366F1).withValues(alpha: 0.12) : AppColors.cardBg,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: isSelected ? const Color(0xFF6366F1) : AppColors.cardBorder,
@@ -358,7 +358,7 @@ class NotificationsView extends GetView<NotificationsController> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.08),
+              color: iconColor.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(cardIcon, color: iconColor, size: 20),

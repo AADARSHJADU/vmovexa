@@ -501,10 +501,10 @@ class ProfileView extends StatelessWidget {
                   children: [
                     Image.asset('assets/app_logo/newLogo.png', width: 140, height: 40),
                     const SizedBox(height: 12),
-                    const Text(
-                      'VMOVEXA Smart Fleet & Transit Console\nVersion 1.0.0 (Build 2026.10)\n\nSecure Enterprise Telematics, Real-Time Fleet Dispatch, and Digital Operations Engine.',
+                    Text(
+                      'about_vmovexa_dialog_desc'.tr,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                      style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
                     ),
                   ],
                 ),

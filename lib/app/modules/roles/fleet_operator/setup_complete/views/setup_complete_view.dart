@@ -24,9 +24,9 @@ class SetupCompleteView extends GetView<SetupCompleteController> {
                     icon: const Icon(Icons.close_rounded, color: Colors.white, size: 26),
                     onPressed: controller.backToFleet,
                   ),
-                  const Text(
-                    'Setup Complete',
-                    style: TextStyle(
+                  Text(
+                    'setup_complete_title'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -48,20 +48,20 @@ class SetupCompleteView extends GetView<SetupCompleteController> {
                     const SizedBox(height: 24),
 
                     // Headings
-                    const Text(
-                      'Vehicle Successfully Configured',
+                    Text(
+                      'vehicle_successfully_configured'.tr,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
-                      'All steps have been completed.',
+                    Text(
+                      'all_steps_completed_sub'.tr,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 13,
                       ),
@@ -78,12 +78,12 @@ class SetupCompleteView extends GetView<SetupCompleteController> {
 
                     // Bottom Action buttons
                     CustomButton(
-                      text: 'View Vehicle Details',
+                      text: 'view_vehicle_details_btn'.tr,
                       onTap: controller.viewVehicleDetails,
                     ),
                     const SizedBox(height: 14),
                     CustomButton(
-                      text: 'Back to Fleet',
+                      text: 'back_to_fleet_btn'.tr,
                       isOutlined: true,
                       onTap: controller.backToFleet,
                     ),
@@ -102,32 +102,6 @@ class SetupCompleteView extends GetView<SetupCompleteController> {
     return Image.asset('assets/images/device_bus.png');
   }
 
-  Widget _buildLedTestRow(String label, bool isOn) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: const TextStyle(color: Colors.white, fontSize: 7)),
-        Container(
-          width: 5,
-          height: 5,
-          decoration: BoxDecoration(
-            color: isOn ? const Color(0xFF10B981) : Colors.red,
-            shape: BoxShape.circle,
-            boxShadow: isOn
-                ? [
-                    const BoxShadow(
-                      color: Color(0xFF10B981),
-                      blurRadius: 4,
-                      spreadRadius: 1,
-                    )
-                  ]
-                : null,
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildParameterDetailsList() {
     return Container(
       decoration: BoxDecoration(
@@ -137,15 +111,15 @@ class SetupCompleteView extends GetView<SetupCompleteController> {
       ),
       child: Column(
         children: [
-          _buildDetailRow('Fleet', controller.fleetName, Icons.apartment_outlined),
+          _buildDetailRow('fleet_label'.tr, controller.fleetName, Icons.apartment_outlined),
           const Divider(color: AppColors.cardBorder, height: 1),
-          _buildDetailRow('Vehicle', controller.vehicleName, Icons.directions_bus_rounded),
+          _buildDetailRow('vehicle_label'.tr, controller.vehicleName, Icons.directions_bus_rounded),
           const Divider(color: AppColors.cardBorder, height: 1),
-          _buildDetailRow('Driver', controller.driverName, Icons.person_outline_rounded),
+          _buildDetailRow('driver'.tr, controller.driverName, Icons.person_outline_rounded),
           const Divider(color: AppColors.cardBorder, height: 1),
-          _buildDetailRow('GPS Device', controller.gpsName, Icons.wifi_tethering_rounded),
+          _buildDetailRow('gps_device_label'.tr, controller.gpsName, Icons.wifi_tethering_rounded),
           const Divider(color: AppColors.cardBorder, height: 1),
-          _buildDetailRow('Status', 'Active', Icons.shield_outlined, isStatus: true),
+          _buildDetailRow('status'.tr, 'active'.tr, Icons.shield_outlined, isStatus: true),
         ],
       ),
     );
@@ -172,9 +146,9 @@ class SetupCompleteView extends GetView<SetupCompleteController> {
                   decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle),
                 ),
                 const SizedBox(width: 6),
-                const Text(
-                  'Active',
-                  style: TextStyle(color: Color(0xFF10B981), fontSize: 13, fontWeight: FontWeight.bold),
+                Text(
+                  'active'.tr,
+                  style: const TextStyle(color: Color(0xFF10B981), fontSize: 13, fontWeight: FontWeight.bold),
                 ),
               ],
             )
@@ -201,10 +175,26 @@ class SetupCompleteView extends GetView<SetupCompleteController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTimelineItem('Fleet Created', '${controller.fleetName} has been created successfully.', true),
-          _buildTimelineItem('Vehicle Added', 'Vehicle ${controller.vehicleName} has been added.', true),
-          _buildTimelineItem('Driver Assigned', '${controller.driverName} has been assigned to this vehicle.', true),
-          _buildTimelineItem('GPS Device Connected', 'GPS device ${controller.gpsName} has been connected.', false),
+          _buildTimelineItem(
+            'fleet_created_title'.tr,
+            'fleet_created_sub'.trParams({'fleet': controller.fleetName}),
+            true,
+          ),
+          _buildTimelineItem(
+            'vehicle_added_title'.tr,
+            'vehicle_added_sub'.trParams({'vehicle': controller.vehicleName}),
+            true,
+          ),
+          _buildTimelineItem(
+            'driver_assigned_title'.tr,
+            'driver_assigned_sub'.trParams({'driver': controller.driverName}),
+            true,
+          ),
+          _buildTimelineItem(
+            'gps_connected_title'.tr,
+            'gps_connected_sub'.trParams({'gps': controller.gpsName}),
+            false,
+          ),
         ],
       ),
     );
@@ -221,7 +211,7 @@ class SetupCompleteView extends GetView<SetupCompleteController> {
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: const Color(0xFF10B981).withOpacity(0.08),
+                color: const Color(0xFF10B981).withValues(alpha: 0.08),
                 shape: BoxShape.circle,
                 border: Border.all(color: const Color(0xFF10B981), width: 1.5),
               ),
