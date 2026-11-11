@@ -177,7 +177,7 @@ class AccountSettingsController extends GetxController {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+                    child: Text('cancel'.tr, style: const TextStyle(color: Colors.white70)),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -195,7 +195,7 @@ class AccountSettingsController extends GetxController {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    child: const Text('Apply', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    child: Text('apply'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],
@@ -475,7 +475,7 @@ class AccountSettingsController extends GetxController {
                         side: const BorderSide(color: Color(0xFF334155)),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      child: const Text('Cancel', style: TextStyle(color: Colors.white)),
+                      child: Text('cancel'.tr, style: const TextStyle(color: Colors.white)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -492,7 +492,7 @@ class AccountSettingsController extends GetxController {
                         backgroundColor: const Color(0xFF6366F1),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      child: const Text('Update', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      child: Text('apply'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -586,7 +586,7 @@ class AccountSettingsController extends GetxController {
           }
 
           Get.snackbar(
-            'Profile Updated',
+            'success'.tr,
             'Your account changes have been saved successfully.',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF10B981),
@@ -605,7 +605,7 @@ class AccountSettingsController extends GetxController {
           }
         } else {
           Get.snackbar(
-            'Update Failed',
+            'error'.tr,
             res.message ?? 'Unable to save profile changes.',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFFEF4444),
@@ -620,7 +620,7 @@ class AccountSettingsController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         'Failed to connect to server: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),

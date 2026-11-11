@@ -77,9 +77,9 @@ class ProfileView extends StatelessWidget {
                     const SizedBox(height: 24),
 
                     // 3. Account & Security Section
-                    const Text(
-                      'ACCOUNT & SECURITY',
-                      style: TextStyle(
+                    Text(
+                      'account_and_security_caps'.tr,
+                      style: const TextStyle(
                         color: AppColors.textMuted,
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
@@ -91,9 +91,9 @@ class ProfileView extends StatelessWidget {
                     const SizedBox(height: 24),
 
                     // 4. Helpdesk & Legal Section
-                    const Text(
-                      'HELPDESK & LEGAL',
-                      style: TextStyle(
+                    Text(
+                      'helpdesk_and_legal'.tr,
+                      style: const TextStyle(
                         color: AppColors.textMuted,
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
@@ -109,7 +109,7 @@ class ProfileView extends StatelessWidget {
                       onPressed: controller.confirmLogout,
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Color(0xFFEF4444), width: 1.2),
-                        backgroundColor: const Color(0xFFEF4444).withOpacity(0.08),
+                        backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.08),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         minimumSize: const Size(double.infinity, 50),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -152,7 +152,7 @@ class ProfileView extends StatelessWidget {
           border: Border.all(color: AppColors.cardBorder, width: 1.2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.25),
+              color: Colors.black.withValues(alpha: 0.25),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -226,10 +226,10 @@ class ProfileView extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF3B82F6).withOpacity(0.18),
+                      color: const Color(0xFF3B82F6).withValues(alpha: 0.18),
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(
-                        color: const Color(0xFF3B82F6).withOpacity(0.4),
+                        color: const Color(0xFF3B82F6).withValues(alpha: 0.4),
                         width: 1,
                       ),
                     ),
@@ -264,7 +264,7 @@ class ProfileView extends StatelessWidget {
                   const SizedBox(height: 3),
                   // Operator ID
                   Text(
-                    'Operator ID: $opId',
+                    '${'operator_id_prefix'.tr}$opId',
                     style: const TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 10.5,
@@ -310,7 +310,7 @@ class ProfileView extends StatelessWidget {
           Expanded(
             child: _buildStatItem(
               value: '${controller.fleetCount.value}',
-              label: 'FLEETS',
+              label: 'fleets_caps'.tr,
               iconPath: 'assets/icons/fleet_operator_icons/fleetsManagedA2.svg',
               iconColor: const Color(0xFF38BDF8),
               onTap: () {
@@ -326,7 +326,7 @@ class ProfileView extends StatelessWidget {
           Expanded(
             child: _buildStatItem(
               value: '${controller.vehicleCount.value}',
-              label: 'VEHICLES',
+              label: 'vehicles_caps'.tr,
               iconPath: 'assets/icons/fleet_operator_icons/fleetsManagedA2.svg',
               iconColor: const Color(0xFF818CF8),
               onTap: () {
@@ -340,7 +340,7 @@ class ProfileView extends StatelessWidget {
           Expanded(
             child: _buildStatItem(
               value: '${controller.driverCount.value}',
-              label: 'DRIVERS',
+              label: 'drivers_caps'.tr,
               iconPath: 'assets/icons/fleet_operator_icons/driverA.svg',
               iconColor: const Color(0xFF34D399),
               onTap: () {
@@ -418,28 +418,28 @@ class ProfileView extends StatelessWidget {
       child: Column(
         children: [
           _buildMenuRow(
-            label: 'Account Settings',
-            subtitle: 'Personal details, branch and organization info',
+            label: 'account_settings'.tr,
+            subtitle: 'personal_branch_org_info'.tr,
             iconPath: 'assets/icons/profile.svg',
-            iconBg: const Color(0xFF3B82F6).withOpacity(0.15),
+            iconBg: const Color(0xFF3B82F6).withValues(alpha: 0.15),
             iconColor: const Color(0xFF60A5FA),
             onTap: () => Get.toNamed(Routes.ACCOUNT_SETTINGS),
           ),
           const Divider(color: AppColors.cardBorder, height: 16),
           _buildMenuRow(
-            label: 'Security & Password',
-            subtitle: 'Change password and security credentials',
+            label: 'security_and_password'.tr,
+            subtitle: 'change_pw_credentials'.tr,
             iconPath: 'assets/icons/fleet_operator_icons/securityA.svg',
-            iconBg: const Color(0xFFF59E0B).withOpacity(0.15),
+            iconBg: const Color(0xFFF59E0B).withValues(alpha: 0.15),
             iconColor: const Color(0xFFFBBF24),
             onTap: () => Get.toNamed(Routes.CHANGE_PASSWORD),
           ),
           const Divider(color: AppColors.cardBorder, height: 16),
           _buildMenuRow(
-            label: 'Notification Settings',
-            subtitle: 'Push alerts, email reports, and SMS triggers',
+            label: 'notification_settings'.tr,
+            subtitle: 'push_alerts_email_reports'.tr,
             iconPath: 'assets/icons/fleet_operator_icons/notificationSettingA.svg',
-            iconBg: const Color(0xFFA855F7).withOpacity(0.15),
+            iconBg: const Color(0xFFA855F7).withValues(alpha: 0.15),
             iconColor: const Color(0xFFC084FC),
             onTap: () => Get.toNamed(Routes.NOTIFICATION_SETTINGS),
           ),
@@ -460,41 +460,41 @@ class ProfileView extends StatelessWidget {
       child: Column(
         children: [
           _buildMenuRow(
-            label: 'Help & Support Desk',
-            subtitle: 'Submit support tickets, FAQs and guides',
+            label: 'help_and_support_desk'.tr,
+            subtitle: 'submit_support_tickets_faqs'.tr,
             iconPath: 'assets/icons/fleet_operator_icons/helpSupportA.svg',
-            iconBg: const Color(0xFF10B981).withOpacity(0.15),
+            iconBg: const Color(0xFF10B981).withValues(alpha: 0.15),
             iconColor: const Color(0xFF34D399),
             onTap: () => Get.toNamed(Routes.HELP_SUPPORT),
           ),
           const Divider(color: AppColors.cardBorder, height: 16),
           _buildMenuRow(
-            label: 'Privacy Policy',
-            subtitle: 'Data security, encryption, and privacy rights',
+            label: 'privacy_policy'.tr,
+            subtitle: 'data_sec_encryption_rights'.tr,
             iconPath: 'assets/icons/fleet_operator_icons/privacyPolicyA.svg',
-            iconBg: const Color(0xFF06B6D4).withOpacity(0.15),
+            iconBg: const Color(0xFF06B6D4).withValues(alpha: 0.15),
             iconColor: const Color(0xFF22D3EE),
             onTap: () => Get.toNamed(Routes.PRIVACY_POLICY, arguments: {'role': 'ROLE-FLEET-OPERATOR'}),
           ),
           const Divider(color: AppColors.cardBorder, height: 16),
           _buildMenuRow(
-            label: 'Terms & Conditions',
-            subtitle: 'Service level agreements and governing policies',
+            label: 'terms_and_conditions'.tr,
+            subtitle: 'sla_governing_policies'.tr,
             iconPath: 'assets/icons/fleet_operator_icons/securityA.svg',
-            iconBg: const Color(0xFF6366F1).withOpacity(0.15),
+            iconBg: const Color(0xFF6366F1).withValues(alpha: 0.15),
             iconColor: const Color(0xFF818CF8),
             onTap: () => Get.toNamed(Routes.TERMS_CONDITIONS, arguments: {'role': 'ROLE-FLEET-OPERATOR'}),
           ),
           const Divider(color: AppColors.cardBorder, height: 16),
           _buildMenuRow(
-            label: 'About VMOVEXA',
-            subtitle: 'Platform version 1.0.0 (Enterprise Fleet Suite)',
+            label: 'about_vmovexa'.tr,
+            subtitle: 'platform_version_suite'.tr,
             iconPath: 'assets/icons/fleet_operator_icons/AboutA.svg',
-            iconBg: Colors.white.withOpacity(0.08),
+            iconBg: Colors.white.withValues(alpha: 0.08),
             iconColor: Colors.white70,
             onTap: () {
               Get.defaultDialog(
-                title: 'About VMOVEXA',
+                title: 'about_vmovexa'.tr,
                 titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                 backgroundColor: AppColors.cardBg,
                 content: Column(
@@ -513,7 +513,7 @@ class ProfileView extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF6366F1),
                   ),
-                  child: const Text('Close', style: TextStyle(color: Colors.white)),
+                  child: Text('close'.tr, style: const TextStyle(color: Colors.white)),
                 ),
               );
             },

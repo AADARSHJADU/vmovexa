@@ -11,7 +11,7 @@ class TripReportController extends GetxController {
   void copyTripId() {
     Clipboard.setData(ClipboardData(text: tripId));
     Get.snackbar(
-      'Copied',
+      'success'.tr,
       'Trip ID copied to clipboard.',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: const Color(0xFF6366F1),
@@ -21,7 +21,7 @@ class TripReportController extends GetxController {
 
   void exportPdf() {
     Get.snackbar(
-      'Export PDF',
+      'export_pdf_btn'.tr,
       'Generating PDF layout for trip sheet...',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: const Color(0xFF10B981),
@@ -31,7 +31,7 @@ class TripReportController extends GetxController {
 
   void shareReport() {
     Get.snackbar(
-      'Share Report',
+      'share_report_btn'.tr,
       'Opening system share panel for trip $tripId...',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: const Color(0xFF6366F1),
@@ -41,7 +41,7 @@ class TripReportController extends GetxController {
 
   void downloadReport() {
     Get.snackbar(
-      'Downloading',
+      'export_pdf_btn'.tr,
       'Downloading trip telemetry report logs...',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: const Color(0xFF10B981),

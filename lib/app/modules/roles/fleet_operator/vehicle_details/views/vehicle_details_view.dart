@@ -27,9 +27,9 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const CustomBackButton(),
-                  const Text(
-                    'Vehicle Details',
-                    style: TextStyle(
+                  Text(
+                    'vehicle_details_title'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -39,7 +39,7 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit_outlined, color: Colors.white70, size: 22),
-                        tooltip: 'Edit Vehicle',
+                        tooltip: 'edit_vehicle'.tr,
                         onPressed: controller.goToEditVehicle,
                       ),
                       PopupMenuButton<String>(
@@ -56,34 +56,34 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                           }
                         },
                         itemBuilder: (context) => [
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'edit',
                             child: Row(
                               children: [
-                                Icon(Icons.edit_rounded, color: Color(0xFF60A5FA), size: 18),
-                                SizedBox(width: 10),
-                                Text('Edit Specs', style: TextStyle(color: Colors.white, fontSize: 13)),
+                                const Icon(Icons.edit_rounded, color: Color(0xFF60A5FA), size: 18),
+                                const SizedBox(width: 10),
+                                Text('edit_specs'.tr, style: const TextStyle(color: Colors.white, fontSize: 13)),
                               ],
                             ),
                           ),
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'tracking',
                             child: Row(
                               children: [
-                                Icon(Icons.radar_rounded, color: Color(0xFF10B981), size: 18),
-                                SizedBox(width: 10),
-                                Text('Live Radar Tracking', style: TextStyle(color: Colors.white, fontSize: 13)),
+                                const Icon(Icons.radar_rounded, color: Color(0xFF10B981), size: 18),
+                                const SizedBox(width: 10),
+                                Text('live_radar_tracking'.tr, style: const TextStyle(color: Colors.white, fontSize: 13)),
                               ],
                             ),
                           ),
                           const PopupMenuDivider(height: 1),
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'delete',
                             child: Row(
                               children: [
-                                Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 18),
-                                SizedBox(width: 10),
-                                Text('Delete Vehicle', style: TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.bold)),
+                                const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 18),
+                                const SizedBox(width: 10),
+                                Text('delete_vehicle'.tr, style: const TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.bold)),
                               ],
                             ),
                           ),
@@ -111,10 +111,10 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                       children: [
                         const Icon(Icons.directions_bus_filled_outlined, size: 56, color: Colors.white24),
                         const SizedBox(height: 12),
-                        const Text('Vehicle information unavailable', style: TextStyle(color: Colors.white70, fontSize: 14)),
+                        Text('vehicle_info_unavailable'.tr, style: const TextStyle(color: Colors.white70, fontSize: 14)),
                         const SizedBox(height: 16),
                         CustomButton(
-                          text: 'Retry',
+                          text: 'retry_btn'.tr,
                           prefixIcon: const Icon(Icons.refresh, size: 16, color: Colors.white),
                           onTap: controller.loadVehicleDetails,
                           width: 140,
@@ -147,41 +147,41 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                       const SizedBox(height: 20),
 
                       // Vehicle Info details
-                      _buildSectionHeader('Vehicle Specification Sheet'),
+                      _buildSectionHeader('vehicle_spec_sheet'.tr),
                       const SizedBox(height: 10),
                       _buildVehicleInfoGrid(),
                       const SizedBox(height: 20),
 
                       // Driver info details
-                      _buildSectionHeader('Driver Information'),
+                      _buildSectionHeader('driver_info_title'.tr),
                       const SizedBox(height: 10),
                       _buildDriverInfoCard(),
                       const SizedBox(height: 20),
 
                       // GPS device details
-                      _buildSectionHeader('GPS Device Information'),
+                      _buildSectionHeader('gps_device_info_title'.tr),
                       const SizedBox(height: 10),
                       _buildGpsDeviceCard(),
                       const SizedBox(height: 20),
 
                       // Compliance Documents Section
-                      _buildSectionHeader('Compliance Documents (${controller.documents.length})'),
+                      _buildSectionHeader('${'compliance_docs_title'.tr} (${controller.documents.length})'),
                       const SizedBox(height: 10),
                       _buildComplianceDocsList(),
                       const SizedBox(height: 20),
 
                       // Bus Photos Gallery (if any)
                       if (controller.photos.isNotEmpty) ...[
-                        _buildSectionHeader('Bus Photos Gallery (${controller.photos.length})'),
+                        _buildSectionHeader('${'bus_photos_gallery'.tr} (${controller.photos.length})'),
                         const SizedBox(height: 10),
                         _buildPhotosGallery(),
                         const SizedBox(height: 20),
                       ],
 
                       // Quick Actions
-                      const Text(
-                        'Quick Actions',
-                        style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                      Text(
+                        'quick_actions'.tr,
+                        style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 14),
                       _buildQuickActionsGrid(),
@@ -192,14 +192,14 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                         children: [
                           Expanded(
                             child: CustomButton(
-                              text: 'Track Live',
+                              text: 'track_live'.tr,
                               onTap: controller.startLiveTracking,
                             ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: CustomButton(
-                              text: 'Edit Vehicle',
+                              text: 'edit_vehicle'.tr,
                               isOutlined: true,
                               onTap: controller.goToEditVehicle,
                             ),
@@ -208,7 +208,7 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                           IconButton(
                             onPressed: controller.confirmDeleteVehicle,
                             icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent),
-                            tooltip: 'Delete Vehicle',
+                            tooltip: 'delete_vehicle'.tr,
                             style: IconButton.styleFrom(
                               backgroundColor: Colors.redAccent.withValues(alpha: 0.15),
                               shape: RoundedRectangleBorder(
@@ -246,16 +246,16 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
 
     if (status == 'on_route' || status == 'active' || status == 'moving') {
       statusColor = const Color(0xFF10B981);
-      statusText = 'Active / On Route';
+      statusText = 'status_active_on_route'.tr;
     } else if (status == 'in_depot' || status == 'idle') {
       statusColor = const Color(0xFF38BDF8);
-      statusText = 'In Depot';
+      statusText = 'status_in_depot'.tr;
     } else if (status == 'maintenance' || status == 'offline') {
       statusColor = const Color(0xFFF59E0B);
-      statusText = 'Maintenance';
+      statusText = 'status_maintenance'.tr;
     } else if (status == 'pending_approval') {
       statusColor = Colors.amber;
-      statusText = 'Pending Approval';
+      statusText = 'pending_approval'.tr;
     } else {
       statusColor = const Color(0xFF94A3B8);
       statusText = status.toUpperCase();
@@ -398,14 +398,14 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.5), width: 1),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.wifi_rounded, color: Color(0xFF60A5FA), size: 11),
-                  SizedBox(width: 4),
+                  const Icon(Icons.wifi_rounded, color: Color(0xFF60A5FA), size: 11),
+                  const SizedBox(width: 4),
                   Text(
-                    'Live',
-                    style: TextStyle(color: Color(0xFF60A5FA), fontSize: 9, fontWeight: FontWeight.bold),
+                    'live_tag'.tr,
+                    style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 9, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -425,15 +425,15 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
 
     return Row(
       children: [
-        Expanded(child: _buildSummaryStatItem('Driver', controller.driverName, svgPath: 'assets/icons/profile.svg')),
+        Expanded(child: _buildSummaryStatItem('driver_label'.tr, controller.driverName, svgPath: 'assets/icons/profile.svg')),
         const SizedBox(width: 8),
-        Expanded(child: _buildSummaryStatItem('GPS ID', controller.gpsDeviceId, svgPath: 'assets/icons/hotspot.svg')),
+        Expanded(child: _buildSummaryStatItem('gps_id_label'.tr, controller.gpsDeviceId, svgPath: 'assets/icons/hotspot.svg')),
         const SizedBox(width: 8),
-        Expanded(child: _buildSummaryStatItem('Speed', speed, svgPath: 'assets/icons/speed_m.svg')),
+        Expanded(child: _buildSummaryStatItem('speed_label'.tr, speed, svgPath: 'assets/icons/speed_m.svg')),
         const SizedBox(width: 8),
         Expanded(
           child: _buildSummaryStatItem(
-            isElectric ? 'Battery' : 'Fuel',
+            isElectric ? 'battery_label'.tr : 'fuel_label'.tr,
             batteryOrFuel,
             icon: isElectric ? Icons.battery_charging_full_rounded : Icons.local_gas_station_rounded,
           ),
@@ -501,9 +501,9 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                             height: 16,
                           ),
                           const SizedBox(width: 6),
-                          const Text(
-                            'Assigned Route Corridor',
-                            style: TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold),
+                          Text(
+                            'assigned_route_corridor'.tr,
+                            style: const TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -519,7 +519,7 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              'From: ${controller.source}',
+                              '${'from_prefix'.tr}${controller.source}',
                               style: const TextStyle(color: Colors.white70, fontSize: 11),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -534,7 +534,7 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              'To: ${controller.destination}',
+                              '${'to_prefix'.tr}${controller.destination}',
                               style: const TextStyle(color: Colors.white70, fontSize: 11),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -610,7 +610,7 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                   border: Border.all(color: const Color(0xFF8B5CF6).withValues(alpha: 0.4)),
                 ),
                 child: Text(
-                  '${controller.totalDisplays} Screens',
+                  '${controller.totalDisplays} ${'screens_suffix'.tr}',
                   style: const TextStyle(
                     color: Color(0xFFC084FC),
                     fontSize: 11,
@@ -624,29 +624,29 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
 
           // 4 Matrix Screen Rows
           _buildScreenConfigRow(
-            'Left Side Displays',
-            '${controller.leftDisplays} Units',
+            'left_side_displays'.tr,
+            '${controller.leftDisplays} ${'units_suffix'.tr}',
             const Color(0xFF8B5CF6),
             const Color(0xFFC084FC),
           ),
           const SizedBox(height: 8),
           _buildScreenConfigRow(
-            'Right Side Displays',
-            '${controller.rightDisplays} Units',
+            'right_side_displays'.tr,
+            '${controller.rightDisplays} ${'units_suffix'.tr}',
             const Color(0xFF8B5CF6),
             const Color(0xFFC084FC),
           ),
           const SizedBox(height: 8),
           _buildScreenConfigRow(
-            'Rear Display',
-            '${controller.rearDisplays} Unit',
+            'rear_display'.tr,
+            '${controller.rearDisplays} ${'unit_suffix'.tr}',
             const Color(0xFFEC4899),
             const Color(0xFFF472B6),
           ),
           const SizedBox(height: 8),
           _buildScreenConfigRow(
-            'Emergency Exit Display',
-            '${controller.emergencyDisplays} Unit',
+            'emergency_exit_display'.tr,
+            '${controller.emergencyDisplays} ${'unit_suffix'.tr}',
             const Color(0xFF06B6D4),
             const Color(0xFF22D3EE),
           ),
@@ -705,14 +705,14 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
         mainAxisSpacing: 10,
         crossAxisSpacing: 10,
         children: [
-          _buildInfoParam('Vehicle Type', controller.vehicleType),
-          _buildInfoParam('Capacity', '${controller.capacity} Seater'),
-          _buildInfoParam('Registration No.', controller.registrationNumber),
-          _buildInfoParam('Fuel Type', controller.fuelType.toUpperCase()),
-          _buildInfoParam('Chassis / VIN', controller.vin),
-          _buildInfoParam('Depot Location', controller.depotName),
-          _buildInfoParam('Model', controller.modelName),
-          _buildInfoParam('Status', controller.status.toUpperCase()),
+          _buildInfoParam('vehicle_type_label'.tr, controller.vehicleType),
+          _buildInfoParam('capacity_label'.tr, '${controller.capacity} ${'seater_suffix'.tr}'),
+          _buildInfoParam('registration_no_label'.tr, controller.registrationNumber),
+          _buildInfoParam('fuel_type_label'.tr, controller.fuelType.toUpperCase()),
+          _buildInfoParam('chassis_vin_label'.tr, controller.vin),
+          _buildInfoParam('depot_location_label'.tr, controller.depotName),
+          _buildInfoParam('model_label'.tr, controller.modelName),
+          _buildInfoParam('status_label'.tr, controller.status.toUpperCase()),
         ],
       ),
     );
@@ -769,7 +769,7 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                   style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                const Text('Assigned Transit Pilot', style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                Text('assigned_transit_pilot'.tr, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
               ],
             ),
           ),
@@ -788,7 +788,7 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
                   minimumSize: const Size(0, 32),
                 ),
-                child: const Text('Change', style: TextStyle(color: Colors.white70, fontSize: 11)),
+                child: Text('change_btn'.tr, style: const TextStyle(color: Colors.white70, fontSize: 11)),
               ),
               const SizedBox(width: 6),
               OutlinedButton.icon(
@@ -800,7 +800,7 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                   minimumSize: const Size(0, 32),
                 ),
                 icon: const Icon(Icons.call_outlined, color: Colors.white, size: 14),
-                label: const Text('Call', style: TextStyle(color: Colors.white, fontSize: 11)),
+                label: Text('call_btn'.tr, style: const TextStyle(color: Colors.white, fontSize: 11)),
               ),
             ],
           ),
@@ -822,16 +822,16 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildGpsParam('Device ID', controller.gpsDeviceId),
-              _buildGpsParam('Network Status', 'Active 4G LTE'),
+              _buildGpsParam('device_id_label'.tr, controller.gpsDeviceId),
+              _buildGpsParam('network_status_label'.tr, 'active_4g_lte'.tr),
             ],
           ),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildGpsParam('Signal Strength', 'Strong (98%)'),
-              _buildGpsParam('Live Ping', 'Real-time sync'),
+              _buildGpsParam('signal_strength_label'.tr, 'strong_signal_label'.tr),
+              _buildGpsParam('live_ping_label'.tr, 'realtime_sync'.tr),
             ],
           ),
           const SizedBox(height: 10),
@@ -846,9 +846,9 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                   });
                 },
                 icon: const Icon(Icons.link_rounded, size: 14, color: Color(0xFF818CF8)),
-                label: const Text(
-                  'Change / Link GPS',
-                  style: TextStyle(color: Color(0xFF818CF8), fontSize: 11, fontWeight: FontWeight.bold),
+                label: Text(
+                  'change_link_gps'.tr,
+                  style: const TextStyle(color: Color(0xFF818CF8), fontSize: 11, fontWeight: FontWeight.bold),
                 ),
                 style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero),
               ),
@@ -881,10 +881,10 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: AppColors.cardBorder, width: 1.2),
         ),
-        child: const Center(
+        child: Center(
           child: Text(
-            'No compliance documents uploaded yet.',
-            style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+            'no_compliance_docs'.tr,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
           ),
         ),
       );
@@ -926,7 +926,7 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                       Text(docType, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                       if (doc.uploadedAt.isNotEmpty)
                         Text(
-                          'Uploaded: ${doc.uploadedAt.split('T').first}',
+                          '${'uploaded_prefix'.tr}${doc.uploadedAt.split('T').first}',
                           style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
                         ),
                     ],
@@ -1078,25 +1078,25 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
       childAspectRatio: 0.9,
       children: [
         _buildQuickActionItem(
-          'Live Tracking',
+          'live_tracking'.tr,
           const Color(0xFF3B82F6),
           controller.startLiveTracking,
           svgPath: 'assets/icons/live_map.svg',
         ),
         _buildQuickActionItem(
-          'Edit Specs',
+          'edit_specs'.tr,
           Colors.amber,
           controller.goToEditVehicle,
           svgPath: 'assets/icons/edit.svg',
         ),
         _buildQuickActionItem(
-          'Call Driver',
+          'call_driver'.tr,
           const Color(0xFF10B981),
           controller.callDriver,
           icon: Icons.phone_forwarded_rounded,
         ),
         _buildQuickActionItem(
-          'Delete Bus',
+          'delete_bus'.tr,
           Colors.redAccent,
           controller.confirmDeleteVehicle,
           icon: Icons.delete_forever_rounded,

@@ -27,15 +27,15 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
             final fleet = controller.fleet.value;
 
             if (isLoading && fleet == null) {
-              return const Center(
+              return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircularProgressIndicator(color: AppColors.primaryButtonBlue),
-                    SizedBox(height: 16),
+                    const CircularProgressIndicator(color: AppColors.primaryButtonBlue),
+                    const SizedBox(height: 16),
                     Text(
-                      'Loading complete fleet profile & asset records...',
-                      style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                      'loading_fleet_profile'.tr,
+                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
                     ),
                   ],
                 ),
@@ -51,13 +51,13 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                     children: [
                       const Icon(Icons.error_outline_rounded, color: Colors.white54, size: 48),
                       const SizedBox(height: 16),
-                      const Text(
-                        'Fleet operation record not found.',
-                        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                      Text(
+                        'fleet_not_found'.tr,
+                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 20),
                       CustomButton(
-                        text: 'Back to Fleets List',
+                        text: 'back_to_fleet_list'.tr,
                         onTap: controller.backToFleetList,
                         width: 180,
                         height: 42,
@@ -113,14 +113,14 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                           Center(
                             child: GestureDetector(
                               onTap: controller.backToFleetList,
-                              child: const Row(
+                              child:  Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(Icons.arrow_back, color: AppColors.textLink, size: 16),
-                                  SizedBox(width: 6),
+                                  const Icon(Icons.arrow_back, color: AppColors.textLink, size: 16),
+                                  const SizedBox(width: 6),
                                   Text(
-                                    'Back to Fleet List',
-                                    style: TextStyle(
+                                    'back_to_fleet_list'.tr,
+                                    style: const TextStyle(
                                       color: AppColors.textLink,
                                       fontSize: 13,
                                       fontWeight: FontWeight.bold,
@@ -152,9 +152,9 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           CustomBackButton(onTap: controller.backToFleetList),
-          const Text(
-            'Fleet Details',
-            style: TextStyle(
+          Text(
+            'fleet_details_title'.tr,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -162,7 +162,7 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
           ),
           IconButton(
             icon: const Icon(Icons.edit_outlined, color: Colors.white, size: 22),
-            tooltip: 'Edit Fleet Profile',
+            tooltip: 'edit_fleet_profile_tooltip'.tr,
             onPressed: controller.goToEditFleet,
           ),
         ],
@@ -291,7 +291,7 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                 child: ElevatedButton.icon(
                   onPressed: controller.goToEditFleet,
                   icon: const Icon(Icons.edit, size: 14, color: Colors.white),
-                  label: const Text('Edit Fleet', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  label: Text('edit_fleet'.tr, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(0, 40),
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
@@ -310,7 +310,7 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                 ElevatedButton.icon(
                   onPressed: controller.approveFleet,
                   icon: const Icon(Icons.check_circle_outline, size: 14, color: Colors.white),
-                  label: const Text('Approve', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  label: Text('approve_btn'.tr, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF10B981),
                     foregroundColor: Colors.white,
@@ -324,7 +324,7 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                 OutlinedButton.icon(
                   onPressed: () => controller.showRejectDialog(context),
                   icon: const Icon(Icons.cancel_outlined, size: 14, color: Color(0xFFEF4444)),
-                  label: const Text('Reject', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFEF4444))),
+                  label: Text('reject_btn'.tr, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFEF4444))),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(0, 40),
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
@@ -346,14 +346,14 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: const Color(0x4DF59E0B)),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.access_time_rounded, color: Color(0xFFF59E0B), size: 14),
-                      SizedBox(width: 6),
+                      const Icon(Icons.access_time_rounded, color: Color(0xFFF59E0B), size: 14),
+                      const SizedBox(width: 6),
                       Text(
-                        'Pending Review',
-                        style: TextStyle(color: Color(0xFFF59E0B), fontSize: 11, fontWeight: FontWeight.bold),
+                        'pending_review'.tr,
+                        style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 11, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -369,7 +369,7 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                     color: isActive ? const Color(0xFFF59E0B) : const Color(0xFF10B981),
                   ),
                   label: Text(
-                    isActive ? 'Suspend Fleet' : 'Activate Fleet',
+                    isActive ? 'suspend_fleet'.tr : 'activate_fleet'.tr,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -455,7 +455,7 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
           children: [
             Expanded(
               child: _buildTabItem(
-                label: 'Overview',
+                label: 'tab_overview'.tr,
                 icon: Icons.dashboard_outlined,
                 isSelected: currentTab == 'overview',
                 onTap: () => controller.switchTab('overview'),
@@ -463,7 +463,7 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
             ),
             Expanded(
               child: _buildTabItem(
-                label: 'Vehicles',
+                label: 'tab_vehicles'.tr,
                 icon: Icons.directions_bus_outlined,
                 badgeCount: controller.assignedVehicles.length,
                 isSelected: currentTab == 'vehicles',
@@ -472,7 +472,7 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
             ),
             Expanded(
               child: _buildTabItem(
-                label: 'Activity',
+                label: 'tab_activity'.tr,
                 icon: Icons.history_rounded,
                 isSelected: currentTab == 'activity',
                 onTap: () => controller.switchTab('activity'),
@@ -583,25 +583,25 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
       childAspectRatio: 1.5,
       children: [
         _buildKpiCard(
-          title: 'ASSIGNED DEPOT',
+          title: 'assigned_depot_caps'.tr,
           value: fleet.depotName,
           subtitle: fleet.location,
           iconColor: const Color(0xFF60A5FA),
         ),
         _buildKpiCard(
-          title: 'BUS FLEET QUOTA',
+          title: 'bus_fleet_quota_caps'.tr,
           value: '${fleet.assignedBuses} Buses',
           subtitle: 'Allocated assets',
           iconColor: const Color(0xFF34D399),
         ),
         _buildKpiCard(
-          title: 'DRIVER SHIFT TEAM',
+          title: 'driver_shift_team_caps'.tr,
           value: '${fleet.activeDriversCount} Drivers',
           subtitle: 'Managed crew',
           iconColor: const Color(0xFFA78BFA),
         ),
         _buildKpiCard(
-          title: 'KYC VERIFICATION',
+          title: 'kyc_verification_caps'.tr,
           value: '${fleet.documents.length} Docs',
           subtitle: 'Legal compliance',
           iconColor: const Color(0xFFFBBF24),
@@ -671,31 +671,31 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Quick Operations',
-            style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+          Text(
+            'quick_operations'.tr,
+            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildQuickActionCircle(
-                title: 'Add Vehicle',
+                title: 'add_vehicle'.tr,
                 icon: Icons.directions_bus_filled_rounded,
                 onTap: controller.goToAddVehicle,
               ),
               _buildQuickActionCircle(
-                title: 'Add Driver',
+                title: 'add_driver'.tr,
                 icon: Icons.person_add_alt_1_rounded,
                 onTap: controller.goToAddDriver,
               ),
               _buildQuickActionCircle(
-                title: 'Assign GPS',
+                title: 'assign_gps'.tr,
                 icon: Icons.sensors_rounded,
                 onTap: controller.goToAssignGps,
               ),
               _buildQuickActionCircle(
-                title: 'Edit Fleet',
+                title: 'edit_fleet'.tr,
                 icon: Icons.edit_note_rounded,
                 onTap: controller.goToEditFleet,
               ),
@@ -757,13 +757,13 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.description_outlined, color: Color(0xFF60A5FA), size: 16),
-              SizedBox(width: 8),
+              const Icon(Icons.description_outlined, color: Color(0xFF60A5FA), size: 16),
+              const SizedBox(width: 8),
               Text(
-                'FLEET OPERATIONAL SCOPE & DESCRIPTION',
-                style: TextStyle(
+                'fleet_scope_description_caps'.tr,
+                style: const TextStyle(
                   color: Color(0xFF93C5FD),
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
@@ -797,13 +797,13 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.account_circle_outlined, color: AppColors.textSecondary, size: 18),
-              SizedBox(width: 8),
+              const Icon(Icons.account_circle_outlined, color: AppColors.textSecondary, size: 18),
+              const SizedBox(width: 8),
               Text(
-                'CONTACT PERSON & LEAD OPERATOR',
-                style: TextStyle(
+                'contact_lead_operator_caps'.tr,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
@@ -813,21 +813,21 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
             ],
           ),
           const SizedBox(height: 14),
-          _buildInfoRow('Contact Person', fleet.contactPerson.isNotEmpty ? fleet.contactPerson : fleet.name),
+          _buildInfoRow('contact_person_label'.tr, fleet.contactPerson.isNotEmpty ? fleet.contactPerson : fleet.name),
           const Divider(color: AppColors.cardBorder, height: 16),
-          _buildInfoRow('Email Address', fleet.email.isNotEmpty ? fleet.email : '—'),
+          _buildInfoRow('email_address_label'.tr, fleet.email.isNotEmpty ? fleet.email : '—'),
           const Divider(color: AppColors.cardBorder, height: 16),
-          _buildInfoRow('Phone Number', fleet.phone.isNotEmpty ? fleet.phone : '—'),
+          _buildInfoRow('phone_number_label'.tr, fleet.phone.isNotEmpty ? fleet.phone : '—'),
           const Divider(color: AppColors.cardBorder, height: 16),
-          _buildInfoRow('Classification', fleet.fleetType),
+          _buildInfoRow('classification_label'.tr, fleet.fleetType),
           const Divider(color: AppColors.cardBorder, height: 16),
-          _buildInfoRow('Designation', fleet.designation),
+          _buildInfoRow('designation_title_label'.tr, fleet.designation),
           const Divider(color: AppColors.cardBorder, height: 16),
-          _buildInfoRow('Department', fleet.department),
+          _buildInfoRow('department_label'.tr, fleet.department),
           const Divider(color: AppColors.cardBorder, height: 16),
-          _buildInfoRow('Timezone', fleet.timeZone),
+          _buildInfoRow('timezone_label'.tr, fleet.timeZone),
           const Divider(color: AppColors.cardBorder, height: 16),
-          _buildInfoRow('Primary Hub', fleet.location),
+          _buildInfoRow('primary_hub_label'.tr, fleet.location),
         ],
       ),
     );
@@ -844,13 +844,13 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.alt_route_rounded, color: Color(0xFF60A5FA), size: 18),
-              SizedBox(width: 8),
+              const Icon(Icons.alt_route_rounded, color: Color(0xFF60A5FA), size: 18),
+              const SizedBox(width: 8),
               Text(
-                'DEPOT & VEHICLE OPERATIONS SCOPE',
-                style: TextStyle(
+                'depot_operations_scope_caps'.tr,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
@@ -860,17 +860,17 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
             ],
           ),
           const SizedBox(height: 14),
-          _buildInfoRow('Assigned Depot', fleet.depotName),
+          _buildInfoRow('assigned_depot_label'.tr, fleet.depotName),
           const Divider(color: AppColors.cardBorder, height: 16),
-          _buildInfoRow('Fleet Category', fleet.fleetType),
+          _buildInfoRow('fleet_category_label'.tr, fleet.fleetType),
           const Divider(color: AppColors.cardBorder, height: 16),
-          _buildInfoRow('Assigned Buses', '${fleet.assignedBuses} Buses'),
+          _buildInfoRow('assigned_buses_label'.tr, '${fleet.assignedBuses} Buses'),
           const Divider(color: AppColors.cardBorder, height: 16),
-          _buildInfoRow('Active Drivers', '${fleet.activeDriversCount} Drivers'),
+          _buildInfoRow('active_drivers_label'.tr, '${fleet.activeDriversCount} Drivers'),
           const Divider(color: AppColors.cardBorder, height: 16),
-          _buildInfoRow('Working Shifts', fleet.workingHours),
+          _buildInfoRow('working_shifts_label'.tr, fleet.workingHours),
           const Divider(color: AppColors.cardBorder, height: 16),
-          _buildInfoRow('Account Status', fleet.status.replaceAll('_', ' ').toUpperCase()),
+          _buildInfoRow('account_status_label'.tr, fleet.status.replaceAll('_', ' ').toUpperCase()),
         ],
       ),
     );
@@ -909,13 +909,13 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.verified_outlined, color: Color(0xFFA78BFA), size: 18),
-                  SizedBox(width: 8),
+                  const Icon(Icons.verified_outlined, color: Color(0xFFA78BFA), size: 18),
+                  const SizedBox(width: 8),
                   Text(
-                    'VERIFICATION & LEGAL KYC PAPERS',
-                    style: TextStyle(
+                    'verification_legal_kyc_caps'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
@@ -925,7 +925,7 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                 ],
               ),
               Text(
-                '${docs.length} attached',
+                '${docs.length} ${'attached_suffix'.tr}',
                 style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
               ),
             ],
@@ -941,10 +941,10 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.cardBorder),
               ),
-              child: const Text(
-                'No legal compliance or KYC documents uploaded for this fleet yet.\nYou can edit the fleet profile to attach verification papers.',
+              child: Text(
+                'no_fleet_kyc_docs'.tr,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.textMuted, fontSize: 11, height: 1.4),
+                style: const TextStyle(color: AppColors.textMuted, fontSize: 11, height: 1.4),
               ),
             )
           else
@@ -985,9 +985,9 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                               style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 2),
-                            const Text(
-                              'KYC Attached • Verified',
-                              style: TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.w600),
+                            Text(
+                              'kyc_attached_verified'.tr,
+                              style: const TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.w600),
                             ),
                           ],
                         ),
@@ -1000,7 +1000,7 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                             minimumSize: Size.zero,
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
-                          child: const Text('View File ↗', style: TextStyle(color: AppColors.textLink, fontSize: 11, fontWeight: FontWeight.bold)),
+                          child: Text('view_file'.tr, style: const TextStyle(color: AppColors.textLink, fontSize: 11, fontWeight: FontWeight.bold)),
                         ),
                     ],
                   ),

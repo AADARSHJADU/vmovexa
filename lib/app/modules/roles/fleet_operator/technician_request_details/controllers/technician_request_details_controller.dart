@@ -54,7 +54,7 @@ class TechnicianRequestDetailsController extends GetxController {
     final phone = order.value?.technician?.phone ?? '+919876543210';
     if (phone.isEmpty) {
       Get.snackbar(
-        'Technician Contact',
+        'technician'.tr,
         'No phone number recorded for assigned technician.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF6366F1),
@@ -71,7 +71,7 @@ class TechnicianRequestDetailsController extends GetxController {
         await launchUrl(uri);
       } else {
         Get.snackbar(
-          'Technician Contact',
+          'technician'.tr,
           'Technician direct phone: $phone',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF6366F1),
@@ -80,7 +80,7 @@ class TechnicianRequestDetailsController extends GetxController {
       }
     } catch (_) {
       Get.snackbar(
-        'Technician Contact',
+        'technician'.tr,
         'Dialing $phone',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF6366F1),
@@ -102,30 +102,5 @@ class TechnicianRequestDetailsController extends GetxController {
     if (result == true) {
       fetchOrderDetails();
     }
-  }
-
-  WorkOrderModel _getDefaultOrder() {
-    return WorkOrderModel(
-      id: orderId,
-      code: 'WO-2026-0042',
-      issueCategory: 'Display Screen Glitch / HDMI Telemetry Sync',
-      busNumber: 'MP09-CV-4421',
-      depotName: 'Central Maintenance Depot',
-      urgency: 'critical',
-      status: 'submitted',
-      description: 'Screen 2 HDMI driver flickering during high acceleration. Depot bay 4 available.',
-      instructions: 'Carry spare HDMI splitter and 12V harness. Report to Depot Master.',
-      slaDueAt: DateTime.now().add(const Duration(hours: 3, minutes: 20)).toIso8601String(),
-      requestedAt: '2026-10-21T07:30:00.000Z',
-      technician: null,
-      timeline: [
-        WorkOrderTimelineEntry(
-          title: 'Work Order Filed',
-          description: 'Submitted to VMOVEXA Central Pool by Depot Supervisor',
-          timestamp: '2026-10-21T07:30:00.000Z',
-          status: 'submitted',
-        ),
-      ],
-    );
   }
 }

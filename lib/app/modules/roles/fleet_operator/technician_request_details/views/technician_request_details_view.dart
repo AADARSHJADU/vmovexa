@@ -36,13 +36,13 @@ class TechnicianRequestDetailsView extends GetView<TechnicianRequestDetailsContr
                       children: [
                         const Icon(Icons.info_outline_rounded, color: AppColors.textMuted, size: 44),
                         const SizedBox(height: 10),
-                        const Text(
-                          'Work order record not found.',
-                          style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                        Text(
+                          'work_order_not_found'.tr,
+                          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 14),
                         CustomButton(
-                          text: 'Back to Work Orders',
+                          text: 'back_to_work_orders'.tr,
                           onTap: () => Get.back(),
                           width: 180,
                           height: 42,
@@ -96,9 +96,9 @@ class TechnicianRequestDetailsView extends GetView<TechnicianRequestDetailsContr
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const CustomBackButton(),
-          const Text(
-            'Work Order Details',
-            style: TextStyle(
+          Text(
+            'work_order_details_title'.tr,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -107,7 +107,7 @@ class TechnicianRequestDetailsView extends GetView<TechnicianRequestDetailsContr
           IconButton(
             icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 22),
             onPressed: () => controller.fetchOrderDetails(),
-            tooltip: 'Refresh Order',
+            tooltip: 'refresh_order'.tr,
           ),
         ],
       ),
@@ -170,7 +170,7 @@ class TechnicianRequestDetailsView extends GetView<TechnicianRequestDetailsContr
           if (isEditable) ...[
             const SizedBox(height: 14),
             CustomButton(
-              text: 'Edit Request Details',
+              text: 'edit_work_order'.tr,
               prefixIcon: const Icon(Icons.edit_outlined, size: 15, color: Colors.white),
               onTap: controller.openEditOrder,
               height: 44,
@@ -193,26 +193,26 @@ class TechnicianRequestDetailsView extends GetView<TechnicianRequestDetailsContr
       childAspectRatio: 1.8,
       children: [
         _buildOverviewItem(
-          title: 'TARGET DEPOT',
+          title: 'depot'.tr.toUpperCase(),
           value: order.depotName,
           subtitle: 'Service facility',
           valColor: Colors.white,
         ),
         _buildOverviewItem(
-          title: 'TARGET BUS',
+          title: 'target_vehicle_label'.tr.toUpperCase(),
           value: order.busNumber,
           subtitle: 'Unit requiring service',
           valColor: const Color(0xFF60A5FA),
           isMono: true,
         ),
         _buildOverviewItem(
-          title: 'ASSIGNED ENGINEER',
+          title: 'assigned_technician_title'.tr.toUpperCase(),
           value: hasTech ? order.technician!.name : 'Awaiting Dispatch',
           subtitle: hasTech ? 'Central Field Tech' : 'Pool queue',
           valColor: hasTech ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
         ),
         _buildOverviewItem(
-          title: 'CURRENT STATUS',
+          title: 'status'.tr.toUpperCase(),
           value: order.status.replaceFirst('_', ' ').toUpperCase(),
           subtitle: 'Dispatch state',
           valColor: Colors.white,
@@ -287,9 +287,9 @@ class TechnicianRequestDetailsView extends GetView<TechnicianRequestDetailsContr
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'PROBLEM SCOPE & SYMPTOMS',
-            style: TextStyle(
+          Text(
+            'symptoms_and_diagnostics'.tr.toUpperCase(),
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 11.5,
               fontWeight: FontWeight.bold,
@@ -297,16 +297,16 @@ class TechnicianRequestDetailsView extends GetView<TechnicianRequestDetailsContr
             ),
           ),
           const SizedBox(height: 12),
-          _buildInfoRow('Issue Classification', order.issueCategory),
+          _buildInfoRow('classification_label'.tr, order.issueCategory),
           const SizedBox(height: 10),
-          _buildInfoRow('Detailed Symptoms', order.description.isNotEmpty ? order.description : 'No symptoms notes provided'),
+          _buildInfoRow('symptoms_and_diagnostics'.tr, order.description.isNotEmpty ? order.description : 'No symptoms notes provided'),
           if (order.instructions != null && order.instructions!.isNotEmpty) ...[
             const SizedBox(height: 10),
-            _buildInfoRow('Special Instructions', order.instructions!),
+            _buildInfoRow('depot_gate_notes'.tr, order.instructions!),
           ],
           if (order.resolutionNotes != null && order.resolutionNotes!.isNotEmpty) ...[
             const SizedBox(height: 10),
-            _buildInfoRow('Resolution Notes', order.resolutionNotes!, valColor: const Color(0xFF34D399)),
+            _buildInfoRow('Notes', order.resolutionNotes!, valColor: const Color(0xFF34D399)),
           ],
         ],
       ),
@@ -348,9 +348,9 @@ class TechnicianRequestDetailsView extends GetView<TechnicianRequestDetailsContr
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'ASSIGNED CENTRAL ENGINEER',
-            style: TextStyle(
+          Text(
+            'assigned_technician_title'.tr.toUpperCase(),
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 11.5,
               fontWeight: FontWeight.bold,
@@ -380,7 +380,7 @@ class TechnicianRequestDetailsView extends GetView<TechnicianRequestDetailsContr
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      hasTech ? tech.name : 'Awaiting Dispatch from Central Pool',
+                      hasTech ? tech.name : 'technician_not_assigned'.tr,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 13,
@@ -412,7 +412,7 @@ class TechnicianRequestDetailsView extends GetView<TechnicianRequestDetailsContr
                 onPressed: controller.callTechnician,
                 icon: const Icon(Icons.call_rounded, size: 15, color: Colors.white),
                 label: Text(
-                  'Call Technician (${tech.name.split(' ')[0]})',
+                  '${'call'.tr} (${tech.name.split(' ')[0]})',
                   style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -445,9 +445,9 @@ class TechnicianRequestDetailsView extends GetView<TechnicianRequestDetailsContr
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'AUDIT TRAIL & DISPATCH TIMELINE',
-            style: TextStyle(
+          Text(
+            'work_order_timeline'.tr.toUpperCase(),
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 11.5,
               fontWeight: FontWeight.bold,
@@ -601,28 +601,28 @@ class TechnicianRequestDetailsView extends GetView<TechnicianRequestDetailsContr
       bg = const Color(0xFF064E3B).withValues(alpha: 0.3);
       border = const Color(0xFF059669);
       text = const Color(0xFF34D399);
-      label = 'Resolved & Tested';
+      label = 'resolved'.tr;
     } else if (s.contains('dispatched')) {
       bg = const Color(0xFF1E3A8A).withValues(alpha: 0.3);
       border = const Color(0xFF2563EB);
       text = const Color(0xFF60A5FA);
-      label = 'Dispatched to Depot';
+      label = 'dispatched'.tr;
     } else if (s.contains('on_site') || s.contains('on site')) {
       bg = const Color(0xFF78350F).withValues(alpha: 0.3);
       border = const Color(0xFFD97706);
       text = const Color(0xFFFBBF24);
-      label = 'On Site';
+      label = 'on_site'.tr;
       showPulse = true;
     } else if (s.contains('rejected')) {
       bg = const Color(0xFF881337).withValues(alpha: 0.3);
       border = const Color(0xFFE11D48);
       text = const Color(0xFFFB7185);
-      label = 'Rejected';
+      label = 'rejected'.tr;
     } else {
       bg = const Color(0xFF78350F).withValues(alpha: 0.2);
       border = const Color(0xFFD97706).withValues(alpha: 0.6);
       text = const Color(0xFFFBBF24);
-      label = 'Pending Assignment';
+      label = 'pending'.tr;
       showPulse = true;
     }
 

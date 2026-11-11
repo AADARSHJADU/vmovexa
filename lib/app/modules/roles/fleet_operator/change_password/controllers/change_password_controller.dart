@@ -13,7 +13,7 @@ class ChangePasswordController extends GetxController {
   final RxBool confirmObscure = true.obs;
 
   final RxInt passwordStrength = 0.obs; // 0 to 4
-  final RxString strengthText = 'Weak'.obs;
+  final RxString strengthText = 'strength_weak'.tr.obs;
 
   final RxBool hasMinLength = false.obs;
   final RxBool hasUppercase = false.obs;
@@ -45,13 +45,13 @@ class ChangePasswordController extends GetxController {
     passwordStrength.value = score;
 
     if (score <= 1) {
-      strengthText.value = 'Weak';
+      strengthText.value = 'strength_weak'.tr;
     } else if (score == 2) {
-      strengthText.value = 'Fair';
+      strengthText.value = 'strength_fair'.tr;
     } else if (score == 3) {
-      strengthText.value = 'Good';
+      strengthText.value = 'strength_good'.tr;
     } else {
-      strengthText.value = 'Strong';
+      strengthText.value = 'strength_strong'.tr;
     }
   }
 
@@ -62,8 +62,8 @@ class ChangePasswordController extends GetxController {
 
     if (currentPass.isEmpty) {
       Get.snackbar(
-        'Required',
-        'Please enter your current account password.',
+        'error'.tr,
+        'enter_current_password_msg'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orangeAccent,
         colorText: Colors.white,
@@ -75,8 +75,8 @@ class ChangePasswordController extends GetxController {
 
     if (passwordStrength.value < 3) {
       Get.snackbar(
-        'Password Too Weak',
-        'Please ensure your new password satisfies at least 3 security criteria.',
+        'error'.tr,
+        'password_too_weak_msg'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orangeAccent,
         colorText: Colors.white,
@@ -88,8 +88,8 @@ class ChangePasswordController extends GetxController {
 
     if (newPass != confirmPass) {
       Get.snackbar(
-        'Mismatch',
-        'New password and confirm password do not match.',
+        'error'.tr,
+        'passwords_do_not_match_msg'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),
         colorText: Colors.white,
@@ -110,7 +110,7 @@ class ChangePasswordController extends GetxController {
 
         if (res.success) {
           Get.snackbar(
-            'Success',
+            'success'.tr,
             res.message ?? 'Password updated successfully.',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF10B981),
@@ -123,7 +123,7 @@ class ChangePasswordController extends GetxController {
           Get.toNamed(Routes.PASSWORD_UPDATED);
         } else {
           Get.snackbar(
-            'Change Password Failed',
+            'error'.tr,
             res.message ?? 'Failed to update password. Please check your current password.',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFFEF4444),
@@ -138,7 +138,7 @@ class ChangePasswordController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         'Server connection error: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),

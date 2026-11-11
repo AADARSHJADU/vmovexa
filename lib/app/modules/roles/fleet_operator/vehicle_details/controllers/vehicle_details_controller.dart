@@ -107,29 +107,28 @@ class VehicleDetailsController extends GetxController {
   }
 
   Future<void> confirmDeleteVehicle() async {
-    final busNum = registrationNumber;
     final confirmed = await Get.dialog<bool>(
       AlertDialog(
         backgroundColor: const Color(0xFF1E293B),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
-          children: const [
-            Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 24),
-            SizedBox(width: 8),
+          children: [
+            const Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 24),
+            const SizedBox(width: 8),
             Text(
-              'Delete Vehicle',
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+              'delete_vehicle'.tr,
+              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ],
         ),
         content: Text(
-          'Are you sure you want to delete vehicle $busNum?\nThis action cannot be undone and will permanently remove this vehicle configuration.',
+          'delete_vehicle_confirm_desc'.tr,
           style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white60)),
+            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white60)),
           ),
           ElevatedButton(
             onPressed: () => Get.back(result: true),
@@ -137,7 +136,7 @@ class VehicleDetailsController extends GetxController {
               backgroundColor: Colors.redAccent,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('Delete', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: Text('delete_btn'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -158,8 +157,8 @@ class VehicleDetailsController extends GetxController {
       if (res.success) {
         Get.back(result: true);
         Get.snackbar(
-          'Vehicle Deleted',
-          'Vehicle $registrationNumber was deleted successfully.',
+          'vehicle_deleted'.tr,
+          'vehicle_deleted_success'.tr,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
@@ -199,8 +198,8 @@ class VehicleDetailsController extends GetxController {
 
   void callDriver() {
     Get.snackbar(
-      'Calling Driver',
-      'Dialing driver $driverName...',
+      'calling_driver'.tr,
+      'dialing_driver_msg'.tr,
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: const Color(0xFF6366F1),
       colorText: Colors.white,

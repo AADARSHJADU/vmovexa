@@ -149,7 +149,7 @@ class FleetDetailsController extends GetxController {
       if (res.success) {
         hasChanges = true;
         Get.snackbar(
-          'Status Updated',
+          'status_updated'.tr,
           'Fleet operation set to ${newStatus.toUpperCase()}',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
@@ -158,7 +158,7 @@ class FleetDetailsController extends GetxController {
         await loadFleetDetails();
       } else {
         Get.snackbar(
-          'Update Failed',
+          'error'.tr,
           res.message ?? 'Failed to update fleet status',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent,
@@ -167,7 +167,7 @@ class FleetDetailsController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         'Could not update status: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.redAccent,
@@ -186,7 +186,7 @@ class FleetDetailsController extends GetxController {
       if (res.success) {
         hasChanges = true;
         Get.snackbar(
-          'Fleet Approved',
+          'status_updated'.tr,
           'Fleet operation approved and activated!',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
@@ -195,7 +195,7 @@ class FleetDetailsController extends GetxController {
         await loadFleetDetails();
       } else {
         Get.snackbar(
-          'Approval Failed',
+          'error'.tr,
           res.message ?? 'Failed to approve fleet',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent,
@@ -204,7 +204,7 @@ class FleetDetailsController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         'Could not approve fleet: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.redAccent,
@@ -223,7 +223,7 @@ class FleetDetailsController extends GetxController {
       if (res.success) {
         hasChanges = true;
         Get.snackbar(
-          'Fleet Rejected',
+          'status_updated'.tr,
           'Fleet operation rejected.',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFFEF4444),
@@ -232,7 +232,7 @@ class FleetDetailsController extends GetxController {
         await loadFleetDetails();
       } else {
         Get.snackbar(
-          'Rejection Failed',
+          'error'.tr,
           res.message ?? 'Failed to reject fleet',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent,
@@ -241,7 +241,7 @@ class FleetDetailsController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         'Could not reject fleet: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.redAccent,
@@ -265,20 +265,20 @@ class FleetDetailsController extends GetxController {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.warning_amber_rounded, color: Color(0xFFEF4444), size: 22),
-                  SizedBox(width: 8),
+                  const Icon(Icons.warning_amber_rounded, color: Color(0xFFEF4444), size: 22),
+                  const SizedBox(width: 8),
                   Text(
-                    'Reject Fleet Registration',
-                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                    'reject_fleet_title'.tr,
+                    style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
               const SizedBox(height: 12),
-              const Text(
-                'Please enter the rejection reason for this fleet operator:',
-                style: TextStyle(color: Colors.white70, fontSize: 13),
+              Text(
+                'enter_rejection_reason'.tr,
+                style: const TextStyle(color: Colors.white70, fontSize: 13),
               ),
               const SizedBox(height: 14),
               TextField(
@@ -286,7 +286,7 @@ class FleetDetailsController extends GetxController {
                 maxLines: 3,
                 style: const TextStyle(color: Colors.white, fontSize: 13),
                 decoration: InputDecoration(
-                  hintText: 'Enter reason...',
+                  hintText: 'enter_reason_hint'.tr,
                   hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
                   filled: true,
                   fillColor: const Color(0xFF0D0F19),
@@ -306,7 +306,7 @@ class FleetDetailsController extends GetxController {
                 children: [
                   TextButton(
                     onPressed: () => Get.back(),
-                    child: const Text('Cancel', style: TextStyle(color: Colors.white60)),
+                    child: Text('cancel'.tr, style: const TextStyle(color: Colors.white60)),
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
@@ -320,7 +320,7 @@ class FleetDetailsController extends GetxController {
                       backgroundColor: const Color(0xFFEF4444),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    child: const Text('Confirm Reject', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    child: Text('confirm_reject'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),

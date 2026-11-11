@@ -27,7 +27,7 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                r != null ? r.name : 'Route Details',
+                r != null ? r.name : 'route_details_title'.tr,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -37,7 +37,7 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
                 overflow: TextOverflow.ellipsis,
               ),
               Text(
-                r != null ? r.displayCode : 'Corridor dossier & schedules',
+                r != null ? r.displayCode : 'corridor_dossier_schedules'.tr,
                 style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 11,
@@ -50,12 +50,12 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
           IconButton(
             icon: const Icon(Icons.edit_outlined, color: Colors.amberAccent, size: 20),
             onPressed: controller.goToEdit,
-            tooltip: 'Edit Route',
+            tooltip: 'edit'.tr,
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 20),
             onPressed: controller.confirmDelete,
-            tooltip: 'Delete Route',
+            tooltip: 'delete'.tr,
           ),
           const SizedBox(width: 4),
         ],
@@ -69,10 +69,10 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
 
         final r = controller.route.value;
         if (r == null) {
-          return const Center(
+          return Center(
             child: Text(
-              'Route details not found',
-              style: TextStyle(color: Colors.white70),
+              'route_details_not_found'.tr,
+              style: const TextStyle(color: Colors.white70),
             ),
           );
         }
@@ -140,12 +140,12 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          children: const [
-            Icon(Icons.map_rounded, color: Color(0xFF6366F1), size: 16),
-            SizedBox(width: 8),
+          children: [
+            const Icon(Icons.map_rounded, color: Color(0xFF6366F1), size: 16),
+            const SizedBox(width: 8),
             Text(
-              'LIVE DRIVING CORRIDOR MAP',
-              style: TextStyle(
+              'live_corridor_map'.tr,
+              style: const TextStyle(
                 color: Color(0xFF818CF8),
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
@@ -177,15 +177,15 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
     if (r.isActive) {
       statusColor = const Color(0xFF10B981);
       statusBg = const Color(0xFF10B981).withValues(alpha: 0.15);
-      statusLabel = 'Active Corridor';
+      statusLabel = 'active'.tr;
     } else if (r.isPending) {
       statusColor = const Color(0xFFF59E0B);
       statusBg = const Color(0xFFF59E0B).withValues(alpha: 0.15);
-      statusLabel = 'Pending Review';
+      statusLabel = 'pending'.tr;
     } else {
       statusColor = const Color(0xFFEF4444);
       statusBg = const Color(0xFFEF4444).withValues(alpha: 0.15);
-      statusLabel = 'Rejected';
+      statusLabel = 'rejected'.tr;
     }
 
     return Container(
@@ -299,9 +299,9 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'ORIGIN TERMINAL',
-                            style: TextStyle(color: Color(0xFF10B981), fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                          Text(
+                            'origin_station_name'.tr.toUpperCase(),
+                            style: const TextStyle(color: Color(0xFF10B981), fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 0.5),
                           ),
                           Text(
                             r.originDisplay,
@@ -346,9 +346,9 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'DESTINATION TERMINAL',
-                            style: TextStyle(color: Color(0xFFEF4444), fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                          Text(
+                            'dest_terminal_req'.tr.replaceAll('*', '').trim().toUpperCase(),
+                            style: const TextStyle(color: Color(0xFFEF4444), fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 0.5),
                           ),
                           Text(
                             r.destinationDisplay,
@@ -384,12 +384,12 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
-              Icon(Icons.hourglass_top_rounded, color: Color(0xFFF59E0B), size: 18),
-              SizedBox(width: 8),
+            children: [
+              const Icon(Icons.hourglass_top_rounded, color: Color(0xFFF59E0B), size: 18),
+              const SizedBox(width: 8),
               Text(
-                'Approval Review Pending',
-                style: TextStyle(color: Color(0xFFF59E0B), fontSize: 13, fontWeight: FontWeight.bold),
+                'pending_approval_notice'.tr,
+                style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 13, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -410,7 +410,7 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
                   icon: const Icon(Icons.check_circle_outline_rounded, size: 16),
-                  label: const Text('Approve Route', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  label: Text('approve_btn'.tr, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 ),
               ),
               const SizedBox(width: 10),
@@ -424,7 +424,7 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
                   icon: const Icon(Icons.cancel_outlined, size: 16),
-                  label: const Text('Reject Route', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  label: Text('reject_btn'.tr, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],
@@ -444,26 +444,26 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
       childAspectRatio: 2.3,
       children: [
         _buildMetricTile(
-          'Total Distance',
+          'total_distance'.tr,
           r.totalDistanceKm > 0 ? '${r.totalDistanceKm} km' : '— km',
           Icons.straighten_rounded,
           const Color(0xFF38BDF8),
         ),
         _buildMetricTile(
-          'Est. Duration',
+          'total_duration'.tr,
           r.totalDurationMin > 0 ? '~${r.totalDurationMin} min' : '— min',
           Icons.timer_outlined,
           const Color(0xFFA78BFA),
         ),
         _buildMetricTile(
-          'Waypoint Stops',
-          '${r.stopsCount} stops',
+          'waypoints'.tr,
+          '${r.stopsCount} ${'stops_count_suffix'.tr}',
           Icons.location_on_outlined,
           const Color(0xFF34D399),
         ),
         _buildMetricTile(
-          'Scheduled Buses',
-          '${controller.routeVehicles.length} buses',
+          'assigned_buses_label'.tr,
+          '${controller.routeVehicles.length} ${'buses'.tr}',
           Icons.directions_bus_rounded,
           const Color(0xFFFBBF24),
         ),
@@ -562,7 +562,7 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
                         Icon(Icons.pin_drop_outlined, size: 14, color: tab == 0 ? Colors.white : AppColors.textSecondary),
                         const SizedBox(width: 6),
                         Text(
-                          'Waypoints & Stops',
+                          'waypoints'.tr,
                           style: TextStyle(
                             color: tab == 0 ? Colors.white : AppColors.textSecondary,
                             fontSize: 12,
@@ -602,7 +602,7 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
                         Icon(Icons.directions_bus_rounded, size: 14, color: tab == 1 ? Colors.white : AppColors.textSecondary),
                         const SizedBox(width: 6),
                         Text(
-                          'Fleet Deployments (${controller.routeVehicles.length})',
+                          '${'assigned_buses_label'.tr} (${controller.routeVehicles.length})',
                           style: TextStyle(
                             color: tab == 1 ? Colors.white : AppColors.textSecondary,
                             fontSize: 12,
@@ -635,9 +635,9 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
           children: [
             const Icon(Icons.alt_route_rounded, color: AppColors.textMuted, size: 36),
             const SizedBox(height: 10),
-            const Text(
-              'No Waypoint Stops Configured',
-              style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+            Text(
+              'no_stops_defined'.tr,
+              style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
             const Text(
@@ -647,7 +647,7 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
             ),
             const SizedBox(height: 14),
             CustomButton(
-              text: 'Add Waypoint Stops',
+              text: 'add'.tr,
               prefixIcon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
               onTap: controller.goToEdit,
               width: 200,
@@ -817,12 +817,12 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Active Fleet on Route',
-                    style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                  Text(
+                    'assigned_fleet_bus_caps'.tr,
+                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    '${list.length} buses running schedule',
+                    '${list.length} ${'buses'.tr}',
                     style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
                   ),
                 ],
@@ -844,16 +844,16 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
                   child: InkWell(
                     onTap: controller.openAssignVehicleModal,
                     borderRadius: BorderRadius.circular(10),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.add_rounded, color: Colors.white, size: 16),
-                          SizedBox(width: 4),
+                          const Icon(Icons.add_rounded, color: Colors.white, size: 16),
+                          const SizedBox(width: 4),
                           Text(
-                            'Deploy Bus',
-                            style: TextStyle(
+                            'deploy_vehicle_to_route'.tr,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
@@ -882,9 +882,9 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
                 children: [
                   const Icon(Icons.directions_bus_outlined, color: AppColors.textMuted, size: 36),
                   const SizedBox(height: 10),
-                  const Text(
-                    'No Buses Deployed on this Corridor',
-                    style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                  Text(
+                    'no_vehicles_deployed_route'.tr,
+                    style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
                   const Text(
@@ -910,16 +910,16 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
                       child: InkWell(
                         onTap: controller.openAssignVehicleModal,
                         borderRadius: BorderRadius.circular(10),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.add_rounded, color: Colors.white, size: 16),
-                              SizedBox(width: 6),
+                              const Icon(Icons.add_rounded, color: Colors.white, size: 16),
+                              const SizedBox(width: 6),
                               Text(
-                                'Deploy First Bus',
-                                style: TextStyle(
+                                'deploy_vehicle_to_route'.tr,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
@@ -1024,7 +1024,7 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
           IconButton(
             icon: const Icon(Icons.link_off_rounded, color: Color(0xFFF43F5E), size: 20),
             onPressed: () => controller.removeAssignment(assign),
-            tooltip: 'Remove from schedule',
+            tooltip: 'remove_action'.tr,
           ),
         ],
       ),

@@ -68,7 +68,7 @@ class DriverDetailsController extends GetxController {
       final res = await FleetService.to.updateDriverStatus(driverId, newStatus);
       if (res.success) {
         Get.snackbar(
-          'Status Updated',
+          'status_updated'.tr,
           'Driver duty status updated to ${newStatus.toUpperCase()}',
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
@@ -77,7 +77,7 @@ class DriverDetailsController extends GetxController {
         await loadDriverDetails(driverId);
       } else {
         Get.snackbar(
-          'Error',
+          'error'.tr,
           res.message ?? 'Failed to update duty status',
           backgroundColor: Colors.redAccent,
           colorText: Colors.white,
@@ -86,7 +86,7 @@ class DriverDetailsController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         e.toString(),
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
@@ -104,7 +104,7 @@ class DriverDetailsController extends GetxController {
       final res = await FleetService.to.verifyDriverDocuments(driverId);
       if (res.success) {
         Get.snackbar(
-          'KYC Verified',
+          'kyc_verified'.tr,
           'Driver KYC & Driving License documents have been verified.',
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
@@ -113,7 +113,7 @@ class DriverDetailsController extends GetxController {
         await loadDriverDetails(driverId);
       } else {
         Get.snackbar(
-          'Verification Failed',
+          'verification_failed'.tr,
           res.message ?? 'Failed to verify driver KYC documents',
           backgroundColor: Colors.redAccent,
           colorText: Colors.white,
@@ -122,7 +122,7 @@ class DriverDetailsController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         e.toString(),
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
@@ -140,9 +140,9 @@ class DriverDetailsController extends GetxController {
       AlertDialog(
         backgroundColor: const Color(0xFF1E293B),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Delete Driver Profile',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+        title: Text(
+          'delete_driver_profile'.tr,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
         ),
         content: Text(
           'Are you sure you want to terminate & remove $name from the active drivers roster? This action cannot be undone.',
@@ -151,7 +151,7 @@ class DriverDetailsController extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white54)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -162,7 +162,7 @@ class DriverDetailsController extends GetxController {
               backgroundColor: const Color(0xFFEF4444),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
-            child: const Text('Delete Driver', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: Text('delete_driver'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -177,7 +177,7 @@ class DriverDetailsController extends GetxController {
       if (res.success) {
         Get.back(result: true);
         Get.snackbar(
-          'Driver Removed',
+          'status_updated'.tr,
           'Driver has been successfully deleted from roster.',
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
@@ -185,7 +185,7 @@ class DriverDetailsController extends GetxController {
         );
       } else {
         Get.snackbar(
-          'Delete Failed',
+          'error'.tr,
           res.message ?? 'Could not delete driver profile',
           backgroundColor: Colors.redAccent,
           colorText: Colors.white,
@@ -194,7 +194,7 @@ class DriverDetailsController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         e.toString(),
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,

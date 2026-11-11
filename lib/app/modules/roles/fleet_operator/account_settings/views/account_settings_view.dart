@@ -27,11 +27,11 @@ class AccountSettingsView extends StatelessWidget {
               child: Row(
                 children: [
                   const CustomBackButton(),
-                  const Expanded(
+                  Expanded(
                     child: Center(
                       child: Text(
-                        'Account Settings',
-                        style: TextStyle(
+                        'account_settings'.tr,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -42,7 +42,7 @@ class AccountSettingsView extends StatelessWidget {
                   IconButton(
                     icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 20),
                     onPressed: controller.loadUserData,
-                    tooltip: 'Reload',
+                    tooltip: 'refresh'.tr,
                   ),
                 ],
               ),
@@ -58,8 +58,8 @@ class AccountSettingsView extends StatelessWidget {
                     // Personal Information Section
                     _buildSectionHeaderWithAction(
                       "assets/icons/profile.svg",
-                      'Personal Information',
-                      'Change Photo',
+                      'personal_information'.tr,
+                      'change_photo'.tr,
                       controller.changePhoto,
                     ),
                     const SizedBox(height: 12),
@@ -69,7 +69,7 @@ class AccountSettingsView extends StatelessWidget {
                     // Organization Information Section
                     _buildSectionHeader(
                       "assets/icons/fleet_operator_icons/fleetsManagedA.svg",
-                      'Organization Information',
+                      'organization_information'.tr,
                     ),
                     const SizedBox(height: 12),
                     _buildOrgCard(controller),
@@ -78,7 +78,7 @@ class AccountSettingsView extends StatelessWidget {
                     // Preferences Section
                     _buildSectionHeader(
                       "assets/icons/fleet_operator_icons/appPreferenceA.svg",
-                      'Preferences',
+                      'preferences'.tr,
                     ),
                     const SizedBox(height: 12),
                     _buildPreferencesCard(controller),
@@ -87,7 +87,7 @@ class AccountSettingsView extends StatelessWidget {
                     // Security Section
                     _buildSectionHeader(
                       "assets/icons/fleet_operator_icons/securityA.svg",
-                      'Security',
+                      'security_and_password'.tr,
                     ),
                     const SizedBox(height: 12),
                     _buildSecurityCard(controller),
@@ -128,9 +128,9 @@ class AccountSettingsView extends StatelessWidget {
                                       height: 18,
                                     ),
                                     const SizedBox(width: 8),
-                                    const Text(
-                                      'Save Changes',
-                                      style: TextStyle(
+                                    Text(
+                                      'save_changes'.tr,
+                                      style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
@@ -157,9 +157,9 @@ class AccountSettingsView extends StatelessWidget {
                         width: 16,
                         height: 16,
                       ),
-                      label: const Text(
-                        'Cancel',
-                        style: TextStyle(color: Color(0xFF3B82F6), fontSize: 13, fontWeight: FontWeight.bold),
+                      label: Text(
+                        'cancel'.tr,
+                        style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 13, fontWeight: FontWeight.bold),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -278,22 +278,22 @@ class AccountSettingsView extends StatelessWidget {
               child: Column(
                 children: [
                   _buildEditableFieldRow(
-                    label: 'Full Name',
+                    label: 'full_name_label'.tr,
                     value: controller.fullName.value.isEmpty ? 'Not set' : controller.fullName.value,
                     icon: "assets/icons/profile.svg",
                     onTap: () => controller.openEditSheet(
-                      title: 'Full Name',
+                      title: 'full_name_label'.tr,
                       currentVal: controller.fullName.value,
                       onSaved: (val) => controller.fullName.value = val,
                     ),
                   ),
                   const Divider(color: AppColors.cardBorder, height: 16),
                   _buildEditableFieldRow(
-                    label: 'Email',
+                    label: 'email_address_label'.tr,
                     value: controller.email.value.isEmpty ? 'Not set' : controller.email.value,
                     icon: "assets/icons/fleet_operator_icons/emailA.svg",
                     onTap: () => controller.openEditSheet(
-                      title: 'Email',
+                      title: 'email_address_label'.tr,
                       currentVal: controller.email.value,
                       keyboardType: TextInputType.emailAddress,
                       onSaved: (val) => controller.email.value = val,
@@ -301,20 +301,20 @@ class AccountSettingsView extends StatelessWidget {
                   ),
                   const Divider(color: AppColors.cardBorder, height: 16),
                   _buildEditableFieldRow(
-                    label: 'Mobile Number',
+                    label: 'phone_number_label'.tr,
                     value: controller.phone.value.isEmpty ? 'Not set' : controller.phone.value,
                     icon: "assets/icons/fleet_operator_icons/mobileNumberA.svg",
                     onTap: () => controller.openEditSheet(
-                      title: 'Mobile Number',
+                      title: 'phone_number_label'.tr,
                       currentVal: controller.phone.value,
                       keyboardType: TextInputType.phone,
                       onSaved: (val) => controller.phone.value = val,
                     ),
                   ),
                   const Divider(color: AppColors.cardBorder, height: 16),
-                  _buildReadOnlyFieldRow('Employee ID', controller.employeeId.value, "assets/icons/fleet_operator_icons/employeeIdA.svg"),
+                  _buildReadOnlyFieldRow('operator_id_prefix'.tr.replaceAll(':', '').trim(), controller.employeeId.value, "assets/icons/fleet_operator_icons/employeeIdA.svg"),
                   const Divider(color: AppColors.cardBorder, height: 16),
-                  _buildReadOnlyFieldRow('Role', controller.role.value, "assets/icons/fleet_operator_icons/securityA.svg"),
+                  _buildReadOnlyFieldRow('classification_label'.tr, controller.role.value, "assets/icons/fleet_operator_icons/securityA.svg"),
                 ],
               ),
             ),
@@ -410,33 +410,33 @@ class AccountSettingsView extends StatelessWidget {
         child: Column(
           children: [
             _buildOrgEditableRow(
-              label: 'Company Name',
+              label: 'organization_information'.tr,
               value: controller.companyName.value.isEmpty ? 'Not set' : controller.companyName.value,
               icon: "assets/icons/fleet_operator_icons/fleetsManagedA.svg",
               onTap: () => controller.openEditSheet(
-                title: 'Company Name',
+                title: 'organization_information'.tr,
                 currentVal: controller.companyName.value,
                 onSaved: (val) => controller.companyName.value = val,
               ),
             ),
             const Divider(color: AppColors.cardBorder, height: 16),
             _buildOrgEditableRow(
-              label: 'Branch / Office',
+              label: 'branch_location_label'.tr,
               value: controller.branch.value.isEmpty ? 'Not set' : controller.branch.value,
               icon: "assets/icons/fleet_operator_icons/locationA.svg",
               onTap: () => controller.openEditSheet(
-                title: 'Branch / Office',
+                title: 'branch_location_label'.tr,
                 currentVal: controller.branch.value,
                 onSaved: (val) => controller.branch.value = val,
               ),
             ),
             const Divider(color: AppColors.cardBorder, height: 16),
             _buildOrgEditableRow(
-              label: 'Office Address',
+              label: 'address'.tr,
               value: controller.officeAddress.value.isEmpty ? 'Tap to enter address' : controller.officeAddress.value,
               icon: "assets/icons/fleet_operator_icons/officeA.svg",
               onTap: () => controller.openEditSheet(
-                title: 'Office Address',
+                title: 'address'.tr,
                 currentVal: controller.officeAddress.value,
                 onSaved: (val) => controller.officeAddress.value = val,
               ),
@@ -496,22 +496,22 @@ class AccountSettingsView extends StatelessWidget {
         child: Column(
           children: [
             _buildPreferenceItem(
-              label: 'Language',
+              label: 'language'.tr,
               value: controller.language.value,
               icon: "assets/icons/fleet_operator_icons/languageA.svg",
               onTap: () => controller.openEditSheet(
-                title: 'Language',
+                title: 'language'.tr,
                 currentVal: controller.language.value,
                 onSaved: (val) => controller.language.value = val,
               ),
             ),
             const Divider(color: AppColors.cardBorder, height: 16),
             _buildPreferenceItem(
-              label: 'Time Zone',
+              label: 'timezone_label'.tr,
               value: controller.timezone.value,
               icon: "assets/icons/fleet_operator_icons/timeZoneA.svg",
               onTap: () => controller.openEditSheet(
-                title: 'Time Zone',
+                title: 'timezone_label'.tr,
                 currentVal: controller.timezone.value,
                 onSaved: (val) => controller.timezone.value = val,
               ),
@@ -570,10 +570,10 @@ class AccountSettingsView extends StatelessWidget {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text('Change Password', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                        SizedBox(height: 3),
-                        Text('Update your account security password', style: TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
+                      children: [
+                        Text('change_pw_credentials'.tr, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 3),
+                        Text('keep_account_secure_desc'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
                       ],
                     ),
                   ),
