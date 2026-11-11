@@ -2261,4 +2261,6 @@ const Map<String, String> mlIN = {
   'back_to_profile': 'പ്രൊഫൈലിലേക്ക് മടങ്ങുക',
   'whats_changed': 'എന്താണ് മാറിയത്',
   'account_stays_secure': 'അക്കൗണ്ട് സുരക്ഷിതമായി തുടരുന്നു',
+  'otp_verified_success': 'OTP വിജയകരമായി പരിശോധിച്ചു.',
+  'invalid_otp_code_msg': 'നൽകിയ OTP കോഡ് തെറ്റാണ്. ദയവായി പരിശോധിച്ച് വീണ്ടും ശ്രമിക്കുക.',
 };

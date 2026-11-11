@@ -2261,4 +2261,6 @@ const Map<String, String> mrIN = {
   'back_to_profile': 'प्रोफाइलवर परत जा',
   'whats_changed': 'काय बदलले आहे',
   'account_stays_secure': 'खाते सुरक्षित राहते',
+  'otp_verified_success': 'ओटीपी यशस्वीरित्या सत्यापित केला.',
+  'invalid_otp_code_msg': 'नोंदवलेला ओटीपी कोड चुकीचा आहे. कृपया तपासा आणि पुन्हा प्रयत्न करा.',
 };

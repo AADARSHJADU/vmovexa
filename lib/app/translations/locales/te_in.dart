@@ -2261,4 +2261,6 @@ const Map<String, String> teIN = {
   'back_to_profile': 'ప్రొఫైల్‌కు తిరిగి వెళ్లండి',
   'whats_changed': 'ఏమి మారింది',
   'account_stays_secure': 'ఖాతా సురక్షితంగా ఉంటుంది',
+  'otp_verified_success': 'OTP విజయవంతంగా ధృవీకరించబడింది.',
+  'invalid_otp_code_msg': 'నమోదు చేసిన OTP కోడ్ తప్పు. దయచేసి తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.',
 };

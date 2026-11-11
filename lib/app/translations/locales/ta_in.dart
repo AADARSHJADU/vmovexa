@@ -2261,4 +2261,6 @@ const Map<String, String> taIN = {
   'back_to_profile': 'சுயவிவரத்திற்குத் திரும்பு',
   'whats_changed': 'என்ன மாற்றப்பட்டுள்ளது',
   'account_stays_secure': 'கணக்கு பாதுகாப்பாக இருக்கும்',
+  'otp_verified_success': 'OTP வெற்றிகரமாக சரிபார்க்கப்பட்டது.',
+  'invalid_otp_code_msg': 'உள்ளிடப்பட்ட OTP குறியீடு தவறானது. சரிபார்த்து மீண்டும் முயற்சிக்கவும்.',
 };

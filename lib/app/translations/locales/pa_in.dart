@@ -2261,4 +2261,6 @@ const Map<String, String> paIN = {
   'back_to_profile': 'ਪ੍ਰੋਫਾਈਲ ਤੇ ਵਾਪਸ ਜਾਓ',
   'whats_changed': 'ਕੀ ਬਦਲਿਆ ਹੈ',
   'account_stays_secure': 'ਖਾਤਾ ਸੁਰੱਖਿਅਤ ਰਹਿੰਦਾ ਹੈ',
+  'otp_verified_success': 'OTP ਸਫਲਤਾਪੂਰਵਕ ਤਸਦੀਕ ਕੀਤਾ ਗਿਆ।',
+  'invalid_otp_code_msg': 'ਦਰਜ ਕੀਤਾ ਗਿਆ OTP ਕੋਡ ਗਲਤ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਜਾਂਚ ਕਰੋ ਅਤੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
 };

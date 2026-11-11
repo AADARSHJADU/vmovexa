@@ -2261,4 +2261,6 @@ const Map<String, String> hiIN = {
   'back_to_profile': 'प्रोफ़ाइल पर वापस जाएं',
   'whats_changed': 'क्या बदला है',
   'account_stays_secure': 'खाता सुरक्षित रहता है',
+  'otp_verified_success': 'ओटीपी सफलतापूर्वक सत्यापित किया गया।',
+  'invalid_otp_code_msg': 'दर्ज किया गया ओटीपी कोड गलत है। कृपया जांचें और पुनः प्रयास करें।',
 };

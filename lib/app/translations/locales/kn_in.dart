@@ -2261,4 +2261,6 @@ const Map<String, String> knIN = {
   'back_to_profile': 'ಪ್ರೊಫೈಲ್‌ಗೆ ಹಿಂತಿರುಗಿ',
   'whats_changed': 'ಏನು ಬದಲಾಗಿದೆ',
   'account_stays_secure': 'ಖಾತೆಯು ಸುರಕ್ಷಿತವಾಗಿರುತ್ತದೆ',
+  'otp_verified_success': 'OTP ಯಶಸ್ವಿಯಾಗಿ ಪರಿಶೀಲಿಸಲಾಗಿದೆ.',
+  'invalid_otp_code_msg': 'ನಮೂದಿಸಿದ OTP ಕೋಡ್ ತಪ್ಪಾಗಿದೆ. ದಯವಿಟ್ಟು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಪುನಃ ಪ್ರಯತ್ನಿಸಿ.',
 };

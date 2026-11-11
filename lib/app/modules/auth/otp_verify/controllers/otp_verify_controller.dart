@@ -24,6 +24,7 @@ class OtpVerifyController extends GetxController {
   late final String? phone;
   late final String? email;
   late final Map<String, dynamic>? registerPayload;
+  String? devCode;
 
   @override
   void onInit() {
@@ -38,6 +39,7 @@ class OtpVerifyController extends GetxController {
       mfaToken = args['mfa_token'] as String?;
       phone = args['phone']?.toString() ?? destination;
       email = args['email']?.toString() ?? (isForgotPassword ? destination : null);
+      devCode = args['dev_code']?.toString();
       registerPayload = args['register_payload'] is Map<String, dynamic>
           ? args['register_payload'] as Map<String, dynamic>
           : null;
@@ -50,6 +52,7 @@ class OtpVerifyController extends GetxController {
       mfaToken = null;
       phone = args;
       email = null;
+      devCode = null;
       registerPayload = null;
     } else {
       destination = '+91 98765 43210';
@@ -60,6 +63,7 @@ class OtpVerifyController extends GetxController {
       mfaToken = null;
       phone = destination;
       email = null;
+      devCode = null;
       registerPayload = null;
     }
     startTimer();
@@ -84,7 +88,11 @@ class OtpVerifyController extends GetxController {
 
     try {
       if (isForgotPassword) {
-        await AuthService.to.forgotPassword(email ?? destination);
+        final res = await AuthService.to.forgotPassword(email ?? destination);
+        if (res.data is Map) {
+          final data = res.data as Map;
+          devCode = (data['devCode'] ?? data['code'] ?? data['otp'])?.toString();
+        }
       } else if (isSignup) {
         await AuthService.to.requestSignupOtp(destination);
       } else {
@@ -132,7 +140,46 @@ class OtpVerifyController extends GetxController {
 
     try {
       if (isForgotPassword) {
-        // Navigate to Reset Password Screen passing email & code
+        // 1. If devCode was returned in the API response (dev/staging):
+        if (devCode != null && devCode!.isNotEmpty) {
+          if (otp != devCode) {
+            Get.snackbar(
+              'invalid_otp'.tr,
+              'invalid_otp_code_msg'.tr,
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
+              colorText: Colors.white,
+            );
+            return;
+          }
+        } else {
+          // 2. Call backend verification via AuthService.to.verifyOtp
+          final verifyRes = await AuthService.to.verifyOtp(
+            identifier: email ?? destination,
+            otp: otp,
+          );
+
+          if (!verifyRes.success) {
+            Get.snackbar(
+              'invalid_otp'.tr,
+              verifyRes.displayErrorMessage,
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
+              colorText: Colors.white,
+            );
+            return;
+          }
+        }
+
+        Get.snackbar(
+          'otp_verification'.tr,
+          'otp_verified_success'.tr,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color(0xFF10B981),
+          colorText: Colors.white,
+        );
+
+        // Navigate to Reset Password Screen passing email & verified code
         Get.toNamed(Routes.RESET_PASSWORD, arguments: {
           'email': email ?? destination,
           'code': otp,
@@ -194,6 +241,7 @@ class OtpVerifyController extends GetxController {
       } else {
         // Phone login or MFA verification
         final response = await AuthService.to.verifyOtp(
+          identifier: phone ?? destination,
           phone: phone ?? destination,
           otp: otp,
           mfaToken: mfaToken,

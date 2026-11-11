@@ -2261,4 +2261,6 @@ const Map<String, String> bnIN = {
   'back_to_profile': 'প্রোফাইলে ফিরে যান',
   'whats_changed': 'কী পরিবর্তিত হয়েছে',
   'account_stays_secure': 'অ্যাকাউন্ট সুরক্ষিত থাকে',
+  'otp_verified_success': 'ওটিপি সফলভাবে যাচাই করা হয়েছে।',
+  'invalid_otp_code_msg': 'প্রবিষ্ট ওটিপি কোডটি ভুল। অনুগ্রহ করে পরীক্ষা করুন এবং আবার চেষ্টা করুন।',
 };

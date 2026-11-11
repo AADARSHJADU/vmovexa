@@ -26,6 +26,12 @@ class ForgotPasswordController extends GetxController {
       final response = await AuthService.to.forgotPassword(email);
 
       if (response.success) {
+        String? devCode;
+        if (response.data is Map) {
+          final data = response.data as Map;
+          devCode = (data['devCode'] ?? data['code'] ?? data['otp'])?.toString();
+        }
+
         Get.snackbar(
           'otp_sent'.tr,
           response.message ?? 'otp_sent_to_email'.trParams({'email': email}),
@@ -34,11 +40,12 @@ class ForgotPasswordController extends GetxController {
           colorText: Colors.white,
         );
 
-        // Navigate to OTP Verification Screen passing email
+        // Navigate to OTP Verification Screen passing email & devCode
         Get.toNamed(Routes.OTP_VERIFY, arguments: {
           'destination': email,
           'email': email,
           'is_forgot_password': true,
+          'dev_code': devCode,
         });
       } else {
         Get.snackbar(

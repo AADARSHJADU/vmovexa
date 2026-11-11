@@ -2261,4 +2261,6 @@ const Map<String, String> enUS = {
   'back_to_profile': 'Back to Profile',
   'whats_changed': "What's Changed",
   'account_stays_secure': 'Account stays secure',
+  'otp_verified_success': 'OTP verified successfully.',
+  'invalid_otp_code_msg': 'The entered OTP code is incorrect. Please check and try again.',
 };

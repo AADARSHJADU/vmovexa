@@ -64,12 +64,16 @@ class AuthService extends GetxService {
 
   /// 1.3 POST /auth/verify-otp
   Future<ApiResponseModel<AuthResponseModel>> verifyOtp({
-    required String phone,
+    String? phone,
+    String? identifier,
     required String otp,
     String? mfaToken,
   }) async {
+    final id = (identifier ?? phone ?? '').trim();
     final body = <String, dynamic>{
-      'phone': phone.trim(),
+      'identifier': id,
+      'code': otp.trim(),
+      'phone': id,
       'otp': otp.trim(),
     };
     if (mfaToken != null && mfaToken.isNotEmpty) {

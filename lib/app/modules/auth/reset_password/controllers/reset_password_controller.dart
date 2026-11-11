@@ -122,6 +122,15 @@ class ResetPasswordController extends GetxController {
           backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
           colorText: Colors.white,
         );
+
+        final errLower = response.displayErrorMessage.toLowerCase();
+        if (errLower.contains('otp') || errLower.contains('code') || errLower.contains('expired')) {
+          Future.delayed(const Duration(seconds: 2), () {
+            if (Get.currentRoute == Routes.RESET_PASSWORD) {
+              Get.back();
+            }
+          });
+        }
       }
     } catch (e) {
       Get.snackbar(

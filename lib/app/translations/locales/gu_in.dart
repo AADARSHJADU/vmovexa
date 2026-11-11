@@ -2261,4 +2261,6 @@ const Map<String, String> guIN = {
   'back_to_profile': 'પ્રોફાઇલ પર પાછા જાઓ',
   'whats_changed': 'શું બદલાયું છે',
   'account_stays_secure': 'ખાતું સુરક્ષિત રહે છે',
+  'otp_verified_success': 'ઓટીપી સફળતાપૂર્વક ચકાસાયેલ છે.',
+  'invalid_otp_code_msg': 'દાખલ કરેલ ઓટીપી કોડ ખોટો છે. કૃપા કરીને ચકાસો અને ફરી પ્રયાસ કરો.',
 };
