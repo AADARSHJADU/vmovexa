@@ -43,7 +43,7 @@ class RoutesListView extends GetView<RoutesListController> {
           IconButton(
             icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 22),
             onPressed: () => controller.fetchRoutes(),
-            tooltip: 'Refresh Routes',
+            tooltip: 'refresh_routes_tooltip'.tr,
           ),
           const SizedBox(width: 4),
         ],
@@ -574,55 +574,55 @@ class RoutesListView extends GetView<RoutesListController> {
                         }
                       },
                       itemBuilder: (context) => [
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'view',
                           child: Row(
                             children: [
-                              Icon(Icons.visibility_outlined, color: Colors.blueAccent, size: 16),
-                              SizedBox(width: 8),
-                              Text('View Details & Stops', style: TextStyle(color: Colors.white, fontSize: 12)),
+                              const Icon(Icons.visibility_outlined, color: Colors.blueAccent, size: 16),
+                              const SizedBox(width: 8),
+                              Text('view_details_stops'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
                             ],
                           ),
                         ),
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'edit',
                           child: Row(
                             children: [
-                              Icon(Icons.edit_outlined, color: Colors.amberAccent, size: 16),
-                              SizedBox(width: 8),
-                              Text('Edit Route', style: TextStyle(color: Colors.white, fontSize: 12)),
+                              const Icon(Icons.edit_outlined, color: Colors.amberAccent, size: 16),
+                              const SizedBox(width: 8),
+                              Text('edit_route'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
                             ],
                           ),
                         ),
                         if (route.isPending) ...[
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'approve',
                             child: Row(
                               children: [
-                                Icon(Icons.check_circle_outline_rounded, color: Color(0xFF10B981), size: 16),
-                                SizedBox(width: 8),
-                                Text('Approve Route', style: TextStyle(color: Color(0xFF10B981), fontSize: 12)),
+                                const Icon(Icons.check_circle_outline_rounded, color: Color(0xFF10B981), size: 16),
+                                const SizedBox(width: 8),
+                                Text('approve_route'.tr, style: const TextStyle(color: Color(0xFF10B981), fontSize: 12)),
                               ],
                             ),
                           ),
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'reject',
                             child: Row(
                               children: [
-                                Icon(Icons.cancel_outlined, color: Color(0xFFF43F5E), size: 16),
-                                SizedBox(width: 8),
-                                Text('Reject Route', style: TextStyle(color: Color(0xFFF43F5E), fontSize: 12)),
+                                const Icon(Icons.cancel_outlined, color: Color(0xFFF43F5E), size: 16),
+                                const SizedBox(width: 8),
+                                Text('reject_route'.tr, style: const TextStyle(color: Color(0xFFF43F5E), fontSize: 12)),
                               ],
                             ),
                           ),
                         ],
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'delete',
                           child: Row(
                             children: [
-                              Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 16),
-                              SizedBox(width: 8),
-                              Text('Delete Route', style: TextStyle(color: Colors.redAccent, fontSize: 12)),
+                              const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 16),
+                              const SizedBox(width: 8),
+                              Text('delete_route'.tr, style: const TextStyle(color: Colors.redAccent, fontSize: 12)),
                             ],
                           ),
                         ),

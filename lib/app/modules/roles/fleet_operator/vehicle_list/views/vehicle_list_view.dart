@@ -153,7 +153,7 @@ class VehicleListController extends GetxController {
         } else {
           Get.snackbar(
             'error'.tr,
-            res.message ?? 'Failed to delete vehicle',
+            res.message ?? 'failed_to_delete_vehicle'.tr,
             backgroundColor: Colors.redAccent,
             colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM,
@@ -213,7 +213,7 @@ class VehicleListView extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF9333EA).withOpacity(0.25),
+                        color: const Color(0xFF9333EA).withValues(alpha: 0.25),
                         blurRadius: 16,
                         offset: const Offset(0, 4),
                       ),

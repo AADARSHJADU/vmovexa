@@ -139,8 +139,8 @@ class AssignGpsController extends GetxController {
   Future<void> handleAssign() async {
     if (selectedVehicleId.value == null || selectedVehicleId.value!.isEmpty) {
       Get.snackbar(
-        'Selection Required',
-        'Please select a fleet vehicle to assign this GPS unit.',
+        'selection_required'.tr,
+        'select_vehicle_gps_msg'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.amber.shade800,
         colorText: Colors.white,
@@ -154,15 +154,15 @@ class AssignGpsController extends GetxController {
       if (res.success) {
         Get.back(result: true);
         Get.snackbar(
-          'Assignment Successful',
-          'GPS Device successfully assigned and activated!',
+          'assignment_successful'.tr,
+          'gps_assigned_success_msg'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
         );
       } else {
         Get.snackbar(
-          'Error',
+          'error'.tr,
           res.message ?? 'Failed to assign GPS device',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent,
@@ -170,7 +170,7 @@ class AssignGpsController extends GetxController {
         );
       }
     } catch (e) {
-      Get.snackbar('Error', 'Assignment failed: $e');
+      Get.snackbar('error'.tr, 'Assignment failed: $e');
     } finally {
       isSubmitting.value = false;
     }
@@ -187,7 +187,7 @@ class AssignGpsController extends GetxController {
       AlertDialog(
         backgroundColor: const Color(0xFF161922),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Unassign GPS Tracker', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text('unassign_gps_tracker_title'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         content: Text(
           'Unassign GPS device ${d?.displayCode} from $busLabel?',
           style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
@@ -195,12 +195,12 @@ class AssignGpsController extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white70)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.amber.shade700),
             onPressed: () => Get.back(result: true),
-            child: const Text('Unassign', style: TextStyle(color: Colors.white)),
+            child: Text('unassign'.tr, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -213,15 +213,15 @@ class AssignGpsController extends GetxController {
         if (res.success) {
           Get.back(result: true);
           Get.snackbar(
-            'GPS Unassigned',
-            'GPS device unassigned from vehicle!',
+            'gps_unassigned_title'.tr,
+            'gps_unassigned_msg'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
           );
         } else {
           Get.snackbar(
-            'Error',
+            'error'.tr,
             res.message ?? 'Failed to unassign GPS device',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.redAccent,
@@ -229,7 +229,7 @@ class AssignGpsController extends GetxController {
           );
         }
       } catch (e) {
-        Get.snackbar('Error', 'Unassignment failed: $e');
+        Get.snackbar('error'.tr, 'Unassignment failed: $e');
       } finally {
         isSubmitting.value = false;
       }
@@ -240,8 +240,8 @@ class AssignGpsController extends GetxController {
   void confirmAssignment() async {
     if (selectedGps.value == null) {
       Get.snackbar(
-        'Selection Required',
-        'Please select a GPS device by clicking on its card, or register a new one.',
+        'selection_required'.tr,
+        'select_gps_required_msg'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.amber.shade800,
         colorText: Colors.white,

@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import '../../../../../theme/app_colors.dart';
 import '../../../../../theme/app_theme.dart';
 import '../../../../../widgets/custom_back_button.dart';
-import '../../../../../data/models/fleet_models.dart';
 import '../../../../../data/models/gps_device_model.dart';
 import '../controllers/assign_gps_controller.dart';
 
@@ -38,7 +37,7 @@ class AssignGpsView extends GetView<AssignGpsController> {
     return Column(
       children: [
         // Top Bar
-        _buildTopBar('Assign GPS Device to Vehicle'),
+        _buildTopBar('assign_gps_to_vehicle'.tr),
 
         Expanded(
           child: SingleChildScrollView(
@@ -51,20 +50,20 @@ class AssignGpsView extends GetView<AssignGpsController> {
                 const SizedBox(height: 16),
 
                 // 2. Search Field
-                _buildSearchField('Search vehicles by bus number, model, depot...'),
+                _buildSearchField('search_vehicles_hint'.tr),
                 const SizedBox(height: 14),
 
                 // 3. Vehicle Selection Header
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Select Vehicle to Bind',
-                      style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                    Text(
+                      'select_vehicle_to_bind'.tr,
+                      style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                     Obx(() {
                       return Text(
-                        '${controller.filteredVehicles.length} vehicles available',
+                        '${controller.filteredVehicles.length} ${'vehicles_available'.tr}',
                         style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                       );
                     }),
@@ -168,16 +167,16 @@ class AssignGpsView extends GetView<AssignGpsController> {
                       const Icon(Icons.link_rounded, color: Color(0xFF60A5FA), size: 16),
                       const SizedBox(width: 6),
                       Text(
-                        'Currently: ${d.vehicle?.busNumber ?? 'Bus #' + d.vehicleId.toString()}',
+                        '${'currently_assigned_label'.tr} ${d.vehicle?.busNumber ?? 'Bus #${d.vehicleId}'}',
                         style: const TextStyle(color: Color(0xFF93C5FD), fontSize: 12, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
                   InkWell(
                     onTap: controller.handleUnassign,
-                    child: const Text(
-                      'Unassign',
-                      style: TextStyle(color: Colors.redAccent, fontSize: 11, fontWeight: FontWeight.bold),
+                    child: Text(
+                      'unassign'.tr,
+                      style: const TextStyle(color: Colors.redAccent, fontSize: 11, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -227,10 +226,10 @@ class AssignGpsView extends GetView<AssignGpsController> {
             borderRadius: BorderRadius.circular(14),
             border: Border.all(color: AppColors.cardBorder),
           ),
-          child: const Center(
+          child: Center(
             child: Text(
-              'No vehicles found matching search criteria.',
-              style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+              'no_vehicles_matching_criteria'.tr,
+              style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
             ),
           ),
         );
@@ -240,7 +239,7 @@ class AssignGpsView extends GetView<AssignGpsController> {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: list.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 8),
+        separatorBuilder: (_, _) => const SizedBox(height: 8),
         itemBuilder: (context, index) {
           final v = list[index];
           final isSelected = selectedId == v.id.toString();
@@ -346,14 +345,14 @@ class AssignGpsView extends GetView<AssignGpsController> {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2.2, color: Colors.white),
                 )
-              : const Row(
+              : Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.link_rounded, color: Colors.white, size: 18),
-                    SizedBox(width: 8),
+                    const Icon(Icons.link_rounded, color: Colors.white, size: 18),
+                    const SizedBox(width: 8),
                     Text(
-                      'Assign GPS Tracker to Vehicle',
-                      style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                      'assign_gps_tracker_cta'.tr,
+                      style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -366,7 +365,7 @@ class AssignGpsView extends GetView<AssignGpsController> {
   Widget _buildOnboardingFlowView() {
     return Column(
       children: [
-        _buildTopBar('Assign GPS Device'),
+        _buildTopBar('assign_gps_device'.tr),
 
         Expanded(
           child: SingleChildScrollView(
@@ -395,7 +394,7 @@ class AssignGpsView extends GetView<AssignGpsController> {
                               style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              'Fleet: ${controller.fleetName} • Driver: ${controller.driverName}',
+                              '${'fleet'.tr}: ${controller.fleetName} • ${'driver'.tr}: ${controller.driverName}',
                               style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                             ),
                           ],
@@ -406,20 +405,20 @@ class AssignGpsView extends GetView<AssignGpsController> {
                 ),
                 const SizedBox(height: 16),
 
-                _buildSearchField('Search GPS Device ID, IMEI...'),
+                _buildSearchField('search_gps_hint'.tr),
                 const SizedBox(height: 14),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Available GPS Devices',
-                      style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                    Text(
+                      'available_gps_devices'.tr,
+                      style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                     TextButton.icon(
                       onPressed: controller.goToAddGps,
                       icon: const Icon(Icons.add, size: 14, color: Color(0xFF818CF8)),
-                      label: const Text('Add New GPS', style: TextStyle(color: Color(0xFF818CF8), fontSize: 12)),
+                      label: Text('add_new_gps'.tr, style: const TextStyle(color: Color(0xFF818CF8), fontSize: 12)),
                     ),
                   ],
                 ),
@@ -430,7 +429,7 @@ class AssignGpsView extends GetView<AssignGpsController> {
 
                 // Confirm & Skip Buttons
                 CustomButton(
-                  text: 'Confirm Assignment',
+                  text: 'confirm_assignment'.tr,
                   onTap: controller.confirmAssignment,
                   height: 48,
                 ),
@@ -438,7 +437,7 @@ class AssignGpsView extends GetView<AssignGpsController> {
                 Center(
                   child: TextButton(
                     onPressed: controller.skipForNow,
-                    child: const Text('Skip for Now', style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
+                    child: Text('skip_for_now'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -466,10 +465,10 @@ class AssignGpsView extends GetView<AssignGpsController> {
           ),
           child: Column(
             children: [
-              const Text('No available GPS units found in inventory.', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+              Text('no_gps_in_inventory'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
               const SizedBox(height: 10),
               CustomButton(
-                text: 'Register GPS Device',
+                text: 'register_gps_device'.tr,
                 prefixIcon: const Icon(Icons.add, size: 14, color: Colors.white),
                 onTap: controller.goToAddGps,
                 width: 200,
@@ -484,7 +483,7 @@ class AssignGpsView extends GetView<AssignGpsController> {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: list.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 8),
+        separatorBuilder: (_, _) => const SizedBox(height: 8),
         itemBuilder: (context, index) {
           final g = list[index];
           final isSelected = selected?.id == g.id;

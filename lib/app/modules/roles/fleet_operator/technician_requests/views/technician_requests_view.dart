@@ -407,7 +407,7 @@ class TechnicianRequestsView extends GetView<TechnicianRequestsController> {
                   side: const BorderSide(color: Color(0xFF3B82F6)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
-                child: const Text('Reset Filter', style: TextStyle(color: Color(0xFF3B82F6), fontSize: 11)),
+                child: Text('reset_filter'.tr, style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 11)),
               ),
             ],
           ),
@@ -562,7 +562,7 @@ class TechnicianRequestsView extends GetView<TechnicianRequestsController> {
                       IconButton(
                         icon: const Icon(Icons.edit_outlined, size: 16, color: Color(0xFF60A5FA)),
                         onPressed: () => controller.openEditRequest(order),
-                        tooltip: 'Edit Request',
+                        tooltip: 'edit_request_tooltip'.tr,
                         constraints: const BoxConstraints(),
                         padding: const EdgeInsets.all(4),
                       ),

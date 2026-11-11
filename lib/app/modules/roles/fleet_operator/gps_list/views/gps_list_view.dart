@@ -292,7 +292,7 @@ class GpsListView extends GetView<GpsListController> {
                     size: 20,
                   ),
                   onPressed: () => controller.setViewMode('table'),
-                  tooltip: 'List View',
+                  tooltip: 'list_view_tooltip'.tr,
                   padding: const EdgeInsets.all(8),
                   constraints: const BoxConstraints(),
                 ),
@@ -304,7 +304,7 @@ class GpsListView extends GetView<GpsListController> {
                     size: 18,
                   ),
                   onPressed: () => controller.setViewMode('grid'),
-                  tooltip: 'Grid View',
+                  tooltip: 'grid_view_tooltip'.tr,
                   padding: const EdgeInsets.all(8),
                   constraints: const BoxConstraints(),
                 ),
@@ -325,7 +325,7 @@ class GpsListView extends GetView<GpsListController> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: tabs.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final tab = tabs[index];
 
@@ -405,7 +405,7 @@ class GpsListView extends GetView<GpsListController> {
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           itemCount: tabs.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          separatorBuilder: (_, _) => const SizedBox(width: 8),
           itemBuilder: (context, index) {
             final tab = tabs[index];
             final isSelected = controller.activeTab.value == tab;
@@ -486,7 +486,7 @@ class GpsListView extends GetView<GpsListController> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: list.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 10),
+          separatorBuilder: (_, _) => const SizedBox(height: 10),
           itemBuilder: (context, index) {
             return _buildTableItem(list[index]);
           },
@@ -583,7 +583,7 @@ class GpsListView extends GetView<GpsListController> {
                           width: 44,
                           height: 44,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _buildFallbackDeviceIcon(),
+                          errorBuilder: (_, _, _) => _buildFallbackDeviceIcon(),
                         )
                       : _buildFallbackDeviceIcon(),
                 ),
@@ -738,7 +738,7 @@ class GpsListView extends GetView<GpsListController> {
                           width: 44,
                           height: 44,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _buildFallbackDeviceIcon(),
+                          errorBuilder: (_, _, _) => _buildFallbackDeviceIcon(),
                         )
                       : _buildFallbackDeviceIcon(),
                 ),
@@ -1002,8 +1002,8 @@ class GpsListView extends GetView<GpsListController> {
               _buildSheetActionItem(
                 icon: Icons.visibility_rounded,
                 color: const Color(0xFF818CF8),
-                title: 'View Device Details',
-                subtitle: 'Hardware specs, diagnostics & vehicle pairing',
+                title: 'view_device_details'.tr,
+                subtitle: 'hw_specs_pairing_desc'.tr,
                 onTap: () {
                   Get.back();
                   controller.goToDetails(g);
@@ -1014,8 +1014,8 @@ class GpsListView extends GetView<GpsListController> {
               _buildSheetActionItem(
                 icon: Icons.edit_rounded,
                 color: const Color(0xFF60A5FA),
-                title: 'Edit Device Config',
-                subtitle: 'Update IMEI, SIM, model, mounting location',
+                title: 'edit_device_config'.tr,
+                subtitle: 'update_imei_mounting_desc'.tr,
                 onTap: () {
                   Get.back();
                   controller.goToEdit(g);
@@ -1026,10 +1026,10 @@ class GpsListView extends GetView<GpsListController> {
               _buildSheetActionItem(
                 icon: Icons.directions_bus_rounded,
                 color: Colors.amberAccent,
-                title: g.isAssigned ? 'Reassign / Unassign Bus' : 'Assign to Bus Vehicle',
+                title: g.isAssigned ? 'reassign_unassign_bus'.tr : 'assign_to_bus_vehicle'.tr,
                 subtitle: g.isAssigned
-                    ? 'Currently mounted on ${g.vehicle?.busNumber ?? 'Bus #' + g.vehicleId.toString()}'
-                    : 'Bind hardware tracker to a fleet vehicle',
+                    ? '${'currently_assigned_label'.tr} ${g.vehicle?.busNumber ?? 'Bus #${g.vehicleId}'}'
+                    : 'bind_hw_tracker_desc'.tr,
                 onTap: () {
                   Get.back();
                   controller.goToAssign(g);
@@ -1041,8 +1041,8 @@ class GpsListView extends GetView<GpsListController> {
                 _buildSheetActionItem(
                   icon: Icons.check_circle_rounded,
                   color: const Color(0xFF10B981),
-                  title: 'Approve Device',
-                  subtitle: 'Verify and activate telematics tracking',
+                  title: 'approve_device'.tr,
+                  subtitle: 'verify_activate_telematics_desc'.tr,
                   onTap: () {
                     Get.back();
                     controller.handleApprove(g);
@@ -1054,8 +1054,8 @@ class GpsListView extends GetView<GpsListController> {
                 _buildSheetActionItem(
                   icon: Icons.cancel_rounded,
                   color: Colors.redAccent,
-                  title: 'Reject Device',
-                  subtitle: 'Send rejection feedback to technician',
+                  title: 'reject_device'.tr,
+                  subtitle: 'send_rejection_feedback_desc'.tr,
                   onTap: () {
                     Get.back();
                     controller.showRejectDialog(g);
@@ -1066,8 +1066,8 @@ class GpsListView extends GetView<GpsListController> {
               _buildSheetActionItem(
                 icon: Icons.delete_outline_rounded,
                 color: Colors.redAccent,
-                title: 'Delete Hardware Record',
-                subtitle: g.isAssigned ? 'Cannot delete while assigned to a bus' : 'Permanently remove from inventory',
+                title: 'delete_hardware_record'.tr,
+                subtitle: g.isAssigned ? 'cannot_delete_while_assigned_desc'.tr : 'permanently_remove_inventory_desc'.tr,
                 isDestructive: true,
                 onTap: () {
                   Get.back();

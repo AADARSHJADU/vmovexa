@@ -265,8 +265,8 @@ class VehicleSlotsController extends GetxController {
       final res = await _fleetService.createVehicleSlot(data);
       if (res.success) {
         Get.snackbar(
-          'Slot Created',
-          'Vehicle slot schedule registered successfully.',
+          'slot_created'.tr,
+          'slot_created_msg'.tr,
           backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
@@ -276,7 +276,7 @@ class VehicleSlotsController extends GetxController {
         return true;
       } else {
         Get.snackbar(
-          'Error',
+          'error'.tr,
           res.displayErrorMessage,
           backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
           colorText: Colors.white,
@@ -287,7 +287,7 @@ class VehicleSlotsController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         e.toString(),
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
         colorText: Colors.white,
@@ -307,7 +307,7 @@ class VehicleSlotsController extends GetxController {
       final res = await _fleetService.updateVehicleSlot(slot.id, {'status': newStatus});
       if (res.success) {
         Get.snackbar(
-          'Status Updated',
+          'status_updated'.tr,
           'Slot marked as $newStatus',
           backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
           colorText: Colors.white,
@@ -325,8 +325,8 @@ class VehicleSlotsController extends GetxController {
       final res = await _fleetService.deleteVehicleSlot(id);
       if (res.success) {
         Get.snackbar(
-          'Deleted',
-          'Slot removed successfully',
+          'deleted'.tr,
+          'slot_removed_msg'.tr,
           backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,

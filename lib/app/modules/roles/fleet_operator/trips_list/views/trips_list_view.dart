@@ -116,12 +116,12 @@ class TripsListView extends GetView<TripsListController> {
                     Obx(() => Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF1E3A8A).withOpacity(0.35),
+                            color: const Color(0xFF1E3A8A).withValues(alpha: 0.35),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.4)),
+                            border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.4)),
                           ),
                           child: Text(
-                            '${controller.totalItems.value} Recorded',
+                            '${controller.totalItems.value} ${'recorded'.tr}',
                             style: const TextStyle(
                               color: Color(0xFF60A5FA),
                               fontSize: 10,
@@ -250,9 +250,9 @@ class TripsListView extends GetView<TripsListController> {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.12),
+              color: iconColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: iconColor.withOpacity(0.2)),
+              border: Border.all(color: iconColor.withValues(alpha: 0.2)),
             ),
             child: Icon(icon, color: iconColor, size: 20),
           ),
@@ -432,9 +432,9 @@ class TripsListView extends GetView<TripsListController> {
             children: [
               const Icon(Icons.directions_bus_outlined, size: 44, color: AppColors.textMuted),
               const SizedBox(height: 10),
-              const Text(
-                'No Trips Dispatched',
-                style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+              Text(
+                'no_trips_dispatched'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
               Text(
@@ -785,24 +785,24 @@ class TripsListView extends GetView<TripsListController> {
 
     switch (status) {
       case 'in_progress':
-        bg = const Color(0xFF064E3B).withOpacity(0.3);
+        bg = const Color(0xFF064E3B).withValues(alpha: 0.3);
         border = const Color(0xFF059669);
         text = const Color(0xFF34D399);
-        label = 'In Progress';
+        label = 'in_progress'.tr;
         showPulse = true;
         break;
       case 'completed':
-        bg = const Color(0xFF1E3A8A).withOpacity(0.3);
+        bg = const Color(0xFF1E3A8A).withValues(alpha: 0.3);
         border = const Color(0xFF2563EB);
         text = const Color(0xFF60A5FA);
-        label = 'Completed';
+        label = 'completed'.tr;
         break;
       case 'scheduled':
       default:
-        bg = const Color(0xFF78350F).withOpacity(0.3);
+        bg = const Color(0xFF78350F).withValues(alpha: 0.3);
         border = const Color(0xFFD97706);
         text = const Color(0xFFFBBF24);
-        label = 'Scheduled';
+        label = 'scheduled'.tr;
         break;
     }
 
@@ -811,7 +811,7 @@ class TripsListView extends GetView<TripsListController> {
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: border.withOpacity(0.6)),
+        border: Border.all(color: border.withValues(alpha: 0.6)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

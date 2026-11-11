@@ -284,7 +284,7 @@ class DriverStaffListView extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF9333EA).withOpacity(0.25),
+                              color: const Color(0xFF9333EA).withValues(alpha: 0.25),
                               blurRadius: 16,
                               offset: const Offset(0, 4),
                             ),
@@ -691,7 +691,7 @@ class DriverStaffListView extends StatelessWidget {
                           borderRadius: BorderRadius.circular(5),
                           border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.4)),
                         ),
-                        child: const Text('KYC REJECTED', style: TextStyle(color: Color(0xFFEF4444), fontSize: 8, fontWeight: FontWeight.bold)),
+                        child: Text('kyc_rejected_caps'.tr, style: const TextStyle(color: Color(0xFFEF4444), fontSize: 8, fontWeight: FontWeight.bold)),
                       )
                     else if (d.isVerified)
                       Container(
@@ -701,7 +701,7 @@ class DriverStaffListView extends StatelessWidget {
                           borderRadius: BorderRadius.circular(5),
                           border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
                         ),
-                        child: const Text('VERIFIED', style: TextStyle(color: Color(0xFF10B981), fontSize: 8, fontWeight: FontWeight.bold)),
+                        child: Text('verified_caps'.tr, style: const TextStyle(color: Color(0xFF10B981), fontSize: 8, fontWeight: FontWeight.bold)),
                       )
                     else
                       Container(
@@ -711,7 +711,7 @@ class DriverStaffListView extends StatelessWidget {
                           borderRadius: BorderRadius.circular(5),
                           border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.4)),
                         ),
-                        child: const Text('DOCS PENDING', style: TextStyle(color: Color(0xFFF59E0B), fontSize: 8, fontWeight: FontWeight.bold)),
+                        child: Text('docs_pending_caps'.tr, style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 8, fontWeight: FontWeight.bold)),
                       ),
                   ],
                 ),
@@ -734,7 +734,7 @@ class DriverStaffListView extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('DL NUMBER', style: TextStyle(color: AppColors.textMuted, fontSize: 8, fontWeight: FontWeight.bold)),
+                        Text('dl_number_caps'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 8, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 1),
                         Text(
                           d.licenseNumber,
@@ -751,7 +751,7 @@ class DriverStaffListView extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('DEPOT & SHIFT', style: TextStyle(color: AppColors.textMuted, fontSize: 8, fontWeight: FontWeight.bold)),
+                        Text('depot_and_shift_caps'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 8, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 1),
                         Text(
                           '${d.displayDepot} • ${d.displayShift.split('(')[0].trim()}',

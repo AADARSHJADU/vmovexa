@@ -182,13 +182,13 @@ class VehicleSlotsView extends GetView<VehicleSlotsController> {
       child: Obx(() {
         return Row(
           children: [
-            _buildStatItem('Total Slots', '${controller.totalCount.value}', const Color(0xFF94A3B8)),
+            _buildStatItem('total_slots'.tr, '${controller.totalCount.value}', const Color(0xFF94A3B8)),
             _buildStatDivider(),
-            _buildStatItem('Active', '${controller.activeCount.value}', const Color(0xFF10B981)),
+            _buildStatItem('active'.tr, '${controller.activeCount.value}', const Color(0xFF10B981)),
             _buildStatDivider(),
-            _buildStatItem('Morning', '${controller.morningPeakCount.value}', const Color(0xFFF59E0B)),
+            _buildStatItem('morning_peak'.tr, '${controller.morningPeakCount.value}', const Color(0xFFF59E0B)),
             _buildStatDivider(),
-            _buildStatItem('Evening', '${controller.eveningPeakCount.value}', const Color(0xFF6366F1)),
+            _buildStatItem('evening_peak'.tr, '${controller.eveningPeakCount.value}', const Color(0xFF6366F1)),
           ],
         );
       }),
@@ -369,7 +369,7 @@ class VehicleSlotsView extends GetView<VehicleSlotsController> {
               const SizedBox(width: 4),
               Expanded(
                 child: Text(
-                  slot.driverName ?? 'Unassigned Driver',
+                  slot.driverName ?? 'unassigned_driver'.tr,
                   style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -382,12 +382,12 @@ class VehicleSlotsView extends GetView<VehicleSlotsController> {
                   color: isPaused ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
                   size: 20,
                 ),
-                tooltip: isPaused ? 'Activate Slot' : 'Pause Slot',
+                tooltip: isPaused ? 'activate_slot'.tr : 'pause_slot'.tr,
                 onPressed: () => controller.toggleStatus(slot),
               ),
               IconButton(
                 icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 18),
-                tooltip: 'Delete Slot',
+                tooltip: 'delete_slot'.tr,
                 onPressed: () => controller.deleteSlot(slot.id),
               ),
             ],
@@ -415,16 +415,16 @@ class VehicleSlotsView extends GetView<VehicleSlotsController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Hourly Transit Timeline (06:00 — 20:00)',
-                  style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                  'hourly_transit_timeline'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  'Operating Shifts',
-                  style: TextStyle(color: Color(0xFF818CF8), fontSize: 11, fontWeight: FontWeight.w600),
+                  'operating_shifts'.tr,
+                  style: const TextStyle(color: Color(0xFF818CF8), fontSize: 11, fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -441,11 +441,11 @@ class VehicleSlotsView extends GetView<VehicleSlotsController> {
                     // Hour Header Row
                     Row(
                       children: [
-                        const SizedBox(
+                        SizedBox(
                           width: 160,
                           child: Text(
-                            'Vehicle / Corridor',
-                            style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11, fontWeight: FontWeight.bold),
+                            'vehicle_corridor_col'.tr,
+                            style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11, fontWeight: FontWeight.bold),
                           ),
                         ),
                         ...hours.map((h) => Expanded(
@@ -660,7 +660,7 @@ class VehicleSlotsView extends GetView<VehicleSlotsController> {
           Container(width: 4, height: 4, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
           const SizedBox(width: 4),
           Text(
-            isActive ? 'ACTIVE' : 'PAUSED',
+            isActive ? 'active_upper'.tr : 'paused_upper'.tr,
             style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.bold),
           ),
         ],

@@ -103,10 +103,10 @@ class FleetListView extends StatelessWidget {
                     child: TextField(
                       controller: controller.searchController,
                       style: const TextStyle(color: Colors.white, fontSize: 14),
-                      decoration: const InputDecoration(
-                        icon: Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 20),
-                        hintText: 'Search Fleet...',
-                        hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 14),
+                      decoration: InputDecoration(
+                        icon: const Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 20),
+                        hintText: 'search_fleet_hint'.tr,
+                        hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 14),
                         border: InputBorder.none,
                       ),
                     ),
@@ -160,7 +160,7 @@ class FleetListView extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF9333EA).withOpacity(0.25),
+              color: const Color(0xFF9333EA).withValues(alpha: 0.25),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
@@ -210,7 +210,7 @@ class FleetListView extends StatelessWidget {
           ),
         ),
         child: Text(
-          tabName,
+          tabName == 'All' ? 'all'.tr : (tabName == 'Active' ? 'active'.tr : 'inactive'.tr),
           style: TextStyle(
             color: isSelected ? Colors.white : AppColors.textSecondary,
             fontSize: 13,
@@ -243,9 +243,9 @@ class FleetListView extends StatelessWidget {
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF6366F1).withOpacity(0.08),
+                    color: const Color(0xFF6366F1).withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFF6366F1).withOpacity(0.2), width: 1.2),
+                    border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.2), width: 1.2),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(6.0),
@@ -289,8 +289,8 @@ class FleetListView extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: isMaintenance
-                                  ? const Color(0xFFFBBF24).withOpacity(0.12)
-                                  : const Color(0xFF10B981).withOpacity(0.12),
+                                  ? const Color(0xFFFBBF24).withValues(alpha: 0.12)
+                                  : const Color(0xFF10B981).withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Row(
@@ -332,19 +332,19 @@ class FleetListView extends StatelessWidget {
                           IntrinsicWidth(
                             child: _buildSubStat(
                               'assets/icons/car.svg',
-                              '${fleet.vehiclesCount} Vehicles',
+                              '${fleet.vehiclesCount} ${'vehicles'.tr}',
                             ),
                           ),
                           IntrinsicWidth(
                             child: _buildSubStat(
                               'assets/icons/profile.svg',
-                              '${fleet.driversCount} Drivers',
+                              '${fleet.driversCount} ${'drivers'.tr}',
                             ),
                           ),
                           IntrinsicWidth(
                             child: _buildSubStat(
                               'assets/icons/hotspot.svg',
-                              '${fleet.gpsOnlineCount} GPS Online',
+                              '${fleet.gpsOnlineCount} ${'gps_online'.tr}',
                             ),
                           ),
                         ],
@@ -361,7 +361,7 @@ class FleetListView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Last Updated: ${fleet.lastUpdated}',
+                  '${'last_updated'.tr}: ${fleet.lastUpdated}',
                   style: const TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 11,

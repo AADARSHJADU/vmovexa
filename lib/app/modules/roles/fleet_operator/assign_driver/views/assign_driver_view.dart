@@ -25,9 +25,9 @@ class AssignDriverView extends GetView<AssignDriverController> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const CustomBackButton(),
-                  const Text(
-                    'Assign Driver',
-                    style: TextStyle(
+                  Text(
+                    'assign_driver'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -51,14 +51,14 @@ class AssignDriverView extends GetView<AssignDriverController> {
                     _buildVehicleContextCard(),
                     const SizedBox(height: 24),
 
-                    const Text(
-                      'Select Driver',
-                      style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                    Text(
+                      'select_driver'.tr,
+                      style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
-                      'Choose an available driver to assign to this vehicle.',
-                      style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                    Text(
+                      'choose_available_driver_msg'.tr,
+                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
                     ),
                     const SizedBox(height: 16),
 
@@ -77,10 +77,10 @@ class AssignDriverView extends GetView<AssignDriverController> {
                             child: TextField(
                               controller: controller.searchController,
                               style: const TextStyle(color: Colors.white, fontSize: 14),
-                              decoration: const InputDecoration(
-                                icon: Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 20),
-                                hintText: 'Search by name, employee ID...',
-                                hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 14),
+                              decoration: InputDecoration(
+                                icon: const Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 20),
+                                hintText: 'search_driver_hint'.tr,
+                                hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 14),
                                 border: InputBorder.none,
                               ),
                             ),
@@ -112,9 +112,9 @@ class AssignDriverView extends GetView<AssignDriverController> {
                         ),
                         child: Row(
                           children: [
-                            _buildTabItem('Available (08)', controller.selectedTab.value == 'Available', () => controller.selectedTab.value = 'Available'),
+                            _buildTabItem('${'available_tab'.tr} (08)', controller.selectedTab.value == 'Available', () => controller.selectedTab.value = 'Available'),
                             const SizedBox(width: 24),
-                            _buildTabItem('Assigned (12)', controller.selectedTab.value == 'Assigned', () => controller.selectedTab.value = 'Assigned'),
+                            _buildTabItem('${'assigned_tab'.tr} (12)', controller.selectedTab.value == 'Assigned', () => controller.selectedTab.value = 'Assigned'),
                           ],
                         ),
                       ),
@@ -142,7 +142,7 @@ class AssignDriverView extends GetView<AssignDriverController> {
 
                     // Confirm Assignment Button
                     CustomButton(
-                      text: 'Assign Driver',
+                      text: 'assign_driver'.tr,
                       prefixIcon: const Icon(Icons.assignment_ind_outlined, color: Colors.white, size: 18),
                       onTap: controller.confirmAssignment,
                     ),
@@ -175,9 +175,9 @@ class AssignDriverView extends GetView<AssignDriverController> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6366F1).withOpacity(0.08),
+                  color: const Color(0xFF6366F1).withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFF6366F1).withOpacity(0.2), width: 1.2),
+                  border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.2), width: 1.2),
                 ),
                 child: Center(
                   child: ShaderMask(
@@ -214,11 +214,11 @@ class AssignDriverView extends GetView<AssignDriverController> {
           const SizedBox(height: 16),
           Row(
             children: [
-              _buildVehicleInfoDetail('Type', controller.vehicleType, _buildGradientIcon(Icons.directions_bus_outlined, size: 18)),
+              _buildVehicleInfoDetail('type'.tr, controller.vehicleType, _buildGradientIcon(Icons.directions_bus_outlined, size: 18)),
               _buildDivider(),
-              _buildVehicleInfoDetail('Fleet', controller.fleetName, _buildGradientIcon(Icons.business_rounded, size: 18)),
+              _buildVehicleInfoDetail('fleet'.tr, controller.fleetName, _buildGradientIcon(Icons.business_rounded, size: 18)),
               _buildDivider(),
-              _buildVehicleStatusDetail('Status', 'Active'),
+              _buildVehicleStatusDetail('status'.tr, 'active'.tr),
             ],
           ),
         ],
@@ -359,9 +359,9 @@ class AssignDriverView extends GetView<AssignDriverController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'License Expiry',
-                        style: TextStyle(color: AppColors.textMuted, fontSize: 9),
+                      Text(
+                        'license_expiry'.tr,
+                        style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
                       ),
                       const SizedBox(height: 2),
                       Row(
@@ -379,9 +379,9 @@ class AssignDriverView extends GetView<AssignDriverController> {
                         ],
                       ),
                       const SizedBox(height: 4),
-                      const Text(
-                        'Status',
-                        style: TextStyle(color: AppColors.textMuted, fontSize: 9),
+                      Text(
+                        'status'.tr,
+                        style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
                       ),
                       const SizedBox(height: 2),
                       Row(
@@ -414,13 +414,13 @@ class AssignDriverView extends GetView<AssignDriverController> {
             onPressed: () => controller.selectDriver(driver),
             style: OutlinedButton.styleFrom(
               side: BorderSide(color: isSelected ? const Color(0xFF10B981) : const Color(0xFF8B5CF6)),
-              backgroundColor: isSelected ? const Color(0xFF10B981).withOpacity(0.08) : Colors.transparent,
+              backgroundColor: isSelected ? const Color(0xFF10B981).withValues(alpha: 0.08) : Colors.transparent,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               minimumSize: Size.zero,
             ),
             child: Text(
-              isSelected ? 'Selected' : 'Assign',
+              isSelected ? 'selected'.tr : 'assign'.tr,
               style: TextStyle(
                 color: isSelected ? const Color(0xFF10B981) : Colors.white,
                 fontSize: 11,
@@ -454,14 +454,14 @@ class AssignDriverView extends GetView<AssignDriverController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'No Available Drivers?',
-                  style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                Text(
+                  'no_available_drivers_title'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Add a new driver to assign this vehicle.',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                Text(
+                  'add_driver_assign_msg'.tr,
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -470,11 +470,11 @@ class AssignDriverView extends GetView<AssignDriverController> {
                       onPressed: controller.goToAddDriver,
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Color(0xFF8B5CF6)),
-                        backgroundColor: const Color(0xFF8B5CF6).withOpacity(0.05),
+                        backgroundColor: const Color(0xFF8B5CF6).withValues(alpha: 0.05),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       ),
-                      child: const Text('+ Add Driver', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                      child: Text('+ ${'add_driver'.tr}', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(width: 16),
                     TextButton(
@@ -484,9 +484,9 @@ class AssignDriverView extends GetView<AssignDriverController> {
                         minimumSize: Size.zero,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
-                      child: const Text(
-                        'Skip for Now',
-                        style: TextStyle(color: Color(0xFF3B82F6), fontSize: 11, fontWeight: FontWeight.bold),
+                      child: Text(
+                        'skip_for_now'.tr,
+                        style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 11, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],

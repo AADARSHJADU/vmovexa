@@ -84,7 +84,7 @@ class DepotsListView extends GetView<DepotsListController> {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF9333EA).withOpacity(0.25),
+                  color: const Color(0xFF9333EA).withValues(alpha: 0.25),
                   blurRadius: 16,
                   offset: const Offset(0, 4),
                 ),
@@ -146,9 +146,9 @@ class DepotsListView extends GetView<DepotsListController> {
         children: [
           Expanded(
             child: _buildStatCard(
-              title: 'TOTAL DEPOTS',
+              title: 'total_depots_caps'.tr,
               value: '$total',
-              subtitle: 'Facilities',
+              subtitle: 'facilities_subtitle'.tr,
               valueColor: Colors.white,
               borderColor: AppColors.cardBorder,
             ),
@@ -156,9 +156,9 @@ class DepotsListView extends GetView<DepotsListController> {
           const SizedBox(width: 8),
           Expanded(
             child: _buildStatCard(
-              title: 'OPERATIONAL',
+              title: 'operational_caps'.tr,
               value: '$operational',
-              subtitle: 'Active bases',
+              subtitle: 'active_bases_subtitle'.tr,
               valueColor: const Color(0xFF10B981),
               borderColor: const Color(0xFF10B981).withValues(alpha: 0.3),
             ),
@@ -166,9 +166,9 @@ class DepotsListView extends GetView<DepotsListController> {
           const SizedBox(width: 8),
           Expanded(
             child: _buildStatCard(
-              title: 'EV CHARGERS',
+              title: 'ev_chargers_caps'.tr,
               value: '$chargers',
-              subtitle: 'Fast ports',
+              subtitle: 'fast_ports_subtitle'.tr,
               valueColor: const Color(0xFF38BDF8),
               borderColor: const Color(0xFF38BDF8).withValues(alpha: 0.3),
             ),
@@ -244,7 +244,7 @@ class DepotsListView extends GetView<DepotsListController> {
             onChanged: controller.onSearchChanged,
             style: const TextStyle(color: Colors.white, fontSize: 13),
             decoration: InputDecoration(
-              hintText: 'Search depot by name, code, city or address...',
+              hintText: 'search_depot_hint'.tr,
               hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
               prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 20),
               suffixIcon: Obx(() {
@@ -556,7 +556,7 @@ class DepotsListView extends GetView<DepotsListController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('TOTAL BAYS', style: TextStyle(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold)),
+                        Text('total_bays_caps'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 2),
                         Text('${dep.capacity}', style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                       ],
@@ -569,7 +569,7 @@ class DepotsListView extends GetView<DepotsListController> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('PARKED BUSES', style: TextStyle(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold)),
+                          Text('parked_buses_caps'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 2),
                           Text('${dep.currentParked}', style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 13, fontWeight: FontWeight.bold)),
                         ],
@@ -583,7 +583,7 @@ class DepotsListView extends GetView<DepotsListController> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('EV CHARGERS', style: TextStyle(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold)),
+                          Text('ev_chargers_caps'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 2),
                           Text('${dep.evChargers}', style: const TextStyle(color: Color(0xFF10B981), fontSize: 13, fontWeight: FontWeight.bold)),
                         ],
@@ -606,7 +606,7 @@ class DepotsListView extends GetView<DepotsListController> {
                     style: const TextStyle(color: AppColors.textSecondary, fontSize: 11, fontFamily: 'monospace'),
                   ),
                 ] else
-                  const Text('No phone listed', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                  Text('no_phone_listed'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
                 const Spacer(),
 
                 // 3-Dot Action Menu
@@ -631,23 +631,23 @@ class DepotsListView extends GetView<DepotsListController> {
                     }
                   },
                   itemBuilder: (context) => [
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'view',
                       child: Row(
                         children: [
-                          Icon(Icons.visibility_outlined, size: 16, color: Color(0xFF38BDF8)),
-                          SizedBox(width: 10),
-                          Text('View Facility Dossier', style: TextStyle(color: Colors.white, fontSize: 12)),
+                          const Icon(Icons.visibility_outlined, size: 16, color: Color(0xFF38BDF8)),
+                          const SizedBox(width: 10),
+                          Text('view_facility_dossier'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
                         ],
                       ),
                     ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'edit',
                       child: Row(
                         children: [
-                          Icon(Icons.edit_outlined, size: 16, color: Color(0xFF10B981)),
-                          SizedBox(width: 10),
-                          Text('Edit Facility Details', style: TextStyle(color: Colors.white, fontSize: 12)),
+                          const Icon(Icons.edit_outlined, size: 16, color: Color(0xFF10B981)),
+                          const SizedBox(width: 10),
+                          Text('edit_facility_details'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
                         ],
                       ),
                     ),
@@ -662,20 +662,20 @@ class DepotsListView extends GetView<DepotsListController> {
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            dep.isOperational ? 'Close Facility' : 'Reopen Facility',
+                            dep.isOperational ? 'close_facility'.tr : 'reopen_facility'.tr,
                             style: const TextStyle(color: Colors.white, fontSize: 12),
                           ),
                         ],
                       ),
                     ),
                     const PopupMenuDivider(height: 1),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'delete',
                       child: Row(
                         children: [
-                          Icon(Icons.delete_outline_rounded, size: 16, color: Color(0xFFEF4444)),
-                          SizedBox(width: 10),
-                          Text('Delete Facility', style: TextStyle(color: Color(0xFFEF4444), fontSize: 12)),
+                          const Icon(Icons.delete_outline_rounded, size: 16, color: Color(0xFFEF4444)),
+                          const SizedBox(width: 10),
+                          Text('delete_facility'.tr, style: const TextStyle(color: Color(0xFFEF4444), fontSize: 12)),
                         ],
                       ),
                     ),
