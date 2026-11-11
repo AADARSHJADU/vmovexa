@@ -83,15 +83,15 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const CustomBackButton(),
-              const Text(
-                'Reports & Analytics',
-                style: TextStyle(
+              Text(
+                'reports_and_analytics_title'.tr,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox()
+              const SizedBox()
             ],
           ),
           const SizedBox(height: 8),
@@ -113,11 +113,11 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
                       value: controller.timeframe.value,
                       dropdownColor: AppColors.cardBg,
                       style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                      items: const [
-                        DropdownMenuItem(value: 'today', child: Text('Today')),
-                        DropdownMenuItem(value: 'week', child: Text('This Week')),
-                        DropdownMenuItem(value: 'month', child: Text('This Month')),
-                        DropdownMenuItem(value: 'quarter', child: Text('This Quarter')),
+                      items: [
+                        DropdownMenuItem(value: 'today', child: Text('timeframe_today'.tr)),
+                        DropdownMenuItem(value: 'week', child: Text('timeframe_this_week'.tr)),
+                        DropdownMenuItem(value: 'month', child: Text('timeframe_this_month'.tr)),
+                        DropdownMenuItem(value: 'quarter', child: Text('timeframe_this_quarter'.tr)),
                       ],
                       onChanged: (val) {
                         if (val != null) controller.timeframe.value = val;
@@ -153,7 +153,7 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
                     icon: controller.isExporting.value
                         ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 1.5))
                         : const Icon(Icons.file_download_outlined, color: Colors.white, size: 15),
-                    label: const Text('Export CSV', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                    label: Text('export_csv_btn'.tr, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                     onPressed: controller.isExporting.value ? null : () => controller.exportReport(),
                   ),
                 );
@@ -204,20 +204,20 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
                   children: [
                     Container(width: 6, height: 6, decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle)),
                     const SizedBox(width: 6),
-                    const Text(
-                      'Live Telematics Engine',
-                      style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                    Text(
+                      'live_telematics_engine'.tr,
+                      style: const TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5),
                     ),
                   ],
                 ),
                 const SizedBox(height: 3),
-                const Text(
-                  'Reports & Fleet Telematics Analytics',
-                  style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                Text(
+                  'reports_and_analytics_title'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Real-time GPS telemetry, dispatch milestones, fuel/EV health, and driver roster metrics.',
+                  'reports_telematics_sub'.tr,
                   style: TextStyle(color: Colors.grey.shade400, fontSize: 11, height: 1.3),
                 ),
               ],
@@ -240,37 +240,37 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
       final reports = [
         {
           'id': 'vehicle',
-          'title': 'Vehicle Telematics',
-          'desc': 'Speed, active telemetry, GPS connectivity & models',
-          'count': '${controller.totalVehiclesCount} Registered',
-          'sub': '${controller.onRouteCount} Currently Active',
+          'title': 'vehicle_telematics_card'.tr,
+          'desc': 'vehicle_telematics_desc'.tr,
+          'count': 'registered_count'.trParams({'count': controller.totalVehiclesCount.toString()}),
+          'sub': 'currently_active_count'.trParams({'count': controller.onRouteCount.toString()}),
           'icon': Icons.directions_bus_rounded,
           'colors': [const Color(0xFF2563EB), const Color(0xFF4F46E5)],
         },
         {
           'id': 'driver',
-          'title': 'Driver Rosters',
-          'desc': 'Driver ratings, licenses, and shift assignment',
-          'count': '${controller.drivers.length} Drivers',
-          'sub': '$activeDriversCount Active On Roster',
+          'title': 'driver_rosters_card'.tr,
+          'desc': 'driver_rosters_desc'.tr,
+          'count': 'drivers_count'.trParams({'count': controller.drivers.length.toString()}),
+          'sub': 'active_on_roster_count'.trParams({'count': activeDriversCount.toString()}),
           'icon': Icons.badge_outlined,
           'colors': [const Color(0xFF059669), const Color(0xFF0D9488)],
         },
         {
           'id': 'trip',
-          'title': 'Trip & Dispatch',
-          'desc': 'Corridor transit times, milestones, and routes',
-          'count': '${controller.trips.length} Logged Trips',
-          'sub': '${controller.activeTripsCount} Active Dispatches',
+          'title': 'trip_dispatch_card'.tr,
+          'desc': 'trip_dispatch_desc'.tr,
+          'count': 'logged_trips_count'.trParams({'count': controller.trips.length.toString()}),
+          'sub': 'active_dispatches_count'.trParams({'count': controller.activeTripsCount.toString()}),
           'icon': Icons.explore_rounded,
           'colors': [const Color(0xFF7C3AED), const Color(0xFFDB2777)],
         },
         {
           'id': 'fuel',
-          'title': 'Fuel & EV Health',
-          'desc': 'Battery state-of-charge, regeneration & fuel usage',
-          'count': '94% Fleet Health',
-          'sub': 'Zero Hardware Faults',
+          'title': 'fuel_ev_health_card'.tr,
+          'desc': 'fuel_ev_health_desc'.tr,
+          'count': 'fleet_health_stat'.tr,
+          'sub': 'zero_hardware_faults'.tr,
           'icon': Icons.battery_charging_full_rounded,
           'colors': [const Color(0xFFD97706), const Color(0xFFEA580C)],
         },
@@ -326,7 +326,7 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          isSelected ? 'ACTIVE' : 'SELECT',
+                          isSelected ? 'card_action_active'.tr : 'card_action_select'.tr,
                           style: TextStyle(
                             color: isSelected ? const Color(0xFF38BDF8) : Colors.grey.shade500,
                             fontSize: 8.5,
@@ -385,36 +385,36 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
         children: [
           Expanded(
             child: _buildKpiBox(
-              title: 'UTILIZATION',
+              title: 'utilization_kpi'.tr,
               value: '${controller.fleetUtilizationRate}%',
-              sub: '${controller.onRouteCount} on route',
+              sub: 'on_route_sub'.trParams({'count': controller.onRouteCount.toString()}),
               color: const Color(0xFF38BDF8),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: _buildKpiBox(
-              title: 'DISTANCE',
+              title: 'distance_kpi'.tr,
               value: '${controller.totalDistanceKm.toStringAsFixed(1)} km',
-              sub: 'Transit routes',
+              sub: 'transit_routes_sub'.tr,
               color: const Color(0xFF10B981),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: _buildKpiBox(
-              title: 'DISPATCHES',
+              title: 'dispatches_kpi'.tr,
               value: '${controller.trips.length}',
-              sub: '${controller.activeTripsCount} active trips',
+              sub: 'active_trips_sub'.trParams({'count': controller.activeTripsCount.toString()}),
               color: const Color(0xFFA855F7),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: _buildKpiBox(
-              title: 'TELEMETRY',
+              title: 'telemetry_kpi'.tr,
               value: '${controller.telemetryUnitsOnline}',
-              sub: 'Live MQTT Units',
+              sub: 'live_mqtt_units_sub'.tr,
               color: const Color(0xFFF59E0B),
             ),
           ),
@@ -460,14 +460,14 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               Text(
-                'FLEET EFFICIENCY SCORE',
-                style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                'fleet_efficiency_score'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 0.5),
               ),
               Text(
-                'Composite Telematics',
-                style: TextStyle(color: Colors.grey, fontSize: 10),
+                'composite_telematics'.tr,
+                style: const TextStyle(color: Colors.grey, fontSize: 10),
               ),
             ],
           ),
@@ -495,9 +495,9 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
                       children: [
                         Container(width: 5, height: 5, decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle)),
                         const SizedBox(width: 4),
-                        const Text(
-                          'OPTIMAL',
-                          style: TextStyle(color: Color(0xFF10B981), fontSize: 9.5, fontWeight: FontWeight.bold),
+                        Text(
+                          'optimal_status'.tr,
+                          style: const TextStyle(color: Color(0xFF10B981), fontSize: 9.5, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -513,9 +513,9 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildEfficiencySubItem('On-Time Dispatch', '98.2%', const Color(0xFF38BDF8)),
-              _buildEfficiencySubItem('Ping Reliability', '99.8%', const Color(0xFF10B981)),
-              _buildEfficiencySubItem('Average Speed', '45.0 km/h', const Color(0xFFA855F7)),
+              _buildEfficiencySubItem('on_time_dispatch'.tr, '98.2%', const Color(0xFF38BDF8)),
+              _buildEfficiencySubItem('ping_reliability'.tr, '99.8%', const Color(0xFF10B981)),
+              _buildEfficiencySubItem('avg_speed_tab'.tr, '45.0 km/h', const Color(0xFFA855F7)),
             ],
           ),
         ],
@@ -560,13 +560,13 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'WEEKLY PERFORMANCE TREND',
-                      style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                    Text(
+                      'weekly_performance_trend'.tr,
+                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 0.5),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Tap any bar to inspect daily telematics telemetry',
+                      'tap_bar_inspect_telematics'.tr,
                       style: TextStyle(color: Colors.grey.shade400, fontSize: 10),
                     ),
                   ],
@@ -582,9 +582,9 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(color: const Color(0xFF2563EB).withValues(alpha: 0.4)),
               ),
-              child: const Text(
-                'Live Visualizer',
-                style: TextStyle(color: Color(0xFF38BDF8), fontSize: 9, fontWeight: FontWeight.bold),
+              child: Text(
+                'live_visualizer'.tr,
+                style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 9, fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(height: 14),
@@ -594,13 +594,13 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  _buildMetricTab('distance', 'Distance (km)'),
+                  _buildMetricTab('distance', 'distance_km_tab'.tr),
                   const SizedBox(width: 6),
-                  _buildMetricTab('speed', 'Avg Speed'),
+                  _buildMetricTab('speed', 'avg_speed_tab'.tr),
                   const SizedBox(width: 6),
-                  _buildMetricTab('trips', 'Trips Count'),
+                  _buildMetricTab('trips', 'trips_count_tab'.tr),
                   const SizedBox(width: 6),
-                  _buildMetricTab('efficiency', 'Efficiency (%)'),
+                  _buildMetricTab('efficiency', 'efficiency_pct_tab'.tr),
                 ],
               ),
             ),
@@ -618,11 +618,11 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '${selectedPoint.label} Telematics Reading:',
+                    'telematics_reading'.trParams({'day': selectedPoint.label}),
                     style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
                   ),
                   Text(
-                    '${selectedPoint.value} ${selectedPoint.unit} ${selectedPoint.isPeak ? "(PEAK)" : ""}',
+                    '${selectedPoint.value} ${selectedPoint.unit} ${selectedPoint.isPeak ? "reading_peak".tr : ""}',
                     style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 11.5, fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -744,10 +744,10 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
   Widget _buildReportDataFilterBar() {
     return Obx(() {
       final repType = controller.selectedReportType.value;
-      String title = 'Vehicle Telematics Registry';
-      if (repType == 'driver') title = 'Driver Shift & Safety Roster';
-      if (repType == 'trip') title = 'Trip Dispatch & Corridor Logs';
-      if (repType == 'fuel') title = 'EV Battery & Telematics Health';
+      String title = 'vehicle_telematics_registry'.tr;
+      if (repType == 'driver') title = 'driver_shift_safety_roster'.tr;
+      if (repType == 'trip') title = 'trip_dispatch_corridor_logs'.tr;
+      if (repType == 'fuel') title = 'ev_battery_telematics_health'.tr;
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -786,7 +786,7 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
                       isExpanded: true,
                       style: const TextStyle(color: Colors.white, fontSize: 11),
                       items: [
-                        DropdownMenuItem(value: 'all', child: Text('All Divisions (${controller.fleets.length})')),
+                        DropdownMenuItem(value: 'all', child: Text('all_divisions_count'.trParams({'count': controller.fleets.length.toString()}))),
                         ...controller.fleets.map((f) => DropdownMenuItem(value: f.id.toString(), child: Text(f.name))),
                       ],
                       onChanged: (val) {
@@ -813,12 +813,12 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
                       dropdownColor: AppColors.cardBg,
                       isExpanded: true,
                       style: const TextStyle(color: Colors.white, fontSize: 11),
-                      items: const [
-                        DropdownMenuItem(value: 'all', child: Text('All Statuses')),
-                        DropdownMenuItem(value: 'on_route', child: Text('On Route / Active')),
-                        DropdownMenuItem(value: 'in_depot', child: Text('In Depot')),
-                        DropdownMenuItem(value: 'active', child: Text('Active')),
-                        DropdownMenuItem(value: 'maintenance', child: Text('Maintenance')),
+                      items: [
+                        DropdownMenuItem(value: 'all', child: Text('all_statuses'.tr)),
+                        DropdownMenuItem(value: 'on_route', child: Text('on_route_active'.tr)),
+                        DropdownMenuItem(value: 'in_depot', child: Text('status_in_depot'.tr)),
+                        DropdownMenuItem(value: 'active', child: Text('active'.tr)),
+                        DropdownMenuItem(value: 'maintenance', child: Text('status_maintenance'.tr)),
                       ],
                       onChanged: (val) {
                         if (val != null) controller.selectedStatus.value = val;
@@ -837,14 +837,14 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
   String _getRecordCountText() {
     switch (controller.selectedReportType.value) {
       case 'driver':
-        return 'Showing ${controller.filteredDrivers.length} drivers';
+        return 'showing_drivers_count'.trParams({'count': controller.filteredDrivers.length.toString()});
       case 'trip':
-        return 'Showing ${controller.filteredTrips.length} trips';
+        return 'showing_trips_count'.trParams({'count': controller.filteredTrips.length.toString()});
       case 'fuel':
-        return 'Showing ${controller.filteredVehicles.length} units';
+        return 'showing_units_count'.trParams({'count': controller.filteredVehicles.length.toString()});
       case 'vehicle':
       default:
-        return 'Showing ${controller.filteredVehicles.length} vehicles';
+        return 'showing_vehicles_count'.trParams({'count': controller.filteredVehicles.length.toString()});
     }
   }
 
@@ -874,7 +874,7 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
   // 1. VEHICLE REPORT LIST
   Widget _buildVehicleReportList() {
     final list = controller.filteredVehicles;
-    if (list.isEmpty) return _buildEmptyState('No vehicles match the selected filters.');
+    if (list.isEmpty) return _buildEmptyState('no_vehicles_match_filters'.tr);
 
     return ListView.separated(
       shrinkWrap: true,
@@ -944,7 +944,7 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
                       Icon(Icons.wifi, size: 13, color: isGpsOnline ? const Color(0xFF10B981) : Colors.redAccent),
                       const SizedBox(width: 4),
                       Text(
-                        isGpsOnline ? 'GPS Online' : 'GPS Offline',
+                        isGpsOnline ? 'gps_online'.tr : 'gps_offline'.tr,
                         style: TextStyle(color: isGpsOnline ? const Color(0xFF10B981) : Colors.redAccent, fontSize: 10.5, fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -965,7 +965,7 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
   // 2. DRIVER REPORT LIST
   Widget _buildDriverReportList() {
     final list = controller.filteredDrivers;
-    if (list.isEmpty) return _buildEmptyState('No drivers match the selected filters.');
+    if (list.isEmpty) return _buildEmptyState('no_drivers_match_filters'.tr);
 
     return ListView.separated(
       shrinkWrap: true,
@@ -1026,7 +1026,7 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
   // 3. TRIP REPORT LIST
   Widget _buildTripReportList() {
     final list = controller.filteredTrips;
-    if (list.isEmpty) return _buildEmptyState('No trips logged for the selected fleet.');
+    if (list.isEmpty) return _buildEmptyState('no_trips_match_filters'.tr);
 
     return ListView.separated(
       shrinkWrap: true,
@@ -1104,7 +1104,7 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
   // 4. FUEL / EV REPORT LIST
   Widget _buildFuelReportList() {
     final list = controller.filteredVehicles;
-    if (list.isEmpty) return _buildEmptyState('No fleet units available for fuel tracking.');
+    if (list.isEmpty) return _buildEmptyState('no_fleet_units_fuel'.tr);
 
     return ListView.separated(
       shrinkWrap: true,
@@ -1136,7 +1136,7 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Battery SOC / Energy Health:', style: TextStyle(color: Colors.grey.shade400, fontSize: 11)),
+                  Text('battery_soc_energy_health'.tr, style: TextStyle(color: Colors.grey.shade400, fontSize: 11)),
                   Text('$battery%', style: const TextStyle(color: Color(0xFF10B981), fontSize: 12, fontWeight: FontWeight.bold)),
                 ],
               ),
@@ -1153,9 +1153,9 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text('Efficiency: 94%', style: TextStyle(color: Colors.grey, fontSize: 10.5)),
-                  Text('Telematics: Optimal', style: TextStyle(color: Color(0xFF10B981), fontSize: 10.5, fontWeight: FontWeight.w600)),
+                children: [
+                  const Text('Efficiency: 94%', style: TextStyle(color: Colors.grey, fontSize: 10.5)),
+                  Text('telematics_optimal'.tr, style: const TextStyle(color: Color(0xFF10B981), fontSize: 10.5, fontWeight: FontWeight.w600)),
                 ],
               ),
             ],

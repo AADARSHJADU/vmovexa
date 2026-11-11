@@ -84,8 +84,8 @@ class LiveTrackingController extends GetxController {
   void callDriver() {
     if (driverPhone.value.isEmpty) {
       Get.snackbar(
-        'Driver Unavailable',
-        'No phone number on record for $driverName.',
+        'driver_unavailable_title'.tr,
+        'no_phone_driver_msg'.trParams({'name': driverName.value}),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF1E293B),
         colorText: Colors.white,
@@ -93,7 +93,7 @@ class LiveTrackingController extends GetxController {
       return;
     }
     Get.snackbar(
-      'Calling Driver',
+      'calling_driver_title'.tr,
       'Dialing ${driverName.value} at ${driverPhone.value}...',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: const Color(0xFF6366F1),
@@ -104,8 +104,8 @@ class LiveTrackingController extends GetxController {
   void endTracking() {
     Get.back();
     Get.snackbar(
-      'Tracking Stopped',
-      'Live tracking for vehicle ${vehicleName.value} has been ended.',
+      'tracking_stopped_title'.tr,
+      'live_tracking_ended_msg'.trParams({'veh': vehicleName.value}),
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.redAccent.withValues(alpha: 0.8),
       colorText: Colors.white,

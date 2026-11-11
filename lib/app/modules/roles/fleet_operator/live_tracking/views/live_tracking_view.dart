@@ -28,7 +28,7 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
               right: 0,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                color: AppColors.background.withOpacity(0.9),
+                color: AppColors.background.withValues(alpha: 0.9),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -126,7 +126,7 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
       width: 195,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.background.withOpacity(0.95),
+        color: AppColors.background.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.cardBorder, width: 1.2),
       ),
@@ -137,7 +137,7 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: const Color(0xFF3B82F6).withOpacity(0.12),
+              color: const Color(0xFF3B82F6).withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Image.asset('assets/images/bus1.png'),
@@ -207,7 +207,7 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: AppColors.background.withOpacity(0.9),
+              color: AppColors.background.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: AppColors.cardBorder, width: 1.2),
             ),
@@ -217,7 +217,7 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
         const SizedBox(height: 14),
         Container(
           decoration: BoxDecoration(
-            color: AppColors.background.withOpacity(0.9),
+            color: AppColors.background.withValues(alpha: 0.9),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: AppColors.cardBorder, width: 1.2),
           ),
@@ -362,10 +362,10 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('12.4 km', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-                  const Text('Distance Remaining', style: TextStyle(color: AppColors.textMuted, fontSize: 9)),
+                  Text('distance_remaining'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9)),
                   const SizedBox(height: 8),
                   const Text('18 mins', style: TextStyle(color: Color(0xFF3B82F6), fontSize: 13, fontWeight: FontWeight.bold)),
-                  const Text('ETA', style: TextStyle(color: AppColors.textMuted, fontSize: 9)),
+                  Text('eta_label'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9)),
                 ],
               ),
             ],
@@ -376,9 +376,9 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Last GPS Update: Just now',
-                style: TextStyle(color: AppColors.textMuted, fontSize: 10),
+              Text(
+                'last_gps_update_just_now'.tr,
+                style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
               ),
               IconButton(
                 icon: const Icon(Icons.sync_rounded, color: Color(0xFF10B981), size: 16),
@@ -396,7 +396,7 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
               Expanded(
                 child: _buildRealtimeStatCard(
                   '42 km/h',
-                  'Current Speed',
+                  'current_speed_stat'.tr,
                   SvgPicture.asset(
                     'assets/icons/speed_m.svg',
                     width: 18,
@@ -408,7 +408,7 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
               Expanded(
                 child: _buildRealtimeStatCard(
                   '92%',
-                  'Battery',
+                  'battery_stat'.tr,
                   SvgPicture.asset(
                     'assets/icons/battery_c.svg',
                     width: 18,
@@ -420,7 +420,7 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
               Expanded(
                 child: _buildRealtimeStatCard(
                   'Strong',
-                  'GPS Signal',
+                  'gps_signal_stat'.tr,
                   SvgPicture.asset(
                     'assets/icons/signal.svg',
                     width: 18,
@@ -432,7 +432,7 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
               Expanded(
                 child: _buildRealtimeStatCard(
                   'ON',
-                  'Ignition Status',
+                  'ignition_status_stat'.tr,
                   SvgPicture.asset(
                     'assets/icons/key.svg',
                     width: 18,
@@ -446,12 +446,12 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
 
           // Quick actions title
           Row(
-            children: const [
-              Icon(Icons.bolt_rounded, color: Colors.purpleAccent, size: 16),
-              SizedBox(width: 6),
+            children: [
+              const Icon(Icons.bolt_rounded, color: Colors.purpleAccent, size: 16),
+              const SizedBox(width: 6),
               Text(
-                'Quick Actions',
-                style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                'quick_actions_title'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -462,7 +462,7 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
             children: [
               Expanded(
                 child: _buildQuickActionItem(
-                  'Call Driver',
+                  'call_driver_action'.tr,
                   SvgPicture.asset(
                     'assets/icons/call.svg',
                     width: 18,
@@ -474,7 +474,7 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
               const SizedBox(width: 8),
               Expanded(
                 child: _buildQuickActionItem(
-                  'Navigate',
+                  'navigate_btn'.tr,
                   SvgPicture.asset(
                     'assets/icons/nav.svg',
                     width: 18,
@@ -486,7 +486,7 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
               const SizedBox(width: 8),
               Expanded(
                 child: _buildQuickActionItem(
-                  'Trip History',
+                  'trip_history_btn'.tr,
                   SvgPicture.asset(
                     'assets/icons/note.svg',
                     width: 18,
@@ -498,7 +498,7 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
               const SizedBox(width: 8),
               Expanded(
                 child: _buildQuickActionItem(
-                  'Emergency Alert',
+                  'emergency_alert_action'.tr,
                   SvgPicture.asset(
                     'assets/icons/notification+.svg',
                     width: 18,
@@ -516,7 +516,7 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
             children: [
               Expanded(
                 child: CustomButton(
-                  text: 'View Trip Details',
+                  text: 'view_trip_details_btn'.tr,
                   isGradient: true,
                   onTap: controller.goToTripDetails,
                 ),
@@ -532,12 +532,12 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.stop_rounded, color: Colors.redAccent, size: 18),
-                      SizedBox(width: 6),
+                    children: [
+                      const Icon(Icons.stop_rounded, color: Colors.redAccent, size: 18),
+                      const SizedBox(width: 6),
                       Text(
-                        'End Tracking',
-                        style: TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.bold),
+                        'end_tracking_btn'.tr,
+                        style: const TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -672,7 +672,7 @@ class TrackingMapPainter extends CustomPainter {
     
     // Draw neon outer glow for route
     final glowPaint = Paint()
-      ..color = const Color(0xFF3B82F6).withOpacity(0.2)
+      ..color = const Color(0xFF3B82F6).withValues(alpha: 0.2)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 8.0
       ..strokeCap = StrokeCap.round;

@@ -103,25 +103,16 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      children: const [
+                      children: [
                         Text(
-                          'AUDIT TRAIL',
-                          style: TextStyle(
+                          'audit_trail'.tr,
+                          style: const TextStyle(
                             color: Color(0xFF06B6D4),
                             fontSize: 10,
                             fontWeight: FontWeight.w900,
                             letterSpacing: 1.1,
                           ),
                         ),
-                        // Text(
-                        //   ' • TEAM & STAFF',
-                        //   style: TextStyle(
-                        //     color: Colors.white38,
-                        //     fontSize: 10,
-                        //     fontWeight: FontWeight.bold,
-                        //     letterSpacing: 0.8,
-                        //   ),
-                        // ),
                       ],
                     ),
                     const SizedBox(height: 2),
@@ -205,7 +196,7 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
           // Info Logs
           Expanded(
             child: _buildKpiCard(
-              title: 'INFO LOGS',
+              title: 'info_logs_kpi'.tr,
               count: controller.infoCount.toString(),
               color: const Color(0xFF38BDF8),
               bgColor: const Color(0xFF0284C7).withValues(alpha: 0.12),
@@ -217,7 +208,7 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
           // Warnings
           Expanded(
             child: _buildKpiCard(
-              title: 'WARNINGS',
+              title: 'warnings_kpi'.tr,
               count: controller.warningCount.toString(),
               color: const Color(0xFFFBBF24),
               bgColor: const Color(0xFFD97706).withValues(alpha: 0.12),
@@ -229,7 +220,7 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
           // Critical Events
           Expanded(
             child: _buildKpiCard(
-              title: 'CRITICAL',
+              title: 'critical_kpi'.tr,
               count: controller.criticalCount.toString(),
               color: const Color(0xFFF87171),
               bgColor: const Color(0xFFDC2626).withValues(alpha: 0.12),
@@ -312,9 +303,9 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                   Expanded(
                     child: TextField(
                       style: const TextStyle(color: Colors.white, fontSize: 12),
-                      decoration: const InputDecoration(
-                        hintText: 'Search logs by user, action, category...',
-                        hintStyle: TextStyle(color: Colors.white38, fontSize: 11),
+                      decoration: InputDecoration(
+                        hintText: 'search_logs_hint'.tr,
+                        hintStyle: const TextStyle(color: Colors.white38, fontSize: 11),
                         border: InputBorder.none,
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
@@ -405,9 +396,9 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'FILTER CONTROLS',
-                style: TextStyle(
+              Text(
+                'filter_controls'.tr,
+                style: const TextStyle(
                   color: Colors.white38,
                   fontSize: 10,
                   fontWeight: FontWeight.w900,
@@ -417,12 +408,12 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
               GestureDetector(
                 onTap: controller.resetFilters,
                 child: Row(
-                  children: const [
-                    Icon(Icons.restart_alt_rounded, color: Color(0xFF06B6D4), size: 14),
-                    SizedBox(width: 4),
+                  children: [
+                    const Icon(Icons.restart_alt_rounded, color: Color(0xFF06B6D4), size: 14),
+                    const SizedBox(width: 4),
                     Text(
-                      'Reset Filters',
-                      style: TextStyle(
+                      'reset_filters_btn'.tr,
+                      style: const TextStyle(
                         color: Color(0xFF06B6D4),
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
@@ -442,7 +433,7 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
               children: [
                 // Category Filter
                 Obx(() => _buildFilterDropdown<String>(
-                      label: 'Category',
+                      label: 'filter_category'.tr,
                       value: controller.categoryFilter.value,
                       items: controller.categoryOptions.isEmpty
                           ? ['All']
@@ -458,7 +449,7 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
 
                 // Severity Filter
                 Obx(() => _buildFilterDropdown<String>(
-                      label: 'Severity',
+                      label: 'filter_severity'.tr,
                       value: controller.severityFilter.value,
                       items: controller.severityOptions,
                       onChanged: (val) {
@@ -472,7 +463,7 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
 
                 // Action / Event Filter
                 Obx(() => _buildFilterDropdown<String>(
-                      label: 'Action',
+                      label: 'filter_action'.tr,
                       value: controller.eventFilter.value,
                       items: controller.eventOptions.isEmpty
                           ? ['All']
@@ -488,14 +479,14 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
 
                 // Date Range Filter
                 Obx(() => _buildFilterDropdown<String>(
-                      label: 'Date',
+                      label: 'filter_date'.tr,
                       value: controller.dateRangeFilter.value,
                       items: controller.dateOptions,
                       itemLabels: {
-                        'ALL': 'All Time',
-                        'TODAY': 'Today',
-                        '7DAYS': 'Past 7 Days',
-                        '30DAYS': 'Past 30 Days',
+                        'ALL': 'date_all_time'.tr,
+                        'TODAY': 'date_today'.tr,
+                        '7DAYS': 'date_past_7_days'.tr,
+                        '30DAYS': 'date_past_30_days'.tr,
                       },
                       onChanged: (val) {
                         if (val != null) {
@@ -508,7 +499,7 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
 
                 // Sort Order Filter
                 Obx(() => _buildFilterDropdown<String>(
-                      label: 'Sort',
+                      label: 'filter_sort'.tr,
                       value: '${controller.sortBy.value}:${controller.sortOrder.value}',
                       items: const [
                         'created_at:DESC',
@@ -518,11 +509,11 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                         'severity:DESC',
                       ],
                       itemLabels: {
-                        'created_at:DESC': 'Newest First',
-                        'created_at:ASC': 'Oldest First',
-                        'id:DESC': 'ID: High to Low',
-                        'id:ASC': 'ID: Low to High',
-                        'severity:DESC': 'Severity: Critical First',
+                        'created_at:DESC': 'sort_newest_first'.tr,
+                        'created_at:ASC': 'sort_oldest_first'.tr,
+                        'id:DESC': 'sort_id_high_low'.tr,
+                        'id:ASC': 'sort_id_low_high'.tr,
+                        'severity:DESC': 'sort_severity_critical'.tr,
                       },
                       onChanged: (val) {
                         if (val != null) {
@@ -602,41 +593,41 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
           horizontalMargin: 14,
           columnSpacing: 18,
           headingRowColor: WidgetStateProperty.all(Colors.white.withValues(alpha: 0.03)),
-          columns: const [
+          columns: [
             DataColumn(
               label: Text(
-                'ID & LEVEL',
-                style: TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w900),
+                'col_id_level'.tr,
+                style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w900),
               ),
             ),
             DataColumn(
               label: Text(
-                'CATEGORY',
-                style: TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w900),
+                'col_category'.tr,
+                style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w900),
               ),
             ),
             DataColumn(
               label: Text(
-                'ACTION',
-                style: TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w900),
+                'col_action'.tr,
+                style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w900),
               ),
             ),
             DataColumn(
               label: Text(
-                'USER / ACTOR',
-                style: TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w900),
+                'col_user_actor'.tr,
+                style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w900),
               ),
             ),
             DataColumn(
               label: Text(
-                'TIME',
-                style: TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w900),
+                'col_time'.tr,
+                style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w900),
               ),
             ),
             DataColumn(
               label: Text(
-                'DETAILS',
-                style: TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w900),
+                'col_details'.tr,
+                style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w900),
               ),
             ),
           ],
@@ -732,9 +723,9 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     icon: const Icon(Icons.arrow_forward_rounded, size: 12, color: Color(0xFF06B6D4)),
-                    label: const Text(
-                      'Inspect',
-                      style: TextStyle(color: Color(0xFF06B6D4), fontSize: 11, fontWeight: FontWeight.bold),
+                    label: Text(
+                      'inspect_action'.tr,
+                      style: const TextStyle(color: Color(0xFF06B6D4), fontSize: 11, fontWeight: FontWeight.bold),
                     ),
                     onPressed: () => controller.openLogDetails(log),
                   ),
@@ -865,13 +856,13 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                         ],
                       ),
                       Row(
-                        children: const [
+                        children: [
                           Text(
-                            'Inspect Payload',
-                            style: TextStyle(color: Color(0xFF06B6D4), fontSize: 11, fontWeight: FontWeight.bold),
+                            'inspect_payload'.tr,
+                            style: const TextStyle(color: Color(0xFF06B6D4), fontSize: 11, fontWeight: FontWeight.bold),
                           ),
-                          SizedBox(width: 2),
-                          Icon(Icons.arrow_forward_rounded, size: 12, color: Color(0xFF06B6D4)),
+                          const SizedBox(width: 2),
+                          const Icon(Icons.arrow_forward_rounded, size: 12, color: Color(0xFF06B6D4)),
                         ],
                       ),
                     ],
@@ -956,9 +947,9 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'Per Page: ',
-                      style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold),
+                    Text(
+                      'per_page_label'.tr,
+                      style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold),
                     ),
                     DropdownButton<int>(
                       value: controller.pageSize.value,
@@ -992,7 +983,7 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                   icon: const Icon(Icons.chevron_left_rounded, size: 20),
                   color: controller.canPrev ? const Color(0xFF06B6D4) : Colors.white24,
                   onPressed: controller.canPrev ? controller.prevPage : null,
-                  tooltip: 'Previous Page',
+                  tooltip: 'previous_page'.tr,
                 ),
 
                 const SizedBox(width: 4),
@@ -1043,7 +1034,7 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                   icon: const Icon(Icons.chevron_right_rounded, size: 20),
                   color: controller.canNext ? const Color(0xFF06B6D4) : Colors.white24,
                   onPressed: controller.canNext ? controller.nextPage : null,
-                  tooltip: 'Next Page',
+                  tooltip: 'next_page'.tr,
                 ),
               ],
             ),
@@ -1093,9 +1084,9 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  const Text(
-                    'Log Details & Payload',
-                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  Text(
+                    'log_details_payload'.tr,
+                    style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -1128,9 +1119,9 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'ACTION & EVENT',
-                              style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold),
+                            Text(
+                              'action_and_event'.tr,
+                              style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold),
                             ),
                             _buildSeverityBadge(log.severity),
                           ],
@@ -1149,7 +1140,7 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                         ],
                         const SizedBox(height: 6),
                         Text(
-                          'Recorded At: ${log.formattedTime}',
+                          'recorded_at_time'.trParams({'time': log.formattedTime}),
                           style: const TextStyle(color: Color(0xFF06B6D4), fontSize: 10.5, fontFamily: 'monospace'),
                         ),
                       ],
@@ -1172,9 +1163,9 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'USER / ACTOR',
-                                style: TextStyle(color: Colors.white38, fontSize: 9.5, fontWeight: FontWeight.bold),
+                              Text(
+                                'user_actor_caps'.tr,
+                                style: const TextStyle(color: Colors.white38, fontSize: 9.5, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 4),
                               Text(
@@ -1211,9 +1202,9 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'CATEGORY & IP',
-                                style: TextStyle(color: Colors.white38, fontSize: 9.5, fontWeight: FontWeight.bold),
+                              Text(
+                                'category_and_ip'.tr,
+                                style: const TextStyle(color: Colors.white38, fontSize: 9.5, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 4),
                               Text(
@@ -1240,9 +1231,9 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'RAW PAYLOAD DATA',
-                        style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.w900),
+                      Text(
+                        'raw_payload_data'.tr,
+                        style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.w900),
                       ),
                       TextButton.icon(
                         style: TextButton.styleFrom(
@@ -1251,9 +1242,9 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
                         icon: const Icon(Icons.copy_rounded, size: 12, color: Color(0xFF06B6D4)),
-                        label: const Text(
-                          'Copy Data',
-                          style: TextStyle(color: Color(0xFF06B6D4), fontSize: 11, fontWeight: FontWeight.bold),
+                        label: Text(
+                          'copy_data_btn'.tr,
+                          style: const TextStyle(color: Color(0xFF06B6D4), fontSize: 11, fontWeight: FontWeight.bold),
                         ),
                         onPressed: () => controller.copyLogPayload(log),
                       ),
@@ -1297,7 +1288,7 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
               onPressed: () => controller.selectedLog.value = null,
-              child: const Text('Close', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: Text('close_modal'.tr, style: const TextStyle(fontWeight: FontWeight.bold)),
             ),
           ),
         ],
@@ -1319,15 +1310,15 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
         children: [
           const Icon(Icons.list_alt_rounded, size: 48, color: Colors.white24),
           const SizedBox(height: 12),
-          const Text(
-            'No Activity Logs Found',
-            style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+          Text(
+            'no_activity_logs_title'.tr,
+            style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'No activity events match your search query or selected filters.',
+          Text(
+            'no_activity_logs_sub'.tr,
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white38, fontSize: 11),
+            style: const TextStyle(color: Colors.white38, fontSize: 11),
           ),
           const SizedBox(height: 14),
           ElevatedButton(
@@ -1337,7 +1328,7 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
             onPressed: controller.resetFilters,
-            child: const Text('Reset Filters', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+            child: Text('reset_filters_btn'.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
           ),
         ],
       ),

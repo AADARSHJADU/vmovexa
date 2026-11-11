@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import '../../../../../theme/app_colors.dart';
 import '../../../../../theme/app_theme.dart';
 
@@ -162,10 +163,10 @@ class ReportsView extends StatelessWidget {
       crossAxisSpacing: 8,
       childAspectRatio: 0.85,
       children: [
-        _buildMetricCell('Impressions', '24,560', '↑ 15.2%', const Color(0xFF3B82F6)),
-        _buildMetricCell('Reach', '18,430', '↑ 11.6%', const Color(0xFF10B981)),
-        _buildMetricCell('Clicks', '3,248', '↑ 9.3%', const Color(0xFF8B5CF6)),
-        _buildMetricCell('Engagement', '6.24%', '↑ 4.7%', const Color(0xFFF59E0B)),
+        _buildMetricCell('impressions'.tr, '24,560', '↑ 15.2%', const Color(0xFF3B82F6)),
+        _buildMetricCell('reach'.tr, '18,430', '↑ 11.6%', const Color(0xFF10B981)),
+        _buildMetricCell('clicks'.tr, '3,248', '↑ 9.3%', const Color(0xFF8B5CF6)),
+        _buildMetricCell('engagement'.tr, '6.24%', '↑ 4.7%', const Color(0xFFF59E0B)),
       ],
     );
   }
@@ -187,7 +188,7 @@ class ReportsView extends StatelessWidget {
           Text(val, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
           Text(inc, style: TextStyle(color: color, fontSize: 8.5, fontWeight: FontWeight.bold)),
-          const Text('vs last 7 days', style: TextStyle(color: AppColors.textMuted, fontSize: 7)),
+          Text('vs_last_7_days'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 7)),
         ],
       ),
     );
@@ -210,14 +211,14 @@ class ReportsView extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Performance Trend', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+              Text('performance_trend'.tr, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
               Row(
                 children: [
-                  _buildChartLegendItem('Impressions', const Color(0xFF3B82F6)),
+                  _buildChartLegendItem('impressions'.tr, const Color(0xFF3B82F6)),
                   const SizedBox(width: 8),
-                  _buildChartLegendItem('Reach', const Color(0xFF10B981)),
+                  _buildChartLegendItem('reach'.tr, const Color(0xFF10B981)),
                   const SizedBox(width: 8),
-                  _buildMiniDropdown('Daily'),
+                  _buildMiniDropdown('filter_daily'.tr),
                 ],
               ),
             ],
@@ -283,7 +284,7 @@ class ReportsView extends StatelessWidget {
             children: [
               SvgPicture.asset('assets/icons/fleet_operator_icons/qr-code-scan.svg'),
               const SizedBox(width: 8),
-              Text('QR Reports Overview', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+              Text('qr_reports_overview'.tr, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 14),
@@ -291,13 +292,13 @@ class ReportsView extends StatelessWidget {
           // QR Metrics sub grid
           Row(
             children: [
-              Expanded(child: _buildQrOverviewCell('Total QR Scans', '8,642', '↑ 18.4%', const Color(0xFF10B981))),
+              Expanded(child: _buildQrOverviewCell('total_qr_scans'.tr, '8,642', '↑ 18.4%', const Color(0xFF10B981))),
               const SizedBox(width: 8),
-              Expanded(child: _buildQrOverviewCell('Unique QR Scans', '6,231', '↑ 15.2%', const Color(0xFF3B82F6))),
+              Expanded(child: _buildQrOverviewCell('unique_qr_scans'.tr, '6,231', '↑ 15.2%', const Color(0xFF3B82F6))),
               const SizedBox(width: 8),
-              Expanded(child: _buildQrOverviewCell('QR Scan Rate', '2.35%', '↑ 10.1%', const Color(0xFF8B5CF6))),
+              Expanded(child: _buildQrOverviewCell('qr_scan_rate'.tr, '2.35%', '↑ 10.1%', const Color(0xFF8B5CF6))),
               const SizedBox(width: 8),
-              Expanded(child: _buildQrOverviewCell('Avg Scans/Day', '1,234', '↑ 8.7%', const Color(0xFFF59E0B))),
+              Expanded(child: _buildQrOverviewCell('avg_scans_day'.tr, '1,234', '↑ 8.7%', const Color(0xFFF59E0B))),
               const SizedBox(width: 8),
               Expanded(
                 child: Container(
@@ -310,12 +311,12 @@ class ReportsView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Text('Top Location', style: TextStyle(color: AppColors.textMuted, fontSize: 7.5)),
-                      SizedBox(height: 4),
-                      Text('Bhopal', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                      SizedBox(height: 2),
-                      Text('1,842 Scans', style: TextStyle(color: AppColors.textSecondary, fontSize: 7.5)),
+                    children: [
+                      Text('top_location'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 7.5)),
+                      const SizedBox(height: 4),
+                      const Text('Bhopal', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 2),
+                      const Text('1,842 Scans', style: TextStyle(color: AppColors.textSecondary, fontSize: 7.5)),
                     ],
                   ),
                 ),
@@ -366,16 +367,16 @@ class ReportsView extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('QR Scans Trend', style: TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
-              _buildMiniDropdown('Daily'),
+              Text('qr_scans_trend'.tr, style: const TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
+              _buildMiniDropdown('filter_daily'.tr),
             ],
           ),
           const SizedBox(height: 6),
           Row(
             children: [
-              _buildChartLegendItem('Total', const Color(0xFF3B82F6)),
+              _buildChartLegendItem('total_scans_col'.tr, const Color(0xFF3B82F6)),
               const SizedBox(width: 6),
-              _buildChartLegendItem('Unique', const Color(0xFF10B981)),
+              _buildChartLegendItem('unique_col'.tr, const Color(0xFF10B981)),
             ],
           ),
           const SizedBox(height: 12),
@@ -404,7 +405,7 @@ class ReportsView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('QR Scans by Location (Top 5)', style: TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
+          Text('qr_scans_by_location'.tr, style: const TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           Expanded(
             child: Row(
@@ -503,28 +504,28 @@ class ReportsView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Top QR Performing Campaigns', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
+          Text('top_qr_campaigns'.tr, style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
           const SizedBox(height: 14),
 
           // Table Header
           Row(
-            children: const [
-              SizedBox(width: 24),
+            children: [
+              const SizedBox(width: 24),
               Expanded(
                 flex: 3,
-                child: Text('Campaign', style: TextStyle(color: AppColors.textMuted, fontSize: 8.5)),
+                child: Text('campaign_col'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 8.5)),
               ),
               Expanded(
-                child: Text('Total Scans', style: TextStyle(color: AppColors.textMuted, fontSize: 8.5), textAlign: TextAlign.right),
+                child: Text('total_scans_col'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 8.5), textAlign: TextAlign.right),
               ),
               Expanded(
-                child: Text('Unique', style: TextStyle(color: AppColors.textMuted, fontSize: 8.5), textAlign: TextAlign.right),
+                child: Text('unique_col'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 8.5), textAlign: TextAlign.right),
               ),
               Expanded(
-                child: Text('Scan Rate', style: TextStyle(color: AppColors.textMuted, fontSize: 8.5), textAlign: TextAlign.right),
+                child: Text('scan_rate_col'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 8.5), textAlign: TextAlign.right),
               ),
               Expanded(
-                child: Text('Avg/Day', style: TextStyle(color: AppColors.textMuted, fontSize: 8.5), textAlign: TextAlign.right),
+                child: Text('avg_day_col'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 8.5), textAlign: TextAlign.right),
               ),
             ],
           ),
@@ -596,10 +597,10 @@ class ReportsView extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFF3B82F6).withOpacity(0.06),
+        color: const Color(0xFF3B82F6).withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: const Color(0xFF3B82F6).withOpacity(0.2),
+          color: const Color(0xFF3B82F6).withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -614,10 +615,10 @@ class ReportsView extends StatelessWidget {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
-                        'Export Report',
-                        style: TextStyle(
+                        'export_report_title'.tr,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 11.5,
                           fontWeight: FontWeight.bold,
@@ -625,10 +626,10 @@ class ReportsView extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
-                        'Download report in PDF or Excel format.',
-                        style: TextStyle(
+                        'download_report_pdf_excel'.tr,
+                        style: const TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 9,
                         ),
@@ -660,9 +661,9 @@ class ReportsView extends StatelessWidget {
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 14),
               ),
-              icon: const Text(
-                'Export',
-                style: TextStyle(
+              icon: Text(
+                'export_action'.tr,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
@@ -700,7 +701,7 @@ class ReportsPerformanceTrendPainter extends CustomPainter {
 
     // Grid lines
     final gridPaint = Paint()
-      ..color = Colors.white.withOpacity(0.04)
+      ..color = Colors.white.withValues(alpha: 0.04)
       ..strokeWidth = 1;
 
     for (int i = 0; i <= 5; i++) {
@@ -728,7 +729,7 @@ class ReportsPerformanceTrendPainter extends CustomPainter {
           path.lineTo(x, y);
         }
         canvas.drawCircle(Offset(x, y), 3, pointPaint);
-        canvas.drawCircle(Offset(x, y), 5.5, Paint()..color = color.withOpacity(0.18));
+        canvas.drawCircle(Offset(x, y), 5.5, Paint()..color = color.withValues(alpha: 0.18));
       }
       canvas.drawPath(path, linePaint);
     }
@@ -791,7 +792,7 @@ class ReportsQrScansTrendPainter extends CustomPainter {
 
     // Grid
     final gridPaint = Paint()
-      ..color = Colors.white.withOpacity(0.04)
+      ..color = Colors.white.withValues(alpha: 0.04)
       ..strokeWidth = 1;
 
     for (int i = 0; i <= 4; i++) {

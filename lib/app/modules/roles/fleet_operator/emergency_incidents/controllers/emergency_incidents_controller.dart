@@ -158,8 +158,8 @@ class EmergencyIncidentsController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Notice',
-        'Could not refresh incidents: ${e.toString()}',
+        'notice'.tr,
+        'could_not_refresh_incidents'.trParams({'err': e.toString()}),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF1F1F2E),
         colorText: Colors.white,
@@ -213,8 +213,8 @@ class EmergencyIncidentsController extends GetxController {
       final res = await _fleetService.updateIncidentResolution(inc.id, payload);
       if (res.success) {
         Get.snackbar(
-          'Updated Successfully',
-          'Incident resolution & driver contact recorded.',
+          'updated_successfully'.tr,
+          'incident_resolution_recorded'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
@@ -224,8 +224,8 @@ class EmergencyIncidentsController extends GetxController {
         await selectIncidentForDetail(inc);
       } else {
         Get.snackbar(
-          'Error',
-          res.message ?? 'Failed to update resolution.',
+          'error'.tr,
+          res.message ?? 'failed_update_resolution'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFFEF4444),
           colorText: Colors.white,
@@ -233,7 +233,7 @@ class EmergencyIncidentsController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         e.toString(),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),
@@ -281,8 +281,8 @@ class EmergencyIncidentsController extends GetxController {
           if (url != null) {
             reportPhotos.add(url.toString());
             Get.snackbar(
-              'Evidence Attached',
-              'Photo uploaded successfully.',
+              'evidence_attached'.tr,
+              'photo_uploaded_successfully'.tr,
               snackPosition: SnackPosition.BOTTOM,
               backgroundColor: const Color(0xFF10B981),
               colorText: Colors.white,
@@ -295,8 +295,8 @@ class EmergencyIncidentsController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Upload Error',
-        'Could not attach photo: $e',
+        'upload_error'.tr,
+        'could_not_attach_photo'.trParams({'err': e.toString()}),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),
         colorText: Colors.white,
@@ -315,8 +315,8 @@ class EmergencyIncidentsController extends GetxController {
   Future<void> submitReportIncident() async {
     if (reportDescriptionCtrl.text.trim().isEmpty) {
       Get.snackbar(
-        'Required Field',
-        'Please enter an incident description.',
+        'required_field'.tr,
+        'please_enter_incident_desc'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFF59E0B),
         colorText: Colors.white,
@@ -352,8 +352,8 @@ class EmergencyIncidentsController extends GetxController {
       if (res.success) {
         Get.back(); // Close Report Screen
         Get.snackbar(
-          'Incident Logged',
-          'Emergency SOS incident recorded & broadcasted.',
+          'incident_logged'.tr,
+          'emergency_sos_recorded'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
@@ -362,8 +362,8 @@ class EmergencyIncidentsController extends GetxController {
         await fetchIncidents();
       } else {
         Get.snackbar(
-          'Submission Failed',
-          res.message ?? 'Could not log incident.',
+          'submission_failed'.tr,
+          res.message ?? 'could_not_log_incident'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFFEF4444),
           colorText: Colors.white,
@@ -371,7 +371,7 @@ class EmergencyIncidentsController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         e.toString(),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),

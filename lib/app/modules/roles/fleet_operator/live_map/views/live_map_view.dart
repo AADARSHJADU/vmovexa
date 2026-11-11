@@ -24,9 +24,9 @@ class LiveMapView extends StatelessWidget {
                   icon: const Icon(Icons.menu_rounded, color: Colors.white, size: 28),
                   onPressed: () {},
                 ),
-                const Text(
-                  'Live Map',
-                  style: TextStyle(
+                Text(
+                  'live_map_title'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -61,13 +61,13 @@ class LiveMapView extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildMapStatItem('156', 'Active Vehicles', Icons.directions_bus_rounded, const Color(0xFF3B82F6)),
+                  _buildMapStatItem('156', 'active_vehicles_stat'.tr, Icons.directions_bus_rounded, const Color(0xFF3B82F6)),
                   _buildVerticalDivider(),
-                  _buildMapStatItem('142', 'Moving', Icons.directions_run_rounded, const Color(0xFF10B981)),
+                  _buildMapStatItem('142', 'moving_stat'.tr, Icons.directions_run_rounded, const Color(0xFF10B981)),
                   _buildVerticalDivider(),
-                  _buildMapStatItem('10', 'Idle', Icons.person_outline_rounded, Colors.orangeAccent),
+                  _buildMapStatItem('10', 'idle_stat'.tr, Icons.person_outline_rounded, Colors.orangeAccent),
                   _buildVerticalDivider(),
-                  _buildMapStatItem('4', 'Offline', Icons.power_settings_new_rounded, Colors.redAccent),
+                  _buildMapStatItem('4', 'offline_stat'.tr, Icons.power_settings_new_rounded, Colors.redAccent),
                 ],
               ),
             ),
@@ -97,7 +97,7 @@ class LiveMapView extends StatelessWidget {
                         width: 38,
                         height: 38,
                         decoration: BoxDecoration(
-                          color: AppColors.background.withOpacity(0.9),
+                          color: AppColors.background.withValues(alpha: 0.9),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: AppColors.cardBorder, width: 1),
                         ),
@@ -106,7 +106,7 @@ class LiveMapView extends StatelessWidget {
                       const SizedBox(height: 10),
                       Container(
                         decoration: BoxDecoration(
-                          color: AppColors.background.withOpacity(0.9),
+                          color: AppColors.background.withValues(alpha: 0.9),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: AppColors.cardBorder, width: 1),
                         ),
@@ -161,7 +161,7 @@ class LiveMapView extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.cardBg.withOpacity(0.96),
+        color: AppColors.cardBg.withValues(alpha: 0.96),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.cardBorder, width: 1.2),
       ),
@@ -179,22 +179,21 @@ class LiveMapView extends StatelessWidget {
                     width: 38,
                     height: 38,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF6366F1).withOpacity(0.08),
+                      color: const Color(0xFF6366F1).withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: SvgPicture.asset('assets/icons/bus.svg'),
-                    ),//Icon(Icons.directions_bus_rounded, color: Color(0xFF6366F1), size: 20),
-
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text('MH12AB1234', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
-                      SizedBox(height: 2),
-                      Text('City Bus Fleet', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                    children: [
+                      const Text('MH12AB1234', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 2),
+                      Text('city_bus_fleet'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
                     ],
                   ),
                 ],
@@ -202,14 +201,14 @@ class LiveMapView extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF3B82F6).withOpacity(0.12),
+                  color: const Color(0xFF3B82F6).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
                   children: [
                     Container(width: 5, height: 5, decoration: const BoxDecoration(color: Color(0xFF3B82F6), shape: BoxShape.circle)),
                     const SizedBox(width: 6),
-                    const Text('Moving', style: TextStyle(color: Color(0xFF3B82F6), fontSize: 9, fontWeight: FontWeight.bold)),
+                    Text('moving_stat'.tr, style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 9, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -224,18 +223,18 @@ class LiveMapView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _buildRowStat(
-                'Driver',
+                'driver'.tr,
                 'Rajesh Kumar',
                 svgPath: 'assets/icons/profile.svg',
               ),
               _buildRowStat(
-                'Speed',
+                'speed'.tr,
                 '42 km/h',
                 svgPath: 'assets/icons/speed_m.svg',
               ),
               _buildRowStat(
-                'Last Updated',
-                'Just now',
+                'last_updated_label'.tr,
+                'just_now'.tr,
                 svgPath: 'assets/icons/clock.svg',
               ),
             ],
@@ -245,10 +244,9 @@ class LiveMapView extends StatelessWidget {
           // Address Location field
           Row(
             children: [
-              //Icon(Icons.location_on_outlined, color: Color(0xFF6366F1), size: 16),
-              SvgPicture.asset('assets/icons/location.svg', height: 16,),
-              SizedBox(width: 8),
-              Expanded(
+              SvgPicture.asset('assets/icons/location.svg', height: 16),
+              const SizedBox(width: 8),
+              const Expanded(
                 child: Text(
                   'Eastern Express Highway, Ghatkopar East, Mumbai - 400075',
                   style: TextStyle(color: AppColors.textSecondary, fontSize: 10, height: 1.3),
@@ -256,7 +254,7 @@ class LiveMapView extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 16),
+              const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 16),
             ],
           ),
           const SizedBox(height: 16),
@@ -274,10 +272,10 @@ class LiveMapView extends StatelessWidget {
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.visibility_outlined, color: Colors.white, size: 16),
-                        SizedBox(width: 6),
-                        Text('View Details', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                      children: [
+                        const Icon(Icons.visibility_outlined, color: Colors.white, size: 16),
+                        const SizedBox(width: 6),
+                        Text('view_details_btn'.tr, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
@@ -293,7 +291,7 @@ class LiveMapView extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 10),
                   ),
                   icon: const Icon(Icons.navigation_outlined, color: Colors.white, size: 14),
-                  label: const Text('Navigate', style: TextStyle(color: Colors.white, fontSize: 11)),
+                  label: Text('navigate_btn'.tr, style: const TextStyle(color: Colors.white, fontSize: 11)),
                 ),
               ),
               const SizedBox(width: 8),
@@ -306,7 +304,7 @@ class LiveMapView extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 10),
                   ),
                   icon: const Icon(Icons.history_rounded, color: Colors.white, size: 14),
-                  label: const Text('Trip History', style: TextStyle(color: Colors.white, fontSize: 11)),
+                  label: Text('trip_history_btn'.tr, style: const TextStyle(color: Colors.white, fontSize: 11)),
                 ),
               ),
             ],
@@ -369,7 +367,7 @@ class TrackingMapPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final gridPaint = Paint()
-      ..color = const Color(0xFF1E293B).withOpacity(0.4)
+      ..color = const Color(0xFF1E293B).withValues(alpha: 0.4)
       ..strokeWidth = 1.0;
 
     const double step = 40.0;
