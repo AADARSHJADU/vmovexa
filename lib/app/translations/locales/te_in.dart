@@ -2245,4 +2245,20 @@ const Map<String, String> teIN = {
   'about_vmovexa_dialog_desc': 'VMOVEXA స్మార్ట్ ఫ్లీట్ మరియు రవాణా కన్సోల్\nవెర్షన్ 1.0.0 (బిల్డ్ 2026.10)\n\nసురక్షిత ఎంటర్‌ప్రైజ్ టెలిమాటిక్స్, రియల్-టైమ్ ఫ్లీట్ డిస్పాచ్ మరియు డిజిటల్ ఆపరేషన్స్ ఇంజిన్.',
   'acknowledge_and_confirm': 'అంగీకరించండి & నిర్ధారించండి',
   'i_understand_accept_terms': 'నేను అర్థం చేసుకున్నాను & నిబంధనలను అంగీకరిస్తున్నాను',
+
+  // Forgot Password / OTP Flow Keys
+  'otp_sent': 'OTP పంపబడింది',
+  'otp_sent_to_email': 'పాస్‌వర్డ్ రీసెట్ ధృవీకరణ కోడ్ @email కు పంపబడింది.',
+  'enter_six_digit_otp_sent_to': 'పంపబడిన 6-అంకెల OTPని నమోదు చేయండి',
+  'resend_otp_in': 'OTPని మళ్లీ పంపండి ',
+  'invalid_otp': 'చెల్లని OTP',
+  'enter_six_digit_otp': 'దయచేసి ధృవీకరణ కోడ్ యొక్క మొత్తం 6 అంకెలను నమోదు చేయండి.',
+  'weak_password': 'బలహీనమైన పాస్‌వర్డ్',
+  'password_complexity_req': 'దయచేసి అన్ని పాస్‌వర్డ్ అవసరాలను సంతృప్తిపరచండి.',
+  'password_mismatch': 'పాస్‌వర్డ్ సరిపోలలేదు',
+  'password_reset_success': 'మీ పాస్‌వర్డ్ విజయవంతంగా రీసెట్ చేయబడింది.',
+  'reset_failed': 'రీసెట్ విఫలమైంది',
+  'back_to_profile': 'ప్రొఫైల్‌కు తిరిగి వెళ్లండి',
+  'whats_changed': 'ఏమి మారింది',
+  'account_stays_secure': 'ఖాతా సురక్షితంగా ఉంటుంది',
 };

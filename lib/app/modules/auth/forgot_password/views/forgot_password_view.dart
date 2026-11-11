@@ -115,7 +115,7 @@ class ForgotPasswordIconPainter extends CustomPainter {
 
     // Draw background glow
     final glowPaint = Paint()
-      ..color = const Color(0xFF8B5CF6).withOpacity(0.15)
+      ..color = const Color(0xFF8B5CF6).withValues(alpha: 0.15)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 20);
     canvas.drawCircle(center, radius, glowPaint);
 

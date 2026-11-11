@@ -2245,4 +2245,20 @@ const Map<String, String> knIN = {
   'about_vmovexa_dialog_desc': 'VMOVEXA ಸ್ಮಾರ್ಟ್ ಫ್ಲೀಟ್ ಮತ್ತು ಟ್ರಾನ್ಸಿಟ್ ಕನ್ಸೋಲ್\nಆವೃತ್ತಿ 1.0.0 (ಬಿಲ್ಡ್ 2026.10)\n\nಸುರಕ್ಷಿತ ಎಂಟರ್‌ಪ್ರೈಸ್ ಟೆಲಿಮ್ಯಾಟಿಕ್ಸ್, ನೈಜ-ಸಮಯದ ಫ್ಲೀಟ್ ರವಾನೆ ಮತ್ತು ಡಿಜಿಟಲ್ ಕಾರ್ಯಾಚರಣಾ ಎಂಜಿನ್.',
   'acknowledge_and_confirm': 'ಅಂಗೀಕರಿಸಿ ಮತ್ತು ದೃಢೀಕರಿಸಿ',
   'i_understand_accept_terms': 'ನಾನು ಅರ್ಥಮಾಡಿಕೊಂಡಿದ್ದೇನೆ ಮತ್ತು ನಿಯಮಗಳನ್ನು ಒಪ್ಪುತ್ತೇನೆ',
+
+  // Forgot Password / OTP Flow Keys
+  'otp_sent': 'OTP ಕಳುಹಿಸಲಾಗಿದೆ',
+  'otp_sent_to_email': 'ಪಾಸ್‌ವರ್ಡ್ ಮರುಹೊಂದಿಸುವ ಪರಿಶೀಲನಾ ಕೋಡ್ ಅನ್ನು @email ಗೆ ಕಳುಹಿಸಲಾಗಿದೆ.',
+  'enter_six_digit_otp_sent_to': 'ಕಳುಹಿಸಲಾದ 6-ಅಂಕಿಯ OTP ನಮೂದಿಸಿ',
+  'resend_otp_in': 'OTP ಮರುಕಳುಹಿಸಿ ',
+  'invalid_otp': 'ಅಮಾನ್ಯ OTP',
+  'enter_six_digit_otp': 'ದಯವಿಟ್ಟು ಪರಿಶೀಲನಾ ಕೋಡ್‌ನ ಎಲ್ಲಾ 6 ಅಂಕಿಗಳನ್ನು ನಮೂದಿಸಿ.',
+  'weak_password': 'ದುರ್ಬಲ ಪಾಸ್‌ವರ್ಡ್',
+  'password_complexity_req': 'ದಯವಿಟ್ಟು ಎಲ್ಲಾ ಪಾಸ್‌ವರ್ಡ್ ಅವಶ್ಯಕತೆಗಳನ್ನು ಪೂರೈಸಿ.',
+  'password_mismatch': 'ಪಾಸ್‌ವರ್ಡ್ ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ',
+  'password_reset_success': 'ನಿಮ್ಮ ಪಾಸ್‌ವರ್ಡ್ ಅನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಮರುಹೊಂದಿಸಲಾಗಿದೆ.',
+  'reset_failed': 'ಮರುಹೊಂದಿಸುವಿಕೆ ವಿಫಲವಾಗಿದೆ',
+  'back_to_profile': 'ಪ್ರೊಫೈಲ್‌ಗೆ ಹಿಂತಿರುಗಿ',
+  'whats_changed': 'ಏನು ಬದಲಾಗಿದೆ',
+  'account_stays_secure': 'ಖಾತೆಯು ಸುರಕ್ಷಿತವಾಗಿರುತ್ತದೆ',
 };

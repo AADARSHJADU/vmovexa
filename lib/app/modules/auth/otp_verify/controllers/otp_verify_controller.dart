@@ -19,8 +19,10 @@ class OtpVerifyController extends GetxController {
   late final String role;
   late final bool isSignup;
   late final bool isMfa;
+  late final bool isForgotPassword;
   late final String? mfaToken;
   late final String? phone;
+  late final String? email;
   late final Map<String, dynamic>? registerPayload;
 
   @override
@@ -32,8 +34,10 @@ class OtpVerifyController extends GetxController {
       role = (args['role'] ?? 'Fleet Operator').toString();
       isSignup = args['is_signup'] == true;
       isMfa = args['is_mfa'] == true;
+      isForgotPassword = args['is_forgot_password'] == true;
       mfaToken = args['mfa_token'] as String?;
       phone = args['phone']?.toString() ?? destination;
+      email = args['email']?.toString() ?? (isForgotPassword ? destination : null);
       registerPayload = args['register_payload'] is Map<String, dynamic>
           ? args['register_payload'] as Map<String, dynamic>
           : null;
@@ -42,19 +46,22 @@ class OtpVerifyController extends GetxController {
       role = 'Fleet Operator';
       isSignup = false;
       isMfa = false;
+      isForgotPassword = false;
       mfaToken = null;
       phone = args;
+      email = null;
       registerPayload = null;
     } else {
       destination = '+91 98765 43210';
       role = 'Fleet Operator';
       isSignup = false;
       isMfa = false;
+      isForgotPassword = false;
       mfaToken = null;
       phone = destination;
+      email = null;
       registerPayload = null;
     }
-    print('destination===$destination');
     startTimer();
   }
 
@@ -76,7 +83,9 @@ class OtpVerifyController extends GetxController {
     if (!canResend.value) return;
 
     try {
-      if (isSignup) {
+      if (isForgotPassword) {
+        await AuthService.to.forgotPassword(email ?? destination);
+      } else if (isSignup) {
         await AuthService.to.requestSignupOtp(destination);
       } else {
         await AuthService.to.loginPhone(phone: phone ?? destination);
@@ -89,7 +98,7 @@ class OtpVerifyController extends GetxController {
       focusNodes[0].requestFocus();
 
       Get.snackbar(
-        'OTP Sent',
+        'otp_sent'.tr,
         'A new verification code has been sent successfully.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF10B981),
@@ -97,10 +106,10 @@ class OtpVerifyController extends GetxController {
       );
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         'Failed to resend OTP: ${e.toString()}',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent.withOpacity(0.85),
+        backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
         colorText: Colors.white,
       );
     }
@@ -110,10 +119,10 @@ class OtpVerifyController extends GetxController {
     final otp = controllers.map((c) => c.text).join();
     if (otp.length < 6) {
       Get.snackbar(
-        'Invalid OTP',
-        'Please enter all 6 digits of the verification code.',
+        'invalid_otp'.tr,
+        'enter_six_digit_otp'.tr,
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent.withOpacity(0.85),
+        backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
         colorText: Colors.white,
       );
       return;
@@ -122,7 +131,15 @@ class OtpVerifyController extends GetxController {
     isLoading.value = true;
 
     try {
-      if (isSignup) {
+      if (isForgotPassword) {
+        // Navigate to Reset Password Screen passing email & code
+        Get.toNamed(Routes.RESET_PASSWORD, arguments: {
+          'email': email ?? destination,
+          'code': otp,
+          'is_forgot_password': true,
+        });
+        return;
+      } else if (isSignup) {
         // 1. Verify signup OTP
         final verifyRes = await AuthService.to.verifySignupOtp(
           destination: destination,
@@ -134,7 +151,7 @@ class OtpVerifyController extends GetxController {
             'Verification Failed',
             verifyRes.displayErrorMessage,
             snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.redAccent.withOpacity(0.85),
+            backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
             colorText: Colors.white,
           );
           return;
@@ -159,7 +176,7 @@ class OtpVerifyController extends GetxController {
               'Registration Failed',
               regRes.displayErrorMessage,
               snackPosition: SnackPosition.BOTTOM,
-              backgroundColor: Colors.redAccent.withOpacity(0.85),
+              backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
               colorText: Colors.white,
             );
             return;
@@ -205,7 +222,7 @@ class OtpVerifyController extends GetxController {
             'Verification Failed',
             response.displayErrorMessage,
             snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.redAccent.withOpacity(0.85),
+            backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
             colorText: Colors.white,
           );
         }
@@ -215,7 +232,7 @@ class OtpVerifyController extends GetxController {
         'Error',
         'Verification failed: ${e.toString()}',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent.withOpacity(0.85),
+        backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
         colorText: Colors.white,
       );
     } finally {

@@ -2245,4 +2245,20 @@ const Map<String, String> enUS = {
   'about_vmovexa_dialog_desc': 'VMOVEXA Smart Fleet & Transit Console\nVersion 1.0.0 (Build 2026.10)\n\nSecure Enterprise Telematics, Real-Time Fleet Dispatch, and Digital Operations Engine.',
   'acknowledge_and_confirm': 'Acknowledge & Confirm',
   'i_understand_accept_terms': 'I Understand & Accept Terms',
+
+  // Forgot Password / OTP Flow Keys
+  'otp_sent': 'OTP Sent',
+  'otp_sent_to_email': 'A password reset verification code has been sent to @email.',
+  'enter_six_digit_otp_sent_to': 'Enter the 6-digit OTP sent to',
+  'resend_otp_in': 'Resend OTP in ',
+  'invalid_otp': 'Invalid OTP',
+  'enter_six_digit_otp': 'Please enter all 6 digits of the verification code.',
+  'weak_password': 'Weak Password',
+  'password_complexity_req': 'Please satisfy all password complexity requirements.',
+  'password_mismatch': 'Password Mismatch',
+  'password_reset_success': 'Your password has been successfully reset.',
+  'reset_failed': 'Reset Failed',
+  'back_to_profile': 'Back to Profile',
+  'whats_changed': "What's Changed",
+  'account_stays_secure': 'Account stays secure',
 };

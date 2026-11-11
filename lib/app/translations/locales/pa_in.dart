@@ -2245,4 +2245,20 @@ const Map<String, String> paIN = {
   'about_vmovexa_dialog_desc': 'VMOVEXA ਸਮਾਰਟ ਫਲੀਟ ਅਤੇ ਟਰਾਂਜ਼ਿਟ ਕੰਸੋਲ\nਵਰਜਨ 1.0.0 (ਬਿਲਡ 2026.10)\n\nਸੁਰੱਖਿਅਤ ਐਂਟਰਪ੍ਰਾਈਜ਼ ਟੈਲੀਮੈਟਿਕਸ, ਰੀਅਲ-ਟਾਈਮ ਫਲੀਟ ਡਿਸਪੈਚ ਅਤੇ ਡਿਜੀਟਲ ਓਪਰੇਸ਼ਨ ਇੰਜਣ।',
   'acknowledge_and_confirm': 'ਸਵੀਕਾਰ ਕਰੋ ਅਤੇ ਪੁਸ਼ਟੀ ਕਰੋ',
   'i_understand_accept_terms': 'ਮੈਂ ਸਮਝਦਾ ਹਾਂ ਅਤੇ ਸ਼ਰਤਾਂ ਸਵੀਕਾਰ ਕਰਦਾ ਹਾਂ',
+
+  // Forgot Password / OTP Flow Keys
+  'otp_sent': 'OTP ਭੇਜਿਆ ਗਿਆ',
+  'otp_sent_to_email': 'ਪਾਸਵਰਡ ਰੀਸੈੱਟ ਤਸਦੀਕ ਕੋਡ @email ਤੇ ਭੇਜਿਆ ਗਿਆ ਹੈ।',
+  'enter_six_digit_otp_sent_to': 'ਭੇਜਿਆ ਗਿਆ 6-ਅੰਕਾਂ ਦਾ OTP ਦਰਜ ਕਰੋ',
+  'resend_otp_in': 'OTP ਦੁਬਾਰਾ ਭੇਜੋ ',
+  'invalid_otp': 'ਅਵੈਧ OTP',
+  'enter_six_digit_otp': 'ਕਿਰਪਾ ਕਰਕੇ ਤਸਦੀਕ ਕੋਡ ਦੇ ਸਾਰੇ 6 ਅੰਕ ਦਰਜ ਕਰੋ।',
+  'weak_password': 'ਕਮਜ਼ੋਰ ਪਾਸਵਰਡ',
+  'password_complexity_req': 'ਕਿਰਪਾ ਕਰਕੇ ਸਾਰੀਆਂ ਪਾਸਵਰਡ ਲੋੜਾਂ ਪੂਰੀਆਂ ਕਰੋ।',
+  'password_mismatch': 'ਪਾਸਵਰਡ ਮੇਲ ਨਹੀਂ ਖਾਂਦਾ',
+  'password_reset_success': 'ਤੁਹਾਡਾ ਪਾਸਵਰਡ ਸਫਲਤਾਪੂਰਵਕ ਰੀਸੈੱਟ ਹੋ ਗਿਆ ਹੈ।',
+  'reset_failed': 'ਰੀਸੈੱਟ ਅਸਫਲ',
+  'back_to_profile': 'ਪ੍ਰੋਫਾਈਲ ਤੇ ਵਾਪਸ ਜਾਓ',
+  'whats_changed': 'ਕੀ ਬਦਲਿਆ ਹੈ',
+  'account_stays_secure': 'ਖਾਤਾ ਸੁਰੱਖਿਅਤ ਰਹਿੰਦਾ ਹੈ',
 };

@@ -17,18 +17,30 @@ class ResetPasswordController extends GetxController {
   final RxBool hasNumber = false.obs;
   final RxBool hasSpecialChar = false.obs;
 
+  late final String email;
+  late final String code;
   late final String resetToken;
+  late final bool isFromForgotPassword;
 
   @override
   void onInit() {
     super.onInit();
     final args = Get.arguments;
     if (args is Map) {
-      resetToken = (args['token'] ?? '').toString();
+      email = (args['email'] ?? '').toString();
+      code = (args['code'] ?? args['token'] ?? '').toString();
+      resetToken = (args['token'] ?? args['code'] ?? '').toString();
+      isFromForgotPassword = args['is_forgot_password'] == true || email.isNotEmpty;
     } else if (args is String) {
+      email = args.contains('@') ? args : '';
+      code = '';
       resetToken = args;
+      isFromForgotPassword = args.contains('@');
     } else {
+      email = '';
+      code = '';
       resetToken = '';
+      isFromForgotPassword = false;
     }
     passwordController.addListener(_validatePassword);
   }
@@ -55,10 +67,10 @@ class ResetPasswordController extends GetxController {
 
     if (!hasAtLeast8Chars.value || !hasUppercase.value || !hasNumber.value || !hasSpecialChar.value) {
       Get.snackbar(
-        'Weak Password',
-        'Please satisfy all password complexity requirements.',
+        'weak_password'.tr,
+        'password_complexity_req'.tr,
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent.withOpacity(0.85),
+        backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
         colorText: Colors.white,
       );
       return;
@@ -66,10 +78,10 @@ class ResetPasswordController extends GetxController {
 
     if (password != confirm) {
       Get.snackbar(
-        'Mismatch Passwords',
-        'New password and confirm password fields must match.',
+        'password_mismatch'.tr,
+        'passwords_do_not_match_msg'.tr,
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent.withOpacity(0.85),
+        backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
         colorText: Colors.white,
       );
       return;
@@ -79,36 +91,44 @@ class ResetPasswordController extends GetxController {
 
     try {
       final response = await AuthService.to.resetPassword(
-        token: resetToken,
+        email: email.isNotEmpty ? email : null,
+        code: code.isNotEmpty ? code : null,
+        newPassword: password,
+        token: resetToken.isNotEmpty ? resetToken : null,
         password: password,
       );
 
       if (response.success) {
         Get.snackbar(
-          'Password Updated',
-          response.message ?? 'Your password has been successfully reset.',
+          'password_updated'.tr,
+          response.message ?? 'password_reset_success'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
         );
 
         // Navigate to Password Updated Success View
-        Get.offAllNamed(Routes.PASSWORD_UPDATED);
+        Get.offAllNamed(
+          Routes.PASSWORD_UPDATED,
+          arguments: {
+            'from_forgot_password': isFromForgotPassword,
+          },
+        );
       } else {
         Get.snackbar(
-          'Reset Failed',
+          'reset_failed'.tr,
           response.displayErrorMessage,
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent.withOpacity(0.85),
+          backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
           colorText: Colors.white,
         );
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'Could not update password: ${e.toString()}',
+        'error'.tr,
+        '${'reset_failed'.tr}: ${e.toString()}',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent.withOpacity(0.85),
+        backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
         colorText: Colors.white,
       );
     } finally {

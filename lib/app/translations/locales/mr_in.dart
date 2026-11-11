@@ -2245,4 +2245,20 @@ const Map<String, String> mrIN = {
   'about_vmovexa_dialog_desc': 'VMOVEXA स्मार्ट फ्लीट आणि ट्रान्झिट कन्सोल\nआवृत्ती 1.0.0 (बिल्ड 2026.10)\n\nसुरक्षित एंटरप्राइझ टेलीमॅटिक्स, रिअल-टाइम फ्लीट डिस्पॅच आणि डिजिटल ऑपरेशन्स इंजिन.',
   'acknowledge_and_confirm': 'स्वीकारा आणि पुष्टी करा',
   'i_understand_accept_terms': 'मला समजले आणि अटी मान्य आहेत',
+
+  // Forgot Password / OTP Flow Keys
+  'otp_sent': 'ओटीपी पाठवला',
+  'otp_sent_to_email': 'पासवर्ड रीसेट पडताळणी कोड @email वर पाठवला आहे.',
+  'enter_six_digit_otp_sent_to': 'येथे पाठवलेला 6-अंकी ओटीपी प्रविष्ट करा',
+  'resend_otp_in': 'ओटीपी पुन्हा पाठवा ',
+  'invalid_otp': 'अवैध ओटीपी',
+  'enter_six_digit_otp': 'कृपया पडताळणी कोडचे सर्व 6 अंक प्रविष्ट करा.',
+  'weak_password': 'कमकुवत पासवर्ड',
+  'password_complexity_req': 'कृपया सर्व पासवर्ड आवश्यकता पूर्ण करा.',
+  'password_mismatch': 'पासवर्ड जुळत नाही',
+  'password_reset_success': 'तुमचा पासवर्ड यशस्वीरीत्या रीसेट झाला आहे.',
+  'reset_failed': 'रीसेट अयशस्वी',
+  'back_to_profile': 'प्रोफाइलवर परत जा',
+  'whats_changed': 'काय बदलले आहे',
+  'account_stays_secure': 'खाते सुरक्षित राहते',
 };

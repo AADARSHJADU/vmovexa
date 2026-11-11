@@ -2245,4 +2245,20 @@ const Map<String, String> mlIN = {
   'about_vmovexa_dialog_desc': 'VMOVEXA സ്മാർട്ട് ഫ്ലീറ്റ് & ട്രാൻസിറ്റ് കൺസോൾ\nപതിപ്പ് 1.0.0 (ബിൽഡ് 2026.10)\n\nസുരക്ഷിത എന്റർപ്രൈസ് ടെലിമാറ്റിക്സ്, തത്സമയ ഫ്ലീറ്റ് ഡിസ്പാച്ച്, ഡിജിറ്റൽ പ്രവർത്തന എഞ്ചിൻ.',
   'acknowledge_and_confirm': 'അംഗീകരിച്ച് സ്ഥിരീകരിക്കുക',
   'i_understand_accept_terms': 'ഞാൻ മനസ്സിലാക്കി നിബന്ധനകൾ അംഗീകരിക്കുന്നു',
+
+  // Forgot Password / OTP Flow Keys
+  'otp_sent': 'OTP അയച്ചു',
+  'otp_sent_to_email': 'പാസ്‌വേഡ് പുനഃസജ്ജീകരണ സ്ഥിരീകരണ കോഡ് @email ലേക്ക് അയച്ചു.',
+  'enter_six_digit_otp_sent_to': 'അയച്ച 6 അക്ക OTP നൽകുക',
+  'resend_otp_in': 'OTP വീണ്ടും അയക്കുക ',
+  'invalid_otp': 'അസാധുവായ OTP',
+  'enter_six_digit_otp': 'സ്ഥിരീകരണ കോഡിന്റെ എല്ലാ 6 അക്കങ്ങളും നൽകുക.',
+  'weak_password': 'ദുർബലമായ പാസ്‌വേഡ്',
+  'password_complexity_req': 'എല്ലാ പാസ്‌വേഡ് ആവശ്യകതകളും പാലിക്കുക.',
+  'password_mismatch': 'പാസ്‌വേഡ് പൊരുത്തപ്പെടുന്നില്ല',
+  'password_reset_success': 'നിങ്ങളുടെ പാസ്‌വേഡ് വിജയകരമായി പുനഃസജ്ജമാക്കി.',
+  'reset_failed': 'പുനഃസജ്ജീകരണം പരാജയപ്പെട്ടു',
+  'back_to_profile': 'പ്രൊഫൈലിലേക്ക് മടങ്ങുക',
+  'whats_changed': 'എന്താണ് മാറിയത്',
+  'account_stays_secure': 'അക്കൗണ്ട് സുരക്ഷിതമായി തുടരുന്നു',
 };

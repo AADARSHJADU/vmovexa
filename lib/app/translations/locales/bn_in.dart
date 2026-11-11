@@ -2245,4 +2245,20 @@ const Map<String, String> bnIN = {
   'about_vmovexa_dialog_desc': 'VMOVEXA স্মার্ট বহর ও ট্রানজিট কনসোল\nসংস্করণ 1.0.0 (বিল্ড 2026.10)\n\nনিরাপদ এন্টারপ্রাইজ টেলিমেটিক্স, রিয়েল-টাইম বহর প্রেরণ এবং ডিজিটাল অপারেশন ইঞ্জিন।',
   'acknowledge_and_confirm': 'স্বীকার করুন এবং নিশ্চিত করুন',
   'i_understand_accept_terms': 'আমি বুঝতে পেরেছি এবং শর্তাবলী গ্রহণ করছি',
+
+  // Forgot Password / OTP Flow Keys
+  'otp_sent': 'ওটিপি পাঠানো হয়েছে',
+  'otp_sent_to_email': 'পাসওয়ার্ড রিসেট যাচাইকরণ কোড @email-এ পাঠানো হয়েছে।',
+  'enter_six_digit_otp_sent_to': 'প্রেরিত ৬-সংখ্যার ওটিপি লিখুন',
+  'resend_otp_in': 'ওটিপি পুনরায় পাঠান ',
+  'invalid_otp': 'অবৈধ ওটিপি',
+  'enter_six_digit_otp': 'অনুগ্রহ করে যাচাইকরণ কোডের সমস্ত ৬টি সংখ্যা লিখুন।',
+  'weak_password': 'দুর্বল পাসওয়ার্ড',
+  'password_complexity_req': 'অনুগ্রহ করে সমস্ত পাসওয়ার্ড সুরক্ষা প্রয়োজনীয়তা পূরণ করুন।',
+  'password_mismatch': 'পাসওয়ার্ড মিলছে না',
+  'password_reset_success': 'আপনার পাসওয়ার্ড সফলভাবে রিসেট করা হয়েছে।',
+  'reset_failed': 'রিসেট ব্যর্থ',
+  'back_to_profile': 'প্রোফাইলে ফিরে যান',
+  'whats_changed': 'কী পরিবর্তিত হয়েছে',
+  'account_stays_secure': 'অ্যাকাউন্ট সুরক্ষিত থাকে',
 };

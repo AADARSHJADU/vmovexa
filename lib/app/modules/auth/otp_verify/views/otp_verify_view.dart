@@ -66,7 +66,7 @@ class OtpVerifyView extends GetView<OtpVerifyController> {
                       height: 1.4,
                     ),
                     children: [
-                      const TextSpan(text: 'Enter the 6- digit OTP sent to \n'),
+                      TextSpan(text: '${'enter_six_digit_otp_sent_to'.tr} \n'),
                       TextSpan(
                         text: controller.destination,
                         style: const TextStyle(
@@ -95,9 +95,9 @@ class OtpVerifyView extends GetView<OtpVerifyController> {
                 () => Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      'Resend OTP in ',
-                      style: TextStyle(
+                    Text(
+                      'resend_otp_in'.tr,
+                      style: const TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 14,
                       ),
@@ -192,7 +192,7 @@ class HexShieldPainter extends CustomPainter {
 
     // Draw background glow
     final glowPaint = Paint()
-      ..color = const Color(0xFF6366F1).withOpacity(0.15)
+      ..color = const Color(0xFF6366F1).withValues(alpha: 0.15)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 20);
     canvas.drawCircle(center, radius, glowPaint);
 
@@ -235,7 +235,7 @@ class HexShieldPainter extends CustomPainter {
     shieldPath.close();
 
     final innerPaint = Paint()
-      ..color = const Color(0xFF6366F1).withOpacity(0.08)
+      ..color = const Color(0xFF6366F1).withValues(alpha: 0.08)
       ..style = PaintingStyle.fill;
     canvas.drawPath(shieldPath, innerPaint);
 

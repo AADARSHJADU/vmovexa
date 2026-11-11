@@ -2245,4 +2245,20 @@ const Map<String, String> guIN = {
   'about_vmovexa_dialog_desc': 'VMOVEXA સ્માર્ટ ફ્લીટ અને ટ્રાન્ઝિટ કન્સોલ\nઆવૃત્તિ 1.0.0 (બિલ્ડ 2026.10)\n\nસુરક્ષિત એન્ટરપ્રાઇઝ ટેલિમેટિક્સ, રીઅલ-ટાઇમ ફ્લીટ ડિસ્પેચ અને ડિજિટલ ઓપરેશન્સ એન્જિન.',
   'acknowledge_and_confirm': 'સ્વીકારો અને પુષ્ટિ કરો',
   'i_understand_accept_terms': 'હું સમજું છું અને શરતો સ્વીકારું છું',
+
+  // Forgot Password / OTP Flow Keys
+  'otp_sent': 'ઓટીપી મોકલ્યો',
+  'otp_sent_to_email': 'પાસવર્ડ રીસેટ વેરિફિકેશન કોડ @email પર મોકલવામાં આવ્યો છે.',
+  'enter_six_digit_otp_sent_to': 'આ સરનામે મોકલેલ 6-અંકનો ઓટીપી દાખલ કરો',
+  'resend_otp_in': 'ઓટીપી ફરી મોકલો ',
+  'invalid_otp': 'અમાન્ય ઓટીપી',
+  'enter_six_digit_otp': 'કૃપા કરીને વેરિફિકેશન કોડના તમામ 6 અંકો દાખલ કરો.',
+  'weak_password': 'નબળો પાસવર્ડ',
+  'password_complexity_req': 'કૃપા કરીને પાસવર્ડની તમામ જરૂરિયાતો પૂર્ણ કરો.',
+  'password_mismatch': 'પાસવર્ડ મેળ ખાતો નથી',
+  'password_reset_success': 'તમારો પાસવર્ડ સફળતાપૂર્વક રીસેટ થઈ ગયો છે.',
+  'reset_failed': 'રીસેટ નિષ્ફળ',
+  'back_to_profile': 'પ્રોફાઇલ પર પાછા જાઓ',
+  'whats_changed': 'શું બદલાયું છે',
+  'account_stays_secure': 'ખાતું સુરક્ષિત રહે છે',
 };

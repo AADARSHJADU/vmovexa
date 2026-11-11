@@ -2245,4 +2245,20 @@ const Map<String, String> hiIN = {
   'about_vmovexa_dialog_desc': 'VMOVEXA स्मार्ट बेड़ा और ट्रांजिट कंसोल\nसंस्करण 1.0.0 (बिल्ड 2026.10)\n\nसुरक्षित एंटरप्राइज टेलीमैटिक्स, रीयल-टाइम बेड़ा प्रेषण और डिजिटल संचालन इंजन।',
   'acknowledge_and_confirm': 'स्वीकारें और पुष्टि करें',
   'i_understand_accept_terms': 'मैं समझता हूं और शर्तें स्वीकार करता हूं',
+
+  // Forgot Password / OTP Flow Keys
+  'otp_sent': 'ओटीपी भेजा गया',
+  'otp_sent_to_email': 'पासवर्ड रीसेट सत्यापन कोड @email पर भेजा गया है।',
+  'enter_six_digit_otp_sent_to': 'इस पते पर भेजा गया 6-अंकीय ओटीपी दर्ज करें',
+  'resend_otp_in': 'ओटीपी पुनः भेजें ',
+  'invalid_otp': 'अमान्य ओटीपी',
+  'enter_six_digit_otp': 'कृपया सत्यापन कोड के सभी 6 अंक दर्ज करें।',
+  'weak_password': 'कमज़ोर पासवर्ड',
+  'password_complexity_req': 'कृपया सभी पासवर्ड सुरक्षा आवश्यकताओं को पूरा करें।',
+  'password_mismatch': 'पासवर्ड मेल नहीं खाता',
+  'password_reset_success': 'आपका पासवर्ड सफलतापूर्वक रीसेट हो गया है।',
+  'reset_failed': 'रीसेट विफल',
+  'back_to_profile': 'प्रोफ़ाइल पर वापस जाएं',
+  'whats_changed': 'क्या बदला है',
+  'account_stays_secure': 'खाता सुरक्षित रहता है',
 };

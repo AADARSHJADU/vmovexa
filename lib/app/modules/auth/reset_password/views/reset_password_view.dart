@@ -64,13 +64,13 @@ class ResetPasswordView extends GetView<ResetPasswordController> {
               Obx(
                 () => Column(
                   children: [
-                    _buildCheckItem('At least 8 characters', controller.hasAtLeast8Chars.value),
+                    _buildCheckItem('req_min_8_chars'.tr, controller.hasAtLeast8Chars.value),
                     const SizedBox(height: 10),
-                    _buildCheckItem('One uppercase letter', controller.hasUppercase.value),
+                    _buildCheckItem('req_one_uppercase'.tr, controller.hasUppercase.value),
                     const SizedBox(height: 10),
-                    _buildCheckItem('One number', controller.hasNumber.value),
+                    _buildCheckItem('req_one_number'.tr, controller.hasNumber.value),
                     const SizedBox(height: 10),
-                    _buildCheckItem('One special character', controller.hasSpecialChar.value),
+                    _buildCheckItem('req_one_special'.tr, controller.hasSpecialChar.value),
                   ],
                 ),
               ),
