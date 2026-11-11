@@ -17,15 +17,15 @@ class AddVehicleView extends GetView<AddVehicleController> {
       body: SafeArea(
         child: Obx(() {
           if (controller.isLoadingData.value) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(color: AppColors.primaryButtonBlue),
-                  SizedBox(height: 16),
+                  const CircularProgressIndicator(color: AppColors.primaryButtonBlue),
+                  const SizedBox(height: 16),
                   Text(
-                    'Loading vehicle details & fleet options...',
-                    style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                    'loading_vehicle_options'.tr,
+                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
                   ),
                 ],
               ),
@@ -103,7 +103,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
           CustomBackButton(onTap: () => Get.back()),
           Obx(
             () => Text(
-              controller.isEditMode.value ? 'Edit Vehicle Profile' : 'Add Vehicle',
+              controller.isEditMode.value ? 'edit_vehicle_profile'.tr : 'add_vehicle'.tr,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
@@ -143,8 +143,8 @@ class AddVehicleView extends GetView<AddVehicleController> {
             Expanded(
               child: Text(
                 isEdit
-                    ? 'Editing Vehicle: ${controller.regNoController.text.isNotEmpty ? controller.regNoController.text : "Commercial Bus"}'
-                    : 'Register new commercial transit vehicle and advertising display screen hardware.',
+                    ? '${'editing_vehicle_prefix'.tr} ${controller.regNoController.text.isNotEmpty ? controller.regNoController.text : "Commercial Bus"}'
+                    : 'reg_new_vehicle_desc'.tr,
                 style: TextStyle(color: textColor, fontSize: 12, fontWeight: FontWeight.w600),
               ),
             ),
@@ -170,13 +170,13 @@ class AddVehicleView extends GetView<AddVehicleController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               children: [
-                Icon(Icons.error_outline_rounded, color: Color(0xFFEF4444), size: 16),
-                SizedBox(width: 6),
+                const Icon(Icons.error_outline_rounded, color: Color(0xFFEF4444), size: 16),
+                const SizedBox(width: 6),
                 Text(
-                  'Please correct the following fields:',
-                  style: TextStyle(color: Color(0xFFEF4444), fontSize: 12, fontWeight: FontWeight.bold),
+                  'please_correct_fields'.tr,
+                  style: const TextStyle(color: Color(0xFFEF4444), fontSize: 12, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -194,11 +194,11 @@ class AddVehicleView extends GetView<AddVehicleController> {
   // ---------------- Section 1: Fleet & Base Information ----------------
   Widget _buildSection1FleetAndBase(BuildContext context) {
     return _buildCardWrapper(
-      title: '1. Fleet & Vehicle Identity',
+      title: 'fleet_vehicle_identity'.tr,
       icon: Icons.directions_bus_outlined,
       children: [
         // Fleet Assignment Dropdown
-        _buildLabel('Assigned Fleet Division *'),
+        _buildLabel('assigned_fleet_division_req'.tr),
         Obx(() {
           final items = controller.fleetsList;
           final currentVal = controller.selectedFleetId.value;
@@ -207,7 +207,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
               : (currentVal != null ? 'Fleet #$currentVal' : null);
           return _buildDropdownContainer(
             value: currentVal,
-            hint: 'Select Fleet Division',
+            hint: 'select_fleet_division'.tr,
             fallbackLabel: fallback,
             items: items.map((f) => DropdownMenuItem(value: f.id.toString(), child: Text(f.name))).toList(),
             onChanged: (val) {
@@ -219,7 +219,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
         const SizedBox(height: 14),
 
         // Assigned Depot Dropdown
-        _buildLabel('Assigned Home Depot Base *'),
+        _buildLabel('assigned_home_depot_req'.tr),
         Obx(() {
           final items = controller.depotsList;
           final currentVal = controller.selectedDepotId.value;
@@ -228,7 +228,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
               : (currentVal != null ? 'Depot #$currentVal' : null);
           return _buildDropdownContainer(
             value: currentVal,
-            hint: 'Select Home Depot',
+            hint: 'select_home_depot'.tr,
             fallbackLabel: fallback,
             items: items.map((d) => DropdownMenuItem(value: d.id.toString(), child: Text('${d.name} (${d.city})'))).toList(),
             onChanged: (val) {
@@ -246,10 +246,10 @@ class AddVehicleView extends GetView<AddVehicleController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildLabel('Registration Plate *'),
+                  _buildLabel('registration_plate_req'.tr),
                   _buildTextField(
                     controller: controller.regNoController,
-                    hint: 'e.g. MP09-CV-9821',
+                    hint: 'reg_plate_hint'.tr,
                     errorKey: 'plate',
                   ),
                 ],
@@ -260,10 +260,10 @@ class AddVehicleView extends GetView<AddVehicleController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildLabel('Chassis / VIN *'),
+                  _buildLabel('chassis_vin_req'.tr),
                   _buildTextField(
                     controller: controller.chassisNoController,
-                    hint: 'e.g. MB1AA4567890',
+                    hint: 'chassis_vin_hint'.tr,
                     errorKey: 'vin',
                   ),
                 ],
@@ -280,10 +280,10 @@ class AddVehicleView extends GetView<AddVehicleController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildLabel('Model Number *'),
+                  _buildLabel('model_number_req'.tr),
                   _buildTextField(
                     controller: controller.modelNoController,
-                    hint: 'e.g. Starbus Ultra EV',
+                    hint: 'model_number_hint'.tr,
                     errorKey: 'model',
                   ),
                 ],
@@ -294,7 +294,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildLabel('Capacity (Seats) *'),
+                  _buildLabel('capacity_seats_req'.tr),
                   _buildTextField(
                     controller: controller.capacityController,
                     hint: '42',
@@ -309,7 +309,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
         const SizedBox(height: 14),
 
         // Vehicle Classification Pills
-        _buildLabel('Vehicle Classification *'),
+        _buildLabel('vehicle_classification_req'.tr),
         SizedBox(
           height: 38,
           child: ListView.builder(
@@ -335,7 +335,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      t,
+                      _getVehicleTypeLabel(t),
                       style: TextStyle(
                         color: isSelected ? Colors.white : AppColors.textSecondary,
                         fontSize: 12,
@@ -351,13 +351,13 @@ class AddVehicleView extends GetView<AddVehicleController> {
         const SizedBox(height: 14),
 
         // Fuel Type Dropdown
-        _buildLabel('Fuel / Power Propulsion *'),
+        _buildLabel('fuel_propulsion_req'.tr),
         Obx(
           () => _buildDropdownContainer(
             value: controller.selectedFuelType.value,
-            hint: 'Select Fuel Type',
+            hint: 'select_fuel_type'.tr,
             items: controller.fuelTypes.map((ft) {
-              final label = ft == 'electric' ? 'Electric EV Battery' : ft.toUpperCase();
+              final label = ft == 'electric' ? 'fuel_electric_ev'.tr : ft.toUpperCase();
               return DropdownMenuItem(value: ft, child: Text(label));
             }).toList(),
             onChanged: (val) {
@@ -372,10 +372,10 @@ class AddVehicleView extends GetView<AddVehicleController> {
   // ---------------- Section 2: Route & Crew Assignment ----------------
   Widget _buildSection2RouteAndCrew(BuildContext context) {
     return _buildCardWrapper(
-      title: '2. Route & Crew Assignment',
+      title: 'route_crew_assignment'.tr,
       icon: Icons.alt_route_rounded,
       children: [
-        _buildLabel('Assigned Transit Route *'),
+        _buildLabel('assigned_transit_route_req'.tr),
         Obx(() {
           final routes = controller.routesList;
           final currentVal = controller.selectedRouteId.value;
@@ -384,7 +384,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
               : (currentVal != null ? 'Route #$currentVal' : null);
           return _buildDropdownContainer(
             value: currentVal,
-            hint: 'Select Transit Route',
+            hint: 'select_transit_route'.tr,
             fallbackLabel: fallback,
             items: routes.map((r) {
               final distStr = r.totalDistanceKm > 0 ? ' (${r.totalDistanceKm} km)' : '';
@@ -402,10 +402,10 @@ class AddVehicleView extends GetView<AddVehicleController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildLabel('Source Station *'),
+                  _buildLabel('source_station_req'.tr),
                   _buildTextField(
                     controller: controller.sourceController,
-                    hint: 'e.g. Indiranagar Central',
+                    hint: 'source_station_hint'.tr,
                     errorKey: 'source',
                   ),
                 ],
@@ -416,10 +416,10 @@ class AddVehicleView extends GetView<AddVehicleController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildLabel('Destination Terminal *'),
+                  _buildLabel('dest_terminal_req'.tr),
                   _buildTextField(
                     controller: controller.destController,
-                    hint: 'e.g. Majestic Kempegowda',
+                    hint: 'dest_terminal_hint'.tr,
                     errorKey: 'destination',
                   ),
                 ],
@@ -430,7 +430,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
         const SizedBox(height: 14),
 
         // Assigned Driver
-        _buildLabel('Designated Primary Driver'),
+        _buildLabel('designated_primary_driver'.tr),
         Obx(() {
           final drivers = controller.driversList;
           final currentVal = controller.selectedDriverId.value;
@@ -439,10 +439,10 @@ class AddVehicleView extends GetView<AddVehicleController> {
               : (currentVal != null ? 'Driver #$currentVal' : null);
           return _buildDropdownContainer(
             value: currentVal,
-            hint: 'Unassigned (Select Driver)',
+            hint: 'unassigned_select_driver'.tr,
             fallbackLabel: fallback,
             items: [
-              const DropdownMenuItem(value: null, child: Text('Unassigned (Select Driver)')),
+              DropdownMenuItem(value: null, child: Text('unassigned_select_driver'.tr)),
               ...drivers.map((d) => DropdownMenuItem(value: d.id.toString(), child: Text('${d.name} (${d.phone})'))),
             ],
             onChanged: (val) => controller.selectedDriverId.value = val?.toString(),
@@ -455,12 +455,12 @@ class AddVehicleView extends GetView<AddVehicleController> {
   // ---------------- Section 3: Vehicle Compliance Documents ----------------
   Widget _buildSection3Documents(BuildContext context) {
     return _buildCardWrapper(
-      title: '3. Compliance & Legal Documents',
+      title: 'compliance_legal_docs'.tr,
       icon: Icons.verified_outlined,
       children: [
-        const Text(
-          'Attach vehicle registration, fitness certificate, and commercial permits:',
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+        Text(
+          'attach_vehicle_docs_desc'.tr,
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
         ),
         const SizedBox(height: 14),
         GridView.count(
@@ -471,10 +471,10 @@ class AddVehicleView extends GetView<AddVehicleController> {
           crossAxisSpacing: 12,
           childAspectRatio: 1.35,
           children: [
-            _buildDocCard(context, 'rc', 'Registration (RC)'),
-            _buildDocCard(context, 'fitness', 'Fitness Certificate'),
-            _buildDocCard(context, 'transport_license', 'Transport License'),
-            _buildDocCard(context, 'insurance', 'Insurance Policy'),
+            _buildDocCard(context, 'rc', 'doc_registration_rc'.tr),
+            _buildDocCard(context, 'fitness', 'doc_fitness_cert'.tr),
+            _buildDocCard(context, 'transport_license', 'doc_transport_license'.tr),
+            _buildDocCard(context, 'insurance', 'doc_insurance_policy'.tr),
           ],
         ),
       ],
@@ -522,9 +522,9 @@ class AddVehicleView extends GetView<AddVehicleController> {
               style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
             ),
             if (isUploaded)
-              const Text(
-                'Uploaded ✓',
-                style: TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.bold),
+              Text(
+                'uploaded_check'.tr,
+                style: const TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.bold),
               )
             else
               GestureDetector(
@@ -539,9 +539,9 @@ class AddVehicleView extends GetView<AddVehicleController> {
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(color: AppColors.primaryButtonBlue.withValues(alpha: 0.4)),
                   ),
-                  child: const Text(
-                    'Upload',
-                    style: TextStyle(color: AppColors.textLink, fontSize: 11, fontWeight: FontWeight.bold),
+                  child: Text(
+                    'upload_btn_label'.tr,
+                    style: const TextStyle(color: AppColors.textLink, fontSize: 11, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -554,12 +554,12 @@ class AddVehicleView extends GetView<AddVehicleController> {
   // ---------------- Section 4: Display Screen Configuration (The exact Display feature!) ----------------
   Widget _buildSection4DisplayScreens(BuildContext context) {
     return _buildCardWrapper(
-      title: '4. Display Screen Configuration',
+      title: 'display_screen_config'.tr,
       icon: Icons.tv_rounded,
       children: [
-        const Text(
-          'Configure advertising LED & LCD display screens installed across transit bus compartments:',
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+        Text(
+          'config_display_screens_desc'.tr,
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
         ),
         const SizedBox(height: 14),
 
@@ -594,9 +594,9 @@ class AddVehicleView extends GetView<AddVehicleController> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Total Display Screens',
-                  style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                Text(
+                  'total_display_screens'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -624,7 +624,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
                 children: [
                   Expanded(
                     child: _buildCounterItem(
-                      'Left Side Displays',
+                      'left_side_displays'.tr,
                       controller.leftDisplay.value,
                       controller.incrementLeft,
                       controller.decrementLeft,
@@ -633,7 +633,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: _buildCounterItem(
-                      'Right Side Displays',
+                      'right_side_displays'.tr,
                       controller.rightDisplay.value,
                       controller.incrementRight,
                       controller.decrementRight,
@@ -646,7 +646,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
                 children: [
                   Expanded(
                     child: _buildCounterItem(
-                      'Rear Window Display',
+                      'rear_window_display'.tr,
                       controller.rearDisplay.value,
                       controller.incrementRear,
                       controller.decrementRear,
@@ -655,7 +655,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: _buildCounterItem(
-                      'Emergency Exit Display',
+                      'emergency_exit_display'.tr,
                       controller.emergencyDisplay.value,
                       controller.incrementEmergency,
                       controller.decrementEmergency,
@@ -733,20 +733,20 @@ class AddVehicleView extends GetView<AddVehicleController> {
   // ---------------- Section 5: GPS Hardware & Operational Status ----------------
   Widget _buildSection5GpsAndStatus(BuildContext context) {
     return _buildCardWrapper(
-      title: '5. Telematics Hardware & Status',
+      title: 'telematics_hardware_status'.tr,
       icon: Icons.sensors_rounded,
       children: [
-        _buildLabel('IoT GPS Telematics Hardware'),
+        _buildLabel('iot_gps_telematics_hardware'.tr),
         Obx(() {
           final gpsList = controller.gpsList;
           final currentVal = controller.selectedGpsDeviceId.value;
           final fallback = currentVal != null && currentVal.isNotEmpty ? 'GPS Device ($currentVal)' : null;
           return _buildDropdownContainer(
             value: currentVal,
-            hint: 'Select GPS Hardware Unit',
+            hint: 'select_gps_hardware'.tr,
             fallbackLabel: fallback,
             items: [
-              const DropdownMenuItem(value: null, child: Text('Unassigned (Select GPS Unit)')),
+              DropdownMenuItem(value: null, child: Text('unassigned_select_gps'.tr)),
               ...gpsList.map((g) {
                 final serial = g.serialNumber.isNotEmpty ? g.serialNumber : (g.deviceName.isNotEmpty ? g.deviceName : g.id.toString());
                 return DropdownMenuItem(value: serial, child: Text('$serial (${g.status.toUpperCase()})'));
@@ -757,15 +757,15 @@ class AddVehicleView extends GetView<AddVehicleController> {
         }),
         const SizedBox(height: 14),
 
-        _buildLabel('Operational Duty Status *'),
+        _buildLabel('operational_duty_status_req'.tr),
         Obx(
           () => Row(
             children: [
-              _buildStatusPill('active', 'Active Live', const Color(0xFF10B981)),
+              _buildStatusPill('active', 'status_active_live'.tr, const Color(0xFF10B981)),
               const SizedBox(width: 8),
-              _buildStatusPill('in_depot', 'In Depot', const Color(0xFF38BDF8)),
+              _buildStatusPill('in_depot', 'status_in_depot'.tr, const Color(0xFF38BDF8)),
               const SizedBox(width: 8),
-              _buildStatusPill('maintenance', 'Maintenance', const Color(0xFFF59E0B)),
+              _buildStatusPill('maintenance', 'status_maintenance'.tr, const Color(0xFFF59E0B)),
             ],
           ),
         ),
@@ -805,15 +805,15 @@ class AddVehicleView extends GetView<AddVehicleController> {
   // ---------------- Section 6: Bus Photos Gallery ----------------
   Widget _buildSection6Photos(BuildContext context) {
     return _buildCardWrapper(
-      title: '6. Bus Photos & Media',
+      title: 'bus_photos_media'.tr,
       icon: Icons.photo_library_outlined,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Attach exterior & interior\nphotographs of the vehicle:',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+            Text(
+              'attach_bus_photos_desc'.tr,
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
             ),
             GestureDetector(
               onTap: () => _showMediaSourceSheet(
@@ -826,11 +826,11 @@ class AddVehicleView extends GetView<AddVehicleController> {
                   color: AppColors.primaryButtonBlue,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.add_a_photo_rounded, color: Colors.white, size: 14),
-                    SizedBox(width: 4),
-                    Text('Add Photo', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                    const Icon(Icons.add_a_photo_rounded, color: Colors.white, size: 14),
+                    const SizedBox(width: 4),
+                    Text('add_photo'.tr, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -850,10 +850,10 @@ class AddVehicleView extends GetView<AddVehicleController> {
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: AppColors.cardBorder),
               ),
-              child: const Text(
-                'No photographs added yet. Tap "Add Photo" to attach bus images.',
+              child: Text(
+                'no_photos_added_desc'.tr,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+                style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
               ),
             );
           }
@@ -920,10 +920,10 @@ class AddVehicleView extends GetView<AddVehicleController> {
       final isEdit = controller.isEditMode.value;
 
       final btnText = isSubmitting
-          ? (isEdit ? 'Saving Changes...' : 'Registering Vehicle...')
+          ? (isEdit ? 'saving_changes'.tr : 'registering_vehicle'.tr)
           : isEdit
-              ? 'Save Vehicle Changes'
-              : 'Register Vehicle';
+              ? 'save_vehicle_changes'.tr
+              : 'register_vehicle'.tr;
 
       return Column(
         children: [
@@ -942,9 +942,9 @@ class AddVehicleView extends GetView<AddVehicleController> {
                 side: const BorderSide(color: AppColors.cardBorder, width: 1.2),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.bold),
+              child: Text(
+                'cancel'.tr,
+                style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -1122,19 +1122,19 @@ class AddVehicleView extends GetView<AddVehicleController> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Select Attachment Source',
-              style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+            Text(
+              'select_attachment_source'.tr,
+              style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Choose camera capture or photo gallery from device:',
-              style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+            Text(
+              'choose_camera_gallery_desc'.tr,
+              style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
             ),
             const SizedBox(height: 18),
             ListTile(
               leading: const Icon(Icons.camera_alt_rounded, color: Color(0xFF60A5FA)),
-              title: const Text('Capture with Camera', style: TextStyle(color: Colors.white, fontSize: 13)),
+              title: Text('capture_with_camera'.tr, style: const TextStyle(color: Colors.white, fontSize: 13)),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               tileColor: AppColors.cardBg,
               onTap: () {
@@ -1145,7 +1145,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
             const SizedBox(height: 10),
             ListTile(
               leading: const Icon(Icons.photo_library_rounded, color: Color(0xFF34D399)),
-              title: const Text('Choose from Gallery', style: TextStyle(color: Colors.white, fontSize: 13)),
+              title: Text('choose_from_gallery'.tr, style: const TextStyle(color: Colors.white, fontSize: 13)),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               tileColor: AppColors.cardBg,
               onTap: () {
@@ -1171,27 +1171,24 @@ class AddVehicleView extends GetView<AddVehicleController> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               children: [
-                Icon(Icons.help_outline_rounded, color: Color(0xFF60A5FA), size: 20),
-                SizedBox(width: 8),
+                const Icon(Icons.help_outline_rounded, color: Color(0xFF60A5FA), size: 20),
+                const SizedBox(width: 8),
                 Text(
-                  'Vehicle Registration Guide',
-                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  'vehicle_reg_guide_title'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            const Text(
-              '• Enter the official registration plate and chassis / VIN number matching the RC.\n'
-              '• Select the assigned home depot and transit route for dispatching and passenger tracking.\n'
-              '• Configure the advertising display screens count installed on the left, right, rear, and emergency exit.\n'
-              '• Upload legal compliance documents (RC, Fitness, Insurance) to pass platform inspection.',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 12, height: 1.45),
+            Text(
+              'vehicle_guide_instructions'.tr,
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 12, height: 1.45),
             ),
             const SizedBox(height: 18),
             CustomButton(
-              text: 'Got It',
+              text: 'got_it'.tr,
               onTap: () => Get.back(),
               height: 46,
             ),
@@ -1199,5 +1196,22 @@ class AddVehicleView extends GetView<AddVehicleController> {
         ),
       ),
     );
+  }
+
+  String _getVehicleTypeLabel(String type) {
+    switch (type) {
+      case 'Non-Sleeper':
+        return 'vt_non_sleeper'.tr;
+      case '24L Sleeper':
+        return 'vt_sleeper'.tr;
+      case 'Mini Bus':
+        return 'vt_mini_bus'.tr;
+      case 'AC Bus':
+        return 'vt_ac_bus'.tr;
+      case 'Electric Bus':
+        return 'vt_electric_bus'.tr;
+      default:
+        return type;
+    }
   }
 }

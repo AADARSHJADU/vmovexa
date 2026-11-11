@@ -381,8 +381,8 @@ class AddVehicleController extends GetxController {
 
       isUploadingDoc.value = true;
       Get.snackbar(
-        'Uploading',
-        'Uploading $docType document...',
+        'uploading_label'.tr,
+        'uploading_doc_msg'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF1E2235),
         colorText: Colors.white,
@@ -406,23 +406,23 @@ class AddVehicleController extends GetxController {
 
         documentsMap[docType] = doc;
         Get.snackbar(
-          'Uploaded',
-          '${_formatDocTypeTitle(docType)} uploaded successfully!',
+          'uploaded'.tr,
+          'doc_uploaded_success'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
         );
       } else {
         Get.snackbar(
-          'Upload Failed',
-          res.message ?? 'Failed to upload document',
+          'upload_failed'.tr,
+          res.message ?? 'failed_upload_doc'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent,
           colorText: Colors.white,
         );
       }
     } catch (e) {
-      Get.snackbar('Error', 'Upload error: $e', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+      Get.snackbar('error'.tr, '${'upload_failed'.tr}: $e', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
     } finally {
       isUploadingDoc.value = false;
     }
@@ -447,17 +447,17 @@ class AddVehicleController extends GetxController {
         final uploadedUrl = res.data?['url'] ?? res.data?['file_url'] ?? res.data?['filePath'] ?? '';
         busPhotos.add(uploadedUrl.toString());
         Get.snackbar(
-          'Photo Added',
-          'Bus photo attached successfully!',
+          'photo_added'.tr,
+          'bus_photo_success'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
         );
       } else {
-        Get.snackbar('Upload Failed', res.message ?? 'Failed to upload bus photo', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+        Get.snackbar('upload_failed'.tr, res.message ?? 'failed_upload_bus_photo'.tr, snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Error uploading photo: $e', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+      Get.snackbar('error'.tr, '${'failed_upload_bus_photo'.tr}: $e', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
     } finally {
       isUploadingPhoto.value = false;
     }
@@ -490,44 +490,44 @@ class AddVehicleController extends GetxController {
 
     final plate = regNoController.text.trim();
     if (plate.isEmpty) {
-      fieldErrors['plate'] = 'Registration Plate Number is required';
+      fieldErrors['plate'] = 'plate_required'.tr;
     } else if (plate.length < 5) {
-      fieldErrors['plate'] = 'Registration plate must be at least 5 characters (e.g. MP09-CV-9821)';
+      fieldErrors['plate'] = 'plate_min5'.tr;
     }
 
     final vin = chassisNoController.text.trim();
     if (vin.isEmpty) {
-      fieldErrors['vin'] = 'Chassis / VIN number is required';
+      fieldErrors['vin'] = 'vin_required'.tr;
     } else if (vin.length < 6) {
-      fieldErrors['vin'] = 'Chassis / VIN number must be at least 6 characters';
+      fieldErrors['vin'] = 'vin_min6'.tr;
     }
 
     final model = modelNoController.text.trim();
     if (model.isEmpty) {
-      fieldErrors['model'] = 'Vehicle Model is required (e.g. Starbus Ultra EV)';
+      fieldErrors['model'] = 'model_required'.tr;
     }
 
     final capacity = int.tryParse(capacityController.text.trim());
     if (capacity == null || capacity < 1 || capacity > 150) {
-      fieldErrors['capacity'] = 'Capacity must be a valid number of seats (1 - 150)';
+      fieldErrors['capacity'] = 'capacity_valid_range'.tr;
     }
 
     if (selectedDepotId.value == null && depotsList.isNotEmpty) {
-      fieldErrors['depotId'] = 'Please select an assigned home depot';
+      fieldErrors['depotId'] = 'depot_select_required'.tr;
     }
 
     if (sourceController.text.trim().isEmpty) {
-      fieldErrors['source'] = 'Source station is required';
+      fieldErrors['source'] = 'source_required'.tr;
     }
 
     if (destController.text.trim().isEmpty) {
-      fieldErrors['destination'] = 'Destination terminal is required';
+      fieldErrors['destination'] = 'dest_required'.tr;
     }
 
     if (fieldErrors.isNotEmpty) {
       Get.snackbar(
-        'Validation Required',
-        'Please complete the highlighted mandatory fields before proceeding.',
+        'validation_required'.tr,
+        'validation_required_desc'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.redAccent.withValues(alpha: 0.9),
         colorText: Colors.white,
@@ -619,16 +619,16 @@ class AddVehicleController extends GetxController {
 
           Get.back(result: true);
           Get.snackbar(
-            'Vehicle Updated',
-            'Vehicle ${regNoController.text.trim()} updated successfully!',
+            'vehicle_updated'.tr,
+            'vehicle_updated_success'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
           );
         } else {
           Get.snackbar(
-            'Update Failed',
-            res.message ?? 'Failed to update vehicle',
+            'update_failed'.tr,
+            res.message ?? 'failed_update_vehicle'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.redAccent,
             colorText: Colors.white,
@@ -653,16 +653,16 @@ class AddVehicleController extends GetxController {
 
           Get.back(result: true);
           Get.snackbar(
-            'Vehicle Registered',
-            'Vehicle ${regNoController.text.trim()} successfully registered!',
+            'vehicle_registered'.tr,
+            'vehicle_registered_success'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
           );
         } else {
           Get.snackbar(
-            'Registration Failed',
-            res.message ?? 'Failed to add vehicle',
+            'registration_failed'.tr,
+            res.message ?? 'failed_add_vehicle'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.redAccent,
             colorText: Colors.white,
@@ -671,7 +671,7 @@ class AddVehicleController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         'An unexpected error occurred: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.redAccent,

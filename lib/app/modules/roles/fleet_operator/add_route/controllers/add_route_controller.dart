@@ -493,17 +493,17 @@ class AddRouteController extends GetxController {
     final ePoint = endPointController.text.trim();
 
     if (name.isEmpty) {
-      Get.snackbar('Validation Error', 'Route name is required',
+      Get.snackbar('validation_error'.tr, 'route_name_required'.tr,
           snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
       return;
     }
     if (sPoint.isEmpty) {
-      Get.snackbar('Validation Error', 'Origin station name is required',
+      Get.snackbar('validation_error'.tr, 'origin_station_required'.tr,
           snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
       return;
     }
     if (ePoint.isEmpty) {
-      Get.snackbar('Validation Error', 'Destination station name is required',
+      Get.snackbar('validation_error'.tr, 'dest_station_required'.tr,
           snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
       return;
     }

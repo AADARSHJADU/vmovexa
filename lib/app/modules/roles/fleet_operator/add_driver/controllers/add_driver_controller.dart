@@ -521,72 +521,72 @@ class AddDriverController extends GetxController {
     // 1. Full name validation
     final name = nameController.text.trim();
     if (name.isEmpty) {
-      _showError('Driver Full Name is required.');
+      _showError('driver_name_required'.tr);
       return;
     }
     if (name.length < 3) {
-      _showError('Driver Full Name must be at least 3 characters.');
+      _showError('driver_name_min3'.tr);
       return;
     }
 
     // 2. Phone validation (10-digit Indian number)
     final cleanPhone = phoneController.text.trim().replaceAll(RegExp(r'\D'), '').replaceFirst(RegExp(r'^91'), '');
     if (cleanPhone.isEmpty) {
-      _showError('Driver mobile phone number is required.');
+      _showError('driver_phone_required'.tr);
       return;
     }
     if (cleanPhone.length != 10) {
-      _showError('Please enter a valid 10-digit mobile number.');
+      _showError('driver_phone_valid'.tr);
       return;
     }
 
     // 3. Commercial DL Number validation
     final cleanDL = licenseNoController.text.trim();
     if (cleanDL.isEmpty) {
-      _showError('Commercial Driving License (DL) number is required.');
+      _showError('driver_dl_required'.tr);
       return;
     }
     if (cleanDL.length < 6) {
-      _showError('Commercial DL number must be at least 6 characters.');
+      _showError('driver_dl_min6'.tr);
       return;
     }
 
     // 4. DL Expiry Date validation
     final dlExp = expiryDateController.text.trim();
     if (dlExp.isEmpty) {
-      _showError('DL Expiry Date is required.');
+      _showError('dl_expiry_required'.tr);
       return;
     }
 
     // 5. RTO Authority
     final rtoAuth = authorityController.text.trim();
     if (rtoAuth.isEmpty) {
-      _showError('RTO Issuing Authority is required (e.g. RTO Indore).');
+      _showError('rto_required'.tr);
       return;
     }
 
     // 6. Address & Pincode
     final addr = addressController.text.trim();
     if (addr.isEmpty) {
-      _showError('Driver residential address is required.');
+      _showError('address_required'.tr);
       return;
     }
     final pincode = pincodeController.text.trim().replaceAll(RegExp(r'\D'), '');
     if (pincode.isNotEmpty && pincode.length != 6) {
-      _showError('PIN Code must be a 6-digit Indian postal code.');
+      _showError('pin_code_indian'.tr);
       return;
     }
 
     // 7. Emergency Contact
     final emgPhone = emergencyContactPhoneController.text.trim().replaceAll(RegExp(r'\D'), '').replaceFirst(RegExp(r'^91'), '');
     if (emgPhone.isNotEmpty && emgPhone == cleanPhone) {
-      _showError('Emergency contact phone cannot be the same as driver mobile phone.');
+      _showError('emergency_phone_diff'.tr);
       return;
     }
 
     // 8. Home Depot
     if (selectedDepotId.value == null || selectedDepotId.value!.isEmpty) {
-      _showError('Please assign a Home Depot to this driver.');
+      _showError('assign_home_depot_msg'.tr);
       return;
     }
 
@@ -638,28 +638,28 @@ class AddDriverController extends GetxController {
         if (res.success) {
           Get.back(result: true);
           Get.snackbar(
-            'Success',
-            'Driver $name updated successfully!',
+            'success'.tr,
+            'update_driver_profile'.tr,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM,
           );
         } else {
-          _showError(res.message ?? 'Failed to update driver');
+          _showError(res.message ?? 'failed_update_driver'.tr);
         }
       } else {
         final res = await FleetService.to.addDriver(payload);
         if (res.success) {
           Get.back(result: true);
           Get.snackbar(
-            'Success',
-            'Driver $name onboarded successfully!',
+            'success'.tr,
+            'complete_driver_reg'.tr,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM,
           );
         } else {
-          _showError(res.message ?? 'Failed to onboard driver');
+          _showError(res.message ?? 'failed_onboard_driver'.tr);
         }
       }
     } catch (e) {
@@ -671,7 +671,7 @@ class AddDriverController extends GetxController {
 
   void _showError(String msg) {
     Get.snackbar(
-      'Validation Error',
+      'validation_error'.tr,
       msg,
       backgroundColor: Colors.redAccent,
       colorText: Colors.white,

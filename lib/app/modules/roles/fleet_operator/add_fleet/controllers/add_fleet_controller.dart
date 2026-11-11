@@ -491,10 +491,10 @@ class AddFleetController extends GetxController {
         final res = await FleetService.to.updateFleet(editFleetId!, payload);
         if (res.success) {
           Get.back(result: true);
-          Get.snackbar('Fleet Updated', 'Fleet changes saved successfully!',
+          Get.snackbar('fleet_updated'.tr, 'fleet_changes_saved'.tr,
               snackPosition: SnackPosition.BOTTOM, backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
         } else {
-          Get.snackbar('Update Failed', res.message ?? 'Failed to update fleet',
+          Get.snackbar('upload_failed'.tr, res.message ?? 'failed_update_fleet'.tr,
               snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
         }
       } else {
@@ -504,10 +504,10 @@ class AddFleetController extends GetxController {
           final successMsg = isPlatformAdmin.value
               ? 'Fleet created & auto-approved!'
               : 'Fleet submitted! Admin will review and approve.';
-          Get.snackbar('Success', successMsg,
+          Get.snackbar('success'.tr, successMsg,
               snackPosition: SnackPosition.BOTTOM, backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
         } else {
-          Get.snackbar('Creation Failed', res.message ?? 'Failed to create fleet',
+          Get.snackbar('upload_failed'.tr, res.message ?? 'failed_create_fleet'.tr,
               snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
         }
       }

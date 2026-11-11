@@ -25,7 +25,7 @@ class AddRouteView extends GetView<AddRouteController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                controller.isEditMode.value ? 'Edit Transit Route' : 'Add Transit Route',
+                controller.isEditMode.value ? 'edit_transit_route'.tr : 'add_transit_route'.tr,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -226,14 +226,14 @@ class AddRouteView extends GetView<AddRouteController> {
 
   Widget _buildSection1Identity() {
     return _buildSectionCard(
-      title: '1. Route Identification',
-      subtitle: 'Name, transit code and activation status',
+      title: 'route_identification'.tr,
+      subtitle: 'route_id_desc'.tr,
       icon: Icons.alt_route_rounded,
       iconColor: const Color(0xFF3B82F6),
       children: [
         _buildTextField(
           controller: controller.nameController,
-          label: 'Route Name *',
+          label: 'route_name_req'.tr,
           hint: 'e.g. Route 7A: Rajwada to Vijay Nagar Square',
           prefixIcon: Icons.route_rounded,
         ),
@@ -243,7 +243,7 @@ class AddRouteView extends GetView<AddRouteController> {
             Expanded(
               child: _buildTextField(
                 controller: controller.codeController,
-                label: 'Route Code *',
+                label: 'route_code_req'.tr,
                 hint: 'e.g. RTE-1042',
                 prefixIcon: Icons.tag_rounded,
               ),
@@ -253,8 +253,8 @@ class AddRouteView extends GetView<AddRouteController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Operational Status',
+                  Text(
+                    'operating_status'.tr,
                     style: TextStyle(
                       color: Color(0xFFCBD5E1),
                       fontSize: 12,
@@ -276,9 +276,9 @@ class AddRouteView extends GetView<AddRouteController> {
                           isExpanded: true,
                           dropdownColor: const Color(0xFF1E293B),
                           style: const TextStyle(color: Colors.white, fontSize: 13),
-                          items: const [
-                            DropdownMenuItem(value: 'active', child: Text('Active / Running')),
-                            DropdownMenuItem(value: 'pending_approval', child: Text('Pending Approval')),
+                          items: [
+                            DropdownMenuItem(value: 'active', child: Text('active_running'.tr)),
+                            DropdownMenuItem(value: 'pending_approval', child: Text('pending_approval'.tr)),
                           ],
                           onChanged: (val) {
                             if (val != null) controller.status.value = val;
@@ -298,8 +298,8 @@ class AddRouteView extends GetView<AddRouteController> {
 
   Widget _buildSection2Corridor() {
     return _buildSectionCard(
-      title: '2. Origin & Destination Corridor',
-      subtitle: 'Terminal stations and GPS coordinates',
+      title: 'origin_dest_corridor'.tr,
+      subtitle: 'origin_dest_desc'.tr,
       icon: Icons.multiple_stop_rounded,
       iconColor: const Color(0xFF10B981),
       children: [
@@ -331,7 +331,7 @@ class AddRouteView extends GetView<AddRouteController> {
               ),
               const SizedBox(height: 10),
               LocationAutocompleteField(
-                label: 'Origin Station Name',
+                label: 'origin_station_name'.tr,
                 hint: 'Search Google Places or type origin station...',
                 controller: controller.startPointController,
                 addressController: controller.startAddressController,
@@ -346,7 +346,7 @@ class AddRouteView extends GetView<AddRouteController> {
               const SizedBox(height: 10),
               _buildTextField(
                 controller: controller.startAddressController,
-                label: 'Origin Landmark / Street Address',
+                label: 'origin_landmark_street'.tr,
                 hint: 'e.g. MG Road, Near Rajwada Garden',
               ),
               const SizedBox(height: 10),
@@ -424,7 +424,7 @@ class AddRouteView extends GetView<AddRouteController> {
               ),
               const SizedBox(height: 10),
               LocationAutocompleteField(
-                label: 'Destination Station Name',
+                label: 'destination_station_name'.tr,
                 hint: 'Search Google Places or type destination station...',
                 controller: controller.endPointController,
                 addressController: controller.endAddressController,
@@ -439,7 +439,7 @@ class AddRouteView extends GetView<AddRouteController> {
               const SizedBox(height: 10),
               _buildTextField(
                 controller: controller.endAddressController,
-                label: 'Destination Landmark / Street Address',
+                label: 'destination_landmark_street'.tr,
                 hint: 'e.g. AB Road, Near C21 Mall',
               ),
               const SizedBox(height: 10),
@@ -493,8 +493,8 @@ class AddRouteView extends GetView<AddRouteController> {
 
   Widget _buildSection3Metrics() {
     return _buildSectionCard(
-      title: '3. Corridor Metrics & Road Geometry',
-      subtitle: 'Distance in km and scheduled run time',
+      title: 'corridor_metrics_road_geo'.tr,
+      subtitle: 'corridor_metrics_desc'.tr,
       icon: Icons.speed_rounded,
       iconColor: const Color(0xFFF59E0B),
       children: [
@@ -503,7 +503,7 @@ class AddRouteView extends GetView<AddRouteController> {
             Expanded(
               child: _buildTextField(
                 controller: controller.distanceController,
-                label: 'Total Distance (km)',
+                label: 'total_distance_km_label'.tr,
                 hint: 'e.g. 12.8',
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 prefixIcon: Icons.straighten_rounded,
@@ -513,7 +513,7 @@ class AddRouteView extends GetView<AddRouteController> {
             Expanded(
               child: _buildTextField(
                 controller: controller.durationController,
-                label: 'Expected Duration (mins)',
+                label: 'expected_duration_mins_label'.tr,
                 hint: 'e.g. 45',
                 keyboardType: TextInputType.number,
                 prefixIcon: Icons.timer_outlined,
@@ -592,8 +592,8 @@ class AddRouteView extends GetView<AddRouteController> {
     return Obx(() {
       final stopItems = controller.stops;
       return _buildSectionCard(
-        title: '4. Waypoint Stops & Schedules',
-        subtitle: 'Intermediate stations and halt intervals (${stopItems.length} stops)',
+        title: 'waypoint_stops_schedules'.tr,
+        subtitle: 'waypoint_stops_desc'.tr,
         icon: Icons.pin_drop_rounded,
         iconColor: const Color(0xFF818CF8),
         trailing: Container(
@@ -613,16 +613,16 @@ class AddRouteView extends GetView<AddRouteController> {
             child: InkWell(
               onTap: controller.addStop,
               borderRadius: BorderRadius.circular(10),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.add_rounded, color: Colors.white, size: 16),
-                    SizedBox(width: 4),
+                    const Icon(Icons.add_rounded, color: Colors.white, size: 16),
+                    const SizedBox(width: 4),
                     Text(
-                      'Add Stop',
-                      style: TextStyle(
+                      'add_stop'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
@@ -676,11 +676,11 @@ class AddRouteView extends GetView<AddRouteController> {
                       child: InkWell(
                         onTap: controller.addStop,
                         borderRadius: BorderRadius.circular(10),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                           child: Text(
-                            '+ Add Waypoint Stop',
-                            style: TextStyle(
+                            'add_waypoint_stop'.tr,
+                            style: const TextStyle(
                               fontSize: 12,
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -765,7 +765,7 @@ class AddRouteView extends GetView<AddRouteController> {
 
           // Stop Name (Google Places Search Autocomplete)
           LocationAutocompleteField(
-            label: 'Stop / Station Name',
+            label: 'stop_station_name'.tr,
             hint: 'Search Google Places or enter station name...',
             controller: stop.nameController,
             addressController: stop.addressController,
@@ -778,7 +778,7 @@ class AddRouteView extends GetView<AddRouteController> {
           const SizedBox(height: 8),
           _buildTextField(
             controller: stop.addressController,
-            label: 'Landmark / Street Address',
+            label: 'landmark_street_address'.tr,
             hint: 'e.g. Near 56 Dukan Road Crossing',
           ),
           const SizedBox(height: 8),
@@ -813,7 +813,7 @@ class AddRouteView extends GetView<AddRouteController> {
               Expanded(
                 child: _buildTextField(
                   controller: stop.distanceController,
-                  label: 'Dist. from Start (km)',
+                  label: 'dist_from_start_km'.tr,
                   hint: 'e.g. 4.2',
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 ),
@@ -822,7 +822,7 @@ class AddRouteView extends GetView<AddRouteController> {
               Expanded(
                 child: _buildTextField(
                   controller: stop.etaController,
-                  label: 'Expected ETA',
+                  label: 'expected_eta'.tr,
                   hint: 'e.g. +15 mins',
                 ),
               ),
@@ -830,7 +830,7 @@ class AddRouteView extends GetView<AddRouteController> {
               Expanded(
                 child: _buildTextField(
                   controller: stop.geofenceController,
-                  label: 'Geofence (m)',
+                  label: 'geofence_m'.tr,
                   hint: '50',
                   keyboardType: TextInputType.number,
                 ),
@@ -842,7 +842,7 @@ class AddRouteView extends GetView<AddRouteController> {
           // Halt Reason
           _buildTextField(
             controller: stop.haltReasonController,
-            label: 'Halt Purpose / Reason',
+            label: 'halt_purpose_reason'.tr,
             hint: 'e.g. Passenger interchange & ticket inspection',
           ),
         ],
@@ -862,8 +862,8 @@ class AddRouteView extends GetView<AddRouteController> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text(
-                'Cancel',
+              child: Text(
+                'cancel'.tr,
                 style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 14, fontWeight: FontWeight.bold),
               ),
             ),
@@ -898,7 +898,7 @@ class AddRouteView extends GetView<AddRouteController> {
                               child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                             )
                           : Text(
-                              controller.isEditMode.value ? 'Update Transit Route' : 'Save & Register Route',
+                              controller.isEditMode.value ? 'edit_transit_route'.tr : 'add_transit_route'.tr,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,

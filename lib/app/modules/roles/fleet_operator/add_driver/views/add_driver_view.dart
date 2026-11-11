@@ -39,15 +39,15 @@ class AddDriverView extends GetView<AddDriverController> {
                       _buildSectionCard(
                         icon: Icons.person_outline_rounded,
                         iconColor: const Color(0xFF10B981),
-                        title: 'Driver Account & Profile Photo',
-                        subtitle: 'Official photo badge and identity details for driver roster & mobile app account.',
+                        title: 'driver_account_profile_photo'.tr,
+                        subtitle: 'driver_account_profile_photo_desc'.tr,
                         children: [
                           _buildAvatarUploadCard(context),
                           const SizedBox(height: 16),
 
-                          _buildLabel('Full Name *'),
+                          _buildLabel('full_name_req'.tr),
                           CustomTextField(
-                            hintText: 'e.g. Ramesh Kumar Verma',
+                            hintText: 'full_name_hint'.tr,
                             prefixSvg: 'assets/icons/profile.svg',
                             prefixHeight: 18,
                             prefixWidth: 18,
@@ -62,7 +62,7 @@ class AddDriverView extends GetView<AddDriverController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('Employee ID'),
+                                    _buildLabel('employee_id'.tr),
                                     CustomTextField(
                                       hintText: 'EMP-0192',
                                       prefixAsset: 'assets/icons/fleet_operator_icons/id.png',
@@ -79,7 +79,7 @@ class AddDriverView extends GetView<AddDriverController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('Badge ID'),
+                                    _buildLabel('badge_id'.tr),
                                     CustomTextField(
                                       hintText: 'MP09-DRV-04',
                                       prefixAsset: 'assets/icons/fleet_operator_icons/id.png',
@@ -96,7 +96,7 @@ class AddDriverView extends GetView<AddDriverController> {
                           const SizedBox(height: 14),
 
                           // Mobile Phone
-                          _buildLabel('Mobile Phone Number (10 Digits) *'),
+                          _buildLabel('mobile_phone_req'.tr),
                           CustomTextField(
                             hintText: '9826012345',
                             prefixAsset: 'assets/icons/phone.png',
@@ -109,7 +109,7 @@ class AddDriverView extends GetView<AddDriverController> {
                           const SizedBox(height: 14),
 
                           // Email
-                          _buildLabel('Email Address (Optional)'),
+                          _buildLabel('email_address_opt'.tr),
                           CustomTextField(
                             hintText: 'driver@transit.in',
                             prefixSvg: 'assets/icons/gmail.svg',
@@ -127,9 +127,9 @@ class AddDriverView extends GetView<AddDriverController> {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _buildLabel('Driver App Login Password'),
+                                _buildLabel('driver_login_password'.tr),
                                 CustomTextField(
-                                  hintText: 'Create login password',
+                                  hintText: 'create_login_password'.tr,
                                   prefixSvg: 'assets/icons/shield.svg',
                                   isPassword: true,
                                   isObscured: controller.obscurePassword.value,
@@ -148,7 +148,7 @@ class AddDriverView extends GetView<AddDriverController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('Date of Birth'),
+                                    _buildLabel('date_of_birth'.tr),
                                     GestureDetector(
                                       onTap: () => controller.selectDate(context, controller.dobController),
                                       child: AbsorbPointer(
@@ -168,10 +168,10 @@ class AddDriverView extends GetView<AddDriverController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('Gender'),
+                                    _buildLabel('gender'.tr),
                                     Obx(
                                       () => CustomTextField(
-                                        hintText: 'Select gender',
+                                        hintText: 'select_gender'.tr,
                                         prefixSvg: 'assets/icons/profile.svg',
                                         prefixHeight: 18,
                                         prefixWidth: 18,
@@ -192,10 +192,10 @@ class AddDriverView extends GetView<AddDriverController> {
                           const SizedBox(height: 14),
 
                           // Blood Group
-                          _buildLabel('Blood Group'),
+                          _buildLabel('blood_group'.tr),
                           Obx(
                             () => CustomTextField(
-                              hintText: 'Select blood group',
+                              hintText: 'select_blood_group'.tr,
                               prefixSvg: 'assets/icons/droplet.svg',
                               useGradientIcon: true,
                               isDropdown: true,
@@ -214,12 +214,12 @@ class AddDriverView extends GetView<AddDriverController> {
                       _buildSectionCard(
                         icon: Icons.home_work_outlined,
                         iconColor: const Color(0xFFA855F7),
-                        title: 'Residential Address',
-                        subtitle: 'Current residence and location of the driver.',
+                        title: 'residential_address'.tr,
+                        subtitle: 'residential_address_desc'.tr,
                         children: [
-                          _buildLabel('Full Street Address *'),
+                          _buildLabel('full_street_address_req'.tr),
                           CustomTextField(
-                            hintText: 'e.g. 23 Gandhi Nagar, Near Rajwada',
+                            hintText: 'driver_address_hint'.tr,
                             prefixSvg: 'assets/icons/location.svg',
                             controller: controller.addressController,
                           ),
@@ -232,7 +232,7 @@ class AddDriverView extends GetView<AddDriverController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('City / District'),
+                                    _buildLabel('city_district'.tr),
                                     CustomTextField(
                                       hintText: 'Indore',
                                       prefixSvg: 'assets/icons/building.svg',
@@ -246,7 +246,7 @@ class AddDriverView extends GetView<AddDriverController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('State'),
+                                    _buildLabel('state_label'.tr),
                                     CustomTextField(
                                       hintText: 'Madhya Pradesh',
                                       prefixSvg: 'assets/icons/building.svg',
@@ -260,7 +260,7 @@ class AddDriverView extends GetView<AddDriverController> {
                           const SizedBox(height: 14),
 
                           // PIN Code
-                          _buildLabel('Postal PIN Code (6 Digits)'),
+                          _buildLabel('postal_pin_code_req'.tr),
                           CustomTextField(
                             hintText: '452001',
                             prefixSvg: 'assets/icons/location.svg',
@@ -275,11 +275,11 @@ class AddDriverView extends GetView<AddDriverController> {
                       _buildSectionCard(
                         icon: Icons.badge_outlined,
                         iconColor: const Color(0xFF38BDF8),
-                        title: 'Commercial DL & Regulatory\nCompliance',
-                        subtitle: 'Commercial heavy vehicle license, validity and RTO authority.',
+                        title: 'commercial_dl_compliance'.tr,
+                        subtitle: 'commercial_dl_desc'.tr,
                         children: [
                           // License Number & License Type
-                          _buildLabel('Commercial DL Number *'),
+                          _buildLabel('commercial_dl_number_req'.tr),
                           CustomTextField(
                             hintText: 'e.g. MP09-2019-009124',
                             prefixSvg: 'assets/icons/license.svg',
@@ -288,10 +288,10 @@ class AddDriverView extends GetView<AddDriverController> {
                           ),
                           const SizedBox(height: 14),
 
-                          _buildLabel('License Classification *'),
+                          _buildLabel('license_classification_req'.tr),
                           Obx(
                             () => CustomTextField(
-                              hintText: 'Select license type',
+                              hintText: 'select_license_type'.tr,
                               prefixSvg: 'assets/icons/shield.svg',
                               useGradientIcon: true,
                               isDropdown: true,
@@ -311,7 +311,7 @@ class AddDriverView extends GetView<AddDriverController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('DL Issue Date'),
+                                    _buildLabel('dl_issue_date'.tr),
                                     GestureDetector(
                                       onTap: () => controller.selectDate(context, controller.issueDateController),
                                       child: AbsorbPointer(
@@ -331,7 +331,7 @@ class AddDriverView extends GetView<AddDriverController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('DL Expiry Date *'),
+                                    _buildLabel('dl_expiry_date_req'.tr),
                                     GestureDetector(
                                       onTap: () => controller.selectDate(context, controller.expiryDateController),
                                       child: AbsorbPointer(
@@ -351,16 +351,16 @@ class AddDriverView extends GetView<AddDriverController> {
                           const SizedBox(height: 14),
 
                           // Issuing RTO Authority
-                          _buildLabel('RTO Issuing Authority *'),
+                          _buildLabel('rto_issuing_authority_req'.tr),
                           CustomTextField(
-                            hintText: 'e.g. RTO Indore (MP-09)',
+                            hintText: 'rto_authority_hint'.tr,
                             prefixSvg: 'assets/icons/building.svg',
                             controller: controller.authorityController,
                           ),
                           const SizedBox(height: 14),
 
                           // Medical Fitness Certificate Validity
-                          _buildLabel('Medical Fitness Certificate Valid Until'),
+                          _buildLabel('medical_cert_valid_until'.tr),
                           GestureDetector(
                             onTap: () => controller.selectDate(context, controller.medicalFitnessController),
                             child: AbsorbPointer(
@@ -413,21 +413,21 @@ class AddDriverView extends GetView<AddDriverController> {
                       _buildSectionCard(
                         icon: Icons.schedule_rounded,
                         iconColor: const Color(0xFFFBBF24),
-                        title: 'Operations & Shift Assignment',
-                        subtitle: 'Home depot base, designated bus, and working roster hours.',
+                        title: 'operations_shift_assignment'.tr,
+                        subtitle: 'operations_shift_desc'.tr,
                         children: [
                           // Home Depot Dropdown
-                          _buildLabel('Home Depot *'),
+                          _buildLabel('home_depot_req'.tr),
                           _buildDepotDropdown(),
                           const SizedBox(height: 14),
 
                           // Assigned Bus Dropdown
-                          _buildLabel('Designated Transit Bus (Optional)'),
+                          _buildLabel('designated_bus_opt'.tr),
                           _buildVehicleDropdown(),
                           const SizedBox(height: 16),
 
                           // Active Shift Presets
-                          _buildLabel('Active Shift Roster Preset'),
+                          _buildLabel('active_shift_roster_preset'.tr),
                           _buildShiftPresetsSelector(context),
                           const SizedBox(height: 16),
 
@@ -438,7 +438,7 @@ class AddDriverView extends GetView<AddDriverController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('Driving Experience'),
+                                    _buildLabel('driving_experience'.tr),
                                     CustomTextField(
                                       hintText: '5 Years',
                                       prefixSvg: 'assets/icons/shield.svg',
@@ -452,7 +452,7 @@ class AddDriverView extends GetView<AddDriverController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('Joining Date'),
+                                    _buildLabel('joining_date'.tr),
                                     GestureDetector(
                                       onTap: () => controller.selectDate(context, controller.joiningDateController),
                                       child: AbsorbPointer(
@@ -476,12 +476,12 @@ class AddDriverView extends GetView<AddDriverController> {
                       _buildSectionCard(
                         icon: Icons.emergency_outlined,
                         iconColor: const Color(0xFFEF4444),
-                        title: 'Emergency Contact Person',
-                        subtitle: 'Primary contact in case of on-road emergency or incident.',
+                        title: 'emergency_contact_person'.tr,
+                        subtitle: 'emergency_contact_desc'.tr,
                         children: [
-                          _buildLabel('Contact Person Name *'),
+                          _buildLabel('contact_person_name_req'.tr),
                           CustomTextField(
-                            hintText: 'e.g. Sunita Verma',
+                            hintText: 'emergency_person_hint'.tr,
                             prefixSvg: 'assets/icons/profile.svg',
                             prefixHeight: 18,
                             prefixWidth: 18,
@@ -495,10 +495,10 @@ class AddDriverView extends GetView<AddDriverController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('Relationship'),
+                                    _buildLabel('relationship'.tr),
                                     Obx(
                                       () => CustomTextField(
-                                        hintText: 'Select relation',
+                                        hintText: 'select_relation'.tr,
                                         prefixSvg: 'assets/icons/profile.svg',
                                         prefixHeight: 18,
                                         prefixWidth: 18,
@@ -518,7 +518,7 @@ class AddDriverView extends GetView<AddDriverController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('Emergency Phone *'),
+                                    _buildLabel('emergency_phone_req'.tr),
                                     CustomTextField(
                                       hintText: '9826099887',
                                       prefixAsset: 'assets/icons/phone.png',
@@ -541,8 +541,8 @@ class AddDriverView extends GetView<AddDriverController> {
                       _buildSectionCard(
                         icon: Icons.folder_shared_outlined,
                         iconColor: const Color(0xFF10B981),
-                        title: 'Compliance KYC Documents',
-                        subtitle: 'Attach scanned DL, Aadhaar card, and medical certificate.',
+                        title: 'compliance_kyc_documents'.tr,
+                        subtitle: 'compliance_kyc_desc'.tr,
                         children: [
                           _buildDocumentsSection(context),
                         ],
@@ -553,13 +553,13 @@ class AddDriverView extends GetView<AddDriverController> {
                       _buildSectionCard(
                         icon: Icons.notes_rounded,
                         iconColor: const Color(0xFF64748B),
-                        title: 'Status & Operational Notes',
-                        subtitle: 'Initial status and optional admin instructions.',
+                        title: 'status_operational_notes'.tr,
+                        subtitle: 'status_notes_desc'.tr,
                         children: [
-                          _buildLabel('Duty Status'),
+                          _buildLabel('duty_status'.tr),
                           Obx(
                             () => CustomTextField(
-                              hintText: 'Select duty status',
+                              hintText: 'select_duty_status'.tr,
                               prefixSvg: 'assets/icons/shield.svg',
                               isDropdown: true,
                               dropdownValue: controller.status.value,
@@ -571,9 +571,9 @@ class AddDriverView extends GetView<AddDriverController> {
                           ),
                           const SizedBox(height: 14),
 
-                          _buildLabel('Internal Notes (Optional)'),
+                          _buildLabel('internal_notes_opt'.tr),
                           CustomTextField(
-                            hintText: 'e.g. Route 7A priority driver, 10 years experience on Tata Marcopolo.',
+                            hintText: 'driver_notes_hint'.tr,
                             prefixSvg: 'assets/icons/note1.svg',
                             controller: controller.notesController,
                           ),
@@ -585,8 +585,8 @@ class AddDriverView extends GetView<AddDriverController> {
                       Obx(
                         () => CustomButton(
                           text: controller.isSubmitting.value
-                              ? 'Saving Driver Profile...'
-                              : (controller.isEditMode.value ? 'Update Driver Profile' : 'Onboard Driver to Roster'),
+                              ? 'saving_driver_record'.tr
+                              : (controller.isEditMode.value ? 'update_driver_profile'.tr : 'complete_driver_reg'.tr),
                           isLoading: controller.isSubmitting.value,
                           prefixIcon: const Icon(Icons.check_rounded, color: Colors.white, size: 20),
                           onTap: () {
@@ -598,7 +598,7 @@ class AddDriverView extends GetView<AddDriverController> {
                       ),
                       const SizedBox(height: 12),
                       CustomButton(
-                        text: 'Cancel',
+                        text: 'cancel'.tr,
                         isOutlined: true,
                         onTap: () => Get.back(),
                       ),
@@ -627,7 +627,7 @@ class AddDriverView extends GetView<AddDriverController> {
           const CustomBackButton(),
           Obx(
             () => Text(
-              controller.isEditMode.value ? 'Edit Driver Profile' : 'Onboard New Driver',
+              controller.isEditMode.value ? 'edit_driver_profile'.tr : 'onboard_new_driver'.tr,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 17,
@@ -678,14 +678,14 @@ class AddDriverView extends GetView<AddDriverController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    isEdit ? 'Driver Profile Modification' : 'Driver Master Roster Registration',
+                    isEdit ? 'modify_driver_profile'.tr : 'commercial_driver_onboarding'.tr,
                     style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     isEdit
-                        ? 'Updating commercial license, route shift assignment, and contact details.'
-                        : 'Onboard a licensed transit driver with regulatory compliance documents.',
+                        ? 'modify_driver_desc'.tr
+                        : 'onboard_driver_desc'.tr,
                     style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                   ),
                 ],
@@ -787,7 +787,7 @@ class AddDriverView extends GetView<AddDriverController> {
         child: DropdownButtonHideUnderline(
           child: DropdownButton<String>(
             value: currentVal,
-            hint: const Text('Select Home Depot Base', style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
+            hint: Text('select_home_depot_base'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
             isExpanded: true,
             dropdownColor: const Color(0xFF1E293B),
             icon: const Icon(Icons.arrow_drop_down, color: AppColors.textMuted),
@@ -804,9 +804,9 @@ class AddDriverView extends GetView<AddDriverController> {
   Widget _buildVehicleDropdown() {
     return Obx(() {
       final items = <DropdownMenuItem<String>>[
-        const DropdownMenuItem(
+        DropdownMenuItem(
           value: '',
-          child: Text('Unassigned (Floating Roster)', style: TextStyle(color: Colors.white70, fontSize: 13)),
+          child: Text('unassigned_floating_roster'.tr, style: const TextStyle(color: Colors.white70, fontSize: 13)),
         ),
       ];
       final seenIds = <String>{''};
@@ -852,7 +852,7 @@ class AddDriverView extends GetView<AddDriverController> {
         child: DropdownButtonHideUnderline(
           child: DropdownButton<String>(
             value: currentVal,
-            hint: const Text('Select Designated Bus', style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
+            hint: Text('select_designated_bus'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
             isExpanded: true,
             dropdownColor: const Color(0xFF1E293B),
             icon: const Icon(Icons.arrow_drop_down, color: AppColors.textMuted),
@@ -929,7 +929,7 @@ class AddDriverView extends GetView<AddDriverController> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('START TIME', style: TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.bold)),
+                          Text('start_time_caps'.tr, style: TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 4),
                           Text(controller.shiftStartTime.value, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
                         ],
@@ -943,7 +943,7 @@ class AddDriverView extends GetView<AddDriverController> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          const Text('END TIME', style: TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.bold)),
+                          Text('end_time_caps'.tr, style: TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 4),
                           Text(controller.shiftEndTime.value, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
                         ],
@@ -1029,8 +1029,8 @@ class AddDriverView extends GetView<AddDriverController> {
                         ? null
                         : () => _showMediaSourceSheet(
                               context: context,
-                              title: 'Driver Photo Badge',
-                              subtitle: 'Select identity photo from camera or gallery:',
+                              title: 'driver_photo_badge'.tr,
+                              subtitle: 'select_identity_photo_desc'.tr,
                               onSourceSelected: controller.pickAndUploadAvatar,
                             ),
                     child: Container(
@@ -1054,8 +1054,8 @@ class AddDriverView extends GetView<AddDriverController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Driver Photo Badge',
+                  Text(
+                    'driver_photo_badge'.tr,
                     style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 2),
@@ -1072,8 +1072,8 @@ class AddDriverView extends GetView<AddDriverController> {
                             ? null
                             : () => _showMediaSourceSheet(
                                   context: context,
-                                  title: 'Driver Photo Badge',
-                                  subtitle: 'Select identity photo from camera or gallery:',
+                                  title: 'driver_photo_badge'.tr,
+                                  subtitle: 'select_identity_photo_desc'.tr,
                                   onSourceSelected: controller.pickAndUploadAvatar,
                                 ),
                         borderRadius: BorderRadius.circular(8),
@@ -1545,8 +1545,8 @@ class AddDriverView extends GetView<AddDriverController> {
                 ),
                 child: const Icon(Icons.camera_alt_rounded, color: Color(0xFF60A5FA), size: 20),
               ),
-              title: const Text('Capture with Camera', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
-              subtitle: const Text('Take a photo using device camera', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+              title: Text('capture_with_camera'.tr, style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+              subtitle: Text('take_photo_camera_desc'.tr, style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               tileColor: AppColors.cardBg,
               onTap: () {
@@ -1564,8 +1564,8 @@ class AddDriverView extends GetView<AddDriverController> {
                 ),
                 child: const Icon(Icons.photo_library_rounded, color: Color(0xFF34D399), size: 20),
               ),
-              title: const Text('Choose from Gallery', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
-              subtitle: const Text('Pick saved document image from gallery', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+              title: Text('choose_from_gallery'.tr, style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+              subtitle: Text('pick_saved_doc_gallery'.tr, style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               tileColor: AppColors.cardBg,
               onTap: () {

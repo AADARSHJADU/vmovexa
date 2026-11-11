@@ -171,29 +171,29 @@ class AddDepotController extends GetxController {
   Future<void> saveDepot() async {
     final name = nameController.text.trim();
     if (name.isEmpty) {
-      _showError('Depot Facility Name is required.');
+      _showError('depot_name_required'.tr);
       return;
     }
     if (name.length < 3) {
-      _showError('Depot Facility Name must be at least 3 characters.');
+      _showError('depot_name_min3'.tr);
       return;
     }
 
     final addr = addressController.text.trim();
     if (addr.isEmpty) {
-      _showError('Complete street address is required.');
+      _showError('street_address_required'.tr);
       return;
     }
 
     final pincode = pincodeController.text.trim().replaceAll(RegExp(r'\D'), '');
     if (pincode.isNotEmpty && pincode.length != 6) {
-      _showError('Postal PIN code must be 6 digits.');
+      _showError('pincode_6digits'.tr);
       return;
     }
 
     final phone = contactPhoneController.text.trim().replaceAll(RegExp(r'\D'), '').replaceFirst(RegExp(r'^91'), '');
     if (phone.isNotEmpty && phone.length != 10) {
-      _showError('Helpline contact phone must be 10 digits.');
+      _showError('phone_10digits'.tr);
       return;
     }
 
@@ -233,28 +233,28 @@ class AddDepotController extends GetxController {
         if (res.success) {
           Get.back(result: true);
           Get.snackbar(
-            'Success',
-            'Depot $name updated successfully!',
+            'success'.tr,
+            'depot_updated_success'.tr,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM,
           );
         } else {
-          _showError(res.message ?? 'Failed to update depot facility');
+          _showError(res.message ?? 'failed_update_depot'.tr);
         }
       } else {
         final res = await FleetService.to.addDepot(payload);
         if (res.success) {
           Get.back(result: true);
           Get.snackbar(
-            'Success',
-            'Depot $name created successfully!',
+            'success'.tr,
+            'depot_created_success'.tr,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM,
           );
         } else {
-          _showError(res.message ?? 'Failed to create depot facility');
+          _showError(res.message ?? 'failed_create_depot'.tr);
         }
       }
     } catch (e) {
@@ -266,7 +266,7 @@ class AddDepotController extends GetxController {
 
   void _showError(String msg) {
     Get.snackbar(
-      'Validation Error',
+      'validation_error'.tr,
       msg,
       backgroundColor: Colors.redAccent,
       colorText: Colors.white,
