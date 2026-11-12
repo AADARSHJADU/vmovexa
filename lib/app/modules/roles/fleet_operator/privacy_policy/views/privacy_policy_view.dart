@@ -236,45 +236,47 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
           separatorBuilder: (context, index) => const Divider(color: AppColors.cardBorder, height: 1),
           itemBuilder: (context, index) {
             final sec = sectionList[index];
-            final isExpanded = c.expandedSectionIds.contains(sec.id);
 
-            return InkWell(
-              onTap: () => c.toggleSection(sec.id),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            sec.title,
-                            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+            return Obx(() {
+              final isExpanded = sec.isExpanded.value;
+              return InkWell(
+                onTap: () => sec.isExpanded.value = !sec.isExpanded.value,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              sec.title,
+                              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Icon(
+                            isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                            color: AppColors.textMuted,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                      if (isExpanded) ...[
+                        const SizedBox(height: 10),
+                        Text(
+                          sec.content,
+                          style: const TextStyle(
+                            color: Color(0xFFCBD5E1),
+                            fontSize: 11,
+                            height: 1.5,
                           ),
                         ),
-                        Icon(
-                          isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
-                          color: AppColors.textMuted,
-                          size: 20,
-                        ),
                       ],
-                    ),
-                    if (isExpanded) ...[
-                      const SizedBox(height: 10),
-                      Text(
-                        sec.content,
-                        style: const TextStyle(
-                          color: Color(0xFFCBD5E1),
-                          fontSize: 11,
-                          height: 1.5,
-                        ),
-                      ),
                     ],
-                  ],
+                  ),
                 ),
-              ),
-            );
+              );
+            });
           },
         ),
       );

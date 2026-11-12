@@ -10,8 +10,14 @@ class TermsSectionItem {
   final String id;
   final String title;
   final String content;
+  final RxBool isExpanded;
 
-  TermsSectionItem({required this.id, required this.title, required this.content});
+  TermsSectionItem({
+    required this.id,
+    required this.title,
+    required this.content,
+    bool initiallyExpanded = true,
+  }) : isExpanded = initiallyExpanded.obs;
 }
 
 class TermsConditionsController extends GetxController {
@@ -304,11 +310,16 @@ class TermsConditionsController extends GetxController {
     }).toList();
   }
 
+  void toggleSection(String id) {
+    final item = sections.firstWhereOrNull((s) => s.id == id);
+    if (item != null) {
+      item.isExpanded.value = !item.isExpanded.value;
+    }
+  }
+
   void toggleIndex(int index) {
-    if (expandedIndex.value == index) {
-      expandedIndex.value = -1;
-    } else {
-      expandedIndex.value = index;
+    if (index >= 0 && index < sections.length) {
+      sections[index].isExpanded.value = !sections[index].isExpanded.value;
     }
   }
 

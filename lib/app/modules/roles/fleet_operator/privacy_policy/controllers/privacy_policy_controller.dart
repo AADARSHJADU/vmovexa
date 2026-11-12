@@ -10,8 +10,14 @@ class PolicySectionItem {
   final String id;
   final String title;
   final String content;
+  final RxBool isExpanded;
 
-  PolicySectionItem({required this.id, required this.title, required this.content});
+  PolicySectionItem({
+    required this.id,
+    required this.title,
+    required this.content,
+    bool initiallyExpanded = true,
+  }) : isExpanded = initiallyExpanded.obs;
 }
 
 class PrivacyPolicyController extends GetxController {
@@ -297,16 +303,15 @@ class PrivacyPolicyController extends GetxController {
   }
 
   void toggleSection(String id) {
-    if (expandedSectionIds.contains(id)) {
-      expandedSectionIds.remove(id);
-    } else {
-      expandedSectionIds.add(id);
+    final item = sections.firstWhereOrNull((s) => s.id == id);
+    if (item != null) {
+      item.isExpanded.value = !item.isExpanded.value;
     }
   }
 
   void toggleIndex(int index) {
     if (index >= 0 && index < sections.length) {
-      toggleSection(sections[index].id);
+      sections[index].isExpanded.value = !sections[index].isExpanded.value;
     }
   }
 
