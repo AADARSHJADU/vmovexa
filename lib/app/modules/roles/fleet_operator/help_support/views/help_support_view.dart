@@ -89,20 +89,20 @@ class HelpSupportView extends GetView<HelpSupportController> {
                       const SizedBox(height: 24),
 
                       // Contact Support Section
-                      Text('contact_support_channels'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 10),
-                      _buildContactSupportPanel(c),
-                      const SizedBox(height: 24),
-
-                      // Support History Section
-                      Text('your_support_history'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 10),
-                      _buildSupportHistoryPanel(c),
-                      const SizedBox(height: 24),
-
-                      // Commitment Footer card
-                      _buildCommitmentCard(),
-                      const SizedBox(height: 24),
+                      // Text('contact_support_channels'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.bold)),
+                      // const SizedBox(height: 10),
+                      // _buildContactSupportPanel(c),
+                      // const SizedBox(height: 24),
+                      //
+                      // // Support History Section
+                      // Text('your_support_history'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.bold)),
+                      // const SizedBox(height: 10),
+                      // _buildSupportHistoryPanel(c),
+                      // const SizedBox(height: 24),
+                      //
+                      // // Commitment Footer card
+                      // _buildCommitmentCard(),
+                      // const SizedBox(height: 24),
                     ],
                   ),
                 ),
@@ -232,16 +232,120 @@ class HelpSupportView extends GetView<HelpSupportController> {
             final isLast = c.guides.last == guide;
             return Column(
               children: [
-                _buildItemRow(
-                  guide.title,
-                  guide.desc,
-                  "assets/icons/fleet_operator_icons/userGuidesA.svg",
+                _buildGuideRow(
+                  guide,
                   () => c.openGuide(guide),
                 ),
                 if (!isLast) const Divider(color: AppColors.cardBorder, height: 16),
               ],
             );
           }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGuideRow(HelpGuideItem guide, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        color: Colors.transparent,
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              "assets/icons/fleet_operator_icons/userGuidesA.svg",
+              width: 24,
+              height: 24,
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          guide.title,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (guide.hasPdf) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0x1F10B981),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: const Color(0x4D10B981)),
+                          ),
+                          child: Text(
+                            'pdf'.tr,
+                            style: const TextStyle(
+                              color: Color(0xFF34D399),
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    guide.desc,
+                    style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 9.5,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      if (guide.hasPdf) ...[
+                        const Icon(
+                          Icons.download_rounded,
+                          color: Color(0xFF60A5FA),
+                          size: 11,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'download_read_sop'.tr,
+                          style: const TextStyle(
+                            color: Color(0xFF60A5FA),
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ] else ...[
+                        Text(
+                          'no_pdf_attached'.tr,
+                          style: const TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 9,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Icon(
+              guide.hasPdf ? Icons.open_in_new_rounded : Icons.chevron_right_rounded,
+              color: guide.hasPdf ? const Color(0xFF60A5FA) : AppColors.textMuted,
+              size: 16,
+            ),
+          ],
         ),
       ),
     );

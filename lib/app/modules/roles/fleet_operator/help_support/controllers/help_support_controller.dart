@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:vmovexa/app/data/constants/api_constants.dart';
 import 'package:vmovexa/app/data/services/fleet_service.dart';
 import 'package:vmovexa/app/routes/app_routes.dart';
 
@@ -15,8 +17,18 @@ class HelpGuideItem {
   final String title;
   final String desc;
   final String icon;
+  final String? docUrl;
+  final String? fileName;
 
-  HelpGuideItem({required this.title, required this.desc, required this.icon});
+  HelpGuideItem({
+    required this.title,
+    required this.desc,
+    required this.icon,
+    this.docUrl,
+    this.fileName,
+  });
+
+  bool get hasPdf => docUrl != null && docUrl!.trim().isNotEmpty;
 }
 
 class HelpSupportController extends GetxController {
@@ -107,15 +119,19 @@ class HelpSupportController extends GetxController {
             if (c['phone'] != null) supportPhone.value = c['phone'].toString();
           }
 
-          // Parse guides
+          // Parse guides with docUrl / pdfUrl / fileName
           if (sectionsMap['guides'] is List && (sectionsMap['guides'] as List).isNotEmpty) {
             final list = <HelpGuideItem>[];
             for (var g in sectionsMap['guides'] as List) {
               if (g is Map) {
+                final rawDocUrl = (g['docUrl'] ?? g['pdfUrl'] ?? g['url'])?.toString();
+                final resolvedUrl = ApiConstants.resolveFileUrl(rawDocUrl);
                 list.add(HelpGuideItem(
                   title: g['title']?.toString() ?? '',
                   desc: g['desc']?.toString() ?? g['description']?.toString() ?? '',
                   icon: g['icon']?.toString() ?? 'Document',
+                  docUrl: resolvedUrl.isNotEmpty ? resolvedUrl : null,
+                  fileName: g['fileName']?.toString(),
                 ));
               }
             }
@@ -212,67 +228,32 @@ class HelpSupportController extends GetxController {
     );
   }
 
-  void openGuide(HelpGuideItem guide) {
-    Get.dialog(
-      Dialog(
-        backgroundColor: const Color(0xFF1E293B),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      guide.title,
-                      style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close_rounded, color: Colors.white70, size: 20),
-                    onPressed: () => Get.back(),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                guide.desc,
-                style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0F172A),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFF334155)),
-                ),
-                child: Text(
-                  'sop_active_enforced_desc'.tr,
-                  style: const TextStyle(color: Colors.white70, fontSize: 12, height: 1.4),
-                ),
-              ),
-              const SizedBox(height: 18),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Get.back(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6366F1),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                  child: Text('close_guide'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+  Future<void> openGuide(HelpGuideItem guide) async {
+    final url = guide.docUrl;
+    if (url != null && url.trim().isNotEmpty) {
+      try {
+        final uri = Uri.parse(url.trim());
+        final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+        if (!launched) {
+          await launchUrl(uri, mode: LaunchMode.platformDefault);
+        }
+      } catch (e) {
+        Get.snackbar(
+          'error'.tr,
+          'Could not open PDF: $e',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
+          colorText: Colors.white,
+        );
+      }
+    } else {
+      Get.snackbar(
+        'no_pdf_attached'.tr,
+        'no_pdf_attached_desc'.trParams({'title': guide.title}),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orangeAccent.withValues(alpha: 0.9),
+        colorText: Colors.white,
+      );
+    }
   }
 }
