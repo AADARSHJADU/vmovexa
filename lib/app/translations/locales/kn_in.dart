@@ -1125,6 +1125,7 @@ const Map<String, String> knIN = {
   'badge_id': 'ಬ್ಯಾಡ್ಜ್ ಐಡಿ',
   'mobile_phone_req': 'ಮೊಬೈಲ್ ಫೋನ್ ಸಂಖ್ಯೆ (10 ಅಂಕಿಗಳು) *',
   'email_address_opt': 'ಇಮೇಲ್ ವಿಳಾಸ (ಐಚ್ಛಿಕ)',
+  'email_address_req': 'ಇಮೇಲ್ ವಿಳಾಸ *',
   'driver_login_password': 'ಚಾಲಕರ ಅಪ್ಲಿಕೇಶನ್ ಲಾಗಿನ್ ಪಾಸ್‌ವರ್ಡ್',
   'create_login_password': 'ಲಾಗಿನ್ ಪಾಸ್‌ವರ್ಡ್ ರಚಿಸಿ',
   'select_gender': 'ಲಿಂಗವನ್ನು ಆಯ್ಕೆಮಾಡಿ',

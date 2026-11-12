@@ -1125,6 +1125,7 @@ const Map<String, String> enUS = {
   'badge_id': 'Badge ID',
   'mobile_phone_req': 'Mobile Phone Number (10 Digits) *',
   'email_address_opt': 'Email Address (Optional)',
+  'email_address_req': 'Email Address *',
   'driver_login_password': 'Driver App Login Password',
   'create_login_password': 'Create login password',
   'select_gender': 'Select gender',

@@ -1125,6 +1125,7 @@ const Map<String, String> hiIN = {
   'badge_id': 'बैज आईडी',
   'mobile_phone_req': 'मोबाइल फोन नंबर (10 अंक) *',
   'email_address_opt': 'ईमेल पता (वैकल्पिक)',
+  'email_address_req': 'ईमेल पता *',
   'driver_login_password': 'चालक ऐप लॉगिन पासवर्ड',
   'create_login_password': 'लॉगिन पासवर्ड बनाएं',
   'select_gender': 'लिंग चुनें',

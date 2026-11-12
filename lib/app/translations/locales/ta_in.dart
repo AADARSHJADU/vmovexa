@@ -1125,6 +1125,7 @@ const Map<String, String> taIN = {
   'badge_id': 'பேட்ஜ் ஐடி',
   'mobile_phone_req': 'மொபைல் போன் எண் (10 இலக்கங்கள்) *',
   'email_address_opt': 'மின்னஞ்சல் முகவரி (விருப்பத்தேர்வு)',
+  'email_address_req': 'மின்னஞ்சல் முகவரி *',
   'driver_login_password': 'ஓட்டுநர் ஆப் உள்நுழைவு கடவுச்சொல்',
   'create_login_password': 'உள்நுழைவு கடவுச்சொல்லை உருவாக்கவும்',
   'select_gender': 'பாலினத்தைத் தேர்ந்தெடுக்கவும்',

@@ -1125,6 +1125,7 @@ const Map<String, String> mlIN = {
   'badge_id': 'ബാഡ്ജ് ഐഡി',
   'mobile_phone_req': 'മൊബൈൽ ഫോൺ നമ്പർ (10 അക്കങ്ങൾ) *',
   'email_address_opt': 'ഇമെയിൽ വിലാസം (ഓപ്ഷണൽ)',
+  'email_address_req': 'ഇമെയിൽ വിലാസം *',
   'driver_login_password': 'ഡ്രൈവർ ആപ്പ് ലോഗിൻ പാസ്‌വേഡ്',
   'create_login_password': 'ലോഗിൻ പാസ്‌വേഡ് സൃഷ്ടിക്കുക',
   'select_gender': 'ലിംഗഭേദം തിരഞ്ഞെടുക്കുക',

@@ -1125,6 +1125,7 @@ const Map<String, String> guIN = {
   'badge_id': 'બેજ આઈડી',
   'mobile_phone_req': 'મોબાઇલ ફોન નંબર (10 અંકો) *',
   'email_address_opt': 'ઇમેઇલ સરનામું (વૈકલ્પિક)',
+  'email_address_req': 'ઇમેઇલ સરનામું *',
   'driver_login_password': 'ડ્રાઇવર એપ્લિકેશન લૉગિન પાસવર્ડ',
   'create_login_password': 'લૉગિન પાસવર્ડ બનાવો',
   'select_gender': 'જાતિ પસંદ કરો',

@@ -1125,6 +1125,7 @@ const Map<String, String> bnIN = {
   'badge_id': 'ব্যাজ আইডি',
   'mobile_phone_req': 'মোবাইল ফোন নম্বর (১০ অঙ্ক) *',
   'email_address_opt': 'ইমেল ঠিকানা (ঐচ্ছিক)',
+  'email_address_req': 'ইমেল ঠিকানা *',
   'driver_login_password': 'ড্রাইভার অ্যাপ লগইন পাসওয়ার্ড',
   'create_login_password': 'লগইন পাসওয়ার্ড তৈরি করুন',
   'select_gender': 'লিঙ্গ নির্বাচন করুন',

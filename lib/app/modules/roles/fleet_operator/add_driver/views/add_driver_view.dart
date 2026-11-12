@@ -6,6 +6,7 @@ import '../controllers/add_driver_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
 import '../../../../../widgets/custom_text_field.dart';
 import '../../../../../widgets/custom_button.dart';
+import '../../../../../widgets/location_autocomplete_field.dart';
 import '../../../../../theme/app_colors.dart';
 import '../../../../../data/constants/api_constants.dart';
 import '../../../../../data/models/fleet_models.dart';
@@ -109,7 +110,7 @@ class AddDriverView extends GetView<AddDriverController> {
                           const SizedBox(height: 14),
 
                           // Email
-                          _buildLabel('email_address_opt'.tr),
+                          _buildLabel('email_address_req'.tr),
                           CustomTextField(
                             hintText: 'driver@transit.in',
                             prefixSvg: 'assets/icons/gmail.svg',
@@ -217,11 +218,17 @@ class AddDriverView extends GetView<AddDriverController> {
                         title: 'residential_address'.tr,
                         subtitle: 'residential_address_desc'.tr,
                         children: [
-                          _buildLabel('full_street_address_req'.tr),
-                          CustomTextField(
-                            hintText: 'driver_address_hint'.tr,
-                            prefixSvg: 'assets/icons/location.svg',
+                          LocationAutocompleteField(
+                            label: 'full_street_address_req'.tr,
+                            hint: 'driver_address_hint'.tr,
                             controller: controller.addressController,
+                            addressController: controller.addressController,
+                            cityController: controller.cityController,
+                            stateController: controller.stateController,
+                            pincodeController: controller.pincodeController,
+                            accentColor: const Color(0xFFA855F7),
+                            required: false,
+                            onPlaceSelected: controller.onResidentialPlaceSelected,
                           ),
                           const SizedBox(height: 14),
 
@@ -718,7 +725,7 @@ class AddDriverView extends GetView<AddDriverController> {
             children: [
               Icon(icon, color: iconColor, size: 20),
               const SizedBox(width: 10),
-              Text(title, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+              Expanded(child: Text(title, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold))),
             ],
           ),
           const SizedBox(height: 3),

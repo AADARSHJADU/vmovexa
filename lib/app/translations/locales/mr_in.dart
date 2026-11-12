@@ -1125,6 +1125,7 @@ const Map<String, String> mrIN = {
   'badge_id': 'बॅज आयडी',
   'mobile_phone_req': 'मोबाइल फोन क्रमांक (10 अंक) *',
   'email_address_opt': 'ईमेल पत्ता (पर्यायी)',
+  'email_address_req': 'ईमेल पत्ता *',
   'driver_login_password': 'चालक अ‍ॅप लॉगिन पासवर्ड',
   'create_login_password': 'लॉगिन पासवर्ड तयार करा',
   'select_gender': 'लिंग निवडा',

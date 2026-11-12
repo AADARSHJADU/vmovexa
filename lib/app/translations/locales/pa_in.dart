@@ -1125,6 +1125,7 @@ const Map<String, String> paIN = {
   'badge_id': 'ਬੈਜ ਆਈਡੀ',
   'mobile_phone_req': 'ਮੋਬਾਈਲ ਫ਼ੋਨ ਨੰਬਰ (10 ਅੰਕ) *',
   'email_address_opt': 'ਈਮੇਲ ਪਤਾ (ਵਿਕਲਪਿਕ)',
+  'email_address_req': 'ਈਮੇਲ ਪਤਾ *',
   'driver_login_password': 'ਡਰਾਈਵਰ ਐਪ ਲੌਗਇਨ ਪਾਸਵਰਡ',
   'create_login_password': 'ਲੌਗਇਨ ਪਾਸਵਰਡ ਬਣਾਓ',
   'select_gender': 'ਲਿੰਗ ਚੁਣੋ',

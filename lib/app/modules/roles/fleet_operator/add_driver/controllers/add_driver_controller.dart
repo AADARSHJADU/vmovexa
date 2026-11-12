@@ -58,11 +58,13 @@ class AddDriverController extends GetxController {
   final dobController = TextEditingController();
   final RxBool obscurePassword = true.obs;
 
-  // Address
+  // Address & Geolocation
   final addressController = TextEditingController();
   final cityController = TextEditingController();
   final stateController = TextEditingController();
   final pincodeController = TextEditingController();
+  final RxnDouble latitude = RxnDouble();
+  final RxnDouble longitude = RxnDouble();
 
   // Commercial License
   final licenseNoController = TextEditingController();
@@ -194,6 +196,8 @@ class AddDriverController extends GetxController {
     cityController.text = d.city;
     stateController.text = d.state;
     pincodeController.text = d.pincode;
+    latitude.value = d.latitude;
+    longitude.value = d.longitude;
 
     licenseNoController.text = d.licenseNumber != 'N/A' ? d.licenseNumber : '';
     selectedLicenseType.value = licenseTypes.contains(d.licenseType) ? d.licenseType : 'Commercial Heavy (HMV)';
@@ -305,6 +309,36 @@ class AddDriverController extends GetxController {
       return p.durationLabel;
     }
     return '${shiftStartTime.value} - ${shiftEndTime.value} (Custom)';
+  }
+
+  void onResidentialPlaceSelected(GooglePlaceItemModel place) {
+    if (place.formattedAddress.isNotEmpty) {
+      addressController.text = place.formattedAddress;
+    } else if (place.name.isNotEmpty) {
+      addressController.text = place.name;
+    }
+    if (place.city != null && place.city!.isNotEmpty) {
+      cityController.text = place.city!;
+    }
+    if (place.state != null && place.state!.isNotEmpty) {
+      stateController.text = place.state!;
+    }
+    String? pin = place.pincode;
+    if (pin == null || pin.isEmpty) {
+      final match = RegExp(r'\b[1-9][0-9]{5}\b').firstMatch(place.formattedAddress);
+      if (match != null) {
+        pin = match.group(0);
+      }
+    }
+    if (pin != null && pin.isNotEmpty) {
+      pincodeController.text = pin;
+    }
+    if (place.latitude != null) {
+      latitude.value = place.latitude;
+    }
+    if (place.longitude != null) {
+      longitude.value = place.longitude;
+    }
   }
 
   void selectDate(BuildContext context, TextEditingController controller) async {
@@ -540,7 +574,18 @@ class AddDriverController extends GetxController {
       return;
     }
 
-    // 3. Commercial DL Number validation
+    // 3. Email validation (Mandatory)
+    final email = emailController.text.trim();
+    if (email.isEmpty) {
+      _showError('email_required'.tr);
+      return;
+    }
+    if (!GetUtils.isEmail(email)) {
+      _showError('enter_valid_email'.tr);
+      return;
+    }
+
+    // 4. Commercial DL Number validation
     final cleanDL = licenseNoController.text.trim();
     if (cleanDL.isEmpty) {
       _showError('driver_dl_required'.tr);
@@ -598,7 +643,7 @@ class AddDriverController extends GetxController {
         if (empIdController.text.trim().isNotEmpty) 'emp_id': empIdController.text.trim(),
         if (badgeIdController.text.trim().isNotEmpty) 'badge_id': badgeIdController.text.trim(),
         if (badgeIdController.text.trim().isNotEmpty) 'badgeId': badgeIdController.text.trim(),
-        if (emailController.text.trim().isNotEmpty) 'email': emailController.text.trim(),
+        'email': email,
         if (!isEditMode.value && passwordController.text.isNotEmpty) 'password': passwordController.text,
         if (dobController.text.trim().isNotEmpty) 'dob': dobController.text.trim(),
         'gender': selectedGender.value,
@@ -607,6 +652,8 @@ class AddDriverController extends GetxController {
         if (cityController.text.trim().isNotEmpty) 'city': cityController.text.trim(),
         if (stateController.text.trim().isNotEmpty) 'state': stateController.text.trim(),
         if (pincode.isNotEmpty) 'pincode': pincode,
+        if (latitude.value != null) 'latitude': latitude.value,
+        if (longitude.value != null) 'longitude': longitude.value,
         'license_number': cleanDL,
         'dl_number': cleanDL,
         'license_type': selectedLicenseType.value,

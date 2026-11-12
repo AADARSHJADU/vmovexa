@@ -1125,6 +1125,7 @@ const Map<String, String> teIN = {
   'badge_id': 'బ్యాడ్జ్ ID',
   'mobile_phone_req': 'మొబైల్ ఫోన్ నంబర్ (10 అంకెలు) *',
   'email_address_opt': 'ఇమెయిల్ చిరునామా (ఐచ్ఛికం)',
+  'email_address_req': 'ఇమెయిల్ చిరునామా *',
   'driver_login_password': 'డ్రైవర్ యాప్ లాగిన్ పాస్‌వర్డ్',
   'create_login_password': 'లాగిన్ పాస్‌వర్డ్‌ను సృష్టించండి',
   'select_gender': 'లింగాన్ని ఎంచుకోండి',
