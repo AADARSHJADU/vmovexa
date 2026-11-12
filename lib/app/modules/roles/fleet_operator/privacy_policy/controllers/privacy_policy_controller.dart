@@ -20,7 +20,7 @@ class PrivacyPolicyController extends GetxController {
   final RxString version = '1.0'.obs;
 
   final RxList<PolicySectionItem> sections = <PolicySectionItem>[].obs;
-  final RxInt expandedIndex = 0.obs; // First section open by default
+  final RxSet<String> expandedSectionIds = <String>{}.obs; // All sections open by default like frontend
   final RxString searchQuery = ''.obs;
   final RxBool isLoading = false.obs;
 
@@ -210,6 +210,7 @@ class PrivacyPolicyController extends GetxController {
         ),
       ]);
     }
+    expandedSectionIds.assignAll(sections.map((s) => s.id));
   }
 
   /// Load privacy policy dynamically based on user role
@@ -276,6 +277,7 @@ class PrivacyPolicyController extends GetxController {
           }
           if (list.isNotEmpty) {
             sections.assignAll(list);
+            expandedSectionIds.assignAll(list.map((s) => s.id));
           }
         }
       }
@@ -294,11 +296,17 @@ class PrivacyPolicyController extends GetxController {
     }).toList();
   }
 
-  void toggleIndex(int index) {
-    if (expandedIndex.value == index) {
-      expandedIndex.value = -1;
+  void toggleSection(String id) {
+    if (expandedSectionIds.contains(id)) {
+      expandedSectionIds.remove(id);
     } else {
-      expandedIndex.value = index;
+      expandedSectionIds.add(id);
+    }
+  }
+
+  void toggleIndex(int index) {
+    if (index >= 0 && index < sections.length) {
+      toggleSection(sections[index].id);
     }
   }
 
