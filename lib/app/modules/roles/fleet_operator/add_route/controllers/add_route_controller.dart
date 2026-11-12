@@ -4,6 +4,16 @@ import 'package:get/get.dart';
 import '../../../../../data/models/fleet_models.dart';
 import '../../../../../data/services/fleet_service.dart';
 
+const List<String> kStopTypeOptions = [
+  'Commercial Hub',
+  'Transit Hub',
+  'Passenger Stop',
+  'School / College',
+  'Hospital',
+  'IT Park',
+  'Depot',
+];
+
 class StopFormItem {
   final String id;
   final TextEditingController nameController;
@@ -14,6 +24,7 @@ class StopFormItem {
   final TextEditingController distanceController;
   final TextEditingController geofenceController;
   final TextEditingController haltReasonController;
+  final RxString selectedStopType;
 
   StopFormItem({
     required this.id,
@@ -32,7 +43,10 @@ class StopFormItem {
         etaController = TextEditingController(text: eta),
         distanceController = TextEditingController(text: distance),
         geofenceController = TextEditingController(text: geofence),
-        haltReasonController = TextEditingController(text: haltReason);
+        haltReasonController = TextEditingController(text: haltReason),
+        selectedStopType = (haltReason.isNotEmpty
+            ? (kStopTypeOptions.contains(haltReason) ? haltReason : 'Other')
+            : '').obs;
 
   void dispose() {
     nameController.dispose();
@@ -242,6 +256,7 @@ class AddRouteController extends GetxController {
     if (index >= 0 && index < stops.length) {
       final item = stops.removeAt(index);
       item.dispose();
+      recalculateAllStopMetrics();
       // Recalculate route path when a stop is removed
       if (startLat.value != 0 && endLat.value != 0) {
         computeGoogleDrivingRoute(isManual: false);
@@ -263,6 +278,9 @@ class AddRouteController extends GetxController {
     }
     if (place.city != null) startCityController.text = place.city!;
     if (place.state != null) startStateController.text = place.state!;
+
+    // Recalculate all stops' distance from start and expected ETA
+    recalculateAllStopMetrics();
 
     if (endLatController.text.isNotEmpty && endLngController.text.isNotEmpty) {
       computeGoogleDrivingRoute(isManual: false);
@@ -296,8 +314,44 @@ class AddRouteController extends GetxController {
       if (place.latitude != null) s.latController.text = place.latitude.toString();
       if (place.longitude != null) s.lngController.text = place.longitude.toString();
 
+      // Recalculate distance and ETA immediately from origin and intermediate waypoints
+      recalculateAllStopMetrics();
+
       if (startLatController.text.isNotEmpty && endLatController.text.isNotEmpty) {
         computeGoogleDrivingRoute(isManual: false);
+      }
+    }
+  }
+
+  /// Recalculates distance from origin and expected ETA for all stops
+  void recalculateAllStopMetrics() {
+    final sLat = double.tryParse(startLatController.text.trim()) ?? (startLat.value != 0.0 ? startLat.value : null);
+    final sLng = double.tryParse(startLngController.text.trim()) ?? (startLng.value != 0.0 ? startLng.value : null);
+
+    if (sLat == null || sLng == null) {
+      // Origin coordinates not set yet
+      return;
+    }
+
+    double accumulatedKm = 0.0;
+    double lastLat = sLat;
+    double lastLng = sLng;
+
+    for (int i = 0; i < stops.length; i++) {
+      final st = stops[i];
+      final stLat = double.tryParse(st.latController.text.trim());
+      final stLng = double.tryParse(st.lngController.text.trim());
+
+      if (stLat != null && stLng != null) {
+        final legKm = _haversineDistance(lastLat, lastLng, stLat, stLng) * 1.35;
+        accumulatedKm += legKm;
+        lastLat = stLat;
+        lastLng = stLng;
+
+        st.distanceController.text = accumulatedKm.toStringAsFixed(1);
+        int estMins = (accumulatedKm / 25.0 * 60.0).round() + (i * 2);
+        if (estMins < 1) estMins = 1;
+        st.etaController.text = '+$estMins mins';
       }
     }
   }
@@ -364,21 +418,21 @@ class AddRouteController extends GetxController {
               if (leg is Map) {
                 if (leg['distanceMeters'] != null) {
                   legKm = (double.tryParse(leg['distanceMeters'].toString()) ?? 0.0) / 1000.0;
+                } else if (leg['distanceKm'] != null) {
+                  legKm = double.tryParse(leg['distanceKm'].toString()) ?? 0.0;
                 }
                 if (leg['staticDuration'] != null) {
                   final durSec = int.tryParse(leg['staticDuration'].toString().replaceAll('s', '')) ?? 0;
                   legMins = (durSec / 60).round();
+                } else if (leg['durationMinutes'] != null) {
+                  legMins = int.tryParse(leg['durationMinutes'].toString()) ?? 0;
                 }
               }
               accumulatedKm += legKm;
               accumulatedMins += legMins;
 
-              if (stops[i].distanceController.text.isEmpty || isManual) {
-                stops[i].distanceController.text = accumulatedKm.toStringAsFixed(1);
-              }
-              if (stops[i].etaController.text.isEmpty || isManual) {
-                stops[i].etaController.text = '+$accumulatedMins mins';
-              }
+              stops[i].distanceController.text = accumulatedKm.toStringAsFixed(1);
+              stops[i].etaController.text = '+$accumulatedMins mins';
             }
           }
         }
