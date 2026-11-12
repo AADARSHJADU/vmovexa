@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../controllers/reset_password_controller.dart';
 import '../../../../widgets/custom_back_button.dart';
@@ -26,7 +27,7 @@ class ResetPasswordView extends GetView<ResetPasswordController> {
                   CustomBackButton(),
                 ],
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 32),
 
               // Title & Subtitle
               Text(
@@ -38,14 +39,86 @@ class ResetPasswordView extends GetView<ResetPasswordController> {
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
-                'enter_password'.tr,
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 14,
+              if (controller.email.isNotEmpty)
+                RichText(
+                  text: TextSpan(
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 14,
+                      height: 1.4,
+                    ),
+                    children: [
+                      TextSpan(text: '${'enter_six_digit_otp_sent_to'.tr} '),
+                      TextSpan(
+                        text: controller.email,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                Text(
+                  'enter_password'.tr,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 14,
+                  ),
                 ),
+              const SizedBox(height: 32),
+
+              // 6-digit OTP Input Field
+              CustomTextField(
+                hintText: 'enter_six_digit_otp_hint'.tr,
+                prefixIcon: Icons.pin_outlined,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(6),
+                ],
+                controller: controller.otpController,
               ),
-              const SizedBox(height: 36),
+              const SizedBox(height: 10),
+
+              // Resend OTP Section
+              Obx(
+                () {
+                  final cooldown = controller.resendCooldown.value;
+                  final isResending = controller.isResending.value;
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        cooldown > 0
+                            ? '${'resend_otp_in'.tr}${cooldown}s'
+                            : '',
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 13,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: (cooldown == 0 && !isResending)
+                            ? controller.resendOtp
+                            : null,
+                        child: Text(
+                          isResending ? '...' : 'resend_code'.tr,
+                          style: TextStyle(
+                            color: (cooldown == 0 && !isResending)
+                                ? AppColors.textLink
+                                : AppColors.textSecondary,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: 24),
 
               // New Password Input Field
               Obx(
@@ -58,7 +131,7 @@ class ResetPasswordView extends GetView<ResetPasswordController> {
                   controller: controller.passwordController,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
               // Dynamic Password Requirements Checklist
               Obx(
@@ -74,7 +147,7 @@ class ResetPasswordView extends GetView<ResetPasswordController> {
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
               // Confirm Password Input Field
               Obx(
@@ -87,7 +160,7 @@ class ResetPasswordView extends GetView<ResetPasswordController> {
                   controller: controller.confirmPasswordController,
                 ),
               ),
-              const SizedBox(height: 50),
+              const SizedBox(height: 36),
 
               // Primary Button
               Obx(
@@ -97,6 +170,7 @@ class ResetPasswordView extends GetView<ResetPasswordController> {
                   onTap: controller.updatePassword,
                 ),
               ),
+              const SizedBox(height: 24),
             ],
           ),
         ),

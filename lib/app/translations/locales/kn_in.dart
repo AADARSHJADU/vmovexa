@@ -2250,6 +2250,7 @@ const Map<String, String> knIN = {
   'otp_sent': 'OTP ಕಳುಹಿಸಲಾಗಿದೆ',
   'otp_sent_to_email': 'ಪಾಸ್‌ವರ್ಡ್ ಮರುಹೊಂದಿಸುವ ಪರಿಶೀಲನಾ ಕೋಡ್ ಅನ್ನು @email ಗೆ ಕಳುಹಿಸಲಾಗಿದೆ.',
   'enter_six_digit_otp_sent_to': 'ಕಳುಹಿಸಲಾದ 6-ಅಂಕಿಯ OTP ನಮೂದಿಸಿ',
+  'enter_six_digit_otp_hint': '6-ಅಂಕಿಯ OTP ನಮೂದಿಸಿ',
   'resend_otp_in': 'OTP ಮರುಕಳುಹಿಸಿ ',
   'invalid_otp': 'ಅಮಾನ್ಯ OTP',
   'enter_six_digit_otp': 'ದಯವಿಟ್ಟು ಪರಿಶೀಲನಾ ಕೋಡ್‌ನ ಎಲ್ಲಾ 6 ಅಂಕಿಗಳನ್ನು ನಮೂದಿಸಿ.',

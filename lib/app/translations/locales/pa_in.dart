@@ -2250,6 +2250,7 @@ const Map<String, String> paIN = {
   'otp_sent': 'OTP ਭੇਜਿਆ ਗਿਆ',
   'otp_sent_to_email': 'ਪਾਸਵਰਡ ਰੀਸੈੱਟ ਤਸਦੀਕ ਕੋਡ @email ਤੇ ਭੇਜਿਆ ਗਿਆ ਹੈ।',
   'enter_six_digit_otp_sent_to': 'ਭੇਜਿਆ ਗਿਆ 6-ਅੰਕਾਂ ਦਾ OTP ਦਰਜ ਕਰੋ',
+  'enter_six_digit_otp_hint': '6-ਅੰਕਾਂ ਦਾ OTP ਦਰਜ ਕਰੋ',
   'resend_otp_in': 'OTP ਦੁਬਾਰਾ ਭੇਜੋ ',
   'invalid_otp': 'ਅਵੈਧ OTP',
   'enter_six_digit_otp': 'ਕਿਰਪਾ ਕਰਕੇ ਤਸਦੀਕ ਕੋਡ ਦੇ ਸਾਰੇ 6 ਅੰਕ ਦਰਜ ਕਰੋ।',

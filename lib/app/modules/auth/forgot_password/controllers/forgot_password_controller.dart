@@ -40,11 +40,9 @@ class ForgotPasswordController extends GetxController {
           colorText: Colors.white,
         );
 
-        // Navigate to OTP Verification Screen passing email & devCode
-        Get.toNamed(Routes.OTP_VERIFY, arguments: {
-          'destination': email,
+        // Navigate to Reset Password Screen passing email & devCode
+        Get.toNamed(Routes.RESET_PASSWORD, arguments: {
           'email': email,
-          'is_forgot_password': true,
           'dev_code': devCode,
         });
       } else {

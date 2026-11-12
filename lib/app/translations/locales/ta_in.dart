@@ -2250,6 +2250,7 @@ const Map<String, String> taIN = {
   'otp_sent': 'OTP அனுப்பப்பட்டது',
   'otp_sent_to_email': 'கடவுச்சொல் மீட்டமைப்பு சரிபார்ப்புக் குறியீடு @email க்கு அனுப்பப்பட்டது.',
   'enter_six_digit_otp_sent_to': 'அனுப்பப்பட்ட 6-இலக்க OTP-ஐ உள்ளிடவும்',
+  'enter_six_digit_otp_hint': '6-இலக்க OTP-ஐ உள்ளிடவும்',
   'resend_otp_in': 'OTP-ஐ மீண்டும் அனுப்பவும் ',
   'invalid_otp': 'தவறான OTP',
   'enter_six_digit_otp': 'சரிபார்ப்புக் குறியீட்டின் அனைத்து 6 இலக்கங்களையும் உள்ளிடவும்.',

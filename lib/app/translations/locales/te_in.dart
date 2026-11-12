@@ -2250,6 +2250,7 @@ const Map<String, String> teIN = {
   'otp_sent': 'OTP పంపబడింది',
   'otp_sent_to_email': 'పాస్‌వర్డ్ రీసెట్ ధృవీకరణ కోడ్ @email కు పంపబడింది.',
   'enter_six_digit_otp_sent_to': 'పంపబడిన 6-అంకెల OTPని నమోదు చేయండి',
+  'enter_six_digit_otp_hint': '6-అంకెల OTPని నమోదు చేయండి',
   'resend_otp_in': 'OTPని మళ్లీ పంపండి ',
   'invalid_otp': 'చెల్లని OTP',
   'enter_six_digit_otp': 'దయచేసి ధృవీకరణ కోడ్ యొక్క మొత్తం 6 అంకెలను నమోదు చేయండి.',

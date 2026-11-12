@@ -2250,6 +2250,7 @@ const Map<String, String> bnIN = {
   'otp_sent': 'ওটিপি পাঠানো হয়েছে',
   'otp_sent_to_email': 'পাসওয়ার্ড রিসেট যাচাইকরণ কোড @email-এ পাঠানো হয়েছে।',
   'enter_six_digit_otp_sent_to': 'প্রেরিত ৬-সংখ্যার ওটিপি লিখুন',
+  'enter_six_digit_otp_hint': '৬-সংখ্যার ওটিপি লিখুন',
   'resend_otp_in': 'ওটিপি পুনরায় পাঠান ',
   'invalid_otp': 'অবৈধ ওটিপি',
   'enter_six_digit_otp': 'অনুগ্রহ করে যাচাইকরণ কোডের সমস্ত ৬টি সংখ্যা লিখুন।',

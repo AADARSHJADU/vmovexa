@@ -2250,6 +2250,7 @@ const Map<String, String> mlIN = {
   'otp_sent': 'OTP അയച്ചു',
   'otp_sent_to_email': 'പാസ്‌വേഡ് പുനഃസജ്ജീകരണ സ്ഥിരീകരണ കോഡ് @email ലേക്ക് അയച്ചു.',
   'enter_six_digit_otp_sent_to': 'അയച്ച 6 അക്ക OTP നൽകുക',
+  'enter_six_digit_otp_hint': '6 അക്ക OTP നൽകുക',
   'resend_otp_in': 'OTP വീണ്ടും അയക്കുക ',
   'invalid_otp': 'അസാധുവായ OTP',
   'enter_six_digit_otp': 'സ്ഥിരീകരണ കോഡിന്റെ എല്ലാ 6 അക്കങ്ങളും നൽകുക.',

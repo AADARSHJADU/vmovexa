@@ -2250,6 +2250,7 @@ const Map<String, String> mrIN = {
   'otp_sent': 'ओटीपी पाठवला',
   'otp_sent_to_email': 'पासवर्ड रीसेट पडताळणी कोड @email वर पाठवला आहे.',
   'enter_six_digit_otp_sent_to': 'येथे पाठवलेला 6-अंकी ओटीपी प्रविष्ट करा',
+  'enter_six_digit_otp_hint': '6-अंकी ओटीपी प्रविष्ट करा',
   'resend_otp_in': 'ओटीपी पुन्हा पाठवा ',
   'invalid_otp': 'अवैध ओटीपी',
   'enter_six_digit_otp': 'कृपया पडताळणी कोडचे सर्व 6 अंक प्रविष्ट करा.',

@@ -2250,6 +2250,7 @@ const Map<String, String> enUS = {
   'otp_sent': 'OTP Sent',
   'otp_sent_to_email': 'A password reset verification code has been sent to @email.',
   'enter_six_digit_otp_sent_to': 'Enter the 6-digit OTP sent to',
+  'enter_six_digit_otp_hint': 'Enter 6-digit OTP',
   'resend_otp_in': 'Resend OTP in ',
   'invalid_otp': 'Invalid OTP',
   'enter_six_digit_otp': 'Please enter all 6 digits of the verification code.',

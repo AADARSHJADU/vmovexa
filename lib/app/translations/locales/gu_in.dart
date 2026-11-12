@@ -2250,6 +2250,7 @@ const Map<String, String> guIN = {
   'otp_sent': 'ઓટીપી મોકલ્યો',
   'otp_sent_to_email': 'પાસવર્ડ રીસેટ વેરિફિકેશન કોડ @email પર મોકલવામાં આવ્યો છે.',
   'enter_six_digit_otp_sent_to': 'આ સરનામે મોકલેલ 6-અંકનો ઓટીપી દાખલ કરો',
+  'enter_six_digit_otp_hint': '6-અંકનો ઓટીપી દાખલ કરો',
   'resend_otp_in': 'ઓટીપી ફરી મોકલો ',
   'invalid_otp': 'અમાન્ય ઓટીપી',
   'enter_six_digit_otp': 'કૃપા કરીને વેરિફિકેશન કોડના તમામ 6 અંકો દાખલ કરો.',

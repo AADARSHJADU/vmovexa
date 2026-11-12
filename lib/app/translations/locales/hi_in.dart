@@ -2250,6 +2250,7 @@ const Map<String, String> hiIN = {
   'otp_sent': 'ओटीपी भेजा गया',
   'otp_sent_to_email': 'पासवर्ड रीसेट सत्यापन कोड @email पर भेजा गया है।',
   'enter_six_digit_otp_sent_to': 'इस पते पर भेजा गया 6-अंकीय ओटीपी दर्ज करें',
+  'enter_six_digit_otp_hint': '6-अंकीय ओटीपी दर्ज करें',
   'resend_otp_in': 'ओटीपी पुनः भेजें ',
   'invalid_otp': 'अमान्य ओटीपी',
   'enter_six_digit_otp': 'कृपया सत्यापन कोड के सभी 6 अंक दर्ज करें।',
