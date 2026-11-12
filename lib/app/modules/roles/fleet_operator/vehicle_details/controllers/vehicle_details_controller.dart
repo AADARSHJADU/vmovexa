@@ -197,13 +197,13 @@ class VehicleDetailsController extends GetxController {
   }
 
   void callDriver() {
-    Get.snackbar(
-      'calling_driver'.tr,
-      'dialing_driver_msg'.tr,
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color(0xFF6366F1),
-      colorText: Colors.white,
-      margin: const EdgeInsets.all(16),
-    );
+    // Get.snackbar(
+    //   'calling_driver'.tr,
+    //   'dialing_driver_msg'.tr,
+    //   snackPosition: SnackPosition.BOTTOM,
+    //   backgroundColor: const Color(0xFF6366F1),
+    //   colorText: Colors.white,
+    //   margin: const EdgeInsets.all(16),
+    // );
   }
 }

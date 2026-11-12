@@ -104,7 +104,7 @@ class PasswordUpdatedView extends StatelessWidget {
                             Get.offAllNamed(Routes.LOGIN);
                           } else {
                             // Return to Dashboard and navigate to Profile tab index (4)
-                            Get.offAllNamed(Routes.FLEET_OP_DASHBOARD, arguments: {'tab': 4});
+                            Get.offAllNamed(Routes.FLEET_OP_DASHBOARD, arguments: {'tab': 3});
                           }
                         },
                         style: ElevatedButton.styleFrom(

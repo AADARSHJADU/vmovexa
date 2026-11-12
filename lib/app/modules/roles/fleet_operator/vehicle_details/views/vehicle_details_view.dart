@@ -187,40 +187,40 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                       _buildQuickActionsGrid(),
                       const SizedBox(height: 30),
 
-                      // Bottom Action buttons
-                      Row(
-                        children: [
-                          Expanded(
-                            child: CustomButton(
-                              text: 'track_live'.tr,
-                              onTap: controller.startLiveTracking,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: CustomButton(
-                              text: 'edit_vehicle'.tr,
-                              isOutlined: true,
-                              onTap: controller.goToEditVehicle,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          IconButton(
-                            onPressed: controller.confirmDeleteVehicle,
-                            icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent),
-                            tooltip: 'delete_vehicle'.tr,
-                            style: IconButton.styleFrom(
-                              backgroundColor: Colors.redAccent.withValues(alpha: 0.15),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: BorderSide(color: Colors.redAccent.withValues(alpha: 0.4)),
-                              ),
-                              padding: const EdgeInsets.all(12),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
+                      // // Bottom Action buttons
+                      // Row(
+                      //   children: [
+                      //     Expanded(
+                      //       child: CustomButton(
+                      //         text: 'track_live'.tr,
+                      //         onTap: controller.startLiveTracking,
+                      //       ),
+                      //     ),
+                      //     const SizedBox(width: 12),
+                      //     Expanded(
+                      //       child: CustomButton(
+                      //         text: 'edit_vehicle'.tr,
+                      //         isOutlined: true,
+                      //         onTap: controller.goToEditVehicle,
+                      //       ),
+                      //     ),
+                      //     const SizedBox(width: 12),
+                      //     IconButton(
+                      //       onPressed: controller.confirmDeleteVehicle,
+                      //       icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent),
+                      //       tooltip: 'delete_vehicle'.tr,
+                      //       style: IconButton.styleFrom(
+                      //         backgroundColor: Colors.redAccent.withValues(alpha: 0.15),
+                      //         shape: RoundedRectangleBorder(
+                      //           borderRadius: BorderRadius.circular(12),
+                      //           side: BorderSide(color: Colors.redAccent.withValues(alpha: 0.4)),
+                      //         ),
+                      //         padding: const EdgeInsets.all(12),
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
+                      // const SizedBox(height: 24),
                     ],
                   ),
                 );

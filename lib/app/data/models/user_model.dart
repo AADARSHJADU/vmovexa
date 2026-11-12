@@ -225,8 +225,9 @@ class UserModel {
       return 'Driver';
     } else if (r.contains('FINANCE')) {
       return 'Finance';
-    } else if (r.contains('SUPERADMIN')) {
-      return 'Super Admin';
+      // } else if (r.contains('SUPERADMIN')) {
+      //   return 'Super Admin';
+      // }
     }
     return role ?? 'Fleet Operator';
   }

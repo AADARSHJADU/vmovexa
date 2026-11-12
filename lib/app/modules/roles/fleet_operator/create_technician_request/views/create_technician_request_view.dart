@@ -2,6 +2,7 @@ import 'package:vmovexa/app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../theme/app_colors.dart';
+import '../../../../../theme/app_theme.dart';
 import '../../../../../widgets/custom_back_button.dart';
 import '../controllers/create_technician_request_controller.dart';
 
@@ -222,20 +223,80 @@ class CreateTechnicianRequestView extends GetView<CreateTechnicianRequestControl
               const SizedBox(width: 10),
               Expanded(
                 flex: 4,
-                child: Obx(() => CustomButton(
-                      text: controller.isSubmitting.value
-                          ? 'submitting_label'.tr
-                          : (controller.isEditMode.value
-                              ? 'update_work_order'.tr
-                              : 'submit_ticket_super_admin'.tr),
-                      prefixIcon: controller.isSubmitting.value
-                          ? null
-                          : const Icon(Icons.send_rounded, size: 15, color: Colors.white),
-                      onTap: controller.isSubmitting.value ? () {} : controller.submitRequest,
-                      isLoading: controller.isSubmitting.value,
-                      height: 44,
-                    )),
+                child: Obx(() {
+                  final isLoading = controller.isSubmitting.value;
+
+                  return SizedBox(
+                    height: 44,
+                    width: double.infinity,
+                    child: Material(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(10),
+                      child: Ink(
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.primaryGradient,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(10),
+                          onTap: isLoading ? null : controller.submitRequest,
+                          child: Center(
+                            child: isLoading
+                                ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                                : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                // const Icon(
+                                //   Icons.send_rounded,
+                                //   size: 15,
+                                //   color: Colors.white,
+                                // ),
+                                // const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    textAlign: TextAlign.center,
+                                    controller.isEditMode.value
+                                        ? 'update_work_order'.tr
+                                        : 'submit_ticket_super_admin'.tr,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
               ),
+              // Expanded(
+              //   flex: 4,
+              //   child: Obx(() => CustomButton(
+              //         text: controller.isSubmitting.value
+              //             ? 'submitting_label'.tr
+              //             : (controller.isEditMode.value
+              //                 ? 'update_work_order'.tr
+              //                 : 'submit_ticket_super_admin'.tr),
+              //         prefixIcon: controller.isSubmitting.value
+              //             ? null
+              //             : const Icon(Icons.send_rounded, size: 15, color: Colors.white),
+              //         onTap: controller.isSubmitting.value ? () {} : controller.submitRequest,
+              //         isLoading: controller.isSubmitting.value,
+              //         height: 44,
+              //       )),
+              // ),
             ],
           ),
         ],

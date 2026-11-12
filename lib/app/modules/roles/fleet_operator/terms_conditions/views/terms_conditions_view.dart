@@ -75,34 +75,34 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
 
                       // Accordion List of dynamic clauses
                       _buildAccordionList(c),
-                      const SizedBox(height: 24),
-
-                      // Questions Card
-                      _buildQuestionsCard(c),
-                      const SizedBox(height: 24),
-
-                      // Bottom Accept Button
-                      Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          gradient: AppTheme.primaryGradient,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: ElevatedButton(
-                          onPressed: c.agreeTerms,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            minimumSize: const Size(double.infinity, 50),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          ),
-                          child: Text(
-                            'i_understand_accept_terms'.tr,
-                            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
+                      // const SizedBox(height: 24),
+                      //
+                      // // Questions Card
+                      // _buildQuestionsCard(c),
+                      // const SizedBox(height: 24),
+                      //
+                      // // Bottom Accept Button
+                      // Container(
+                      //   width: double.infinity,
+                      //   decoration: BoxDecoration(
+                      //     gradient: AppTheme.primaryGradient,
+                      //     borderRadius: BorderRadius.circular(10),
+                      //   ),
+                      //   child: ElevatedButton(
+                      //     onPressed: c.agreeTerms,
+                      //     style: ElevatedButton.styleFrom(
+                      //       backgroundColor: Colors.transparent,
+                      //       shadowColor: Colors.transparent,
+                      //       padding: const EdgeInsets.symmetric(vertical: 14),
+                      //       minimumSize: const Size(double.infinity, 50),
+                      //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      //     ),
+                      //     child: Text(
+                      //       'i_understand_accept_terms'.tr,
+                      //       style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                      //     ),
+                      //   ),
+                      // ),
                       const SizedBox(height: 20),
                     ],
                   ),

@@ -307,21 +307,21 @@ class ProfileView extends StatelessWidget {
     return Obx(() {
       return Row(
         children: [
-          Expanded(
-            child: _buildStatItem(
-              value: '${controller.fleetCount.value}',
-              label: 'fleets_caps'.tr,
-              iconPath: 'assets/icons/fleet_operator_icons/fleetsManagedA2.svg',
-              iconColor: const Color(0xFF38BDF8),
-              onTap: () {
-                if (Get.isRegistered<FleetOpDashboardController>()) {
-                  Get.find<FleetOpDashboardController>().setNavIndex(1);
-                } else {
-                  Get.toNamed(Routes.FLEET_LIST);
-                }
-              },
-            ),
-          ),
+          // Expanded(
+          //   child: _buildStatItem(
+          //     value: '${controller.fleetCount.value}',
+          //     label: 'fleets_caps'.tr,
+          //     iconPath: 'assets/icons/fleet_operator_icons/fleetsManagedA2.svg',
+          //     iconColor: const Color(0xFF38BDF8),
+          //     onTap: () {
+          //       if (Get.isRegistered<FleetOpDashboardController>()) {
+          //         Get.find<FleetOpDashboardController>().setNavIndex(1);
+          //       } else {
+          //         Get.toNamed(Routes.FLEET_LIST);
+          //       }
+          //     },
+          //   ),
+          // ),
           const SizedBox(width: 10),
           Expanded(
             child: _buildStatItem(
@@ -331,8 +331,13 @@ class ProfileView extends StatelessWidget {
               iconColor: const Color(0xFF818CF8),
               onTap: () {
                 if (Get.isRegistered<FleetOpDashboardController>()) {
-                  Get.find<FleetOpDashboardController>().setNavIndex(2);
+                  Get.find<FleetOpDashboardController>().setNavIndex(1);
+                } else {
+                  Get.toNamed(Routes.FLEET_LIST);
                 }
+                // if (Get.isRegistered<FleetOpDashboardController>()) {
+                //   Get.find<FleetOpDashboardController>().setNavIndex(2);
+                // }
               },
             ),
           ),
@@ -345,8 +350,11 @@ class ProfileView extends StatelessWidget {
               iconColor: const Color(0xFF34D399),
               onTap: () {
                 if (Get.isRegistered<FleetOpDashboardController>()) {
-                  Get.find<FleetOpDashboardController>().setNavIndex(3);
+                  Get.find<FleetOpDashboardController>().setNavIndex(2);
                 }
+                // if (Get.isRegistered<FleetOpDashboardController>()) {
+                //   Get.find<FleetOpDashboardController>().setNavIndex(3);
+                // }
               },
             ),
           ),

@@ -276,25 +276,25 @@ class AccountSettingsController extends GetxController {
                 _pickAndUploadImage(ImageSource.gallery);
               },
             ),
-            const SizedBox(height: 8),
-            ListTile(
-              leading: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: const Color(0x268B5CF6),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Icons.link_rounded, color: Color(0xFF8B5CF6), size: 22),
-              ),
-              title: Text('enter_image_url'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
-              subtitle: Text('paste_image_url_desc'.tr, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11)),
-              trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF64748B), size: 20),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              onTap: () {
-                Get.back();
-                _openManualUrlDialog();
-              },
-            ),
+            // const SizedBox(height: 8),
+            // ListTile(
+            //   leading: Container(
+            //     padding: const EdgeInsets.all(10),
+            //     decoration: BoxDecoration(
+            //       color: const Color(0x268B5CF6),
+            //       borderRadius: BorderRadius.circular(12),
+            //     ),
+            //     child: const Icon(Icons.link_rounded, color: Color(0xFF8B5CF6), size: 22),
+            //   ),
+            //   title: Text('enter_image_url'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+            //   subtitle: Text('paste_image_url_desc'.tr, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11)),
+            //   trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF64748B), size: 20),
+            //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            //   onTap: () {
+            //     Get.back();
+            //     _openManualUrlDialog();
+            //   },
+            // ),
           ],
         ),
       ),
@@ -597,12 +597,13 @@ class AccountSettingsController extends GetxController {
           );
 
           await Future.delayed(const Duration(milliseconds: 600));
-          if (Navigator.of(Get.context!).canPop()) {
-            Get.back();
-          } else {
-            final targetRoute = currentUser?.dashboardRoute ?? Routes.FLEET_OP_DASHBOARD;
-            Get.offAllNamed(targetRoute);
-          }
+          Get.offAllNamed(Routes.FLEET_OP_DASHBOARD, arguments: {'tab': 3});
+          // if (Navigator.of(Get.context!).canPop()) {
+          //   Get.back();
+          // } else {
+          //   final targetRoute = currentUser?.dashboardRoute ?? Routes.FLEET_OP_DASHBOARD;
+          //   Get.offAllNamed(targetRoute);
+          // }
         } else {
           Get.snackbar(
             'error'.tr,

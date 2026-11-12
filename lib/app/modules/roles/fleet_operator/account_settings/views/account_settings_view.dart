@@ -84,14 +84,14 @@ class AccountSettingsView extends StatelessWidget {
                     _buildPreferencesCard(controller),
                     const SizedBox(height: 24),
 
-                    // Security Section
-                    _buildSectionHeader(
-                      "assets/icons/fleet_operator_icons/securityA.svg",
-                      'security_and_password'.tr,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildSecurityCard(controller),
-                    const SizedBox(height: 36),
+                    // // Security Section
+                    // _buildSectionHeader(
+                    //   "assets/icons/fleet_operator_icons/securityA.svg",
+                    //   'security_and_password'.tr,
+                    // ),
+                    // const SizedBox(height: 12),
+                    // _buildSecurityCard(controller),
+                    // const SizedBox(height: 36),
 
                     // Save Changes Action Button
                     Obx(

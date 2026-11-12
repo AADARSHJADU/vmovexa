@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:get/get.dart';
 import '../../../../../data/models/fleet_models.dart';
 import '../../../../../data/models/work_order_model.dart';
 import '../../../../../data/services/fleet_service.dart';
+import '../../../../../routes/app_routes.dart';
 
 class CreateTechnicianRequestController extends GetxController {
   final RxBool isEditMode = false.obs;
@@ -206,8 +210,11 @@ class CreateTechnicianRequestController extends GetxController {
           colorText: Colors.white,
         );
       }
-
-      Get.back(result: true);
+      Get.offAllNamed(
+        Routes.FLEET_OP_DASHBOARD,
+        arguments: {'tab': 0},
+      );
+      // Get.back(result: true);
     } catch (e) {
       debugPrint('Error submitting technician request: $e');
       Get.snackbar(
@@ -216,6 +223,10 @@ class CreateTechnicianRequestController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF10B981),
         colorText: Colors.white,
+      );
+      Get.offAllNamed(
+        Routes.FLEET_OP_DASHBOARD,
+        arguments: {'tab': 0},
       );
       Get.back(result: true);
     } finally {

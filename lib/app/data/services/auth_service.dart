@@ -224,8 +224,8 @@ class AuthService extends GetxService {
     return _http.post(
       ApiConstants.changePassword,
       body: {
-        'current_password': currentPassword,
-        'new_password': newPassword,
+        'currentPassword': currentPassword,
+        'newPassword': newPassword,
       },
       requiresAuth: true,
     );
