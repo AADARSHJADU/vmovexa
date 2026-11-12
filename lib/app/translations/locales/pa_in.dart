@@ -1318,6 +1318,7 @@ const Map<String, String> paIN = {
   'bus_photos_media': '6. ਬੱਸ ਦੀਆਂ ਫੋਟੋਆਂ ਅਤੇ ਮੀਡੀਆ',
   'bus_photo': 'ਬੱਸ ਫੋਟੋ',
   'view_photo': 'ਫੋਟੋ ਦੇਖੋ',
+  'view_document': 'ਦਸਤਾਵੇਜ਼ ਦੇਖੋ',
   'add_photo': 'ਫੋਟੋ ਸ਼ਾਮਲ ਕਰੋ',
   'edit_work_order': 'ਵਰਕ ਆਰਡਰ ਸੰਪਾਦਿਤ ਕਰੋ',
   'submit_request': 'ਬੇਨਤੀ ਜਮ੍ਹਾਂ ਕਰੋ',

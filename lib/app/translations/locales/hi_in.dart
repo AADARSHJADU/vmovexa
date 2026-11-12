@@ -1318,6 +1318,7 @@ const Map<String, String> hiIN = {
   'bus_photos_media': '6. बस तस्वीरें और मीडिया',
   'bus_photo': 'बस फोटो',
   'view_photo': 'फोटो देखें',
+  'view_document': 'दस्तावेज़ देखें',
   'add_photo': 'फ़ोटो जोड़ें',
   'edit_work_order': 'कार्य आदेश संपादित करें',
   'submit_request': 'अनुरोध सबमिट करें',

@@ -1318,6 +1318,7 @@ const Map<String, String> teIN = {
   'bus_photos_media': '6. బస్సు ఫోటోలు & మీడియా',
   'bus_photo': 'బస్సు ఫోటో',
   'view_photo': 'ఫోటో చూడండి',
+  'view_document': 'పత్రాన్ని చూడండి',
   'add_photo': 'ఫోటో జోడించండి',
   'edit_work_order': 'వర్క్ ఆర్డర్‌ను సవరించండి',
   'submit_request': 'అభ్యర్థనను సమర్పించండి',

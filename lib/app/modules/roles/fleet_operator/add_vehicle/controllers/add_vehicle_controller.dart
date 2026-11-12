@@ -261,13 +261,14 @@ class AddVehicleController extends GetxController {
 
     for (final doc in v.documents) {
       final cat = doc.category.toLowerCase();
-      if (cat.contains('rc')) {
+      final purp = doc.purpose.toLowerCase();
+      if (cat.contains('rc') || purp.contains('rc')) {
         documentsMap['rc'] = doc;
-      } else if (cat.contains('fitness')) {
+      } else if (cat.contains('fitness') || purp.contains('fitness')) {
         documentsMap['fitness'] = doc;
-      } else if (cat.contains('transport') || cat.contains('license')) {
+      } else if (cat.contains('transport') || cat.contains('license') || purp.contains('transport') || purp.contains('license')) {
         documentsMap['transport_license'] = doc;
-      } else if (cat.contains('insurance')) {
+      } else if (cat.contains('insurance') || purp.contains('insurance')) {
         documentsMap['insurance'] = doc;
       }
     }
@@ -355,7 +356,7 @@ class AddVehicleController extends GetxController {
       for (final docRaw in (data['documents'] as List)) {
         if (docRaw is Map) {
           final doc = FleetDocumentModel.fromJson(Map<String, dynamic>.from(docRaw));
-          final docType = (docRaw['doc_type'] ?? doc.category).toString().toLowerCase();
+          final docType = (docRaw['doc_type'] ?? docRaw['purpose'] ?? doc.category).toString().toLowerCase();
           if (docType.contains('rc')) {
             documentsMap['rc'] = doc;
           } else if (docType.contains('fitness')) {

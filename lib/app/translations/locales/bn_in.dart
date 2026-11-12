@@ -1318,6 +1318,7 @@ const Map<String, String> bnIN = {
   'bus_photos_media': '৬. বাসের ছবি ও মিডিয়া',
   'bus_photo': 'বাস ফটো',
   'view_photo': 'ছবি দেখুন',
+  'view_document': 'নথি দেখুন',
   'add_photo': 'ছবি যোগ করুন',
   'edit_work_order': 'কাজের আদেশ সম্পাদনা করুন',
   'submit_request': 'অনুরোধ জমা দিন',

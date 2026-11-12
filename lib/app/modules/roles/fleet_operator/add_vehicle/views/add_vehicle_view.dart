@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:vmovexa/app/data/constants/api_constants.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
 import 'package:vmovexa/app/widgets/custom_back_button.dart';
@@ -471,7 +472,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
           physics: const NeverScrollableScrollPhysics(),
           mainAxisSpacing: 12,
           crossAxisSpacing: 12,
-          childAspectRatio: 1.35,
+          childAspectRatio: 1.25,
           children: [
             _buildDocCard(context, 'rc', 'doc_registration_rc'.tr),
             _buildDocCard(context, 'fitness', 'doc_fitness_cert'.tr),
@@ -524,9 +525,31 @@ class AddVehicleView extends GetView<AddVehicleController> {
               style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
             ),
             if (isUploaded)
-              Text(
-                'uploaded_check'.tr,
-                style: const TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.bold),
+              GestureDetector(
+                onTap: () => _showDocumentPreviewDialog(context, doc.url, title),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10B981).withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.5)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.visibility_rounded, color: Color(0xFF10B981), size: 12),
+                      const SizedBox(width: 4),
+                      Text(
+                        'view_document'.tr,
+                        style: const TextStyle(
+                          color: Color(0xFF10B981),
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               )
             else
               GestureDetector(
@@ -551,6 +574,117 @@ class AddVehicleView extends GetView<AddVehicleController> {
         ),
       );
     });
+  }
+
+  void _showDocumentPreviewDialog(BuildContext context, String docUrl, String title) {
+    final resolved = ApiConstants.resolveFileUrl(docUrl);
+    final isPdf = docUrl.toLowerCase().endsWith('.pdf');
+
+    if (isPdf) {
+      launchUrl(Uri.parse(resolved), mode: LaunchMode.externalApplication);
+      return;
+    }
+
+    Get.dialog(
+      Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F172A),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFF334155)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          const Icon(Icons.description_rounded, color: Color(0xFF10B981), size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, color: Colors.white70, size: 22),
+                      onPressed: () => Get.back(),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1, color: Color(0xFF334155)),
+              // Interactive Image with pinch-to-zoom and pan
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.65,
+                  maxWidth: MediaQuery.of(context).size.width,
+                ),
+                child: InteractiveViewer(
+                  panEnabled: true,
+                  boundaryMargin: const EdgeInsets.all(20),
+                  minScale: 0.5,
+                  maxScale: 4.0,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16),
+                    ),
+                    child: Image.network(
+                      resolved,
+                      fit: BoxFit.contain,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return const SizedBox(
+                          height: 250,
+                          child: Center(
+                            child: CircularProgressIndicator(color: Color(0xFF10B981), strokeWidth: 2),
+                          ),
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        height: 200,
+                        color: Colors.black26,
+                        child: const Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.broken_image_rounded, color: Colors.white38, size: 48),
+                              SizedBox(height: 8),
+                              Text('Failed to load document', style: TextStyle(color: Colors.white38, fontSize: 12)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   // ---------------- Section 4: Display Screen Configuration (The exact Display feature!) ----------------

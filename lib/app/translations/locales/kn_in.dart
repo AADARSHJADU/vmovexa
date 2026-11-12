@@ -1318,6 +1318,7 @@ const Map<String, String> knIN = {
   'bus_photos_media': '6. ಬಸ್ ಫೋಟೋಗಳು ಮತ್ತು ಮಾಧ್ಯಮ',
   'bus_photo': 'ಬಸ್ ಫೋಟೋ',
   'view_photo': 'ಫೋಟೋ ನೋಡಿ',
+  'view_document': 'ದಾಖಲೆ ನೋಡಿ',
   'add_photo': 'ಫೋಟೋ ಸೇರಿಸಿ',
   'edit_work_order': 'ಕೆಲಸದ ಆದೇಶವನ್ನು ಸಂಪಾದಿಸಿ',
   'submit_request': 'ವಿನಂತಿಯನ್ನು ಸಲ್ಲಿಸಿ',

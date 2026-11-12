@@ -1318,6 +1318,7 @@ const Map<String, String> enUS = {
   'bus_photos_media': '6. Bus Photos & Media',
   'bus_photo': 'Bus Photo',
   'view_photo': 'View Photo',
+  'view_document': 'View Document',
   'add_photo': 'Add Photo',
   'edit_work_order': 'Edit Work Order',
   'submit_request': 'Submit Request',

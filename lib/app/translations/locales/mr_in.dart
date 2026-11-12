@@ -1318,6 +1318,7 @@ const Map<String, String> mrIN = {
   'bus_photos_media': '6. बस फोटो आणि मीडिया',
   'bus_photo': 'बस फोटो',
   'view_photo': 'फोटो पहा',
+  'view_document': 'दस्तऐवज पहा',
   'add_photo': 'फोटो जोडा',
   'edit_work_order': 'कार्य आदेश संपादित करा',
   'submit_request': 'विनंती सबमिट करा',

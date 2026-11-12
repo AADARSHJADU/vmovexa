@@ -1318,6 +1318,7 @@ const Map<String, String> mlIN = {
   'bus_photos_media': '6. ബസ് ഫോട്ടോകളും മീഡിയയും',
   'bus_photo': 'ബസ് ഫോട്ടോ',
   'view_photo': 'ഫോട്ടോ കാണുക',
+  'view_document': 'രേഖ കാണുക',
   'add_photo': 'ഫോട്ടോ ചേർക്കുക',
   'edit_work_order': 'വർക്ക് ഓർഡർ എഡിറ്റ് ചെയ്യുക',
   'submit_request': 'അഭ്യർത്ഥന സമർപ്പിക്കുക',

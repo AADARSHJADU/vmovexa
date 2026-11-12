@@ -1318,6 +1318,7 @@ const Map<String, String> guIN = {
   'bus_photos_media': '6. બસ ફોટા અને મીડિયા',
   'bus_photo': 'બસ ફોટો',
   'view_photo': 'ફોટો જુઓ',
+  'view_document': 'દસ્તાવેજ જુઓ',
   'add_photo': 'ફોટો ઉમેરો',
   'edit_work_order': 'વર્ક ઓર્ડર સંપાદિત કરો',
   'submit_request': 'વિનંતી સબમિટ કરો',
