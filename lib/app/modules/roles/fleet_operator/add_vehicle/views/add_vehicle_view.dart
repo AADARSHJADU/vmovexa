@@ -377,7 +377,9 @@ class AddVehicleView extends GetView<AddVehicleController> {
       children: [
         _buildLabel('assigned_transit_route_req'.tr),
         Obx(() {
-          final routes = controller.routesList;
+          final routes = controller.routesList
+              .where((r) => r.status.toLowerCase().trim() != 'pending_approval')
+              .toList();
           final currentVal = controller.selectedRouteId.value;
           final fallback = controller.initialRouteName.value.isNotEmpty
               ? controller.initialRouteName.value

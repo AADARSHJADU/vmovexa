@@ -192,9 +192,16 @@ class AddVehicleController extends GetxController {
 
   Future<void> _loadRoutes() async {
     try {
-      final res = await FleetService.to.getRoutes(limit: 100);
+      final res = await FleetService.to.getRoutes(limit: 100, status: 'active');
       if (res.success && res.data != null) {
-        routesList.assignAll(res.data!);
+        final approvedRoutes = res.data!.where((r) {
+          final s = r.status.toLowerCase().trim();
+          if (s == 'pending_approval') return false;
+          return s == 'active' ||
+              s == 'approved' ||
+              (isEditMode.value && selectedRouteId.value != null && r.id.toString() == selectedRouteId.value);
+        }).toList();
+        routesList.assignAll(approvedRoutes);
       }
     } catch (_) {}
   }
