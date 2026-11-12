@@ -1316,6 +1316,8 @@ const Map<String, String> knIN = {
   'unassigned_select_gps': 'ನಿಯೋಜಿಸಲಾಗಿಲ್ಲ (ಜಿಪಿಎಸ್ ಘಟಕ ಆಯ್ಕೆಮಾಡಿ)',
   'operational_duty_status_req': 'ಕಾರ್ಯಾಚರಣೆಯ ಕರ್ತವ್ಯ ಸ್ಥಿತಿ *',
   'bus_photos_media': '6. ಬಸ್ ಫೋಟೋಗಳು ಮತ್ತು ಮಾಧ್ಯಮ',
+  'bus_photo': 'ಬಸ್ ಫೋಟೋ',
+  'view_photo': 'ಫೋಟೋ ನೋಡಿ',
   'add_photo': 'ಫೋಟೋ ಸೇರಿಸಿ',
   'edit_work_order': 'ಕೆಲಸದ ಆದೇಶವನ್ನು ಸಂಪಾದಿಸಿ',
   'submit_request': 'ವಿನಂತಿಯನ್ನು ಸಲ್ಲಿಸಿ',

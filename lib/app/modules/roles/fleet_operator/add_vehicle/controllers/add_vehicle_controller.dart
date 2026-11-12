@@ -272,8 +272,18 @@ class AddVehicleController extends GetxController {
       }
     }
 
-    if (v.photos.isNotEmpty) {
-      busPhotos.assignAll(v.photos);
+    final Set<String> uniquePhotos = {};
+    for (final p in v.photos) {
+      if (p.isNotEmpty) uniquePhotos.add(p);
+    }
+    for (final doc in v.documents) {
+      final cat = doc.category.toLowerCase();
+      if (cat == 'bus_photo' || cat.contains('bus_photo') || cat.contains('photo')) {
+        if (doc.url.isNotEmpty) uniquePhotos.add(doc.url);
+      }
+    }
+    if (uniquePhotos.isNotEmpty) {
+      busPhotos.assignAll(uniquePhotos);
     }
   }
 
@@ -360,10 +370,36 @@ class AddVehicleController extends GetxController {
     }
 
     // Bus Photos
-    if (data['photos'] is List) {
-      busPhotos.assignAll((data['photos'] as List).map((p) => p.toString()));
-    } else if (data['bus_images'] is List) {
-      busPhotos.assignAll((data['bus_images'] as List).map((p) => p.toString()));
+    final Set<String> uniquePhotos = {};
+    final rawPhotos = data['photos'] ??
+        data['bus_images'] ??
+        data['bus_photos'] ??
+        data['vehicle_photos'] ??
+        data['vehicle_images'] ??
+        data['images'];
+    if (rawPhotos is List) {
+      for (final p in rawPhotos) {
+        if (p is Map) {
+          final u = (p['url'] ?? p['file_url'] ?? p['filePath'] ?? p['path'] ?? '').toString();
+          if (u.isNotEmpty) uniquePhotos.add(u);
+        } else if (p != null && p.toString().isNotEmpty) {
+          uniquePhotos.add(p.toString());
+        }
+      }
+    }
+    if (data['documents'] is List) {
+      for (final docRaw in (data['documents'] as List)) {
+        if (docRaw is Map) {
+          final docType = (docRaw['doc_type'] ?? docRaw['category'] ?? docRaw['purpose'] ?? '').toString().toLowerCase();
+          if (docType == 'bus_photo' || docType.contains('bus_photo') || docType.contains('photo')) {
+            final u = (docRaw['file_url'] ?? docRaw['url'] ?? docRaw['filePath'] ?? '').toString();
+            if (u.isNotEmpty) uniquePhotos.add(u);
+          }
+        }
+      }
+    }
+    if (uniquePhotos.isNotEmpty) {
+      busPhotos.assignAll(uniquePhotos);
     }
   }
 
@@ -560,6 +596,16 @@ class AddVehicleController extends GetxController {
           'approval_status': 'pending',
         };
       }).toList();
+
+      for (final photoUrl in busPhotos) {
+        docsPayload.add({
+          'doc_type': 'bus_photo',
+          'category': 'bus_photo',
+          'file_url': photoUrl,
+          'name': 'Bus Photo',
+          'approval_status': 'approved',
+        });
+      }
 
       final matchedRoute = routesList.firstWhereOrNull((r) => r.id.toString() == selectedRouteId.value?.toString());
 

@@ -1316,6 +1316,8 @@ const Map<String, String> guIN = {
   'unassigned_select_gps': 'અસાઇન ન કરેલ (જીપીએસ યુનિટ પસંદ કરો)',
   'operational_duty_status_req': 'ઓપરેશનલ ડ્યુટી સ્થિતિ *',
   'bus_photos_media': '6. બસ ફોટા અને મીડિયા',
+  'bus_photo': 'બસ ફોટો',
+  'view_photo': 'ફોટો જુઓ',
   'add_photo': 'ફોટો ઉમેરો',
   'edit_work_order': 'વર્ક ઓર્ડર સંપાદિત કરો',
   'submit_request': 'વિનંતી સબમિટ કરો',

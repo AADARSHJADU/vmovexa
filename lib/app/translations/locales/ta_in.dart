@@ -1316,6 +1316,8 @@ const Map<String, String> taIN = {
   'unassigned_select_gps': 'ஒதுக்கப்படவில்லை (ஜிபிஎஸ் யூனிட்டைத் தேர்ந்தெடுக்கவும்)',
   'operational_duty_status_req': 'செயல்பாட்டு பணி நிலை *',
   'bus_photos_media': '6. பேருந்து புகைப்படங்கள் & மீடியா',
+  'bus_photo': 'பேருந்து புகைப்படம்',
+  'view_photo': 'புகைப்படத்தைப் பார்க்கவும்',
   'add_photo': 'புகைப்படம் சேர்க்கவும்',
   'edit_work_order': 'பணி ஆணையைத் திருத்தவும்',
   'submit_request': 'கோரிக்கையைச் சமர்ப்பிக்கவும்',

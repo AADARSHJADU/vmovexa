@@ -1316,6 +1316,8 @@ const Map<String, String> enUS = {
   'unassigned_select_gps': 'Unassigned (Select GPS Unit)',
   'operational_duty_status_req': 'Operational Duty Status *',
   'bus_photos_media': '6. Bus Photos & Media',
+  'bus_photo': 'Bus Photo',
+  'view_photo': 'View Photo',
   'add_photo': 'Add Photo',
   'edit_work_order': 'Edit Work Order',
   'submit_request': 'Submit Request',

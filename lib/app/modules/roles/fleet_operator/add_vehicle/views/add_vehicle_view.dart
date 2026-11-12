@@ -733,7 +733,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
   }
 
   // ---------------- Section 5: GPS Hardware & Operational Status ----------------
-  Widget _buildSection5GpsAndStatus(BuildContext context) {
+ /* Widget _buildSection5GpsAndStatus(BuildContext context) {
     return _buildCardWrapper(
       title: 'telematics_hardware_status'.tr,
       icon: Icons.sensors_rounded,
@@ -762,6 +762,25 @@ class AddVehicleView extends GetView<AddVehicleController> {
         _buildLabel('operational_duty_status_req'.tr),
         Obx(
           () => Row(
+            children: [
+              _buildStatusPill('active', 'status_active_live'.tr, const Color(0xFF10B981)),
+              const SizedBox(width: 8),
+              _buildStatusPill('in_depot', 'status_in_depot'.tr, const Color(0xFF38BDF8)),
+              const SizedBox(width: 8),
+              _buildStatusPill('maintenance', 'status_maintenance'.tr, const Color(0xFFF59E0B)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }*/
+  Widget _buildSection5GpsAndStatus(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildLabel('operational_duty_status_req'.tr),
+        Obx(
+              () => Row(
             children: [
               _buildStatusPill('active', 'status_active_live'.tr, const Color(0xFF10B981)),
               const SizedBox(width: 8),
@@ -813,9 +832,11 @@ class AddVehicleView extends GetView<AddVehicleController> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'attach_bus_photos_desc'.tr,
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+            Expanded(
+              child: Text(
+                'attach_bus_photos_desc'.tr,
+                style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+              ),
             ),
             GestureDetector(
               onTap: () => _showMediaSourceSheet(
@@ -861,7 +882,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
           }
 
           return SizedBox(
-            height: 90,
+            height: 96,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: photos.length,
@@ -872,31 +893,66 @@ class AddVehicleView extends GetView<AddVehicleController> {
 
                 return Stack(
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Container(
-                        width: 90,
-                        height: 90,
-                        decoration: BoxDecoration(
-                          color: Colors.black26,
-                          border: Border.all(color: AppColors.cardBorder),
-                        ),
-                        child: Image.network(
-                          resolved,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => const Center(
-                            child: Icon(Icons.broken_image_rounded, color: Colors.white38),
+                    GestureDetector(
+                      onTap: () => _showPhotoPreviewDialog(ctx, resolved, idx, photos.length),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          width: 96,
+                          height: 96,
+                          decoration: BoxDecoration(
+                            color: Colors.black26,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: AppColors.cardBorder),
+                          ),
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Image.network(
+                                resolved,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => const Center(
+                                  child: Icon(Icons.broken_image_rounded, color: Colors.white38),
+                                ),
+                              ),
+                              // Bottom translucent "View" bar with eye icon
+                              Positioned(
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 3),
+                                  color: Colors.black87.withValues(alpha: 0.75),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(Icons.visibility_rounded, color: Colors.white, size: 11),
+                                      const SizedBox(width: 3),
+                                      Text(
+                                        'view_photo'.tr,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ),
+                    // Delete Photo Button
                     Positioned(
                       top: 4,
                       right: 4,
                       child: GestureDetector(
                         onTap: () => controller.removeBusPhoto(idx),
                         child: Container(
-                          padding: const EdgeInsets.all(3),
+                          padding: const EdgeInsets.all(4),
                           decoration: const BoxDecoration(
                             color: Colors.black87,
                             shape: BoxShape.circle,
@@ -912,6 +968,103 @@ class AddVehicleView extends GetView<AddVehicleController> {
           );
         }),
       ],
+    );
+  }
+
+  void _showPhotoPreviewDialog(BuildContext context, String photoUrl, int index, int total) {
+    Get.dialog(
+      Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F172A),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFF334155)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.photo_rounded, color: Color(0xFF38BDF8), size: 18),
+                        const SizedBox(width: 8),
+                        Text(
+                          '${'bus_photo'.tr} ${index + 1} of $total',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, color: Colors.white70, size: 22),
+                      onPressed: () => Get.back(),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1, color: Color(0xFF334155)),
+              // Interactive Image with pinch-to-zoom and pan
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.65,
+                  maxWidth: MediaQuery.of(context).size.width,
+                ),
+                child: InteractiveViewer(
+                  panEnabled: true,
+                  boundaryMargin: const EdgeInsets.all(20),
+                  minScale: 0.5,
+                  maxScale: 4.0,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16),
+                    ),
+                    child: Image.network(
+                      photoUrl,
+                      fit: BoxFit.contain,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return const SizedBox(
+                          height: 250,
+                          child: Center(
+                            child: CircularProgressIndicator(color: Color(0xFF38BDF8), strokeWidth: 2),
+                          ),
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        height: 200,
+                        color: Colors.black26,
+                        child: const Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.broken_image_rounded, color: Colors.white38, size: 48),
+                              SizedBox(height: 8),
+                              Text('Failed to load photo', style: TextStyle(color: Colors.white38, fontSize: 12)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

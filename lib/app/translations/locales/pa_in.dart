@@ -1316,6 +1316,8 @@ const Map<String, String> paIN = {
   'unassigned_select_gps': 'ਅਸਾਈਨ ਨਹੀਂ ਕੀਤਾ ਗਿਆ (ਜੀਪੀਐਸ ਯੂਨਿਟ ਚੁਣੋ)',
   'operational_duty_status_req': 'ਓਪਰੇਸ਼ਨਲ ਡਿਊਟੀ ਸਥਿਤੀ *',
   'bus_photos_media': '6. ਬੱਸ ਦੀਆਂ ਫੋਟੋਆਂ ਅਤੇ ਮੀਡੀਆ',
+  'bus_photo': 'ਬੱਸ ਫੋਟੋ',
+  'view_photo': 'ਫੋਟੋ ਦੇਖੋ',
   'add_photo': 'ਫੋਟੋ ਸ਼ਾਮਲ ਕਰੋ',
   'edit_work_order': 'ਵਰਕ ਆਰਡਰ ਸੰਪਾਦਿਤ ਕਰੋ',
   'submit_request': 'ਬੇਨਤੀ ਜਮ੍ਹਾਂ ਕਰੋ',

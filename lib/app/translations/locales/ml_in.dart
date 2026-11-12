@@ -1316,6 +1316,8 @@ const Map<String, String> mlIN = {
   'unassigned_select_gps': 'നിയോഗിച്ചിട്ടില്ല (ജിപിഎസ് യൂണിറ്റ് തിരഞ്ഞെടുക്കുക)',
   'operational_duty_status_req': 'പ്രവർത്തന ഡ്യൂട്ടി നില *',
   'bus_photos_media': '6. ബസ് ഫോട്ടോകളും മീഡിയയും',
+  'bus_photo': 'ബസ് ഫോട്ടോ',
+  'view_photo': 'ഫോട്ടോ കാണുക',
   'add_photo': 'ഫോട്ടോ ചേർക്കുക',
   'edit_work_order': 'വർക്ക് ഓർഡർ എഡിറ്റ് ചെയ്യുക',
   'submit_request': 'അഭ്യർത്ഥന സമർപ്പിക്കുക',

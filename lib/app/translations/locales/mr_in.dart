@@ -1316,6 +1316,8 @@ const Map<String, String> mrIN = {
   'unassigned_select_gps': 'अनासोपवलेले (जीपीएस युनिट निवडा)',
   'operational_duty_status_req': 'ऑपरेशनल कर्तव्य स्थिती *',
   'bus_photos_media': '6. बस फोटो आणि मीडिया',
+  'bus_photo': 'बस फोटो',
+  'view_photo': 'फोटो पहा',
   'add_photo': 'फोटो जोडा',
   'edit_work_order': 'कार्य आदेश संपादित करा',
   'submit_request': 'विनंती सबमिट करा',

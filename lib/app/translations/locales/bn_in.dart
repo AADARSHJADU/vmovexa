@@ -1316,6 +1316,8 @@ const Map<String, String> bnIN = {
   'unassigned_select_gps': 'অনির্ধারিত (জিপিএস ইউনিট নির্বাচন করুন)',
   'operational_duty_status_req': 'অপারেশনাল ডিউটি স্থিতি *',
   'bus_photos_media': '৬. বাসের ছবি ও মিডিয়া',
+  'bus_photo': 'বাস ফটো',
+  'view_photo': 'ছবি দেখুন',
   'add_photo': 'ছবি যোগ করুন',
   'edit_work_order': 'কাজের আদেশ সম্পাদনা করুন',
   'submit_request': 'অনুরোধ জমা দিন',

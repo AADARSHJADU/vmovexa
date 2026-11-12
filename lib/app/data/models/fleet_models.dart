@@ -212,10 +212,31 @@ class VehicleItemModel {
 
     // Bus photos
     List<String> photoList = [];
-    if (json['photos'] is List) {
-      photoList = (json['photos'] as List).map((p) => p.toString()).toList();
-    } else if (json['bus_images'] is List) {
-      photoList = (json['bus_images'] as List).map((p) => p.toString()).toList();
+    final rawPhotos = json['photos'] ??
+        json['bus_images'] ??
+        json['bus_photos'] ??
+        json['vehicle_photos'] ??
+        json['vehicle_images'] ??
+        json['images'];
+    if (rawPhotos is List) {
+      for (final p in rawPhotos) {
+        if (p is Map) {
+          final u = (p['url'] ?? p['file_url'] ?? p['filePath'] ?? p['path'] ?? '').toString();
+          if (u.isNotEmpty && !photoList.contains(u)) photoList.add(u);
+        } else if (p != null && p.toString().isNotEmpty) {
+          final u = p.toString();
+          if (!photoList.contains(u)) photoList.add(u);
+        }
+      }
+    }
+    // Also include any bus_photo from documents if not already in photoList
+    for (final d in docs) {
+      final cat = d.category.toLowerCase();
+      if (cat == 'bus_photo' || cat.contains('bus_photo') || cat.contains('photo')) {
+        if (d.url.isNotEmpty && !photoList.contains(d.url)) {
+          photoList.add(d.url);
+        }
+      }
     }
 
     return VehicleItemModel(

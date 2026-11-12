@@ -1316,6 +1316,8 @@ const Map<String, String> hiIN = {
   'unassigned_select_gps': 'अनासक्त (जीपीएस यूनिट चुनें)',
   'operational_duty_status_req': 'परिचालन ड्यूटी स्थिति *',
   'bus_photos_media': '6. बस तस्वीरें और मीडिया',
+  'bus_photo': 'बस फोटो',
+  'view_photo': 'फोटो देखें',
   'add_photo': 'फ़ोटो जोड़ें',
   'edit_work_order': 'कार्य आदेश संपादित करें',
   'submit_request': 'अनुरोध सबमिट करें',
