@@ -14,8 +14,24 @@ class EmergencyIncidentsController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxList<IncidentItemModel> incidents = <IncidentItemModel>[].obs;
   final RxString selectedFilter = 'ALL'.obs; // 'ALL', 'critical', 'investigating', 'resolved'
+  final RxString selectedCategory = 'ALL'.obs; // 'ALL', 'Accident', 'Breakdown', etc.
   final RxString searchQuery = ''.obs;
   final TextEditingController searchController = TextEditingController();
+
+  final List<String> quickCategories = const [
+    'ALL',
+    'Accident',
+    'Breakdown',
+    'Road Condition',
+    'Traffic Issue',
+    'Safety Concern',
+    'Passenger Issue',
+    'Infrastructure',
+    'Other',
+  ];
+
+  // Role authority check (Fleet Operator has no clearance to change status or recovered)
+  bool get isSuperAdmin => false;
 
   // --- Detail View State ---
   final RxBool isDetailLoading = false.obs;
@@ -209,6 +225,7 @@ class EmergencyIncidentsController extends GetxController {
   // --- Filtered List ---
   List<IncidentItemModel> get filteredIncidents {
     return incidents.where((inc) {
+      // 1. Status Filter Tab
       if (selectedFilter.value == 'critical' && !inc.isCritical) return false;
       if (selectedFilter.value == 'investigating' &&
           (inc.isResolved ||
@@ -220,6 +237,13 @@ class EmergencyIncidentsController extends GetxController {
       }
       if (selectedFilter.value == 'resolved' && !inc.isResolved) return false;
 
+      // 2. Quick Category Filter
+      if (selectedCategory.value != 'ALL' &&
+          inc.incidentType.toLowerCase() != selectedCategory.value.toLowerCase()) {
+        return false;
+      }
+
+      // 3. Search Query Filter
       if (searchQuery.value.isNotEmpty) {
         final q = searchQuery.value.toLowerCase();
         final matchesId = inc.id.toLowerCase().contains(q);
@@ -287,25 +311,61 @@ class EmergencyIncidentsController extends GetxController {
     }
   }
 
+  void toggleRecovered() {
+    if (!isSuperAdmin) {
+      Get.snackbar(
+        'access_restricted'.tr,
+        'Only Super Administrators possess platform authority to alter incident status or issue final recovery clearance.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFFF59E0B),
+        colorText: Colors.white,
+        icon: const Icon(Icons.lock_rounded, color: Colors.white),
+        duration: const Duration(seconds: 3),
+      );
+      return;
+    }
+    recovered.value = !recovered.value;
+  }
+
+  void notifyStatusRestricted() {
+    Get.snackbar(
+      'access_restricted'.tr,
+      'Incident status alteration is restricted to Super Admin authority.',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: const Color(0xFFF59E0B),
+      colorText: Colors.white,
+      icon: const Icon(Icons.lock_rounded, color: Colors.white),
+      duration: const Duration(seconds: 3),
+    );
+  }
+
   Future<void> saveResolution() async {
     final inc = selectedIncident.value;
     if (inc == null) return;
 
     isUpdatingResolution.value = true;
     try {
-      final payload = {
-        'status': resolutionStatus.value,
-        'contactedDriver': contactedDriver.value,
-        'contactNotes': contactNotesController.text.trim(),
-        'recovered': recovered.value,
-        'resolutionNotes': resolutionNotesController.text.trim(),
-      };
+      // In Fleet Operator role, only driver voice contact and notes are allowed to be updated.
+      // Status and recovered are guarded for Super Admin only.
+      final payload = isSuperAdmin
+          ? {
+              'status': resolutionStatus.value,
+              'contactedDriver': contactedDriver.value,
+              'contactNotes': contactNotesController.text.trim(),
+              'recovered': recovered.value,
+              'resolutionNotes': resolutionNotesController.text.trim(),
+            }
+          : {
+              'contactedDriver': contactedDriver.value,
+              'contactNotes': contactNotesController.text.trim(),
+              'resolutionNotes': resolutionNotesController.text.trim(),
+            };
 
       final res = await _fleetService.updateIncidentResolution(inc.id, payload);
       if (res.success) {
         Get.snackbar(
           'updated_successfully'.tr,
-          'incident_resolution_recorded'.tr,
+          'Driver contact call & notes recorded successfully!',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,

@@ -283,7 +283,69 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
         ),
         const SizedBox(height: 12),
 
-        // Filter Pills
+        // Quick Category Filter Bar
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.category_outlined, size: 13, color: Colors.grey),
+                const SizedBox(width: 4),
+                Text(
+                  'QUICK CATEGORY',
+                  style: TextStyle(
+                    color: Colors.grey.shade400,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Obx(() {
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: controller.quickCategories.map((cat) {
+                    final isSelected = controller.selectedCategory.value == cat;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: GestureDetector(
+                        onTap: () => controller.selectedCategory.value = cat,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 150),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? const Color(0xFF2563EB).withValues(alpha: 0.2)
+                                : AppColors.cardBg,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isSelected ? const Color(0xFF3B82F6) : AppColors.cardBorder,
+                              width: isSelected ? 1.4 : 1.0,
+                            ),
+                          ),
+                          child: Text(
+                            cat,
+                            style: TextStyle(
+                              color: isSelected ? const Color(0xFF60A5FA) : Colors.grey.shade400,
+                              fontSize: 11,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              );
+            }),
+          ],
+        ),
+        const SizedBox(height: 10),
+
+        // Status Filter Pills
         Obx(() {
           return SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -604,16 +666,18 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
                 ),
                 Row(
                   children: [
-                    Text(
-                      'view_and_resolve'.tr,
-                      style: const TextStyle(
-                        color: Color(0xFF6366F1),
+                    const Icon(Icons.phone_in_talk_rounded, size: 13, color: Color(0xFF60A5FA)),
+                    const SizedBox(width: 4),
+                    const Text(
+                      'Voice Contact / Notes',
+                      style: TextStyle(
+                        color: Color(0xFF60A5FA),
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(width: 2),
-                    const Icon(Icons.chevron_right_rounded, size: 16, color: Color(0xFF6366F1)),
+                    const Icon(Icons.chevron_right_rounded, size: 15, color: Color(0xFF60A5FA)),
                   ],
                 ),
               ],
