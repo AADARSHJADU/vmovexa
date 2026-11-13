@@ -13,6 +13,111 @@ import '../controllers/emergency_incidents_controller.dart';
 class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController> {
   const EmergencyIncidentDetailsView({super.key});
 
+  String _getCategoryLabel(String cat) {
+    switch (cat) {
+      case 'ALL':
+        return 'all_incidents'.tr;
+      case 'Accident':
+        return 'incident_accident'.tr;
+      case 'Breakdown':
+        return 'incident_breakdown'.tr;
+      case 'Road Condition':
+        return 'incident_road_condition'.tr;
+      case 'Traffic Issue':
+        return 'incident_traffic_issue'.tr;
+      case 'Safety Concern':
+        return 'incident_safety_concern'.tr;
+      case 'Passenger Issue':
+        return 'incident_passenger_issue'.tr;
+      case 'Infrastructure':
+        return 'incident_infrastructure'.tr;
+      case 'Other':
+        return 'incident_other'.tr;
+      default:
+        return cat;
+    }
+  }
+
+  String _getSeverityLabel(String sev) {
+    switch (sev.toLowerCase()) {
+      case 'low':
+        return 'low'.tr.toUpperCase();
+      case 'medium':
+        return 'medium'.tr.toUpperCase();
+      case 'high':
+        return 'high'.tr.toUpperCase();
+      case 'critical':
+        return 'critical'.tr.toUpperCase();
+      default:
+        return sev.toUpperCase();
+    }
+  }
+
+  String _getStatusLabel(String status) {
+    switch (status.toLowerCase()) {
+      case 'reported':
+        return 'reported'.tr.toUpperCase();
+      case 'in_progress':
+      case 'in progress':
+        return 'in_progress'.tr.toUpperCase();
+      case 'investigating':
+        return 'investigating'.tr.toUpperCase();
+      case 'resolved':
+        return 'resolved'.tr.toUpperCase();
+      case 'closed':
+        return 'closed'.tr.toUpperCase();
+      default:
+        return status.toUpperCase();
+    }
+  }
+
+  String _getWeatherLabel(String? w) {
+    if (w == null || w.isEmpty) return 'weather_clear'.tr;
+    switch (w.toLowerCase()) {
+      case 'clear':
+        return 'weather_clear'.tr;
+      case 'rainy':
+      case 'rainy / wet':
+        return 'weather_rainy'.tr;
+      case 'fog':
+      case 'fog / low visibility':
+        return 'weather_fog'.tr;
+      case 'storm':
+      case 'storm / high wind':
+        return 'weather_storm'.tr;
+      case 'heat':
+      case 'extreme heat':
+        return 'weather_heat'.tr;
+      default:
+        return w;
+    }
+  }
+
+  String _getRoadTypeLabel(String? r) {
+    if (r == null || r.isEmpty) return 'road_city_street'.tr;
+    switch (r.toLowerCase()) {
+      case 'city street':
+        return 'road_city_street'.tr;
+      case 'highway':
+      case 'highway / expressway':
+        return 'road_highway'.tr;
+      case 'transit corridor':
+      case 'transit corridor / bus lane':
+        return 'road_transit_corridor'.tr;
+      case 'intersection':
+      case 'intersection / junction':
+        return 'road_intersection'.tr;
+      case 'bridge':
+      case 'bridge / flyover':
+        return 'road_bridge'.tr;
+      case 'depot':
+      case 'depot / station yard':
+        return 'road_depot'.tr;
+      default:
+        return r;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!Get.isRegistered<EmergencyIncidentsController>()) {
@@ -105,7 +210,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
           const CustomBackButton(),
           Obx(() {
             final inc = controller.selectedIncident.value;
-            final title = inc != null ? 'Incident #${inc.id}' : 'incident_detail'.tr;
+            final title = inc != null ? '${'incident'.tr} #${inc.id}' : 'incident_detail'.tr;
             return Text(
               title,
               style: const TextStyle(
@@ -137,7 +242,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
   Widget _buildHeaderCard(IncidentItemModel inc) {
     final dateStr = inc.createdAt != null && inc.createdAt!.isNotEmpty
         ? DateFormat('dd MMM yyyy · hh:mm a').format(DateTime.tryParse(inc.createdAt!) ?? DateTime.now())
-        : 'Recently logged';
+        : 'recorded'.tr;
 
     final isResolved = ['resolved', 'closed'].contains(inc.status.toLowerCase());
 
@@ -159,7 +264,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
             children: [
               Expanded(
                 child: Text(
-                  inc.incidentType,
+                  _getCategoryLabel(inc.incidentType),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 17,
@@ -176,7 +281,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                   border: Border.all(color: inc.severityColor.withValues(alpha: 0.5)),
                 ),
                 child: Text(
-                  inc.severity.toUpperCase(),
+                  _getSeverityLabel(inc.severity),
                   style: TextStyle(
                     color: inc.severityColor,
                     fontSize: 10,
@@ -194,7 +299,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                   border: Border.all(color: inc.statusColor.withValues(alpha: 0.5)),
                 ),
                 child: Text(
-                  inc.formattedStatus.toUpperCase(),
+                  _getStatusLabel(inc.status),
                   style: TextStyle(
                     color: inc.statusColor,
                     fontSize: 10,
@@ -213,42 +318,41 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                 dateStr,
                 style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
               ),
-              const Spacer(),
-              // Super Admin Clearance Officer Status Pill
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: isResolved
-                      ? const Color(0xFF10B981).withValues(alpha: 0.15)
-                      : const Color(0xFFF59E0B).withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    color: isResolved
-                        ? const Color(0xFF10B981).withValues(alpha: 0.4)
-                        : const Color(0xFFF59E0B).withValues(alpha: 0.4),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: isResolved
+                  ? const Color(0xFF10B981).withValues(alpha: 0.15)
+                  : const Color(0xFFF59E0B).withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(
+                color: isResolved
+                    ? const Color(0xFF10B981).withValues(alpha: 0.4)
+                    : const Color(0xFFF59E0B).withValues(alpha: 0.4),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  isResolved ? Icons.verified_user_rounded : Icons.lock_outline_rounded,
+                  size: 11,
+                  color: isResolved ? const Color(0xFF34D399) : const Color(0xFFFBBF24),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  isResolved ? 'super_admin_cleared'.tr : 'pending_super_admin_clearance'.tr,
+                  style: TextStyle(
+                    color: isResolved ? const Color(0xFF34D399) : const Color(0xFFFBBF24),
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      isResolved ? Icons.verified_user_rounded : Icons.lock_outline_rounded,
-                      size: 11,
-                      color: isResolved ? const Color(0xFF34D399) : const Color(0xFFFBBF24),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      isResolved ? 'Super Admin Cleared' : 'Pending Super Admin Clearance',
-                      style: TextStyle(
-                        color: isResolved ? const Color(0xFF34D399) : const Color(0xFFFBBF24),
-                        fontSize: 9.5,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -276,7 +380,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('ASSIGNED DRIVER', style: TextStyle(color: Colors.grey.shade500, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                    Text('assigned_driver_caps'.tr, style: TextStyle(color: Colors.grey.shade500, fontSize: 9.5, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 2),
                     Text(inc.displayDriverName, style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
                   ],
@@ -286,7 +390,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('VEHICLE UNIT', style: TextStyle(color: Colors.grey.shade500, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                    Text('vehicle_unit_caps'.tr, style: TextStyle(color: Colors.grey.shade500, fontSize: 9.5, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 2),
                     Text(inc.displayVehicleNumber, style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
                   ],
@@ -301,7 +405,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('DRIVER CONTACT STATUS', style: TextStyle(color: Colors.grey.shade500, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                    Text('driver_contact_status_label'.tr, style: TextStyle(color: Colors.grey.shade500, fontSize: 9.5, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 3),
                     Row(
                       children: [
@@ -313,7 +417,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            inc.contactedDriver ? 'Contacted & Acknowledged' : 'Pending Driver Contact',
+                            inc.contactedDriver ? 'contacted_acknowledged'.tr : 'pending_driver_contact'.tr,
                             style: TextStyle(
                               color: inc.contactedDriver ? const Color(0xFF60A5FA) : const Color(0xFFFBBF24),
                               fontSize: 11,
@@ -332,7 +436,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('SITE RECOVERY', style: TextStyle(color: Colors.grey.shade500, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                    Text('site_recovery_label'.tr, style: TextStyle(color: Colors.grey.shade500, fontSize: 9.5, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 3),
                     Row(
                       children: [
@@ -344,7 +448,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            inc.recovered ? 'Recovered / Cleared' : 'Pending Recovery',
+                            inc.recovered ? 'recovered_cleared'.tr : 'pending_recovery'.tr,
                             style: TextStyle(
                               color: inc.recovered ? const Color(0xFF34D399) : Colors.grey.shade400,
                               fontSize: 11,
@@ -412,7 +516,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Assigned Fleet Vehicle Unit',
+                      'assigned_fleet_vehicle_unit'.tr,
                       style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
                     ),
                   ],
@@ -442,7 +546,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      inc.displayDriverPhone.isNotEmpty ? inc.displayDriverPhone : 'No contact phone recorded',
+                      inc.displayDriverPhone.isNotEmpty ? inc.displayDriverPhone : 'no_contact_phone_recorded'.tr,
                       style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
                     ),
                   ],
@@ -464,7 +568,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                       elevation: 0,
                     ),
                     icon: const Icon(Icons.phone, size: 15, color: Colors.white),
-                    label: const Text('Call', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
+                    label: Text('call'.tr, style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
                     onPressed: () async {
                       final uri = Uri.parse('tel:${inc.displayDriverPhone}');
                       if (await canLaunchUrl(uri)) {
@@ -497,7 +601,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Scene Location & Telemetry',
+            'scene_location_telemetry'.tr,
             style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
@@ -514,25 +618,34 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
               children: [
                 const Icon(Icons.my_location_rounded, size: 16, color: Colors.grey),
                 const SizedBox(width: 8),
-                Text('GPS Pin: ', style: TextStyle(color: Colors.grey.shade400, fontSize: 12, fontWeight: FontWeight.w500)),
-                Text('${inc.latitude}, ${inc.longitude}', style: const TextStyle(color: Color(0xFF34D399), fontSize: 12, fontFamily: 'monospace', fontWeight: FontWeight.bold)),
-                const SizedBox(width: 8),
-                GestureDetector(
-                  onTap: () async {
-                    final mapUrl = Uri.parse('https://www.google.com/maps/search/?api=1&query=${inc.latitude},${inc.longitude}');
-                    if (await canLaunchUrl(mapUrl)) {
-                      await launchUrl(mapUrl, mode: LaunchMode.externalApplication);
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text('gps_pin_colon'.tr, style: TextStyle(color: Colors.grey.shade400, fontSize: 12, fontWeight: FontWeight.w500)),
+                        Text('${inc.latitude}, ${inc.longitude}', style: const TextStyle(color: Color(0xFF34D399), fontSize: 12, fontFamily: 'monospace', fontWeight: FontWeight.bold))
+                      ],
                     ),
-                    child: const Text('View Map ↗', style: TextStyle(color: Color(0xFF34D399), fontSize: 10, fontWeight: FontWeight.bold)),
-                  ),
+                    const SizedBox(height: 5),
+                    GestureDetector(
+                      onTap: () async {
+                        final mapUrl = Uri.parse('https://www.google.com/maps/search/?api=1&query=${inc.latitude},${inc.longitude}');
+                        if (await canLaunchUrl(mapUrl)) {
+                          await launchUrl(mapUrl, mode: LaunchMode.externalApplication);
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
+                        ),
+                        child: Text('view_map_action'.tr, style: const TextStyle(color: Color(0xFF34D399), fontSize: 10, fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -540,8 +653,8 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
           ],
           _buildInfoRow(
             Icons.cloud_queue_rounded,
-            'Road & Weather',
-            '${inc.weatherConditions ?? "Clear"} · ${inc.roadType ?? "City Street"}',
+            'road_and_weather'.tr,
+            '${_getWeatherLabel(inc.weatherConditions)} · ${_getRoadTypeLabel(inc.roadType)}',
           ),
           if (inc.trafficDisruptionLevel != null && inc.trafficDisruptionLevel != 'none') ...[
             const SizedBox(height: 8),
@@ -569,7 +682,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Emergency Medical & Police Audit',
+            'emergency_medical_police_audit'.tr,
             style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
@@ -587,7 +700,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('FATALITIES', style: TextStyle(color: Color(0xFFFCA5A5), fontSize: 9.5, fontWeight: FontWeight.bold)),
+                      Text('fatalities_caps'.tr, style: const TextStyle(color: Color(0xFFFCA5A5), fontSize: 9.5, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 2),
                       Text('${inc.deadCasualty}', style: const TextStyle(color: Color(0xFFEF4444), fontSize: 18, fontWeight: FontWeight.bold)),
                     ],
@@ -606,7 +719,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('INJURED PERSONS', style: TextStyle(color: Color(0xFFFCD34D), fontSize: 9.5, fontWeight: FontWeight.bold)),
+                      Text('injured_persons_caps'.tr, style: const TextStyle(color: Color(0xFFFCD34D), fontSize: 9.5, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 2),
                       Text('${inc.injuredCount}', style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 18, fontWeight: FontWeight.bold)),
                     ],
@@ -622,20 +735,24 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
           ],
           _buildInfoRow(
             Icons.medical_services_rounded,
-            'Ambulance',
-            inc.ambulanceAssigned ? 'Assigned (${inc.ambulanceTiming ?? "Dispatched"})' : 'Not Assigned',
+            'ambulance_label'.tr,
+            inc.ambulanceAssigned
+                ? 'ambulance_status_assigned'.trParams({'timing': inc.ambulanceTiming ?? 'dispatched'.tr})
+                : 'ambulance_status_not_assigned'.tr,
           ),
           const SizedBox(height: 8),
           _buildInfoRow(
             Icons.local_police_rounded,
-            'Police FIR / Station',
-            inc.policeNotified ? 'Notified (${inc.policeStationName ?? "FIR Registered"})' : 'No Police Dispatch Recorded',
+            'police_fir_station'.tr,
+            inc.policeNotified
+                ? 'police_status_notified'.trParams({'station': inc.policeStationName ?? 'Notified'})
+                : 'police_status_none'.tr,
           ),
           const SizedBox(height: 8),
           _buildInfoRow(
             Icons.car_repair_rounded,
-            'Roadside Towing',
-            inc.towingRequested ? 'Requested (Towing Crane Dispatched)' : 'No Tow Requested',
+            'roadside_towing'.tr,
+            inc.towingRequested ? 'towing_status_requested'.tr : 'towing_status_none'.tr,
           ),
         ],
       ),
@@ -658,13 +775,13 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Incident Driver Statement & Description',
-            style: TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.bold),
+          Text(
+            'incident_driver_statement_desc'.tr,
+            style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
           Text(
-            inc.description.isNotEmpty ? inc.description : 'No detailed description provided.',
+            inc.description.isNotEmpty ? inc.description : 'no_detailed_desc_provided'.tr,
             style: TextStyle(color: Colors.grey.shade300, fontSize: 12.5, height: 1.45),
           ),
           if (inc.immediateAction != null && inc.immediateAction!.isNotEmpty) ...[
@@ -679,7 +796,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                     text: TextSpan(
                       style: const TextStyle(fontSize: 12, height: 1.4),
                       children: [
-                        const TextSpan(text: 'Immediate Action Taken on Scene: ', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                        TextSpan(text: 'immediate_action_taken_on_scene'.tr, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
                         TextSpan(text: inc.immediateAction!, style: TextStyle(color: Colors.grey.shade300)),
                       ],
                     ),
@@ -716,25 +833,32 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                 children: [
                   const Icon(Icons.record_voice_over_rounded, color: Color(0xFF60A5FA), size: 18),
                   const SizedBox(width: 8),
-                  const Text(
-                    'Driver Assessment & Voice Contact',
-                    style: TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.bold),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'driver_assessment_voice_title'.tr,
+                        style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 5),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2563EB).withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          inc.contactedDriver ? 'contact_logged_badge'.tr : 'pending_call_badge'.tr,
+                          style: const TextStyle(color: Color(0xFF93C5FD), fontSize: 10, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2563EB).withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  inc.contactedDriver ? 'Contact Logged' : 'Pending Call',
-                  style: const TextStyle(color: Color(0xFF93C5FD), fontSize: 10, fontWeight: FontWeight.bold),
-                ),
-              ),
             ],
           ),
+
           const SizedBox(height: 12),
 
           // Driver Voice Notes
@@ -750,7 +874,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('DRIVER VOICE CONTACT NOTES & ASSESSMENT', style: TextStyle(color: Color(0xFF93C5FD), fontSize: 9.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                  Text('driver_voice_assessment_caps'.tr, style: const TextStyle(color: Color(0xFF93C5FD), fontSize: 9.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                   const SizedBox(height: 4),
                   Text(
                     inc.contactNotes!,
@@ -775,7 +899,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('FIELD REMARKS & DISPATCH NOTES', style: TextStyle(color: Color(0xFF34D399), fontSize: 9.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                  Text('field_remarks_dispatch_caps'.tr, style: const TextStyle(color: Color(0xFF34D399), fontSize: 9.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                   const SizedBox(height: 4),
                   Text(
                     inc.resolutionNotes!,
@@ -802,7 +926,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'No driver voice assessment notes recorded yet. Use the dispatch form below to record voice contact calls and observations.',
+                      'no_driver_assessment_notes_yet'.tr,
                       style: TextStyle(color: Colors.grey.shade400, fontSize: 11, height: 1.35),
                     ),
                   ),
@@ -843,10 +967,10 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                       children: [
                         const Icon(Icons.photo_camera_rounded, color: Color(0xFF3B82F6), size: 18),
                         const SizedBox(width: 8),
-                        Text('Photo Evidence (${inc.photos.length})', style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.bold)),
+                        Text('photo_evidence_count'.trParams({'count': inc.photos.length.toString()}), style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.bold)),
                       ],
                     ),
-                    Text('Tap photo to preview', style: TextStyle(color: Colors.grey.shade400, fontSize: 11)),
+                    Text('tap_photo_to_preview'.tr, style: TextStyle(color: Colors.grey.shade400, fontSize: 11)),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -882,7 +1006,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                                   decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(4)),
-                                  child: Text('Photo #${index + 1}', style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
+                                  child: Text('${'photo'.tr} #${index + 1}', style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                             ],
@@ -918,10 +1042,10 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                       children: [
                         const Icon(Icons.videocam_rounded, color: Color(0xFFA855F7), size: 18),
                         const SizedBox(width: 8),
-                        Text('Video Recordings (${inc.videos.length})', style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.bold)),
+                        Text('video_recordings_count'.trParams({'count': inc.videos.length.toString()}), style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.bold)),
                       ],
                     ),
-                    Text('Tap video to play', style: TextStyle(color: Colors.grey.shade400, fontSize: 11)),
+                    Text('tap_video_to_play'.tr, style: TextStyle(color: Colors.grey.shade400, fontSize: 11)),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -948,8 +1072,8 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                             children: [
                               const Icon(Icons.play_circle_fill_rounded, color: Color(0xFFA855F7), size: 32),
                               const SizedBox(height: 4),
-                              Text('▶ Video #${index + 1}', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                              Text('Tap to play', style: TextStyle(color: Colors.grey.shade400, fontSize: 9.5)),
+                              Text('${'video'.tr} #${index + 1}', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                              Text('tap_to_view'.tr, style: TextStyle(color: Colors.grey.shade400, fontSize: 9.5)),
                             ],
                           ),
                         ),
@@ -991,21 +1115,28 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                 children: [
                   const Icon(Icons.assignment_turned_in_rounded, color: Color(0xFF60A5FA), size: 18),
                   const SizedBox(width: 8),
-                  const Text(
-                    'Control Room Dispatch Action',
-                    style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'control_room_dispatch_action'.tr,
+                        style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.3)),
+                        ),
+                        child: Text('status_clearance_restricted'.tr, style: const TextStyle(color: Color(0xFFFBBF24), fontSize: 9.5, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.3)),
-                ),
-                child: const Text('Status Clearance Restricted', style: TextStyle(color: Color(0xFFFBBF24), fontSize: 9.5, fontWeight: FontWeight.bold)),
-              ),
+
             ],
           ),
           const SizedBox(height: 12),
@@ -1027,13 +1158,13 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Super Admin Status Authority Policy Enforced',
-                        style: TextStyle(color: Color(0xFFFDE68A), fontSize: 11, fontWeight: FontWeight.bold),
+                      Text(
+                        'super_admin_policy_title'.tr,
+                        style: const TextStyle(color: Color(0xFFFDE68A), fontSize: 11, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        'Only Super Administrators possess platform authority to alter incident status or issue final resolution and recovery clearance. As Fleet Operator, you can record Driver Voice Contact calls and submit dispatch field notes below.',
+                        'super_admin_policy_desc'.tr,
                         style: TextStyle(color: Colors.grey.shade300, fontSize: 10.5, height: 1.35),
                       ),
                     ],
@@ -1048,14 +1179,15 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Update Incident Status', style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
-              Row(
-                children: [
-                  const Icon(Icons.lock_rounded, size: 11, color: Color(0xFFFBBF24)),
-                  const SizedBox(width: 3),
-                  const Text('Locked (Super Admin Authority Only)', style: TextStyle(color: Color(0xFFFBBF24), fontSize: 9.5, fontWeight: FontWeight.bold)),
-                ],
-              ),
+              Text('update_incident_status_label'.tr, style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              const Icon(Icons.lock_rounded, size: 11, color: Color(0xFFFBBF24)),
+              const SizedBox(width: 3),
+              Text('locked_super_admin_only'.tr, style: const TextStyle(color: Color(0xFFFBBF24), fontSize: 9.5, fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 6),
@@ -1072,13 +1204,13 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Current Status: ${inc.formattedStatus.toUpperCase()}',
+                    'current_status_label'.trParams({'status': _getStatusLabel(inc.status)}),
                     style: TextStyle(color: Colors.grey.shade400, fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(4)),
-                    child: const Text('Super Admin Only', style: TextStyle(color: Colors.white70, fontSize: 9, fontWeight: FontWeight.bold)),
+                    child: Text('super_admin_only_badge'.tr, style: const TextStyle(color: Colors.white70, fontSize: 9, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -1105,10 +1237,10 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                         activeColor: const Color(0xFF2563EB),
                         onChanged: (val) => controller.contactedDriver.value = val ?? false,
                       ),
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          'Mark Driver as Contacted (Voice Call Completed)',
-                          style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                          'mark_driver_contacted_checkbox'.tr,
+                          style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
                         ),
                       ),
                     ],
@@ -1116,7 +1248,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                 }),
                 const SizedBox(height: 6),
                 Text(
-                  'Driver Voice Contact Notes & Assessment',
+                  'driver_voice_contact_notes_label'.tr,
                   style: TextStyle(color: Colors.grey.shade300, fontSize: 11.5, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
@@ -1125,7 +1257,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                   maxLines: 2,
                   style: const TextStyle(color: Colors.white, fontSize: 12),
                   decoration: InputDecoration(
-                    hintText: 'e.g. Spoke with driver Ramesh at 18:15. Driver confirmed safe, roadside assistance dispatched.',
+                    hintText: 'driver_voice_contact_notes_hint'.tr,
                     hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 11),
                     filled: true,
                     fillColor: AppColors.inputBg,
@@ -1135,7 +1267,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Notes entered here shift directly into the Driver Assessment Section above upon saving.',
+                  'notes_shift_helper_text'.tr,
                   style: TextStyle(color: Colors.blue.shade300, fontSize: 10, fontStyle: FontStyle.italic),
                 ),
               ],
@@ -1164,7 +1296,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                   }),
                   Expanded(
                     child: Text(
-                      'Vehicle & Site Recovered / Route Cleared (Timestamp Logged)',
+                      'vehicle_recovered_checkbox_label'.tr,
                       style: TextStyle(color: Colors.grey.shade400, fontSize: 11.5, fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -1177,10 +1309,10 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(Icons.lock_rounded, size: 10, color: Color(0xFFFBBF24)),
-                        SizedBox(width: 3),
-                        Text('Super Admin Only', style: TextStyle(color: Color(0xFFFBBF24), fontSize: 9, fontWeight: FontWeight.bold)),
+                      children: [
+                        const Icon(Icons.lock_rounded, size: 10, color: Color(0xFFFBBF24)),
+                        const SizedBox(width: 3),
+                        Text('super_admin_only_badge'.tr, style: const TextStyle(color: Color(0xFFFBBF24), fontSize: 9, fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
@@ -1191,14 +1323,14 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
           const SizedBox(height: 14),
 
           // Field Remarks & Dispatch Notes Textarea
-          Text('Field Remarks & Dispatch Notes', style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
+          Text('field_remarks_dispatch_label'.tr, style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
           const SizedBox(height: 6),
           TextField(
             controller: controller.resolutionNotesController,
             maxLines: 3,
             style: const TextStyle(color: Colors.white, fontSize: 12),
             decoration: InputDecoration(
-              hintText: 'Add field observations, police interaction details, or notes for the Super Admin...',
+              hintText: 'field_remarks_dispatch_hint'.tr,
               hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 11),
               filled: true,
               fillColor: AppColors.inputBg,
@@ -1218,7 +1350,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                     ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                     : const Icon(Icons.phone_in_talk_rounded, size: 16, color: Colors.white),
                 label: Text(
-                  controller.isUpdatingResolution.value ? 'Saving Notes...' : 'Save Driver Voice Contact & Notes',
+                  controller.isUpdatingResolution.value ? 'saving_notes'.tr : 'save_driver_voice_contact_notes'.tr,
                   style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -1289,7 +1421,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                         const Icon(Icons.photo_rounded, color: Color(0xFF38BDF8), size: 18),
                         const SizedBox(width: 8),
                         Text(
-                          'Incident Photo ${index + 1} of $total',
+                          'incident_photo_preview_header'.trParams({'curr': (index + 1).toString(), 'total': total.toString()}),
                           style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -1386,7 +1518,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                       const Icon(Icons.videocam_rounded, color: Color(0xFFA855F7), size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        'Video Evidence ${index + 1} of $total',
+                        'video_evidence_preview_header'.trParams({'curr': (index + 1).toString(), 'total': total.toString()}),
                         style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -1413,7 +1545,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                     const Icon(Icons.play_circle_fill_rounded, color: Color(0xFFA855F7), size: 54),
                     const SizedBox(height: 12),
                     Text(
-                      'Video Recording #${index + 1}',
+                      '${'video'.tr} #${index + 1}',
                       style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 6),
@@ -1440,7 +1572,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                     } catch (e) {
                       Get.snackbar(
                         'notice'.tr,
-                        'Could not open video player: $e',
+                        'could_not_open_video_player'.trParams({'err': e.toString()}),
                         snackPosition: SnackPosition.BOTTOM,
                         backgroundColor: const Color(0xFFEF4444),
                         colorText: Colors.white,
@@ -1448,7 +1580,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                     }
                   },
                   icon: const Icon(Icons.open_in_new_rounded, size: 16, color: Colors.white),
-                  label: const Text('Open / Play Video', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                  label: Text('open_play_video'.tr, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFA855F7),
                     padding: const EdgeInsets.symmetric(vertical: 12),

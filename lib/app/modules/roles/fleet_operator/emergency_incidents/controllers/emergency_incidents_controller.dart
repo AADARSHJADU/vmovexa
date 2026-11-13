@@ -315,7 +315,7 @@ class EmergencyIncidentsController extends GetxController {
     if (!isSuperAdmin) {
       Get.snackbar(
         'access_restricted'.tr,
-        'Only Super Administrators possess platform authority to alter incident status or issue final recovery clearance.',
+        'super_admin_recovery_restricted'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFF59E0B),
         colorText: Colors.white,
@@ -330,7 +330,7 @@ class EmergencyIncidentsController extends GetxController {
   void notifyStatusRestricted() {
     Get.snackbar(
       'access_restricted'.tr,
-      'Incident status alteration is restricted to Super Admin authority.',
+      'super_admin_status_restricted'.tr,
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: const Color(0xFFF59E0B),
       colorText: Colors.white,
@@ -365,7 +365,7 @@ class EmergencyIncidentsController extends GetxController {
       if (res.success) {
         Get.snackbar(
           'updated_successfully'.tr,
-          'Driver contact call & notes recorded successfully!',
+          'driver_contact_notes_saved_msg'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
@@ -429,7 +429,7 @@ class EmergencyIncidentsController extends GetxController {
         reportDriverId.value = assigned.id;
         Get.snackbar(
           'driver_auto_linked'.tr,
-          'Driver "${assigned.name}" auto-selected for Bus ${foundVeh.registrationNumber}',
+          'driver_auto_selected_msg'.trParams({'driver': assigned.name, 'bus': foundVeh.registrationNumber}),
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF2563EB),
           colorText: Colors.white,
@@ -449,7 +449,7 @@ class EmergencyIncidentsController extends GetxController {
           reportVehicleId.value = foundVeh.id;
           Get.snackbar(
             'vehicle_auto_linked'.tr,
-            'Bus "${foundVeh.registrationNumber}" auto-selected for Driver ${foundDriver.name}',
+            'bus_auto_selected_msg'.trParams({'bus': foundVeh.registrationNumber, 'driver': foundDriver.name}),
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF2563EB),
             colorText: Colors.white,
@@ -518,7 +518,7 @@ class EmergencyIncidentsController extends GetxController {
       }
       Get.snackbar(
         'gps_locked'.tr,
-        'GPS Coordinates locked: (${reportLatitudeCtrl.text}, ${reportLongitudeCtrl.text})',
+        'gps_coords_locked_msg'.trParams({'lat': reportLatitudeCtrl.text, 'lng': reportLongitudeCtrl.text}),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF10B981),
         colorText: Colors.white,
@@ -596,7 +596,7 @@ class EmergencyIncidentsController extends GetxController {
             reportVideos.add(url.toString());
             Get.snackbar(
               'video_attached'.tr,
-              'Incident video recording attached successfully.',
+              'video_attached_success_msg'.tr,
               snackPosition: SnackPosition.BOTTOM,
               backgroundColor: const Color(0xFF10B981),
               colorText: Colors.white,
@@ -633,7 +633,7 @@ class EmergencyIncidentsController extends GetxController {
       if (reportDescriptionCtrl.text.trim().isEmpty) {
         Get.snackbar(
           'required_field'.tr,
-          'Please enter incident description before proceeding.',
+          'enter_desc_before_proceeding'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFFF59E0B),
           colorText: Colors.white,
@@ -649,7 +649,7 @@ class EmergencyIncidentsController extends GetxController {
       if (reportDescriptionCtrl.text.trim().isEmpty) {
         Get.snackbar(
           'required_field'.tr,
-          'Please enter incident description before proceeding.',
+          'enter_desc_before_proceeding'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFFF59E0B),
           colorText: Colors.white,

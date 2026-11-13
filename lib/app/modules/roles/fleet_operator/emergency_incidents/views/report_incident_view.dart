@@ -12,6 +12,110 @@ import '../controllers/emergency_incidents_controller.dart';
 class ReportIncidentView extends GetView<EmergencyIncidentsController> {
   const ReportIncidentView({super.key});
 
+  String _getCategoryLabel(String cat) {
+    switch (cat) {
+      case 'ALL':
+        return 'all_incidents'.tr;
+      case 'Accident':
+        return 'incident_accident'.tr;
+      case 'Breakdown':
+        return 'incident_breakdown'.tr;
+      case 'Road Condition':
+        return 'incident_road_condition'.tr;
+      case 'Traffic Issue':
+        return 'incident_traffic_issue'.tr;
+      case 'Safety Concern':
+        return 'incident_safety_concern'.tr;
+      case 'Passenger Issue':
+        return 'incident_passenger_issue'.tr;
+      case 'Infrastructure':
+        return 'incident_infrastructure'.tr;
+      case 'Other':
+        return 'incident_other'.tr;
+      default:
+        return cat;
+    }
+  }
+
+  String _getSeverityLabel(String sev) {
+    switch (sev.toLowerCase()) {
+      case 'low':
+        return 'low'.tr.toUpperCase();
+      case 'medium':
+        return 'medium'.tr.toUpperCase();
+      case 'high':
+        return 'high'.tr.toUpperCase();
+      case 'critical':
+        return 'critical'.tr.toUpperCase();
+      default:
+        return sev.toUpperCase();
+    }
+  }
+
+  String _getWeatherLabel(String? w) {
+    if (w == null || w.isEmpty) return 'weather_clear'.tr;
+    switch (w.toLowerCase()) {
+      case 'clear':
+        return 'weather_clear'.tr;
+      case 'rainy':
+      case 'rainy / wet':
+        return 'weather_rainy'.tr;
+      case 'fog':
+      case 'fog / low visibility':
+        return 'weather_fog'.tr;
+      case 'storm':
+      case 'storm / high wind':
+        return 'weather_storm'.tr;
+      case 'heat':
+      case 'extreme heat':
+        return 'weather_heat'.tr;
+      default:
+        return w;
+    }
+  }
+
+  String _getRoadTypeLabel(String? r) {
+    if (r == null || r.isEmpty) return 'road_city_street'.tr;
+    switch (r.toLowerCase()) {
+      case 'city street':
+        return 'road_city_street'.tr;
+      case 'highway':
+      case 'highway / expressway':
+        return 'road_highway'.tr;
+      case 'transit corridor':
+      case 'transit corridor / bus lane':
+        return 'road_transit_corridor'.tr;
+      case 'intersection':
+      case 'intersection / junction':
+        return 'road_intersection'.tr;
+      case 'bridge':
+      case 'bridge / flyover':
+        return 'road_bridge'.tr;
+      case 'depot':
+      case 'depot / station yard':
+        return 'road_depot'.tr;
+      default:
+        return r;
+    }
+  }
+
+  String _getAffectedPartyLabel(String party) {
+    switch (party.toLowerCase()) {
+      case 'passengers':
+        return 'party_passengers'.tr;
+      case 'driver':
+        return 'party_driver'.tr;
+      case 'vehicle':
+        return 'party_vehicle'.tr;
+      case 'infrastructure':
+        return 'party_infrastructure'.tr;
+      case 'other':
+        return 'party_other'.tr;
+      default:
+        return party;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!Get.isRegistered<EmergencyIncidentsController>()) {
@@ -111,10 +215,10 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
 
   Widget _buildStepperNavBar() {
     final steps = [
-      {'step': 1, 'title': 'Type & Resources', 'desc': 'Category, Bus & Driver'},
-      {'step': 2, 'title': 'GPS Location', 'desc': 'Address & Coords'},
-      {'step': 3, 'title': 'Medical & Severity', 'desc': 'Casualties & Help'},
-      {'step': 4, 'title': 'Media & Submit', 'desc': 'Evidence & Send'},
+      {'step': 1, 'title': 'step1_nav_title'.tr, 'desc': 'step1_nav_desc'.tr},
+      {'step': 2, 'title': 'step2_nav_title'.tr, 'desc': 'step2_nav_desc'.tr},
+      {'step': 3, 'title': 'step3_nav_title'.tr, 'desc': 'step3_nav_desc'.tr},
+      {'step': 4, 'title': 'step4_nav_title'.tr, 'desc': 'step4_nav_desc'.tr},
     ];
 
     return Container(
@@ -220,8 +324,8 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
       children: [
         // Title Header
         _buildSectionHeader(
-          title: 'Step 1: Incident Category & Target Vehicle / Staff',
-          subtitle: 'Select the affected unit and categorize the emergency event.',
+          title: 'step1_header_title'.tr,
+          subtitle: 'step1_header_sub'.tr,
         ),
         const SizedBox(height: 14),
 
@@ -237,7 +341,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Involved Vehicle (Bus)
-              Text('Involved Vehicle (Bus)', style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
+              Text('involved_vehicle_bus'.tr, style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
               const SizedBox(height: 6),
               Obx(() {
                 if (controller.isResourcesLoading.value) {
@@ -254,17 +358,19 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                     child: DropdownButton<String>(
                       value: controller.reportVehicleId.value,
                       dropdownColor: const Color(0xFF1E293B),
-                      hint: const Text('Unassigned / General Incident', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                      hint: Text('unassigned_general_incident'.tr, style: const TextStyle(color: Colors.grey, fontSize: 12)),
                       isExpanded: true,
                       style: const TextStyle(color: Colors.white, fontSize: 12.5),
                       items: [
-                        const DropdownMenuItem<String>(
+                        DropdownMenuItem<String>(
                           value: '',
-                          child: Text('Unassigned / General Incident', style: TextStyle(fontSize: 12)),
+                          child: Text('unassigned_general_incident'.tr, style: const TextStyle(fontSize: 12)),
                         ),
                         ...controller.vehiclesList.map((v) {
                           final drv = controller.getAssignedDriverForVehicle(v);
-                          final drvText = drv != null ? ' (Driver: ${drv.name})' : ' (No assigned driver)';
+                          final drvText = drv != null
+                              ? ' (${'driver_with_name'.trParams({'name': drv.name})})'
+                              : ' (${'no_assigned_driver_paren'.tr})';
                           return DropdownMenuItem<String>(
                             value: v.id,
                             child: Text(
@@ -284,7 +390,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
               const SizedBox(height: 12),
 
               // Assigned Driver
-              Text('Assigned Driver', style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
+              Text('assigned_driver'.tr, style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
               const SizedBox(height: 6),
               Obx(() {
                 return Container(
@@ -298,18 +404,18 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                     child: DropdownButton<String>(
                       value: controller.reportDriverId.value,
                       dropdownColor: const Color(0xFF1E293B),
-                      hint: const Text('Unassigned / Outside Driver', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                      hint: Text('unassigned_outside_driver'.tr, style: const TextStyle(color: Colors.grey, fontSize: 12)),
                       isExpanded: true,
                       style: const TextStyle(color: Colors.white, fontSize: 12.5),
                       items: [
-                        const DropdownMenuItem<String>(
+                        DropdownMenuItem<String>(
                           value: '',
-                          child: Text('Unassigned / Outside Driver', style: TextStyle(fontSize: 12)),
+                          child: Text('unassigned_outside_driver'.tr, style: const TextStyle(fontSize: 12)),
                         ),
                         ...controller.driversList.map((d) {
                           final isAssigned = controller.assignedDriverForSelectedVeh?.id == d.id;
                           final star = isAssigned ? '⭐ ' : '';
-                          final autoTag = isAssigned ? ' [Auto-Linked]' : '';
+                          final autoTag = isAssigned ? ' [${'auto_linked_prefix'.tr.replaceAll(':', '').trim()}]' : '';
                           return DropdownMenuItem<String>(
                             value: d.id,
                             child: Text(
@@ -364,13 +470,13 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                                 text: TextSpan(
                                   style: const TextStyle(color: Colors.white, fontSize: 11.5, height: 1.4),
                                   children: [
-                                    const TextSpan(text: 'Auto-Linked: ', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF93C5FD))),
-                                    const TextSpan(text: 'Bus '),
-                                    TextSpan(text: v.registrationNumber, style: const TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline)),
-                                    const TextSpan(text: ' is regularly operated by '),
-                                    TextSpan(text: assigned.name, style: const TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline)),
-                                    TextSpan(text: assigned.empId.isNotEmpty ? ' (${assigned.empId})' : ''),
-                                    const TextSpan(text: '. Driver has been automatically pre-selected.'),
+                                    TextSpan(text: 'auto_linked_prefix'.tr, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF93C5FD))),
+                                    TextSpan(
+                                      text: 'bus_regularly_operated_by'.trParams({
+                                        'bus': v.registrationNumber,
+                                        'driver': '${assigned.name}${assigned.empId.isNotEmpty ? " (${assigned.empId})" : ""}',
+                                      }),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -386,9 +492,9 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                               borderRadius: BorderRadius.circular(6),
                               border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.5)),
                             ),
-                            child: const Text(
-                              'RELIEF DRIVER OVERRIDDEN',
-                              style: TextStyle(color: Color(0xFFFBBF24), fontSize: 9.5, fontWeight: FontWeight.bold),
+                            child: Text(
+                              'relief_driver_overridden'.tr,
+                              style: const TextStyle(color: Color(0xFFFBBF24), fontSize: 9.5, fontWeight: FontWeight.bold),
                             ),
                           ),
                       ],
@@ -413,10 +519,10 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                             text: TextSpan(
                               style: const TextStyle(color: Colors.white, fontSize: 11.5, height: 1.4),
                               children: [
-                                const TextSpan(text: 'No Primary Driver: ', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFFDE68A))),
-                                const TextSpan(text: 'Bus '),
-                                TextSpan(text: v.registrationNumber, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                const TextSpan(text: ' has no permanent driver assigned in the fleet roster. You can pick an operating driver or leave as Unassigned.'),
+                                TextSpan(text: 'no_primary_driver_prefix'.tr, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFFDE68A))),
+                                TextSpan(
+                                  text: 'no_primary_driver_desc'.trParams({'bus': v.registrationNumber}),
+                                ),
                               ],
                             ),
                           ),
@@ -432,20 +538,20 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
         const SizedBox(height: 16),
 
         // Incident Category Grid (8 Categories)
-        Text('Incident Category *', style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.bold)),
+        Text('incident_category_req'.tr, style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         _buildCategoryGrid(),
         const SizedBox(height: 16),
 
         // Description (Required)
-        Text('Incident Description *', style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.bold)),
+        Text('${'incident_description'.tr} *', style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.bold)),
         const SizedBox(height: 6),
         TextField(
           controller: controller.reportDescriptionCtrl,
           maxLines: 3,
           style: const TextStyle(color: Colors.white, fontSize: 12.5),
           decoration: InputDecoration(
-            hintText: 'Describe what occurred, immediate hazards, vehicle condition, or road blockages...',
+            hintText: 'describe_incident_blockages_hint'.tr,
             hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 11.5),
             filled: true,
             fillColor: AppColors.inputBg,
@@ -467,7 +573,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
         const SizedBox(height: 16),
 
         // Affected Entities / Parties (Multi-select chips)
-        Text('Affected Entities / Parties', style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.bold)),
+        Text('affected_entities_parties'.tr, style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Obx(() {
           return Wrap(
@@ -498,7 +604,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                         ),
                       ),
                       Text(
-                        opt,
+                        _getAffectedPartyLabel(opt),
                         style: TextStyle(
                           color: isSelected ? Colors.white : Colors.grey.shade300,
                           fontSize: 11.5,
@@ -525,7 +631,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
               padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('Continue to GPS Location →', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold)),
+            child: Text('continue_to_gps_location'.tr, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold)),
           ),
         ),
       ],
@@ -534,14 +640,14 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
 
   Widget _buildCategoryGrid() {
     final categories = [
-      {'id': 'Accident', 'label': 'Accident', 'desc': 'Road accident or collision', 'icon': Icons.car_crash_rounded, 'color': const Color(0xFFEF4444)},
-      {'id': 'Breakdown', 'label': 'Breakdown', 'desc': 'Mechanical / engine fault', 'icon': Icons.build_circle_rounded, 'color': const Color(0xFFF59E0B)},
-      {'id': 'Road Condition', 'label': 'Road Condition', 'desc': 'Damaged road, potholes, blockage', 'icon': Icons.alt_route_rounded, 'color': const Color(0xFF3B82F6)},
-      {'id': 'Traffic Issue', 'label': 'Traffic Issue', 'desc': 'Traffic congestion or diversion', 'icon': Icons.traffic_rounded, 'color': const Color(0xFFA855F7)},
-      {'id': 'Passenger Issue', 'label': 'Passenger Issue', 'desc': 'Medical or onboard emergency', 'icon': Icons.personal_injury_rounded, 'color': const Color(0xFF6366F1)},
-      {'id': 'Infrastructure', 'label': 'Infrastructure', 'desc': 'Bus shelter or display unit fault', 'icon': Icons.domain_rounded, 'color': const Color(0xFF14B8A6)},
-      {'id': 'Safety Concern', 'label': 'Safety Concern', 'desc': 'Hazardous route obstacle', 'icon': Icons.shield_rounded, 'color': const Color(0xFFF43F5E)},
-      {'id': 'Other', 'label': 'Other', 'desc': 'Any other transit incident', 'icon': Icons.description_rounded, 'color': const Color(0xFF94A3B8)},
+      {'id': 'Accident', 'label': 'incident_accident'.tr, 'desc': 'cat_accident_desc'.tr, 'icon': Icons.car_crash_rounded, 'color': const Color(0xFFEF4444)},
+      {'id': 'Breakdown', 'label': 'incident_breakdown'.tr, 'desc': 'cat_breakdown_desc'.tr, 'icon': Icons.build_circle_rounded, 'color': const Color(0xFFF59E0B)},
+      {'id': 'Road Condition', 'label': 'incident_road_condition'.tr, 'desc': 'cat_road_condition_desc'.tr, 'icon': Icons.alt_route_rounded, 'color': const Color(0xFF3B82F6)},
+      {'id': 'Traffic Issue', 'label': 'incident_traffic_issue'.tr, 'desc': 'cat_traffic_issue_desc'.tr, 'icon': Icons.traffic_rounded, 'color': const Color(0xFFA855F7)},
+      {'id': 'Passenger Issue', 'label': 'incident_passenger_issue'.tr, 'desc': 'cat_passenger_issue_desc'.tr, 'icon': Icons.personal_injury_rounded, 'color': const Color(0xFF6366F1)},
+      {'id': 'Infrastructure', 'label': 'incident_infrastructure'.tr, 'desc': 'cat_infrastructure_desc'.tr, 'icon': Icons.domain_rounded, 'color': const Color(0xFF14B8A6)},
+      {'id': 'Safety Concern', 'label': 'incident_safety_concern'.tr, 'desc': 'cat_safety_concern_desc'.tr, 'icon': Icons.shield_rounded, 'color': const Color(0xFFF43F5E)},
+      {'id': 'Other', 'label': 'incident_other'.tr, 'desc': 'cat_other_desc'.tr, 'icon': Icons.description_rounded, 'color': const Color(0xFF94A3B8)},
     ];
 
     return Obx(() {
@@ -635,8 +741,8 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
           children: [
             Expanded(
               child: _buildSectionHeader(
-                title: 'Step 2: Incident Scene Location & Map Pin',
-                subtitle: 'Pinpoint exact coordinates for recovery vehicles and emergency dispatch.',
+                title: 'step2_header_title'.tr,
+                subtitle: 'step2_header_sub'.tr,
               ),
             ),
             const SizedBox(width: 8),
@@ -647,7 +753,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                     ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                     : const Icon(Icons.my_location_rounded, size: 15, color: Colors.white),
                 label: Text(
-                  controller.isDetectingGps.value ? 'Detecting...' : 'Auto-Detect GPS',
+                  controller.isDetectingGps.value ? 'detecting_gps'.tr : 'auto_detect_gps'.tr,
                   style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -671,8 +777,8 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
             border: Border.all(color: AppColors.cardBorder),
           ),
           child: LocationAutocompleteField(
-            label: 'Search Scene Location or Route Landmark',
-            hint: 'Search road, junction, depot or highway milestone...',
+            label: 'search_scene_location_label'.tr,
+            hint: 'search_scene_location_hint'.tr,
             controller: controller.reportLocationCtrl,
             addressController: controller.reportAddressCtrl,
             cityController: controller.reportCityCtrl,
@@ -698,13 +804,13 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Landmark
-              Text('Prominent Landmark', style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
+              Text('prominent_landmark'.tr, style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
               const SizedBox(height: 6),
               TextField(
                 controller: controller.reportLandmarkCtrl,
                 style: const TextStyle(color: Colors.white, fontSize: 12),
                 decoration: InputDecoration(
-                  hintText: 'e.g. Near Metro Pillar #42, Toll Plaza',
+                  hintText: 'prominent_landmark_hint'.tr,
                   hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 11),
                   filled: true,
                   fillColor: AppColors.inputBg,
@@ -721,7 +827,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Latitude', style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
+                        Text('latitude_label'.tr, style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
                         const SizedBox(height: 6),
                         TextField(
                           controller: controller.reportLatitudeCtrl,
@@ -744,7 +850,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Longitude', style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
+                        Text('longitude_label'.tr, style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
                         const SizedBox(height: 6),
                         TextField(
                           controller: controller.reportLongitudeCtrl,
@@ -773,7 +879,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Weather Condition', style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
+                        Text('weather_condition_label'.tr, style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
                         const SizedBox(height: 6),
                         Obx(() {
                           return Container(
@@ -790,7 +896,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                                 isExpanded: true,
                                 style: const TextStyle(color: Colors.white, fontSize: 11.5),
                                 items: controller.weatherOptions.map((w) {
-                                  return DropdownMenuItem<String>(value: w, child: Text(w, style: const TextStyle(fontSize: 11.5)));
+                                  return DropdownMenuItem<String>(value: w, child: Text(_getWeatherLabel(w), style: const TextStyle(fontSize: 11.5)));
                                 }).toList(),
                                 onChanged: (val) {
                                   if (val != null) controller.reportWeatherConditions.value = val;
@@ -807,7 +913,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Road Type', style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
+                        Text('road_type_label'.tr, style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
                         const SizedBox(height: 6),
                         Obx(() {
                           return Container(
@@ -824,7 +930,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                                 isExpanded: true,
                                 style: const TextStyle(color: Colors.white, fontSize: 11.5),
                                 items: controller.roadTypeOptions.map((r) {
-                                  return DropdownMenuItem<String>(value: r, child: Text(r, style: const TextStyle(fontSize: 11.5)));
+                                  return DropdownMenuItem<String>(value: r, child: Text(_getRoadTypeLabel(r), style: const TextStyle(fontSize: 11.5)));
                                 }).toList(),
                                 onChanged: (val) {
                                   if (val != null) controller.reportRoadType.value = val;
@@ -854,7 +960,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                 padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text('← Back', style: TextStyle(color: Colors.white70, fontSize: 12)),
+              child: Text('← ${'back'.tr}', style: const TextStyle(color: Colors.white70, fontSize: 12)),
             ),
             ElevatedButton(
               onPressed: () => controller.goToNextStep(),
@@ -864,7 +970,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text('Continue to Medical & Severity →', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+              child: Text('continue_to_medical_severity'.tr, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
             ),
           ],
         ),
@@ -881,13 +987,13 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader(
-          title: 'Step 3: Medical Emergency, Casualties & Road Condition',
-          subtitle: 'Report critical casualty counts and emergency assistance dispatch needs.',
+          title: 'step3_header_title'.tr,
+          subtitle: 'step3_header_sub'.tr,
         ),
         const SizedBox(height: 14),
 
         // Severity Selector (4 Cards)
-        Text('Emergency Severity Level *', style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.bold)),
+        Text('emergency_severity_level'.tr, style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         _buildSeverityGrid(),
         const SizedBox(height: 16),
@@ -909,7 +1015,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Fatalities / Dead Casualties', style: TextStyle(color: Color(0xFFFCA5A5), fontSize: 11, fontWeight: FontWeight.bold)),
+                        Text('fatalities_dead_casualties'.tr, style: const TextStyle(color: Color(0xFFFCA5A5), fontSize: 11, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 6),
                         Obx(() {
                           return Row(
@@ -940,7 +1046,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Injured Persons Count', style: TextStyle(color: Color(0xFFFCD34D), fontSize: 11, fontWeight: FontWeight.bold)),
+                        Text('injured_persons_count'.tr, style: const TextStyle(color: Color(0xFFFCD34D), fontSize: 11, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 6),
                         Obx(() {
                           return Row(
@@ -972,13 +1078,13 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
               const SizedBox(height: 10),
 
               // Admitted Hospital Name
-              Text('Admitted Hospital Name (If Any)', style: TextStyle(color: Colors.grey.shade300, fontSize: 11.5, fontWeight: FontWeight.w600)),
+              Text('admitted_hospital_name'.tr, style: TextStyle(color: Colors.grey.shade300, fontSize: 11.5, fontWeight: FontWeight.w600)),
               const SizedBox(height: 6),
               TextField(
                 controller: controller.reportHospitalCtrl,
                 style: const TextStyle(color: Colors.white, fontSize: 12),
                 decoration: InputDecoration(
-                  hintText: 'e.g. City Civil Hospital',
+                  hintText: 'hospital'.tr,
                   hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 11),
                   filled: true,
                   fillColor: AppColors.inputBg,
@@ -1002,7 +1108,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Emergency Dispatch Checklist', style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.bold)),
+              Text('emergency_dispatch_checklist'.tr, style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
 
               // Ambulance
@@ -1011,7 +1117,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                   children: [
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
-                      title: const Text('Ambulance Dispatched', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
+                      title: Text('ambulance_dispatched_label'.tr, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
                       activeThumbColor: const Color(0xFFEF4444),
                       value: controller.reportAmbulanceAssigned.value,
                       onChanged: (val) => controller.reportAmbulanceAssigned.value = val,
@@ -1023,7 +1129,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                           controller: controller.reportAmbulanceTimingCtrl,
                           style: const TextStyle(color: Colors.white, fontSize: 12),
                           decoration: InputDecoration(
-                            hintText: 'Timing / ETA (e.g. 10 mins)',
+                            hintText: 'ambulance_timing_hint'.tr,
                             hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 11),
                             filled: true,
                             fillColor: AppColors.inputBg,
@@ -1042,7 +1148,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                   children: [
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
-                      title: const Text('Police Notified', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
+                      title: Text('police_notified_label'.tr, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
                       activeThumbColor: const Color(0xFF3B82F6),
                       value: controller.reportPoliceNotified.value,
                       onChanged: (val) => controller.reportPoliceNotified.value = val,
@@ -1054,7 +1160,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                           controller: controller.reportPoliceStationCtrl,
                           style: const TextStyle(color: Colors.white, fontSize: 12),
                           decoration: InputDecoration(
-                            hintText: 'Police Station Name / Chowki',
+                            hintText: 'police_station_hint'.tr,
                             hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 11),
                             filled: true,
                             fillColor: AppColors.inputBg,
@@ -1071,8 +1177,8 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
               Obx(() {
                 return SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Towing / Crane Requested', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
-                  subtitle: Text('Requests breakdown crane assistance from nearest depot.', style: TextStyle(color: Colors.grey.shade400, fontSize: 10)),
+                  title: Text('towing_crane_requested_label'.tr, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
+                  subtitle: Text('towing_crane_sub'.tr, style: TextStyle(color: Colors.grey.shade400, fontSize: 10)),
                   activeThumbColor: const Color(0xFF10B981),
                   value: controller.reportTowingRequested.value,
                   onChanged: (val) => controller.reportTowingRequested.value = val,
@@ -1081,7 +1187,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
               const SizedBox(height: 8),
 
               // Traffic Disruption Level Dropdown
-              Text('Traffic Disruption Level', style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
+              Text('traffic_disruption_level'.tr, style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
               const SizedBox(height: 6),
               Obx(() {
                 return Container(
@@ -1097,11 +1203,11 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                       dropdownColor: const Color(0xFF1E293B),
                       isExpanded: true,
                       style: const TextStyle(color: Colors.white, fontSize: 12),
-                      items: const [
-                        DropdownMenuItem(value: 'none', child: Text('Normal Traffic (No Delay)', style: TextStyle(fontSize: 12))),
-                        DropdownMenuItem(value: 'minor_delay', child: Text('Minor Delay (< 10 mins)', style: TextStyle(fontSize: 12))),
-                        DropdownMenuItem(value: 'lane_blocked', child: Text('Moderate (Lane Blocked)', style: TextStyle(fontSize: 12))),
-                        DropdownMenuItem(value: 'total_gridlock', child: Text('Severe (Total Gridlock)', style: TextStyle(fontSize: 12))),
+                      items: [
+                        DropdownMenuItem(value: 'none', child: Text('traffic_normal'.tr, style: const TextStyle(fontSize: 12))),
+                        DropdownMenuItem(value: 'minor_delay', child: Text('traffic_minor_delay'.tr, style: const TextStyle(fontSize: 12))),
+                        DropdownMenuItem(value: 'lane_blocked', child: Text('traffic_lane_blocked'.tr, style: const TextStyle(fontSize: 12))),
+                        DropdownMenuItem(value: 'total_gridlock', child: Text('traffic_total_gridlock'.tr, style: const TextStyle(fontSize: 12))),
                       ],
                       onChanged: (val) {
                         if (val != null) controller.reportTrafficDisruption.value = val;
@@ -1126,7 +1232,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                 padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text('← Back', style: TextStyle(color: Colors.white70, fontSize: 12)),
+              child: Text('← ${'back'.tr}', style: const TextStyle(color: Colors.white70, fontSize: 12)),
             ),
             ElevatedButton(
               onPressed: () => controller.goToNextStep(),
@@ -1136,7 +1242,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text('Continue to Media & Submit →', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+              child: Text('continue_to_media_submit'.tr, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
             ),
           ],
         ),
@@ -1146,10 +1252,10 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
 
   Widget _buildSeverityGrid() {
     final severities = [
-      {'id': 'low', 'label': 'Low', 'desc': 'Minor issue, no transit stoppage', 'color': const Color(0xFF10B981)},
-      {'id': 'medium', 'label': 'Medium', 'desc': 'Moderate issue, minor route delay', 'color': const Color(0xFFF59E0B)},
-      {'id': 'high', 'label': 'High', 'desc': 'Major issue, schedule impacted', 'color': const Color(0xFFF97316)},
-      {'id': 'critical', 'label': 'Critical', 'desc': 'Severe emergency, transit halted', 'color': const Color(0xFFEF4444)},
+      {'id': 'low', 'label': _getSeverityLabel('low'), 'desc': 'sev_low_desc'.tr, 'color': const Color(0xFF10B981)},
+      {'id': 'medium', 'label': _getSeverityLabel('medium'), 'desc': 'sev_medium_desc'.tr, 'color': const Color(0xFFF59E0B)},
+      {'id': 'high', 'label': _getSeverityLabel('high'), 'desc': 'sev_high_desc'.tr, 'color': const Color(0xFFF97316)},
+      {'id': 'critical', 'label': _getSeverityLabel('critical'), 'desc': 'sev_critical_desc'.tr, 'color': const Color(0xFFEF4444)},
     ];
 
     return Obx(() {
@@ -1191,7 +1297,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        (s['label'] as String).toUpperCase(),
+                        s['label'] as String,
                         style: TextStyle(
                           color: isSelected ? Colors.white : Colors.grey.shade300,
                           fontSize: 12,
@@ -1230,8 +1336,8 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader(
-          title: 'Step 4: Media Evidence & Incident Confirmation',
-          subtitle: 'Attach photo/video evidence from the scene and submit emergency broadcast.',
+          title: 'step4_header_title'.tr,
+          subtitle: 'step4_header_sub'.tr,
         ),
         const SizedBox(height: 14),
 
@@ -1255,7 +1361,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                         const Icon(Icons.photo_camera_rounded, color: Color(0xFF3B82F6), size: 18),
                         const SizedBox(width: 8),
                         Text(
-                          'Photo Evidence (${controller.reportPhotos.length})',
+                          'photo_evidence_count'.trParams({'count': controller.reportPhotos.length.toString()}),
                           style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -1273,7 +1379,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
                       child: Text(
-                        controller.isUploadingPhoto.value ? 'Uploading...' : '+ Add Photo',
+                        controller.isUploadingPhoto.value ? 'uploading_photo'.tr : 'add_photo_plus'.tr,
                         style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                       ),
                     );
@@ -1300,7 +1406,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                       border: Border.all(color: AppColors.inputBorder, style: BorderStyle.solid),
                     ),
                     child: Center(
-                      child: Text('No scene photos uploaded yet.', style: TextStyle(color: Colors.grey.shade500, fontSize: 11.5)),
+                      child: Text('no_scene_photos_uploaded'.tr, style: TextStyle(color: Colors.grey.shade500, fontSize: 11.5)),
                     ),
                   );
                 }
@@ -1390,7 +1496,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                         const Icon(Icons.videocam_rounded, color: Color(0xFFA855F7), size: 18),
                         const SizedBox(width: 8),
                         Text(
-                          'Video Recording (${controller.reportVideos.length})',
+                          'video_recordings_count'.trParams({'count': controller.reportVideos.length.toString()}),
                           style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -1408,7 +1514,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
                       child: Text(
-                        controller.isUploadingVideo.value ? 'Uploading...' : '+ Add Video',
+                        controller.isUploadingVideo.value ? 'uploading_photo'.tr : 'add_video'.tr,
                         style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                       ),
                     );
@@ -1435,7 +1541,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                       border: Border.all(color: AppColors.inputBorder),
                     ),
                     child: Center(
-                      child: Text('No video evidence attached.', style: TextStyle(color: Colors.grey.shade500, fontSize: 11.5)),
+                      child: Text('no_videos_attached'.tr, style: TextStyle(color: Colors.grey.shade500, fontSize: 11.5)),
                     ),
                   );
                 }
@@ -1473,8 +1579,8 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Text('▶ Video #${idx + 1}', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                                      Text('Tap to view', style: TextStyle(color: Colors.grey.shade400, fontSize: 9.5)),
+                                      Text('video_item_title'.trParams({'num': (idx + 1).toString()}), style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                                      Text('tap_to_view'.tr, style: TextStyle(color: Colors.grey.shade400, fontSize: 9.5)),
                                     ],
                                   ),
                                 ),
@@ -1519,13 +1625,13 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Immediate Action Taken on Scene', style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
+              Text('immediate_action_taken_scene'.tr, style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
               const SizedBox(height: 6),
               TextField(
                 controller: controller.reportImmediateActionCtrl,
                 style: const TextStyle(color: Colors.white, fontSize: 12),
                 decoration: InputDecoration(
-                  hintText: 'e.g. Passengers safely evacuated to sidewalk',
+                  hintText: 'immediate_action_evacuated_hint'.tr,
                   hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 11),
                   filled: true,
                   fillColor: AppColors.inputBg,
@@ -1535,14 +1641,14 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
               ),
               const SizedBox(height: 12),
 
-              Text('On-Scene Emergency Contact Phone', style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
+              Text('on_scene_contact_phone'.tr, style: TextStyle(color: Colors.grey.shade300, fontSize: 12, fontWeight: FontWeight.w600)),
               const SizedBox(height: 6),
               TextField(
                 controller: controller.reportContactPhoneCtrl,
                 keyboardType: TextInputType.phone,
                 style: const TextStyle(color: Colors.white, fontSize: 12),
                 decoration: InputDecoration(
-                  hintText: 'e.g. +91 98765 43210',
+                  hintText: 'contact_phone_hint'.tr,
                   hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 11),
                   filled: true,
                   fillColor: AppColors.inputBg,
@@ -1566,7 +1672,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('DISPATCH BROADCAST SUMMARY', style: TextStyle(color: Color(0xFF93C5FD), fontSize: 10.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+              Text('dispatch_broadcast_summary'.tr, style: const TextStyle(color: Color(0xFF93C5FD), fontSize: 10.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
               const SizedBox(height: 8),
               Obx(() {
                 final loc = controller.reportLocationCtrl.text.trim().isNotEmpty
@@ -1578,10 +1684,10 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                     Row(
                       children: [
                         Expanded(
-                          child: Text('Category: ${controller.reportIncidentType.value}', style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w600)),
+                          child: Text('category_colon'.trParams({'cat': _getCategoryLabel(controller.reportIncidentType.value)}), style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w600)),
                         ),
                         Expanded(
-                          child: Text('Severity: ${controller.reportSeverity.value.toUpperCase()}', style: const TextStyle(color: Color(0xFFF87171), fontSize: 11.5, fontWeight: FontWeight.bold)),
+                          child: Text('severity_colon'.trParams({'sev': _getSeverityLabel(controller.reportSeverity.value)}), style: const TextStyle(color: Color(0xFFF87171), fontSize: 11.5, fontWeight: FontWeight.bold)),
                         ),
                       ],
                     ),
@@ -1589,10 +1695,10 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                     Row(
                       children: [
                         Expanded(
-                          child: Text('Casualties: ${controller.reportCasualtyCount.value} Dead, ${controller.reportInjuredCount.value} Injured', style: const TextStyle(color: Colors.white, fontSize: 11.5)),
+                          child: Text('casualties_summary_line'.trParams({'dead': controller.reportCasualtyCount.value.toString(), 'injured': controller.reportInjuredCount.value.toString()}), style: const TextStyle(color: Colors.white, fontSize: 11.5)),
                         ),
                         Expanded(
-                          child: Text('Scene: $loc', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 11.5)),
+                          child: Text('scene_colon'.trParams({'scene': loc}), maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 11.5)),
                         ),
                       ],
                     ),
@@ -1615,7 +1721,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                 padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text('← Back', style: TextStyle(color: Colors.white70, fontSize: 12)),
+              child: Text('← ${'back'.tr}', style: const TextStyle(color: Colors.white70, fontSize: 12)),
             ),
             Obx(() {
               return ElevatedButton.icon(
@@ -1624,7 +1730,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                     ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                     : const Icon(Icons.warning_amber_rounded, size: 18, color: Colors.white),
                 label: Text(
-                  controller.isSubmittingReport.value ? 'Broadcasting Report...' : 'Broadcast Emergency Report',
+                  controller.isSubmittingReport.value ? 'broadcasting_report'.tr : 'broadcast_emergency_report'.tr,
                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -1678,14 +1784,14 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
             const SizedBox(height: 18),
 
             // Title
-            const Text(
-              'Incident Reported Successfully!',
+            Text(
+              'incident_reported_success'.tr,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold),
+              style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
-              'Emergency report broadcasted to Control Room dispatchers, assigned depot managers, and emergency channels.',
+              'emergency_report_broadcasted_desc'.tr,
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey.shade400, fontSize: 12, height: 1.4),
             ),
@@ -1709,7 +1815,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('INCIDENT RECORD ID', style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold)),
+                          Text('incident_record_id'.tr, style: const TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 2),
                           Text(
                             '#${incident?.id ?? "INC-NEW"}',
@@ -1738,10 +1844,10 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Category:', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                            Text('category_label'.tr, style: const TextStyle(color: Colors.grey, fontSize: 11)),
                             const SizedBox(height: 2),
                             Text(
-                              incident?.incidentType ?? 'Accident',
+                              _getCategoryLabel(incident?.incidentType ?? 'Accident'),
                               style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                             ),
                           ],
@@ -1751,10 +1857,10 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Severity Level:', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                            Text('severity_level_label'.tr, style: const TextStyle(color: Colors.grey, fontSize: 11)),
                             const SizedBox(height: 2),
                             Text(
-                              '● ${(incident?.severity ?? "low").toUpperCase()}',
+                              '● ${_getSeverityLabel(incident?.severity ?? "low")}',
                               style: const TextStyle(color: Color(0xFFEF4444), fontSize: 12, fontWeight: FontWeight.bold),
                             ),
                           ],
@@ -1769,7 +1875,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Location:', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                            Text('location_colon_label'.tr, style: const TextStyle(color: Colors.grey, fontSize: 11)),
                             const SizedBox(height: 2),
                             Text(
                               incident?.location ?? 'GPS Coordinated',
@@ -1784,7 +1890,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Timestamp:', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                            Text('timestamp_label'.tr, style: const TextStyle(color: Colors.grey, fontSize: 11)),
                             const SizedBox(height: 2),
                             Text(
                               dateStr,
@@ -1816,7 +1922,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text('View in Incidents Command Log', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                child: Text('view_in_incidents_log'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
               ),
             ),
             const SizedBox(height: 10),
@@ -1831,7 +1937,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text('Report Another Incident', style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.bold)),
+                child: Text('report_another_incident'.tr, style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.bold)),
               ),
             ),
           ],
@@ -1872,7 +1978,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                         const Icon(Icons.photo_rounded, color: Color(0xFF38BDF8), size: 18),
                         const SizedBox(width: 8),
                         Text(
-                          'Incident Photo ${index + 1} of $total',
+                          'incident_photo_preview_header'.trParams({'curr': (index + 1).toString(), 'total': total.toString()}),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -1974,7 +2080,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                       const Icon(Icons.videocam_rounded, color: Color(0xFFA855F7), size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        'Video Evidence ${index + 1} of $total',
+                        'video_evidence_preview_header'.trParams({'curr': (index + 1).toString(), 'total': total.toString()}),
                         style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -2001,7 +2107,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                     const Icon(Icons.play_circle_fill_rounded, color: Color(0xFFA855F7), size: 54),
                     const SizedBox(height: 12),
                     Text(
-                      'Video Recording #${index + 1}',
+                      '${'video'.tr} #${index + 1}',
                       style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 6),
@@ -2028,7 +2134,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                     } catch (e) {
                       Get.snackbar(
                         'notice'.tr,
-                        'Could not open video player: $e',
+                        'could_not_open_video_player'.trParams({'err': e.toString()}),
                         snackPosition: SnackPosition.BOTTOM,
                         backgroundColor: const Color(0xFFEF4444),
                         colorText: Colors.white,
@@ -2036,7 +2142,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                     }
                   },
                   icon: const Icon(Icons.open_in_new_rounded, size: 16, color: Colors.white),
-                  label: const Text('Open / Play Video', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                  label: Text('open_play_video'.tr, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFA855F7),
                     padding: const EdgeInsets.symmetric(vertical: 12),

@@ -251,6 +251,31 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
     );
   }
 
+  String _getCategoryLabel(String cat) {
+    switch (cat) {
+      case 'ALL':
+        return 'all_incidents'.tr;
+      case 'Accident':
+        return 'incident_accident'.tr;
+      case 'Breakdown':
+        return 'incident_breakdown'.tr;
+      case 'Road Condition':
+        return 'incident_road_condition'.tr;
+      case 'Traffic Issue':
+        return 'incident_traffic_issue'.tr;
+      case 'Safety Concern':
+        return 'incident_safety_concern'.tr;
+      case 'Passenger Issue':
+        return 'incident_passenger_issue'.tr;
+      case 'Infrastructure':
+        return 'incident_infrastructure'.tr;
+      case 'Other':
+        return 'incident_other'.tr;
+      default:
+        return cat;
+    }
+  }
+
   Widget _buildSearchAndFilterSection() {
     return Column(
       children: [
@@ -292,7 +317,7 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
                 const Icon(Icons.category_outlined, size: 13, color: Colors.grey),
                 const SizedBox(width: 4),
                 Text(
-                  'QUICK CATEGORY',
+                  'quick_category_label'.tr,
                   style: TextStyle(
                     color: Colors.grey.shade400,
                     fontSize: 10,
@@ -327,7 +352,7 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
                             ),
                           ),
                           child: Text(
-                            cat,
+                            _getCategoryLabel(cat),
                             style: TextStyle(
                               color: isSelected ? const Color(0xFF60A5FA) : Colors.grey.shade400,
                               fontSize: 11,
@@ -504,7 +529,7 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
                       const SizedBox(width: 6),
                       Flexible(
                         child: Text(
-                          inc.incidentType,
+                          _getCategoryLabel(inc.incidentType),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -668,9 +693,9 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
                   children: [
                     const Icon(Icons.phone_in_talk_rounded, size: 13, color: Color(0xFF60A5FA)),
                     const SizedBox(width: 4),
-                    const Text(
-                      'Voice Contact / Notes',
-                      style: TextStyle(
+                    Text(
+                      'voice_contact_notes_action'.tr,
+                      style: const TextStyle(
                         color: Color(0xFF60A5FA),
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
