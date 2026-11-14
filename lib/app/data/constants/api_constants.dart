@@ -401,8 +401,12 @@ class ApiConstants {
   static const String content = '/content';
   static const String contentFaqs = '/content/faqs';
   static String contentPage(String type) => '/content/$type';
+  static String contentHelpRole(String role) => '/content/help?role=$role';
   static const String supportTickets = '/me/support/tickets';
   static const String createSupportTicket = '/support/tickets';
+  static String supportTicketOne(String id) => '/support/tickets/$id';
+  static String supportTicketMessages(String id) => '/support/tickets/$id/messages';
+  static String supportTicketStatus(String id) => '/support/tickets/$id/status';
 
   /// Resolves a relative file URL (e.g. /uploads/avatar/xxx.jpg) to full URL
   static String resolveFileUrl(String? url) {

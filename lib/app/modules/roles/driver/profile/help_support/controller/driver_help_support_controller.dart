@@ -1,36 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:vmovexa/app/data/constants/api_constants.dart';
 import 'package:vmovexa/app/data/services/driver_service.dart';
-import 'package:vmovexa/app/data/services/http_client_service.dart';
-import 'package:vmovexa/app/modules/roles/driver/profile/help_support/model/help_support_models.dart';
+import 'package:vmovexa/app/routes/app_routes.dart';
+import '../model/help_support_models.dart';
+import '../widgets/create_support_ticket_sheet.dart';
+import '../widgets/video_academy_sheet.dart';
 
 class DriverHelpSupportController extends GetxController {
   DriverService get _driverService => DriverService.to;
 
-  // ---------------- Search ----------------
-  final RxString searchQuery = ''.obs;
-  void onSearchChanged(String value) => searchQuery.value = value;
-
-  void onSearchSubmit() {
-    if (searchQuery.value.trim().isEmpty) return;
-    Get.toNamed('/help-search-results', arguments: {'query': searchQuery.value.trim()});
-  }
-
-  // ---------------- Loading ----------------
+  // ---------------- Loading States ----------------
   final RxBool isLoading = false.obs;
+  final RxBool isLoadingTickets = false.obs;
 
-  // ---------------- Quick Help ----------------
+  // ---------------- Content & Search ----------------
+  final Rx<DriverHelpContentModel> helpContent = DriverHelpContentModel.defaultDriverHelp().obs;
+  final RxString searchQuery = ''.obs;
+  final RxnInt openFaqIndex = RxnInt(null);
+
+  // ---------------- Recent Tickets ----------------
+  final RxList<DriverSupportTicketModel> recentTickets = <DriverSupportTicketModel>[].obs;
+
+  // ---------------- Backwards compatibility stubs ----------------
   final RxList<QuickHelpItem> quickHelpItems = <QuickHelpItem>[].obs;
-
-  // ---------------- Contact Support ----------------
   final RxList<ContactChannel> contactChannels = <ContactChannel>[].obs;
-
-  // ---------------- Support Tickets ----------------
-  final RxList<SupportTicket> supportTickets = <SupportTicket>[].obs;
-
-  // ---------------- Popular Articles ----------------
-  final RxList<PopularArticle> popularArticles = <PopularArticle>[].obs;
 
   @override
   void onInit() {
@@ -41,12 +36,12 @@ class DriverHelpSupportController extends GetxController {
   Future<void> fetchHelpData() async {
     isLoading.value = true;
     try {
-      _loadQuickHelp();
-      _loadContactChannels();
-      await _loadPopularArticles();
-      await _loadSupportTickets();
+      await Future.wait([
+        _loadHelpContent(),
+        _loadRecentTickets(),
+      ]);
     } catch (e) {
-      debugPrint('DriverHelpSupportController fetch error: $e');
+      debugPrint('DriverHelpSupportController fetchHelpData error: $e');
     } finally {
       isLoading.value = false;
     }
@@ -54,181 +49,169 @@ class DriverHelpSupportController extends GetxController {
 
   Future<void> onRefresh() async => fetchHelpData();
 
-  void _loadQuickHelp() {
-    quickHelpItems.assignAll([
-      QuickHelpItem(
-        title: 'FAQs',
-        subtitle: 'Common questions for drivers',
-        icon: Icons.help_outline,
-        color: const Color(0xFFB042FF),
-        route: '/faqs',
-      ),
-      QuickHelpItem(
-        title: 'Route Guides',
-        subtitle: 'Navigation and corridor guides',
-        icon: Icons.menu_book_outlined,
-        color: const Color(0xFF3F7BF5),
-        route: '/guides',
-      ),
-      QuickHelpItem(
-        title: 'Duty Guidelines',
-        subtitle: 'Duty hours and break rules',
-        icon: Icons.access_time_outlined,
-        color: const Color(0xFF2ECC71),
-        route: '/duty-guidelines',
-      ),
-      QuickHelpItem(
-        title: 'Emergency SOP',
-        subtitle: 'Breakdown and incident protocol',
-        icon: Icons.warning_amber_rounded,
-        color: const Color(0xFFFFA726),
-        route: '/emergency-sop',
-      ),
-    ]);
+  Future<void> _loadHelpContent() async {
+    try {
+      final res = await _driverService.getDriverHelpContent();
+      if (res.success && res.data != null) {
+        helpContent.value = res.data!;
+      } else {
+        helpContent.value = DriverHelpContentModel.defaultDriverHelp();
+      }
+    } catch (e) {
+      debugPrint('Error loading driver help content: $e');
+      helpContent.value = DriverHelpContentModel.defaultDriverHelp();
+    }
   }
 
-  void _loadContactChannels() {
-    contactChannels.assignAll([
-      ContactChannel(
-        type: ContactChannelType.liveChat,
-        title: 'Transit Dispatch Chat',
-        subtitle: 'Chat with depot dispatch team',
-        statusText: 'Available 24/7',
-        icon: Icons.chat_bubble_outline,
-        statusColor: const Color(0xFF2ECC71),
-      ),
-      ContactChannel(
-        type: ContactChannelType.callSupport,
-        title: 'Control Room Helpline',
-        subtitle: 'Direct call to transit helpline',
-        statusText: '+91 98765 43210',
-        icon: Icons.call_outlined,
-        statusColor: const Color(0xFF3F7BF5),
-      ),
-      ContactChannel(
-        type: ContactChannelType.emailSupport,
-        title: 'Email Support',
-        subtitle: 'Write to transit driver support',
-        statusText: 'driver.support@vmovexa.com',
-        icon: Icons.email_outlined,
-        statusColor: const Color(0xFFB042FF),
-      ),
-    ]);
+  Future<void> _loadRecentTickets() async {
+    isLoadingTickets.value = true;
+    try {
+      final res = await _driverService.getMySupportTickets(page: 1, limit: 3);
+      if (res.success && res.data != null) {
+        recentTickets.assignAll(res.data!);
+      } else {
+        recentTickets.clear();
+      }
+    } catch (e) {
+      debugPrint('Error loading recent support tickets: $e');
+      recentTickets.clear();
+    } finally {
+      isLoadingTickets.value = false;
+    }
   }
 
-  Future<void> _loadSupportTickets() async {
-    // 1. Try fetching from support tickets API
-    try {
-      final res = await HttpClientService.to.get(ApiConstants.supportTickets, requiresAuth: true);
-      if (res.success && res.data is List && (res.data as List).isNotEmpty) {
-        final list = (res.data as List).map((e) {
-          final m = Map<String, dynamic>.from(e as Map);
-          TicketStatus st = TicketStatus.inProgress;
-          final s = (m['status'] ?? '').toString().toLowerCase();
-          if (s == 'resolved') st = TicketStatus.resolved;
-          if (s == 'closed') st = TicketStatus.closed;
+  // ---------------- Live Filtered FAQs ----------------
+  List<DriverFaqItem> get filteredFaqs {
+    final query = searchQuery.value.trim().toLowerCase();
+    final allFaqs = helpContent.value.faqs;
+    if (query.isEmpty) return allFaqs;
 
-          return SupportTicket(
-            id: m['ticket_number']?.toString() ?? m['id']?.toString() ?? '',
-            title: m['title']?.toString() ?? m['subject']?.toString() ?? 'Support Request',
-            subtitle: m['category']?.toString() ?? '',
-            dateText: m['created_at']?.toString() ?? '',
-            status: st,
-            icon: Icons.confirmation_number_outlined,
-          );
-        }).toList();
-        supportTickets.assignAll(list);
-        return;
-      }
-    } catch (_) {}
-
-    // 2. Fallback to reported incidents from driver service (incidents act as driver tickets)
-    try {
-      final incidentsRes = await _driverService.getIncidents(page: 1, limit: 10);
-      if (incidentsRes.success && incidentsRes.data != null && incidentsRes.data!.isNotEmpty) {
-        final list = incidentsRes.data!.map((inc) {
-          TicketStatus st = TicketStatus.inProgress;
-          final s = (inc.status ?? '').toLowerCase();
-          if (s == 'resolved') st = TicketStatus.resolved;
-          if (s == 'closed') st = TicketStatus.closed;
-
-          return SupportTicket(
-            id: inc.ticketNumber ?? (inc.id ?? 'INC'),
-            title: inc.title ?? 'Reported Incident',
-            subtitle: 'Severity: ${inc.severity?.toUpperCase() ?? "LOW"}',
-            dateText: inc.reportedAt ?? 'Recently',
-            status: st,
-            icon: Icons.warning_amber_rounded,
-          );
-        }).toList();
-
-        supportTickets.assignAll(list);
-        return;
-      }
-    } catch (_) {}
-
-    supportTickets.clear();
+    return allFaqs.where((f) {
+      return f.question.toLowerCase().contains(query) ||
+          f.answer.toLowerCase().contains(query);
+    }).toList();
   }
 
-  Future<void> _loadPopularArticles() async {
-    try {
-      final res = await HttpClientService.to.get('${ApiConstants.contentPage}/driver-help', requiresAuth: true);
-      if (res.success && res.data != null && res.data is Map) {
-        final data = res.data as Map;
-        final articlesRaw = data['articles'] ?? data['faqs'] ?? [];
-        if (articlesRaw is List && articlesRaw.isNotEmpty) {
-          popularArticles.assignAll(
-            articlesRaw.map((a) {
-              final m = Map<String, dynamic>.from(a as Map);
-              return PopularArticle(
-                id: (m['id'] ?? '').toString(),
-                title: (m['title'] ?? m['question'] ?? '').toString(),
-              );
-            }).toList(),
-          );
-          return;
-        }
-      }
-    } catch (_) {}
-    popularArticles.clear();
+  void onSearchChanged(String val) {
+    searchQuery.value = val;
+    openFaqIndex.value = null; // reset opened accordion on search
+  }
+
+  void toggleFaq(int index) {
+    if (openFaqIndex.value == index) {
+      openFaqIndex.value = null;
+    } else {
+      openFaqIndex.value = index;
+    }
   }
 
   // ---------------- Actions ----------------
   void onBackPressed() => Get.back();
 
-  void onHeadsetTap() {
-    Get.toNamed('/contact-support');
-  }
+  /// Call Transit Emergency SOS Hotline (One-Tap Dialing)
+  Future<void> callEmergencySOS() async {
+    final title = helpContent.value.contact.title;
+    // Extract first phone number
+    String telNumber = '18008668392';
+    if (title.contains('+91')) {
+      final match = RegExp(r'\+91\s*[0-9\s]+').firstMatch(title);
+      if (match != null) {
+        telNumber = match.group(0)!.replaceAll(RegExp(r'\s+'), '');
+      }
+    } else {
+      telNumber = '18008668392';
+    }
 
-  void onQuickHelpTap(QuickHelpItem item) {
-    Get.toNamed(item.route);
-  }
-
-  void onContactChannelTap(ContactChannel channel) {
-    switch (channel.type) {
-      case ContactChannelType.liveChat:
-        Get.toNamed('/live-chat');
-        break;
-      case ContactChannelType.callSupport:
-        break;
-      case ContactChannelType.emailSupport:
-        break;
+    final uri = Uri.parse('tel:$telNumber');
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        Get.snackbar(
+          'Emergency Hotline',
+          'Call Transit Control Room: $title',
+          backgroundColor: const Color(0xFFE53935),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 4),
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Emergency Hotline',
+        'Call Transit Control Room: $title',
+        backgroundColor: const Color(0xFFE53935),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
   }
 
-  void onTicketTap(SupportTicket ticket) {
-    Get.toNamed('/ticket-detail', arguments: {'ticketId': ticket.id});
+  /// Open SOP Guide directly (same as Fleet Operator & Admin Panel)
+  Future<void> openSopGuide(DriverGuideItem guide) async {
+    final rawUrl = guide.url;
+    final resolvedUrl = ApiConstants.resolveFileUrl(rawUrl);
+    if (resolvedUrl.isNotEmpty) {
+      try {
+        final uri = Uri.parse(resolvedUrl);
+        final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+        if (!launched) {
+          await launchUrl(uri, mode: LaunchMode.platformDefault);
+        }
+      } catch (e) {
+        Get.snackbar(
+          'error'.tr,
+          'Could not open document: $e',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
+      }
+    } else {
+      Get.snackbar(
+        'no_pdf_attached'.tr,
+        'no_pdf_attached_desc'.trParams({'title': guide.title}),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orangeAccent.withOpacity(0.9),
+        colorText: Colors.white,
+      );
+    }
   }
 
-  void onViewAllTickets() {
-    Get.toNamed('/support-tickets');
+  /// Open Driver Transit Academy Video Tutorials bottom sheet
+  void openVideoAcademy() {
+    final academy = helpContent.value.videoAcademy ??
+        DriverHelpContentModel.defaultDriverHelp().videoAcademy!;
+    Get.bottomSheet(
+      VideoAcademySheet(academy: academy),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+    );
   }
 
-  void onArticleTap(PopularArticle article) {
-    Get.toNamed('/article-detail', arguments: {'articleId': article.id});
+  /// Open Raise Ticket modal bottom sheet
+  void openRaiseTicketModal() {
+    Get.bottomSheet(
+      CreateSupportTicketSheet(
+        onSuccess: () {
+          fetchHelpData();
+        },
+      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+    );
   }
 
-  void onViewAllArticles() {
-    Get.toNamed('/help-articles');
+  /// Navigate to full Support Ticket History
+  void openSupportHistory() {
+    Get.toNamed(Routes.DRIVER_SUPPORT_HISTORY)?.then((_) => _loadRecentTickets());
+  }
+
+  /// Navigate to single Ticket Conversation / Chat
+  void openTicketDetails(DriverSupportTicketModel ticket) {
+    Get.toNamed(
+      Routes.DRIVER_SUPPORT_TICKET_DETAILS,
+      arguments: ticket,
+    )?.then((_) => _loadRecentTickets());
   }
 }

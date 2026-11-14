@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../../theme/app_colors.dart';
+import '../../../../../theme/app_theme.dart';
 import 'package:vmovexa/app/data/constants/api_constants.dart';
 import 'package:vmovexa/app/data/models/driver_models.dart';
 import 'package:vmovexa/app/data/services/driver_service.dart';
@@ -15,7 +17,6 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
   static const Color kBg = Color(0xFF0B0B14);
   static const Color kCardBg = Color(0xFF15151F);
   static const Color kFieldBg = Color(0xFF1B1B27);
-  static const Color kPurple = Color(0xFFB042FF);
   static const Color kBorder = Color(0x14FFFFFF);
   static const Color kRed = Color(0xFFFF4D4D);
   static const Color kOrange = Color(0xFFFF9500);
@@ -61,7 +62,7 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
       backgroundColor: kBg,
       body: SafeArea(
         child: isLoading
-            ? const Center(child: CircularProgressIndicator(color: kPurple))
+            ? const Center(child: CircularProgressIndicator(color: AppColors.accentPurple))
             : incident == null
                 ? _buildNotFound()
                 : _buildContent(),
@@ -78,10 +79,20 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
           const SizedBox(height: 12),
           Text('incident_not_found'.tr, style: const TextStyle(color: Colors.white, fontSize: 16)),
           const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () => Get.back(),
-            style: ElevatedButton.styleFrom(backgroundColor: kPurple),
-            child: Text('back_to_incidents'.tr),
+          InkWell(
+            onTap: () => Get.back(),
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                gradient: AppTheme.primaryGradient,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                'back_to_incidents'.tr,
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+            ),
           ),
         ],
       ),
@@ -98,16 +109,19 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
 
     final st = (item.status ?? 'open').toLowerCase();
     Color stColor = kBlue;
-    String stLabel = 'open'.tr;
+    String stLabel = 'stat_review'.tr;
     if (st == 'in_progress' || st == 'investigating') {
       stColor = Colors.amber;
-      stLabel = 'in_progress'.tr;
-    } else if (st == 'resolved' || st == 'closed') {
+      stLabel = 'stat_in_progress'.tr;
+    } else if (st == 'resolved') {
       stColor = kGreen;
-      stLabel = 'resolved'.tr;
+      stLabel = 'stat_resolved'.tr;
+    } else if (st == 'closed') {
+      stColor = Colors.grey;
+      stLabel = 'stat_closed'.tr;
     }
 
-    final ticket = item.ticketNumber ?? (item.id != null ? 'INC-${item.id!.substring(0, item.id!.length > 6 ? 6 : item.id!.length)}' : 'INC');
+    final ticket = item.ticketNumber ?? (item.id != null ? '#${item.id}' : 'INC');
 
     return Column(
       children: [
@@ -135,19 +149,27 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
                   children: [
                     Text(
                       ticket,
-                      style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'monospace',
+                      ),
                     ),
                     const SizedBox(height: 1),
-                    Text('incident_report_details'.tr, style: const TextStyle(color: Colors.white54, fontSize: 11)),
+                    Text(
+                      'incident_report_details'.tr,
+                      style: const TextStyle(color: Colors.white54, fontSize: 11),
+                    ),
                   ],
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: stColor.withOpacity(0.15),
+                  color: stColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: stColor.withOpacity(0.4)),
+                  border: Border.all(color: stColor.withValues(alpha: 0.4)),
                 ),
                 child: Text(
                   stLabel,
@@ -180,9 +202,9 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                           decoration: BoxDecoration(
-                            color: sevColor.withOpacity(0.15),
+                            color: sevColor.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: sevColor.withOpacity(0.4)),
+                            border: Border.all(color: sevColor.withValues(alpha: 0.4)),
                           ),
                           child: Text(
                             '${'severity_label'.tr.toUpperCase()}: ${(sev == 'critical' ? 'sev_critical'.tr : sev == 'high' ? 'sev_high'.tr : sev == 'medium' ? 'sev_medium'.tr : 'sev_low'.tr).toUpperCase()}',
@@ -197,7 +219,7 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      item.title ?? 'incident_accident'.tr,
+                      item.incidentType ?? item.title ?? 'incident_accident'.tr,
                       style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
@@ -212,8 +234,126 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
               ),
               const SizedBox(height: 14),
 
-              // Location Card
-              if (item.location != null && item.location!.lat != null) ...[
+              // Medical & Emergency Assistance Dispatch Card
+              if (item.hasCasualties || item.hospitalName != null || item.policeStationName != null || item.ambulanceAssigned) ...[
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: kCardBg,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: kRed.withValues(alpha: 0.3)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.local_hospital_outlined, color: kRed, size: 18),
+                              const SizedBox(width: 8),
+                              Text(
+                                'medical_assistance_label'.tr,
+                                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                          if (item.ambulanceAssigned)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: kGreen.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: kGreen.withValues(alpha: 0.3)),
+                              ),
+                              child: Text(
+                                'ambulance_assigned'.tr,
+                                style: const TextStyle(color: kGreen, fontSize: 10, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: kFieldBg,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('fatalities_label'.tr, style: const TextStyle(color: Colors.white54, fontSize: 10.5)),
+                                  const SizedBox(height: 3),
+                                  Text('${item.deadCasualty}', style: const TextStyle(color: kRed, fontSize: 16, fontWeight: FontWeight.bold)),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: kFieldBg,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('injured_label'.tr, style: const TextStyle(color: Colors.white54, fontSize: 10.5)),
+                                  const SizedBox(height: 3),
+                                  Text('${item.injuredCount}', style: const TextStyle(color: kOrange, fontSize: 16, fontWeight: FontWeight.bold)),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (item.hospitalName != null && item.hospitalName!.isNotEmpty) ...[
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            const Icon(Icons.apartment_rounded, color: Colors.white38, size: 14),
+                            const SizedBox(width: 6),
+                            Text('${'hospital_label'.tr} ', style: const TextStyle(color: Colors.white54, fontSize: 11)),
+                            Expanded(
+                              child: Text(
+                                item.hospitalName!,
+                                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                      if (item.policeStationName != null && item.policeStationName!.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            const Icon(Icons.local_police_outlined, color: Colors.white38, size: 14),
+                            const SizedBox(width: 6),
+                            Text('${'police_station_label'.tr} ', style: const TextStyle(color: Colors.white54, fontSize: 11)),
+                            Expanded(
+                              child: Text(
+                                item.policeStationName!,
+                                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+              ],
+
+              // Location & GPS Card
+              if (item.locationName != null || item.landmark != null || (item.latitude != null && item.longitude != null)) ...[
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -222,11 +362,12 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
                     border: Border.all(color: kBorder),
                   ),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: kBlue.withOpacity(0.15),
+                          color: kBlue.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: const Icon(Icons.location_on_outlined, color: kBlue, size: 20),
@@ -236,12 +377,24 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('incident_gps_coords'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
-                            const SizedBox(height: 2),
                             Text(
-                              'Lat: ${item.location!.lat!.toStringAsFixed(5)}, Lng: ${item.location!.lng!.toStringAsFixed(5)}',
-                              style: const TextStyle(color: Colors.white54, fontSize: 11, fontFamily: 'monospace'),
+                              item.locationName ?? item.location?.address ?? 'incident_gps_coords'.tr,
+                              style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700),
                             ),
+                            if (item.landmark != null && item.landmark!.isNotEmpty) ...[
+                              const SizedBox(height: 3),
+                              Text(
+                                '${'landmark_label'.tr}: ${item.landmark}',
+                                style: const TextStyle(color: Colors.white70, fontSize: 11),
+                              ),
+                            ],
+                            if (item.latitude != null && item.longitude != null) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                'Lat: ${item.latitude!.toStringAsFixed(5)}, Lng: ${item.longitude!.toStringAsFixed(5)}',
+                                style: const TextStyle(color: Colors.white54, fontSize: 11, fontFamily: 'monospace'),
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -256,9 +409,9 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: kGreen.withOpacity(0.08),
+                    color: kGreen.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: kGreen.withOpacity(0.3)),
+                    border: Border.all(color: kGreen.withValues(alpha: 0.3)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,7 +420,10 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
                         children: [
                           const Icon(Icons.check_circle_rounded, color: kGreen, size: 18),
                           const SizedBox(width: 8),
-                          Text('resolution_admin_notes'.tr, style: const TextStyle(color: kGreen, fontSize: 13, fontWeight: FontWeight.bold)),
+                          Text(
+                            'resolution_admin_notes'.tr,
+                            style: const TextStyle(color: kGreen, fontSize: 13, fontWeight: FontWeight.bold),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -303,8 +459,14 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('attached_media_photos'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
-                          Text('${item.mediaUrls.length} ${'attached_files_count'.tr}', style: const TextStyle(color: Colors.white38, fontSize: 11)),
+                          Text(
+                            'attached_media_photos'.tr,
+                            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700),
+                          ),
+                          Text(
+                            '${item.mediaUrls.length} ${'attached_files_count'.tr}',
+                            style: const TextStyle(color: Colors.white38, fontSize: 11),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -324,11 +486,69 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
                                 child: Image.network(
                                   fullUrl,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => const Center(
+                                  errorBuilder: (context, error, stackTrace) => const Center(
                                     child: Icon(Icons.broken_image, color: Colors.white38),
                                   ),
                                 ),
                               ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+              ],
+
+              // Videos Gallery
+              if (item.videoUrls.isNotEmpty) ...[
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: kCardBg,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: kBorder),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'attached_media_videos'.tr,
+                            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700),
+                          ),
+                          Text(
+                            '${item.videoUrls.length} ${'attached_files_count'.tr}',
+                            style: const TextStyle(color: Colors.white38, fontSize: 11),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Column(
+                        children: item.videoUrls.map((vUrl) {
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: kFieldBg,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.videocam_rounded, color: AppColors.accentPurple, size: 18),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    vUrl,
+                                    style: const TextStyle(color: Colors.white70, fontSize: 11),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
                             ),
                           );
                         }).toList(),
@@ -367,7 +587,7 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
               child: Image.network(
                 imageUrl,
                 fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => Text('could_not_load_image'.tr, style: const TextStyle(color: Colors.white)),
+                errorBuilder: (context, error, stackTrace) => Text('could_not_load_image'.tr, style: const TextStyle(color: Colors.white)),
               ),
             ),
           ],

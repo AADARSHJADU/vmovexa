@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import '../models/work_order_model.dart';
+import '../../modules/roles/driver/profile/help_support/model/help_support_models.dart';
 // lib/app/data/services/driver_service.dart
 import 'package:get/get.dart';
 import '../constants/api_constants.dart';
@@ -57,10 +59,26 @@ class DriverService extends GetxService {
     );
   }
 
-  /// 3. GET /me/driver/schedule — Today's schedule
-  Future<ApiResponseModel<DriverScheduleData>> getTodaySchedule() async {
+  /// 3. GET /me/driver/schedule — Driver schedule & timetable
+  Future<ApiResponseModel<DriverScheduleData>> getTodaySchedule({
+    String? tab,
+    int? page,
+    int? limit,
+    String? search,
+    String? shiftType,
+    String? status,
+  }) async {
+    final query = <String, String>{
+      if (tab != null && tab.isNotEmpty && tab != 'all') 'tab': tab,
+      if (page != null) 'page': page.toString(),
+      if (limit != null) 'limit': limit.toString(),
+      if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
+      if (shiftType != null && shiftType != 'ALL') 'shift_type': shiftType,
+      if (status != null && status != 'ALL') 'status': status,
+    };
     return _http.get<DriverScheduleData>(
       ApiConstants.driverSchedule,
+      queryParams: query.isNotEmpty ? query : null,
       requiresAuth: true,
       create: (data) {
         if (data != null) {
@@ -253,31 +271,52 @@ class DriverService extends GetxService {
 
   /// 10. GET /me/driver/incidents — List reported incidents
   Future<ApiResponseModel<List<DriverIncidentItem>>> getIncidents({
-    int page = 1,
-    int limit = 20,
+    int? page,
+    int? limit,
     String? status,
   }) async {
     final queryParams = <String, dynamic>{
-      'page': page,
-      'limit': limit,
-      if (status != null && status.isNotEmpty) 'status': status,
+      'page': ?page,
+      'limit': ?limit,
+      if (status != null && status.isNotEmpty && status.toUpperCase() != 'ALL') 'status': status,
     };
 
     return _http.get<List<DriverIncidentItem>>(
       ApiConstants.driverIncidents,
-      queryParams: queryParams,
+      queryParams: queryParams.isNotEmpty ? queryParams : null,
       requiresAuth: true,
       create: (data) {
+        debugPrint('🔍 [DriverService.getIncidents] Raw data payload type: ${data.runtimeType}');
+        final list = <DriverIncidentItem>[];
+        dynamic rawList;
         if (data is List) {
-          return data
-              .map((e) => DriverIncidentItem.fromJson(Map<String, dynamic>.from(e)))
-              .toList();
-        } else if (data is Map && data['rows'] is List) {
-          return (data['rows'] as List)
-              .map((e) => DriverIncidentItem.fromJson(Map<String, dynamic>.from(e)))
-              .toList();
+          rawList = data;
+        } else if (data is Map) {
+          rawList = data['incidents'] ?? data['items'] ?? data['rows'] ?? data['data'];
         }
-        return <DriverIncidentItem>[];
+
+        if (rawList is List) {
+          debugPrint('🔍 [DriverService.getIncidents] Found ${rawList.length} raw incident items in response');
+          for (int i = 0; i < rawList.length; i++) {
+            final item = rawList[i];
+            try {
+              if (item is Map) {
+                final parsed = DriverIncidentItem.fromJson(Map<String, dynamic>.from(item));
+                list.add(parsed);
+                debugPrint('✅ [DriverService.getIncidents] Parsed incident #$i: ID=${parsed.id}, type=${parsed.incidentType}, severity=${parsed.severity}, status=${parsed.status}, photos=${parsed.photos.length}');
+              } else {
+                debugPrint('⚠️ [DriverService.getIncidents] Skipped item #$i (not a Map: ${item.runtimeType})');
+              }
+            } catch (err, st) {
+              debugPrint('❌ [DriverService.getIncidents] Failed to parse incident item #$i: $err\n$st');
+            }
+          }
+        } else {
+          debugPrint('⚠️ [DriverService.getIncidents] No list found in payload: $data');
+        }
+
+        debugPrint('🎉 [DriverService.getIncidents] Returning ${list.length} DriverIncidentItems');
+        return list;
       },
     );
   }
@@ -288,8 +327,16 @@ class DriverService extends GetxService {
       ApiConstants.driverIncidentOne(id),
       requiresAuth: true,
       create: (data) {
-        if (data is Map) {
-          return DriverIncidentItem.fromJson(Map<String, dynamic>.from(data));
+        debugPrint('🔍 [DriverService.getIncidentDetails] Raw data received for ID $id');
+        try {
+          if (data is Map) {
+            final target = (data['incident'] is Map)
+                ? Map<String, dynamic>.from(data['incident'] as Map)
+                : Map<String, dynamic>.from(data);
+            return DriverIncidentItem.fromJson(target);
+          }
+        } catch (err, st) {
+          debugPrint('❌ [DriverService.getIncidentDetails] Error parsing incident detail: $err\n$st');
         }
         return DriverIncidentItem();
       },
@@ -351,22 +398,22 @@ class DriverService extends GetxService {
       if (severity != null && severity.isNotEmpty) 'severity': severity,
       if (locString != null && locString.isNotEmpty) 'location': locString,
       if (landmark != null && landmark.isNotEmpty) 'landmark': landmark,
-      if (lat != null) 'latitude': lat,
-      if (lng != null) 'longitude': lng,
+      'latitude': ?lat,
+      'longitude': ?lng,
       if (effectivePhotos.isNotEmpty) 'photos': effectivePhotos,
       if (videos != null && videos.isNotEmpty) 'videos': videos,
       if (affectedParties != null && affectedParties.isNotEmpty) 'affectedParties': affectedParties,
       if (immediateAction != null && immediateAction.isNotEmpty) 'immediateAction': immediateAction,
       if (contactPreference != null && contactPreference.isNotEmpty) 'contactPreference': contactPreference,
       if (contactNumber != null && contactNumber.isNotEmpty) 'contactNumber': contactNumber,
-      if (deadCasualty != null) 'deadCasualty': deadCasualty,
-      if (injuredCount != null) 'injuredCount': injuredCount,
+      'deadCasualty': ?deadCasualty,
+      'injuredCount': ?injuredCount,
       if (hospitalName != null && hospitalName.isNotEmpty) 'hospitalName': hospitalName,
-      if (ambulanceAssigned != null) 'ambulanceAssigned': ambulanceAssigned,
+      'ambulanceAssigned': ?ambulanceAssigned,
       if (ambulanceTiming != null && ambulanceTiming.isNotEmpty) 'ambulanceTiming': ambulanceTiming,
-      if (policeNotified != null) 'policeNotified': policeNotified,
+      'policeNotified': ?policeNotified,
       if (policeStationName != null && policeStationName.isNotEmpty) 'policeStationName': policeStationName,
-      if (towingRequested != null) 'towingRequested': towingRequested,
+      'towingRequested': ?towingRequested,
       if (weatherConditions != null && weatherConditions.isNotEmpty) 'weatherConditions': weatherConditions,
       if (roadType != null && roadType.isNotEmpty) 'roadType': roadType,
       if (trafficDisruptionLevel != null && trafficDisruptionLevel.isNotEmpty) 'trafficDisruptionLevel': trafficDisruptionLevel,
@@ -388,22 +435,66 @@ class DriverService extends GetxService {
   /// 12. GET /notifications — Get driver notifications
   Future<ApiResponseModel<List<Map<String, dynamic>>>> getNotifications({
     int page = 1,
-    int limit = 20,
+    int limit = 50,
+    String? severity,
+    String? search,
   }) async {
+    final params = <String, dynamic>{
+      'page': page,
+      'limit': limit,
+      if (severity != null && severity.isNotEmpty) 'severity': severity,
+      if (search != null && search.isNotEmpty) 'search': search,
+    };
+
     return _http.get<List<Map<String, dynamic>>>(
       ApiConstants.notifications,
-      queryParams: {'page': page, 'limit': limit},
+      queryParams: params,
       requiresAuth: true,
       create: (data) {
         if (data is List) {
           return data.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-        } else if (data is Map && data['rows'] is List) {
-          return (data['rows'] as List)
-              .map((e) => Map<String, dynamic>.from(e as Map))
-              .toList();
+        } else if (data is Map) {
+          final list = data['rows'] ?? data['items'] ?? data['data'] ?? data['notifications'];
+          if (list is List) {
+            return list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+          }
         }
         return [];
       },
+    );
+  }
+
+  /// 12a. POST /notifications/:id/read — Mark driver notification as read
+  Future<ApiResponseModel<dynamic>> markNotificationRead(String id) async {
+    return _http.post(
+      ApiConstants.notificationRead(id),
+      body: {},
+      requiresAuth: true,
+    );
+  }
+
+  /// 12b. POST /notifications/read-all — Mark all driver notifications read
+  Future<ApiResponseModel<dynamic>> markAllNotificationsRead() async {
+    return _http.post(
+      ApiConstants.notificationReadAll,
+      body: {},
+      requiresAuth: true,
+    );
+  }
+
+  /// 12c. DELETE /notifications/:id — Remove notification
+  Future<ApiResponseModel<dynamic>> deleteNotification(String id) async {
+    return _http.delete(
+      ApiConstants.notificationDelete(id),
+      requiresAuth: true,
+    );
+  }
+
+  /// 12d. DELETE /notifications — Clear all notifications
+  Future<ApiResponseModel<dynamic>> clearAllNotifications() async {
+    return _http.delete(
+      ApiConstants.notifications,
+      requiresAuth: true,
     );
   }
 
@@ -523,6 +614,151 @@ class DriverService extends GetxService {
         if (feedback != null && feedback.trim().isNotEmpty) 'notes': feedback.trim(),
       },
       requiresAuth: true,
+    );
+  }
+
+  /// 20. GET /content/help?role=ROLE-DRIVER — Driver central knowledge base, guides, FAQs & academy
+  Future<ApiResponseModel<DriverHelpContentModel>> getDriverHelpContent() async {
+    return _http.get<DriverHelpContentModel>(
+      ApiConstants.contentHelpRole('ROLE-DRIVER'),
+      requiresAuth: true,
+      create: (data) {
+        if (data is Map) {
+          return DriverHelpContentModel.fromJson(Map<String, dynamic>.from(data));
+        }
+        return DriverHelpContentModel.defaultDriverHelp();
+      },
+    );
+  }
+
+  /// 21. GET /me/support/tickets — Driver submitted support tickets
+  Future<ApiResponseModel<List<DriverSupportTicketModel>>> getMySupportTickets({
+    int page = 1,
+    int limit = 50,
+  }) async {
+    return _http.get<List<DriverSupportTicketModel>>(
+      '${ApiConstants.supportTickets}?page=$page&limit=$limit',
+      requiresAuth: true,
+      create: (data) {
+        List items = [];
+        if (data is Map) {
+          if (data['tickets'] is List) {
+            items = data['tickets'] as List;
+          } else if (data['items'] is List) {
+            items = data['items'] as List;
+          } else if (data['data'] is List) {
+            items = data['data'] as List;
+          } else if (data['rows'] is List) {
+            items = data['rows'] as List;
+          }
+        } else if (data is List) {
+          items = data;
+        }
+
+        return items
+            .whereType<Map>()
+            .map((item) => DriverSupportTicketModel.fromJson(Map<String, dynamic>.from(item)))
+            .toList();
+      },
+    );
+  }
+
+  /// 22. GET /support/tickets/:id — Single support ticket details with message thread
+  Future<ApiResponseModel<DriverSupportTicketModel>> getSupportTicketDetails(String id) async {
+    return _http.get<DriverSupportTicketModel>(
+      ApiConstants.supportTicketOne(id),
+      requiresAuth: true,
+      create: (data) {
+        if (data is Map) {
+          final map = data.containsKey('ticket') && data['ticket'] is Map
+              ? Map<String, dynamic>.from(data['ticket'])
+              : Map<String, dynamic>.from(data);
+          return DriverSupportTicketModel.fromJson(map);
+        }
+        return DriverSupportTicketModel(
+          id: id,
+          code: '#TKT-$id',
+          subject: 'Support Ticket',
+          category: 'General',
+          description: '',
+        );
+      },
+    );
+  }
+
+  /// 23. POST /support/tickets — Raise new support ticket
+  Future<ApiResponseModel<DriverSupportTicketModel>> createSupportTicket({
+    required String subject,
+    required String category,
+    required String priority,
+    required String description,
+    List<Map<String, dynamic>>? attachments,
+  }) async {
+    final body = <String, dynamic>{
+      'subject': subject,
+      'title': subject,
+      'category': category,
+      'priority': priority.toLowerCase(),
+      'description': description,
+      'message': description,
+      if (attachments != null && attachments.isNotEmpty) 'attachments': attachments,
+    };
+
+    return _http.post<DriverSupportTicketModel>(
+      ApiConstants.createSupportTicket,
+      body: body,
+      requiresAuth: true,
+      create: (data) {
+        if (data is Map) {
+          final map = data.containsKey('ticket') && data['ticket'] is Map
+              ? Map<String, dynamic>.from(data['ticket'])
+              : Map<String, dynamic>.from(data);
+          return DriverSupportTicketModel.fromJson(map);
+        }
+        return DriverSupportTicketModel(
+          id: 'new',
+          code: '#TKT-NEW',
+          subject: subject,
+          category: category,
+          priority: priority,
+          description: description,
+        );
+      },
+    );
+  }
+
+  /// 24. POST /support/tickets/:id/messages — Reply to ticket conversation thread
+  Future<ApiResponseModel<TicketMessageModel>> sendSupportTicketReply(
+    String id, {
+    required String body,
+    List<Map<String, dynamic>>? attachments,
+  }) async {
+    final payload = <String, dynamic>{
+      'body': body,
+      'message': body,
+      if (attachments != null && attachments.isNotEmpty) 'attachments': attachments,
+    };
+
+    return _http.post<TicketMessageModel>(
+      ApiConstants.supportTicketMessages(id),
+      body: payload,
+      requiresAuth: true,
+      create: (data) {
+        if (data is Map) {
+          final map = data.containsKey('message') && data['message'] is Map
+              ? Map<String, dynamic>.from(data['message'])
+              : Map<String, dynamic>.from(data);
+          return TicketMessageModel.fromJson(map);
+        }
+        return TicketMessageModel(
+          id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
+          body: body,
+          senderName: 'You',
+          senderRole: 'driver',
+          isStaff: false,
+          createdAt: DateTime.now().toIso8601String(),
+        );
+      },
     );
   }
 }

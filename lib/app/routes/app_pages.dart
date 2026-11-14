@@ -23,8 +23,16 @@ import '../modules/roles/driver/notification/bindings/notifications_driver_bindi
 import '../modules/roles/driver/notification/view/notifications_driver_view.dart';
 import '../modules/roles/driver/profile/help_support/bindings/help_support_binding.dart';
 import '../modules/roles/driver/profile/help_support/view/driver_help_support_view.dart';
+import '../modules/roles/driver/profile/help_support/bindings/driver_support_history_binding.dart';
+import '../modules/roles/driver/profile/help_support/view/driver_support_history_view.dart';
+import '../modules/roles/driver/profile/help_support/bindings/driver_ticket_conversation_binding.dart';
+import '../modules/roles/driver/profile/help_support/view/driver_ticket_conversation_view.dart';
 import '../modules/roles/driver/routes/bindings/my_route_binding.dart';
 import '../modules/roles/driver/routes/view/my_route_view.dart';
+import '../modules/roles/driver/work_orders/bindings/driver_work_orders_binding.dart';
+import '../modules/roles/driver/work_orders/views/driver_work_orders_view.dart';
+import '../modules/roles/driver/work_orders/views/driver_create_work_order_view.dart';
+import '../modules/roles/driver/work_orders/views/driver_work_order_details_view.dart';
 import '../modules/roles/finance/finance_dashboard/bindings/finance_dashboard_bindings.dart';
 import '../modules/roles/finance/finance_dashboard/view/finance_dashboard_view.dart';
 import '../modules/roles/finance/finance_profile/help-support/bindings/finance_help_support_binding.dart';
@@ -787,6 +795,36 @@ class AppPages {
       name: Routes.DRIVER_HELP_SUPPORT,
       page: () => const DriverHelpSupportView(),
       binding: DriverHelpSupportBinding(),
+    ),
+    GetPage(
+      name: Routes.DRIVER_SUPPORT_HISTORY,
+      page: () => const DriverSupportHistoryView(),
+      binding: DriverSupportHistoryBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DRIVER_SUPPORT_TICKET_DETAILS,
+      page: () => const DriverTicketConversationView(),
+      binding: DriverTicketConversationBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DRIVER_WORK_ORDERS,
+      page: () => const DriverWorkOrdersView(),
+      binding: DriverWorkOrdersBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DRIVER_CREATE_WORK_ORDER,
+      page: () => const DriverCreateWorkOrderView(),
+      binding: DriverCreateWorkOrderBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DRIVER_WORK_ORDER_DETAILS,
+      page: () => const DriverWorkOrderDetailsView(),
+      binding: DriverWorkOrderDetailsBinding(),
+      transition: Transition.rightToLeft,
     ),
 
     //Finance flow routes

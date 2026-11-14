@@ -63,7 +63,7 @@ class MyRouteView extends GetView<MyRouteController> {
   Widget _buildHeader() {
     return Row(
       children: [
-        GestureDetector(
+        InkWell(
           onTap: controller.onBackPressed,
           child: const Icon(Icons.arrow_back, color: Colors.white),
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/routes/app_routes.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import 'package:vmovexa/app/data/constants/api_constants.dart';
 import 'package:vmovexa/app/data/services/storage_service.dart';
 import 'package:vmovexa/app/data/services/auth_service.dart';
@@ -184,6 +185,30 @@ class DriverDrawer extends StatelessWidget {
                       },
                     );
                   }),
+                  _buildNavItem(
+                    icon: Icons.engineering_rounded,
+                    title: 'fleet_work_orders'.tr,
+                    iconColor: const Color(0xFFF59E0B),
+                    badgeWidget: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.primaryGradient,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        'tech_badge'.tr,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      Get.toNamed(Routes.DRIVER_WORK_ORDERS);
+                    },
+                  ),
                   _buildNavItem(
                     icon: Icons.warning_amber_rounded,
                     title: 'report_incident'.tr,

@@ -126,6 +126,11 @@ abstract class Routes {
   static const DRIVER_PROFILE = '/driver-profile';
   static const DRIVER_DOCUMENT = '/driver-documents';
   static const DRIVER_HELP_SUPPORT = '/driver-help-support';
+  static const DRIVER_SUPPORT_HISTORY = '/driver-support-history';
+  static const DRIVER_SUPPORT_TICKET_DETAILS = '/driver-support-ticket-details';
+  static const DRIVER_WORK_ORDERS = '/driver-work-orders';
+  static const DRIVER_CREATE_WORK_ORDER = '/driver-create-work-order';
+  static const DRIVER_WORK_ORDER_DETAILS = '/driver-work-order-details';
 
   //Finance flow routes
   static const FINANCE_DASHBOARD = '/finance-dashboard';

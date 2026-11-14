@@ -206,6 +206,7 @@ class UpcomingTripItem {
 class DriverShiftItem {
   final String? id;
   final String? slotId;
+  final String? slotCode;
   final String? routeNumber;
   final String? routeName;
   final String? busNumber;
@@ -217,13 +218,17 @@ class DriverShiftItem {
   final String? endDepot;
   final String? distance;
   final String? duration;
+  final String? frequency;
+  final String? tripLabel;
   final String? status;
   final bool isCompleted;
   final bool isInTransit;
+  final bool isToday;
 
   DriverShiftItem({
     this.id,
     this.slotId,
+    this.slotCode,
     this.routeNumber,
     this.routeName,
     this.busNumber,
@@ -235,33 +240,42 @@ class DriverShiftItem {
     this.endDepot,
     this.distance,
     this.duration,
+    this.frequency,
+    this.tripLabel,
     this.status,
     this.isCompleted = false,
     this.isInTransit = false,
+    this.isToday = true,
   });
 
   factory DriverShiftItem.fromJson(Map<String, dynamic> json) {
     final statusStr = json['status']?.toString() ?? 'Scheduled';
     final isComp = json['isCompleted'] == true || statusStr.toLowerCase() == 'completed';
     final isTransit = statusStr.toLowerCase() == 'in transit' || statusStr.toLowerCase() == 'in_progress';
+    final dateStr = json['date']?.toString() ?? 'Today';
+    final isTodayVal = json['isToday'] == true || dateStr.toLowerCase().contains('today');
 
     return DriverShiftItem(
       id: json['id']?.toString(),
       slotId: json['slot_id']?.toString() ?? json['slotId']?.toString(),
+      slotCode: json['slot_code']?.toString() ?? json['slotCode']?.toString(),
       routeNumber: json['route_number']?.toString() ?? json['routeNumber']?.toString() ?? (json['route'] is Map ? json['route']['code']?.toString() : null) ?? '—',
       routeName: json['route_name']?.toString() ?? json['routeName']?.toString() ?? (json['route'] is Map ? json['route']['name']?.toString() : null),
       busNumber: json['bus_number']?.toString() ?? json['busNumber']?.toString() ?? (json['vehicle'] is Map ? json['vehicle']['bus_number']?.toString() : null) ?? '—',
       shiftTypeLabel: json['shift_type_label']?.toString() ?? json['shiftTypeLabel']?.toString() ?? json['shift_type']?.toString(),
       startTime: json['startTime']?.toString() ?? json['shift_start']?.toString() ?? json['start_time']?.toString() ?? json['departureTime']?.toString() ?? '—',
       endTime: json['endTime']?.toString() ?? json['shift_end']?.toString() ?? json['end_time']?.toString() ?? '—',
-      date: json['date']?.toString() ?? 'Today',
+      date: dateStr,
       startDepot: json['startDepot']?.toString() ?? json['start_depot']?.toString() ?? json['from_stop']?.toString() ?? json['origin']?.toString() ?? '—',
       endDepot: json['endDepot']?.toString() ?? json['end_depot']?.toString() ?? json['to_stop']?.toString() ?? json['destination']?.toString() ?? '—',
-      distance: json['distance']?.toString(),
+      distance: json['distance']?.toString() ?? (json['distance_km'] != null ? '${json['distance_km']} km' : null),
       duration: json['duration']?.toString(),
+      frequency: json['frequency']?.toString() ?? json['headway']?.toString() ?? '15 mins',
+      tripLabel: json['trip_label']?.toString() ?? json['tripLabel']?.toString(),
       status: statusStr,
       isCompleted: isComp,
       isInTransit: isTransit,
+      isToday: isTodayVal,
     );
   }
 }
@@ -272,6 +286,9 @@ class DriverScheduleData {
   final AssignedRouteBrief? assignedRoute;
   final List<UpcomingTripItem> upcomingTrips;
   final List<DriverShiftItem> schedules;
+  final int totalCount;
+  final int todayCount;
+  final int upcomingCount;
 
   DriverScheduleData({
     this.date,
@@ -279,6 +296,9 @@ class DriverScheduleData {
     this.assignedRoute,
     this.upcomingTrips = const [],
     this.schedules = const [],
+    this.totalCount = 0,
+    this.todayCount = 0,
+    this.upcomingCount = 0,
   });
 
   factory DriverScheduleData.fromJson(dynamic json) {
@@ -288,20 +308,33 @@ class DriverScheduleData {
           .whereType<Map>()
           .map((e) => DriverShiftItem.fromJson(Map<String, dynamic>.from(e)))
           .toList();
-      return DriverScheduleData(schedules: items);
+      return DriverScheduleData(
+        schedules: items,
+        totalCount: items.length,
+        todayCount: items.where((s) => s.isToday).length,
+        upcomingCount: items.where((s) => !s.isToday).length,
+      );
     }
     if (json is! Map) return DriverScheduleData();
 
     final map = Map<String, dynamic>.from(json);
 
     List<DriverShiftItem> shifts = [];
-    final rawList = map['schedules'] ?? map['items'] ?? map['rows'];
+    final rawList = map['schedules'] ?? map['items'] ?? map['rows'] ?? map['shifts'] ?? (map['data'] is List ? map['data'] : null);
     if (rawList is List) {
       shifts = rawList
           .whereType<Map>()
           .map((e) => DriverShiftItem.fromJson(Map<String, dynamic>.from(e)))
           .toList();
     }
+
+    final total = int.tryParse(map['total']?.toString() ?? '') ??
+        int.tryParse(map['count']?.toString() ?? '') ??
+        shifts.length;
+    final tCount = int.tryParse(map['todayCount']?.toString() ?? '') ??
+        shifts.where((s) => s.isToday).length;
+    final uCount = int.tryParse(map['upcomingCount']?.toString() ?? '') ??
+        shifts.where((s) => !s.isToday).length;
 
     return DriverScheduleData(
       date: map['date']?.toString(),
@@ -317,6 +350,9 @@ class DriverScheduleData {
               .toList()
           : [],
       schedules: shifts,
+      totalCount: total,
+      todayCount: tCount,
+      upcomingCount: uCount,
     );
   }
 }
@@ -671,14 +707,23 @@ class DriverIncidentLocation {
       return DriverIncidentLocation(address: data);
     }
     if (data is Map) {
+      double? parseCoord(dynamic val) {
+        if (val == null) return null;
+        if (val is num) return val.toDouble();
+        return double.tryParse(val.toString().trim());
+      }
+
+      final latVal = parseCoord(data['lat'] ?? data['latitude']);
+      final lngVal = parseCoord(data['lng'] ?? data['longitude']);
+      final addr = data['address']?.toString() ??
+          data['location']?.toString() ??
+          data['landmark']?.toString() ??
+          data['name']?.toString();
+
       return DriverIncidentLocation(
-        lat: data['lat'] != null
-            ? (data['lat'] as num).toDouble()
-            : (data['latitude'] != null ? (data['latitude'] as num).toDouble() : null),
-        lng: data['lng'] != null
-            ? (data['lng'] as num).toDouble()
-            : (data['longitude'] != null ? (data['longitude'] as num).toDouble() : null),
-        address: data['address']?.toString() ?? data['location']?.toString() ?? data['landmark']?.toString(),
+        lat: latVal,
+        lng: lngVal,
+        address: addr,
       );
     }
     return DriverIncidentLocation();
@@ -697,14 +742,26 @@ class DriverIncidentItem {
   final String? incidentType;
   final String? description;
   final String? severity; // 'low', 'medium', 'high', 'critical'
-  final String? status; // 'open', 'in_progress', 'resolved'
+  final String? status; // 'open', 'in_progress', 'resolved', 'closed'
   final String? ticketNumber;
   final DriverIncidentLocation? location;
   final List<String> mediaUrls;
+  final List<String> videoUrls;
   final String? resolution;
   final String? reportedAt;
   final String? resolvedAt;
   final String? landmark;
+  final int deadCasualty;
+  final int injuredCount;
+  final String? hospitalName;
+  final String? policeStationName;
+  final bool ambulanceAssigned;
+  final double? latitude;
+  final double? longitude;
+  final String? locationName;
+  final String? immediateAction;
+  final String? contactNumber;
+  final List<String> affectedParties;
 
   DriverIncidentItem({
     this.id,
@@ -716,64 +773,166 @@ class DriverIncidentItem {
     this.ticketNumber,
     this.location,
     this.mediaUrls = const [],
+    this.videoUrls = const [],
     this.resolution,
     this.reportedAt,
     this.resolvedAt,
     this.landmark,
+    this.deadCasualty = 0,
+    this.injuredCount = 0,
+    this.hospitalName,
+    this.policeStationName,
+    this.ambulanceAssigned = false,
+    this.latitude,
+    this.longitude,
+    this.locationName,
+    this.immediateAction,
+    this.contactNumber,
+    this.affectedParties = const [],
   });
 
   List<String> get photos => mediaUrls;
+  List<String> get videos => videoUrls;
+  bool get hasCasualties => deadCasualty > 0 || injuredCount > 0;
 
   factory DriverIncidentItem.fromJson(Map<String, dynamic>? json) {
     if (json == null) return DriverIncidentItem();
+
+    // 1. Photos extraction
     List<String> media = [];
-    if (json['photos'] is List) {
-      media = (json['photos'] as List).map((e) => e.toString()).toList();
-    } else if (json['media_urls'] is List) {
-      media = (json['media_urls'] as List).map((e) => e.toString()).toList();
-    } else if (json['media'] is List) {
-      media = (json['media'] as List).map((e) => e.toString()).toList();
+    final rawPhotos = json['photos'] ?? json['media_urls'] ?? json['media'] ?? json['attachments'];
+    if (rawPhotos is List) {
+      media = rawPhotos.where((e) => e != null).map((e) => e.toString().trim()).where((e) => e.isNotEmpty).toList();
+    } else if (rawPhotos is String && rawPhotos.trim().isNotEmpty) {
+      if (rawPhotos.contains(',')) {
+        media = rawPhotos.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+      } else {
+        media = [rawPhotos.trim()];
+      }
     }
 
-    final incType = json['incidentType']?.toString() ??
-        json['incident_type']?.toString() ??
-        json['type']?.toString();
+    // 2. Videos extraction
+    List<String> vids = [];
+    final rawVideos = json['videos'] ?? json['video_urls'];
+    if (rawVideos is List) {
+      vids = rawVideos.where((e) => e != null).map((e) => e.toString().trim()).where((e) => e.isNotEmpty).toList();
+    } else if (rawVideos is String && rawVideos.trim().isNotEmpty) {
+      if (rawVideos.contains(',')) {
+        vids = rawVideos.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+      } else {
+        vids = [rawVideos.trim()];
+      }
+    }
+
+    // 3. Incident Type / Title
+    final incType = json['incident_type']?.toString() ??
+        json['incidentType']?.toString() ??
+        json['type']?.toString() ??
+        json['title']?.toString();
+
+    // 4. Coordinates extraction helper
+    double? parseDouble(dynamic val) {
+      if (val == null) return null;
+      if (val is num) return val.toDouble();
+      return double.tryParse(val.toString().trim());
+    }
+
+    double? latVal = parseDouble(json['latitude'] ?? json['lat']);
+    double? lngVal = parseDouble(json['longitude'] ?? json['lng']);
+
+    String? locName;
+    if (json['location'] is String) {
+      locName = json['location'] as String;
+    } else if (json['location'] is Map) {
+      locName = json['location']['address']?.toString() ??
+          json['location']['name']?.toString() ??
+          json['location']['location']?.toString();
+      latVal ??= parseDouble(json['location']['lat'] ?? json['location']['latitude']);
+      lngVal ??= parseDouble(json['location']['lng'] ?? json['location']['longitude']);
+    }
+    locName ??= json['landmark']?.toString();
 
     DriverIncidentLocation? loc;
     if (json['location'] != null) {
       loc = DriverIncidentLocation.fromJson(json['location']);
-    } else if (json['latitude'] != null || json['longitude'] != null) {
+    } else if (latVal != null || lngVal != null || locName != null) {
       loc = DriverIncidentLocation(
-        lat: json['latitude'] != null ? (json['latitude'] as num).toDouble() : null,
-        lng: json['longitude'] != null ? (json['longitude'] as num).toDouble() : null,
-        address: json['landmark']?.toString(),
+        lat: latVal,
+        lng: lngVal,
+        address: locName,
       );
+    }
+
+    // 5. Affected Parties
+    List<String> affected = [];
+    final rawAffected = json['affected_parties'] ?? json['affectedParties'];
+    if (rawAffected is List) {
+      affected = rawAffected.where((e) => e != null).map((e) => e.toString().trim()).where((e) => e.isNotEmpty).toList();
+    } else if (rawAffected is String && rawAffected.trim().isNotEmpty) {
+      if (rawAffected.contains(',')) {
+        affected = rawAffected.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+      } else {
+        affected = [rawAffected.trim()];
+      }
+    }
+
+    // 6. Int parsing helper
+    int toInt(dynamic val, [int fallback = 0]) {
+      if (val == null) return fallback;
+      if (val is int) return val;
+      if (val is num) return val.toInt();
+      return int.tryParse(val.toString().trim()) ?? fallback;
+    }
+
+    // 7. Bool parsing helper
+    bool toBool(dynamic val) {
+      if (val == null) return false;
+      if (val is bool) return val;
+      if (val is num) return val == 1;
+      final str = val.toString().toLowerCase().trim();
+      return str == 'true' || str == '1' || str == 'yes';
     }
 
     return DriverIncidentItem(
       id: json['id']?.toString(),
       title: json['title']?.toString() ?? incType ?? 'Incident Report',
-      incidentType: incType ?? json['title']?.toString(),
+      incidentType: incType ?? json['title']?.toString() ?? 'Incident',
       description: json['description']?.toString() ??
           json['desc']?.toString() ??
           '',
-      severity: json['severity']?.toString() ?? 'low',
-      status: json['status']?.toString() ?? 'open',
+      severity: json['severity']?.toString().toLowerCase().trim() ?? 'low',
+      status: json['status']?.toString().toLowerCase().trim() ?? 'open',
       ticketNumber: json['ticket_number']?.toString() ??
           json['ticket_code']?.toString() ??
+          json['ticketNumber']?.toString() ??
           json['code']?.toString(),
       location: loc,
       mediaUrls: media,
+      videoUrls: vids,
       resolution: json['resolution']?.toString() ??
           json['resolution_notes']?.toString() ??
+          json['resolutionNotes']?.toString() ??
           json['admin_notes']?.toString(),
       reportedAt: json['reported_at']?.toString() ??
+          json['reportedAt']?.toString() ??
           json['createdAt']?.toString() ??
           json['created_at']?.toString(),
       resolvedAt: json['resolved_at']?.toString() ??
+          json['resolvedAt']?.toString() ??
           json['updatedAt']?.toString() ??
           json['updated_at']?.toString(),
       landmark: json['landmark']?.toString(),
+      deadCasualty: toInt(json['dead_casualty'] ?? json['deadCasualty']),
+      injuredCount: toInt(json['injured_count'] ?? json['injuredCount']),
+      hospitalName: json['hospital_name']?.toString() ?? json['hospitalName']?.toString(),
+      policeStationName: json['police_station_name']?.toString() ?? json['policeStationName']?.toString(),
+      ambulanceAssigned: toBool(json['ambulance_assigned'] ?? json['ambulanceAssigned']),
+      latitude: latVal ?? loc?.lat,
+      longitude: lngVal ?? loc?.lng,
+      locationName: locName ?? loc?.address,
+      immediateAction: json['immediate_action']?.toString() ?? json['immediateAction']?.toString(),
+      contactNumber: json['contact_number']?.toString() ?? json['contactNumber']?.toString(),
+      affectedParties: affected,
     );
   }
 }

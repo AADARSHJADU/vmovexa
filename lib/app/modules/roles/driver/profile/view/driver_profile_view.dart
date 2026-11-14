@@ -323,7 +323,8 @@ class DriverProfileView extends GetView<DriverProfileController> {
         width: double.infinity,
         height: 50,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [kBlue, kIndigo]),
+          color: Colors.redAccent,
+          // gradient: const LinearGradient(colors: [kBlue, kIndigo]),
           borderRadius: BorderRadius.circular(12),
         ),
         alignment: Alignment.center,
