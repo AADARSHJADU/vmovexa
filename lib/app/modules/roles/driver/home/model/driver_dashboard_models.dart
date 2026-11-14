@@ -65,16 +65,22 @@ class OperationalNotification {
 
 class DriverQuickAction {
   final String title;
+  final String? subtitle;
   final String icon;
   final Color color;
-  final String route;
+  final String? route;
+  final int? tabIndex;
+  final bool requiresVerification;
   final int? badgeCount;
 
   DriverQuickAction({
     required this.title,
+    this.subtitle,
     required this.icon,
     required this.color,
-    required this.route,
+    this.route,
+    this.tabIndex,
+    this.requiresVerification = false,
     this.badgeCount,
   });
 }

@@ -203,34 +203,120 @@ class UpcomingTripItem {
   }
 }
 
+class DriverShiftItem {
+  final String? id;
+  final String? slotId;
+  final String? routeNumber;
+  final String? routeName;
+  final String? busNumber;
+  final String? shiftTypeLabel;
+  final String? startTime;
+  final String? endTime;
+  final String? date;
+  final String? startDepot;
+  final String? endDepot;
+  final String? distance;
+  final String? duration;
+  final String? status;
+  final bool isCompleted;
+  final bool isInTransit;
+
+  DriverShiftItem({
+    this.id,
+    this.slotId,
+    this.routeNumber,
+    this.routeName,
+    this.busNumber,
+    this.shiftTypeLabel,
+    this.startTime,
+    this.endTime,
+    this.date,
+    this.startDepot,
+    this.endDepot,
+    this.distance,
+    this.duration,
+    this.status,
+    this.isCompleted = false,
+    this.isInTransit = false,
+  });
+
+  factory DriverShiftItem.fromJson(Map<String, dynamic> json) {
+    final statusStr = json['status']?.toString() ?? 'Scheduled';
+    final isComp = json['isCompleted'] == true || statusStr.toLowerCase() == 'completed';
+    final isTransit = statusStr.toLowerCase() == 'in transit' || statusStr.toLowerCase() == 'in_progress';
+
+    return DriverShiftItem(
+      id: json['id']?.toString(),
+      slotId: json['slot_id']?.toString() ?? json['slotId']?.toString(),
+      routeNumber: json['route_number']?.toString() ?? json['routeNumber']?.toString() ?? (json['route'] is Map ? json['route']['code']?.toString() : null) ?? '—',
+      routeName: json['route_name']?.toString() ?? json['routeName']?.toString() ?? (json['route'] is Map ? json['route']['name']?.toString() : null),
+      busNumber: json['bus_number']?.toString() ?? json['busNumber']?.toString() ?? (json['vehicle'] is Map ? json['vehicle']['bus_number']?.toString() : null) ?? '—',
+      shiftTypeLabel: json['shift_type_label']?.toString() ?? json['shiftTypeLabel']?.toString() ?? json['shift_type']?.toString(),
+      startTime: json['startTime']?.toString() ?? json['shift_start']?.toString() ?? json['start_time']?.toString() ?? json['departureTime']?.toString() ?? '—',
+      endTime: json['endTime']?.toString() ?? json['shift_end']?.toString() ?? json['end_time']?.toString() ?? '—',
+      date: json['date']?.toString() ?? 'Today',
+      startDepot: json['startDepot']?.toString() ?? json['start_depot']?.toString() ?? json['from_stop']?.toString() ?? json['origin']?.toString() ?? '—',
+      endDepot: json['endDepot']?.toString() ?? json['end_depot']?.toString() ?? json['to_stop']?.toString() ?? json['destination']?.toString() ?? '—',
+      distance: json['distance']?.toString(),
+      duration: json['duration']?.toString(),
+      status: statusStr,
+      isCompleted: isComp,
+      isInTransit: isTransit,
+    );
+  }
+}
+
 class DriverScheduleData {
   final String? date;
   final DriverShiftData? shift;
   final AssignedRouteBrief? assignedRoute;
   final List<UpcomingTripItem> upcomingTrips;
+  final List<DriverShiftItem> schedules;
 
   DriverScheduleData({
     this.date,
     this.shift,
     this.assignedRoute,
     this.upcomingTrips = const [],
+    this.schedules = const [],
   });
 
-  factory DriverScheduleData.fromJson(Map<String, dynamic>? json) {
+  factory DriverScheduleData.fromJson(dynamic json) {
     if (json == null) return DriverScheduleData();
+    if (json is List) {
+      final items = json
+          .whereType<Map>()
+          .map((e) => DriverShiftItem.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+      return DriverScheduleData(schedules: items);
+    }
+    if (json is! Map) return DriverScheduleData();
+
+    final map = Map<String, dynamic>.from(json);
+
+    List<DriverShiftItem> shifts = [];
+    final rawList = map['schedules'] ?? map['items'] ?? map['rows'];
+    if (rawList is List) {
+      shifts = rawList
+          .whereType<Map>()
+          .map((e) => DriverShiftItem.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+    }
+
     return DriverScheduleData(
-      date: json['date']?.toString(),
-      shift: json['shift'] is Map
-          ? DriverShiftData.fromJson(Map<String, dynamic>.from(json['shift']))
+      date: map['date']?.toString(),
+      shift: map['shift'] is Map
+          ? DriverShiftData.fromJson(Map<String, dynamic>.from(map['shift']))
           : null,
-      assignedRoute: json['assigned_route'] is Map
-          ? AssignedRouteBrief.fromJson(Map<String, dynamic>.from(json['assigned_route']))
+      assignedRoute: map['assigned_route'] is Map
+          ? AssignedRouteBrief.fromJson(Map<String, dynamic>.from(map['assigned_route']))
           : null,
-      upcomingTrips: json['upcoming_trips'] is List
-          ? (json['upcoming_trips'] as List)
+      upcomingTrips: map['upcoming_trips'] is List
+          ? (map['upcoming_trips'] as List)
               .map((e) => UpcomingTripItem.fromJson(Map<String, dynamic>.from(e)))
               .toList()
           : [],
+      schedules: shifts,
     );
   }
 }

@@ -63,8 +63,8 @@ class DriverService extends GetxService {
       ApiConstants.driverSchedule,
       requiresAuth: true,
       create: (data) {
-        if (data is Map) {
-          return DriverScheduleData.fromJson(Map<String, dynamic>.from(data));
+        if (data != null) {
+          return DriverScheduleData.fromJson(data);
         }
         return DriverScheduleData();
       },

@@ -1047,15 +1047,15 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                   child: Image.network(
                     fullUrl,
                     fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => const Center(
+                    errorBuilder: (context, error, stackTrace) => Center(
                       child: Padding(
-                        padding: EdgeInsets.all(30.0),
+                        padding: const EdgeInsets.all(30.0),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.insert_drive_file_outlined, color: Colors.white38, size: 40),
-                            SizedBox(height: 8),
-                            Text('Compliance Document Preview', style: TextStyle(color: Colors.white60, fontSize: 12)),
+                            const Icon(Icons.insert_drive_file_outlined, color: Colors.white38, size: 40),
+                            const SizedBox(height: 8),
+                            Text('compliance_doc_preview'.tr, style: const TextStyle(color: Colors.white60, fontSize: 12)),
                           ],
                         ),
                       ),
@@ -1151,7 +1151,7 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                 child: ElevatedButton.icon(
                   onPressed: controller.goToAddVehicle,
                   icon: const Icon(Icons.add, size: 14, color: Colors.white),
-                  label: const Text('Add Vehicle', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                  label: Text('add_vehicle'.tr, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,

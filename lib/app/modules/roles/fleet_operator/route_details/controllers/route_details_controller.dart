@@ -97,7 +97,7 @@ class RouteDetailsController extends GetxController {
         );
         _loadRouteDetails();
       } else {
-        Get.snackbar('error'.tr, res.message ?? 'Failed to approve route',
+        Get.snackbar('error'.tr, res.message ?? 'failed_to_approve_route'.tr,
             snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
       }
     } catch (e) {
@@ -149,7 +149,7 @@ class RouteDetailsController extends GetxController {
           try {
             final res = await FleetService.to.rejectRoute(routeId.toString(), r);
             if (res.success) {
-              Get.snackbar('success'.tr, 'Route marked as rejected',
+              Get.snackbar('success'.tr, 'route_marked_as_rejected'.tr,
                   snackPosition: SnackPosition.BOTTOM, backgroundColor: const Color(0xFFF43F5E), colorText: Colors.white);
               _loadRouteDetails();
             }
@@ -270,7 +270,7 @@ class RouteDetailsController extends GetxController {
                   const SizedBox(height: 16),
 
                   // Select Vehicle Dropdown
-                  const Text('Select Bus / Vehicle *', style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('select_bus_vehicle'.tr, style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 12, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 6),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -282,7 +282,7 @@ class RouteDetailsController extends GetxController {
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         value: selectedVehId,
-                        hint: const Text('Choose a bus from fleet...', style: TextStyle(color: Color(0xFF64748B), fontSize: 12)),
+                        hint: Text('choose_bus_from_fleet'.tr, style: const TextStyle(color: Color(0xFF64748B), fontSize: 12)),
                         isExpanded: true,
                         dropdownColor: const Color(0xFF1E293B),
                         style: const TextStyle(color: Colors.white, fontSize: 13),
@@ -303,7 +303,7 @@ class RouteDetailsController extends GetxController {
                   const SizedBox(height: 14),
 
                   // Select Shift Dropdown
-                  const Text('Operational Shift', style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('operational_shift'.tr, style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 12, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 6),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -318,11 +318,11 @@ class RouteDetailsController extends GetxController {
                         isExpanded: true,
                         dropdownColor: const Color(0xFF1E293B),
                         style: const TextStyle(color: Colors.white, fontSize: 13),
-                        items: const [
-                          DropdownMenuItem(value: 'Full Day', child: Text('Full Day Shift (24 hrs)')),
-                          DropdownMenuItem(value: 'Morning', child: Text('Morning Shift (06:00 - 14:00)')),
-                          DropdownMenuItem(value: 'Evening', child: Text('Evening Shift (14:00 - 22:00)')),
-                          DropdownMenuItem(value: 'Night', child: Text('Night Shift (22:00 - 06:00)')),
+                        items: [
+                          DropdownMenuItem(value: 'Full Day', child: Text('shift_full_day'.tr)),
+                          DropdownMenuItem(value: 'Morning', child: Text('shift_morning'.tr)),
+                          DropdownMenuItem(value: 'Evening', child: Text('shift_evening'.tr)),
+                          DropdownMenuItem(value: 'Night', child: Text('shift_night'.tr)),
                         ],
                         onChanged: (val) {
                           if (val != null) {
@@ -337,14 +337,14 @@ class RouteDetailsController extends GetxController {
                   const SizedBox(height: 14),
 
                   // Shift Notes
-                  const Text('Deployment Notes (Optional)', style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('deployment_notes_optional'.tr, style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 12, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 6),
                   TextField(
                     controller: notesCtrl,
                     maxLines: 2,
                     style: const TextStyle(color: Colors.white, fontSize: 13),
                     decoration: InputDecoration(
-                      hintText: 'e.g. Assigned to express peak hours run',
+                      hintText: 'deployment_notes_hint'.tr,
                       hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 12),
                       filled: true,
                       fillColor: const Color(0xFF0F172A),
@@ -374,7 +374,7 @@ class RouteDetailsController extends GetxController {
                       child: InkWell(
                         onTap: () async {
                           if (selectedVehId == null) {
-                            Get.snackbar('error'.tr, 'Please select a vehicle',
+                            Get.snackbar('error'.tr, 'please_select_vehicle'.tr,
                                 snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.amber, colorText: Colors.black);
                             return;
                           }
@@ -398,7 +398,7 @@ class RouteDetailsController extends GetxController {
                               _loadRouteVehicles();
                               _loadRouteDetails();
                             } else {
-                              Get.snackbar('error'.tr, res.message ?? 'Failed to assign vehicle',
+                              Get.snackbar('error'.tr, res.message ?? 'failed_to_assign_vehicle'.tr,
                                   snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
                             }
                           } catch (e) {
@@ -466,16 +466,16 @@ class RouteDetailsController extends GetxController {
       try {
         final res = await FleetService.to.deleteRouteAssignment(assign.id.toString());
         if (res.success) {
-          Get.snackbar('success'.tr, 'Vehicle removed from route schedule',
+          Get.snackbar('success'.tr, 'vehicle_removed_from_schedule'.tr,
               snackPosition: SnackPosition.BOTTOM, backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
           _loadRouteVehicles();
           _loadRouteDetails();
         } else {
-          Get.snackbar('Error', res.message ?? 'Failed to remove assignment',
+          Get.snackbar('error'.tr, res.message ?? 'failed_to_remove_assignment'.tr,
               snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
         }
       } catch (e) {
-        Get.snackbar('Error', e.toString(),
+        Get.snackbar('error'.tr, e.toString(),
             snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
       } finally {
         assignLoading.value = false;
