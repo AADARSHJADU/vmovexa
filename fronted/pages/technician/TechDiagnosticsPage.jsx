@@ -38,7 +38,7 @@ export const TechDiagnosticsPage = () => {
   const isSuperAdmin = window.location.pathname.startsWith('/superadmin');
   const basePath = isSuperAdmin ? '/superadmin/technician' : '/technician';
   const { hasPermission } = useAuth();
-  const canDiagnose = hasPermission('devices.diagnose') || hasPermission('technician.diagnostics.manage') || true;
+  const canDiagnose = hasPermission('technician.diagnostics.run');
 
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedDeviceId = searchParams.get('device');
@@ -345,10 +345,10 @@ export const TechDiagnosticsPage = () => {
     setDiagnosticResult(null);
 
     const steps = [
-      { id: 1, name: t('technician.diagnostics.step1_name', 'Serial Port Interface & NMEA GNSS Stream (/dev/ttyUSB0)'), status: 'running', detail: 'Reading real GNSS fix from hardware serial node...' },
-      { id: 2, name: t('technician.diagnostics.step2_name', 'MQTT Message Broker & API Roundtrip Latency'), status: 'pending', detail: 'Measuring live network latency to platform...' },
-      { id: 3, name: t('technician.diagnostics.step3_name', 'SoC Thermals & CPU/RAM Resource Audit'), status: 'pending', detail: 'Checking real sensor metrics from edge daemon...' },
-      { id: 4, name: t('technician.diagnostics.step4_name', 'Fleet Telematics Binding & Vehicle Mapping'), status: 'pending', detail: 'Validating route & vehicle assignment in database...' },
+      { id: 1, name: t('technician.diagnostics.step1_name', 'Serial Port Interface & NMEA GNSS Stream (/dev/ttyUSB0)'), status: 'running', detail: t('technician.diagnostics.detail_reading_gnss', 'Reading real GNSS fix from hardware serial node...') },
+      { id: 2, name: t('technician.diagnostics.step2_name', 'MQTT Message Broker & API Roundtrip Latency'), status: 'pending', detail: t('technician.diagnostics.detail_latency', 'Measuring live network latency to platform...') },
+      { id: 3, name: t('technician.diagnostics.step3_name', 'SoC Thermals & CPU/RAM Resource Audit'), status: 'pending', detail: t('technician.diagnostics.detail_sensor', 'Checking real sensor metrics from edge daemon...') },
+      { id: 4, name: t('technician.diagnostics.step4_name', 'Fleet Telematics Binding & Vehicle Mapping'), status: 'pending', detail: t('technician.diagnostics.detail_validating', 'Validating route & vehicle assignment in database...') },
     ];
     setDiagnosticSteps(steps);
 
@@ -374,8 +374,8 @@ export const TechDiagnosticsPage = () => {
                 ...s,
                 status: gpsPass ? 'pass' : 'warning',
                 detail: gpsPass
-                  ? `Fix verified: ${Number(liveGps.lat).toFixed(6)}°, ${Number(liveGps.lng).toFixed(6)}° · ${satsCount != null ? `${satsCount} Satellites locked` : 'Locked'}`
-                  : 'Awaiting satellite lock from serial port /dev/ttyUSB0',
+                  ? t('technician.diagnostics.fix_verified', 'Fix verified: {{lat}}°, {{lng}}° · {{sats}}', { lat: Number(liveGps.lat).toFixed(6), lng: Number(liveGps.lng).toFixed(6), sats: satsCount != null ? t('technician.diagnostics.sats_locked', '{{count}} Satellites locked', { count: satsCount }) : t('technician.diagnostics.locked', 'Locked') })
+                  : t('technician.diagnostics.awaiting_lock', 'Awaiting satellite lock from serial port /dev/ttyUSB0'),
               }
             : s.id === 2
             ? { ...s, status: 'running' }
@@ -395,7 +395,7 @@ export const TechDiagnosticsPage = () => {
             ? {
                 ...s,
                 status: realLatency < 1000 ? 'pass' : 'warning',
-                detail: `Broker & platform reachable · Live latency: ${realLatency}ms · Port 1883`,
+                detail: t('technician.diagnostics.broker_reachable', 'Broker & platform reachable · Live latency: {{ms}}ms · Port 1883', { ms: realLatency }),
               }
             : s.id === 3
             ? { ...s, status: 'running' }
@@ -416,8 +416,8 @@ export const TechDiagnosticsPage = () => {
                 ...s,
                 status: tempPass ? 'pass' : (hasTelemetry ? 'warning' : 'warning'),
                 detail: hasTelemetry
-                  ? `SoC Temp: ${liveTelemetry?.soc_temp || '—'} · CPU: ${liveTelemetry?.cpu_usage || '—'} · RAM: ${liveTelemetry?.ram_usage || '—'} · Storage: ${liveTelemetry?.storage_free || '—'}`
-                  : 'No hardware telemetry packet recorded yet',
+                  ? t('technician.diagnostics.soc_stats', 'SoC Temp: {{temp}} · CPU: {{cpu}} · RAM: {{ram}} · Storage: {{storage}}', { temp: liveTelemetry?.soc_temp || '—', cpu: liveTelemetry?.cpu_usage || '—', ram: liveTelemetry?.ram_usage || '—', storage: liveTelemetry?.storage_free || '—' })
+                  : t('technician.diagnostics.no_hw_packet', 'No hardware telemetry packet recorded yet'),
               }
             : s.id === 4
             ? { ...s, status: 'running' }
@@ -437,8 +437,8 @@ export const TechDiagnosticsPage = () => {
                 ...s,
                 status: vehiclePass ? 'pass' : 'warning',
                 detail: vehiclePass
-                  ? `Assigned to transit unit: ${busNumber || `Vehicle #${selectedDevice.vehicle_id}`}`
-                  : 'Device is not assigned to any fleet vehicle',
+                  ? t('technician.diagnostics.assigned_unit', 'Assigned to transit unit: {{unit}}', { unit: busNumber || `${t('technician.diagnostics.vehicle_prefix', 'Vehicle #')}${selectedDevice.vehicle_id}` })
+                  : t('technician.diagnostics.not_assigned', 'Device is not assigned to any fleet vehicle'),
               }
             : s
         )
@@ -457,8 +457,8 @@ export const TechDiagnosticsPage = () => {
         status: isOnline ? 'PASSED' : 'CHECK REQUIRED',
         timestamp: new Date().toLocaleTimeString() + ' · ' + new Date().toLocaleDateString('en-GB'),
         summary: isOnline
-          ? `All real subsystem measurements verified. Device is operational with ${realLatency}ms roundtrip latency.`
-          : 'Diagnostics completed. Review warning flags on inactive subsystems above.',
+          ? t('technician.diagnostics.all_verified', 'All real subsystem measurements verified. Device is operational with {{ms}}ms roundtrip latency.', { ms: realLatency })
+          : t('technician.diagnostics.review_warnings', 'Diagnostics completed. Review warning flags on inactive subsystems above.'),
         latency: realLatency,
       });
 
@@ -707,7 +707,7 @@ export const TechDiagnosticsPage = () => {
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-xs font-black text-slate-900 dark:text-white truncate">
-                          {d.box_id || `Device #${d.id}`}
+                          {d.box_id || t('technician.diagnostics.device_n', 'Device #{{id}}', { id: d.id })}
                         </span>
                         <span
                           className={`w-2 h-2 rounded-full ${

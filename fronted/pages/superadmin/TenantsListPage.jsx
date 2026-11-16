@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from '../../hooks/useTranslation';
 import { FleetIcons } from '../../components/FleetIcons';
+import { Breadcrumb } from '../../components/ui/Breadcrumb';
 import { Pagination } from '../../components/ui/Pagination';
 import { RefreshButton } from '../../components/ui/RefreshButton';
 import { ViewModeToggle } from '../../components/ui/ViewModeToggle';
@@ -14,17 +15,36 @@ import { apiClient } from '../../api/client';
 import { ENDPOINTS } from '../../api/endpoints';
 import toast from 'react-hot-toast';
 
-const formatPlanName = (plan) => {
-  if (!plan) return 'No Plan';
-  if (typeof plan === 'object') return plan.name || plan.code || 'No Plan';
-  return String(plan);
+const getPlanTranslation = (plan, t) => {
+  if (!plan) return t ? t('superadmin.onboard.no_plan', 'No Plan') : 'No Plan';
+  const rawName = typeof plan === 'object' ? (plan.name || plan.code || '') : String(plan);
+  const rawCode = typeof plan === 'object' ? (plan.code || '') : '';
+  const keyFromCode = rawCode ? `plans.name_${rawCode.toLowerCase().replace(/[^a-z0-9]/g, '_')}` : '';
+  const keyFromName = rawName ? `plans.name_${rawName.toLowerCase().replace(/[^a-z0-9]/g, '_')}` : '';
+
+  if (t) {
+    if (keyFromCode) {
+      const translated = t(keyFromCode, '__VMOVEXA_MISSING__');
+      if (translated && translated !== '__VMOVEXA_MISSING__' && translated !== keyFromCode) {
+        return translated;
+      }
+    }
+    if (keyFromName) {
+      const translated = t(keyFromName, '__VMOVEXA_MISSING__');
+      if (translated && translated !== '__VMOVEXA_MISSING__' && translated !== keyFromName) {
+        return translated;
+      }
+    }
+    return rawName || t('superadmin.onboard.no_plan', 'No Plan');
+  }
+  return rawName || 'No Plan';
 };
 
 export const TenantsListPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const { impersonateTenant, user, hasPermission } = useAuth();
+  const { impersonateTenant, user, isSuperAdmin, can } = useAuth();
 
   const isFinance = location.pathname.startsWith('/finance') || location.pathname.startsWith('/superadmin/finance');
   const basePath = location.pathname.startsWith('/finance/subscriptions')
@@ -37,15 +57,15 @@ export const TenantsListPage = () => {
     : '/superadmin/dashboard';
 
   const userRoleCode = typeof user?.role === 'object' ? user?.role?.code : user?.role;
-  const canApprove = userRoleCode === 'ROLE-SUPER-ADMIN' || user?.clearance === 'ROOT' || (Array.isArray(user?.permissions) && user.permissions.includes('orgs.approve'));
-  const canSuspend = userRoleCode === 'ROLE-SUPER-ADMIN' || user?.clearance === 'ROOT' || (Array.isArray(user?.permissions) && user.permissions.includes('orgs.suspend'));
-  const canCreateTenant = hasPermission('orgs.create') || hasPermission('finance.subscriptions.create') || hasPermission('finance.subscriptions.manage');
-  const canEditTenant = hasPermission('orgs.update') || hasPermission('finance.subscriptions.update') || hasPermission('finance.subscriptions.manage');
-  const canImpersonate = hasPermission('platform.impersonate');
+  const canApprove = isSuperAdmin;
+  const canSuspend = isSuperAdmin;
+  const canCreateTenant = can('tenants.create');
+  const canEditTenant = can('tenants.update');
+  const canImpersonate = isSuperAdmin;
 
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [activeTab, setActiveTab] = useState('All');
+  const [activeTab, setActiveTab] = useState('all');
   const [viewMode, setViewMode] = useState('table'); // 'table' | 'card'
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(6);
@@ -86,10 +106,10 @@ export const TenantsListPage = () => {
 
   // Map active tab to status filter
   const statusParam = useMemo(() => {
-    if (activeTab === 'Payment Pending') return 'payment_pending';
-    if (activeTab === 'Pending' || activeTab === 'Pending Approval') return 'pending_approval';
-    if (activeTab === 'Active') return 'active';
-    if (activeTab === 'Suspended') return 'suspended';
+    if (activeTab === 'payment_pending') return 'payment_pending';
+    if (activeTab === 'pending' || activeTab === 'pending_approval') return 'pending_approval';
+    if (activeTab === 'active') return 'active';
+    if (activeTab === 'suspended') return 'suspended';
     return undefined;
   }, [activeTab]);
 
@@ -101,7 +121,6 @@ export const TenantsListPage = () => {
     if (debouncedSearch) params.search = debouncedSearch;
     if (statusParam) params.status = statusParam;
     if (selectedPaymentStatus !== 'all') params.payment_status = selectedPaymentStatus;
-    if (selectedPlan !== 'all') params.plan_id = selectedPlan;
     if (selectedPlan !== 'all') params.plan_id = selectedPlan;
     if (sortBy !== 'newest') params.sortBy = sortBy;
     return params;
@@ -163,7 +182,7 @@ export const TenantsListPage = () => {
   };
 
   const handleResetFilters = () => {
-    setActiveTab('All');
+    setActiveTab('all');
     setSearchQuery('');
     setDebouncedSearch('');
     setSelectedPaymentStatus('all');
@@ -173,7 +192,7 @@ export const TenantsListPage = () => {
   };
 
   const hasActiveFilters =
-    activeTab !== 'All' ||
+    activeTab !== 'all' ||
     searchQuery.trim() !== '' ||
     selectedPaymentStatus !== 'all' ||
     selectedPlan !== 'all' ||
@@ -194,8 +213,8 @@ export const TenantsListPage = () => {
           return loadOrganizations(getFilterParams());
         }),
         {
-          loading: 'Updating...',
-          success: isSuspended ? 'Tenant re-activated!' : 'Tenant suspended!',
+          loading: t('ag.superadmin.tenantslistpage.updating', 'Updating...'),
+          success: isSuspended ? t('ag.superadmin.tenantslistpage.tenant_reactivated', 'Tenant re-activated!') : t('ag.superadmin.tenantslistpage.tenant_suspended', 'Tenant suspended!'),
           error: (e) => e.message || 'Failed to update.'
         }
       );
@@ -218,8 +237,8 @@ export const TenantsListPage = () => {
           ]);
         }),
         {
-          loading: 'Approving tenant onboarding…',
-          success: 'Tenant approved & awaiting plan subscription!',
+          loading: t('ag.superadmin.tenantslistpage.approving_tenant', 'Approving tenant onboarding…'),
+          success: t('ag.superadmin.tenantslistpage.tenant_approved', 'Tenant approved & awaiting plan subscription!'),
           error: (e) => e.message || 'Approval failed.',
         }
       );
@@ -237,8 +256,8 @@ export const TenantsListPage = () => {
           navigate('/admin/dashboard');
         }),
         {
-          loading: `Connecting to ${tenant.name} admin console…`,
-          success: `Logged in as Admin of ${tenant.name}!`,
+          loading: t('ag.superadmin.tenantslistpage.connecting_admin_console', 'Connecting to admin console…'),
+          success: t('ag.superadmin.tenantslistpage.impersonate_success', 'Logged in as Admin!'),
           error: (e) => e.message || `Failed to log in as admin for ${tenant.name}.`,
         }
       );
@@ -254,7 +273,7 @@ export const TenantsListPage = () => {
       toast.error(t('ag.superadmin.tenantslistpage.only_super_admin_can_reject_tenants', 'Only Super Admin can reject tenants.'));
       return;
     }
-    const reason = prompt('Please enter reason for rejecting this onboarding application:');
+    const reason = prompt(t('ag.superadmin.tenantslistpage.enter_rejection_reason', 'Please enter reason for rejecting this onboarding application:'));
     if (reason === null) return;
     try {
       await toast.promise(
@@ -265,8 +284,8 @@ export const TenantsListPage = () => {
           ]);
         }),
         {
-          loading: 'Rejecting application…',
-          success: 'Tenant application rejected.',
+          loading: t('ag.superadmin.tenantslistpage.rejecting_application', 'Rejecting application…'),
+          success: t('ag.superadmin.tenantslistpage.tenant_rejected', 'Tenant application rejected.'),
           error: (e) => e.message || 'Rejection failed.',
         }
       );
@@ -275,26 +294,24 @@ export const TenantsListPage = () => {
     }
   };
 
-
   const filterTabs = [
     { label: t('ag.superadmin.tenantslistpage.all', 'All'), count: tenantCounts.all, key: 'all' },
     { label: t('ag.superadmin.tenantslistpage.payment_pending', 'Payment Pending'), count: tenantCounts.paymentPending, key: 'payment_pending', isWarning: true },
     { label: t('ag.superadmin.tenantslistpage.active', 'Active'), count: tenantCounts.active, key: 'active' },
-    { label: t('ag.superadmin.tenantslistpage.pending_approval', 'Pending Approval'), count: tenantCounts.pending, key: 'pending' },
+    { label: t('ag.superadmin.tenantslistpage.pending_approval', 'Pending Approval'), count: tenantCounts.pending, key: 'pending_approval' },
     { label: t('ag.superadmin.tenantslistpage.suspended', 'Suspended'), count: tenantCounts.suspended, key: 'suspended' },
   ];
 
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-200">
       {/* Breadcrumb Navigation */}
-      <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-zinc-400">
-        <Link to={dashboardPath} className="text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
-          <FleetIcons.Dashboard className="w-3.5 h-3.5" />
-          <span>{isFinance ? t('ag.superadmin.tenantslistpage.finance', 'Finance') : t('ag.superadmin.tenantslistpage.super_admin', 'Super Admin')}</span>
-        </Link>
-        <span className="text-slate-300 dark:text-zinc-600">/</span>
-        <span className="text-slate-900 dark:text-white font-bold">{t('superadmin.tenants_directory', 'Tenants Directory')}</span>
-      </nav>
+      <Breadcrumb
+        items={[
+          { label: isFinance ? t('ag.superadmin.tenantslistpage.finance', 'Finance') : t('ag.superadmin.tenantslistpage.super_admin', 'Super Admin'), to: dashboardPath },
+          { label: t('superadmin.tenants_directory', 'Tenants Directory') },
+        ]}
+        className="mb-2"
+      />
 
       {/* Header — Simple Naming */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
@@ -329,9 +346,9 @@ export const TenantsListPage = () => {
       {/* 5 Stat Cards — Status Breakdown with Working Counts */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         <div
-          onClick={() => { setActiveTab('All'); setCurrentPage(1); }}
+          onClick={() => { setActiveTab('all'); setCurrentPage(1); }}
           className={`bg-white dark:bg-zinc-900 border rounded-xl p-3.5 shadow-sm cursor-pointer transition-all hover:border-slate-400 ${
-            activeTab === 'All' ? 'border-slate-900 dark:border-blue-500 ring-2 ring-slate-900/10 dark:ring-blue-500/20' : 'border-slate-200 dark:border-zinc-800'
+            activeTab === 'all' ? 'border-slate-900 dark:border-blue-500 ring-2 ring-slate-900/10 dark:ring-blue-500/20' : 'border-slate-200 dark:border-zinc-800'
           }`}
         >
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">{t('superadmin.total_tenants', 'Total Tenants')}</span>
@@ -340,9 +357,9 @@ export const TenantsListPage = () => {
         </div>
 
         <div
-          onClick={() => { setActiveTab('Payment Pending'); setCurrentPage(1); }}
+          onClick={() => { setActiveTab('payment_pending'); setCurrentPage(1); }}
           className={`bg-white dark:bg-zinc-900 border rounded-xl p-3.5 shadow-sm cursor-pointer transition-all hover:border-amber-400 ${
-            activeTab === 'Payment Pending' ? 'border-amber-500 ring-2 ring-amber-500/20 bg-amber-50/20 dark:bg-amber-950/20' : 'border-slate-200 dark:border-zinc-800'
+            activeTab === 'payment_pending' ? 'border-amber-500 ring-2 ring-amber-500/20 bg-amber-50/20 dark:bg-amber-950/20' : 'border-slate-200 dark:border-zinc-800'
           }`}
         >
           <div className="flex items-center justify-between">
@@ -359,9 +376,9 @@ export const TenantsListPage = () => {
         </div>
 
         <div
-          onClick={() => { setActiveTab('Active'); setCurrentPage(1); }}
+          onClick={() => { setActiveTab('active'); setCurrentPage(1); }}
           className={`bg-white dark:bg-zinc-900 border rounded-xl p-3.5 shadow-sm cursor-pointer transition-all hover:border-emerald-400 ${
-            activeTab === 'Active' ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200 dark:border-zinc-800'
+            activeTab === 'active' ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200 dark:border-zinc-800'
           }`}
         >
           <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">{t('superadmin.active_tenants', 'Active Tenants')}</span>
@@ -370,9 +387,9 @@ export const TenantsListPage = () => {
         </div>
 
         <div
-          onClick={() => { setActiveTab('Pending Approval'); setCurrentPage(1); }}
+          onClick={() => { setActiveTab('pending_approval'); setCurrentPage(1); }}
           className={`bg-white dark:bg-zinc-900 border rounded-xl p-3.5 shadow-sm cursor-pointer transition-all hover:border-blue-400 ${
-            activeTab === 'Pending Approval' ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-slate-200 dark:border-zinc-800'
+            activeTab === 'pending_approval' ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-slate-200 dark:border-zinc-800'
           }`}
         >
           <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">{t('common.pending_review', 'Pending Review')}</span>
@@ -381,9 +398,9 @@ export const TenantsListPage = () => {
         </div>
 
         <div
-          onClick={() => { setActiveTab('Suspended'); setCurrentPage(1); }}
+          onClick={() => { setActiveTab('suspended'); setCurrentPage(1); }}
           className={`bg-white dark:bg-zinc-900 border rounded-xl p-3.5 shadow-sm cursor-pointer transition-all hover:border-red-400 ${
-            activeTab === 'Suspended' ? 'border-red-500 ring-2 ring-red-500/20' : 'border-slate-200 dark:border-zinc-800'
+            activeTab === 'suspended' ? 'border-red-500 ring-2 ring-red-500/20' : 'border-slate-200 dark:border-zinc-800'
           }`}
         >
           <span className="text-[11px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400">{t('common.suspended', 'Suspended')}</span>
@@ -397,12 +414,12 @@ export const TenantsListPage = () => {
         {/* Status Tabs */}
         <div className="flex items-center gap-2 border-b border-slate-200 dark:border-zinc-800 pb-2 overflow-x-auto no-scrollbar">
           {filterTabs.map((tab) => {
-            const isCurrent = activeTab === tab.label;
+            const isCurrent = activeTab === tab.key;
             return (
               <button
-                key={tab.label}
+                key={tab.key}
                 onClick={() => {
-                  setActiveTab(tab.label);
+                  setActiveTab(tab.key);
                   setCurrentPage(1);
                 }}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer ${
@@ -489,7 +506,7 @@ export const TenantsListPage = () => {
               <option value="all">{t('superadmin.plan_all', 'Plan: All Plans')}</option>
               {plansList.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.name || p.code || `Plan #${p.id}`}
+                  {getPlanTranslation(p, t)}
                 </option>
               ))}
             </select>
@@ -518,6 +535,8 @@ export const TenantsListPage = () => {
           <ViewModeToggle
             viewMode={viewMode}
             onViewModeChange={setViewMode}
+            tableTitle={t('common.table_view', 'Table View')}
+            cardTitle={t('common.grid_view', 'Grid View')}
             className="ml-auto"
           />
         </div>
@@ -526,10 +545,10 @@ export const TenantsListPage = () => {
         {hasActiveFilters && (
           <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
             <span className="text-[11px] font-bold text-slate-400">{t('common.active_filters', 'Active Filters:')}</span>
-            {activeTab !== 'All' && (
+            {activeTab !== 'all' && (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-bold text-[10px] border border-blue-200 dark:border-blue-800">
-                {t('ag.superadmin.tenantslistpage.tab', 'Tab:')} {activeTab}
-                <button type="button" onClick={() => { setActiveTab('All'); setCurrentPage(1); }} className="hover:text-red-500 ml-1 inline-flex items-center"><FleetIcons.Close className="w-2.5 h-2.5" /></button>
+                {t('ag.superadmin.tenantslistpage.tab', 'Tab:')} {filterTabs.find((t) => t.key === activeTab)?.label || activeTab}
+                <button type="button" onClick={() => { setActiveTab('all'); setCurrentPage(1); }} className="hover:text-red-500 ml-1 inline-flex items-center"><FleetIcons.Close className="w-2.5 h-2.5" /></button>
               </span>
             )}
             {selectedPaymentStatus !== 'all' && (
@@ -540,13 +559,13 @@ export const TenantsListPage = () => {
             )}
             {selectedPlan !== 'all' && (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-bold text-[10px] border border-purple-200 dark:border-purple-800">
-                {t('ag.superadmin.tenantslistpage.plan', 'Plan:')} {plansList.find((p) => String(p.id) === String(selectedPlan))?.name || `Plan #${selectedPlan}`}
+                {t('ag.superadmin.tenantslistpage.plan', 'Plan:')} {getPlanTranslation(plansList.find((p) => String(p.id) === String(selectedPlan)) || `Plan #${selectedPlan}`, t)}
                 <button type="button" onClick={() => { setSelectedPlan('all'); setCurrentPage(1); }} className="hover:text-red-500 ml-1 inline-flex items-center"><FleetIcons.Close className="w-2.5 h-2.5" /></button>
               </span>
             )}
             {sortBy !== 'newest' && (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 font-bold text-[10px] border border-slate-200 dark:border-zinc-700">
-                {t('ag.superadmin.tenantslistpage.sort', 'Sort:')} {sortBy}
+                {t('ag.superadmin.tenantslistpage.sort', 'Sort:')} {t(`superadmin.sort_${sortBy}`, sortBy)}
                 <button type="button" onClick={() => setSortBy('newest')} className="hover:text-red-500 ml-1 inline-flex items-center"><FleetIcons.Close className="w-2.5 h-2.5" /></button>
               </span>
             )}
@@ -658,7 +677,7 @@ export const TenantsListPage = () => {
                         <td className="px-4 py-3.5">
                           {tItem.plan ? (
                             <span className="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800 font-bold text-[10px]">
-                              {formatPlanName(tItem.plan)}
+                              {getPlanTranslation(tItem.plan, t)}
                             </span>
                           ) : (
                             <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 border border-slate-200 dark:border-zinc-700 font-medium text-[10px]">
@@ -727,6 +746,8 @@ export const TenantsListPage = () => {
                               ? t('ag.superadmin.tenantslistpage.pending_approval', 'Pending Approval')
                               : tItem.status === 'active'
                               ? t('ag.superadmin.tenantslistpage.active', 'Active')
+                              : tItem.status === 'suspended'
+                              ? t('ag.superadmin.tenantslistpage.suspended', 'Suspended')
                               : (tItem.status || 'unknown')}
                           </span>
                         </td>
@@ -753,7 +774,7 @@ export const TenantsListPage = () => {
                               {activeMenuId === tItem.id && (
                                 <div
                                   className={`absolute right-0 ${
-                                    isNearBottom ? t('ag.superadmin.tenantslistpage.bottom_full_mb_1_5_origin_bottom_rig', 'bottom-full mb-1.5 origin-bottom-right') : t('ag.superadmin.tenantslistpage.top_full_mt_1_5_origin_top_right', 'top-full mt-1.5 origin-top-right')
+                                    isNearBottom ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right'
                                   } w-44 rounded-xl bg-white dark:bg-[#181b24] border border-slate-200 dark:border-zinc-700 shadow-xl py-1 z-50 text-left divide-y divide-slate-100 dark:divide-zinc-800 animate-in fade-in zoom-in-95 duration-100`}
                                 >
                                   <div className="py-1">
@@ -993,6 +1014,10 @@ export const TenantsListPage = () => {
                           ? t('ag.superadmin.tenantslistpage.approved', 'Approved')
                           : tItem.status === 'pending_approval'
                           ? t('ag.superadmin.tenantslistpage.pending_approval', 'Pending Approval')
+                          : tItem.status === 'active'
+                          ? t('ag.superadmin.tenantslistpage.active', 'Active')
+                          : tItem.status === 'suspended'
+                          ? t('ag.superadmin.tenantslistpage.suspended', 'Suspended')
                           : (tItem.status || 'unknown')}
                       </span>
                     </div>
@@ -1007,7 +1032,7 @@ export const TenantsListPage = () => {
                       <span className="text-slate-400 dark:text-zinc-500">{t('tenants.plan', 'Plan')}:</span>
                       {tItem.plan ? (
                         <span className="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800 font-bold text-[10px]">
-                          {formatPlanName(tItem.plan)}
+                          {getPlanTranslation(tItem.plan, t)}
                         </span>
                       ) : (
                         <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 border border-slate-200 dark:border-zinc-700 font-medium text-[10px]">
@@ -1041,7 +1066,7 @@ export const TenantsListPage = () => {
                       type="button"
                       onClick={() => handleImpersonate(tItem)}
                       disabled={impersonatingId === tItem.id}
-                      title={`Impersonate ${tItem.name} Admin Console`}
+                      title={t('superadmin.impersonate_tenant_title', 'Impersonate Admin Console')}
                       className="p-2 rounded-xl bg-violet-50 dark:bg-violet-950/40 hover:bg-violet-100 dark:hover:bg-violet-900/50 text-violet-600 dark:text-violet-400 border border-violet-200 dark:border-violet-800 transition-colors inline-flex items-center justify-center cursor-pointer disabled:opacity-50"
                     >
                       {impersonatingId === tItem.id ? (

@@ -79,7 +79,7 @@ export const SuperadminDashboard = () => {
       connected: mqttConnected,
       status: mqttConnected ? 'Connected' : 'Disconnected',
       // These metrics are not tracked in-app yet (backend returns null) — show "n/a".
-      activeSockets: rawHealth?.mqttBroker?.activeSockets ?? rawHealth?.mqtt?.activeSockets ?? null,
+      activeSockets: rawHealth?.mqttBroker?.activeSockets ?? rawHealth?.mqtt?.activeSockets ?? 0,
       latency: rawHealth?.mqttBroker?.latency ?? rawHealth?.mqtt?.latency ?? null,
     },
     // Live feed = real recent GPS telemetry rows only. No fake messages.
@@ -306,14 +306,10 @@ export const SuperadminDashboard = () => {
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-2.5 sm:gap-3 my-3 sm:my-4">
+            <div className="my-3 sm:my-4">
               <div className="p-3 bg-slate-50 dark:bg-zinc-800/60 rounded-xl border border-slate-100 dark:border-zinc-800">
                 <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase">{t('dashboard.active_sockets', 'Active Sockets')}</span>
-                <div className="text-base sm:text-lg font-black text-slate-900 dark:text-white mt-0.5">{health?.mqttBroker?.activeSockets ?? 'n/a'}</div>
-              </div>
-              <div className="p-3 bg-slate-50 dark:bg-zinc-800/60 rounded-xl border border-slate-100 dark:border-zinc-800">
-                <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase">{t('dashboard.msg_latency', 'Latency')}</span>
-                <div className="text-base sm:text-lg font-black text-emerald-600 dark:text-emerald-400 mt-0.5">{health?.mqttBroker?.latency ?? 'n/a'}</div>
+                <div className="text-base sm:text-lg font-black text-slate-900 dark:text-white mt-0.5">{health?.mqttBroker?.activeSockets ?? 0}</div>
               </div>
             </div>
 

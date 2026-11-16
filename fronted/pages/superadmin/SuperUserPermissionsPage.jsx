@@ -3,13 +3,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Breadcrumb } from '../../components/ui/Breadcrumb';
 import { UserPermissionSection } from '../../components/ui/UserPermissionSection';
 import { useSuperUser } from '../../hooks/superadmin/useSuperUser';
+import { useSuperRole } from '../../hooks/superadmin/useSuperRole';
 import { useTranslation } from '../../hooks/useTranslation';
 
 export const SuperUserPermissionsPage = () => {
   const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
-  const { users, loadUsers, getUserPermissions, updateUserPermissions } = useSuperUser();
+  const { users, loadUsers, getUserPermissions, updateUserPermissions, resetUserPermissions } = useSuperUser();
+  const { loadRegistry } = useSuperRole();
   const [targetUser, setTargetUser] = useState(null);
 
   useEffect(() => {
@@ -29,7 +31,6 @@ export const SuperUserPermissionsPage = () => {
 
   const userName = targetUser?.name || `User #${id}`;
   const userEmail = targetUser?.email || '';
-  const userRole = targetUser?.role?.code || targetUser?.role?.name || targetUser?.role || 'User';
 
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-200">
@@ -47,10 +48,10 @@ export const SuperUserPermissionsPage = () => {
         userId={id}
         userName={userName}
         userEmail={userEmail}
-        userRole={userRole}
         fetchPermissionsFn={getUserPermissions}
         updatePermissionsFn={updateUserPermissions}
-        isTenantAdmin={false}
+        resetPermissionsFn={resetUserPermissions}
+        loadRegistryFn={loadRegistry}
         onBack={() => navigate('/superadmin/users')}
       />
     </div>

@@ -14,6 +14,8 @@ const formatName = (v, fallback = '—') => {
   return String(v);
 };
 
+const APPROVED_VEHICLE_STATUSES = new Set(['on_route', 'in_depot', 'maintenance', 'offline']);
+
 export const NewTechRequestPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -21,17 +23,20 @@ export const NewTechRequestPage = () => {
   const isEditMode = Boolean(id);
   const isFleetPortal = location.pathname.startsWith('/fleet-operator');
   const basePath = isFleetPortal ? '/fleet-operator/technician-requests' : '/admin/technician-requests';
-  const { hasPermission } = useAuth();
+  const { can } = useAuth();
   const { t } = useTranslation();
 
-  const canCreate = hasPermission('work_orders.create');
-  const hasEditPermission = hasPermission('work_orders.edit') || hasPermission('work_orders.update') || hasPermission('work_orders.create');
+  const canCreate = can('work_orders.create');
+  const hasEditPermission = can(['work_orders.update', 'work_orders.create']);
   const [serverCanEdit, setServerCanEdit] = useState(null);
   const canAccessForm = isEditMode ? (hasEditPermission && serverCanEdit !== false) : canCreate;
 
   const { createWorkOrder, updateWorkOrder, loadWorkOrderDetail } = useAdminTechnicianRequest();
   const { vehicles, pagination: vehiclePagination, loading: vehiclesLoading, loadVehicles } = useAdminVehicle();
   const vehiclesList = Array.isArray(vehicles) ? vehicles : (vehicles?.items || vehicles?.rows || []);
+  const approvedVehiclesList = vehiclesList.filter((vehicle) =>
+    APPROVED_VEHICLE_STATUSES.has(String(vehicle.status || '').toLowerCase())
+  );
 
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(isEditMode);
@@ -59,7 +64,7 @@ export const NewTechRequestPage = () => {
 
   useEffect(() => {
     if (!canAccessForm) return;
-    const params = { page: vehiclePage, limit: 10 };
+    const params = { page: vehiclePage, limit: 10, exclude_pending: true };
     if (debouncedVehicleSearch) params.search = debouncedVehicleSearch;
     loadVehicles(params).catch(() => {});
   }, [canAccessForm, vehiclePage, debouncedVehicleSearch, loadVehicles]);
@@ -186,7 +191,7 @@ export const NewTechRequestPage = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-5">
+      <form onSubmit={handleSubmit} className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-4 sm:p-6 shadow-sm space-y-5">
         <div className="border-b border-slate-100 dark:border-zinc-800 pb-3">
           <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">{t('admin.tech_requests.vehicle_issue_details')}</h2>
           <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium">{t('admin.tech_requests.vehicle_issue_sub')}</p>
@@ -210,7 +215,7 @@ export const NewTechRequestPage = () => {
               value={formData.vehicleId}
               onChange={(e) => {
                 const vehicleId = e.target.value;
-                const v = vehiclesList.find((item) => String(item.id) === vehicleId);
+                const v = approvedVehiclesList.find((item) => String(item.id) === vehicleId);
                 setFormData({
                   ...formData,
                   vehicleId,
@@ -221,10 +226,10 @@ export const NewTechRequestPage = () => {
               className="w-full px-3.5 py-2.5 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors"
             >
               <option value="">{vehiclesLoading ? t('ag.admin.newtechrequestpage.loading_vehicles', 'Loading vehicles...') : t('admin.tech_requests.select_bus_ph')}</option>
-              {formData.vehicleId && !vehiclesList.some((v) => String(v.id) === String(formData.vehicleId)) && (
+              {isEditMode && formData.vehicleId && !approvedVehiclesList.some((v) => String(v.id) === String(formData.vehicleId)) && (
                 <option value={formData.vehicleId}>{formData.busNumber || `Vehicle #${formData.vehicleId}`} ({formData.depotName || 'Depot'})</option>
               )}
-              {vehiclesList.map((v) => {
+              {approvedVehiclesList.map((v) => {
                 const busNum = v.bus_number || v.busNumber || v.code;
                 return (
                   <option key={v.id} value={v.id}>
@@ -292,26 +297,26 @@ export const NewTechRequestPage = () => {
             </select>
           </div>
 
-          <div className="sm:col-span-2">
+          <div className="flex min-w-0 flex-col sm:col-span-2 lg:col-span-1">
             <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1.5">{t('admin.tech_requests.issue_desc_req')}</label>
             <textarea
-              rows={3}
+              rows={5}
               required
               placeholder={t('admin.tech_requests.issue_desc_ph')}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3.5 py-2.5 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-blue-500 transition-colors"
+              className="min-h-32 w-full flex-1 resize-y px-3.5 py-2.5 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-blue-500 transition-colors"
             />
           </div>
 
-          <div className="sm:col-span-2">
+          <div className="flex min-w-0 flex-col sm:col-span-2 lg:col-span-1">
             <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1.5">{t('admin.tech_requests.tech_instructions_opt')}</label>
             <textarea
-              rows={2}
+              rows={5}
               placeholder={t('admin.tech_requests.tech_instructions_ph')}
               value={formData.instructions}
               onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
-              className="w-full px-3.5 py-2.5 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-blue-500 transition-colors"
+              className="min-h-32 w-full flex-1 resize-y px-3.5 py-2.5 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-blue-500 transition-colors"
             />
           </div>
         </div>

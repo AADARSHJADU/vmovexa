@@ -25,10 +25,10 @@ export const TechRequestsPage = () => {
     : isFleetPortal
       ? '/fleet-operator/technician-requests'
       : '/admin/technician-requests';
-  const { hasPermission } = useAuth();
+  const { can } = useAuth();
   const { t } = useTranslation();
-  const canView = isDriverPortal || hasPermission('work_orders.view') || hasPermission('drivers.portal.view') || hasPermission('drivers.work_orders.view');
-  const canCreate = isDriverPortal || hasPermission('work_orders.create') || hasPermission('drivers.work_orders.create');
+  const canView = can('work_orders.view');
+  const canCreate = can('work_orders.create');
 
   const { workOrders, pagination, loading, error, loadWorkOrders } = useAdminTechnicianRequest();
   const [currentPage, setCurrentPage] = useState(1);
@@ -422,7 +422,7 @@ export const TechRequestsPage = () => {
         </div>
       ) : (
         /* GRID CARDS VIEW */
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid min-w-0 grid-cols-1 md:grid-cols-2 gap-4">
           {requestsList.map((req) => {
             const code = formatWorkOrderCode(req.id, req.code);
             const bus = formatDisplayValue(req.bus_number || req.vehicle?.bus_number || req.vehicle?.registration_number);
@@ -437,46 +437,54 @@ export const TechRequestsPage = () => {
             const canRate = Boolean(req.capabilities?.canRate);
 
             return (
-              <div key={req.id} className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm space-y-3 hover:shadow-md transition-shadow">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-zinc-800 pb-3">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-xs font-mono font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-800">
+              <div key={req.id} className="w-full max-w-full min-w-0 overflow-hidden bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm space-y-3 hover:shadow-md transition-shadow">
+                <div className="flex w-full max-w-full min-w-0 flex-col sm:flex-row sm:items-center justify-between gap-2 overflow-hidden border-b border-slate-100 dark:border-zinc-800 pb-3">
+                  <div className="flex w-full max-w-full min-w-0 flex-1 items-center gap-2.5 overflow-hidden">
+                    <span className="max-w-[40%] min-w-0 shrink-0 whitespace-normal [overflow-wrap:anywhere] text-xs font-mono font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-800">
                       {code}
                     </span>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">{issue}</h3>
+                    <h3
+                      className="line-clamp-2 max-w-full min-w-0 flex-1 whitespace-normal [overflow-wrap:anywhere] text-sm font-bold text-slate-900 dark:text-white"
+                      title={issue}
+                    >
+                      {issue}
+                    </h3>
                   </div>
 
-                  <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border self-start sm:self-auto ${statusCfg.color}`}>
+                  <span className={`inline-flex shrink-0 items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border self-start sm:self-auto ${statusCfg.color}`}>
                     <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
                     {statusCfg.label}
                   </span>
                 </div>
 
-                <p className="text-xs text-slate-600 dark:text-zinc-300 font-medium leading-relaxed">
+                <p
+                  className="line-clamp-3 w-full max-w-full min-w-0 whitespace-normal [overflow-wrap:anywhere] text-xs text-slate-600 dark:text-zinc-300 font-medium leading-relaxed"
+                  title={formatDisplayValue(req.description, 'No description provided')}
+                >
                   {formatDisplayValue(req.description, 'No description provided')}
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-3 bg-slate-50 dark:bg-zinc-900/60 rounded-xl border border-slate-100 dark:border-zinc-800 text-xs">
-                  <div>
+                <div className="grid w-full max-w-full min-w-0 grid-cols-1 sm:grid-cols-3 gap-2 overflow-hidden p-3 bg-slate-50 dark:bg-zinc-900/60 rounded-xl border border-slate-100 dark:border-zinc-800 text-xs">
+                  <div className="min-w-0">
                     <span className="text-slate-400 dark:text-zinc-500 text-[10px] block">{t('ag.admin.techrequestspage.vehicle_2', 'Vehicle:')}</span>
-                    <div className="font-mono font-bold text-slate-900 dark:text-white">
+                    <div className="max-w-full whitespace-normal [overflow-wrap:anywhere] font-mono font-bold text-slate-900 dark:text-white">
                       {bus} {depot ? `(${depot})` : ''}
                     </div>
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <span className="text-slate-400 dark:text-zinc-500 text-[10px] block">{t('ag.admin.techrequestspage.urgency_3', 'Urgency:')}</span>
                     <div className="font-bold text-slate-800 dark:text-zinc-200">{urgencyCfg.badge}</div>
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <span className="text-slate-400 dark:text-zinc-500 text-[10px] block">{t('ag.admin.techrequestspage.technician_2', 'Technician:')}</span>
-                    <div className="font-bold text-emerald-700 dark:text-emerald-400">
+                    <div className="max-w-full whitespace-normal [overflow-wrap:anywhere] font-bold text-emerald-700 dark:text-emerald-400">
                       {tech ? formatDisplayValue(tech.name) : t('ag.admin.techrequestspage.pending_assignment', 'Pending assignment')}
                     </div>
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-400 dark:text-zinc-500 pt-1">
-                  <span>{t('ag.admin.techrequestspage.by_2', 'By:')} {requestedByName} • {reqDate}</span>
+                <div className="flex min-w-0 flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-400 dark:text-zinc-500 pt-1">
+                  <span className="min-w-0 whitespace-normal [overflow-wrap:anywhere]">{t('ag.admin.techrequestspage.by_2', 'By:')} {requestedByName} • {reqDate}</span>
                   <div className="flex items-center gap-1.5 w-full sm:w-auto">
                     {canRate && !req.rating && (
                       <Link

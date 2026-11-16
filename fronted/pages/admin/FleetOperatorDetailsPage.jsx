@@ -7,7 +7,8 @@ import { RefreshButton } from '../../components/ui/RefreshButton';
 import { Breadcrumb } from '../../components/ui/Breadcrumb';
 import { useAdminFleetOperator } from '../../hooks/admin/useAdminFleetOperator';
 import { useAdminVehicle } from '../../hooks/admin/useAdminVehicle';
-import { adminRoleService } from '../../api/services/admin/role.service';
+import { UserPermissionSection } from '../../components/ui/UserPermissionSection';
+import { useAdminRole } from '../../hooks/admin/useAdminRole';
 import { resolveFileUrl } from '../../api/services/upload.service';
 import { ManageFleetOperatorModal } from '../../components/admin/ManageFleetOperatorModal';
 import { AssignVehicleSection } from '../../components/admin/AssignVehicleSection';
@@ -27,8 +28,8 @@ export const FleetOperatorDetailsPage = () => {
   const location = useLocation();
   const isFleetPortal = (location.pathname.startsWith('/fleet-operator') || location.pathname.startsWith('/fleet-operator'));
   const basePath = isFleetPortal ? '/fleet-operator/fleets' : '/admin/fleet-operators';
-  const { hasPermission } = useAuth();
-  const canView = !isFleetPortal || hasPermission('fleet.fleets.view');
+  const { can } = useAuth();
+  const canView = can('fleets.view');
 
   const {
     selectedOperator,
@@ -39,6 +40,7 @@ export const FleetOperatorDetailsPage = () => {
     loadOperatorActivity,
     loadOperatorPermissions,
     updateOperatorPermissions,
+    resetOperatorPermissions,
     updateOperatorStatus,
   } = useAdminFleetOperator();
 
@@ -51,7 +53,6 @@ export const FleetOperatorDetailsPage = () => {
   const [loading, setLoading] = useState(true);
   const [activityPage, setActivityPage] = useState(1);
   const [loadingActivity, setLoadingActivity] = useState(false);
-  const [loadingPerms, setLoadingPerms] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
   useEffect(() => {
@@ -130,12 +131,7 @@ export const FleetOperatorDetailsPage = () => {
     }
   }, [id, loadVehicles]);
 
-  // Permission editing state inside details page
-  const [permissionModules, setPermissionModules] = useState({});
-  const [selectedPermKeys, setSelectedPermKeys] = useState([]);
-  const [rolePermKeys, setRolePermKeys] = useState([]);
-  const [savingPerms, setSavingPerms] = useState(false);
-  const [editPermsMode, setEditPermsMode] = useState(false);
+  const { loadRegistry } = useAdminRole();
 
   // Manage Modal State
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
@@ -157,34 +153,7 @@ export const FleetOperatorDetailsPage = () => {
     fetchDetails();
   }, [id, canView, isFleetPortal, loadFleetOperator, navigate]);
 
-  useEffect(() => {
-    if (activeTab === 'permissions' && id) {
-      setLoadingPerms(true);
-      Promise.all([
-        adminRoleService.getPermissionModules().catch(() => ({})),
-        loadOperatorPermissions(id).catch(() => null),
-      ])
-        .then(([mods, permsData]) => {
-          if (mods) setPermissionModules(mods);
-          if (permsData) {
-            const roleKeys = permsData.rolePermissions || [];
-            const hasCustom = !!permsData.hasCustom;
-            const effectiveKeys = permsData.effectivePermissions || (hasCustom ? (permsData.directPermissions || []) : roleKeys);
-            setRolePermKeys(roleKeys);
-            setSelectedPermKeys(effectiveKeys);
-          }
-        })
-        .finally(() => setLoadingPerms(false));
-    }
-  }, [activeTab, id, loadOperatorPermissions]);
 
-  const revokedPermKeys = useMemo(() => {
-    return rolePermKeys.filter((k) => !selectedPermKeys.includes(k));
-  }, [rolePermKeys, selectedPermKeys]);
-
-  const directAddedKeys = useMemo(() => {
-    return selectedPermKeys.filter((k) => !rolePermKeys.includes(k));
-  }, [rolePermKeys, selectedPermKeys]);
 
   const directVehicles = Array.isArray(selectedOperator?.vehicles)
     ? selectedOperator.vehicles
@@ -233,67 +202,6 @@ export const FleetOperatorDetailsPage = () => {
       /* toast handles error */
     } finally {
       setUpdatingStatus(false);
-    }
-  };
-
-  const handleTogglePermission = (key) => {
-    setSelectedPermKeys((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
-    );
-  };
-
-  const handleSavePermissions = async () => {
-    if (!selectedOperator) return;
-    setSavingPerms(true);
-    try {
-      await toast.promise(
-        updateOperatorPermissions(selectedOperator.id, selectedPermKeys),
-        {
-          loading: 'Saving user permissions...',
-          success: 'Direct user permissions updated successfully!',
-          error: (err) => err?.message || 'Failed to update permissions',
-        }
-      );
-      setEditPermsMode(false);
-      const res = await loadOperatorPermissions(selectedOperator.id);
-      if (res) {
-        const roleKeys = res.rolePermissions || [];
-        const hasCustom = !!res.hasCustom;
-        const effectiveKeys = res.effectivePermissions || (hasCustom ? (res.directPermissions || []) : roleKeys);
-        setRolePermKeys(roleKeys);
-        setSelectedPermKeys(effectiveKeys);
-      }
-    } catch {
-      /* toast handles error */
-    } finally {
-      setSavingPerms(false);
-    }
-  };
-
-  const handleResetPermissions = async () => {
-    if (!selectedOperator) return;
-    if (!window.confirm('Reset all direct permission overrides back to role default?')) return;
-    setSavingPerms(true);
-    try {
-      await toast.promise(
-        updateOperatorPermissions(selectedOperator.id, 'RESET'),
-        {
-          loading: 'Resetting permissions to role defaults...',
-          success: 'Permissions reset to role default!',
-          error: (err) => err?.message || 'Failed to reset permissions',
-        }
-      );
-      setEditPermsMode(false);
-      const res = await loadOperatorPermissions(selectedOperator.id);
-      if (res) {
-        const roleKeys = res.rolePermissions || [];
-        setRolePermKeys(roleKeys);
-        setSelectedPermKeys(roleKeys);
-      }
-    } catch {
-      /* toast handles error */
-    } finally {
-      setSavingPerms(false);
     }
   };
 
@@ -556,7 +464,7 @@ export const FleetOperatorDetailsPage = () => {
             >
               <FleetIcons.ShieldCheck className="w-4 h-4" />
               <span>{t('admin.fleet_operators.tab_security') || 'Security & Custom Permissions'}</span>
-              {operatorPermissions?.hasCustom && (
+              {operatorPermissions?.denied?.length > 0 && (
                 <span className="px-2 py-0.5 rounded-full text-[9px] bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-black tracking-wider uppercase">
                   {t('ag.admin.fleetoperatordetailspage.custom_overrides', 'Custom Overrides')}
                 </span>
@@ -1001,143 +909,17 @@ export const FleetOperatorDetailsPage = () => {
 
 
 
-          {/* TAB 2: PERMISSIONS (READ-ONLY DISPLAY) */}
-          {activeTab === 'permissions' && (
-            <div className="space-y-6">
-              {/* Permission Banner & Information Header */}
-              <div className="p-5 bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-800 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <FleetIcons.ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                    <span>{t('admin.fleet_operators.role_permissions') || 'Role & Direct User Permissions'}</span>
-                  </h4>
-                  <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">
-                    {t('ag.admin.fleetoperatordetailspage.base_role', 'Base Role:')} <strong className="text-slate-800 dark:text-zinc-200">{roleName} ({roleCode})</strong>{t('ag.admin.fleetoperatordetailspage.standard_role_permissions_are_inherited_auto', '. Standard role permissions are inherited automatically unless overridden per-user.')}
-                  </p>
-                </div>
-                {operatorPermissions?.hasCustom && (
-                  <span className="px-3 py-1.5 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-xs font-black tracking-wider uppercase shrink-0">
-                    {t('ag.admin.fleetoperatordetailspage.custom_overrides_active', 'Custom Overrides Active')}
-                  </span>
-                )}
-              </div>
-
-              {loadingPerms ? (
-                <div className="py-12 text-center">
-                  <div className="w-6 h-6 border-2 border-slate-900 dark:border-white border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                  <div className="text-xs text-slate-500 dark:text-zinc-400 font-bold">{t('admin.fleet_operators.loading_permissions') || 'Loading permission matrix...'}</div>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  {/* KPI Summary Cards */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-800 flex items-center justify-between">
-                      <div>
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">{t('admin.fleet_operators.role_standard') || 'Role Base Standard'}</div>
-                        <div className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">{rolePermKeys.length}</div>
-                      </div>
-                      <div className="w-9 h-9 rounded-xl bg-slate-200/70 dark:bg-zinc-700/60 flex items-center justify-center text-base">
-                        <FleetIcons.ShieldCheck className="w-5 h-5 text-slate-600 dark:text-zinc-300" />
-                      </div>
-                    </div>
-
-                    <div className="p-4 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-between">
-                      <div>
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">{t('admin.fleet_operators.active_allowed') || 'Active Effective Allowed'}</div>
-                        <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5">{selectedPermKeys.length}</div>
-                      </div>
-                      <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/50 flex items-center justify-center text-base text-emerald-700 dark:text-emerald-400">
-                        <FleetIcons.Check className="w-5 h-5" />
-                      </div>
-                    </div>
-
-                    <div className="p-4 rounded-xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-800/60 flex items-center justify-between">
-                      <div>
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400">{t('admin.fleet_operators.access_denied') || 'Revoked / Access Denied'}</div>
-                        <div className="text-2xl font-black text-rose-600 dark:text-rose-400 mt-0.5">{revokedPermKeys.length}</div>
-                      </div>
-                      <div className="w-9 h-9 rounded-xl bg-rose-100 dark:bg-rose-950/50 flex items-center justify-center text-base text-rose-700 dark:text-rose-400">
-                        <FleetIcons.Close className="w-5 h-5" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* REVOKED PERMISSIONS (RED DISPLAY) */}
-                  {revokedPermKeys.length > 0 && (
-                    <div className="p-5 bg-rose-50/80 dark:bg-rose-950/20 border-2 border-rose-200 dark:border-rose-900/60 rounded-2xl space-y-3 shadow-2xs">
-                      <div className="flex items-center justify-between flex-wrap gap-2">
-                        <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 rounded-full bg-rose-500 animate-pulse" />
-                          <h5 className="text-xs font-black uppercase tracking-wider text-rose-950 dark:text-rose-200">
-                            {t('ag.admin.fleetoperatordetailspage.revoked_denied_role_permissions', 'Revoked / Denied Role Permissions (')}{revokedPermKeys.length})
-                          </h5>
-                        </div>
-                        <span className="text-[10px] font-black tracking-wider text-rose-700 dark:text-rose-300 bg-rose-100 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-800 px-2.5 py-0.5 rounded-full uppercase">
-                          {t('ag.admin.fleetoperatordetailspage.access_revoked', 'Access Revoked')}
-                        </span>
-                      </div>
-                      <p className="text-xs text-rose-800 dark:text-rose-300 font-medium leading-relaxed">
-                        {t('ag.admin.fleetoperatordetailspage.the_following_permissions_are_defined_in_bas', 'The following permissions are defined in base role')} <strong>{roleName}</strong>{t('ag.admin.fleetoperatordetailspage.but_have_been_explicitly_revoked_turned_off_', ', but have been explicitly revoked / turned off for this user:')}
-                      </p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 pt-1">
-                        {revokedPermKeys.map((key) => (
-                          <div
-                            key={key}
-                            className="p-2.5 bg-white dark:bg-zinc-900 border border-rose-300 dark:border-rose-900/60 rounded-xl text-xs font-mono text-rose-950 dark:text-rose-200 flex items-center justify-between shadow-2xs group"
-                          >
-                            <div className="flex items-center gap-2 truncate">
-                              <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
-                              <span className="truncate font-bold line-through text-rose-700 dark:text-rose-400 group-hover:text-rose-950 dark:group-hover:text-rose-200">{key}</span>
-                            </div>
-                            <span className="text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase font-sans bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 shrink-0">
-                              {t('ag.admin.fleetoperatordetailspage.revoked', 'Revoked')}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* ACTIVE GRANTED PERMISSIONS SUMMARY (GREEN) */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between flex-wrap gap-2">
-                      <div className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-zinc-200 flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                        <span>{t('ag.admin.fleetoperatordetailspage.active_effective_permission_keys', 'Active Effective Permission Keys (')}{selectedPermKeys.length})</span>
-                      </div>
-                      {directAddedKeys.length > 0 && (
-                        <span className="text-[10px] font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 px-2.5 py-0.5 rounded-full uppercase">
-                          +{directAddedKeys.length} {t('ag.admin.fleetoperatordetailspage.direct_added', 'Direct Added')}
-                        </span>
-                      )}
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                      {selectedPermKeys.map((key) => {
-                        const isInherited = rolePermKeys.includes(key);
-                        return (
-                          <div
-                            key={key}
-                            className="p-2.5 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl text-xs font-mono text-slate-800 dark:text-zinc-200 flex items-center justify-between shadow-2xs"
-                          >
-                            <div className="flex items-center gap-2 truncate">
-                              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-                              <span className="truncate font-bold">{key}</span>
-                            </div>
-                            <span
-                              className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase font-sans shrink-0 ${
-                                isInherited ? 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400' : 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300'
-                              }`}
-                            >
-                              {isInherited ? t('ag.admin.fleetoperatordetailspage.role', 'Role') : t('ag.admin.fleetoperatordetailspage.direct', 'Direct')}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
+          {/* TAB 2: PERMISSIONS (role defaults, revoke-only) */}
+          {activeTab === 'permissions' && id && (
+            <UserPermissionSection
+              userId={id}
+              userName={selectedOperator?.name || ''}
+              userEmail={selectedOperator?.email || ''}
+              fetchPermissionsFn={loadOperatorPermissions}
+              updatePermissionsFn={updateOperatorPermissions}
+              resetPermissionsFn={resetOperatorPermissions}
+              loadRegistryFn={loadRegistry}
+            />
           )}
 
           {/* TAB 3: ACTIVITY LOGS */}

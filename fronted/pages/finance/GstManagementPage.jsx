@@ -192,7 +192,7 @@ export const GstManagementPage = () => {
               </div>
               <div className="p-3.5 bg-slate-50 dark:bg-zinc-800/60 rounded-xl border border-slate-100 dark:border-zinc-800 space-y-1">
                 <span className="text-slate-400">{t('finance.principal_place', 'Principal Place of Business:')}</span>
-                <div className="font-medium text-slate-800 dark:text-zinc-200">{gstSummary?.state || t('common.not_configured', 'Not configured')}{gstSummary?.stateCode ? ` (GST state code: ${gstSummary.stateCode})` : ''}</div>
+                <div className="font-medium text-slate-800 dark:text-zinc-200">{gstSummary?.state || t('common.not_configured', 'Not configured')}{gstSummary?.stateCode ? ` (${t('finance.gst.state_code', 'GST state code')}: ${gstSummary.stateCode})` : ''}</div>
               </div>
               <div className="p-3.5 bg-slate-50 dark:bg-zinc-800/60 rounded-xl border border-slate-100 dark:border-zinc-800 space-y-1">
                 <span className="text-slate-400">{t('finance.filing_cycle', 'Filing Cycle:')}</span>

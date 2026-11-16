@@ -6,7 +6,8 @@ import { Pagination } from '../ui/Pagination';
 import { MultipleDocumentUploader } from '../ui/MultipleDocumentUploader';
 import { useAdminFleetOperator } from '../../hooks/admin/useAdminFleetOperator';
 import { useAdminDepot } from '../../hooks/admin/useAdminDepot';
-import { adminRoleService } from '../../api/services/admin/role.service';
+import { UserPermissionSection } from '../ui/UserPermissionSection';
+import { useAdminRole } from '../../hooks/admin/useAdminRole';
 import { resolveFileUrl } from '../../api/services/upload.service';
 
 export const ManageFleetOperatorModal = ({ operatorId, onClose, onUpdated }) => {
@@ -21,18 +22,19 @@ export const ManageFleetOperatorModal = ({ operatorId, onClose, onUpdated }) => 
     loadOperatorActivity,
     loadOperatorPermissions,
     updateOperatorPermissions,
+    resetOperatorPermissions,
     uploadAvatar,
     getQuotas,
     resetSelectedOperator,
   } = useAdminFleetOperator();
 
   const { depots, loadDepots } = useAdminDepot();
+  const { loadRegistry } = useAdminRole();
 
   const [activeTab, setActiveTab] = useState('profile'); // 'profile' | 'permissions' | 'activity'
   const [loading, setLoading] = useState(true);
   const [quotas, setQuotas] = useState(null);
   const [savingProfile, setSavingProfile] = useState(false);
-  const [savingPerms, setSavingPerms] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   // Profile form state
@@ -52,11 +54,6 @@ export const ManageFleetOperatorModal = ({ operatorId, onClose, onUpdated }) => 
   });
 
 
-  // Permissions state
-  const [modules, setModules] = useState({});
-  const [selectedPermKeys, setSelectedPermKeys] = useState([]);
-  const [rolePermKeys, setRolePermKeys] = useState([]);
-  const [loadingPerms, setLoadingPerms] = useState(false);
 
   // Activity state
   const [activityPage, setActivityPage] = useState(1);
@@ -99,28 +96,6 @@ export const ManageFleetOperatorModal = ({ operatorId, onClose, onUpdated }) => 
       });
     }
   }, [selectedOperator]);
-
-  // Load Permissions tab data
-  useEffect(() => {
-    if (activeTab === 'permissions' && operatorId) {
-      setLoadingPerms(true);
-      Promise.all([
-        adminRoleService.getPermissionModules().catch(() => ({})),
-        loadOperatorPermissions(operatorId).catch(() => null),
-      ])
-        .then(([mods, permsData]) => {
-          if (mods) setModules(mods);
-          if (permsData) {
-            const roleKeys = permsData.rolePermissions || [];
-            const hasCustom = !!permsData.hasCustom;
-            const effectiveKeys = permsData.effectivePermissions || (hasCustom ? (permsData.directPermissions || []) : roleKeys);
-            setRolePermKeys(roleKeys);
-            setSelectedPermKeys(effectiveKeys);
-          }
-        })
-        .finally(() => setLoadingPerms(false));
-    }
-  }, [activeTab, operatorId, loadOperatorPermissions]);
 
   // Load Activity tab data
   useEffect(() => {
@@ -214,43 +189,6 @@ export const ManageFleetOperatorModal = ({ operatorId, onClose, onUpdated }) => 
     ).finally(() => setSavingProfile(false));
   };
 
-  // Handle Permission Checkbox Toggle
-  const togglePermissionKey = (key) => {
-    setSelectedPermKeys((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
-    );
-  };
-
-  // Save Permissions
-  const handleSavePermissions = async () => {
-    setSavingPerms(true);
-    toast.promise(
-      updateOperatorPermissions(operatorId, selectedPermKeys),
-      {
-        loading: 'Updating permissions...',
-        success: 'Custom permissions updated successfully!',
-        error: (err) => err?.message || 'Failed to update permissions',
-      }
-    ).finally(() => setSavingPerms(false));
-  };
-
-  // Reset Permissions to Role Defaults
-  const handleResetPermissions = async () => {
-    setSavingPerms(true);
-    toast.promise(
-      updateOperatorPermissions(operatorId, 'RESET'),
-      {
-        loading: 'Resetting permissions to role defaults...',
-        success: (res) => {
-          const roleKeys = res?.rolePermissions || rolePermKeys;
-          setSelectedPermKeys(roleKeys);
-          return 'Permissions reset to role defaults!';
-        },
-        error: (err) => err?.message || 'Failed to reset permissions',
-      }
-    ).finally(() => setSavingPerms(false));
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-white w-full max-w-2xl h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
@@ -296,9 +234,9 @@ export const ManageFleetOperatorModal = ({ operatorId, onClose, onUpdated }) => 
             }`}
           >
             <span>{t('ag.admin.managefleetoperatormodal.permissions', 'Permissions')}</span>
-            {operatorPermissions?.hasCustom && (
+            {operatorPermissions?.denied?.length > 0 && (
               <span className="px-1.5 py-0.5 rounded-full text-[9px] bg-amber-100 text-amber-800 font-black">
-                {t('ag.admin.managefleetoperatormodal.custom', 'Custom')}
+                {t('rbac.user.restricted', 'Restricted')}
               </span>
             )}
           </button>
@@ -553,115 +491,17 @@ export const ManageFleetOperatorModal = ({ operatorId, onClose, onUpdated }) => 
                 </form>
               )}
 
-              {/* TAB 2: PERMISSIONS */}
-              {activeTab === 'permissions' && (
-                <div className="space-y-5">
-                  <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl flex items-start justify-between">
-                    <div>
-                      <h4 className="font-bold text-amber-900">{t('ag.admin.managefleetoperatormodal.custom_user_permissions', 'Custom User Permissions')}</h4>
-                      <p className="text-[11px] text-amber-700 mt-0.5">
-                        {t('ag.admin.managefleetoperatormodal.permissions_granted_directly_to_this_fleet_o', 'Permissions granted directly to this Fleet Operator over and above their default role permissions.')}
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleResetPermissions}
-                      disabled={savingPerms}
-                      className="px-3 py-1.5 bg-white border border-amber-300 text-amber-900 font-bold rounded-lg hover:bg-amber-100 disabled:opacity-50 text-[11px]"
-                    >
-                      {t('ag.admin.managefleetoperatormodal.reset_to_role_default', 'Reset to Role Default')}
-                    </button>
-                  </div>
-
-                  {loadingPerms ? (
-                    <div className="py-12 flex justify-center">
-                      <div className="animate-spin rounded-full h-6 w-6 border-2 border-slate-900 border-t-transparent"></div>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {Object.keys(modules).length === 0 ? (
-                        <p className="text-slate-400 italic">{t('ag.admin.managefleetoperatormodal.no_permission_modules_available', 'No permission modules available')}</p>
-                      ) : (
-                        Object.entries(modules).map(([moduleName, perms]) => (
-                          <div key={moduleName} className="border border-slate-200 rounded-xl overflow-hidden">
-                            <div className="bg-slate-50 px-3.5 py-2 font-bold text-slate-800 border-b border-slate-200 uppercase tracking-wider text-[10px]">
-                              {moduleName}
-                            </div>
-                            <div className="p-3.5 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                              {perms.map((perm) => {
-                                const isChecked = selectedPermKeys.includes(perm.key);
-                                const isRoleDefault = rolePermKeys.includes(perm.key);
-                                const isRevoked = !isChecked && isRoleDefault;
-
-                                return (
-                                  <label
-                                    key={perm.id || perm.key}
-                                    className={`flex items-start gap-2.5 p-2 rounded-lg border transition-colors cursor-pointer ${
-                                      isRevoked
-                                        ? 'bg-rose-50/70 border-rose-300 text-rose-950'
-                                        : isChecked
-                                        ? 'bg-slate-50 border-slate-300'
-                                        : 'bg-white border-slate-100 hover:bg-slate-50'
-                                    }`}
-                                  >
-                                    <input
-                                      type="checkbox"
-                                      checked={isChecked}
-                                      onChange={() => togglePermissionKey(perm.key)}
-                                      className="mt-0.5 rounded border-slate-300 text-slate-900 focus:ring-slate-900"
-                                    />
-                                    <div className="flex-1">
-                                      <div className="font-bold text-slate-900 flex items-center justify-between">
-                                        <span className={isRevoked ? 'line-through text-rose-700' : ''}>{perm.label || perm.key}</span>
-                                        {isRevoked && (
-                                          <span className="text-[9px] bg-rose-100 text-rose-700 border border-rose-200 px-1.5 py-0.5 rounded font-black uppercase">
-                                            {t('ag.admin.managefleetoperatormodal.revoked', 'Revoked')}
-                                          </span>
-                                        )}
-                                        {isChecked && isRoleDefault && (
-                                          <span className="text-[9px] bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded font-bold">
-                                            {t('ag.admin.managefleetoperatormodal.role', 'Role')}
-                                          </span>
-                                        )}
-                                        {isChecked && !isRoleDefault && (
-                                          <span className="text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-bold">
-                                            {t('ag.admin.managefleetoperatormodal.direct', 'Direct')}
-                                          </span>
-                                        )}
-                                      </div>
-                                      <div className={`text-[10px] font-mono mt-0.5 ${isRevoked ? 'text-rose-500' : 'text-slate-400'}`}>
-                                        {perm.key}
-                                      </div>
-                                    </div>
-                                  </label>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        ))
-                      )}
-
-                      <div className="pt-4 border-t border-slate-200 flex justify-end gap-3">
-                        <button
-                          type="button"
-                          onClick={onClose}
-                          className="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200"
-                        >
-                          {t('ag.admin.managefleetoperatormodal.cancel', 'Cancel')}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleSavePermissions}
-                          disabled={savingPerms}
-                          className="px-5 py-2 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 disabled:opacity-50 flex items-center gap-2"
-                        >
-                          {savingPerms && <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />}
-                          <span>{t('ag.admin.managefleetoperatormodal.save_permissions', 'Save Permissions')}</span>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
+              {/* TAB 2: PERMISSIONS (role defaults, revoke-only) */}
+              {activeTab === 'permissions' && operatorId && (
+                <UserPermissionSection
+                  userId={operatorId}
+                  userName={selectedOperator?.name || ''}
+                  userEmail={selectedOperator?.email || ''}
+                  fetchPermissionsFn={loadOperatorPermissions}
+                  updatePermissionsFn={updateOperatorPermissions}
+                  resetPermissionsFn={resetOperatorPermissions}
+                  loadRegistryFn={loadRegistry}
+                />
               )}
 
               {/* TAB 3: ACTIVITY LOGS */}

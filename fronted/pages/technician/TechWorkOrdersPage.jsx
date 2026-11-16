@@ -242,7 +242,7 @@ export const TechWorkOrdersPage = () => {
         {
           loading: `${t('technician.work_orders.marking_arrival', 'Marking arrival on')} ${order.code}...`,
           success: `${t('technician.work_orders.arrived_success', 'Arrived on-site for Vehicle')} ${order.bus_number || order.code}!`,
-          error: (err) => err?.message || 'Failed to update status',
+          error: (err) => err?.message || t('technician.work_orders.update_failed', 'Failed to update status'),
         }
       );
       fetchData();
@@ -273,7 +273,7 @@ export const TechWorkOrdersPage = () => {
         {
           loading: `${t('technician.work_orders.submitting_res', 'Submitting resolution for')} ${resolvingOrder.code}...`,
           success: `${resolvingOrder.code}: ${t('technician.work_orders.order_resolved_success', 'Work order resolved successfully!')}`,
-          error: (err) => err?.message || 'Failed to resolve work order',
+          error: (err) => err?.message || t('technician.work_orders.resolve_failed', 'Failed to resolve work order'),
         }
       );
       setResolvingOrder(null);

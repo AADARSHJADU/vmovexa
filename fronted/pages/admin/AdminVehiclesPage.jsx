@@ -111,19 +111,19 @@ export const AdminVehiclesPage = () => {
     rejectVehicle,
   } = useAdminVehicle();
 
-  const { hasPermission } = useAuth();
+  const { can } = useAuth();
 
   // RBAC permissions (always true in Admin portal)
-  const canView = !isFleetPortal || hasPermission('fleet.vehicles.view');
-  const canCreate = !isFleetPortal || hasPermission('fleet.vehicles.create');
-  const canUpdate = !isFleetPortal || hasPermission('fleet.vehicles.update');
-  const canDelete = !isFleetPortal || hasPermission('fleet.vehicles.delete');
+  const canView = can('vehicles.view');
+  const canCreate = can('vehicles.create');
+  const canUpdate = can('vehicles.update');
+  const canDelete = can('vehicles.delete');
 
   const [searchParams, setSearchParams] = useSearchParams();
   const fleetIdParam = searchParams.get('fleetId') || searchParams.get('fleet_id') || '';
 
   const { fleetOperators, loadFleetOperators } = useAdminFleetOperator();
-  const canViewOperators = !isFleetPortal || hasPermission('users.view');
+  const canViewOperators = can('fleet_operators.view');
 
   useEffect(() => {
     if (canViewOperators) loadFleetOperators({ limit: 100 }).catch(() => {});
@@ -428,40 +428,28 @@ export const AdminVehiclesPage = () => {
             return (
               <div 
                 key={v.id} 
-                className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-slate-400 hover:shadow-md transition-all shadow-sm flex flex-col justify-between group overflow-hidden"
+                className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-slate-400 dark:hover:border-zinc-700 hover:shadow-md transition-all shadow-sm flex flex-col justify-between group overflow-hidden"
               >
                 <div>
                   {busPhoto && (
-                    <div className="-mx-5 -mt-5 mb-4 h-32 overflow-hidden rounded-t-2xl bg-slate-900 border-b border-slate-100 relative group-hover:brightness-105 transition-all">
+                    <div className="-mx-5 -mt-5 mb-4 h-32 overflow-hidden rounded-t-2xl bg-slate-900 border-b border-slate-100 dark:border-zinc-800 relative group-hover:brightness-105 transition-all">
                       <img src={resolveFileUrl(busPhoto)} alt={busNumber} className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                     </div>
                   )}
 
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <Link 
-                        to={`${basePath}/${v.id}`}
-                        className="font-mono text-sm font-black text-slate-900 tracking-wider hover:text-blue-600 hover:underline"
-                      >
-                        {busNumber}
-                      </Link>
-                      <p className="text-[11px] text-slate-500 mt-0.5">{vehicleType}</p>
-                    </div>
+                  {/* Card Header: Bus Number & 3-Dot Action Menu */}
+                  <div className="flex items-center justify-between gap-2 min-w-0">
+                    <Link 
+                      to={`${basePath}/${v.id}`}
+                      className="font-mono text-sm font-black text-slate-900 dark:text-white tracking-wider hover:text-blue-600 dark:hover:text-blue-400 hover:underline truncate min-w-0 flex-1"
+                      title={busNumber}
+                    >
+                      {busNumber}
+                    </Link>
 
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 shrink-0 ${
-                        isPending ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                        isRejected ? 'bg-rose-50 text-rose-700 border border-rose-200' :
-                        status === 'on_route' || status === 'moving' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                        status === 'in_depot' || status === 'idle' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
-                        'bg-slate-100 text-slate-600 border border-slate-200'
-                      }`}>
-                        <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
-                        <span>{status.replace(/_/g, ' ')}</span>
-                      </span>
-
-                      {/* 3-Dot Menu */}
+                    {/* 3-Dot Menu */}
+                    <div className="shrink-0">
                       <ActionDropdown menuWidth="w-52">
                         {({ close }) => (
                           <div className="py-1 space-y-0.5 text-xs font-semibold">
@@ -539,35 +527,56 @@ export const AdminVehiclesPage = () => {
                     </div>
                   </div>
 
-                  <div className="mt-4 p-3 rounded-xl bg-slate-50 text-xs space-y-2 border border-slate-100">
+                  {/* Sub-Header: Vehicle Type & Status Badge */}
+                  <div className="flex items-center justify-between gap-2 mt-1.5 min-w-0">
+                    <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium truncate min-w-0" title={vehicleType}>
+                      {vehicleType}
+                    </p>
+
+                    <span 
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold inline-flex items-center gap-1.5 shrink-0 capitalize whitespace-nowrap ${
+                        isPending ? 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/60' :
+                        isRejected ? 'bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800/60' :
+                        status === 'on_route' || status === 'moving' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/60' :
+                        status === 'in_depot' || status === 'idle' ? 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/60' :
+                        'bg-slate-100 text-slate-600 border border-slate-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700'
+                      }`}
+                      title={status.replace(/_/g, ' ')}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-current shrink-0"></span>
+                      <span>{status.replace(/_/g, ' ')}</span>
+                    </span>
+                  </div>
+
+                  <div className="mt-4 p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/50 text-xs space-y-2 border border-slate-100 dark:border-zinc-800">
                     <div className="flex justify-between items-center">
                       <span className="text-slate-400 dark:text-zinc-500">{t('admin.vehicles.fleet_label')}</span>
                       {!isFleetPortal && (v.fleet_id || v.fleet?.id) ? (
                         <Link
                           to={`/admin/fleet-operators/${v.fleet?.id || v.fleet_id}`}
-                          className="font-bold text-blue-600 hover:underline truncate max-w-[130px]"
+                          className="font-bold text-blue-600 dark:text-blue-400 hover:underline truncate max-w-[130px]"
                           title={`View ${fleetName} details`}
                         >
                           {fleetName}
                         </Link>
                       ) : (
-                        <span className="font-semibold text-slate-800 truncate max-w-[130px]">{fleetName}</span>
+                        <span className="font-semibold text-slate-800 dark:text-zinc-200 truncate max-w-[130px]">{fleetName}</span>
                       )}
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-400 dark:text-zinc-500">{t('admin.vehicles.driver_label')}</span>
-                      <span className="font-semibold text-slate-900">{driverName}</span>
+                      <span className="font-semibold text-slate-900 dark:text-zinc-100">{driverName}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-400 dark:text-zinc-500">{t('admin.vehicles.vin_label')}</span>
-                      <span className="font-bold text-slate-900 font-mono">{v.vin ?? '—'}</span>
+                      <span className="font-bold text-slate-900 dark:text-zinc-100 font-mono">{v.vin ?? '—'}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Inline Admin Approval Buttons for Pending Vehicles */}
                 {!isFleetPortal && isPending && (
-                  <div className="mt-4 pt-3 border-t border-amber-200 bg-amber-50/50 p-2.5 rounded-xl flex items-center justify-between gap-2">
+                  <div className="mt-4 pt-3 border-t border-amber-200 dark:border-amber-800/60 bg-amber-50/50 dark:bg-amber-950/30 p-2.5 rounded-xl flex items-center justify-between gap-2">
                     <span className="text-[10px] font-bold text-amber-800 dark:text-amber-400">{t('admin.vehicles.pending_approval')}</span>
                     <div className="flex items-center gap-1.5">
                       <button
@@ -591,9 +600,9 @@ export const AdminVehiclesPage = () => {
                 )}
 
                 {!(!isFleetPortal && isPending) && (
-                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span className="text-[11px] text-slate-700 font-bold flex items-center gap-1">
-                      <FleetIcons.Gps className="w-3.5 h-3.5 text-slate-500" />
+                  <div className="mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-xs">
+                    <span className="text-[11px] text-slate-700 dark:text-zinc-300 font-bold flex items-center gap-1">
+                      <FleetIcons.Gps className="w-3.5 h-3.5 text-slate-500 dark:text-zinc-400" />
                       <span>{depotName}</span>
                     </span>
                     <Link to={`${basePath}/${v.id}`} className="text-blue-600 dark:text-blue-400 font-bold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
@@ -694,14 +703,14 @@ export const AdminVehiclesPage = () => {
 
                       {/* Status */}
                       <td className="py-3.5 px-4">
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold capitalize inline-flex items-center gap-1 ${
-                          isPending ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                          isRejected ? 'bg-rose-50 text-rose-700 border border-rose-200' :
-                          status === 'on_route' || status === 'moving' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                          status === 'in_depot' || status === 'idle' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
-                          'bg-slate-100 text-slate-600 border border-slate-200'
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold capitalize inline-flex items-center gap-1.5 whitespace-nowrap ${
+                          isPending ? 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/60' :
+                          isRejected ? 'bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800/60' :
+                          status === 'on_route' || status === 'moving' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/60' :
+                          status === 'in_depot' || status === 'idle' ? 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/60' :
+                          'bg-slate-100 text-slate-600 border border-slate-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700'
                         }`}>
-                          <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-current shrink-0"></span>
                           <span>{status.replace(/_/g, ' ')}</span>
                         </span>
                       </td>

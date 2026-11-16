@@ -37,7 +37,7 @@ export const TechEdgeSetupPage = () => {
   const handleDownloadZip = async () => {
     try {
       setIsDownloading(true);
-      toast.loading('Preparing VMOVEXA Core package...', { id: 'pkg-dl' });
+      toast.loading(t('technician.edge_setup.preparing_pkg', 'Preparing VMOVEXA Core package...'), { id: 'pkg-dl' });
       const blob = await technicianSelfService.downloadCorePackage();
       const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/zip' }));
       const link = document.createElement('a');
@@ -47,9 +47,9 @@ export const TechEdgeSetupPage = () => {
       link.click();
       link.parentNode.removeChild(link);
       window.URL.revokeObjectURL(url);
-      toast.success('Core package downloaded successfully!', { id: 'pkg-dl' });
+      toast.success(t('technician.edge_setup.pkg_downloaded', 'Core package downloaded successfully!'), { id: 'pkg-dl' });
     } catch (err) {
-      toast.error(err?.message || 'Failed to download package.', { id: 'pkg-dl' });
+      toast.error(err?.message || t('technician.edge_setup.pkg_failed', 'Failed to download package.'), { id: 'pkg-dl' });
     } finally {
       setIsDownloading(false);
     }
@@ -59,7 +59,7 @@ export const TechEdgeSetupPage = () => {
   const handleVerifyHandshake = useCallback(async (boxIdToTest) => {
     const id = boxIdToTest || targetBoxId;
     if (!id || !id.trim()) {
-      toast.error('Please enter a Box ID or Device Serial.');
+      toast.error(t('technician.edge_setup.enter_box_id', 'Please enter a Box ID or Device Serial.'));
       return;
     }
 
@@ -69,14 +69,14 @@ export const TechEdgeSetupPage = () => {
       setHandshakeData(res);
       setLastCheckTime(new Date().toLocaleTimeString());
       if (res?.isOnline) {
-        toast.success(`Device ${id} is ONLINE & transmitting live telemetry!`);
+        toast.success(t('technician.edge_setup.device_online_toast', 'Device {{id}} is ONLINE & transmitting live telemetry!', { id }));
       } else if (res?.isRegistered) {
-        toast.success(`Device ${id} is registered in backend.`);
+        toast.success(t('technician.edge_setup.device_registered_toast', 'Device {{id}} is registered in backend.', { id }));
       } else {
-        toast.error(`Device ${id} is not registered yet. Run the 1-command installer.`);
+        toast.error(t('technician.edge_setup.device_not_registered_toast', 'Device {{id}} is not registered yet. Run the 1-command installer.', { id }));
       }
     } catch (err) {
-      toast.error(err?.message || 'Handshake check failed.');
+      toast.error(err?.message || t('technician.edge_setup.handshake_failed', 'Handshake check failed.'));
     } finally {
       setIsVerifying(false);
     }
@@ -90,18 +90,18 @@ export const TechEdgeSetupPage = () => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Copy to clipboard helper
-  const copyCommand = async (cmd, label = 'Command') => {
+  const copyCommand = async (cmd, label = t('technician.edge_setup.label_command', 'Command')) => {
     try {
       const ok = await copyToClipboard(cmd);
       if (!ok) {
-        toast.error(`Failed to copy ${label}`);
+        toast.error(t('technician.edge_setup.copy_failed', 'Failed to copy {{label}}', { label }));
         return;
       }
     } catch {
-      toast.error(`Failed to copy ${label}`);
+      toast.error(t('technician.edge_setup.copy_failed', 'Failed to copy {{label}}', { label }));
       return;
     }
-    toast.success(`${label} copied to clipboard!`);
+    toast.success(t('technician.edge_setup.copied_label', '{{label}} copied to clipboard!', { label }));
   };
 
   return (
@@ -176,7 +176,7 @@ export const TechEdgeSetupPage = () => {
               deploy_edge.bat
             </div>
             <button
-              onClick={() => copyCommand('deploy_edge.bat', 'Install command')}
+              onClick={() => copyCommand('deploy_edge.bat', t('technician.edge_setup.label_install_command', 'Install command'))}
               className="shrink-0 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 shadow-md shadow-indigo-500/25 transition-all active:scale-[0.98]"
             >
               <FleetIcons.Copy className="w-4 h-4 text-white" />
@@ -343,8 +343,8 @@ export const TechEdgeSetupPage = () => {
             </div>
             <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
               {handshakeData?.gps?.locked
-                ? `Speed: ${handshakeData.gps.speed ?? 0} km/h • Lock Verified`
-                : 'No valid GPS position received'}
+                ? t('technician.edge_setup.gps_speed_lock', 'Speed: {{speed}} km/h • Lock Verified', { speed: handshakeData.gps.speed ?? 0 })
+                : t('technician.edge_setup.no_valid_gps', 'No valid GPS position received')}
             </p>
           </div>
 
@@ -384,7 +384,7 @@ export const TechEdgeSetupPage = () => {
                   : t('technician.edge_setup.ready_prov', 'Ready for Provisioning')}
               </h4>
               <p className="text-[11px] sm:text-xs opacity-80 mt-0.5">
-                {handshakeData?.message || 'Run the deploy_edge.bat command to start broadcasting live telemetry.'}
+                {handshakeData?.message || t('technician.edge_setup.run_deploy_hint', 'Run the deploy_edge.bat command to start broadcasting live telemetry.')}
               </p>
             </div>
           </div>
@@ -414,12 +414,12 @@ export const TechEdgeSetupPage = () => {
 
         <div className="space-y-2.5 mt-4">
           {[
-            { label: 'Check Connected USB Devices', cmd: 'adb devices' },
-            { label: 'Read Hardware Serial Number', cmd: 'adb shell getprop ro.serialno' },
-            { label: 'Stream Live CORE Log', cmd: 'adb shell "tail -f /data/vmovexa-core/core.log"' },
-            { label: 'Manual CORE Recovery', cmd: 'adb shell "/data/vmovexa-core/run.sh"' },
-            { label: 'Open Fully Kiosk Player Now', cmd: 'adb shell "am start --user 0 -n de.ozerov.fully/.MainActivity -a android.intent.action.VIEW -d http://127.0.0.1:8888"' },
-            { label: 'Reboot Edge Box', cmd: 'adb reboot' },
+            { label: t('technician.edge_setup.adb_usb', 'Check Connected USB Devices'), cmd: 'adb devices' },
+            { label: t('technician.edge_setup.adb_serial', 'Read Hardware Serial Number'), cmd: 'adb shell getprop ro.serialno' },
+            { label: t('technician.edge_setup.adb_log', 'Stream Live CORE Log'), cmd: 'adb shell "tail -f /data/vmovexa-core/core.log"' },
+            { label: t('technician.edge_setup.adb_recover', 'Manual CORE Recovery'), cmd: 'adb shell "/data/vmovexa-core/run.sh"' },
+            { label: t('technician.edge_setup.adb_kiosk', 'Open Fully Kiosk Player Now'), cmd: 'adb shell "am start --user 0 -n de.ozerov.fully/.MainActivity -a android.intent.action.VIEW -d http://127.0.0.1:8888"' },
+            { label: t('technician.edge_setup.adb_reboot', 'Reboot Edge Box'), cmd: 'adb reboot' },
           ].map((item, idx) => (
             <div key={idx} className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800 space-y-1.5">
               <div className="flex items-center justify-between">

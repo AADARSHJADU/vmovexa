@@ -1,3 +1,4 @@
+import { translateCampaignLabel } from '../../utils/campaignTranslations';
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -74,9 +75,9 @@ export const CampaignsListPage = () => {
     setRefreshing(true);
     try {
       await loadCampaigns({ ownerType: 'advertiser' });
-      toast.success('Campaigns list refreshed');
+      toast.success(t("campaign_extra.campaigns_list_refreshed", "Campaigns list refreshed"));
     } catch (err) {
-      toast.error(err?.message || 'Failed to refresh campaigns');
+      toast.error(err?.message || t("campaign_extra.failed_to_refresh_campaigns", "Failed to refresh campaigns"));
     } finally {
       setRefreshing(false);
     }
@@ -91,34 +92,34 @@ export const CampaignsListPage = () => {
       const res = await startCampaign(campId);
       const count = res?.mqttDispatched ?? res?.dataValues?.mqttDispatched;
       if (typeof count === 'number') {
-        toast.success(`Campaign started! Dispatched to ${count} device(s) via MQTT`);
+        toast.success(t("campaign_extra.campaign_started_dispatched_to_v0_device_s_via_mqtt", "Campaign started! Dispatched to {{v0}} device(s) via MQTT", { v0: count }));
       } else {
-        toast.success('Campaign started! Ad is live on screens');
+        toast.success(t("campaign_extra.campaign_started_ad_is_live_on_screens", "Campaign started! Ad is live on screens"));
       }
       await loadCampaigns({ ownerType: 'advertiser' }).catch(() => {});
     } catch (e) {
-      toast.error(e?.message || 'Failed to start campaign');
+      toast.error(e?.message || t("campaign_extra.failed_to_start_campaign", "Failed to start campaign"));
     }
   };
 
   const handlePause = async (campId) => {
     try {
       await toast.promise(stopCampaign(campId), {
-        loading: 'Pausing broadcast...',
-        success: 'Campaign paused',
-        error: (e) => e?.message || 'Failed to pause campaign',
+        loading: t("campaign_extra.pausing_broadcast", "Pausing broadcast..."),
+        success: t("campaign_extra.campaign_paused", "Campaign paused"),
+        error: (e) => e?.message || t("campaign_extra.failed_to_pause_campaign", "Failed to pause campaign"),
       });
       await loadCampaigns({ ownerType: 'advertiser' }).catch(() => {});
     } catch (_) {}
   };
 
   const handleEnd = async (campId) => {
-    if (!window.confirm('Are you sure you want to end this campaign? Broadcast will be permanently stopped.')) return;
+    if (!window.confirm(t("campaign_extra.are_you_sure_you_want_to_end_this_campaign_broadcast_will_be_permanently_stopped", "Are you sure you want to end this campaign? Broadcast will be permanently stopped."))) return;
     try {
       await toast.promise(endCampaign(campId), {
-        loading: 'Ending campaign broadcast...',
-        success: 'Campaign ended',
-        error: (e) => e?.message || 'Failed to end campaign',
+        loading: t("campaign_extra.ending_campaign_broadcast", "Ending campaign broadcast..."),
+        success: t("campaign_extra.campaign_ended", "Campaign ended"),
+        error: (e) => e?.message || t("campaign_extra.failed_to_end_campaign", "Failed to end campaign"),
       });
       await loadCampaigns({ ownerType: 'advertiser' }).catch(() => {});
     } catch (_) {}
@@ -251,9 +252,9 @@ export const CampaignsListPage = () => {
     setVerifyingId(campId);
     try {
       await toast.promise(verifyCampaign(campId), {
-        loading: 'Verifying campaign & issuing checkout token...',
-        success: 'Campaign approved! Payment link queued in cron job for customer delivery.',
-        error: (e) => e?.message || 'Verification failed',
+        loading: t("campaign_extra.verifying_campaign_issuing_checkout_token", "Verifying campaign & issuing checkout token..."),
+        success: t("campaign_extra.campaign_approved_payment_link_queued_in_cron_job_for_customer_delivery", "Campaign approved! Payment link queued in cron job for customer delivery."),
+        error: (e) => e?.message || t("campaign_extra.verification_failed", "Verification failed"),
       });
       await loadCampaigns().catch(() => {});
     } catch (_) {
@@ -263,12 +264,12 @@ export const CampaignsListPage = () => {
   };
 
   const handleDelete = async (campaign) => {
-    if (!window.confirm(`Are you sure you want to delete campaign "${campaign.name}"? This action cannot be undone.`)) return;
+    if (!window.confirm(t("campaign_extra.are_you_sure_you_want_to_delete_campaign_v0_this_action_cannot_be_undone", "Are you sure you want to delete campaign \"{{v0}}\"? This action cannot be undone.", { v0: campaign.name }))) return;
     try {
       await toast.promise(deleteCampaign(campaign.dbId || campaign.id), {
-        loading: 'Deleting campaign...',
-        success: 'Campaign deleted successfully',
-        error: (e) => e?.message || 'Failed to delete campaign',
+        loading: t("campaign_extra.deleting_campaign", "Deleting campaign..."),
+        success: t("campaign_extra.campaign_deleted_successfully", "Campaign deleted successfully"),
+        error: (e) => e?.message || t("campaign_extra.failed_to_delete_campaign", "Failed to delete campaign"),
       });
       await loadCampaigns().catch(() => {});
     } catch (_) {}
@@ -370,7 +371,7 @@ export const CampaignsListPage = () => {
                 : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200'
             }`}
           >
-            {tab}
+            {translateCampaignLabel(t, tab)}
             <span className={`ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full transition-colors ${
               activeTab === tab
                 ? 'bg-slate-100 dark:bg-zinc-700 text-slate-900 dark:text-zinc-200'
@@ -405,7 +406,7 @@ export const CampaignsListPage = () => {
 
                     <div className="flex items-center gap-2">
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-2xs ${statusColors[campaign.status] || 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400'}`}>
-                        {campaign.status}
+                        {translateCampaignLabel(t, campaign.status)}
                       </span>
 
                       {/* 3-DOTS CONTEXT MENU BUTTON */}
@@ -632,7 +633,7 @@ export const CampaignsListPage = () => {
                       </span>
                     )}
                     <span className="px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-[10px] font-bold border border-indigo-100 dark:border-indigo-900/60">
-                      {t('campaigns_list.payment_prefix', 'Payment:')} {campaign.paymentStatus}
+                      {t('campaigns_list.payment_prefix', 'Payment:')} {translateCampaignLabel(t, campaign.paymentStatus)}
                     </span>
                     {(campaign.paymentMode === 'offline' || campaign.raw?.payment?.payment_mode === 'offline') && (
                       <span className="px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 text-[10px] font-bold border border-amber-200 dark:border-amber-800">
@@ -676,7 +677,7 @@ export const CampaignsListPage = () => {
                   <div className="flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                     <span className="text-[11px] text-slate-600 dark:text-zinc-400 font-medium">
-                      {campaign.cities} {campaign.cities === 1 ? 'City' : 'Cities'}
+                      {campaign.cities} {campaign.cities === 1 ? t("ag.superadmin.assignedworkorderspage.city", "City") : t("ag.advertiser.campaignslistpage.cities", "Cities")}
                       {campaign.fleetOperators?.[0] ? ` · ${campaign.fleetOperators[0]}` : ''}
                     </span>
                   </div>
@@ -748,7 +749,7 @@ export const CampaignsListPage = () => {
                     <td className="py-4 px-4 whitespace-nowrap">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider inline-block ${statusColors[campaign.status] || 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400'}`}>
-                          {campaign.status}
+                          {translateCampaignLabel(t, campaign.status)}
                         </span>
                         {(campaign.paymentMode === 'offline' || campaign.raw?.payment?.payment_mode === 'offline') && (
                           <span className="px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 text-[9px] font-bold border border-amber-200 dark:border-amber-800">

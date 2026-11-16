@@ -15,7 +15,7 @@ export const DriverTripsPage = () => {
 
   // Role fallback: authenticated drivers should not be blocked by delayed permission hydration
   const isDriverRole = (user?.role?.code || user?.role || '').toLowerCase().includes('driver') || (user?.role?.code || '').includes('ROLE-DRIVER');
-  const canView = hasPermission('drivers.portal.view') || isDriverRole;
+  const canView = hasPermission('driver.trips.view');
 
   const {
     trips = [],

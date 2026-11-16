@@ -6,6 +6,7 @@ import {
   deleteUserThunk,
   fetchUserPermissionsThunk,
   updateUserPermissionsThunk,
+  resetUserPermissionsThunk,
 } from '../../thunks/admin/user.thunks.js';
 
 export {
@@ -15,6 +16,7 @@ export {
   deleteUserThunk,
   fetchUserPermissionsThunk,
   updateUserPermissionsThunk,
+  resetUserPermissionsThunk,
 };
 
 const initialState = {

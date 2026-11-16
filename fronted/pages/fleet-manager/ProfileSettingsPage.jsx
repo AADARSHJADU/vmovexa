@@ -12,11 +12,11 @@ import { resolveFileUrl } from '../../api/services/upload.service';
 export const ProfileSettingsPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user, logout, hasPermission } = useAuth();
+  const { user, logout, can } = useAuth();
   const { vehicles, loadVehicles, pagination: vehiclePagination } = useFleetVehicle();
   const { drivers, loadDrivers } = useFleetDriver();
-  const canViewVehicles = hasPermission('fleet.vehicles.view');
-  const canViewDrivers = hasPermission('fleet.drivers.view');
+  const canViewVehicles = can('vehicles.view');
+  const canViewDrivers = can('drivers.view');
 
   useEffect(() => {
     if (canViewVehicles) loadVehicles({ page: 1, limit: 1 }).catch(() => {});

@@ -13,7 +13,7 @@ export const RouteDetailsPage = () => {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { hasPermission } = useAuth();
+  const { can } = useAuth();
   const { t } = useTranslation();
 
   const {
@@ -37,11 +37,11 @@ export const RouteDetailsPage = () => {
   const basePath = isFleetPortal ? '/fleet-operator/routes' : '/admin/routes';
 
   // Permissions
-  const canUpdate = hasPermission('fleet.routes.update');
-  const canDelete = hasPermission('fleet.routes.delete');
-  const canApprove = hasPermission('fleet.routes.approve');
-  const canViewVehicles = hasPermission('fleet.vehicles.view');
-  const canAssign = hasPermission('fleet.routes.assign') && canViewVehicles;
+  const canUpdate = can('routes.update');
+  const canDelete = can('routes.delete');
+  const canApprove = can('routes.approve');
+  const canViewVehicles = can('vehicles.view');
+  const canAssign = can('routes.assign') && canViewVehicles;
 
   const [activeTab, setActiveTab] = useState('map'); // 'map' | 'stops' | 'vehicles'
   const [rejectReason, setRejectReason] = useState('');

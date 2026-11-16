@@ -21,8 +21,8 @@ const formatDepotName = (depotVal) => {
 export const AdminUserManagementPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user, hasPermission } = useAuth();
-  const canDeleteUser = hasPermission('users.delete');
+  const { user, can } = useAuth();
+  const canDeleteUser = can('users.delete');
   const {
     users,
     pagination,
@@ -32,8 +32,9 @@ export const AdminUserManagementPage = () => {
     deleteUser,
     getUserPermissions,
     updateUserPermissions,
+    resetUserPermissions,
   } = useAdminUser();
-  const { roles, loadRoles } = useAdminRole();
+  const { roles, loadRoles, loadRegistry } = useAdminRole();
   const { depots, loadDepots } = useAdminDepot();
 
   const [permissionUser, setPermissionUser] = useState(null);
@@ -191,14 +192,10 @@ export const AdminUserManagementPage = () => {
         userId={permissionUser.id}
         userName={permissionUser.name}
         userEmail={permissionUser.email}
-        userRole={
-          typeof permissionUser.role === 'object' && permissionUser.role !== null
-            ? permissionUser.role.name || permissionUser.role.code
-            : permissionUser.role || permissionUser.roleId
-        }
         fetchPermissionsFn={getUserPermissions}
         updatePermissionsFn={updateUserPermissions}
-        isTenantAdmin={true}
+        resetPermissionsFn={resetUserPermissions}
+        loadRegistryFn={loadRegistry}
         onBack={() => setPermissionUser(null)}
       />
     );
@@ -411,6 +408,7 @@ export const AdminUserManagementPage = () => {
                           <ActionDropdown buttonTitle={`${t('ag.admin.adminusermanagementpage.actions_for', 'Actions for') + ' '}${u.name}`}>
                             {({ close }) => (
                               <>
+                                {can('users.permissions') && ['ROLE-FLEET-OPERATOR', 'ROLE-DRIVER'].includes(u.role?.code) && (
                                 <button
                                   type="button"
                                   onClick={() => {
@@ -422,6 +420,7 @@ export const AdminUserManagementPage = () => {
                                   <FleetIcons.Settings className="w-3.5 h-3.5 text-blue-600" />
                                   <span>{t('admin.users.permissions')}</span>
                                 </button>
+                                )}
                                 <button
                                   type="button"
                                   onClick={() => {

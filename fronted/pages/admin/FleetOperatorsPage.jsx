@@ -35,11 +35,11 @@ export const FleetOperatorsPage = () => {
     deleteFleetOperator,
   } = useAdminFleetOperator();
 
-  const { hasPermission } = useAuth();
-  const canView = !isFleetPortal || hasPermission('fleet.fleets.view');
-  const canCreate = !isFleetPortal || hasPermission('fleet.fleets.create');
-  const canUpdate = !isFleetPortal || hasPermission('fleet.fleets.update');
-  const canDelete = !isFleetPortal || hasPermission('fleet.fleets.delete');
+  const { can } = useAuth();
+  const canView = can('fleets.view');
+  const canCreate = can('fleets.create');
+  const canUpdate = can('fleets.update');
+  const canDelete = can('fleets.delete');
 
   const { kpis, loadKpis } = useAdminDashboard();
 

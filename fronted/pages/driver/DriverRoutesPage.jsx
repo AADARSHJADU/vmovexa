@@ -15,8 +15,7 @@ export const DriverRoutesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedSlotId = searchParams.get('slotId');
 
-  const isDriverRole = (user?.role?.code || user?.role || '').toLowerCase().includes('driver');
-  const canManageDuty = hasPermission('drivers.duty.manage') || isDriverRole;
+  const canManageDuty = hasPermission('driver.duty.manage');
 
   const {
     activeRoute,
@@ -77,6 +76,8 @@ export const DriverRoutesPage = () => {
   // Dynamic Query 1: Active corridor & driver profile
   useEffect(() => {
     let isMounted = true;
+    // Reset the loading indicator when the requested slot changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     Promise.allSettled([
       loadActiveRoute(requestedSlotId ? { slotId: requestedSlotId } : {}),
@@ -91,7 +92,6 @@ export const DriverRoutesPage = () => {
 
   // Dynamic Query 2: Completed trips only when on completed tab (sab ek saath get na ho)
   useEffect(() => {
-    let isMounted = true;
     if (activeTab === 'completed') {
       loadTrips({
         page: currentPage,
@@ -100,9 +100,6 @@ export const DriverRoutesPage = () => {
         status: 'completed',
       });
     }
-    return () => {
-      isMounted = false;
-    };
   }, [activeTab, currentPage, pageSize, debouncedSearch, loadTrips]);
 
   // Check if driver documents and KYC are officially verified
@@ -139,7 +136,7 @@ export const DriverRoutesPage = () => {
   const route = currentRoute?.route || activeRoute?.assignedRoute || {};
   const depot = currentRoute?.depot || activeRoute?.depot || vehicle?.depot || {};
   const fleet = currentRoute?.fleet || activeRoute?.fleet || vehicle?.fleet || {};
-  const stops = currentRoute?.stops ?? [];
+  const stops = (currentRoute?.stops ?? []).filter((stop) => stop?.name?.trim());
 
   const slot = selectedSlot || currentRoute?.slot || activeRoute?.slot || null;
 
@@ -165,7 +162,7 @@ export const DriverRoutesPage = () => {
     }
     return {
       bg: 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800/60',
-      label: t('ag.driver.driverroutespage.regular_day', 'Regular Day'),
+      label: type === 'regular_day' ? t('ag.driver.driverroutespage.regular_day', 'Regular Day') : (shiftType || ''),
     };
   };
 
@@ -181,8 +178,7 @@ export const DriverRoutesPage = () => {
   const isTripInProgress =
     rawStatus === 'in_progress' ||
     rawStatus === 'in transit' ||
-    slot?.isInProgress ||
-    (!isTripCompleted && profile?.status === 'on_duty');
+    slot?.isInProgress;
 
   // Handle slot selection switcher
   const handleSelectSlot = (slotItem) => {
@@ -202,7 +198,7 @@ export const DriverRoutesPage = () => {
       const rawSlotId = slot?.id || currentRoute?.slotId;
       const activeSlotId = Number.isInteger(Number(rawSlotId)) ? Number(rawSlotId) : undefined;
       await toast.promise(startTrip({ slotId: activeSlotId, ...options }), {
-        loading: 'Starting route trip & activating telemetry...',
+        loading: 'Starting route trip...',
         success: 'Trip started! You are now live on route.',
         error: (err) => err?.message || 'Failed to start trip',
       });
@@ -240,7 +236,7 @@ export const DriverRoutesPage = () => {
           slotId: activeSlotId,
         }),
         {
-          loading: 'Completing voyage & logging final telemetry...',
+          loading: 'Completing trip...',
           success: 'Trip completed successfully and archived to your log!',
           error: (err) => err?.message || 'Failed to complete trip',
         }
@@ -354,7 +350,7 @@ export const DriverRoutesPage = () => {
               : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800'
           }`}
         >
-          <FleetIcons.Speed className="w-4 h-4" />
+
           <span>{t('driver.routes.active_cockpit', 'Active Corridor Cockpit')}</span>
           {isTripInProgress && (
             <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
@@ -433,6 +429,7 @@ export const DriverRoutesPage = () => {
                     <button
                       key={s.id || index}
                       type="button"
+                      aria-pressed={isSelected}
                       onClick={() => handleSelectSlot(s)}
                       className={`text-left p-3.5 rounded-xl border transition-all cursor-pointer relative active:scale-[0.99] ${
                         isSelected
@@ -442,9 +439,9 @@ export const DriverRoutesPage = () => {
                     >
                       {/* Top Row: Shift Type + Status Badge */}
                       <div className="flex items-center justify-between gap-2 mb-2">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${sShiftBadge.bg}`}>
+                        {(s.shift_type_label || sShiftBadge.label) && <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${sShiftBadge.bg}`}>
                           {s.shift_type_label || sShiftBadge.label}
-                        </span>
+                        </span>}
 
                         {s.isInProgress ? (
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500 text-white flex items-center gap-1 shadow-sm">
@@ -466,7 +463,7 @@ export const DriverRoutesPage = () => {
                       {/* Middle: Route & Bus Details */}
                       <div className="space-y-1">
                         <div className="text-xs font-black text-slate-900 dark:text-white truncate">
-                          {s.route_name || `${s.start_point || 'Depot'} ➔ ${s.end_point || 'Terminus'}`}
+                          {s.route_name || `${s.start_point || '—'} ➔ ${s.end_point || '—'}`}
                         </div>
                         <div className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium flex items-center gap-2">
                           <span className="font-mono font-bold text-slate-700 dark:text-zinc-300">{s.bus_number}</span>
@@ -480,17 +477,9 @@ export const DriverRoutesPage = () => {
                         <span className="text-slate-500 dark:text-zinc-400 font-medium">
                           {s.isCompleted && s.duration && s.duration !== '—'
                             ? `Duration: ${s.duration}`
-                            : `${s.distance_km || '—'} km Corridor`}
+                            : s.distance_km != null ? `${s.distance_km} km` : '—'}
                         </span>
-                        <span
-                          className={`font-bold flex items-center gap-1 ${
-                            isSelected
-                              ? 'text-transparent bg-clip-text bg-gradient-to-r from-[#1C68FD] to-[#DA29F4] font-black'
-                              : 'text-slate-400 dark:text-zinc-500'
-                          }`}
-                        >
-                          {isSelected ? t('ag.driver.driverroutespage.active_in_cockpit', '● Active in Cockpit') : t('ag.driver.driverroutespage.select_shift', 'Select Shift →')}
-                        </span>
+
                       </div>
                     </button>
                   );
@@ -526,9 +515,6 @@ export const DriverRoutesPage = () => {
               {/* Cockpit Header */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3.5">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#1C68FD] to-[#DA29F4] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#1C68FD]/30">
-                    <FleetIcons.Bus className="w-6 h-6 text-white" />
-                  </div>
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-mono font-black text-slate-900 dark:text-white text-base">
@@ -539,7 +525,6 @@ export const DriverRoutesPage = () => {
                       </span>
                       {slot?.slot_code && (
                         <span className="font-mono font-bold text-xs px-2.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 flex items-center gap-1">
-                          <FleetIcons.Clock className="w-3 h-3" />
                           <span>{t('ag.driver.driverroutespage.slot', 'Slot:')} {slot.slot_code}</span>
                         </span>
                       )}
@@ -548,15 +533,15 @@ export const DriverRoutesPage = () => {
                       {currentRoute?.routeName ||
                         slot?.route_name ||
                         route?.name ||
-                        `${currentRoute?.origin || 'Depot'} ➔ ${currentRoute?.destination || 'Terminus'}`}
+                        `${currentRoute?.origin || '—'} ➔ ${currentRoute?.destination || '—'}`}
                     </h2>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
-                  <span className={`text-xs font-bold px-3 py-1 rounded-full border shadow-sm ${shiftBadge.bg}`}>
+                  {(slot?.shift_type_label || shiftBadge.label) && <span className={`text-xs font-bold px-3 py-1 rounded-full border shadow-sm ${shiftBadge.bg}`}>
                     {slot?.shift_type_label || shiftBadge.label}
-                  </span>
+                  </span>}
 
                   {isTripInProgress ? (
                     <span className="text-xs font-bold px-3 py-1 rounded-full border bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5 shadow-sm">
@@ -570,30 +555,29 @@ export const DriverRoutesPage = () => {
                     </span>
                   ) : (
                     <span className="text-xs font-bold px-3 py-1 rounded-full border bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 flex items-center gap-1.5 shadow-sm">
-                      <span className="w-2 h-2 rounded-full bg-blue-500" />
-                      <span>{t('driver.routes.ready_scheduled', 'Scheduled / Ready')}</span>
+                      <span>{t('ag.driver.driverroutespage.scheduled', 'Scheduled')}</span>
                     </span>
                   )}
                 </div>
               </div>
 
-              {/* Quick Telemetry Bar */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-slate-50 dark:bg-zinc-800/40 rounded-xl border border-slate-100 dark:border-zinc-800 text-xs text-center">
+              {/* Recorded trip times and scheduled route data */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-slate-50 dark:bg-zinc-800/40 rounded-xl border border-slate-100 dark:border-zinc-800 text-xs text-center">
                 <div>
                   <span className="text-slate-400 dark:text-zinc-500 text-[10px] uppercase tracking-wider font-bold block">
                     {isTripCompleted ? t('ag.driver.driverroutespage.trip_started_at', 'Trip Started At') : isTripInProgress ? t('ag.driver.driverroutespage.departure_live', 'Departure (Live)') : t('ag.driver.driverroutespage.slot_departure', 'Slot Departure')}
                   </span>
                   <div className="text-xs sm:text-sm font-black text-slate-900 dark:text-white mt-0.5 font-mono">
-                    {currentRoute?.started_at_formatted || slot?.formatted_start_time || '—'}
+                    {(isTripCompleted || isTripInProgress ? currentRoute?.started_at_formatted : slot?.formatted_start_time) || '—'}
                   </div>
                   <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium block mt-0.5">
                     {isTripCompleted ? t('ag.driver.driverroutespage.logged_in_dispatch', 'Logged In Dispatch') : isTripInProgress ? t('ag.driver.driverroutespage.live_in_transit', 'Live In Transit') : t('ag.driver.driverroutespage.window_start', 'Window Start')}
                   </span>
                 </div>
 
-                <div className="border-l border-slate-200 dark:border-zinc-700">
+                <div className="sm:border-l border-slate-200 dark:border-zinc-700">
                   <span className="text-slate-400 dark:text-zinc-500 text-[10px] uppercase tracking-wider font-bold block">
-                    {isTripCompleted ? t('ag.driver.driverroutespage.trip_ended_at', 'Trip Ended At') : t('ag.driver.driverroutespage.arrival_slot_eta', 'Arrival (Slot ETA)')}
+                    {isTripCompleted ? t('ag.driver.driverroutespage.trip_ended_at', 'Trip Ended At') : t('driver.routes.slot_end_time', 'Slot End Time')}
                   </span>
                   <div
                     className={`text-xs sm:text-sm font-black mt-0.5 font-mono ${
@@ -613,7 +597,7 @@ export const DriverRoutesPage = () => {
                   </span>
                 </div>
 
-                <div className="border-l border-slate-200 dark:border-zinc-700">
+                <div className="sm:border-l border-slate-200 dark:border-zinc-700">
                   <span className="text-slate-400 dark:text-zinc-500 text-[10px] uppercase tracking-wider font-bold block">
                     {t('ag.driver.driverroutespage.corridor_distance', 'Corridor Distance')}
                   </span>
@@ -623,31 +607,6 @@ export const DriverRoutesPage = () => {
                         ? `${slot?.distance_km || route?.distance_km} km`
                         : '—')}
                   </div>
-                  <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium block mt-0.5">
-                    {isTripCompleted ? t('ag.driver.driverroutespage.covered_100_complete', 'Covered: 100% Complete') : slot?.frequency || 'Standard Corridor'}
-                  </span>
-                </div>
-
-                <div className="border-l border-slate-200 dark:border-zinc-700">
-                  <span className="text-slate-400 dark:text-zinc-500 text-[10px] uppercase tracking-wider font-bold block">
-                    {t('ag.driver.driverroutespage.progress_status', 'Progress / Status')}
-                  </span>
-                  <div className="text-xs sm:text-sm font-black text-slate-900 dark:text-white mt-0.5 font-mono">
-                    {isTripCompleted
-                      ? t('ag.driver.driverroutespage.100_completed', '100% (Completed)')
-                      : isTripInProgress
-                      ? `${currentRoute?.progress_percent != null ? `${currentRoute.progress_percent}%` : "0%"}`
-                      : t('ag.driver.driverroutespage.0_ready', '0% (Ready)')}
-                  </div>
-                  <span
-                    className={`text-[10px] font-medium block mt-0.5 ${
-                      isTripCompleted
-                        ? 'text-emerald-600 dark:text-emerald-400 font-bold'
-                        : 'text-amber-600 dark:text-amber-400'
-                    }`}
-                  >
-                    {isTripCompleted ? t('ag.driver.driverroutespage.shift_run_finished', 'Shift Run Finished') : isTripInProgress ? t('ag.driver.driverroutespage.telemetry_active', 'Telemetry Active') : t('ag.driver.driverroutespage.ready_to_dispatch', 'Ready to Dispatch')}
-                  </span>
                 </div>
               </div>
 
@@ -668,7 +627,7 @@ export const DriverRoutesPage = () => {
                             </span>
                           </h4>
                           <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium mt-0.5">
-                            {t('ag.driver.driverroutespage.voyage_has_arrived_at_destination_and_is_rec', 'Voyage has arrived at destination and is recorded in your dispatch history.')}
+                            {t('driver.routes.trip_recorded_complete', 'This trip is marked completed in your trip history.')}
                           </p>
                         </div>
                       </div>
@@ -690,10 +649,10 @@ export const DriverRoutesPage = () => {
                           onClick={() => handleStartTrip({ forceNew: true })}
                           className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#1C68FD] to-[#DA29F4] hover:opacity-95 text-white text-xs font-bold transition-all shadow-md shadow-[#1C68FD]/25 hover:shadow-[#DA29F4]/35 flex items-center gap-1.5 cursor-pointer disabled:opacity-50 active:scale-[0.98]"
                         >
-                          <FleetIcons.Speed className="w-3.5 h-3.5 text-white" />
+
                           <span>
                             {t('driver.routes.start_additional_run', 'Start Additional Run')}{' '}
-                            <FleetIcons.Plus className="w-3.5 h-3.5 text-white inline-block ml-1" />
+
                           </span>
                         </button>
                       </div>
@@ -738,11 +697,8 @@ export const DriverRoutesPage = () => {
                           {t('driver.routes.covered_distance', 'Distance')}
                         </span>
                         <div className="font-bold text-slate-800 dark:text-zinc-200 font-mono mt-0.5">
-                          {currentRoute?.covered_km || (slot?.distance_km ? `${slot.distance_km} km` : '—')}
+                          {currentRoute?.covered_km != null ? `${currentRoute.covered_km} km` : '—'}
                         </div>
-                        <span className="text-[10px] text-emerald-600 font-medium block">
-                          {t('driver.routes.corridor_complete', 'Corridor Complete')}
-                        </span>
                       </div>
                     </div>
                   </div>
@@ -752,9 +708,6 @@ export const DriverRoutesPage = () => {
                       <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                       <div>
                         <div className="font-bold">{t('driver.routes.trip_in_progress', 'Live Voyage In Progress')}</div>
-                        <div className="text-[11px] text-emerald-600 dark:text-emerald-400">
-                          {t('driver.routes.gps_broadcasting', 'Telemetry & GPS actively broadcasting')}
-                        </div>
                       </div>
                     </div>
 
@@ -795,12 +748,12 @@ export const DriverRoutesPage = () => {
                     {actionLoading ? (
                       <>
                         <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                        <span>{t('driver.routes.starting_trip', 'Starting Trip & Activating Telemetry...')}</span>
+                        <span>{t('driver.routes.starting_recorded_trip', 'Starting Trip...')}</span>
                       </>
                     ) : (
                       <>
-                        <FleetIcons.Speed className="w-5 h-5 text-white" />
-                        <span>{t('driver.routes.start_trip_btn', 'Start Trip & Activate Live Telemetry')}</span>
+
+                        <span>{t('driver.routes.start_recorded_trip', 'Start Trip')}</span>
                       </>
                     )}
                   </button>
@@ -824,10 +777,6 @@ export const DriverRoutesPage = () => {
                       {stops.length} {t('ag.driver.driverroutespage.designated_stations_along_the_active_transit', 'designated stations along the active transit line')}
                     </p>
                   </div>
-                  <span className="text-xs font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#1C68FD] to-[#DA29F4] flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-[#1C68FD] animate-pulse" />
-                    <span>{t('driver.routes.waypoint_telematics', 'Active Telematics')}</span>
-                  </span>
                 </div>
 
                 {stops.length === 0 ? (
@@ -845,24 +794,16 @@ export const DriverRoutesPage = () => {
                               ? 'bg-gradient-to-r from-[#1C68FD] to-[#DA29F4] border-transparent text-white ring-2 ring-[#1C68FD]/30'
                               : stop.type === 'end'
                               ? 'bg-rose-600 border-rose-600 text-white'
-                              : isTripCompleted
-                              ? 'bg-emerald-500 border-emerald-500 text-white'
-                              : isTripInProgress && idx === 0
-                              ? 'bg-emerald-500 border-emerald-500 text-white'
                               : 'bg-white dark:bg-zinc-900 border-slate-300 dark:border-zinc-700 text-slate-400 dark:text-zinc-500'
                           }`}
                         >
-                          {isTripCompleted || (isTripInProgress && idx === 0) ? (
-                            <FleetIcons.Check className="w-3.5 h-3.5 text-white" />
-                          ) : (
-                            idx + 1
-                          )}
+                          {idx + 1}
                         </div>
 
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-xs font-bold text-slate-900 dark:text-white">
-                              {stop.name ?? 'Transit Station'}
+                              {stop.name ?? '—'}
                             </span>
                             {stop.type === 'start' && (
                               <span className="text-[10px] font-bold px-1.5 py-0.2 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800 rounded">
@@ -875,9 +816,9 @@ export const DriverRoutesPage = () => {
                               </span>
                             )}
                           </div>
-                          <div className="text-[11px] text-slate-400 dark:text-zinc-500 font-medium mt-0.5">
-                            {t('ag.driver.driverroutespage.eta', 'ETA:')} {stop.eta || 'On Schedule'}
-                          </div>
+                          {stop.eta && <div className="text-[11px] text-slate-400 dark:text-zinc-500 font-medium mt-0.5">
+                            {t('ag.driver.driverroutespage.eta', 'ETA:')} {stop.eta}
+                          </div>}
                         </div>
 
                         <span className="text-xs font-mono font-bold text-slate-600 dark:text-zinc-400 shrink-0">
@@ -918,17 +859,6 @@ export const DriverRoutesPage = () => {
                       <span className="text-slate-400 dark:text-zinc-500">{t('driver.routes.vehicle_model', 'Model')}</span>
                       <span className="font-bold text-slate-800 dark:text-zinc-200">
                         {vehicle?.model || slot?.vehicle_model || '—'}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-zinc-800/60">
-                      <span className="text-slate-400 dark:text-zinc-500">{t('driver.routes.power_battery', 'Battery / Fuel')}</span>
-                      <span className="font-bold text-emerald-600 dark:text-emerald-400">
-                        {vehicle?.battery_level != null
-                          ? `EV Battery (${vehicle.battery_level}%)`
-                          : slot?.battery_level != null
-                          ? `EV Battery (${slot.battery_level}%)`
-                          : '—'}
                       </span>
                     </div>
 
@@ -982,10 +912,7 @@ export const DriverRoutesPage = () => {
                           <span className="text-slate-400">{t('driver.routes.hardware_code', 'Unit Code')}</span>
                           <span className="font-mono text-slate-700 dark:text-zinc-300">{vehicle?.code || '—'}</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-400">{t('driver.routes.headway_frequency', 'Headway')}</span>
-                          <span className="font-medium text-slate-700 dark:text-zinc-300">{slot?.frequency || '—'}</span>
-                        </div>
+
                       </div>
                     )}
                   </div>
@@ -1067,7 +994,7 @@ export const DriverRoutesPage = () => {
                     {allTripsList.map((trip) => {
                       const tripCode = trip.code || `TRIP-${String(trip.id).padStart(4, '0')}`;
                       const busNum = trip.vehicle?.bus_number || `Bus #${trip.vehicle_id || '—'}`;
-                      const rName = trip.route?.name || `${trip.origin || 'Depot'} ➔ ${trip.destination || 'Terminus'}`;
+                      const rName = trip.route?.name || `${trip.origin || '—'} ➔ ${trip.destination || '—'}`;
                       const dateStr = trip.started_at
                         ? new Date(trip.started_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
                         : (trip.createdAt ? new Date(trip.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—');
@@ -1079,10 +1006,10 @@ export const DriverRoutesPage = () => {
                         : '—';
                       
                       const durationStr = (() => {
-                        if (!trip.started_at || !trip.ended_at) return 'Quick Run';
+                        if (!trip.started_at || !trip.ended_at) return '—';
                         const s = new Date(trip.started_at).getTime();
                         const e = new Date(trip.ended_at).getTime();
-                        if (isNaN(s) || isNaN(e) || e <= s) return '< 1 min';
+                        if (isNaN(s) || isNaN(e) || e < s) return '—';
                         const diffMins = Math.round((e - s) / (1000 * 60));
                         const h = Math.floor(diffMins / 60);
                         const m = diffMins % 60;
@@ -1112,8 +1039,8 @@ export const DriverRoutesPage = () => {
                             <span className="font-bold text-slate-900 dark:text-white block truncate text-xs" title={rName}>
                               {rName}
                             </span>
-                            <span className="text-[11px] text-slate-400 block truncate mt-0.5" title={`${trip.origin || 'Depot'} ➔ ${trip.destination || 'Terminus'}`}>
-                              {trip.origin || 'Depot'} ➔ {trip.destination || 'Terminus'}
+                            <span className="text-[11px] text-slate-400 block truncate mt-0.5" title={`${trip.origin || '—'} ➔ ${trip.destination || '—'}`}>
+                              {trip.origin || '—'} ➔ {trip.destination || '—'}
                             </span>
                           </td>
                           <td className="py-3.5 px-4 whitespace-nowrap">
@@ -1125,7 +1052,7 @@ export const DriverRoutesPage = () => {
                             </span>
                           </td>
                           <td className="py-3.5 px-4 font-bold text-slate-800 dark:text-zinc-200 text-xs font-mono whitespace-nowrap">
-                            {trip.distance_km || trip.covered_km || '—'}{(trip.distance_km || trip.covered_km) ? t('ag.driver.driverroutespage.km', 'KM') : ''}
+                            {trip.covered_km ?? trip.distance_km ?? '—'}{(trip.covered_km ?? trip.distance_km) != null ? t('ag.driver.driverroutespage.km', 'KM') : ''}
                           </td>
                           <td className="py-3.5 px-4 whitespace-nowrap">
                             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 shadow-sm">
@@ -1209,10 +1136,10 @@ export const DriverRoutesPage = () => {
                       {t('ag.driver.driverroutespage.corridor_route', 'Corridor Route')}
                     </span>
                     <p className="font-black text-slate-900 dark:text-white text-sm">
-                      {selectedTripDetails.route?.name || `${selectedTripDetails.origin || 'Depot'} ➔ ${selectedTripDetails.destination || 'Terminus'}`}
+                      {selectedTripDetails.route?.name || `${selectedTripDetails.origin || '—'} ➔ ${selectedTripDetails.destination || '—'}`}
                     </p>
                     <p className="text-[11px] text-slate-500 dark:text-zinc-400">
-                      {selectedTripDetails.origin || 'Depot'} ➔ {selectedTripDetails.destination || 'Terminus'}
+                      {selectedTripDetails.origin || '—'} ➔ {selectedTripDetails.destination || '—'}
                     </p>
                   </div>
 
@@ -1225,7 +1152,7 @@ export const DriverRoutesPage = () => {
                         <FleetIcons.Bus className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                         <span>{selectedTripDetails.vehicle?.bus_number || `Bus #${selectedTripDetails.vehicle_id || '—'}`}</span>
                       </div>
-                      <p className="text-[10px] text-slate-400">{selectedTripDetails.vehicle?.model || 'Commercial Transit'}</p>
+                      <p className="text-[10px] text-slate-400">{selectedTripDetails.vehicle?.model || '—'}</p>
                     </div>
 
                     <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/40 border border-slate-100 dark:border-zinc-800 space-y-1">
@@ -1233,9 +1160,8 @@ export const DriverRoutesPage = () => {
                         {t('ag.driver.driverroutespage.distance_covered', 'Distance Covered')}
                       </span>
                       <div className="font-black text-slate-900 dark:text-white font-mono">
-                        {selectedTripDetails.distance_km || selectedTripDetails.covered_km || '—'}{(selectedTripDetails.distance_km || selectedTripDetails.covered_km) ? t('ag.driver.driverroutespage.km', 'KM') : ''}
+                        {selectedTripDetails.covered_km ?? selectedTripDetails.distance_km ?? '—'}{(selectedTripDetails.covered_km ?? selectedTripDetails.distance_km) != null ? t('ag.driver.driverroutespage.km', 'KM') : ''}
                       </div>
-                      <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">{t('ag.driver.driverroutespage.logged_in_telematics', 'Logged in Telematics')}</p>
                     </div>
                   </div>
 
@@ -1256,10 +1182,10 @@ export const DriverRoutesPage = () => {
                       <span className="text-slate-400 block text-[10px] uppercase font-bold">{t('ag.driver.driverroutespage.run_time', 'Run Time')}</span>
                       <div className="font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 font-mono">
                         {(() => {
-                          if (!selectedTripDetails.started_at || !selectedTripDetails.ended_at) return 'Quick Run';
+                          if (!selectedTripDetails.started_at || !selectedTripDetails.ended_at) return '—';
                           const s = new Date(selectedTripDetails.started_at).getTime();
                           const e = new Date(selectedTripDetails.ended_at).getTime();
-                          if (isNaN(s) || isNaN(e) || e <= s) return '< 1 min';
+                          if (isNaN(s) || isNaN(e) || e < s) return '—';
                           const diffMins = Math.round((e - s) / (1000 * 60));
                           const h = Math.floor(diffMins / 60);
                           const m = diffMins % 60;

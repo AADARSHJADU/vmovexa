@@ -79,9 +79,9 @@ export const GovEmergencyListPage = () => {
     setRefreshing(true);
     try {
       await fetchList();
-      toast.success('Emergency broadcasts updated!');
+      toast.success(t('gov.emergency.list_updated', 'Emergency broadcasts updated!'));
     } catch {
-      toast.error('Failed to refresh broadcasts.');
+      toast.error(t('gov.emergency.list_refresh_failed', 'Failed to refresh broadcasts.'));
     } finally {
       setRefreshing(false);
     }
@@ -193,15 +193,15 @@ export const GovEmergencyListPage = () => {
 
   // Handle Revoke Broadcast
   const handleRevoke = async (id, code) => {
-    if (!window.confirm(`Are you sure you want to REVOKE emergency broadcast ${code || `#${id}`}? Connected screens will immediately restore normal scheduled loop.`)) {
+    if (!window.confirm(t('gov.emergency.confirm_revoke', 'Are you sure you want to REVOKE emergency broadcast {{code}}? Connected screens will immediately restore normal scheduled loop.', { code: code || `#${id}` }))) {
       return;
     }
     setActionInProgress(true);
     try {
       await toast.promise(revokeBroadcast(id), {
-        loading: 'Revoking emergency override…',
-        success: 'Emergency override revoked! Screens restoring normal loop.',
-        error: (e) => e?.message || 'Failed to revoke broadcast.',
+        loading: t('gov.emergency.revoking_emergency_override', 'Revoking emergency override…'),
+        success: t('gov.emergency.override_revoked_restoring', 'Emergency override revoked! Screens restoring normal loop.'),
+        error: (e) => e?.message || t('gov.emergency.failed_to_revoke', 'Failed to revoke broadcast.'),
       });
       fetchList();
       if (selectedBroadcastForModal?.id === id) {
@@ -219,9 +219,9 @@ export const GovEmergencyListPage = () => {
     setActionInProgress(true);
     try {
       await toast.promise(approveBroadcast(id), {
-        loading: 'Approving & dispatching emergency broadcast override…',
-        success: `Broadcast ${code || `#${id}`} approved and broadcast live to transit screens!`,
-        error: (e) => e?.message || 'Approval failed.',
+        loading: t('gov.emergency.approving_dispatching', 'Approving & dispatching emergency broadcast override…'),
+        success: t('gov.emergency.broadcast_approved_live', 'Broadcast {{code}} approved and broadcast live to transit screens!', { code: code || `#${id}` }),
+        error: (e) => e?.message || t('gov.emergency.approval_failed_dot', 'Approval failed.'),
       });
       fetchList();
       if (selectedBroadcastForModal?.id === id) {
@@ -236,14 +236,14 @@ export const GovEmergencyListPage = () => {
 
   // Handle SuperAdmin Rejection
   const handleReject = async (id, code) => {
-    const reason = window.prompt(`Enter reason for rejecting broadcast ${code || `#${id}`}:`);
+    const reason = window.prompt(t('gov.emergency.prompt_reject_reason', 'Enter reason for rejecting broadcast {{code}}:', { code: code || `#${id}` }));
     if (reason === null) return;
     setActionInProgress(true);
     try {
       await toast.promise(rejectBroadcast(id, reason), {
-        loading: 'Rejecting emergency submission…',
-        success: 'Emergency submission rejected.',
-        error: (e) => e?.message || 'Rejection failed.',
+        loading: t('gov.emergency.rejecting_submission', 'Rejecting emergency submission…'),
+        success: t('gov.emergency.submission_rejected', 'Emergency submission rejected.'),
+        error: (e) => e?.message || t('gov.emergency.rejection_failed_dot', 'Rejection failed.'),
       });
       fetchList();
       if (selectedBroadcastForModal?.id === id) {
@@ -258,15 +258,15 @@ export const GovEmergencyListPage = () => {
 
   // Handle Deletion of non-active / unapproved broadcast
   const handleDelete = async (id, code) => {
-    if (!window.confirm(`Are you sure you want to permanently delete emergency broadcast ${code || `#${id}`}? This cannot be undone.`)) {
+    if (!window.confirm(t('gov.emergency.confirm_delete', 'Are you sure you want to permanently delete emergency broadcast {{code}}? This cannot be undone.', { code: code || `#${id}` }))) {
       return;
     }
     setActionInProgress(true);
     try {
       await toast.promise(deleteBroadcast(id), {
-        loading: 'Deleting emergency broadcast…',
-        success: 'Emergency broadcast deleted successfully!',
-        error: (e) => e?.message || 'Failed to delete broadcast.',
+        loading: t('gov.emergency.deleting_broadcast', 'Deleting emergency broadcast…'),
+        success: t('gov.emergency.broadcast_deleted', 'Emergency broadcast deleted successfully!'),
+        error: (e) => e?.message || t('gov.emergency.failed_to_delete', 'Failed to delete broadcast.'),
       });
       fetchList();
       if (selectedBroadcastForModal?.id === id) {
@@ -334,7 +334,7 @@ export const GovEmergencyListPage = () => {
     return (
       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-800 whitespace-nowrap">
         <FleetIcons.Info className="w-3 h-3 text-slate-500 shrink-0" />
-        <span>{sev || 'Standard'}</span>
+        <span>{sev || t('campaign_create.standard_badge', 'Standard')}</span>
       </span>
     );
   };
@@ -377,7 +377,7 @@ export const GovEmergencyListPage = () => {
     }
     return (
       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 border border-slate-200 dark:border-zinc-800 whitespace-nowrap">
-        <span>{st || 'Expired'}</span>
+        <span>{st ? t('common.' + st, st) : t('common.expired', 'Expired')}</span>
       </span>
     );
   };
@@ -419,7 +419,7 @@ export const GovEmergencyListPage = () => {
             {counts.active > 0 && (
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-400 border border-red-300 dark:border-red-800 flex items-center gap-1.5 animate-pulse">
                 <span className="w-2 h-2 rounded-full bg-red-600"></span>
-                {counts.active} {t('ag.government.govemergencylistpage.override', 'OVERRIDE')}{counts.active > 1 ? 'S' : ''} {t('ag.government.govemergencylistpage.active', 'ACTIVE')}
+                {counts.active} {counts.active > 1 ? t('gov.emergency.overrides_active', 'OVERRIDES ACTIVE') : t('gov.emergency.override_active', 'OVERRIDE ACTIVE')}
               </span>
             )}
           </div>
@@ -662,19 +662,19 @@ export const GovEmergencyListPage = () => {
             <span className="text-[11px] font-bold text-slate-400">{t('gov.emergency.active_filters')}</span>
             {activeTab !== 'All' && (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 font-bold text-[10px] border border-red-200 dark:border-red-800">
-                {t('ag.government.govemergencylistpage.tab', 'Tab:')} {activeTab}
+                {t('ag.government.govemergencylistpage.tab', 'Tab:')} {t('gov.emergency.tab_' + String(activeTab).toLowerCase().replace(/\s+/g, '_'), activeTab)}
                 <button type="button" onClick={() => { setActiveTab('All'); setCurrentPage(1); }} className="hover:text-red-500 font-bold ml-1"><FleetIcons.Cross className="w-3.5 h-3.5 inline-block" /></button>
               </span>
             )}
             {selectedSeverity !== 'all' && (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 font-bold text-[10px] border border-amber-200 dark:border-amber-800">
-                {t('ag.government.govemergencylistpage.severity', 'Severity:')} {selectedSeverity.toUpperCase()}
+                {t('ag.government.govemergencylistpage.severity', 'Severity:')} {String(t('common.' + selectedSeverity, selectedSeverity)).toUpperCase()}
                 <button type="button" onClick={() => { setSelectedSeverity('all'); setCurrentPage(1); }} className="hover:text-red-500 font-bold ml-1"><FleetIcons.Cross className="w-3.5 h-3.5 inline-block" /></button>
               </span>
             )}
             {selectedScope !== 'all' && (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-bold text-[10px] border border-blue-200 dark:border-blue-800">
-                {t('ag.government.govemergencylistpage.scope', 'Scope:')} {selectedScope === 'all_screens' ? 'Entire Network' : 'Selected Routes'}
+                {t('ag.government.govemergencylistpage.scope', 'Scope:')} {selectedScope === 'all_screens' ? t('gov.emergency.scope_entire_network', 'Entire Network') : t('campaign_create.selected_routes', 'Selected Routes')}
                 <button type="button" onClick={() => { setSelectedScope('all'); setCurrentPage(1); }} className="hover:text-red-500 font-bold ml-1"><FleetIcons.Cross className="w-3.5 h-3.5 inline-block" /></button>
               </span>
             )}
@@ -739,7 +739,7 @@ export const GovEmergencyListPage = () => {
                         </div>
                         <p className="text-sm font-bold text-slate-700 dark:text-zinc-300">{t('gov.emergency.no_broadcasts')}</p>
                         <p className="text-xs text-slate-400 max-w-sm">
-                          {hasActiveFilters ? 'Try adjusting your search queries or active status filters.' : 'There are no active emergency alerts or broadcast history logged yet.'}
+                          {hasActiveFilters ? t('gov.emergency.try_adjusting_filters', 'Try adjusting your search queries or active status filters.') : t('gov.emergency.no_alerts_logged', 'There are no active emergency alerts or broadcast history logged yet.')}
                         </p>
                         {hasActiveFilters && (
                           <button
@@ -756,12 +756,12 @@ export const GovEmergencyListPage = () => {
                 ) : (
                   paginatedList.map((item, idx) => {
                     const isNearBottom = idx >= Math.max(0, paginatedList.length - 2) && paginatedList.length > 2;
-                    const headline = item.headline || item.title || 'Emergency Advisory';
-                    const messageSnippet = item.message || item.body_text || 'No description';
+                    const headline = item.headline || item.title || t('gov.emergency.emergency_advisory', 'Emergency Advisory');
+                    const messageSnippet = item.message || item.body_text || t('gov.emergency.no_description', 'No description');
                     const isAct = item.active === true || item.active === 1 || String(item.active) === 'true';
                     const st = String(item.status || '').toLowerCase();
                     const agencyName = item.agency?.agency_name || item.agency?.name || item.authority || null;
-                    const busesCount = item.affected_buses_count || (item.targets?.length ? item.targets.length : (item.target_scope === 'all' ? 'All' : '—'));
+                    const busesCount = item.affected_buses_count || (item.targets?.length ? item.targets.length : (item.target_scope === 'all' ? t('common.all', 'All') : '—'));
 
                     return (
                       <tr
@@ -809,7 +809,7 @@ export const GovEmergencyListPage = () => {
                             <div className="font-medium text-slate-800 dark:text-zinc-200 flex items-center gap-1.5">
                               <FleetIcons.Target className="w-3.5 h-3.5 text-slate-400" />
                               <span className="truncate max-w-[160px]">
-                                {item.target_scope === 'all' ? 'Entire Transit Network' : (item.target_area || 'Custom Scope')}
+                                {item.target_scope === 'all' ? t('gov.emergency.entire_transit_network', 'Entire Transit Network') : (item.target_area || t('gov.emergency.custom_scope', 'Custom Scope'))}
                               </span>
                             </div>
                             <div className="text-[10px] text-slate-400 dark:text-zinc-500">
@@ -891,7 +891,7 @@ export const GovEmergencyListPage = () => {
                                         title={t('gov.emergency.edit_locked_hint')}
                                       >
                                         <FleetIcons.Lock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                                        <span>{t('ag.government.govemergencylistpage.edit_locked', 'Edit Locked (')}{st === 'approved' ? 'Approved' : isAct ? 'Live' : 'Terminated'})</span>
+                                        <span>{t('ag.government.govemergencylistpage.edit_locked', 'Edit Locked (')}{st === 'approved' ? t('common.approved', 'Approved') : isAct ? t('common.live', 'Live') : t('gov.emergency.terminated', 'Terminated')})</span>
                                       </div>
                                     )}
                                   </div>
@@ -984,11 +984,11 @@ export const GovEmergencyListPage = () => {
             </div>
           ) : (
             paginatedList.map((item) => {
-              const headline = item.headline || item.title || 'Emergency Advisory';
-              const messageSnippet = item.message || item.body_text || 'No description';
+              const headline = item.headline || item.title || t('gov.emergency.emergency_advisory', 'Emergency Advisory');
+              const messageSnippet = item.message || item.body_text || t('gov.emergency.no_description', 'No description');
               const isAct = item.active === true || item.active === 1 || String(item.active) === 'true';
               const st = String(item.status || '').toLowerCase();
-              const busesCount = item.affected_buses_count || (item.targets?.length ? item.targets.length : (item.target_scope === 'all' ? 'All' : '—'));
+              const busesCount = item.affected_buses_count || (item.targets?.length ? item.targets.length : (item.target_scope === 'all' ? t('common.all', 'All') : '—'));
 
               return (
                 <div
@@ -1045,7 +1045,7 @@ export const GovEmergencyListPage = () => {
                     <div className="flex items-center justify-between">
                       <span className="text-slate-400">{t('gov.emergency.target_scope')}:</span>
                       <span className="font-bold text-slate-800 dark:text-zinc-200 truncate max-w-[170px]">
-                        {item.target_scope === 'all' ? 'Entire Network' : (item.target_area || 'Specific Fleet')}
+                        {item.target_scope === 'all' ? t('gov.emergency.scope_entire_network', 'Entire Network') : (item.target_area || t('gov.emergency.specific_fleet', 'Specific Fleet'))}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
@@ -1187,10 +1187,10 @@ export const GovEmergencyListPage = () => {
                 <span className="text-slate-400 font-semibold">{t('gov.emergency.target_network_scope')}</span>
                 <div className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                   <FleetIcons.Target className="w-3.5 h-3.5 text-red-500" />
-                  <span>{selectedBroadcastForModal.target_scope === 'all' ? 'Entire Transit Network' : (selectedBroadcastForModal.target_area || 'Specific Fleet Corridors')}</span>
+                  <span>{selectedBroadcastForModal.target_scope === 'all' ? t('gov.emergency.entire_transit_network', 'Entire Transit Network') : (selectedBroadcastForModal.target_area || t('gov.emergency.specific_fleet_corridors', 'Specific Fleet Corridors'))}</span>
                 </div>
                 <div className="text-[11px] text-slate-500">
-                  {t('ag.government.govemergencylistpage.total_displays', 'Total Displays:')} <b>{selectedBroadcastForModal.affected_buses_count || 'All Online Displays'}</b>
+                  {t('ag.government.govemergencylistpage.total_displays', 'Total Displays:')} <b>{selectedBroadcastForModal.affected_buses_count || t('ag.superadmin.superemergencyapprovalspage.all_online_displays', 'All Online Displays')}</b>
                 </div>
               </div>
 

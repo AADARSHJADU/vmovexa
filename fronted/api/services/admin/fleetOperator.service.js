@@ -23,7 +23,8 @@ export const adminFleetOperatorService = {
   deleteFleetOperator: (id) => call(apiClient.delete(ENDPOINTS.USERS.ONE(id))),
   getActivity: (id, params) => call(apiClient.get(ENDPOINTS.USERS.ACTIVITY(id), { params })),
   getPermissions: (id) => call(apiClient.get(ENDPOINTS.USERS.USER_PERMISSIONS(id))),
-  updatePermissions: (id, permissions) => call(apiClient.put(ENDPOINTS.USERS.USER_PERMISSIONS(id), { permissions })),
+  updatePermissions: (id, denied) => call(apiClient.put(ENDPOINTS.USERS.USER_PERMISSIONS(id), { denied })),
+  resetPermissions: (id) => call(apiClient.delete(ENDPOINTS.USERS.USER_PERMISSIONS(id))),
   uploadAvatar: async (file) => {
     const formData = new FormData();
     formData.append('file', file);

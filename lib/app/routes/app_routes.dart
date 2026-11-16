@@ -105,6 +105,8 @@ abstract class Routes {
   //technician flow routes
   static const TECHNICIAN_DASHBOARD = '/technician-dashboard';
   static const TECHNICIAN_WORK_ORDERS = '/technician-work-orders';
+  static const TECHNICIAN_WORK_ORDER_DETAILS = '/technician-work-order-details';
+  static const TECH_EDGE_SETUP = '/technician-edge-setup';
   static const REGISTER_DISPLAY_DEVICE = '/register-display-device';
   static const HARDWARE_CONFIGURATION = '/hardware-configuration';
   static const GPS_INSTALLATION = '/gps-installation';
@@ -114,6 +116,9 @@ abstract class Routes {
   static const ALERT_NOTIFICATION = '/alerts-notification';
   static const TECHNICIAN_PROFILE = '/technician-profile';
   static const TECHNICIAN_EDIT_PROFILE = '/technician-edit-profile';
+  static const TECHNICIAN_HELP_SUPPORT = '/technician-help-support';
+  static const TECHNICIAN_SUPPORT_HISTORY = '/technician-support-history';
+  static const TECHNICIAN_SUPPORT_TICKET_DETAILS = '/technician-support-ticket-details';
 
   //driver flow routes
   static const DRIVER_DASHBOARD = '/driver-dashboard';

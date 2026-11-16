@@ -47,7 +47,7 @@ export const NotificationDeliveryLogsPage = () => {
       fetchStats();
     } catch (err) {
       toast.dismiss(tid);
-      toast.error(err?.message || 'Failed to retry notification.');
+      toast.error(err?.message || t('superadmin.notification_logs.retry_failed', 'Failed to retry notification.'));
     }
   };
 
@@ -276,7 +276,7 @@ export const NotificationDeliveryLogsPage = () => {
                           onClick={() => setSelectedErrorLog(log)}
                           className="text-[10px] text-rose-600 dark:text-rose-400 underline font-semibold mt-0.5 cursor-pointer block"
                         >
-                          {t('ag.superadmin.notificationdeliverylogspage.error', 'Error:')} {log.error_code || 'Trace'}
+                          {t('ag.superadmin.notificationdeliverylogspage.error', 'Error:')} {log.error_code || t('superadmin.notification_logs.trace', 'Trace')}
                         </button>
                       ) : log.provider_message_id ? (
                         <div className="text-[10px] font-mono text-slate-400 dark:text-zinc-500 truncate max-w-[150px]">
@@ -359,7 +359,7 @@ export const NotificationDeliveryLogsPage = () => {
               <div>
                 <span className="font-bold text-slate-500 dark:text-zinc-400">{t('superadmin.notification_logs.error_trace_label', 'Full Error Trace:')}</span>
                 <div className="mt-1.5 p-3 rounded-xl bg-slate-950 text-rose-400 font-mono text-[11px] overflow-x-auto border border-rose-900/40">
-                  {selectedErrorLog.error_message || 'Unknown provider error'}
+                  {selectedErrorLog.error_message || t('superadmin.notification_logs.unknown_provider_error', 'Unknown provider error')}
                 </div>
               </div>
             </div>

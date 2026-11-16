@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/data/models/work_order_model.dart';
 import 'package:vmovexa/app/data/services/technician_service.dart';
+import 'package:vmovexa/app/routes/app_routes.dart';
 
 class TechWorkOrdersController extends GetxController {
   static TechWorkOrdersController get to => Get.find<TechWorkOrdersController>();
@@ -17,7 +18,19 @@ class TechWorkOrdersController extends GetxController {
   final RxInt currentPage = 1.obs;
   final int pageSize = 20;
 
-  // Filter tabs: All, Dispatched/Assigned, On-Site, Resolved
+  /// Check whether an order has passed its SLA target
+  bool isOrderOverdue(WorkOrderModel order) {
+    final st = order.status.toLowerCase();
+    if (st == 'resolved' || st == 'completed' || st == 'closed' || st == 'rejected') {
+      return false;
+    }
+    if (order.slaDueAt == null || order.slaDueAt!.isEmpty) return false;
+    final due = DateTime.tryParse(order.slaDueAt!);
+    if (due == null) return false;
+    return DateTime.now().isAfter(due);
+  }
+
+  // Filter tabs: All, Dispatched/Assigned, On-Site, Resolved, SLA Overdue
   List<WorkOrderModel> get filteredOrders {
     var list = allOrders.toList();
 
@@ -32,32 +45,35 @@ class TechWorkOrdersController extends GetxController {
       } else if (filter == 'on_site') {
         list = list.where((o) => o.status.toLowerCase() == 'on_site' || o.status.toLowerCase() == 'in_progress').toList();
       } else if (filter == 'resolved') {
-        list = list.where((o) => o.status.toLowerCase() == 'resolved' || o.status.toLowerCase() == 'completed').toList();
+        list = list.where((o) => o.status.toLowerCase() == 'resolved' || o.status.toLowerCase() == 'completed' || o.status.toLowerCase() == 'closed').toList();
+      } else if (filter == 'overdue') {
+        list = list.where(isOrderOverdue).toList();
       } else {
         list = list.where((o) => o.status.toLowerCase() == filter).toList();
       }
     }
 
-    // Priority filter
+    // Priority / Urgency filter
     if (selectedPriorityFilter.value.isNotEmpty) {
       list = list.where((o) => o.urgency.toLowerCase() == selectedPriorityFilter.value.toLowerCase()).toList();
     }
 
-    // Search query
+    // Search query across code, bus, issue category, depot name, and description
     if (searchQuery.value.trim().isNotEmpty) {
       final q = searchQuery.value.trim().toLowerCase();
       list = list.where((o) {
         return o.code.toLowerCase().contains(q) ||
             o.busNumber.toLowerCase().contains(q) ||
             o.issueCategory.toLowerCase().contains(q) ||
-            o.depotName.toLowerCase().contains(q);
+            o.depotName.toLowerCase().contains(q) ||
+            o.description.toLowerCase().contains(q);
       }).toList();
     }
 
     return list;
   }
 
-  // Summary counts
+  // Summary counts matching Web Portal KPI Metrics
   int get totalCount => allOrders.length;
   int get dispatchedCount => allOrders.where((o) {
         final s = o.status.toLowerCase();
@@ -69,8 +85,9 @@ class TechWorkOrdersController extends GetxController {
       }).length;
   int get resolvedCount => allOrders.where((o) {
         final s = o.status.toLowerCase();
-        return s == 'resolved' || s == 'completed';
+        return s == 'resolved' || s == 'completed' || s == 'closed';
       }).length;
+  int get overdueCount => allOrders.where(isOrderOverdue).length;
 
   @override
   void onInit() {
@@ -110,6 +127,77 @@ class TechWorkOrdersController extends GetxController {
     }
   }
 
+  void resetFilters() {
+    searchQuery.value = '';
+    selectedStatusFilter.value = 'all';
+    selectedPriorityFilter.value = '';
+  }
+
+  void navigateToDiagnostics() {
+    Get.toNamed(Routes.DEVICE_DIAGNOSTICS);
+  }
+
+  /// Format SLA status and countdown matching Web formatSlaInfo
+  Map<String, dynamic> formatSlaInfo(WorkOrderModel order) {
+    final st = order.status.toLowerCase();
+    if (st == 'resolved' || st == 'completed' || st == 'closed') {
+      return {
+        'type': 'resolved',
+        'text': 'sla_resolved'.tr,
+        'color': const Color(0xFF10B981),
+        'bg': const Color(0xFF10B981).withValues(alpha: 0.15),
+        'icon': Icons.check_circle_rounded,
+      };
+    }
+    if (order.slaDueAt == null || order.slaDueAt!.isEmpty) {
+      return {
+        'type': 'none',
+        'text': '—',
+        'color': Colors.white38,
+        'bg': Colors.transparent,
+        'icon': null,
+      };
+    }
+    final due = DateTime.tryParse(order.slaDueAt!);
+    if (due == null) {
+      return {
+        'type': 'none',
+        'text': '—',
+        'color': Colors.white38,
+        'bg': Colors.transparent,
+        'icon': null,
+      };
+    }
+    final now = DateTime.now();
+    final diff = due.difference(now);
+    if (diff.isNegative) {
+      final overdueMins = diff.inMinutes.abs();
+      final h = overdueMins ~/ 60;
+      final m = overdueMins % 60;
+      final timeStr = h > 0 ? '${h}h ${m}m' : '${m}m';
+      return {
+        'type': 'overdue',
+        'text': '${'sla_overdue_by'.tr} $timeStr',
+        'color': const Color(0xFFEF4444),
+        'bg': const Color(0xFFEF4444).withValues(alpha: 0.16),
+        'icon': Icons.warning_amber_rounded,
+      };
+    } else {
+      final remMins = diff.inMinutes;
+      final h = remMins ~/ 60;
+      final m = remMins % 60;
+      final timeStr = h > 0 ? '${h}h ${m}m' : '${m}m';
+      final isUrgent = diff.inHours < 1;
+      return {
+        'type': 'pending',
+        'text': '$timeStr ${'sla_left'.tr}',
+        'color': isUrgent ? const Color(0xFFF59E0B) : const Color(0xFF38BDF8),
+        'bg': (isUrgent ? const Color(0xFFF59E0B) : const Color(0xFF38BDF8)).withValues(alpha: 0.15),
+        'icon': Icons.access_time_rounded,
+      };
+    }
+  }
+
   /// Mark Work Order as Arrived On-Site
   Future<bool> markOnSite(WorkOrderModel order) async {
     isSubmitting.value = true;
@@ -121,8 +209,8 @@ class TechWorkOrdersController extends GetxController {
       );
       if (res.success) {
         Get.snackbar(
-          'Status Updated',
-          '${order.code} marked as On-Site Troubleshooting',
+          'status_updated'.tr,
+          '${order.code} ${'order_marked_on_site'.tr}',
           backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
@@ -132,7 +220,7 @@ class TechWorkOrdersController extends GetxController {
         return true;
       } else {
         Get.snackbar(
-          'Error',
+          'error'.tr,
           res.displayErrorMessage,
           backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
           colorText: Colors.white,
@@ -143,7 +231,7 @@ class TechWorkOrdersController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         e.toString(),
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
         colorText: Colors.white,
@@ -165,22 +253,17 @@ class TechWorkOrdersController extends GetxController {
   }) async {
     isSubmitting.value = true;
     try {
-      String finalNotes = notes.trim();
-      if (checklist.isNotEmpty) {
-        finalNotes += '\n[Checklist Passed: ${checklist.join(', ')}]';
-      }
-
       final res = await TechnicianService.to.updateMyWorkOrderStatus(
         orderId,
         status: 'resolved',
-        resolutionNotes: finalNotes,
+        resolutionNotes: notes.trim(),
         partsReplaced: parts,
       );
 
       if (res.success) {
         Get.snackbar(
-          'Resolved & Tested',
-          'Work order marked resolved successfully. Awaiting supervisor sign-off.',
+          'resolved'.tr,
+          'order_resolved_success'.tr,
           backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
@@ -190,7 +273,7 @@ class TechWorkOrdersController extends GetxController {
         return true;
       } else {
         Get.snackbar(
-          'Error',
+          'error'.tr,
           res.displayErrorMessage,
           backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
           colorText: Colors.white,
@@ -201,7 +284,7 @@ class TechWorkOrdersController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         e.toString(),
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
         colorText: Colors.white,
@@ -245,7 +328,7 @@ class TechWorkOrdersController extends GetxController {
       final res = await TechnicianService.to.dispatchWorkOrder(payload);
       if (res.success) {
         Get.snackbar(
-          'Work Order Dispatched',
+          'dispatched'.tr,
           'Work order dispatched successfully to technician.',
           backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
           colorText: Colors.white,
@@ -256,7 +339,7 @@ class TechWorkOrdersController extends GetxController {
         return true;
       } else {
         Get.snackbar(
-          'Dispatch Failed',
+          'error'.tr,
           res.displayErrorMessage,
           backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
           colorText: Colors.white,
@@ -267,7 +350,7 @@ class TechWorkOrdersController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         e.toString(),
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
         colorText: Colors.white,

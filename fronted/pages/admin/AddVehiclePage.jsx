@@ -25,9 +25,9 @@ export const AddVehiclePage = () => {
   const basePath = isFleetPortal ? '/fleet-operator/vehicles' : '/admin/vehicles';
   const dashboardLink = isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard';
 
-  const { user, hasPermission } = useAuth();
-  const canCreate = !isFleetPortal || hasPermission('fleet.vehicles.create');
-  const canUpdate = !isFleetPortal || hasPermission('fleet.vehicles.update');
+  const { user, can } = useAuth();
+  const canCreate = can('vehicles.create');
+  const canUpdate = can('vehicles.update');
   const canAccessForm = isEditMode ? canUpdate : canCreate;
 
   const { createVehicle, updateVehicle, loadVehicles, assignGps, assignDriver } = useAdminVehicle();
@@ -612,8 +612,8 @@ export const AddVehiclePage = () => {
             disabled={loading}
             className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-md shadow-blue-500/20 flex items-center gap-2 cursor-pointer disabled:opacity-50"
           >
-            <FleetIcons.Plus className="w-4 h-4 text-white" />
-            <span>{loading ? t('common.loading') : isEditMode ? t('admin.vehicles.edit_vehicle') : isFleetPortal ? t('ag.admin.addvehiclepage.submit_for_approval', 'Submit for Approval') : t('admin.vehicles.add_vehicle')}</span>
+            {isEditMode ? <FleetIcons.Check className="w-4 h-4 text-white" /> : <FleetIcons.Plus className="w-4 h-4 text-white" />}
+            <span>{loading ? t('common.loading') : isEditMode ? t('admin.vehicles.update_vehicle', 'Update Vehicle') : isFleetPortal ? t('ag.admin.addvehiclepage.submit_for_approval', 'Submit for Approval') : t('admin.vehicles.add_vehicle')}</span>
           </button>
         </div>
       </div>
@@ -1442,8 +1442,8 @@ export const AddVehiclePage = () => {
             disabled={loading}
             className="px-8 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-md shadow-blue-500/20 flex items-center gap-2 cursor-pointer disabled:opacity-50"
           >
-            <FleetIcons.Plus className="w-4 h-4 text-white" />
-            <span>{loading ? t('common.loading') : isEditMode ? t('admin.vehicles.edit_vehicle') : isFleetPortal ? t('ag.admin.addvehiclepage.submit_for_approval', 'Submit for Approval') : t('admin.vehicles.add_vehicle')}</span>
+            {isEditMode ? <FleetIcons.Check className="w-4 h-4 text-white" /> : <FleetIcons.Plus className="w-4 h-4 text-white" />}
+            <span>{loading ? t('common.loading') : isEditMode ? t('admin.vehicles.update_vehicle', 'Update Vehicle') : isFleetPortal ? t('ag.admin.addvehiclepage.submit_for_approval', 'Submit for Approval') : t('admin.vehicles.add_vehicle')}</span>
           </button>
         </div>
       </form>

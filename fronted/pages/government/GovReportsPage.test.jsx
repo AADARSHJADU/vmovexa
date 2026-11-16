@@ -84,7 +84,7 @@ describe('GovReportsPage', () => {
     };
   });
 
-  it('renders mathematically real KPIs and reports cards', async () => {
+  it('renders reports cards and performance trend without KPI metrics section', async () => {
     render(
       <MemoryRouter initialEntries={['/government/reports']}>
         <GovReportsPage />
@@ -94,15 +94,11 @@ describe('GovReportsPage', () => {
     // Initial load check
     expect(loadAgencyAnalytics).toHaveBeenCalledWith({ dateRange: '7days', category: undefined });
 
-    // Verify KPI headers
-    expect(screen.getByText('Total Playback Loops')).toBeInTheDocument();
-    expect(screen.getByText('8,000')).toBeInTheDocument();
-
-    expect(screen.getByText('Target Citizen Reach')).toBeInTheDocument();
-    expect(screen.getByText('10,000')).toBeInTheDocument();
-
-    expect(screen.getByText('Citizen QR Engagements')).toBeInTheDocument();
-    expect(screen.getAllByText('400').length).toBeGreaterThanOrEqual(1);
+    // Verify removed KPI section is NOT present
+    expect(screen.queryByText('Total Playback Loops')).not.toBeInTheDocument();
+    expect(screen.queryByText('Target Citizen Reach')).not.toBeInTheDocument();
+    expect(screen.queryByText('Citizen QR Engagements')).not.toBeInTheDocument();
+    expect(screen.queryByText('QR Conversion Rate')).not.toBeInTheDocument();
 
     // Verify Campaign Card Content
     expect(screen.getByText('Road Safety Drive')).toBeInTheDocument();

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
+import { FleetIcons } from '../FleetIcons';
 import { googleApisService } from '../../api/services/googleApis.service';
 
 export const LocationAutocompleteInput = ({
@@ -126,7 +127,9 @@ export const LocationAutocompleteInput = ({
             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
             </svg>
-            {showManualCoords ? 'Hide Coordinates' : 'Edit GPS'}
+            {showManualCoords
+              ? t('ag.shared.locationautocompleteinput.hide_coordinates', 'Hide Coordinates')
+              : t('ag.shared.locationautocompleteinput.edit_gps', 'Edit GPS')}
           </button>
         </div>
       )}
@@ -229,7 +232,7 @@ export const LocationAutocompleteInput = ({
         <div className="absolute z-50 left-0 right-0 mt-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden max-h-64 overflow-y-auto">
           <div className="px-3 py-2 bg-slate-50 dark:bg-slate-800/80 text-[10px] font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
             <span className="flex items-center gap-1.5">
-              <span>📍</span>
+              <FleetIcons.Pin className="w-3.5 h-3.5 text-blue-500 shrink-0" />
               <span>{t('ag.shared.locationautocompleteinput.suggested_locations_google_maps', 'Suggested Locations (Google Maps)')}</span>
             </span>
             <span className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold">{t('ag.shared.locationautocompleteinput.click_to_select', 'Click to select')}</span>

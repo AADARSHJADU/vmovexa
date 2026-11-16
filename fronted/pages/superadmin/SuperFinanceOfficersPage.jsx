@@ -13,8 +13,8 @@ import toast from 'react-hot-toast';
 
 export const SuperFinanceOfficersPage = () => {
   const { t } = useTranslation();
-  const { impersonateUser, hasPermission } = useAuth();
-  const canImpersonate = hasPermission('platform.impersonate');
+  const { impersonateUser, isSuperAdmin } = useAuth();
+  const canImpersonate = isSuperAdmin;
   const navigate = useNavigate();
   const { financeOfficers, loading, pagination, loadFinanceOfficers, updateStatus, deleteFinanceOfficer } = useSuperFinanceOfficer();
 

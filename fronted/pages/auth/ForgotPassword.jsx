@@ -28,7 +28,6 @@ export const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
-  const [devCode, setDevCode] = useState(null);
 
   // Resend Countdown Timer
   useEffect(() => {
@@ -72,9 +71,6 @@ export const ForgotPassword = () => {
     setLoading(true);
     try {
       const res = await forgotPassword(cleanEmail);
-      if (res?.data?.devCode) {
-        setDevCode(res.data.devCode);
-      }
       toast.success(res?.message || 'Verification OTP code sent to your email!');
       setResendCooldown(60);
       setStep(2);
@@ -91,9 +87,6 @@ export const ForgotPassword = () => {
     setResending(true);
     try {
       const res = await forgotPassword(email.trim().toLowerCase());
-      if (res?.data?.devCode) {
-        setDevCode(res.data.devCode);
-      }
       toast.success(res?.message || 'A fresh 6-digit verification code has been sent!');
       setResendCooldown(60);
     } catch (err) {
@@ -262,7 +255,6 @@ export const ForgotPassword = () => {
                 onClick={() => {
                   setStep(1);
                   setOtpCode('');
-                  setDevCode(null);
                 }}
                 className="ml-2 text-blue-400 hover:text-blue-300 underline font-semibold text-xs cursor-pointer"
               >
@@ -270,20 +262,6 @@ export const ForgotPassword = () => {
               </button>
             </p>
 
-            {/* Dev helper banner */}
-            {devCode && (
-              <div className="mt-2.5 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-300 font-mono text-xs">
-                <span>{t('auth.dev_testing_otp')}</span>
-                <button
-                  type="button"
-                  onClick={() => setOtpCode(devCode)}
-                  className="font-black text-amber-300 tracking-widest hover:underline cursor-pointer"
-                  title={t('auth.click_to_autofill')}
-                >
-                  {devCode} {t('ag.shared.forgotpassword.click_to_fill', '(click to fill)')}
-                </button>
-              </div>
-            )}
           </div>
 
           <form onSubmit={handleResetPassword} className="w-full space-y-4">

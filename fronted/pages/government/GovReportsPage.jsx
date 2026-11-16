@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
+import { translateCampaignLabel } from '../../utils/campaignTranslations';
 import { useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { FleetIcons } from '../../components/FleetIcons';
@@ -97,13 +98,13 @@ export const GovReportsPage = () => {
       return {
         id: c.code || (c.id ? `CMP-${c.id}` : 'CMP-UNKNOWN'),
         rawId: c.id,
-        name: c.name || c.title || 'Untitled Campaign',
+        name: c.name || c.title || t('campaign_extra.untitled_campaign', 'Untitled Campaign'),
         qrScans: scans,
         unique: unique,
         rate: impressions > 0 ? `${((scans / impressions) * 100).toFixed(2)}%` : '0.00%',
         avgPerDay: Math.round(scans / daysInPeriod),
-        location: c.location || c.target_area || c.agencyName || c.brand_name || 'Transit Network',
-        category: c.category || 'Public PSA',
+        location: c.location || c.target_area || c.agencyName || c.brand_name || t('campaign_extra.transit_network', 'Transit Network'),
+        category: c.category || t('gov.reports.cat_public_psa', 'Public PSA'),
         status: String(c.status || 'DRAFT').toUpperCase().replace('_', ' '),
         rawStatus: String(c.status || 'draft').toLowerCase(),
         impressions,
@@ -111,7 +112,7 @@ export const GovReportsPage = () => {
         busesCount: c.busesCount || 0,
       };
     });
-  }, [rawCampaignList, daysInPeriod]);
+  }, [rawCampaignList, daysInPeriod, t]);
 
   // Real aggregate summary metrics
   const totalImpressions = analytics?.kpis?.totalImpressions ?? allReportItems.reduce((acc, c) => acc + Number(c.impressions || 0), 0);
@@ -170,7 +171,7 @@ export const GovReportsPage = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast.success('Compliance report CSV downloaded successfully!');
+    toast.success(t('gov.reports.csv_downloaded', 'Compliance report CSV downloaded successfully!'));
   };
 
   const handleExport = async () => {
@@ -178,9 +179,9 @@ export const GovReportsPage = () => {
       await toast.promise(
         createExport({ type: 'government_reports', format: 'csv', filters: { dateRange, category, search: searchQuery } }),
         {
-          loading: 'Generating compliance export...',
-          success: 'Export queued successfully!',
-          error: 'Using direct download...',
+          loading: t('gov.reports.generating_export', 'Generating compliance export...'),
+          success: t('gov.reports.export_queued', 'Export queued successfully!'),
+          error: t('gov.reports.direct_download', 'Using direct download...'),
         }
       );
     } catch (_) {
@@ -223,7 +224,7 @@ export const GovReportsPage = () => {
       case 'rejected':
         return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800 shrink-0">{t('ag.government.govreportspage.rejected', 'Rejected')}</span>;
       default:
-        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-800 shrink-0 capitalize">{status}</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-800 shrink-0 capitalize">{translateCampaignLabel(t, status)}</span>;
     }
   };
 
@@ -235,7 +236,7 @@ export const GovReportsPage = () => {
         <div className="min-w-0">
           <Breadcrumb
             items={[
-              { label: isSuperAdmin ? 'SuperAdmin' : (t('nav.government', 'Government')), path: isSuperAdmin ? '/superadmin/dashboard' : '/government/dashboard', icon: FleetIcons.Dashboard },
+              { label: isSuperAdmin ? t('ag.superadmin.superemergencyapprovalspage.superadmin', 'SuperAdmin') : (t('nav.government', 'Government')), path: isSuperAdmin ? '/superadmin/dashboard' : '/government/dashboard', icon: FleetIcons.Dashboard },
               { label: t('gov.reports.breadcrumb', 'Public Authority Reports') },
             ]}
             className="mb-2"
@@ -255,7 +256,7 @@ export const GovReportsPage = () => {
             onChange={e => { setCategory(e.target.value); setCurrentPage(1); }}
             className="w-full sm:w-auto h-10 px-3.5 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800 text-xs font-bold text-slate-700 dark:text-zinc-200 focus:outline-none focus:bg-white dark:focus:bg-zinc-900 transition-colors"
           >
-            <option value="all">{t('common.all') || 'All Categories'}</option>
+            <option value="all">{t('activity.all_categories', 'All Categories')}</option>
             {availableCategories.map(cat => (
               <option key={cat} value={cat}>{cat}</option>
             ))}
@@ -289,56 +290,6 @@ export const GovReportsPage = () => {
             </button>
           </div>
         </div>
-      </div>
-
-      {/* 2. Top 4 Dynamic KPI Metrics — 100% Mathematically Real */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {[
-          {
-            label: t('gov.reports.kpi_total_loops', 'Total Playback Loops'),
-            value: Number(totalImpressions).toLocaleString(),
-            sub: t('gov.reports.sub_verified_plays', 'Verified DOOH broadcast plays'),
-            icon: <FleetIcons.Speed className="w-5 h-5 text-slate-700 dark:text-zinc-300" />,
-            dot: 'bg-blue-500',
-          },
-          {
-            label: t('gov.reports.kpi_citizen_reach', 'Target Citizen Reach'),
-            value: Number(totalTargetImpressions > 0 ? totalTargetImpressions : totalImpressions).toLocaleString(),
-            sub: `${analytics?.kpis?.activeVehiclesCount || 0} ${t('gov.analytics.active_buses', 'active buses on route')}`,
-            icon: <FleetIcons.Driver className="w-5 h-5 text-slate-700 dark:text-zinc-300" />,
-            dot: 'bg-emerald-500',
-          },
-          {
-            label: t('gov.reports.kpi_qr_engagements', 'Citizen QR Engagements'),
-            value: Number(totalScans).toLocaleString(),
-            sub: `${totalUniqueScanners.toLocaleString()} ${t('gov.analytics.unique_devices', 'unique citizen scanners')}`,
-            icon: <FleetIcons.Target className="w-5 h-5 text-slate-700 dark:text-zinc-300" />,
-            dot: 'bg-purple-500',
-          },
-          {
-            label: t('gov.reports.kpi_qr_conversion', 'QR Conversion Rate'),
-            value: engagementRate,
-            sub: t('gov.analytics.imp_conversion', 'Scans per playback impression'),
-            icon: <FleetIcons.BarChart className="w-5 h-5 text-slate-700 dark:text-zinc-300" />,
-            dot: 'bg-amber-500',
-          },
-        ].map(kpi => (
-          <div key={kpi.label} className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-slate-400 dark:hover:border-zinc-700 hover:shadow-md transition-all shadow-sm flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">{kpi.label}</span>
-              <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-800 flex items-center justify-center text-slate-700 dark:text-zinc-300">
-                {kpi.icon}
-              </div>
-            </div>
-            <div className="mt-3 sm:mt-4">
-              <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">{kpi.value}</div>
-              <div className="flex items-center gap-1.5 mt-1 text-xs text-slate-600 dark:text-zinc-400 font-semibold">
-                <span className={`w-2 h-2 rounded-full ${kpi.dot}`}></span>
-                <span>{kpi.sub}</span>
-              </div>
-            </div>
-          </div>
-        ))}
       </div>
 
       {/* 3. Performance Trend Chart — 100% Real from CampaignPlayback table */}

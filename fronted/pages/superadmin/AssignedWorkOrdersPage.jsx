@@ -15,8 +15,24 @@ import {
   formatWorkOrderCode,
 } from '../../features/workOrders/workOrderPresentation';
 
+const WORK_ORDER_LABEL_KEYS = {
+  "Pending Assignment": "admin.tech_requests.pending_assignment",
+  "Approved for Dispatch": "wo.status.approved",
+  "Dispatched to Depot": "wo.status.dispatched",
+  "On Site Troubleshooting": "superadmin.assignment_finance.on_site_troubleshooting",
+  "Resolved & Tested": "superadmin.assignment_finance.resolved_tested",
+  "Closed & Archived": "superadmin.assignment_finance.closed_archived",
+  "Rejected": "admin.drivers.status_rejected",
+  "Unknown status": "superadmin.assignment_finance.unknown_status",
+  "Critical": "admin.tech_requests.priority_critical",
+  "High": "admin.tech_requests.priority_high",
+  "Normal": "admin.tech_requests.priority_normal",
+  "Low": "admin.tech_requests.priority_low",
+  "Unknown": "superadmin.assignment_finance.unknown"
+};
+
 export const AssignedWorkOrdersPage = () => {
-  const { t } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const activeTab = searchParams.get('tab') || 'technicians'; // 'technicians' | 'work-orders'
@@ -291,7 +307,7 @@ export const AssignedWorkOrdersPage = () => {
                       const availStatus = String(profile.status || tech.status || 'available').toLowerCase();
                       const isAvail = availStatus === 'available' || availStatus === 'active';
                       const isAssigned = availStatus === 'assigned';
-                      const certLevel = formatDisplayValue(profile.cert_level, 'Standard Tech');
+                      const certLevel = formatDisplayValue(profile.cert_level, t("superadmin.assignment_finance.standard_tech", "Standard Tech"));
                       const city = formatDisplayValue(profile.city || profile.base_city || tech.city);
                       const jobsCount = profile.jobs_completed ?? 0;
                       const skills = Array.isArray(profile.skills) ? profile.skills : [];
@@ -384,7 +400,7 @@ export const AssignedWorkOrdersPage = () => {
 
                           {/* Last Active */}
                           <td className="py-3 px-4 text-slate-500 dark:text-zinc-400 font-mono text-[11px]">
-                            {formatExactDateTime(profile.updated_at || tech.updated_at)}
+                            {formatExactDateTime(profile.updated_at || tech.updated_at, currentLanguage)}
                           </td>
 
                           {/* Actions */}
@@ -460,7 +476,7 @@ export const AssignedWorkOrdersPage = () => {
                   type="button"
                   onClick={() => {
                     if (chip.id === 'critical') {
-                      setWoUrgencyFilter(woUrgencyFilter === 'critical' ? t('ag.superadmin.assignedworkorderspage.all', 'all') : t('ag.superadmin.assignedworkorderspage.critical', 'critical'));
+                      setWoUrgencyFilter(woUrgencyFilter === 'critical' ? 'all' : 'critical');
                     } else if (chip.id === 'all') {
                       setWoStatusFilter('all');
                       setWoUrgencyFilter('all');
@@ -616,7 +632,7 @@ export const AssignedWorkOrdersPage = () => {
                       const urgencyCfg = getUrgencyConfig(wo.urgency);
                       const statusCfg = getStatusConfig(wo.status);
                       const tech = wo.assignedTechnician || wo.technician;
-                      const slaCountdown = formatSlaCountdown(wo.sla_due_at, wo.status);
+                      const slaCountdown = formatSlaCountdown(wo.sla_due_at, wo.status, t);
                       const isUnassigned = !wo.assigned_technician_id && !tech;
 
                       return (
@@ -673,10 +689,10 @@ export const AssignedWorkOrdersPage = () => {
                             <div className="flex flex-col gap-1 items-start">
                               <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full border whitespace-nowrap ${statusCfg.color}`}>
                                 <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
-                                {statusCfg.label}
+                                {t(WORK_ORDER_LABEL_KEYS[statusCfg.label], statusCfg.label)}
                               </span>
                               <span className={`inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full border whitespace-nowrap ${urgencyCfg.color}`}>
-                                {urgencyCfg.badge}
+                                {t(WORK_ORDER_LABEL_KEYS[urgencyCfg.badge], urgencyCfg.badge)}
                               </span>
                             </div>
                           </td>

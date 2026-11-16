@@ -96,10 +96,10 @@ export const AdminVehicleDetailsPage = () => {
   const dashboardLink = isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard';
 
   const { loadVehicles, approveVehicle, rejectVehicle } = useAdminVehicle();
-  const { hasPermission } = useAuth();
+  const { can } = useAuth();
 
-  const canView = !isFleetPortal || hasPermission('fleet.vehicles.view');
-  const canUpdate = !isFleetPortal || hasPermission('fleet.vehicles.update');
+  const canView = can('vehicles.view');
+  const canUpdate = can('vehicles.update');
 
   const [vehicle, setVehicle] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -515,14 +515,13 @@ export const AdminVehicleDetailsPage = () => {
                 <FleetIcons.Document className="w-4 h-4 text-blue-600" />
                 <span>{t('ag.admin.adminvehicledetailspage.vehicle_compliance_documents', 'Vehicle Compliance Documents (')}{docList.length})</span>
               </h2>
-              <span className="text-xs text-slate-400 font-medium">{t('admin.vehicles.verified_papers')}</span>
             </div>
 
             {docList.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {docList.map((doc) => (
                   <div key={doc.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-3">
-                    <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-start gap-2">
                       <div>
                         <div className="text-xs font-bold text-slate-900 uppercase">
                           {(doc.doc_type || doc.docType || 'Document').replace(/_/g, ' ')}
@@ -531,13 +530,6 @@ export const AdminVehicleDetailsPage = () => {
                           {t('ag.admin.adminvehicledetailspage.uploaded', 'Uploaded:')} {doc.uploaded_at ? new Date(doc.uploaded_at).toLocaleDateString() : t('ag.admin.adminvehicledetailspage.recent', 'Recent')}
                         </div>
                       </div>
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                        doc.approval_status === 'approved' ? 'bg-emerald-100 text-emerald-700' :
-                        doc.approval_status === 'rejected' ? 'bg-rose-100 text-rose-700' :
-                        'bg-amber-100 text-amber-700'
-                      }`}>
-                        {doc.approval_status || 'Pending'}
-                      </span>
                     </div>
 
                     {doc.file_url && (

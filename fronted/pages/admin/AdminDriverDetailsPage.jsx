@@ -43,12 +43,12 @@ export const AdminDriverDetailsPage = () => {
   const editPath = `${basePath}/edit/${id}`;
 
   const { loadDriver, loadDrivers, verifyDriverDocuments, updateDriver, approveDriver, rejectDriver } = useAdminDriver();
-  const { hasPermission } = useAuth();
+  const { can } = useAuth();
 
   // RBAC permission gates (always true for Admin portal)
-  const canUpdate  = !isFleetPortal || hasPermission('fleet.drivers.update');
-  const canView    = !isFleetPortal || hasPermission('fleet.drivers.view');
-  const canApprove = !isFleetPortal || hasPermission('fleet.drivers.approve');
+  const canUpdate  = can('drivers.update');
+  const canView    = can('drivers.view');
+  const canApprove = can('drivers.approve');
 
   const [driver, setDriver] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -104,7 +104,7 @@ export const AdminDriverDetailsPage = () => {
             aadhaar_verified: true,
           } : null);
           setDriverDocs((prev) => (prev || []).map((d) => ({ ...d, verified: true })));
-          return `Driver ${driver.name} verified successfully!`;
+          return `KYC documents for ${driver.name} verified successfully! You can now approve the driver.`;
         },
         error: (err) => err?.message || 'Failed to verify driver',
       }
@@ -113,6 +113,10 @@ export const AdminDriverDetailsPage = () => {
 
   const handleApproveDriver = () => {
     if (!driver) return;
+    if (!driver.documents_verified) {
+      toast.error('Driver documents must be verified before approval.');
+      return;
+    }
     setApprovingId(driver.id);
     toast.promise(
       approveDriver(driver.id),
@@ -249,8 +253,8 @@ export const AdminDriverDetailsPage = () => {
     (driver.notes && driver.notes.match(/\[Rejection Reason\]:\s*([^\n\r]+)/i)?.[1]?.trim()) ||
     null;
   const isRejected = Boolean(driver.kyc_rejected || driver.kycRejected || rejectionReason || (driver.status || '').toLowerCase() === 'rejected');
-  const isVerified = !isRejected && Boolean(driver.documents_verified || driver.aadhaar_verified || driver.verified);
-  const isPending = !isRejected && (driver.status || '').toLowerCase() === 'pending_approval';
+  const isVerified = !isRejected && Boolean(driver.documents_verified);
+  const isPending = !isRejected && ['pending_approval', 'pending'].includes((driver.status || '').toLowerCase());
 
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-200">
@@ -293,12 +297,12 @@ export const AdminDriverDetailsPage = () => {
                 ) : isVerified ? (
                   <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-md uppercase border bg-emerald-50 text-emerald-700 border-emerald-200 inline-flex items-center gap-1 shadow-2xs">
                     <FleetIcons.Check className="w-3 h-3" />
-                    <span>{t('admin.drivers.stat_verified') || 'Verified'}</span>
+                    <span>{t('admin.drivers.stat_verified') || 'Documents Verified'}</span>
                   </span>
                 ) : (
                   <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-md uppercase border bg-amber-50 text-amber-700 border-amber-200 inline-flex items-center gap-1 shadow-2xs">
                     <FleetIcons.Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                    <span>{t('admin.drivers.status_pending') || 'Pending Verification'}</span>
+                    <span>{t('admin.drivers.status_pending') || 'Documents Pending Verification'}</span>
                   </span>
                 )}
 
@@ -318,8 +322,22 @@ export const AdminDriverDetailsPage = () => {
 
         {/* Responsive Header Buttons */}
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap w-full md:w-auto">
-          {/* Approve — shown if pending, rejected, or unverified */}
-          {canApprove && (isPending || isRejected || !isVerified) && (
+          {/* Step 1: Verify Documents — only shown when documents are NOT verified yet */}
+          {canApprove && !isVerified && !isRejected && (
+            <button
+              type="button"
+              disabled={verifying}
+              onClick={handleVerifyDriver}
+              className="flex-1 sm:flex-none justify-center px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer text-center"
+            >
+              {verifying && <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+              <FleetIcons.Check className="w-3.5 h-3.5 text-white" />
+              <span>{t('admin.drivers.btn_verify_docs') || 'Verify Driver Documents'}</span>
+            </button>
+          )}
+
+          {/* Step 2: Approve Driver — ONLY shown after documents are verified and driver is pending or rejected */}
+          {canApprove && isVerified && (isPending || isRejected || (driver.status || '').toLowerCase() !== 'available') && (
             <button
               type="button"
               disabled={approvingId === driver.id}
@@ -327,12 +345,13 @@ export const AdminDriverDetailsPage = () => {
               className="flex-1 sm:flex-none justify-center px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer text-center"
             >
               {approvingId === driver.id && <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+              <FleetIcons.CheckCircle className="w-3.5 h-3.5 text-white" />
               <span>{t('admin.drivers.btn_approve') || 'Approve Driver'}</span>
             </button>
           )}
 
-          {/* Reject — shown if not already rejected */}
-          {canApprove && !isRejected && (
+          {/* Reject — shown if not already rejected and still pending or unverified */}
+          {canApprove && !isRejected && (isPending || !isVerified) && (
             <button
               type="button"
               disabled={rejectingId === driver.id}
@@ -340,20 +359,8 @@ export const AdminDriverDetailsPage = () => {
               className="flex-1 sm:flex-none justify-center px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer text-center"
             >
               {rejectingId === driver.id && <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+              <FleetIcons.X className="w-3.5 h-3.5 text-white" />
               <span>{t('admin.drivers.btn_reject_driver') || 'Reject Driver'}</span>
-            </button>
-          )}
-
-          {/* Verify Documents — gated by canApprove */}
-          {canApprove && !isVerified && (
-            <button
-              type="button"
-              disabled={verifying}
-              onClick={handleVerifyDriver}
-              className="w-full sm:w-auto justify-center px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer text-center"
-            >
-              {verifying && <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />}
-              <span>{t('admin.drivers.btn_verify_docs') || 'Verify Driver Documents'}</span>
             </button>
           )}
 
@@ -405,8 +412,8 @@ export const AdminDriverDetailsPage = () => {
         </div>
       )}
 
-      {/* Pending Approval notice banner for Fleet Portal */}
-      {isFleetPortal && isPending && (
+      {/* Only approval-capable fleet users need the pending-review notice. */}
+      {isFleetPortal && canApprove && isPending && (
         <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
           <FleetIcons.Clock className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
           <div>
@@ -706,6 +713,7 @@ export const AdminDriverDetailsPage = () => {
             purpose="driver_kyc"
             isLocked={isVerified}
             readOnly={isFleetPortal && isVerified}
+            allowToggleVerify={false}
           />
         </div>
 

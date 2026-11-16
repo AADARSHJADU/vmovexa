@@ -16,12 +16,12 @@ import {
 
 export const useOrganization = () => {
   const dispatch = useAppDispatch();
-  const { hasPermission } = useAuth();
+  const { hasPermission, isSuperAdmin, can } = useAuth();
 
-  const canViewOrgs = hasPermission('orgs.view') || hasPermission('finance.subscriptions.view');
-  const canCreateOrg = hasPermission('orgs.create') || hasPermission('finance.subscriptions.create') || hasPermission('finance.subscriptions.manage');
-  const canUpdateOrg = hasPermission('orgs.update') || hasPermission('finance.subscriptions.update') || hasPermission('finance.subscriptions.manage');
-  const canDeleteOrg = hasPermission('orgs.delete') || hasPermission('orgs.suspend');
+  const canViewOrgs = can('tenants.view');
+  const canCreateOrg = can('tenants.create');
+  const canUpdateOrg = can('tenants.update');
+  const canDeleteOrg = isSuperAdmin;
   
   const organizations = useAppSelector(selectSuperOrganizations);
   const currentOrganization = useAppSelector(selectSuperCurrentOrganization);

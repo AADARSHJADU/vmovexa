@@ -7,7 +7,11 @@ import { GovAnalyticsDashboardPage } from './GovAnalyticsDashboardPage';
 
 vi.mock('../../hooks/useTranslation', () => ({
   useTranslation: () => ({
-    t: (k, d) => LOCAL_TRANSLATIONS?.en?.[k] || d || k,
+    t: (k, d, p) => {
+      let s = LOCAL_TRANSLATIONS?.en?.[k] || d || k;
+      if (p) Object.entries(p).forEach(([a, b]) => { s = s.replace(new RegExp(`{{\\s*${a}\\s*}}`, 'g'), String(b)); });
+      return s;
+    },
   }),
 }));
 

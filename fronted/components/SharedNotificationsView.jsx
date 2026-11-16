@@ -175,11 +175,11 @@ export const SharedNotificationsView = ({
           </p>
         </div>
 
-        <div className="flex flex-col xs:flex-row sm:items-center gap-2 w-full sm:w-auto">
+        <div className="flex flex-row items-center gap-2 w-full sm:w-auto shrink-0">
           {counts.unread > 0 && (
             <button
               onClick={handleMarkAllRead}
-              className="w-full sm:w-auto px-3.5 py-2 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+              className="flex-1 sm:flex-none whitespace-nowrap px-2 sm:px-3.5 py-2 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <FleetIcons.Check className="w-3.5 h-3.5" />
               <span>{t('ag.shared.sharednotificationsview.mark_all_read', 'Mark all read')}</span>
@@ -189,7 +189,7 @@ export const SharedNotificationsView = ({
           {settingsPath && (
             <Link
               to={settingsPath}
-              className="w-full sm:w-auto px-3.5 py-2 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5"
+              className="flex-1 sm:flex-none whitespace-nowrap px-2 sm:px-3.5 py-2 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5"
             >
               <FleetIcons.Settings className="w-3.5 h-3.5" />
               <span>{t('ag.shared.sharednotificationsview.alert_preferences', 'Alert Preferences')}</span>

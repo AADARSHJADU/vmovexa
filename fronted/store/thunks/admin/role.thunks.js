@@ -9,34 +9,10 @@ export const fetchRolesThunk = createAsyncThunk(
   }
 );
 
-export const createRoleThunk = createAsyncThunk(
-  'admin/role/createRole',
-  async (data, { rejectWithValue }) => {
-    try { return await adminRoleService.createRole(data); }
-    catch (err) { return rejectWithValue(err); }
-  }
-);
-
-export const deleteRoleThunk = createAsyncThunk(
-  'admin/role/deleteRole',
-  async (id, { rejectWithValue }) => {
-    try { await adminRoleService.deleteRole(id); return id; }
-    catch (err) { return rejectWithValue(err); }
-  }
-);
-
-export const updateRoleThunk = createAsyncThunk(
-  'admin/role/updateRole',
-  async ({ id, permissionIds }, { rejectWithValue }) => {
-    try { return await adminRoleService.updateRolePermissions(id, permissionIds); }
-    catch (err) { return rejectWithValue(err); }
-  }
-);
-
-export const fetchPermissionsThunk = createAsyncThunk(
-  'admin/role/fetchPermissions',
+export const fetchRegistryThunk = createAsyncThunk(
+  'admin/role/fetchRegistry',
   async (_, { rejectWithValue }) => {
-    try { return await adminRoleService.getPermissions(); }
+    try { return await adminRoleService.getRegistry(); }
     catch (err) { return rejectWithValue(err); }
   }
 );

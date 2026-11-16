@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from '../hooks/useTranslation';
 import toast from 'react-hot-toast';
 import { FleetIcons } from './FleetIcons';
@@ -15,7 +15,20 @@ import { useAuth } from '../hooks/useAuth';
 
 export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope = 'fleet' }) => {
   const { t } = useTranslation();
-  const { user, hasPermission } = useAuth();
+  const { user, can } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { id: detailIncidentId } = useParams();
+  const incidentsBasePath = roleScope === 'superadmin'
+    ? '/superadmin/incidents'
+    : roleScope === 'admin'
+      ? '/admin/incidents'
+      : '/fleet-operator/incidents';
+  const dashboardBasePath = roleScope === 'superadmin'
+    ? '/superadmin/dashboard'
+    : roleScope === 'admin'
+      ? '/admin/dashboard'
+      : '/fleet-operator/dashboard';
   // Role check: Super Admin authority exclusivity
   const isSuperAdmin = useMemo(() => {
     const roleCode = typeof user?.role === 'string' ? user.role : (user?.role?.code || '');
@@ -28,7 +41,7 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
     );
   }, [roleScope, user]);
 
-  const canView = isSuperAdmin || roleScope === 'superadmin' || hasPermission('fleet.incidents.view');
+  const canView = isSuperAdmin || roleScope === 'superadmin' || can('incidents.view');
 
   // Redux Hook for incidents
   const {
@@ -40,10 +53,10 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
     fetchIncidentById,
   } = useFleetIncident();
 
-  // View Navigation State ('list' | 'detail')
-  const [activeView, setActiveView] = useState('list');
   const [selectedIncident, setSelectedIncident] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState('');
+  const [viewMode, setViewMode] = useState('list');
 
   // Filter State
   const [searchQuery, setSearchQuery] = useState('');
@@ -64,6 +77,7 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
     status: 'contacted',
     contactedDriver: true,
     contactNotes: '',
+    fieldNotes: '',
     recovered: false,
     resolutionNotes: '',
   });
@@ -152,7 +166,7 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
           : (results[2].value?.rows || results[2].value?.items || results[2].value?.organizations || []);
         setOrganizationsList(oList);
       }
-    } catch (_) {
+    } catch {
       // Non-critical, fall back to empty lists
     } finally {
       setResourcesLoading(false);
@@ -246,55 +260,77 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
       setIsReportModalOpen(false);
       setReportForm(initialReportForm);
       await loadIncidents();
-    } catch (_) {
+    } catch {
       /* toast handles error */
     } finally {
       setSubmittingReport(false);
     }
   };
 
-  const openDetailView = async (inc, focusResolution = false) => {
+  const openDetailView = (inc, focusResolution = false) => {
     setSelectedIncident(inc);
     setResolutionForm({
       status: inc.status || 'contacted',
       contactedDriver: Boolean(inc.contacted_driver),
       contactNotes: inc.contact_notes || '',
+      fieldNotes: inc.field_notes || '',
       recovered: Boolean(inc.recovered_at),
       resolutionNotes: inc.resolution_notes || '',
     });
-    setActiveView('detail');
+    navigate(`${incidentsBasePath}/${inc.id}${focusResolution ? '?focus=resolution' : ''}`);
+  };
 
-    // Fetch full fresh details with activityLogs
+  useEffect(() => {
+    if (!detailIncidentId) return;
+
+    let isCurrent = true;
     setDetailLoading(true);
-    try {
-      const fullInc = await fetchIncidentById(inc.id);
-      if (fullInc) {
+    setDetailError('');
+
+    fetchIncidentById(detailIncidentId)
+      .then((fullInc) => {
+        if (!isCurrent || !fullInc) return;
         setSelectedIncident(fullInc);
         setResolutionForm({
           status: fullInc.status || 'contacted',
           contactedDriver: Boolean(fullInc.contacted_driver),
           contactNotes: fullInc.contact_notes || '',
+          fieldNotes: fullInc.field_notes || '',
           recovered: Boolean(fullInc.recovered_at),
           resolutionNotes: fullInc.resolution_notes || '',
         });
-      }
-    } catch (err) {
-      console.error('Failed to load incident detail with activity logs:', err);
-    } finally {
-      setDetailLoading(false);
-    }
 
-    if (focusResolution) {
-      setTimeout(() => {
-        const el = document.getElementById('resolution-section');
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-      }, 150);
-    }
-  };
+        if (new URLSearchParams(location.search).get('focus') === 'resolution') {
+          window.setTimeout(() => {
+            document.getElementById('resolution-section')?.scrollIntoView({ behavior: 'smooth' });
+          }, 150);
+        }
+      })
+      .catch((err) => {
+        if (!isCurrent) return;
+        setSelectedIncident(null);
+        setDetailError(err?.message || 'Failed to load incident details.');
+      })
+      .finally(() => {
+        if (isCurrent) setDetailLoading(false);
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [detailIncidentId, fetchIncidentById, location.search]);
 
   const handleSaveResolution = async (e) => {
     if (e) e.preventDefault();
     if (!selectedIncident || updating) return;
+    if (
+      isSuperAdmin &&
+      ['resolved', 'closed'].includes(resolutionForm.status) &&
+      !resolutionForm.resolutionNotes.trim()
+    ) {
+      toast.error(t('incident.resolution_notes_required', 'Final resolution notes are required before resolving or closing an incident.'));
+      return;
+    }
 
     setUpdating(true);
     try {
@@ -311,7 +347,7 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
         : {
             contactedDriver: resolutionForm.contactedDriver,
             contactNotes: resolutionForm.contactNotes,
-            resolutionNotes: resolutionForm.resolutionNotes,
+            fieldNotes: resolutionForm.fieldNotes,
           };
 
       await toast.promise(
@@ -336,6 +372,7 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
           status: fresh.status || 'contacted',
           contactedDriver: Boolean(fresh.contacted_driver),
           contactNotes: fresh.contact_notes || '',
+          fieldNotes: fresh.field_notes || '',
           recovered: Boolean(fresh.recovered_at),
           resolutionNotes: fresh.resolution_notes || '',
         });
@@ -478,69 +515,78 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
     );
   }
 
+  const hasCurrentIncident = Boolean(
+    selectedIncident && String(selectedIncident.id) === String(detailIncidentId)
+  );
+
+  if (detailIncidentId && !hasCurrentIncident) {
+    const isWaitingForDetail = detailLoading || !detailError;
+    return (
+      <div className="flex min-h-[50vh] w-full items-center justify-center rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="space-y-4">
+          {isWaitingForDetail ? (
+            <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-slate-300 border-t-blue-600" />
+          ) : (
+            <FleetIcons.Alert className="mx-auto h-10 w-10 text-red-500" />
+          )}
+          <p className="text-sm font-bold text-slate-700 dark:text-zinc-200">
+            {isWaitingForDetail ? t('incident.loading_details', 'Loading incident details...') : detailError}
+          </p>
+          {!isWaitingForDetail && (
+            <button
+              type="button"
+              onClick={() => navigate(incidentsBasePath)}
+              className="rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white dark:bg-blue-600"
+            >
+              {t('incident.back_to_list', 'Back to Incidents List')}
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   // RENDER DETAIL VIEW SECTION
-  if (activeView === 'detail' && selectedIncident) {
+  if (detailIncidentId && hasCurrentIncident) {
     const photosArr = getMediaArray(selectedIncident.photos);
     const videosArr = getMediaArray(selectedIncident.videos);
+    const affectedPartiesArr = getMediaArray(selectedIncident.affected_parties || selectedIncident.affectedParties);
     const driverName =
       selectedIncident.driver?.name || selectedIncident.driver?.user?.name || `Driver #${selectedIncident.driver_id || '—'}`;
     const vehicleCode =
       selectedIncident.vehicle?.code || selectedIncident.vehicle?.bus_number || `Vehicle #${selectedIncident.vehicle_id || '—'}`;
     const activityLogs = selectedIncident.activityLogs || [];
+    const emergencyContactPhone = selectedIncident.contact_number || selectedIncident.contactNumber || '';
+    const requiresFinalResolutionNotes = isSuperAdmin && ['resolved', 'closed'].includes(resolutionForm.status);
 
     return (
-      <div className="w-full space-y-6 animate-in fade-in duration-200 pb-20">
-        {/* Standard Reusable Breadcrumb */}
+      <div className="w-full min-w-0 space-y-6 overflow-x-hidden animate-in fade-in duration-200 pb-20">
         <Breadcrumb
           items={[
             {
-              label: roleScope === 'superadmin' ? 'SuperAdmin' : roleScope === 'fleet' ? 'Fleet Operator' : 'Admin',
-              to: roleScope === 'superadmin' ? '/superadmin/dashboard' : roleScope === 'fleet' ? '/fleet-operator/dashboard' : '/admin/dashboard',
+              label: roleScope === 'superadmin'
+                ? t('roles.superadmin', 'Super Admin')
+                : roleScope === 'admin'
+                  ? t('roles.admin', 'Admin')
+                  : t('roles.fleet_operator', 'Fleet Operator'),
+              to: dashboardBasePath,
             },
             {
-              label: t('incident.cmd_center_title', 'Emergency Incidents'),
-              onClick: () => setActiveView('list'),
+              label: t('incident.incidents_command', 'Incidents Command'),
+              to: incidentsBasePath,
             },
             {
-              label: `Incident #${selectedIncident.id}`,
+              label: `${t('ag.shared.incidentmanagementview.incident', 'Incident #')}${selectedIncident.id}`,
             },
           ]}
+          className="justify-start"
         />
-        <div className="w-full p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-400 font-medium">
-              <button
-                type="button"
-                onClick={() => setActiveView('list')}
-                className="hover:text-blue-600 transition-colors"
-              >
-                {t('incident.console', 'Console')}
-              </button>
-              <span>/</span>
-              <button
-                type="button"
-                onClick={() => setActiveView('list')}
-                className="hover:text-blue-600 transition-colors"
-              >
-                {roleTitle}
-              </button>
-              <span>/</span>
-              <button
-                type="button"
-                onClick={() => setActiveView('list')}
-                className="hover:text-blue-600 transition-colors"
-              >
-                {t('incident.incidents_command', 'Incidents Command')}
-              </button>
-              <span>/</span>
-              <span className="font-bold text-slate-900 dark:text-white font-mono">
-                {t('ag.shared.incidentmanagementview.incident', 'Incident #')}{selectedIncident.id}
-              </span>
-            </div>
 
+        <div className="w-full p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm space-y-3">
+          <div className="flex justify-end">
             <button
               type="button"
-              onClick={() => setActiveView('list')}
+              onClick={() => navigate(incidentsBasePath)}
               className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
             >
               <span>←</span>
@@ -550,7 +596,7 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
 
           <div className="border-t border-slate-100 dark:border-zinc-800 pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400 uppercase">
                   #{selectedIncident.id}
                 </span>
@@ -565,16 +611,18 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
                 )}
               </div>
               <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-0.5">
-                {selectedIncident.incident_type || selectedIncident.incidentType || selectedIncident.type || 'Incident Details'}
+                {(selectedIncident.incident_type || selectedIncident.incidentType || selectedIncident.type)
+                  ? t(`incident.types.${(selectedIncident.incident_type || selectedIncident.incidentType || selectedIncident.type).toLowerCase().replace(/[^a-z0-9]/g, '_')}`, selectedIncident.incident_type || selectedIncident.incidentType || selectedIncident.type)
+                  : t('incident.details_title', 'Incident Details')}
               </h1>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${getSeverityBadge(selectedIncident.severity)}`}>
-                ● {selectedIncident.severity || 'low'} {t('ag.shared.incidentmanagementview.severity', 'Severity')}
+                ● {selectedIncident.severity ? t(`incident.severity.${selectedIncident.severity.toLowerCase()}`, selectedIncident.severity) : t('incident.severity.low', 'low')} {t('ag.shared.incidentmanagementview.severity', 'Severity')}
               </span>
               <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${getStatusBadge(selectedIncident.status)}`}>
-                {String(selectedIncident.status || 'open').replace('_', ' ')}
+                {selectedIncident.status ? t(`incident.status.${selectedIncident.status.toLowerCase()}`, String(selectedIncident.status).replace('_', ' ')) : t('incident.status.open', 'Open')}
               </span>
             </div>
           </div>
@@ -626,15 +674,32 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
         </div>
 
         {/* Incident Summary Banner */}
-        <div className="p-6 rounded-3xl bg-slate-900 text-white space-y-5 shadow-xl border border-slate-800">
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs border-b border-slate-800 pb-4">
+        <div className="min-w-0 overflow-hidden p-4 sm:p-6 rounded-3xl bg-slate-900 text-white space-y-5 shadow-xl border border-slate-800">
+          <div className="grid grid-cols-1 gap-4 border-b border-slate-800 pb-4 text-xs sm:grid-cols-2 lg:grid-cols-5">
             <div>
               <span className="text-slate-400 text-[10px] font-bold uppercase block">{t('incident.assigned_driver', 'Assigned Driver')}</span>
-              <span className="font-bold text-slate-100 text-sm">{driverName}</span>
+              <span className="block break-words font-bold text-slate-100 text-sm">{driverName}</span>
             </div>
             <div>
               <span className="text-slate-400 text-[10px] font-bold uppercase block">{t('incident.vehicle_unit', 'Vehicle Unit')}</span>
               <span className="font-bold text-slate-100 text-sm">{vehicleCode}</span>
+            </div>
+            <div>
+              <span className="text-slate-400 text-[10px] font-bold uppercase block">
+                {t('incident.on_scene_emergency_contact_phone', 'On-Scene Emergency Contact Phone')}
+              </span>
+              {emergencyContactPhone ? (
+                <a
+                  href={`tel:${emergencyContactPhone}`}
+                  className="mt-0.5 block break-all text-sm font-bold text-blue-300 hover:text-blue-200 hover:underline"
+                >
+                  {emergencyContactPhone}
+                </a>
+              ) : (
+                <span className="mt-0.5 block text-sm font-bold text-slate-400">
+                  {t('common.not_provided', 'Not provided')}
+                </span>
+              )}
             </div>
             <div>
               <span className="text-slate-400 text-[10px] font-bold uppercase block">{t('incident.driver_contact_status', 'Driver Contact Status')}</span>
@@ -675,7 +740,7 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
               <span className="text-slate-400 text-[10px] font-bold uppercase block">{t('incident.incident_location', 'Incident Location')}</span>
               <span className="font-bold text-slate-100 flex items-center gap-1 mt-0.5">
                 <FleetIcons.Pin className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                <span>{selectedIncident.location || 'Location Not Specified'}</span>
+                <span className="min-w-0 [overflow-wrap:anywhere]">{selectedIncident.location || 'Location Not Specified'}</span>
               </span>
               {selectedIncident.landmark && <p className="text-slate-300 text-[11px] mt-0.5 ml-4.5">{t('ag.shared.incidentmanagementview.landmark', 'Landmark:')} {selectedIncident.landmark}</p>}
             </div>
@@ -705,6 +770,38 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
           </div>
         </div>
 
+        {/* Values captured during incident creation */}
+        <div className="grid min-w-0 grid-cols-1 gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-xs shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:grid-cols-3 sm:p-5">
+          <div className="min-w-0">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              {t('incident.affected_parties', 'Affected Parties')}
+            </span>
+            <span className="mt-1 block font-bold text-slate-900 [overflow-wrap:anywhere] dark:text-white">
+              {affectedPartiesArr.length > 0
+                ? affectedPartiesArr.join(', ')
+                : t('common.not_provided', 'Not provided')}
+            </span>
+          </div>
+          <div className="min-w-0">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              {t('incident.contact_preference', 'Emergency Contact Preference')}
+            </span>
+            <span className="mt-1 block font-bold text-slate-900 [overflow-wrap:anywhere] dark:text-white">
+              {selectedIncident.contact_preference || selectedIncident.contactPreference || t('common.not_provided', 'Not provided')}
+            </span>
+          </div>
+          <div className="min-w-0">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              {t('incident.reported_timestamp', 'Reported Timestamp')}
+            </span>
+            <span className="mt-1 block font-bold text-slate-900 [overflow-wrap:anywhere] dark:text-white">
+              {selectedIncident.reported_at
+                ? new Date(selectedIncident.reported_at).toLocaleString('en-GB')
+                : t('common.not_provided', 'Not provided')}
+            </span>
+          </div>
+        </div>
+
         {/* Emergency Medical & Police Audit Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* Medical Box */}
@@ -714,7 +811,7 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
               <span>{t('incident.medical_audit_title', 'Emergency Medical & Hospitalization Audit')}</span>
             </h3>
 
-            <div className="grid grid-cols-2 gap-3 text-xs">
+            <div className="grid grid-cols-1 gap-3 text-xs sm:grid-cols-2">
               <div className="p-3.5 bg-white dark:bg-zinc-800 rounded-2xl border border-red-100 dark:border-zinc-700">
                 <span className="text-[10px] text-slate-500 dark:text-zinc-400 block font-bold uppercase">{t('incident.fatalities', 'Fatalities')}</span>
                 <span className="text-xl font-black text-red-600">{selectedIncident.dead_casualty || 0}</span>
@@ -723,7 +820,7 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
                 <span className="text-[10px] text-slate-500 dark:text-zinc-400 block font-bold uppercase">{t('incident.injured_count', 'Injured Count')}</span>
                 <span className="text-xl font-black text-amber-600">{selectedIncident.injured_count || 0}</span>
               </div>
-              <div className="p-3.5 bg-white dark:bg-zinc-800 rounded-2xl border border-red-100 dark:border-zinc-700 col-span-2">
+              <div className="p-3.5 bg-white dark:bg-zinc-800 rounded-2xl border border-red-100 dark:border-zinc-700 sm:col-span-2">
                 <span className="text-[10px] text-slate-500 dark:text-zinc-400 block font-bold uppercase">{t('incident.hospital_ambulance', 'Hospital & Ambulance')}</span>
                 <p className="font-bold text-slate-900 dark:text-white mt-0.5">
                   {t('incident.hospital_label', 'Hospital:')} <strong>{selectedIncident.hospital_name || 'None'}</strong>
@@ -742,8 +839,8 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
               <span>{t('incident.police_towing_title', 'Police & Towing Assistance')}</span>
             </h3>
 
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="p-3.5 bg-slate-50 dark:bg-zinc-800 rounded-2xl border border-slate-200 dark:border-zinc-700 col-span-2">
+            <div className="grid grid-cols-1 gap-3 text-xs sm:grid-cols-2">
+              <div className="p-3.5 bg-slate-50 dark:bg-zinc-800 rounded-2xl border border-slate-200 dark:border-zinc-700 sm:col-span-2">
                 <span className="text-[10px] text-slate-400 block font-bold uppercase">{t('incident.police_fir', 'Police Jurisdiction & FIR')}</span>
                 <p className="font-bold text-slate-900 dark:text-white mt-0.5">
                   {selectedIncident.police_notified ? `Police Station: ${selectedIncident.police_station_name || 'FIR Registered'}` : 'No Police Dispatch Recorded'}
@@ -773,15 +870,15 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
         </div>
 
         {/* Detailed Description */}
-        <div className="p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-3">
+        <div className="min-w-0 overflow-hidden p-4 sm:p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-3">
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">{t('incident.statement_desc', 'Incident Driver Statement & Description')}</h3>
-          <p className="text-sm font-medium text-slate-800 dark:text-zinc-200 leading-relaxed">
+          <p className="max-w-full whitespace-pre-wrap text-sm font-medium text-slate-800 [overflow-wrap:anywhere] dark:text-zinc-200 leading-relaxed">
             {selectedIncident.description || 'No detailed description provided.'}
           </p>
           {selectedIncident.immediate_action && (
             <div className="border-t border-slate-100 dark:border-zinc-800 pt-3 mt-3">
               <span className="text-[11px] font-bold uppercase text-slate-400 block">{t('incident.action_taken', 'Immediate Action Taken on Scene')}</span>
-              <p className="text-xs font-medium text-slate-700 dark:text-zinc-300 mt-0.5">{selectedIncident.immediate_action}</p>
+              <p className="max-w-full whitespace-pre-wrap text-xs font-medium text-slate-700 [overflow-wrap:anywhere] dark:text-zinc-300 mt-0.5">{selectedIncident.immediate_action}</p>
             </div>
           )}
         </div>
@@ -925,10 +1022,10 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-zinc-400">
+                        <div className="flex min-w-0 flex-wrap items-center gap-2 text-[11px] text-slate-500 dark:text-zinc-400">
                         <span>{t('incident.action_performed_by', 'Action Performed By:')}</span>
-                        <strong className="text-slate-800 dark:text-zinc-200">{nameDisplay}</strong>
-                        {log.actor_email && <span className="text-slate-400">({log.actor_email})</span>}
+                          <strong className="break-words text-slate-800 dark:text-zinc-200">{nameDisplay}</strong>
+                          {log.actor_email && <span className="break-all text-slate-400">({log.actor_email})</span>}
                       </div>
 
                       {/* Status Transition Diff */}
@@ -946,9 +1043,9 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
                       )}
 
                       {/* Notes / Remarks block */}
-                      {(log.properties?.notes || log.properties?.contact_notes || log.properties?.resolution_notes) && (
+                      {(log.properties?.notes || log.properties?.contact_notes || log.properties?.field_notes || log.properties?.resolution_notes) && (
                         <div className="p-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-[11px] text-slate-700 dark:text-zinc-300 italic">
-                          "{log.properties.notes || log.properties.contact_notes || log.properties.resolution_notes}"
+                          "{log.properties.notes || log.properties.contact_notes || log.properties.field_notes || log.properties.resolution_notes}"
                         </div>
                       )}
                     </div>
@@ -1050,11 +1147,11 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
                   <label className="block text-[11px] font-bold text-slate-600 dark:text-zinc-400 mb-1">
                     {t('incident.driver_voice_notes', 'Driver Voice Contact Notes & Assessment')}
                   </label>
-                  <input
-                    type="text"
+                  <textarea
+                    rows={3}
                     value={resolutionForm.contactNotes}
                     onChange={(e) => setResolutionForm({ ...resolutionForm, contactNotes: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-medium focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full min-w-0 resize-y px-3.5 py-2.5 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 [overflow-wrap:anywhere]"
                     placeholder={t('incident.driver_notes_ph', 'e.g. Spoke with driver Ramesh at 18:15. Driver confirmed safe, roadside assistance dispatched.')}
                   />
                 </div>
@@ -1084,14 +1181,21 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
             {/* Final Resolution Report Textarea */}
             <div>
               <label className="block font-bold text-slate-700 dark:text-zinc-300 mb-1.5 flex items-center justify-between">
-                <span>{isSuperAdmin ? 'Final Super Admin Resolution Report *' : 'Field Remarks & Dispatch Notes'}</span>
+                <span>
+                  {isSuperAdmin
+                    ? `Final Super Admin Resolution Report${requiresFinalResolutionNotes ? ' *' : ''}`
+                    : 'Field Remarks & Dispatch Notes'}
+                </span>
                 {!isSuperAdmin && <span className="text-[10px] text-slate-400">{t('incident.optional_field_update', 'Optional field update')}</span>}
               </label>
               <textarea
                 rows={4}
-                required={isSuperAdmin}
-                value={resolutionForm.resolutionNotes}
-                onChange={(e) => setResolutionForm({ ...resolutionForm, resolutionNotes: e.target.value })}
+                required={requiresFinalResolutionNotes}
+                value={isSuperAdmin ? resolutionForm.resolutionNotes : resolutionForm.fieldNotes}
+                onChange={(e) => setResolutionForm({
+                  ...resolutionForm,
+                  [isSuperAdmin ? 'resolutionNotes' : 'fieldNotes']: e.target.value,
+                })}
                 className="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                 placeholder={
                   isSuperAdmin
@@ -1102,18 +1206,18 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
             </div>
 
             {/* Form Footer Controls */}
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-zinc-800">
+            <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-3 dark:border-zinc-800 sm:flex-row sm:items-center sm:justify-end">
               <button
                 type="button"
-                onClick={() => setActiveView('list')}
-                className="px-5 py-2.5 bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-bold rounded-xl"
+                onClick={() => navigate(incidentsBasePath)}
+                className="w-full px-5 py-2.5 bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-bold rounded-xl sm:w-auto"
               >
                 {t('incident.cancel_back', 'Cancel / Back')}
               </button>
               <button
                 type="submit"
                 disabled={updating}
-                className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-2"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-2.5 text-xs font-bold text-white shadow-md transition-all hover:bg-emerald-700 sm:w-auto"
               >
                 <FleetIcons.Save className="w-3.5 h-3.5" />
                 <span>
@@ -1201,7 +1305,11 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
       <Breadcrumb
         items={[
           {
-            label: roleScope === 'superadmin' ? 'SuperAdmin' : roleScope === 'fleet' ? 'Fleet Operator' : 'Admin',
+            label: roleScope === 'superadmin'
+              ? t('roles.superadmin', 'Super Admin')
+              : roleScope === 'fleet'
+              ? t('roles.fleet_operator', 'Fleet Operator')
+              : t('roles.admin', 'Admin'),
             to: roleScope === 'superadmin' ? '/superadmin/dashboard' : roleScope === 'fleet' ? '/fleet-operator/dashboard' : '/admin/dashboard',
           },
           {
@@ -1369,32 +1477,56 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
                     : 'bg-slate-50 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border-slate-200 dark:border-zinc-700 hover:bg-slate-100'
                 }`}
               >
-                {cat}
+                {cat === 'ALL'
+                  ? t('incident.all', 'ALL')
+                  : t(`incident.types.${cat.toLowerCase().replace(/[^a-z0-9]/g, '_')}`, cat)}
               </button>
             ))}
           </div>
 
-          {(searchQuery || severityFilter !== 'ALL' || typeFilter !== 'ALL' || statusFilter !== 'ALL') && (
-            <button
-              type="button"
-              onClick={resetFilters}
-              className="text-xs text-red-600 hover:text-red-700 font-bold underline cursor-pointer"
-            >
-              {t('incident.reset_filters', 'Reset All Filters')}
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {(searchQuery || severityFilter !== 'ALL' || typeFilter !== 'ALL' || statusFilter !== 'ALL') && (
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="mr-1 text-xs font-bold text-red-600 underline hover:text-red-700"
+              >
+                {t('incident.reset_filters', 'Reset All Filters')}
+              </button>
+            )}
+            <div className="inline-flex rounded-xl border border-slate-200 bg-slate-50 p-1 dark:border-zinc-700 dark:bg-zinc-800" role="group" aria-label={t('incident.view_mode', 'Incident view mode')}>
+              <button
+                type="button"
+                onClick={() => setViewMode('list')}
+                aria-pressed={viewMode === 'list'}
+                title={t('incident.list_view', 'List view')}
+                className={`rounded-lg p-2 transition-colors ${viewMode === 'list' ? 'bg-white text-blue-600 shadow-sm dark:bg-zinc-700 dark:text-blue-400' : 'text-slate-400 hover:text-slate-700 dark:hover:text-zinc-200'}`}
+              >
+                <FleetIcons.List className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('grid')}
+                aria-pressed={viewMode === 'grid'}
+                title={t('incident.grid_view', 'Grid view')}
+                className={`rounded-lg p-2 transition-colors ${viewMode === 'grid' ? 'bg-white text-blue-600 shadow-sm dark:bg-zinc-700 dark:text-blue-400' : 'text-slate-400 hover:text-slate-700 dark:hover:text-zinc-200'}`}
+              >
+                <FleetIcons.Grid className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Incidents Command Grid */}
-      <div className="space-y-4">
+      <div className={viewMode === 'grid' ? 'grid grid-cols-1 gap-4 xl:grid-cols-2' : 'space-y-4'}>
         {loading ? (
-          <div className="py-16 text-center text-xs text-slate-500 flex flex-col items-center justify-center gap-2">
+          <div className="col-span-full py-16 text-center text-xs text-slate-500 flex flex-col items-center justify-center gap-2">
             <div className="w-7 h-7 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin"></div>
             <span>{t('incident.loading', 'Loading emergency incidents...')}</span>
           </div>
         ) : paginatedIncidents.length === 0 ? (
-          <div className="p-12 text-center bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl space-y-3">
+          <div className="col-span-full p-12 text-center bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl space-y-3">
             <FleetIcons.Alert className="w-12 h-12 text-red-500 mx-auto" />
             <p className="text-sm font-bold text-slate-700 dark:text-zinc-200">{t('incident.not_found_title', 'No Incidents Found')}</p>
             <p className="text-xs text-slate-400 max-w-sm mx-auto">
@@ -1413,18 +1545,18 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
               <div
                 key={inc.id}
                 onClick={() => openDetailView(inc, false)}
-                className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 shadow-sm space-y-4 cursor-pointer group transition-all"
+                className="min-w-0 overflow-hidden p-4 sm:p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 shadow-sm space-y-4 cursor-pointer group transition-all"
               >
                 {/* Header Row */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-zinc-800 pb-3">
-                  <div className="flex items-center gap-3">
+                <div className={`flex flex-col justify-between gap-3 border-b border-slate-100 pb-3 dark:border-zinc-800 ${viewMode === 'list' ? 'sm:flex-row sm:items-center' : ''}`}>
+                  <div className="flex min-w-0 items-start gap-3">
                     <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-zinc-800 font-mono text-xs font-bold text-slate-700 dark:text-zinc-300">
                       {t('ag.shared.incidentmanagementview.inc', '#INC-')}{inc.id}
                     </span>
-                    <div>
+                    <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="text-sm font-black text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">
-                          {incType}
+                          {t(`incident.types.${incType.toLowerCase().replace(/[^a-z0-9]/g, '_')}`, incType)}
                         </h3>
                         {isSuperAdmin && (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-[10px] font-bold">
@@ -1433,15 +1565,15 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
                           </span>
                         )}
                       </div>
-                      <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium mt-0.5">
+                      <p className="mt-0.5 max-w-full text-[11px] font-medium text-slate-500 [overflow-wrap:anywhere] dark:text-zinc-400">
                         {t('ag.shared.incidentmanagementview.driver', 'Driver:')} <strong>{driverName}</strong> {t('ag.shared.incidentmanagementview.vehicle', '| Vehicle:')} <strong>{vehicleCode}</strong>
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 self-start sm:self-auto">
+                  <div className="flex max-w-full flex-wrap items-center gap-2 self-start">
                     <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${getSeverityBadge(inc.severity)}`}>
-                      ● {inc.severity || 'low'}
+                      ● {inc.severity ? t(`incident.severity.${inc.severity.toLowerCase()}`, inc.severity) : t('incident.severity.low', 'low')}
                     </span>
                     <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
                       inc.contacted_driver ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300' : 'bg-slate-100 text-slate-600'
@@ -1459,19 +1591,19 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
                       )}
                     </span>
                     <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${getStatusBadge(inc.status)}`}>
-                      {String(inc.status || 'open').replace('_', ' ')}
+                      {inc.status ? t(`incident.status.${inc.status.toLowerCase()}`, String(inc.status).replace('_', ' ')) : t('incident.status.open', 'Open')}
                     </span>
                   </div>
                 </div>
 
                 {/* Details Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                  <div className="sm:col-span-2 space-y-1">
+                <div className={`grid grid-cols-1 gap-3 text-xs ${viewMode === 'list' ? 'sm:grid-cols-3' : ''}`}>
+                  <div className={viewMode === 'list' ? 'space-y-1 sm:col-span-2' : 'space-y-1'}>
                     <span className="text-slate-400 text-[10px] font-bold uppercase block">{t('incident.incident_location', 'Description & Location')}</span>
-                    <p className="text-slate-800 dark:text-zinc-200 font-medium line-clamp-2">{inc.description || 'No detailed description.'}</p>
+                    <p className="max-w-full text-slate-800 dark:text-zinc-200 font-medium line-clamp-2 [overflow-wrap:anywhere]">{inc.description || 'No detailed description.'}</p>
                     <div className="text-slate-500 font-medium pt-1 flex items-center gap-1">
                       <FleetIcons.Pin className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                      <span><strong>{inc.location || 'Location Not Specified'}</strong> {inc.landmark && `(${inc.landmark})`}</span>
+                      <span className="min-w-0 [overflow-wrap:anywhere]"><strong>{inc.location || 'Location Not Specified'}</strong> {inc.landmark && `(${inc.landmark})`}</span>
                     </div>
                     {inc.latitude && inc.longitude && (
                       <div className="text-emerald-600 font-mono font-bold text-[11px] flex items-center gap-1">
@@ -1509,8 +1641,8 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
                 )}
 
                 {/* Footer Controls */}
-                <div className="flex items-center justify-between border-t border-slate-100 dark:border-zinc-800 pt-3 text-xs">
-                  <div className="flex items-center gap-3 text-slate-500 font-medium">
+                <div className="flex flex-col gap-3 border-t border-slate-100 pt-3 text-xs dark:border-zinc-800 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex min-w-0 flex-wrap items-center gap-3 text-slate-500 font-medium">
                     {photosArr.length > 0 && (
                       <span className="flex items-center gap-1">
                         <FleetIcons.Camera className="w-3.5 h-3.5 text-blue-500" />
@@ -1530,7 +1662,7 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="grid grid-cols-1 gap-2 sm:flex sm:items-center">
                     <button
                       type="button"
                       onClick={(e) => {

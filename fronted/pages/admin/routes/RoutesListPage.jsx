@@ -14,7 +14,7 @@ import { fleetVehicleService } from '../../../api/services/fleet/vehicle.service
 export const RoutesListPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { hasPermission } = useAuth();
+  const { can } = useAuth();
   const { t } = useTranslation();
   const {
     routes,
@@ -32,11 +32,11 @@ export const RoutesListPage = () => {
   const dashboardLink = isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard';
 
   // Permission checks
-  const canView = hasPermission('fleet.routes.view');
-  const canCreate = hasPermission('fleet.routes.create');
-  const canUpdate = hasPermission('fleet.routes.update');
-  const canDelete = hasPermission('fleet.routes.delete');
-  const canApprove = !isFleetPortal && hasPermission('fleet.routes.approve');
+  const canView = can('routes.view');
+  const canCreate = can('routes.create');
+  const canUpdate = can('routes.update');
+  const canDelete = can('routes.delete');
+  const canApprove = !isFleetPortal && can('routes.approve');
 
   // Filters & State
   const [activeTab, setActiveTab] = useState('ALL'); // 'ALL', 'active', 'pending_approval', 'rejected'

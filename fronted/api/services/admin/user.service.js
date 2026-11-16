@@ -22,7 +22,9 @@ export const adminUserService = {
   deleteUser: (id) => call(apiClient.delete(ENDPOINTS.USERS.ONE(id))),
   inviteUser: (data) => call(apiClient.post(ENDPOINTS.INVITATIONS.LIST, data)),
   getUserPermissions: (id) => call(apiClient.get(ENDPOINTS.USERS.USER_PERMISSIONS(id))),
-  updateUserPermissions: (id, permissions) => call(apiClient.put(ENDPOINTS.USERS.USER_PERMISSIONS(id), { permissions })),
+  // Revoke-only: `denied` = keys of the role's permissions this user must NOT have.
+  updateUserPermissions: (id, denied) => call(apiClient.put(ENDPOINTS.USERS.USER_PERMISSIONS(id), { denied })),
+  resetUserPermissions: (id) => call(apiClient.delete(ENDPOINTS.USERS.USER_PERMISSIONS(id))),
 };
 
 export default adminUserService;

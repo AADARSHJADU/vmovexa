@@ -283,6 +283,8 @@ export const DriverUploadDocumentPage = () => {
               onChange={(docs) => setFormData((prev) => ({ ...prev, documents: docs }))}
               title={t('driver.docs.attachments_title')}
               purpose="driver_document"
+              showVerifyStatus={false}
+              allowToggleVerify={false}
             />
           </div>
 

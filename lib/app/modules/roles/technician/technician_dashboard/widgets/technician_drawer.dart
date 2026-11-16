@@ -39,7 +39,7 @@ class TechnicianDrawer extends StatelessWidget {
                     },
                   ),
                   _buildDrawerItem(
-                    title: 'field_work_orders'.tr,
+                    title: 'assigned_work_orders'.tr,
                     icon: 'assets/icons/fleet_operator_icons/fleetsManagedA2.svg',
                     isSelected: dashboardCtrl.selectedNavIndex.value == 1,
                     onTap: () {
@@ -68,6 +68,14 @@ class TechnicianDrawer extends StatelessWidget {
 
                   const SizedBox(height: 12),
                   _buildSectionHeader('hardware_diagnostics_caps'.tr),
+                  _buildDrawerItem(
+                    title: 'edge_setup'.tr,
+                    icon: 'assets/icons/tv.svg',
+                    onTap: () {
+                      Get.back();
+                      Get.toNamed(Routes.TECH_EDGE_SETUP);
+                    },
+                  ),
                   _buildDrawerItem(
                     title: 'gps_installation'.tr,
                     icon: 'assets/icons/location.svg',
@@ -121,6 +129,14 @@ class TechnicianDrawer extends StatelessWidget {
                     },
                   ),
                   _buildDrawerItem(
+                    title: 'help_support'.tr,
+                    icon: 'assets/icons/fleet_operator_icons/helpSupportA.svg',
+                    onTap: () {
+                      Get.back();
+                      Get.toNamed(Routes.TECHNICIAN_HELP_SUPPORT);
+                    },
+                  ),
+                  _buildDrawerItem(
                     title: 'change_language'.tr,
                     icon: 'assets/icons/settings.svg',
                     onTap: () {
@@ -151,7 +167,7 @@ class TechnicianDrawer extends StatelessWidget {
                 ),
                 onTap: () {
                   Get.back();
-                  dashboardCtrl.logout();
+                  dashboardCtrl.confirmLogout();
                 },
               ),
             ),

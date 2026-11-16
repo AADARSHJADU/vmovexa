@@ -31,6 +31,8 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
   });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mainRef = React.useRef(null);
+  const desktopNavRef = React.useRef(null);
+  const mobileNavRef = React.useRef(null);
 
   useEffect(() => {
     localStorage.setItem('vmovexa_sidebar_collapsed', isCollapsed);
@@ -111,8 +113,9 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
       'Assigned Work Orders': t('nav.assigned_work_orders', 'Assigned Work Orders'),
       'Assign Work Order': t('nav.assigned_work_orders', 'Assigned Work Orders'),
       'Campaigns': t('nav.campaigns', 'Campaigns'),
-      'Campaigns Hub': t('nav.campaigns', 'Campaigns Hub'),
-      'Public Campaigns': t('nav.campaigns', 'Public Campaigns'),
+      'Campaigns Hub': t('nav.campaigns_hub', 'Campaigns Hub'),
+      'Lifecycle & Flow': t('nav.lifecycle___flow', 'Lifecycle & Flow'),
+      'Public Campaigns': t('nav.public_campaigns', 'Public Campaigns'),
       'Broadcast Campaign': t('campaigns.create_new', 'Broadcast Campaign'),
       'Emergency Alert': t('nav.emergency_alert', 'Emergency Alert'),
       'Emergency Override': t('nav.emergency_override', 'Emergency Override'),
@@ -170,16 +173,18 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
       'Live Tracking': t('nav.tracking', 'Live Tracking'),
       'Sovereign Tracking': t('nav.sovereign_tracking', 'Sovereign Tracking'),
       'Trips & Dispatch': t('nav.trips', 'Trips & Dispatch'),
+      'Completed Trips': t('nav.completed_trips', 'Completed Trips'),
+      'Fleet Work Orders': t('nav.fleet_work_orders', 'Fleet Work Orders'),
       'Reports & Analytics': t('nav.reports', 'Reports & Analytics'),
       'Reports': t('nav.reports', 'Reports'),
-      'Revenue Reports': t('nav.reports', 'Revenue Reports'),
-      'Proof-of-Play Reports': t('nav.reports', 'Proof-of-Play Reports'),
-      'Compliance Reports': t('nav.reports', 'Compliance Reports'),
-      'Alerts & Events': t('common.alerts', 'Alerts & Events'),
+      'Revenue Reports': t('nav.revenue_reports', 'Revenue Reports'),
+      'Proof-of-Play Reports': t('nav.proof_of_play_reports', 'Proof-of-Play Reports'),
+      'Compliance Reports': t('nav.compliance_reports', 'Compliance Reports'),
+      'Alerts & Events': t('nav.alerts_events', 'Alerts & Events'),
       'Alerts & Messages': t('common.alerts', 'Alerts & Messages'),
-      'Critical Alerts': t('common.alerts', 'Critical Alerts'),
-      'Operational Alerts': t('common.alerts', 'Operational Alerts'),
-      'Financial Alerts': t('common.alerts', 'Financial Alerts'),
+      'Critical Alerts': t('nav.critical_alerts', 'Critical Alerts'),
+      'Operational Alerts': t('nav.operational_alerts', 'Operational Alerts'),
+      'Financial Alerts': t('nav.financial_alerts', 'Financial Alerts'),
       'Hardware Configuration': t('nav.hardware_config', 'Hardware Configuration'),
       'Hardware Status': t('nav.hardware_status', 'Hardware Status'),
       'Diagnostics Tests': t('nav.diagnostics', 'Diagnostics Tests'),
@@ -190,7 +195,9 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
       'Vehicle Slots & Timetable': t('nav.slots', 'Vehicle Slots & Timetable'),
       'My Routes': t('driver.my_routes', 'My Routes'),
       'Shift Schedules': t('driver.shifts', 'Shift Schedules'),
-      'Report Incident': t('driver.report_incident', 'Report Incident'),
+      'Report Incident': t('nav.report_incident', 'Report Incident'),
+      'Emergency Incidents': t('nav.emergency_incidents', 'Emergency Incidents'),
+      'Incidents Log': t('nav.incidents_log', 'Incidents Log'),
       'Driver Documents': t('nav.documents', 'Driver Documents'),
       'Subscriptions': t('nav.subscriptions', 'Subscriptions'),
       'Invoices': t('nav.invoices', 'Invoices'),
@@ -204,6 +211,34 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
       'Field Work Orders': t('technician.work_orders', 'Field Work Orders'),
       'Edge Setup': t('technician.edge_setup', 'Edge Setup'),
       'Display Devices': t('technician.display_devices', 'Display Devices'),
+      'Advertisers': t('nav.advertisers', 'Advertisers'),
+      'Govt Agencies': t('nav.govt_agencies', 'Govt Agencies'),
+      'Finance Officers': t('nav.finance_officers', 'Finance Officers'),
+      'Subscription Plans': t('nav.subscription_plans', 'Subscription Plans'),
+      'SaaS Subscription & Quotas': t('nav.saas_subscription___quotas', 'SaaS Subscription & Quotas'),
+      'Transactions': t('nav.transactions', 'Transactions'),
+      'Create New Campaign': t('campaigns.create_new', 'Create New Campaign'),
+      'Campaign Analytics': t('nav.campaign_analytics', 'Campaign Analytics'),
+      'Campaign Reports': t('nav.campaign_reports', 'Campaign Reports'),
+      'Campaign Mapping': t('nav.campaign_mapping', 'Campaign Mapping'),
+      'Billing & Invoices': t('nav.billing_invoices', 'Billing & Invoices'),
+      'Transit Analytics': t('nav.transit_analytics', 'Transit Analytics'),
+      'Finance Dashboard': t('nav.finance_dashboard', 'Finance Dashboard'),
+      'Campaign Payments': t('nav.campaign_payments', 'Campaign Payments'),
+      'Payments Hub': t('nav.payments_hub', 'Payments Hub'),
+      'GST & Tax Compliance': t('nav.gst_compliance', 'GST & Tax Compliance'),
+      'Financial Reconciliation': t('nav.financial_reconciliation', 'Financial Reconciliation'),
+      'Live Server & Cron Monitor': t('nav.live_server_logs', 'Live Server & Cron Monitor'),
+      'Notification Delivery Logs': t('nav.notification_logs', 'Notification Delivery Logs'),
+      'Content Manager': t('nav.content_manager', 'Content Manager'),
+      'Support Desk': t('nav.support_desk', 'Support Desk'),
+      'Payment Gateways': t('nav.payment_gateways', 'Payment Gateways'),
+      'Master Channels & DND': t('nav.master_channels_dnd', 'Master Channels & DND'),
+      'Notification Event Rules': t('nav.notification_rules', 'Notification Event Rules'),
+      'Email (SMTP) Gateway': t('nav.email_gateway', 'Email (SMTP) Gateway'),
+      'SMS & Twilio Gateway': t('nav.sms_gateway', 'SMS & Twilio Gateway'),
+      'Push (Firebase) Gateway': t('nav.push_gateway', 'Push (Firebase) Gateway'),
+      'Help & Documentation': t('nav.help_docs', 'Help & Documentation'),
       // Section Headers
       'Overview': t('nav.headers.overview', 'Overview'),
       'Main Overview': t('nav.headers.main_overview', 'Main Overview'),
@@ -223,7 +258,6 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
       'Analytics & Alerts': t('nav.headers.analytics_alerts', 'Analytics & Alerts'),
       'Account & Support': t('nav.headers.account_support', 'Account & Support'),
       'Campaign Management': t('nav.headers.campaign_mgmt', 'Campaign Management'),
-      'Campaigns': t('nav.headers.campaigns', 'Campaigns'),
       'Billing & Messages': t('nav.headers.billing_messages', 'Billing & Messages'),
       'Billing & Alerts': t('nav.headers.billing_alerts', 'Billing & Alerts'),
       'Account & Legal': t('nav.headers.account_legal', 'Account & Legal'),
@@ -242,28 +276,6 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
       'Technician Portal': t('nav.headers.technician_portal', 'Technician Portal'),
       'System & Audit': t('nav.headers.system_audit', 'System & Audit'),
       'Settings & Gateways': t('nav.headers.settings_gateways', 'Settings & Gateways'),
-      'Tenant & User Management': t('nav.headers.tenant_user_mgmt', 'Tenant & User Management'),
-      'Finance & Subscriptions': t('nav.headers.finance_subs', 'Finance & Subscriptions'),
-      'Hardware & Campaigns': t('nav.headers.hardware_campaigns', 'Hardware & Campaigns'),
-      'System & Operations': t('nav.headers.system_ops', 'System & Operations'),
-      'Settings & Legal': t('nav.headers.settings_legal', 'Settings & Legal'),
-      'Fleet Operations': t('nav.headers.fleet_ops', 'Fleet Operations'),
-      'Organization & Access': t('nav.headers.org_access', 'Organization & Access'),
-      'Finance & Analytics': t('nav.headers.finance_analytics', 'Finance & Analytics'),
-      'Settings & Support': t('nav.headers.settings_support', 'Settings & Support'),
-      'Fleet & Telematics': t('nav.headers.fleet_telematics', 'Fleet & Telematics'),
-      'Analytics & Alerts': t('nav.headers.analytics_alerts', 'Analytics & Alerts'),
-      'Account & Support': t('nav.headers.account_support', 'Account & Support'),
-      'Campaign Management': t('nav.headers.campaign_mgmt', 'Campaign Management'),
-      'Billing & Messages': t('nav.headers.billing_messages', 'Billing & Messages'),
-      'Account & Legal': t('nav.headers.account_legal', 'Account & Legal'),
-      'Public Services & Alerts': t('nav.headers.public_services', 'Public Services & Alerts'),
-      'Device Operations': t('nav.headers.device_ops', 'Device Operations'),
-      'Alerts & Account': t('nav.headers.alerts_account', 'Alerts & Account'),
-      'Dispatch & Routes': t('nav.headers.dispatch_routes', 'Dispatch & Routes'),
-      'Financial Management': t('nav.headers.financial_mgmt', 'Financial Management'),
-      'Advertiser': t('nav.headers.advertiser', 'Advertiser'),
-      'Government': t('nav.headers.government', 'Government'),
     };
     return map[label] || t(`nav.${label.toLowerCase().replace(/[^a-z0-9]/g, '_')}`, label);
   };
@@ -324,6 +336,35 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
     return result;
   }, [navLinks, hasPermission, roleTitle, user]);
 
+  // Keep the current route visible after refresh/navigation without moving the page itself.
+  React.useLayoutEffect(() => {
+    const scrollActiveLinkIntoView = (container) => {
+      const activeLink = container?.querySelector('[data-sidebar-active="true"]');
+      if (!container || !activeLink) return;
+
+      const containerRect = container.getBoundingClientRect();
+      const activeRect = activeLink.getBoundingClientRect();
+      const isOutsideView =
+        activeRect.top < containerRect.top || activeRect.bottom > containerRect.bottom;
+
+      if (isOutsideView) {
+        const centeredScrollTop =
+          container.scrollTop +
+          (activeRect.top - containerRect.top) -
+          (container.clientHeight - activeRect.height) / 2;
+
+        container.scrollTop = Math.max(0, centeredScrollTop);
+      }
+    };
+
+    const frameId = window.requestAnimationFrame(() => {
+      scrollActiveLinkIntoView(desktopNavRef.current);
+      scrollActiveLinkIntoView(mobileNavRef.current);
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, [location.pathname, mobileMenuOpen, filteredNavLinks]);
+
   const isPendingApproval = user?.status === 'pending_approval';
   const isAwaitingSubscription = user?.status === 'awaiting_subscription';
   const sub = user?.organization?.subscription;
@@ -361,16 +402,16 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
       const refreshed = await fetchMe();
       const currentStatus = refreshed?.user?.status || refreshed?.status;
       if (currentStatus === 'active') {
-        toast.success('Organization & subscription active! Dashboard unlocked.');
+        toast.success(t('layout.org_active', 'Organization & subscription active! Dashboard unlocked.'));
         navigate('/admin/dashboard', { replace: true });
       } else if (currentStatus === 'awaiting_subscription') {
-        toast.success('Approved! Please choose your subscription plan.');
+        toast.success(t('layout.approved_choose_plan', 'Approved! Please choose your subscription plan.'));
         navigate('/admin/subscription', { replace: true });
       } else {
-        toast('Your application is still under review by Super Admin.', { icon: '⏳' });
+        toast(t('layout.still_under_review', 'Your application is still under review by Super Admin.'), { icon: '⏳' });
       }
     } catch {
-      toast.error('Could not refresh status. Please try again.');
+      toast.error(t('layout.refresh_failed', 'Could not refresh status. Please try again.'));
     } finally {
       setRefreshingStatus(false);
     }
@@ -384,9 +425,9 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
           navigate('/superadmin/tenants');
         }),
         {
-          loading: 'Restoring Super Admin session…',
-          success: 'Exited impersonation. Welcome back, Super Admin!',
-          error: 'Restored Super Admin session.',
+          loading: t('layout.restoring_session', 'Restoring Super Admin session…'),
+          success: t('layout.exited_impersonation', 'Exited impersonation. Welcome back, Super Admin!'),
+          error: t('layout.session_restored', 'Restored Super Admin session.'),
         }
       );
     } catch (_) {
@@ -467,7 +508,7 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
         </div>
         
         {/* Navigation Items */}
-        <nav className="flex-1 overflow-y-auto no-scrollbar p-2.5 space-y-1">
+        <nav ref={desktopNavRef} className="flex-1 overflow-y-auto no-scrollbar p-2.5 space-y-1">
           {filteredNavLinks.map((link, index) => {
             if (link.isHeader) {
               if (isCollapsed) {
@@ -507,6 +548,7 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
               return (
                 <div
                   key={link.id ? `nav-d-${link.id}` : `${link.path || 'nav-d'}-${index}`}
+                  data-sidebar-active={isActive ? 'true' : undefined}
                   className={`
                     flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold select-none
                     text-zinc-500 cursor-not-allowed opacity-40 group relative
@@ -546,6 +588,7 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
               <Link 
                 key={link.id ? `nav-${link.id}` : `${link.path || 'nav'}-${index}`} 
                 to={link.path}
+                data-sidebar-active={isActive ? 'true' : undefined}
                 title={isCollapsed ? translatedLabel : ''}
                 className={`
                   flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-xs font-semibold group relative
@@ -629,7 +672,7 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
               isCollapsed ? 'justify-center px-0' : 'justify-start gap-2.5 px-3'
             }`} 
             onClick={handleLogout}
-            title={isCollapsed ? 'Logout' : ''}
+            title={isCollapsed ? t('common.logout', 'Log out') : ''}
           >
             <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -682,7 +725,7 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
               </Link>
               <button onClick={() => setMobileMenuOpen(false)} className="p-1.5 rounded-lg hover:bg-zinc-900 text-zinc-400 hover:text-white">✕</button>
             </div>
-            <nav className="flex-1 overflow-y-auto no-scrollbar py-3 space-y-1">
+            <nav ref={mobileNavRef} className="flex-1 overflow-y-auto no-scrollbar py-3 space-y-1">
               {filteredNavLinks.map((link, index) => {
                 if (link.isHeader) {
                   return (
@@ -713,6 +756,7 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
                   return (
                     <div
                       key={link.id ? `mob-d-${link.id}` : `${link.path || 'mob-d'}-${index}`}
+                      data-sidebar-active={isActive ? 'true' : undefined}
                       className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-zinc-500 cursor-not-allowed select-none opacity-40 ${
                         link.isSublink ? 'ml-3 pl-3 border-l border-zinc-800 text-[11px]' : ''
                       }`}
@@ -737,6 +781,7 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
                   <Link
                     key={link.id ? `mob-${link.id}` : `${link.path || 'mob'}-${index}`}
                     to={link.path}
+                    data-sidebar-active={isActive ? 'true' : undefined}
                     onClick={() => setMobileMenuOpen(false)}
                     className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold ${
                       link.isSublink ? 'ml-3 pl-3 border-l border-zinc-800 text-[11px]' : ''
@@ -787,7 +832,7 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
                 <FleetIcons.Key className="w-4 h-4 text-white dark:text-amber-300" />
               </span>
               <span className="truncate">
-                <strong className="font-bold text-white dark:text-white">{t('ag.shared.rolelayout.impersonation_mode', 'Impersonation Mode:')}</strong> {t('ag.shared.rolelayout.logged_in_as', 'Logged in as')} <strong className="font-bold text-white dark:text-white">{user?.name || impersonationTarget?.name || 'Tenant Admin'}</strong> ({user?.organization?.name || impersonationTarget?.tenantName || 'Tenant Organization'}{t('ag.shared.rolelayout.audit_tracking_is_active', '). Audit tracking is active.')}
+                <strong className="font-bold text-white dark:text-white">{t('ag.shared.rolelayout.impersonation_mode', 'Impersonation Mode:')}</strong> {t('ag.shared.rolelayout.logged_in_as', 'Logged in as')} <strong className="font-bold text-white dark:text-white">{user?.name || impersonationTarget?.name || t('superadmin.users.role_tenant_admin', 'Tenant Admin')}</strong> ({user?.organization?.name || impersonationTarget?.tenantName || 'Tenant Organization'}{t('ag.shared.rolelayout.audit_tracking_is_active', '). Audit tracking is active.')}
               </span>
             </div>
             <button
@@ -795,7 +840,7 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
               disabled={exitingImpersonation}
               className="px-3.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-950 dark:bg-amber-900/50 dark:hover:bg-amber-900/80 dark:text-white font-bold rounded-xl text-xs shadow-sm transition-all cursor-pointer inline-flex items-center gap-1.5 disabled:opacity-60 shrink-0 ml-auto active:scale-95 border border-amber-300 dark:border-amber-500/70"
             >
-              <span className="text-amber-950 dark:text-white font-bold">{exitingImpersonation ? 'Restoring…' : 'Exit & Return to Super Admin'}</span>
+              <span className="text-amber-950 dark:text-white font-bold">{exitingImpersonation ? t('layout.restoring', 'Restoring…') : t('layout.exit_return_superadmin', 'Exit & Return to Super Admin')}</span>
               <svg className="w-3.5 h-3.5 shrink-0 text-amber-950 dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
@@ -809,7 +854,7 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
             <button 
               onClick={() => setIsCollapsed(!isCollapsed)}
               className="hidden md:flex p-2 rounded-xl border border-slate-200 dark:border-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-200 transition-colors"
-              title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+              title={isCollapsed ? t('ag.shared.rolelayout.expand_sidebar', 'Expand sidebar') : t('layout.collapse_sidebar', 'Collapse sidebar')}
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -833,7 +878,7 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
               {isTenantLocked && (
                 <span className="ml-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 flex items-center gap-1.5 shadow-sm">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                  <span>{isPendingApproval ? 'Approval Pending' : isSubscriptionExpired ? 'Subscription Expired' : 'Subscription Required'}</span>
+                  <span>{isPendingApproval ? t('ag.driver.driverdashboard.approval_pending', 'Approval Pending') : isSubscriptionExpired ? t('layout.subscription_expired', 'Subscription Expired') : t('layout.subscription_required', 'Subscription Required')}</span>
                 </span>
               )}
             </div>
@@ -915,10 +960,10 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
               />
               <div className="hidden lg:block text-left">
                 <div className="text-xs font-bold leading-tight text-slate-900 dark:text-zinc-100 group-hover:text-slate-700 dark:group-hover:text-zinc-300 transition-colors">
-                  {user?.name || user?.fullName || roleTitle || 'User'}
+                  {user?.name || user?.fullName || roleTitle || t('superadmin.users.th_user', 'User')}
                 </div>
                 <div className="text-[10px] text-slate-500 dark:text-zinc-400 leading-tight font-medium">
-                  {isTenantLocked ? (user?.organization?.name || user?.org?.name || 'Pending Verification') : (user?.organization?.name || user?.org?.name || t(`roles.${roleTitle.toLowerCase().replace(/[^a-z0-9]/g, '_')}`, roleTitle))}
+                  {isTenantLocked ? (user?.organization?.name || user?.org?.name || t('superadmin.tenant_details.badge_pending_verification', 'Pending Verification')) : (user?.organization?.name || user?.org?.name || t(`roles.${roleTitle.toLowerCase().replace(/[^a-z0-9]/g, '_')}`, roleTitle))}
                 </div>
               </div>
             </Link>
@@ -937,7 +982,7 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
                   </div>
                   <div>
                     <h4 className="text-xs sm:text-sm font-bold text-amber-900 dark:text-amber-200">
-                      {t('ag.shared.rolelayout.subscription_expiring_soon', 'Subscription Expiring Soon —')} {daysRemaining} {daysRemaining === 1 ? 'Day' : 'Days'} {t('ag.shared.rolelayout.remaining', 'Remaining')}
+                      {t('ag.shared.rolelayout.subscription_expiring_soon', 'Subscription Expiring Soon —')} {daysRemaining} {daysRemaining === 1 ? t('common.day', 'Day') : t('common.days', 'Days')} {t('ag.shared.rolelayout.remaining', 'Remaining')}
                     </h4>
                     <p className="text-[11px] sm:text-xs mt-0.5 text-amber-700 dark:text-amber-300">
                       {t('ag.shared.rolelayout.your_vmovexa_subscription_ends_on', 'Your VMOVEXA subscription ends on')} {currentPeriodEnd.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}{t('ag.shared.rolelayout.renew_your_plan_now_to_prevent_automatic_sus', '. Renew your plan now to prevent automatic suspension of fleet operations, managers, and drivers.')}

@@ -111,7 +111,7 @@ export const I18nProvider = ({ children }) => {
     }
     if (params && typeof params === 'object' && Object.keys(params).length > 0) {
       Object.entries(params).forEach(([k, v]) => {
-        text = text.replace(new RegExp(`{{\\s*${k}\\s*}}`, 'g'), String(v));
+        text = text.replace(new RegExp(`\\{{1,2}\\s*${k}\\s*\\}{1,2}`, 'g'), String(v));
       });
     }
     return text;
@@ -146,7 +146,15 @@ export const useTranslation = () => {
   const context = useContext(I18nContext);
   if (!context) {
     return {
-      t: (key, fallback) => fallback || key,
+      t: (key, fallback, params) => {
+        let text = fallback || key;
+        if (params && typeof params === 'object') {
+          Object.entries(params).forEach(([k, v]) => {
+            text = text.replace(new RegExp(`\\{{1,2}\\s*${k}\\s*\\}{1,2}`, 'g'), String(v));
+          });
+        }
+        return text;
+      },
       currentLanguage: 'en',
       languages: DEFAULT_LANGUAGES,
       changeLanguage: () => {},

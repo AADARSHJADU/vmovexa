@@ -1,8 +1,8 @@
-import 'package:vmovexa/app/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/data/models/edge_device_model.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import '../controller/display_devices_controller.dart';
 
 class DisplayDevicesView extends GetView<DisplayDevicesController> {
@@ -50,7 +50,7 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
     );
   }
 
-  // ---------------- Header ----------------
+  // ---------------- Header with Edge Setup & Refresh ----------------
   Widget _buildHeader(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -101,12 +101,48 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
             ],
           ),
         ),
+        const SizedBox(width: 8),
+
+        // Edge Setup Action Button (Matching Admin Web Portal)
+        InkWell(
+          onTap: controller.goToEdgeSetup,
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            decoration: BoxDecoration(
+              gradient: AppTheme.primaryGradient,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.gradientPink.withValues(alpha: 0.25),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.terminal_rounded, color: Colors.white, size: 14),
+                const SizedBox(width: 4),
+                Text(
+                  'edge_setup'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 6),
+
         IconButton(
           onPressed: controller.onRefresh,
-          icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 20),
+          icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 18),
+          constraints: const BoxConstraints(),
           style: IconButton.styleFrom(
             backgroundColor: const Color(0xFF1E293B),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            padding: const EdgeInsets.all(8),
           ),
         ),
       ],
@@ -137,7 +173,7 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
             icon: Icons.check_circle_rounded,
           ),
           _buildStatCard(
-            title: 'ACTIVE UNITS',
+            title: 'active_units_caps'.tr,
             count: controller.activeCount.toString(),
             color: const Color(0xFF38BDF8),
             icon: Icons.power_rounded,
@@ -314,7 +350,7 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
       children: [
         Obx(
           () => Text(
-            'DEPLOYED DEVICES (${controller.filteredDevices.length})',
+            '${'deployed_devices_caps'.tr} (${controller.filteredDevices.length})',
             style: const TextStyle(
               color: AppColors.textMuted,
               fontSize: 11,
@@ -346,9 +382,9 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
               elevation: 0,
             ),
             icon: const Icon(Icons.add_rounded, size: 16),
-            label: const Text(
-              'Add Edge Device',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+            label: Text(
+              'add_edge_device'.tr,
+              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
             ),
           ),
         ),
@@ -373,14 +409,14 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
             children: [
               Icon(Icons.devices_other_rounded, color: Colors.white.withValues(alpha: 0.2), size: 44),
               const SizedBox(height: 12),
-              const Text(
-                'No Edge Devices Found',
-                style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+              Text(
+                'no_edge_devices_found'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
-              const Text(
-                'Try adjusting search or filter tabs.',
-                style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+              Text(
+                'try_adjusting_search'.tr,
+                style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
               ),
             ],
           ),
@@ -527,20 +563,20 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
             ),
             child: Column(
               children: [
-                _buildInfoRow('Assigned Bus', device.vehicleRegistration, Icons.directions_bus_rounded),
+                _buildInfoRow('assigned_bus'.tr, device.vehicleRegistration, Icons.directions_bus_rounded),
                 const SizedBox(height: 6),
-                _buildInfoRow('SIM Network', device.simNetwork, Icons.signal_cellular_alt_rounded),
+                _buildInfoRow('sim_network'.tr, device.simNetwork, Icons.signal_cellular_alt_rounded),
                 const SizedBox(height: 6),
-                _buildInfoRow('Agent Version', device.agentVersion, Icons.code_rounded),
+                _buildInfoRow('agent_version'.tr, device.agentVersion, Icons.code_rounded),
                 const SizedBox(height: 6),
-                _buildInfoRow('Depot', device.depotName, Icons.location_on_outlined),
+                _buildInfoRow('depot'.tr, device.depotName, Icons.location_on_outlined),
               ],
             ),
           ),
 
           const SizedBox(height: 12),
 
-          // Action Buttons: Configure Hardware, Reboot, Delete
+          // Action Buttons: Configure Hardware, Edit, Reboot, Delete
           Row(
             children: [
               Expanded(
@@ -554,17 +590,32 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
                     elevation: 0,
                   ),
                   icon: const Icon(Icons.settings_outlined, size: 14),
-                  label: const Text(
-                    'Configure Hardware',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                  label: Text(
+                    'configure_hardware'.tr,
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
               const SizedBox(width: 8),
+
+              // Edit Button (Navigates to full-page Edit Device matching Admin Panel)
+              IconButton(
+                onPressed: () => controller.goToEditDevice(device),
+                tooltip: 'edit_edge_device'.tr,
+                icon: const Icon(Icons.edit_outlined, color: Color(0xFF818CF8), size: 18),
+                constraints: const BoxConstraints(),
+                style: IconButton.styleFrom(
+                  backgroundColor: const Color(0xFF1E293B),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.all(8),
+                ),
+              ),
+              const SizedBox(width: 8),
+
               // Reboot Button
               IconButton(
                 onPressed: () => controller.rebootDevice(context, device),
-                tooltip: 'Reboot Device',
+                tooltip: 'reboot_edge_device'.tr,
                 icon: const Icon(Icons.restart_alt_rounded, color: Color(0xFF38BDF8), size: 18),
                 constraints: const BoxConstraints(),
                 style: IconButton.styleFrom(
@@ -574,10 +625,11 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
                 ),
               ),
               const SizedBox(width: 8),
+
               // Delete Button
               IconButton(
                 onPressed: () => controller.deleteDevice(context, device),
-                tooltip: 'Delete Device',
+                tooltip: 'delete_edge_device'.tr,
                 icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 18),
                 constraints: const BoxConstraints(),
                 style: IconButton.styleFrom(
@@ -622,7 +674,7 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'Showing ${controller.showingFrom}–${controller.showingTo} of ${controller.filteredDevices.length}',
+            '${'showing_count'.tr} ${controller.showingFrom}–${controller.showingTo} ${'of_count'.tr} ${controller.filteredDevices.length}',
             style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
           ),
           Row(

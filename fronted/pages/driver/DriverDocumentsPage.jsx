@@ -11,7 +11,7 @@ import Breadcrumb from '../../components/ui/Breadcrumb';
 export const DriverDocumentsPage = () => {
   const { t } = useTranslation();
   const { hasPermission } = useAuth();
-  const canManageDocuments = hasPermission('drivers.documents.manage');
+  const canManageDocuments = hasPermission('driver.documents.manage');
   const { documents: documentsRaw, loadDocuments, uploadDocument, deleteDocument, profile, loadProfile } = useDriverApp();
   const [driverFiles, setDriverFiles] = useState([]);
 

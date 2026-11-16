@@ -53,6 +53,9 @@ class FleetItemModel {
   final int vehicleCount;
   final int driverCount;
   final String? depotName;
+  final dynamic depotId;
+  final dynamic organizationId;
+  final String fleetType;
   final String? updatedAt;
 
   FleetItemModel({
@@ -63,6 +66,9 @@ class FleetItemModel {
     this.vehicleCount = 0,
     this.driverCount = 0,
     this.depotName,
+    this.depotId,
+    this.organizationId,
+    this.fleetType = 'Fleet',
     this.updatedAt,
   });
 
@@ -75,6 +81,9 @@ class FleetItemModel {
       vehicleCount: _toInt(json['vehicle_count'] ?? json['vehiclesCount'] ?? (json['vehicles'] is List ? json['vehicles'].length : 0)),
       driverCount: _toInt(json['driver_count'] ?? json['driversCount'] ?? (json['drivers'] is List ? json['drivers'].length : 0)),
       depotName: json['depot_name'] ?? json['depot']?['name'],
+      depotId: json['depot_id'] ?? json['depotId'] ?? json['depot']?['id'],
+      organizationId: json['organization_id'] ?? json['organizationId'] ?? json['organization']?['id'],
+      fleetType: json['fleet_type']?.toString() ?? json['type']?.toString() ?? 'Fleet',
       updatedAt: json['updated_at'] ?? json['updatedAt'] ?? json['created_at'],
     );
   }
@@ -83,6 +92,26 @@ class FleetItemModel {
     if (val == null) return 0;
     if (val is int) return val;
     return int.tryParse(val.toString()) ?? 0;
+  }
+}
+
+class OrganizationItemModel {
+  final String id;
+  final String name;
+  final String code;
+
+  OrganizationItemModel({
+    required this.id,
+    required this.name,
+    this.code = '',
+  });
+
+  factory OrganizationItemModel.fromJson(Map<String, dynamic> json) {
+    return OrganizationItemModel(
+      id: json['id']?.toString() ?? '',
+      name: json['name']?.toString() ?? json['company_name']?.toString() ?? 'Organization',
+      code: json['code']?.toString() ?? json['tenant_id']?.toString() ?? '',
+    );
   }
 }
 
@@ -101,6 +130,8 @@ class VehicleItemModel {
   final String? fleetName;
   final dynamic depotId;
   final String? depotName;
+  final dynamic organizationId;
+  final String? organizationName;
   final dynamic assignedDriverId;
   final String? assignedDriverName;
   final dynamic routeId;
@@ -146,6 +177,8 @@ class VehicleItemModel {
     this.fleetName,
     this.depotId,
     this.depotName,
+    this.organizationId,
+    this.organizationName,
     this.assignedDriverId,
     this.assignedDriverName,
     this.routeId,
@@ -254,6 +287,8 @@ class VehicleItemModel {
       fleetName: json['fleet_name'] ?? json['fleet']?['name'],
       depotId: json['depot_id'] ?? json['depotId'] ?? json['depot']?['id'],
       depotName: json['depot_name'] ?? json['depot']?['name'],
+      organizationId: json['organization_id'] ?? json['organizationId'] ?? json['organization']?['id'] ?? json['fleet']?['organization_id'],
+      organizationName: json['organization_name'] ?? json['organization']?['name'] ?? json['fleet']?['organization']?['name'],
       assignedDriverId: json['assigned_driver_id'] ?? json['driver_id'] ?? json['driver']?['id'],
       assignedDriverName: json['assigned_driver_name'] ?? json['driver']?['name'],
       routeId: json['route_id'] ?? json['routeId'] ?? json['route']?['id'],

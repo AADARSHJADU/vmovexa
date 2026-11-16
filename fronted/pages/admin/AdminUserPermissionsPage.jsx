@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FleetIcons } from '../../components/FleetIcons';
 import { Breadcrumb } from '../../components/ui/Breadcrumb';
 import { UserPermissionSection } from '../../components/ui/UserPermissionSection';
 import { useAdminUser } from '../../hooks/admin/useAdminUser';
+import { useAdminRole } from '../../hooks/admin/useAdminRole';
 import { useTranslation } from '../../hooks/useTranslation';
 
 export const AdminUserPermissionsPage = () => {
   const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
-  const { users, loadUsers, getUserPermissions, updateUserPermissions } = useAdminUser();
+  const { users, loadUsers, getUserPermissions, updateUserPermissions, resetUserPermissions } = useAdminUser();
+  const { loadRegistry } = useAdminRole();
   const [targetUser, setTargetUser] = useState(null);
 
   useEffect(() => {
@@ -31,7 +32,6 @@ export const AdminUserPermissionsPage = () => {
 
   const userName = targetUser?.name || `User #${id}`;
   const userEmail = targetUser?.email || '';
-  const userRole = targetUser?.role?.code || targetUser?.role?.name || targetUser?.role || 'User';
 
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-200">
@@ -50,10 +50,10 @@ export const AdminUserPermissionsPage = () => {
         userId={id}
         userName={userName}
         userEmail={userEmail}
-        userRole={userRole}
         fetchPermissionsFn={getUserPermissions}
         updatePermissionsFn={updateUserPermissions}
-        isTenantAdmin={true}
+        resetPermissionsFn={resetUserPermissions}
+        loadRegistryFn={loadRegistry}
         onBack={() => navigate('/admin/users')}
       />
     </div>

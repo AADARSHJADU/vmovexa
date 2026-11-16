@@ -23,14 +23,14 @@ export const AddFleetPage = () => {
     selectedFleet,
   } = useFleetManager();
 
-  const { user, hasPermission } = useAuth();
+  const { user, can } = useAuth();
   const isPlatformAdmin = Boolean(
     user && (user.role === 'ROLE-SUPER-ADMIN' || user.role === 'ROLE-ADMIN' || user.clearance === 'ROOT')
   );
 
   // RBAC Permission Check
-  const canCreate = hasPermission('fleet.fleets.create');
-  const canUpdate = hasPermission('fleet.fleets.update');
+  const canCreate = can('fleets.create');
+  const canUpdate = can('fleets.update');
   const isPermitted = isEditMode ? canUpdate : canCreate;
 
   const [depotsList, setDepotsList] = useState([]);

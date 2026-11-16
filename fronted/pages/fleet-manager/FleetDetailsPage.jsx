@@ -31,13 +31,13 @@ export const FleetDetailsPage = () => {
   } = useFleetManager();
 
   const { vehicles, loadVehicles } = useFleetVehicle();
-  const { user, hasPermission } = useAuth();
+  const { user, can } = useAuth();
 
   const isPlatformAdmin = Boolean(
     user && (user.role === 'ROLE-SUPER-ADMIN' || user.role === 'ROLE-ADMIN' || user.clearance === 'ROOT')
   );
-  const canUpdate = hasPermission('fleet.fleets.update');
-  const canAssignVehicles = hasPermission('fleet.vehicles.update');
+  const canUpdate = can('fleets.update');
+  const canAssignVehicles = can('vehicles.update');
 
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'vehicles' | 'activity'
   const [loading, setLoading] = useState(true);

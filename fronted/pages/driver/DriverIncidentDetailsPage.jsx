@@ -126,7 +126,9 @@ export const DriverIncidentDetailsPage = () => {
                 </span>
               </div>
               <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                {incident.incident_type || incident.incidentType || 'Incident Audit Record'}
+                {(incident.incident_type || incident.incidentType)
+                  ? t(`incident.types.${(incident.incident_type || incident.incidentType).toLowerCase().replace(/[^a-z0-9]/g, '_')}`, incident.incident_type || incident.incidentType)
+                  : t('incident.details_title', 'Incident Audit Record')}
               </h1>
             </div>
           </div>

@@ -13,31 +13,31 @@ import { resolveFileUrl } from '../../api/services/upload.service.js';
 const STATUS_UI = {
   pending_approval: {
     label: 'PENDING APPROVAL',
-    short: 'Pending',
+    short: 'Pending', shortKey: 'common.pending', labelKey: 'common.pending_approval', labelEn: 'Pending Approval',
     cls: 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800',
     dot: 'bg-amber-500 animate-pulse',
   },
   approved: {
     label: 'APPROVED · LIVE',
-    short: 'Live',
+    short: 'Live', shortKey: 'common.live', labelKey: 'gov.emergency.approved_live', labelEn: 'Approved · Live',
     cls: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
     dot: 'bg-emerald-500 animate-ping',
   },
   rejected: {
     label: 'REJECTED',
-    short: 'Rejected',
+    short: 'Rejected', shortKey: 'common.rejected', labelKey: 'common.rejected', labelEn: 'Rejected',
     cls: 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800',
     dot: 'bg-rose-500',
   },
   revoked: {
     label: 'REVOKED',
-    short: 'Revoked',
+    short: 'Revoked', shortKey: 'common.revoked', labelKey: 'common.revoked', labelEn: 'Revoked',
     cls: 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 border-slate-200 dark:border-zinc-700',
     dot: 'bg-slate-400',
   },
   expired: {
     label: 'EXPIRED',
-    short: 'Expired',
+    short: 'Expired', shortKey: 'common.expired', labelKey: 'common.expired', labelEn: 'Expired',
     cls: 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 border-slate-200 dark:border-zinc-700',
     dot: 'bg-slate-400',
   },
@@ -45,25 +45,25 @@ const STATUS_UI = {
 
 const SEVERITY_CONFIG = {
   critical: {
-    label: 'CRITICAL',
+    label: 'CRITICAL', labelKey: 'common.critical', labelEn: 'Critical',
     accent: 'from-rose-600 via-red-600 to-amber-600',
     badge: 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border-red-200 dark:border-red-900',
     iconCls: 'text-red-600 dark:text-red-400 animate-pulse',
   },
   high: {
-    label: 'HIGH',
+    label: 'HIGH', labelKey: 'common.high', labelEn: 'High',
     accent: 'from-amber-500 via-orange-500 to-red-500',
     badge: 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900',
     iconCls: 'text-amber-500 dark:text-amber-400',
   },
   medium: {
-    label: 'MEDIUM',
+    label: 'MEDIUM', labelKey: 'common.medium', labelEn: 'Medium',
     accent: 'from-blue-600 via-cyan-600 to-indigo-600',
     badge: 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-900',
     iconCls: 'text-blue-500 dark:text-blue-400',
   },
   low: {
-    label: 'LOW',
+    label: 'LOW', labelKey: 'common.low', labelEn: 'Low',
     accent: 'from-slate-500 to-zinc-600',
     badge: 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border-slate-200 dark:border-zinc-700',
     iconCls: 'text-slate-500 dark:text-zinc-400',
@@ -227,9 +227,9 @@ export const SuperEmergencyApprovalsPage = () => {
     setBusyId(id);
     try {
       await toast.promise(approveBroadcast(id), {
-        loading: 'Approving & broadcasting to all screens...',
-        success: 'Approved! Emergency is now LIVE across transit screens.',
-        error: (e) => e?.message || 'Approval failed',
+        loading: t('gov.emergency.approving_broadcasting', 'Approving & broadcasting to all screens...'),
+        success: t('gov.emergency.approved_live_toast', 'Approved! Emergency is now LIVE across transit screens.'),
+        error: (e) => e?.message || t('gov.campaigns.approval_failed', 'Approval failed'),
       });
       if (detailItem?.id === id) setDetailItem(null);
       await refresh();
@@ -246,9 +246,9 @@ export const SuperEmergencyApprovalsPage = () => {
     setBusyId(id);
     try {
       await toast.promise(rejectBroadcast(id, rejectReason || 'Incomplete details'), {
-        loading: 'Rejecting advisory...',
-        success: 'Emergency broadcast rejected.',
-        error: (e) => e?.message || 'Rejection failed',
+        loading: t('gov.emergency.rejecting_advisory', 'Rejecting advisory...'),
+        success: t('gov.emergency.broadcast_rejected', 'Emergency broadcast rejected.'),
+        error: (e) => e?.message || t('gov.emergency.rejection_failed', 'Rejection failed'),
       });
       setRejectingItem(null);
       if (detailItem?.id === id) setDetailItem(null);
@@ -266,9 +266,9 @@ export const SuperEmergencyApprovalsPage = () => {
     setBusyId(id);
     try {
       await toast.promise(revokeBroadcast(id), {
-        loading: 'Revoking broadcast override...',
-        success: 'Broadcast revoked. Transit displays restored to normal playback.',
-        error: (e) => e?.message || 'Revoke failed',
+        loading: t('gov.emergency.revoking_override', 'Revoking broadcast override...'),
+        success: t('gov.emergency.broadcast_revoked_restored', 'Broadcast revoked. Transit displays restored to normal playback.'),
+        error: (e) => e?.message || t('gov.emergency.revoke_failed', 'Revoke failed'),
       });
       setRevokingItem(null);
       if (detailItem?.id === id) setDetailItem(null);
@@ -325,11 +325,11 @@ export const SuperEmergencyApprovalsPage = () => {
         {/* Filter Tabs */}
         <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-zinc-800/80 p-1.5 rounded-2xl w-full sm:w-fit overflow-x-auto no-scrollbar border border-slate-200/60 dark:border-zinc-700/60">
           {[
-            { k: 'all', l: 'All', count: counts.all },
-            { k: 'pending', l: 'Pending', count: counts.pending },
-            { k: 'live', l: 'Live', count: counts.live },
-            { k: 'rejected', l: 'Rejected', count: counts.rejected },
-            { k: 'revoked', l: 'Archived', count: counts.revoked },
+            { k: 'all', l: t('common.all', 'All'), count: counts.all },
+            { k: 'pending', l: t('common.pending', 'Pending'), count: counts.pending },
+            { k: 'live', l: t('common.live', 'Live'), count: counts.live },
+            { k: 'rejected', l: t('common.rejected', 'Rejected'), count: counts.rejected },
+            { k: 'revoked', l: t('campaigns.archived_tab', 'Archived'), count: counts.revoked },
           ].map((tab) => {
             const isActive = activeTab === tab.k;
             return (
@@ -459,11 +459,11 @@ export const SuperEmergencyApprovalsPage = () => {
                       <div className="flex items-center gap-1.5">
                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border flex items-center gap-1 ${ui.cls}`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${ui.dot}`}></span>
-                          {ui.short}
+                          {t(ui.shortKey, ui.short)}
                         </span>
 
                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${sev.badge}`}>
-                          {sev.label}
+                          {t(sev.labelKey, sev.labelEn)}
                         </span>
                       </div>
                     </div>
@@ -501,7 +501,7 @@ export const SuperEmergencyApprovalsPage = () => {
                             ) : (
                               <img
                                 src={mediaUrl}
-                                alt={b.headline || 'Emergency creative'}
+                                alt={b.headline || t('ag.government.govemergencydetailspage.emergency_creative', 'Emergency creative')}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                               />
                             )
@@ -528,10 +528,10 @@ export const SuperEmergencyApprovalsPage = () => {
                         onClick={() => navigate(`/superadmin/emergency-approvals/${b.id}`)}
                         className="font-black text-slate-900 dark:text-white hover:text-red-600 dark:hover:text-red-400 transition-colors line-clamp-1 text-base tracking-tight cursor-pointer"
                       >
-                        {b.headline || b.title || 'Emergency Advisory'}
+                        {b.headline || b.title || t('gov.emergency.emergency_advisory', 'Emergency Advisory')}
                       </h3>
                       <p className="text-xs text-slate-600 dark:text-zinc-300 line-clamp-2 mt-1 leading-relaxed">
-                        {b.body_text || b.message || 'No additional advisory details provided.'}
+                        {b.body_text || b.message || t('gov.emergency.no_advisory_details', 'No additional advisory details provided.')}
                       </p>
                       {b.ticker_text && (
                         <p className="text-[11px] font-mono text-red-600 dark:text-red-400 truncate mt-1">
@@ -553,7 +553,7 @@ export const SuperEmergencyApprovalsPage = () => {
                     <div className="flex items-center justify-between text-[11px]">
                       <span className="text-slate-400 dark:text-zinc-500 font-medium">{t('superadmin.emergency.issued_by', 'Issued By')}</span>
                       <span className="font-bold text-slate-800 dark:text-zinc-200 truncate max-w-[150px]">
-                        {b.issued_by || 'Government Authority'}
+                        {b.issued_by || t('roles.government_authority', 'Government Authority')}
                       </span>
                     </div>
 
@@ -563,7 +563,7 @@ export const SuperEmergencyApprovalsPage = () => {
                           {t('ag.superadmin.superemergencyapprovalspage.active_broadcast', 'Active Broadcast')}
                         </p>
                         <p className="font-black text-emerald-800 dark:text-emerald-300 text-sm mt-0.5">
-                          {b.affected_buses_count != null ? `${b.affected_buses_count} Transit Screens` : t('ag.superadmin.superemergencyapprovalspage.all_online_displays', 'All Online Displays')}
+                          {b.affected_buses_count != null ? t('gov.emergency.transit_screens_count', '{{count}} Transit Screens', { count: b.affected_buses_count }) : t('ag.superadmin.superemergencyapprovalspage.all_online_displays', 'All Online Displays')}
                         </p>
                       </div>
                     )}
@@ -683,7 +683,7 @@ export const SuperEmergencyApprovalsPage = () => {
                               className="font-bold text-slate-900 dark:text-white hover:text-red-600 dark:hover:text-red-400 truncate block text-xs sm:text-sm cursor-pointer"
                               title={b.headline || b.title}
                             >
-                              {b.headline || b.title || 'Emergency Advisory'}
+                              {b.headline || b.title || t('gov.emergency.emergency_advisory', 'Emergency Advisory')}
                             </Link>
                             <p className="text-[11px] font-mono text-red-600 dark:text-red-400 font-bold truncate mt-0.5">
                               {b.code || `EMG-${b.id}`}
@@ -698,15 +698,15 @@ export const SuperEmergencyApprovalsPage = () => {
                           {b.target_area || (b.target_scope === 'all' ? t('ag.superadmin.superemergencyapprovalspage.all_displays_network', 'All Displays (Network)') : t('ag.superadmin.superemergencyapprovalspage.targeted_fleet', 'Targeted Fleet'))}
                         </p>
                         <p className="text-[10px] text-slate-400 dark:text-zinc-500 truncate max-w-[150px]">
-                          {b.issued_by || 'Govt Authority'}
-                          {b.affected_buses_count != null ? ` · ${b.affected_buses_count} scr.` : ''}
+                          {b.issued_by || t('roles.government_authority', 'Government Authority')}
+                          {b.affected_buses_count != null ? ` · ${t('gov.emergency.scr_count', '{{count}} scr.', { count: b.affected_buses_count })}` : ''}
                         </p>
                       </td>
 
                       {/* Severity */}
                       <td className="py-3 px-3 whitespace-nowrap">
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${sev.badge}`}>
-                          {sev.label}
+                          {t(sev.labelKey, sev.labelEn)}
                         </span>
                       </td>
 
@@ -714,7 +714,7 @@ export const SuperEmergencyApprovalsPage = () => {
                       <td className="py-3 px-3 whitespace-nowrap">
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border inline-flex items-center gap-1 ${ui.cls}`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${ui.dot}`}></span>
-                          {ui.short}
+                          {t(ui.shortKey, ui.short)}
                         </span>
                       </td>
 
@@ -873,14 +873,14 @@ export const SuperEmergencyApprovalsPage = () => {
                     {detailItem.code || `EMG-${detailItem.id}`}
                   </span>
                   <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${STATUS_UI[detailItem.status || 'pending_approval']?.cls}`}>
-                    {STATUS_UI[detailItem.status || 'pending_approval']?.label}
+                    {t(STATUS_UI[detailItem.status || 'pending_approval']?.labelKey, STATUS_UI[detailItem.status || 'pending_approval']?.labelEn)}
                   </span>
                   <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${SEVERITY_CONFIG[(detailItem.severity || 'high').toLowerCase()]?.badge}`}>
-                    {detailItem.severity || 'HIGH'}
+                    {t('common.' + String(detailItem.severity || 'high').toLowerCase(), detailItem.severity || 'HIGH')}
                   </span>
                 </div>
                 <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
-                  {detailItem.headline || detailItem.title || 'Emergency Advisory'}
+                  {detailItem.headline || detailItem.title || t('gov.emergency.emergency_advisory', 'Emergency Advisory')}
                 </h2>
               </div>
               <button
@@ -952,14 +952,14 @@ export const SuperEmergencyApprovalsPage = () => {
               <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-100 dark:border-zinc-800">
                 <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium">{t('superadmin.emergency.target_corridor', 'Target Corridor')}</p>
                 <p className="font-bold text-slate-800 dark:text-zinc-200 mt-0.5">
-                  {detailItem.target_area || 'Entire City'}
+                  {detailItem.target_area || t('gov.emergency.entire_city', 'Entire City')}
                 </p>
               </div>
 
               <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-100 dark:border-zinc-800">
                 <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium">{t('superadmin.emergency.issued_authority', 'Issued Authority')}</p>
                 <p className="font-bold text-slate-800 dark:text-zinc-200 mt-0.5">
-                  {detailItem.issued_by || 'Government'}
+                  {detailItem.issued_by || t('nav.government', 'Government')}
                 </p>
               </div>
 
@@ -973,7 +973,7 @@ export const SuperEmergencyApprovalsPage = () => {
               <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-100 dark:border-zinc-800">
                 <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium">{t('superadmin.emergency.push_notification', 'Push Notification')}</p>
                 <p className="font-bold text-slate-800 dark:text-zinc-200 mt-0.5">
-                  {detailItem.push_notification ? t('ag.superadmin.superemergencyapprovalspage.dispatched', 'Dispatched') : 'None'}
+                  {detailItem.push_notification ? t('ag.superadmin.superemergencyapprovalspage.dispatched', 'Dispatched') : t('gov.emergency.none', 'None')}
                 </p>
               </div>
 
@@ -1080,7 +1080,7 @@ export const SuperEmergencyApprovalsPage = () => {
                         : 'bg-slate-50 dark:bg-zinc-800 border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-zinc-400 hover:bg-slate-100'
                     }`}
                   >
-                    {r}
+                    {({ 'Incomplete advisory specifications': t('gov.emergency.reason_incomplete', 'Incomplete advisory specifications'), 'Incorrect target corridor / route scope': t('gov.emergency.reason_wrong_scope', 'Incorrect target corridor / route scope'), 'Duplicate broadcast submission': t('gov.emergency.reason_duplicate', 'Duplicate broadcast submission'), 'Expired civil advisory event': t('gov.emergency.reason_expired', 'Expired civil advisory event') })[r] || r}
                   </button>
                 ))}
               </div>

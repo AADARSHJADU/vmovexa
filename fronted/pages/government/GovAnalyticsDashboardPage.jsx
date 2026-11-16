@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
+import { translateCampaignLabel } from '../../utils/campaignTranslations';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FleetIcons } from '../../components/FleetIcons';
 import { RefreshButton } from '../../components/ui/RefreshButton';
@@ -115,16 +116,16 @@ export const GovAnalyticsDashboardPage = () => {
       return analytics.topCampaigns.map((c, idx) => ({
         id: c.id,
         rank: c.rank || (idx + 1),
-        name: c.name || c.title || `Campaign #${c.id}`,
+        name: c.name || c.title || t('campaign_extra.campaign_v0', 'Campaign #{{v0}}', { v0: c.id }),
         category: c.category || 'PSA',
         status: String(c.status || 'draft').toLowerCase(),
         reach: c.completionPct !== null && c.completionPct !== undefined
           ? `${c.completionPct}%`
-          : (c.busesCount > 0 ? `${c.busesCount} buses` : '—'),
+          : (c.busesCount > 0 ? t('gov.analytics.n_buses', '{{count}} buses', { count: c.busesCount }) : '—'),
         impressions: Number(c.impressions || c.impressions_delivered || 0).toLocaleString(),
         targetImpressions: c.targetImpressions ? Number(c.targetImpressions).toLocaleString() : null,
         busesCount: c.busesCount || 0,
-        target: c.target || 'Transit Network',
+        target: c.target || t('campaign_extra.transit_network', 'Transit Network'),
       }));
     }
     return campaignList.slice(0, 5).map((c, idx) => {
@@ -136,17 +137,17 @@ export const GovAnalyticsDashboardPage = () => {
       return {
         id: c.id,
         rank: idx + 1,
-        name: c.title || c.name || `Campaign #${c.id}`,
-        category: c.category || 'General PSA',
+        name: c.title || c.name || t('campaign_extra.campaign_v0', 'Campaign #{{v0}}', { v0: c.id }),
+        category: c.category || t('gov.analytics.cat_general_psa', 'General PSA'),
         status: String(c.status || 'draft').toLowerCase(),
-        reach: completion !== null ? `${completion}%` : (buses > 0 ? `${buses} buses` : '—'),
+        reach: completion !== null ? `${completion}%` : (buses > 0 ? t('gov.analytics.n_buses', '{{count}} buses', { count: buses }) : '—'),
         impressions: delivered.toLocaleString(),
         targetImpressions: targetImp > 0 ? targetImp.toLocaleString() : null,
         busesCount: buses,
-        target: c.target_area || (c.targets?.map(t => t.city_name || t.fleet_name).filter(Boolean).join(', ')) || 'Transit Network',
+        target: c.target_area || (c.targets?.map(t => t.city_name || t.fleet_name).filter(Boolean).join(', ')) || t('campaign_extra.transit_network', 'Transit Network'),
       };
     });
-  }, [analytics?.topCampaigns, campaignList]);
+  }, [analytics?.topCampaigns, campaignList, t]);
 
   // QR Engagement Breakdown by Campaign (Only campaigns with actual scans)
   const qrScansByCampaign = useMemo(() => {
@@ -159,7 +160,7 @@ export const GovAnalyticsDashboardPage = () => {
         const scans = Number(c.qrScans ?? c.qr_scans_count ?? c.qr_scans ?? (c.qrCodes?.[0]?.scan_count || 0));
         return {
           id: c.id,
-          name: c.name || c.title || `Campaign #${c.id}`,
+          name: c.name || c.title || t('campaign_extra.campaign_v0', 'Campaign #{{v0}}', { v0: c.id }),
           scans,
           scansFormatted: scans.toLocaleString(),
           pct: kpis.totalScans > 0 ? Math.min(100, Math.round((scans / kpis.totalScans) * 100)) : 0,
@@ -167,7 +168,7 @@ export const GovAnalyticsDashboardPage = () => {
         };
       })
       .filter(c => c.scans > 0);
-  }, [analytics?.topCampaigns, campaignList, kpis.totalScans]);
+  }, [analytics?.topCampaigns, campaignList, kpis.totalScans, t]);
 
   // Real QR Device Breakdown from QrScan database records
   const qrDeviceStats = useMemo(() => {
@@ -216,7 +217,7 @@ export const GovAnalyticsDashboardPage = () => {
       case 'rejected':
         return <span className="px-2 py-0.5 rounded-md bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800 text-[10px] font-bold">{t('ag.government.govanalyticsdashboardpage.rejected', 'Rejected')}</span>;
       default:
-        return <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-800 text-[10px] font-bold capitalize">{status}</span>;
+        return <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-800 text-[10px] font-bold capitalize">{translateCampaignLabel(t, status)}</span>;
     }
   };
 
@@ -228,8 +229,8 @@ export const GovAnalyticsDashboardPage = () => {
         <div>
           <Breadcrumb
             items={[
-              { label: isSuperAdmin ? 'SuperAdmin' : 'Government', path: isSuperAdmin ? '/superadmin/dashboard' : '/government/dashboard' },
-              { label: 'Transit Analytics & Telematics' },
+              { label: isSuperAdmin ? t('ag.superadmin.superemergencyapprovalspage.superadmin', 'SuperAdmin') : t('nav.government', 'Government'), path: isSuperAdmin ? '/superadmin/dashboard' : '/government/dashboard' },
+              { label: t('gov.analytics.breadcrumb', 'Transit Analytics & Telematics') },
             ]}
             className="mb-2"
           />
@@ -247,7 +248,7 @@ export const GovAnalyticsDashboardPage = () => {
             onChange={e => setCategory(e.target.value)}
             className="w-full sm:w-auto h-10 px-3.5 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800 text-xs font-bold text-slate-700 dark:text-zinc-200 focus:outline-none focus:bg-white dark:focus:bg-zinc-900"
           >
-            <option value="all">{t('common.all') || 'All Categories'}</option>
+            <option value="all">{t('activity.all_categories', 'All Categories')}</option>
             {availableCategories.map(cat => (
               <option key={cat} value={cat}>{cat}</option>
             ))}
@@ -299,30 +300,30 @@ export const GovAnalyticsDashboardPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {[
               {
-                label: 'Total Campaigns',
+                label: t('gov.analytics.kpi_total_campaigns', 'Total Campaigns'),
                 value: Number(kpis.totalCampaigns).toLocaleString(),
-                change: `${kpis.completedCampaigns} completed`,
+                change: `${kpis.completedCampaigns} ${t('gov.analytics.completed_suffix', 'completed')}`,
                 icon: <FleetIcons.Flag className="w-5 h-5 text-slate-700 dark:text-zinc-300" />,
                 dot: 'bg-emerald-500',
               },
               {
-                label: 'Active Campaigns',
+                label: t('gov.dashboard.active_campaigns', 'Active Campaigns'),
                 value: Number(kpis.activeCampaigns).toLocaleString(),
-                change: `${kpis.scheduledCampaigns} pending/scheduled`,
+                change: `${kpis.scheduledCampaigns} ${t('gov.analytics.pending_scheduled_suffix', 'pending/scheduled')}`,
                 icon: <FleetIcons.Bus className="w-5 h-5 text-slate-700 dark:text-zinc-300" />,
                 dot: 'bg-blue-500',
               },
               {
-                label: 'Emergency Broadcasts',
+                label: t('superadmin.government.emergency_broadcasts', 'Emergency Broadcasts'),
                 value: Number(kpis.emergencyAlerts).toLocaleString(),
-                change: 'Public alerts dispatched',
+                change: t('gov.analytics.public_alerts_dispatched', 'Public alerts dispatched'),
                 icon: <FleetIcons.Alert className="w-5 h-5 text-slate-700 dark:text-zinc-300" />,
                 dot: 'bg-red-500',
               },
               {
-                label: 'Transit Fleet Reach',
+                label: t('gov.analytics.kpi_fleet_reach', 'Transit Fleet Reach'),
                 value: `${kpis.networkReachPct}%`,
-                change: `${kpis.activeVehiclesCount} of ${kpis.totalVehiclesCount} active buses`,
+                change: t('gov.analytics.n_of_n_active_buses', '{{active}} of {{total}} active buses', { active: kpis.activeVehiclesCount, total: kpis.totalVehiclesCount }),
                 icon: <FleetIcons.Target className="w-5 h-5 text-slate-700 dark:text-zinc-300" />,
                 dot: 'bg-purple-500',
               },
@@ -501,7 +502,7 @@ export const GovAnalyticsDashboardPage = () => {
 
                       <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200/60 dark:border-zinc-800/60 text-xs">
                         <div>
-                          <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium uppercase">{t('common.reach') || 'Target / Reach'}</span>
+                          <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium uppercase">{t('common.reach', 'Reach')}</span>
                           <p className="font-bold text-slate-900 dark:text-zinc-100 mt-0.5">{item.reach}</p>
                         </div>
                         <div>
@@ -520,7 +521,7 @@ export const GovAnalyticsDashboardPage = () => {
                       <tr>
                         <th className="py-3 px-3">{t('gov.analytics.rank_campaign')}</th>
                         <th className="py-3 px-3">{t('common.category')}</th>
-                        <th className="py-3 px-3">{t('common.reach') || 'Reach / Completion'}</th>
+                        <th className="py-3 px-3">{t('common.reach', 'Reach')}</th>
                         <th className="py-3 px-3">{t('common.impressions')}</th>
                         <th className="py-3 px-3 text-right">{t('common.status')}</th>
                       </tr>

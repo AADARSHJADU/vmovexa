@@ -6,6 +6,7 @@ import 'package:vmovexa/app/data/models/user_model.dart';
 import 'package:vmovexa/app/data/services/auth_service.dart';
 import 'package:vmovexa/app/data/services/http_client_service.dart';
 import 'package:vmovexa/app/data/services/storage_service.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import '../model/profile_model.dart';
 import '../../technician_dashboard/controller/technician_dashboard_controller.dart';
 import '../../../../../routes/app_routes.dart';
@@ -244,7 +245,7 @@ class ProfileController extends GetxController {
             'Success',
             'Profile picture updated successfully.',
             snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: const Color(0xFF2ECC71).withOpacity(0.9),
+            backgroundColor: const Color(0xFF2ECC71).withValues(alpha: 0.9),
             colorText: Colors.white,
           );
         }
@@ -253,7 +254,7 @@ class ProfileController extends GetxController {
           'Upload Failed',
           res.message ?? 'Failed to upload photo.',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color(0xFFFF4D4D).withOpacity(0.9),
+          backgroundColor: const Color(0xFFFF4D4D).withValues(alpha: 0.9),
           colorText: Colors.white,
         );
       }
@@ -262,7 +263,7 @@ class ProfileController extends GetxController {
         'Upload Error',
         'An error occurred while uploading: $e',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFFFF4D4D).withOpacity(0.9),
+        backgroundColor: const Color(0xFFFF4D4D).withValues(alpha: 0.9),
         colorText: Colors.white,
       );
     } finally {
@@ -291,6 +292,10 @@ class ProfileController extends GetxController {
 
   void goToTermsConditions() {
     Get.toNamed(Routes.TERMS_CONDITIONS, arguments: {'role': 'ROLE-CENTRAL-TECH'});
+  }
+
+  void goToHelpSupport() {
+    Get.toNamed(Routes.TECHNICIAN_HELP_SUPPORT);
   }
 
   void goToDeviceSessions() {
@@ -327,11 +332,106 @@ class ProfileController extends GetxController {
     }
   }
 
-  void logout() {
-    // if (Get.isRegistered<TechnicianDashboardController>()) {
-    //   Get.find<TechnicianDashboardController>().logout();
-    // } else {
-      Get.offAllNamed(Routes.LOGIN);
-    // }
+  void confirmLogout() {
+    if (Get.isRegistered<TechnicianDashboardController>()) {
+      Get.find<TechnicianDashboardController>().confirmLogout();
+    } else {
+      Get.dialog(
+        Dialog(
+          backgroundColor: const Color(0xFF15151F),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(22),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEF4444).withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.logout_rounded, color: Color(0xFFEF4444), size: 26),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'confirm_logout'.tr,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'logout_technician_confirm_msg'.tr,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13, height: 1.4),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Get.back(),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: Colors.white.withValues(alpha: 0.15)),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: Text('cancel'.tr, style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.w600)),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () async {
+                          Get.back();
+                          await logout();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            gradient: AppTheme.primaryGradient,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'log_out'.tr,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> logout() async {
+    try {
+      if (Get.isRegistered<AuthService>()) {
+        await AuthService.to.logout();
+      }
+    } catch (_) {}
+    Get.offAllNamed(Routes.LOGIN);
   }
 }

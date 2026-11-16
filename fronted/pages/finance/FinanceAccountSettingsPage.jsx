@@ -303,14 +303,6 @@ export const FinanceAccountSettingsPage = () => {
 
         <div className="flex flex-wrap items-center gap-2">
           <RefreshButton onClick={handleRefresh} loading={refreshing || loadingSettings} />
-          <Link
-            to={`${basePath}/invoices/design`}
-            title={t('finance.settings.customize_invoice_title')}
-            className="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300 dark:border-indigo-800 text-xs font-bold rounded-xl border border-indigo-200 shadow-2xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-          >
-            <FleetIcons.Settings className="w-3.5 h-3.5" />
-            <span>{t('finance.settings.invoice_designer')}</span>
-          </Link>
         </div>
       </div>
 
@@ -655,25 +647,6 @@ export const FinanceAccountSettingsPage = () => {
                   <span className="text-[11px] font-semibold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 px-2.5 py-1 rounded-lg border border-purple-200 dark:border-purple-900/40 self-start sm:self-auto">
                     {t('ag.finance.financeaccountsettingspage.invoice_branding', 'Invoice Branding')}
                   </span>
-                </div>
-
-                {/* Quick Link to Invoice Designer */}
-                <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 border border-indigo-100 dark:border-indigo-900/40 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div>
-                    <h4 className="text-xs font-bold text-indigo-950 dark:text-indigo-200">
-                      {t('ag.finance.financeaccountsettingspage.need_to_customize_the_full_invoice_layout_co', 'Need to customize the full invoice layout, colors & templates?')}
-                    </h4>
-                    <p className="text-[11px] text-indigo-700 dark:text-indigo-400 font-medium">
-                      {t('ag.finance.financeaccountsettingspage.customize_modern_classic_minimal_and_bold_la', 'Customize Modern, Classic, Minimal and Bold layouts with live preview, QR codes, and section toggles.')}
-                    </p>
-                  </div>
-                  <Link
-                    to={`${basePath}/invoices/design`}
-                    className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow-2xs transition-colors shrink-0 self-start sm:self-auto flex items-center gap-1.5"
-                  >
-                    <span>{t('finance.settings.open_invoice_studio')}</span>
-                    <FleetIcons.ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
                 </div>
 
                 <div className="space-y-5">

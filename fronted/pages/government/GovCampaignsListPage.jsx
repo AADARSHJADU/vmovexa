@@ -1,3 +1,4 @@
+import { translateCampaignLabel } from '../../utils/campaignTranslations';
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -83,9 +84,9 @@ export const GovCampaignsListPage = () => {
     setRefreshing(true);
     try {
       await loadCampaigns();
-      toast.success('Government campaigns list refreshed');
+      toast.success(t("gov.campaigns.government_campaigns_list_refreshed", "Government campaigns list refreshed"));
     } catch (err) {
-      toast.error(err?.message || 'Failed to refresh campaigns');
+      toast.error(err?.message || t("campaign_extra.failed_to_refresh_campaigns", "Failed to refresh campaigns"));
     } finally {
       setRefreshing(false);
     }
@@ -107,34 +108,34 @@ export const GovCampaignsListPage = () => {
       const res = await startCampaign(campId);
       const count = res?.mqttDispatched ?? res?.dataValues?.mqttDispatched;
       if (typeof count === 'number') {
-        toast.success(`Campaign broadcast started! Dispatched to ${count} device(s) via MQTT`);
+        toast.success(t("gov.campaigns.campaign_broadcast_started_dispatched_to_count_device_s_via_mqtt", "Campaign broadcast started! Dispatched to {{count}} device(s) via MQTT", { count }));
       } else {
-        toast.success('Campaign broadcast started! Ad is live on transit screens');
+        toast.success(t("gov.campaigns.campaign_broadcast_started_ad_is_live_on_transit_screens", "Campaign broadcast started! Ad is live on transit screens"));
       }
       await loadCampaigns().catch(() => {});
     } catch (e) {
-      toast.error(e?.message || 'Failed to start campaign');
+      toast.error(e?.message || t("campaign_extra.failed_to_start_campaign", "Failed to start campaign"));
     }
   };
 
   const handlePause = async (campId) => {
     try {
       await toast.promise(stopCampaign(campId), {
-        loading: 'Pausing transit broadcast...',
-        success: 'Campaign broadcast paused',
-        error: (e) => e?.message || 'Failed to pause campaign',
+        loading: t("gov.campaigns.pausing_transit_broadcast", "Pausing transit broadcast..."),
+        success: t("gov.campaigns.campaign_broadcast_paused", "Campaign broadcast paused"),
+        error: (e) => e?.message || t("campaign_extra.failed_to_pause_campaign", "Failed to pause campaign"),
       });
       await loadCampaigns().catch(() => {});
     } catch (_) {}
   };
 
   const handleEnd = async (campId) => {
-    if (!window.confirm('Are you sure you want to end this campaign? Broadcast will be permanently stopped.')) return;
+    if (!window.confirm(t("campaign_extra.are_you_sure_you_want_to_end_this_campaign_broadcast_will_be_permanently_stopped", "Are you sure you want to end this campaign? Broadcast will be permanently stopped."))) return;
     try {
       await toast.promise(endCampaign(campId), {
-        loading: 'Ending campaign broadcast...',
-        success: 'Campaign ended successfully',
-        error: (e) => e?.message || 'Failed to end campaign',
+        loading: t("campaign_extra.ending_campaign_broadcast", "Ending campaign broadcast..."),
+        success: t("gov.campaigns.campaign_ended_successfully", "Campaign ended successfully"),
+        error: (e) => e?.message || t("campaign_extra.failed_to_end_campaign", "Failed to end campaign"),
       });
       await loadCampaigns().catch(() => {});
     } catch (_) {}
@@ -145,9 +146,9 @@ export const GovCampaignsListPage = () => {
     setVerifyingId(campId);
     try {
       await toast.promise(approveCampaign(campId), {
-        loading: 'Approving government broadcast & issuing clearance...',
-        success: 'Campaign approved! Public service broadcast cleared for transit screens.',
-        error: (e) => e?.message || 'Approval failed',
+        loading: t("gov.campaigns.approving_government_broadcast_issuing_clearance", "Approving government broadcast & issuing clearance..."),
+        success: t("gov.campaigns.campaign_approved_public_service_broadcast_cleared_for_transit_screens", "Campaign approved! Public service broadcast cleared for transit screens."),
+        error: (e) => e?.message || t("gov.campaigns.approval_failed", "Approval failed"),
       });
       await loadCampaigns().catch(() => {});
     } catch (_) {
@@ -157,25 +158,25 @@ export const GovCampaignsListPage = () => {
   };
 
   const handleReject = async (campId) => {
-    const reason = window.prompt('Enter rejection / revision remarks for department:', 'Creative specifications incomplete');
+    const reason = window.prompt(t("gov.campaigns.enter_rejection_revision_remarks_for_department", "Enter rejection / revision remarks for department:"), t("gov.campaigns.creative_specifications_incomplete", "Creative specifications incomplete"));
     if (reason === null) return;
     try {
       await toast.promise(rejectCampaign(campId, reason), {
-        loading: 'Submitting revision remarks...',
-        success: 'Campaign rejected with remarks',
-        error: (e) => e?.message || 'Failed to reject campaign',
+        loading: t("gov.campaigns.submitting_revision_remarks", "Submitting revision remarks..."),
+        success: t("gov.campaigns.campaign_rejected_with_remarks", "Campaign rejected with remarks"),
+        error: (e) => e?.message || t("gov.campaigns.failed_to_reject_campaign", "Failed to reject campaign"),
       });
       await loadCampaigns().catch(() => {});
     } catch (_) {}
   };
 
   const handleDelete = async (campaign) => {
-    if (!window.confirm(`Are you sure you want to delete campaign "${campaign.name}"? This action cannot be undone.`)) return;
+    if (!window.confirm(t("gov.campaigns.are_you_sure_you_want_to_delete_campaign_name_this_action_cannot_be_undone", "Are you sure you want to delete campaign \"{{name}}\"? This action cannot be undone.", { name: campaign.name }))) return;
     try {
       await toast.promise(deleteCampaign(campaign.dbId || campaign.id), {
-        loading: 'Deleting campaign...',
-        success: 'Campaign deleted successfully',
-        error: (e) => e?.message || 'Failed to delete campaign',
+        loading: t("campaign_extra.deleting_campaign", "Deleting campaign..."),
+        success: t("campaign_extra.campaign_deleted_successfully", "Campaign deleted successfully"),
+        error: (e) => e?.message || t("campaign_extra.failed_to_delete_campaign", "Failed to delete campaign"),
       });
       await loadCampaigns().catch(() => {});
     } catch (_) {}
@@ -218,13 +219,13 @@ export const GovCampaignsListPage = () => {
         return {
           id: c.code || `CMP-${c.id}`,
           dbId: c.id,
-          name: c.title || c.name || 'Public Awareness Campaign',
-          brandName: c.client_company || c.brand_name || c.agency?.agency_name || c.agency?.name || 'Department of Public Safety',
+          name: c.title || c.name || t("gov.campaigns.public_awareness_campaign", "Public Awareness Campaign"),
+          brandName: c.client_company || c.brand_name || c.agency?.agency_name || c.agency?.name || t("gov.campaigns.department_of_public_safety", "Department of Public Safety"),
           clientName: c.client_name || c.agency?.contact_name || '',
           clientCompany: c.client_company || c.agency?.agency_name || '',
           clientPhone: c.client_phone || '',
           clientEmail: c.client_email || '',
-          category: c.category || 'Public Awareness',
+          category: c.category || t("gov.campaigns.public_awareness", "Public Awareness"),
           status: mappedStatus,
           rawStatus: c.status,
           startDate: c.start_date || '—',
@@ -239,12 +240,12 @@ export const GovCampaignsListPage = () => {
           qrCode: c.qrCodes?.[0]?.code || '',
           fleetOperators: c.targets?.map(t => t.fleet_name || t.city).filter(Boolean) || [],
           paymentStatus: c.payment?.payment_mode === 'offline'
-            ? 'Treasury Paid'
+            ? "Treasury Paid"
             : c.payment?.payment_mode === 'online'
-            ? 'Online Paid'
+            ? "Online Paid"
             : c.payment_status === 'paid'
-            ? 'Gov Cleared'
-            : 'Pending Sanction',
+            ? "Gov Cleared"
+            : "Pending Sanction",
           paymentToken: c.payment_token || c.id,
           priority: c.priority || 'Normal',
           paymentMode: c.payment?.payment_mode || null,
@@ -255,7 +256,7 @@ export const GovCampaignsListPage = () => {
       });
     }
     return [];
-  }, [rtkCampaigns]);
+  }, [rtkCampaigns, t]);
 
   // Filters & State
   const [activeTab, setActiveTab] = useState('All');
@@ -415,7 +416,7 @@ export const GovCampaignsListPage = () => {
                 : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200'
             }`}
           >
-            {tab}
+            {translateCampaignLabel(t, tab)}
             <span className={`ml-1.5 text-[10px] px-1.5 py-0.5 rounded-full ${
               activeTab === tab ? 'bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white' : 'bg-slate-200/70 dark:bg-zinc-700/50 text-slate-500 dark:text-zinc-400'
             }`}>
@@ -447,7 +448,7 @@ export const GovCampaignsListPage = () => {
 
                     <div className="flex items-center gap-2">
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-2xs ${statusColors[campaign.status] || 'bg-slate-100 dark:bg-zinc-800 text-slate-600'}`}>
-                        {campaign.status}
+                        {translateCampaignLabel(t, campaign.status)}
                       </span>
 
                       {/* 3-DOTS CONTEXT MENU BUTTON */}
@@ -677,7 +678,7 @@ export const GovCampaignsListPage = () => {
                       </span>
                     )}
                     <span className="px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-[10px] font-bold border border-indigo-100 dark:border-indigo-800">
-                      {t('ag.government.govcampaignslistpage.payment', 'Payment:')} {campaign.paymentStatus}
+                      {t('ag.government.govcampaignslistpage.payment', 'Payment:')} {t(({ 'Treasury Paid': 'gov.campaigns.treasury_paid', 'Online Paid': 'gov.campaigns.online_paid', 'Gov Cleared': 'gov.campaigns.gov_cleared', 'Pending Sanction': 'gov.campaigns.pending_sanction' })[campaign.paymentStatus], campaign.paymentStatus)}
                     </span>
                     {(campaign.paymentMode === 'offline' || campaign.raw?.payment?.payment_mode === 'offline') && (
                       <span className="px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 text-[10px] font-bold border border-amber-200 dark:border-amber-800">
@@ -791,11 +792,11 @@ export const GovCampaignsListPage = () => {
                     <td className="py-4 px-4 whitespace-nowrap">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider inline-block ${statusColors[campaign.status] || 'bg-slate-100 dark:bg-zinc-800 text-slate-600'}`}>
-                          {campaign.status}
+                          {translateCampaignLabel(t, campaign.status)}
                         </span>
                         {(campaign.paymentMode === 'offline' || campaign.raw?.payment?.payment_mode === 'offline') && (
                           <span className="px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 text-[9px] font-bold border border-amber-200 dark:border-amber-800">
-                            {t('ag.government.govcampaignslistpage.treasury', 'TREASURY')}
+                            {t("gov.campaigns.treasury", "TREASURY")}
                           </span>
                         )}
                         {(campaign.paymentMode === 'online' || campaign.raw?.payment?.payment_mode === 'online') && (

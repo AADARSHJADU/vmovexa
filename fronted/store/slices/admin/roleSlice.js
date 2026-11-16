@@ -1,17 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
-import {
-  fetchRolesThunk,
-  createRoleThunk,
-  deleteRoleThunk,
-  updateRoleThunk,
-  fetchPermissionsThunk,
-} from '../../thunks/admin/role.thunks.js';
+import { fetchRolesThunk, fetchRegistryThunk } from '../../thunks/admin/role.thunks.js';
 
-export { fetchRolesThunk, createRoleThunk, deleteRoleThunk, updateRoleThunk, fetchPermissionsThunk };
+export { fetchRolesThunk, fetchRegistryThunk };
 
 const initialState = {
   roles: [],
-  permissions: [],
+  registry: null,
   status: 'idle',
   error: null,
 };
@@ -22,31 +16,19 @@ const adminRoleSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchRolesThunk.pending,   (state) => { state.status = 'loading'; })
+      .addCase(fetchRolesThunk.pending, (state) => { state.status = 'loading'; })
       .addCase(fetchRolesThunk.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.roles = Array.isArray(action.payload) ? action.payload
-          : (action.payload?.rows || action.payload?.items || []);
+        state.roles = Array.isArray(action.payload) ? action.payload : (action.payload?.rows || []);
       })
-      .addCase(fetchRolesThunk.rejected,  (state) => { state.status = 'failed'; })
-      .addCase(createRoleThunk.fulfilled, (state, action) => {
-        if (action.payload?.id) state.roles = [...state.roles, action.payload];
-      })
-      .addCase(deleteRoleThunk.fulfilled, (state, action) => {
-        state.roles = state.roles.filter((r) => r.id !== action.payload);
-      })
-      .addCase(updateRoleThunk.fulfilled, (state, action) => {
-        if (action.payload?.id) {
-          state.roles = state.roles.map((r) => r.id === action.payload.id ? action.payload : r);
-        }
-      })
-      .addCase(fetchPermissionsThunk.fulfilled, (state, action) => {
-        state.permissions = Array.isArray(action.payload) ? action.payload
-          : (action.payload?.rows || action.payload?.items || []);
+      .addCase(fetchRolesThunk.rejected, (state) => { state.status = 'failed'; })
+      .addCase(fetchRegistryThunk.fulfilled, (state, action) => {
+        state.registry = action.payload || null;
       });
   },
 });
 
 export default adminRoleSlice.reducer;
-export const selectAdminRoles       = (state) => state.adminRole.roles;
-export const selectAdminPermissions = (state) => state.adminRole.permissions;
+
+export const selectAdminRoles = (state) => state.adminRole.roles;
+export const selectAdminRegistry = (state) => state.adminRole.registry;

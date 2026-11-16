@@ -14,8 +14,8 @@ export const FinanceOfficerDetailsPage = ({ officer: officerProp = null, onClose
   const navigate = useNavigate();
   const { id: paramId } = useParams();
   const { deleteFinanceOfficer, loadFinanceOfficer } = useSuperFinanceOfficer();
-  const { impersonateUser, hasPermission } = useAuth();
-  const canImpersonate = hasPermission('platform.impersonate');
+  const { impersonateUser, isSuperAdmin } = useAuth();
+  const canImpersonate = isSuperAdmin;
 
   const officerId = officerProp?.id || paramId;
   const [localOfficer, setLocalOfficer] = useState(officerProp);

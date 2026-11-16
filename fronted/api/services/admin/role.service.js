@@ -7,15 +7,10 @@ async function call(promise) {
   catch (err) { throw normalizeError(err); }
 }
 
+/** Tenant Admin: read-only. Roles they may assign (Fleet Operator / Driver) + the permission registry. */
 export const adminRoleService = {
-  getRoles:             ()              => call(apiClient.get(ENDPOINTS.RBAC.ROLES)),
-  getRole:              (id)            => call(apiClient.get(ENDPOINTS.RBAC.ROLE(id))),
-  createRole:           (data)          => call(apiClient.post(ENDPOINTS.RBAC.ROLES, data)),
-  updateRole:           (id, data)      => call(apiClient.patch(ENDPOINTS.RBAC.ROLE(id), data)),
-  deleteRole:           (id)            => call(apiClient.delete(ENDPOINTS.RBAC.ROLE(id))),
-  updateRolePermissions:(id, permIds)   => call(apiClient.patch(ENDPOINTS.RBAC.ROLE_PERMISSIONS(id), { permissionIds: permIds })),
-  getPermissions:       ()              => call(apiClient.get(ENDPOINTS.RBAC.PERMISSIONS)),
-  getPermissionModules: ()              => call(apiClient.get(ENDPOINTS.RBAC.PERMISSION_MODULES)),
+  getRoles:    () => call(apiClient.get(ENDPOINTS.RBAC.ROLES, { params: { assignable: 1 } })),
+  getRegistry: () => call(apiClient.get(ENDPOINTS.RBAC.REGISTRY)),
 };
 
 export default adminRoleService;

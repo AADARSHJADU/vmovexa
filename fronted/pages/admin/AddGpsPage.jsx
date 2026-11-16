@@ -16,7 +16,7 @@ export const AddGpsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { user, hasPermission } = useAuth();
+  const { user, can } = useAuth();
 
   const isFleetPortal = (location.pathname.startsWith('/fleet-operator') || location.pathname.startsWith('/fleet-operator'));
   const basePath = isFleetPortal ? '/fleet-operator/edge-devices' : '/admin/edge-devices';
@@ -24,8 +24,8 @@ export const AddGpsPage = () => {
   const isFleetOperator = roleCode === 'ROLE-FLEET-OPERATOR';
   const isEditMode = Boolean(id);
 
-  const canCreate = hasPermission(['fleet.devices.create', 'devices.register', 'devices.gps.manage']);
-  const canUpdate = hasPermission(['fleet.devices.update', 'devices.configure', 'devices.gps.manage']);
+  const canCreate = can(['devices.create', 'devices.register']);
+  const canUpdate = can(['devices.update']);
 
   const assignVehicleParam = searchParams.get('assignVehicle') || '';
 

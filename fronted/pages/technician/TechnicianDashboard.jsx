@@ -183,28 +183,28 @@ export const TechnicianDashboard = () => {
   ];
 
   return (
-    <div className="w-full space-y-6 animate-in fade-in duration-200">
+    <div className="w-full space-y-6 animate-in fade-in duration-200 min-w-0 overflow-x-hidden">
       {/* Top Header & Greeting */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4 min-w-0">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight truncate">
               {t('ag.technician.techniciandashboard.welcome', 'Welcome,')} {profile.name}! 👋
             </h1>
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1 truncate">
             {profile.role} · {profile.depot} · {profile.badgeId}
             {stats?.certLevel && (
-              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800">
+              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800 shrink-0">
                 {stats.certLevel}
               </span>
             )}
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 sm:self-center">
+        <div className="flex flex-wrap items-center gap-2 sm:self-center shrink-0">
           {/* Live Rating Pill */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 text-xs font-bold shadow-sm">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 text-xs font-bold shadow-sm shrink-0">
             <div className="flex items-center gap-1">
               <FleetIcons.Star className="w-3.5 h-3.5 text-amber-500 fill-amber-400" filled={true} />
               <span className="font-black text-amber-900 dark:text-amber-200">
@@ -297,20 +297,20 @@ export const TechnicianDashboard = () => {
       </div>
 
       {/* Today's Tasks & Urgent Work Orders */}
-      <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+      <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4 overflow-hidden">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-zinc-800 pb-3">
-          <div>
-            <h2 className="text-base font-bold text-slate-900 dark:text-white">{t('technician.dashboard.todays_assigned_tasks')}</h2>
+          <div className="min-w-0">
+            <h2 className="text-base font-bold text-slate-900 dark:text-white truncate">{t('technician.dashboard.todays_assigned_tasks')}</h2>
             <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium">{t('technician.dashboard.tasks_desc')}</p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800">
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800 shrink-0">
               {todaysTasks.length} {t('ag.technician.techniciandashboard.active_tasks', 'Active Tasks')}
             </span>
             <Link
               to={`${basePath}/work-orders`}
-              className="text-xs font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 flex items-center gap-1"
+              className="text-xs font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 flex items-center gap-1 shrink-0 whitespace-nowrap"
             >
               <span>{t('common.view_all')}</span>
               <FleetIcons.ArrowRight className="w-3.5 h-3.5 inline ml-1" />
@@ -323,27 +323,47 @@ export const TechnicianDashboard = () => {
             <div className="py-8 text-center text-xs text-slate-400 dark:text-zinc-500 font-medium">{t('technician.dashboard.no_assigned_tasks')}</div>
           )}
           {todaysTasks.map((task) => (
-            <div key={task.id} className="py-3.5 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono font-bold text-slate-900 dark:text-white">{task.code ?? task.id ?? '—'}</span>
-                  <span className="text-xs font-bold text-slate-800 dark:text-zinc-200">• {task.issue_category ?? task.description ?? '—'}</span>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getStatusBadge(task.status)}`}>
+            <div key={task.id} className="py-3.5 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-w-0">
+              <div className="space-y-1.5 min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2 min-w-0">
+                  <span className="text-xs font-mono font-bold text-slate-900 dark:text-white shrink-0 whitespace-nowrap">
+                    {task.code ?? task.id ?? '—'}
+                  </span>
+                  <span className="text-slate-400 dark:text-zinc-600 shrink-0">•</span>
+                  <span
+                    className="text-xs font-bold text-slate-800 dark:text-zinc-200 truncate min-w-0 max-w-[200px] sm:max-w-xs md:max-w-md"
+                    title={task.issue_category ?? task.description ?? ''}
+                  >
+                    {task.issue_category ?? task.description ?? '—'}
+                  </span>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${getStatusBadge(task.status)}`}>
                     {task.status ?? '—'}
                   </span>
                 </div>
 
-                <div className="text-xs text-slate-500 dark:text-zinc-400 font-medium flex items-center gap-3">
-                  <span>{t('common.vehicle')}: <strong className="text-slate-800 dark:text-zinc-200">{task.bus_number ?? '—'}</strong></span>
-                  <span>{t('common.urgency')}: <strong className="text-slate-800 dark:text-zinc-200">{task.urgency ?? '—'}</strong></span>
-                  <span>{t('common.category')}: <strong className="text-slate-800 dark:text-zinc-200">{task.issue_category ?? '—'}</strong></span>
+                <div className="text-xs text-slate-500 dark:text-zinc-400 font-medium flex flex-wrap items-center gap-x-3.5 gap-y-1 min-w-0">
+                  <span className="shrink-0 whitespace-nowrap">
+                    {t('common.vehicle')}: <strong className="text-slate-800 dark:text-zinc-200">{task.bus_number ?? '—'}</strong>
+                  </span>
+                  <span className="shrink-0 whitespace-nowrap">
+                    {t('common.urgency')}: <strong className="text-slate-800 dark:text-zinc-200 capitalize">{task.urgency ?? '—'}</strong>
+                  </span>
+                  <span className="min-w-0 max-w-full flex items-center gap-1">
+                    <span className="shrink-0 whitespace-nowrap">{t('common.category')}:</span>
+                    <strong
+                      className="text-slate-800 dark:text-zinc-200 truncate max-w-[160px] sm:max-w-xs md:max-w-sm inline-block align-bottom"
+                      title={task.issue_category ?? ''}
+                    >
+                      {task.issue_category ?? '—'}
+                    </strong>
+                  </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 self-end sm:self-center">
+              <div className="flex items-center gap-2 shrink-0 self-start sm:self-center">
                 <Link
                   to={`${basePath}/work-orders/${task.id}`}
-                  className="px-3.5 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/50 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 text-xs font-bold transition-colors flex items-center gap-1"
+                  className="px-3.5 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/50 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 text-xs font-bold transition-colors flex items-center gap-1 shrink-0 whitespace-nowrap"
                 >
                   <span>{t('technician.dashboard.open_work_order')}</span>
                   <FleetIcons.ArrowRight className="w-3.5 h-3.5 inline ml-1" />
@@ -355,14 +375,14 @@ export const TechnicianDashboard = () => {
       </div>
 
       {/* Technician Rating & Client Reviews Section */}
-      <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-sm space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-zinc-800 pb-4">
-          <div>
+      <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-sm space-y-5 overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-zinc-800 pb-4 min-w-0">
+          <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+              <span className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800 shrink-0">
                 <FleetIcons.Star className="w-4 h-4 text-amber-500 fill-amber-400" filled={true} />
               </span>
-              <h2 className="text-base font-bold text-slate-900 dark:text-white">
+              <h2 className="text-base font-bold text-slate-900 dark:text-white truncate">
                 {t('ag.technician.techniciandashboard.client_ratings_and_service_reviews', 'Client Ratings & Service Reviews')}
               </h2>
             </div>
@@ -371,8 +391,8 @@ export const TechnicianDashboard = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800 shrink-0">
               {totalRatingsCount} {totalRatingsCount === 1 ? t('technician.client_review', 'Client Review') : t('technician.client_reviews', 'Client Reviews')}
             </span>
           </div>
@@ -382,7 +402,7 @@ export const TechnicianDashboard = () => {
           {/* Left Column: Overall Score & Star Breakdown (5 cols) */}
           <div className="lg:col-span-5 bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-800 rounded-2xl p-5 space-y-5">
             <div className="flex items-center gap-4">
-              <div className="text-center p-3.5 bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 min-w-[100px] shadow-sm">
+              <div className="text-center p-3.5 bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 min-w-[100px] shadow-sm shrink-0">
                 <div className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
                   {avgRating ? avgRating : '0'}
                 </div>
@@ -392,7 +412,7 @@ export const TechnicianDashboard = () => {
                 <div className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 mt-1">{t('technician.dashboard.out_of_5')}</div>
               </div>
 
-              <div className="space-y-1">
+              <div className="space-y-1 min-w-0">
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white">{t('technician.dashboard.overall_satisfaction')}</h3>
                 <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">
                   {t('ag.technician.techniciandashboard.based_on', 'Based on')} <strong>{totalRatingsCount} {t('ag.technician.techniciandashboard.verified_client', 'verified client')} {totalRatingsCount === 1 ? 'rating' : 'ratings'}</strong> {t('ag.technician.techniciandashboard.from_completed_depot_work_orders', 'from completed depot work orders.')}
@@ -411,7 +431,7 @@ export const TechnicianDashboard = () => {
                 const percentage = totalRatingsCount > 0 ? Math.round((item.count / totalRatingsCount) * 100) : 0;
                 return (
                   <div key={item.stars} className="flex items-center gap-3 text-xs">
-                    <span className="w-12 font-bold text-slate-700 dark:text-zinc-300 flex items-center gap-1">
+                    <span className="w-12 font-bold text-slate-700 dark:text-zinc-300 flex items-center gap-1 shrink-0">
                       <span>{item.stars}</span>
                       <FleetIcons.Star className="w-3 h-3 text-amber-400 fill-amber-400" filled={true} />
                     </span>
@@ -421,7 +441,7 @@ export const TechnicianDashboard = () => {
                         style={{ width: `${percentage}%` }}
                       />
                     </div>
-                    <span className="w-8 text-right font-mono text-[11px] font-semibold text-slate-500 dark:text-zinc-400">
+                    <span className="w-8 text-right font-mono text-[11px] font-semibold text-slate-500 dark:text-zinc-400 shrink-0">
                       {item.count}
                     </span>
                   </div>
@@ -431,7 +451,7 @@ export const TechnicianDashboard = () => {
           </div>
 
           {/* Right Column: Recent Client Reviews (7 cols) */}
-          <div className="lg:col-span-7 space-y-3">
+          <div className="lg:col-span-7 space-y-3 min-w-0">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                 {t('ag.technician.techniciandashboard.recent_client_feedback_and_comments', 'Recent Client Feedback & Comments')}
@@ -467,23 +487,23 @@ export const TechnicianDashboard = () => {
                   return (
                     <div
                       key={ratingItem.id}
-                      className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-4 shadow-sm hover:border-slate-300 dark:hover:border-zinc-700 transition-colors space-y-2.5"
+                      className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-4 shadow-sm hover:border-slate-300 dark:hover:border-zinc-700 transition-colors space-y-2.5 min-w-0"
                     >
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <span className="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 flex items-center justify-center text-xs font-bold">
+                      <div className="flex flex-wrap items-center justify-between gap-2 min-w-0">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <span className="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 flex items-center justify-center text-xs font-bold shrink-0">
                             {clientName.charAt(0).toUpperCase()}
                           </span>
-                          <div>
-                            <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                              <span>{clientName}</span>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5 min-w-0">
+                              <span className="truncate max-w-[160px] sm:max-w-xs">{clientName}</span>
                               {ratingItem.organization?.name && (
-                                <span className="text-[10px] font-normal text-slate-400 dark:text-zinc-500">
+                                <span className="text-[10px] font-normal text-slate-400 dark:text-zinc-500 truncate max-w-[120px] sm:max-w-[180px]">
                                   ({ratingItem.organization.name})
                                 </span>
                               )}
                             </div>
-                            <div className="text-[10px] text-slate-400 dark:text-zinc-500">
+                            <div className="text-[10px] text-slate-400 dark:text-zinc-500 truncate">
                               {formattedDate} {t('ag.technician.techniciandashboard.work_order', '• Work Order:')}{' '}
                               <strong className="text-slate-600 dark:text-zinc-300 font-mono">
                                 {ratingItem.code || `#${ratingItem.id}`}
@@ -493,7 +513,7 @@ export const TechnicianDashboard = () => {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-full border border-amber-200 dark:border-amber-800/60">
+                        <div className="flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-full border border-amber-200 dark:border-amber-800/60 shrink-0">
                           <div className="flex items-center gap-0.5">
                             {renderStars(ratingItem.rating, 5, 'w-3 h-3')}
                           </div>
@@ -504,7 +524,7 @@ export const TechnicianDashboard = () => {
                       </div>
 
                       {ratingItem.rating_comment && (
-                        <p className="text-xs text-slate-700 dark:text-zinc-300 italic bg-slate-50 dark:bg-zinc-800/50 p-2.5 rounded-xl border border-slate-100 dark:border-zinc-800">
+                        <p className="text-xs text-slate-700 dark:text-zinc-300 italic bg-slate-50 dark:bg-zinc-800/50 p-2.5 rounded-xl border border-slate-100 dark:border-zinc-800 break-words [overflow-wrap:anywhere]">
                           "{ratingItem.rating_comment}"
                         </p>
                       )}
@@ -517,7 +537,7 @@ export const TechnicianDashboard = () => {
                               className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1"
                             >
                               <FleetIcons.Check className="w-3 h-3 text-emerald-600 inline mr-0.5" />
-                              <span>{tag}</span>
+                              <span className="truncate max-w-[140px]">{tag}</span>
                             </span>
                           ))}
                         </div>

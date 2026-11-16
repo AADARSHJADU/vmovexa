@@ -1,3 +1,4 @@
+import { translateCampaignLabel } from '../../utils/campaignTranslations';
 import { CreativeAssetsGallery } from '../../components/campaign/CreativeAssetsGallery';
 import React, { useState, useRef, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
@@ -42,13 +43,13 @@ export const getFormattedDate = (offsetDays = 0) => {
   return `${year}-${month}-${day}`;
 };
 
-export const formatDisplayDate = (dateStr) => {
+export const formatDisplayDate = (dateStr, locale = 'en-IN') => {
   if (!dateStr) return '';
   try {
     const parts = dateStr.split('-');
     if (parts.length === 3) {
       const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
-      return d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+      return d.toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
     }
     return dateStr;
   } catch (_) {
@@ -79,7 +80,7 @@ export const getQrTrackingUrl = (code) => {
 export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
   const isGov = ownerType === 'government';
   const portalSegment = isGov ? 'government' : 'advertiser';
-  const { t } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -143,11 +144,11 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
   // Permission guard on mount
   useEffect(() => {
     if (!editId && !canCreateCampaign && !isSuperAdmin) {
-      toast.error('Access Denied: You do not have permission to create campaigns.');
+      toast.error(t("campaign_extra.access_denied_you_do_not_have_permission_to_create_campaigns", "Access Denied: You do not have permission to create campaigns."));
       navigate(`${basePath}/campaigns`, { replace: true });
     }
     if (editId && !canEditCampaign && !isSuperAdmin) {
-      toast.error('Access Denied: You do not have permission to edit campaigns.');
+      toast.error(t("campaign_extra.access_denied_you_do_not_have_permission_to_edit_campaigns", "Access Denied: You do not have permission to edit campaigns."));
       navigate(`${basePath}/campaigns`, { replace: true });
     }
   }, [editId, canCreateCampaign, canEditCampaign, isSuperAdmin, navigate, basePath]);
@@ -177,7 +178,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
           setHasSavedDraft(true);
           setDraftInfo({
             name: parsed.name || 'Untitled Campaign',
-            savedTime: parsed.savedAt ? new Date(parsed.savedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'recently',
+            savedTime: parsed.savedAt ? new Date(parsed.savedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : t('campaign_extra.recently', 'recently'),
             step: parsed.savedStep || 1,
           });
         }
@@ -259,6 +260,8 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
             clientPlaceId: '',
             startDate: c.start_date || getFormattedDate(0),
             endDate: c.end_date || getFormattedDate(13),
+            startTime: c.broadcast_start_time ? String(c.broadcast_start_time).slice(0, 5) : '08:00',
+            endTime: c.broadcast_end_time ? String(c.broadcast_end_time).slice(0, 5) : '22:00',
             dailySlotStart: c.broadcast_start_time ? String(c.broadcast_start_time).slice(0, 5) : '08:00',
             dailySlotEnd: c.broadcast_end_time ? String(c.broadcast_end_time).slice(0, 5) : '22:00',
             repeat: c.frequency || 'Daily',
@@ -582,7 +585,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
       return updated;
     });
 
-    toast.success(`${newItems.length} creative file(s) attached! Preview is ready.`);
+    toast.success(t("campaign_extra.v0_creative_file_s_attached_preview_is_ready", "{{v0}} creative file(s) attached! Preview is ready.", { v0: newItems.length }));
 
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -592,7 +595,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
   const handleAddVideoUrl = () => {
     const trimmed = formData.videoUrl.trim();
     if (!trimmed) {
-      toast.error('Please enter a YouTube or streaming video URL');
+      toast.error(t("campaign_extra.please_enter_a_youtube_or_streaming_video_url", "Please enter a YouTube or streaming video URL"));
       return;
     }
     const detectedId = extractYouTubeId(trimmed);
@@ -613,7 +616,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
     setCreativeItems(prev => {
       const isDuplicate = prev.some(it => (it.videoUrl || it.previewUrl) === trimmed);
       if (isDuplicate) {
-        toast.error('This video URL is already in your creatives list');
+        toast.error(t("campaign_extra.this_video_url_is_already_in_your_creatives_list", "This video URL is already in your creatives list"));
         setFormData(f => ({ ...f, videoUrl: '' }));
         return prev;
       }
@@ -632,7 +635,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
       return updated;
     });
 
-    toast.success('Online video URL added to creative assets!');
+    toast.success(t("campaign_extra.online_video_url_added_to_creative_assets", "Online video URL added to creative assets!"));
   };
 
   // Per-creative display duration (seconds on screen). Digits-only, clamped to 1..300.
@@ -793,10 +796,29 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
   const handleTimeSlotPreset = (start, end) => {
     setFormData(prev => ({
       ...prev,
+      startTime: start,
+      endTime: end,
       dailySlotStart: start,
       dailySlotEnd: end,
     }));
   };
+
+  // Keep Airtime (dailySlotStart / dailySlotEnd) synchronized with Broadcast Flight Time (startTime / endTime)
+  useEffect(() => {
+    setFormData(prev => {
+      let changed = false;
+      const next = { ...prev };
+      if (prev.startTime && prev.dailySlotStart !== prev.startTime) {
+        next.dailySlotStart = prev.startTime;
+        changed = true;
+      }
+      if (prev.endTime && prev.dailySlotEnd !== prev.endTime) {
+        next.dailySlotEnd = prev.endTime;
+        changed = true;
+      }
+      return changed ? next : prev;
+    });
+  }, [formData.startTime, formData.endTime]);
 
   // ---- Step 3 Route-First multi-route selection helpers ----
   // selectedTargets: [{ fleetId, fleetName, organizationId, routeId, routeName, routeCode, routeKey, city, vehicleIds, screensPerVehicle, totalScreens, vehicleCount }]
@@ -1036,9 +1058,9 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
         savedTime: nowStr,
         step: currentStep,
       });
-      toast.success(`Campaign draft saved! (Step ${currentStep} of ${totalSteps})`);
+      toast.success(t("campaign_extra.campaign_draft_saved_step_v0_of_v1", "Campaign draft saved! (Step {{v0}} of {{v1}})", { v0: currentStep, v1: totalSteps }));
     } catch (_) {
-      toast.error('Failed to save draft');
+      toast.error(t("campaign_extra.failed_to_save_draft", "Failed to save draft"));
     }
   };
 
@@ -1047,7 +1069,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
     try {
       const raw = localStorage.getItem('vmovexa_draft_campaign');
       if (!raw) {
-        toast.error('No saved draft found');
+        toast.error(t("campaign_extra.no_saved_draft_found", "No saved draft found"));
         return;
       }
       const parsed = JSON.parse(raw);
@@ -1070,9 +1092,9 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
         })));
       }
 
-      toast.success(`Restored draft: "${parsed.name || 'Campaign'}" (Jumped to Step ${parsed.savedStep || 1})`);
+      toast.success(t("campaign_extra.restored_draft_v0_jumped_to_step_v1", "Restored draft: \"{{v0}}\" (Jumped to Step {{v1}})", { v0: parsed.name || t("admin.campaign_mapping.th_campaign", "Campaign"), v1: parsed.savedStep || 1 }));
     } catch (_) {
-      toast.error('Failed to restore draft');
+      toast.error(t("campaign_extra.failed_to_restore_draft", "Failed to restore draft"));
     }
   };
 
@@ -1083,9 +1105,9 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
       setHasSavedDraft(false);
       setDraftInfo(null);
       setDraftSavedAt(null);
-      toast.success('Saved draft discarded');
+      toast.success(t("campaign_extra.saved_draft_discarded", "Saved draft discarded"));
     } catch (_) {
-      toast.error('Failed to clear draft');
+      toast.error(t("campaign_extra.failed_to_clear_draft", "Failed to clear draft"));
     }
   };
 
@@ -1113,7 +1135,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
           })),
           savedAt: new Date().toISOString(),
         }));
-        toast.success('Campaign draft saved before closing');
+        toast.success(t("campaign_extra.campaign_draft_saved_before_closing", "Campaign draft saved before closing"));
       } catch (_) {}
     }
     navigate(`${basePath}/campaigns`);
@@ -1122,7 +1144,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
   const handleDownloadSvg = () => {
     const svg = document.getElementById('campaign-qr-code-svg');
     if (!svg) {
-      toast.error('QR code element not found');
+      toast.error(t("campaign_extra.qr_code_element_not_found", "QR code element not found"));
       return;
     }
     const serializer = new XMLSerializer();
@@ -1136,7 +1158,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    toast.success('Downloaded dynamic QR Code vector asset');
+    toast.success(t("campaign_extra.downloaded_dynamic_qr_code_vector_asset", "Downloaded dynamic QR Code vector asset"));
   };
 
   const handleShareQr = async () => {
@@ -1155,68 +1177,68 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
         document.execCommand('copy');
         document.body.removeChild(textArea);
       }
-      toast.success(`QR URL copied to clipboard: ${destination}`);
+      toast.success(t("campaign_extra.qr_url_copied_to_clipboard_v0", "QR URL copied to clipboard: {{v0}}", { v0: destination }));
 
       // Native mobile share if supported
       if (navigator.share && /mobile|android|iphone/i.test(navigator.userAgent)) {
         navigator.share({
-          title: `${formData.name || 'Transit Campaign'} QR Code`,
-          text: `Scan or visit campaign destination: ${destination}`,
+          title: t("campaign_extra.v0_qr_code", "{{v0}} QR Code", { v0: formData.name || 'Transit Campaign' }),
+          text: t("campaign_extra.scan_or_visit_campaign_destination_v0", "Scan or visit campaign destination: {{v0}}", { v0: destination }),
           url: destination,
         }).catch(() => {});
       }
     } catch (_) {
-      toast.error('Failed to copy QR URL to clipboard');
+      toast.error(t("campaign_extra.failed_to_copy_qr_url_to_clipboard", "Failed to copy QR URL to clipboard"));
     }
   };
 
   const stepLabels = [
-    'Information',
-    'Creative',
-    'Routes & Screens',
-    'Schedule',
-    'Budget & QR',
-    'Review & Submit'
+    t("campaign_extra.information", "Information"),
+    t("ag.government.govemergencylistpage.creative", "Creative"),
+    t("campaign_extra.routes_screens", "Routes & Screens"),
+    t("common.schedule", "Schedule"),
+    t("campaign_extra.budget_qr", "Budget & QR"),
+    t("campaign_extra.review_submit", "Review & Submit")
   ];
 
   const handleNext = () => {
     if (currentStep === 1) {
       if (!formData.name.trim()) {
-        toast.error('Please enter a Campaign Name');
+        toast.error(t("campaign_extra.please_enter_a_campaign_name", "Please enter a Campaign Name"));
         return;
       }
       if (!isGov) {
         if (!formData.brandName.trim()) {
-          toast.error('Please enter a Brand / Product Name');
+          toast.error(t("campaign_extra.please_enter_a_brand_product_name", "Please enter a Brand / Product Name"));
           return;
         }
         if (!formData.clientName.trim()) {
-          toast.error('Please enter Customer / Client Contact Name');
+          toast.error(t("campaign_extra.please_enter_customer_client_contact_name", "Please enter Customer / Client Contact Name"));
           return;
         }
         if (!formData.clientPhone.trim()) {
-          toast.error('Please enter Customer Mobile Number (required for SMS payment link)');
+          toast.error(t("campaign_extra.please_enter_customer_mobile_number_required_for_sms_payment_link", "Please enter Customer Mobile Number (required for SMS payment link)"));
           return;
         }
         if (!formData.clientEmail.trim()) {
-          toast.error('Please enter Customer Email Address (required for invoice & payment link)');
+          toast.error(t("campaign_extra.please_enter_customer_email_address_required_for_invoice_payment_link", "Please enter Customer Email Address (required for invoice & payment link)"));
           return;
         }
       } else {
         if (!formData.brandName.trim()) {
-          toast.error('Please enter Sponsoring Authority / Department Name');
+          toast.error(t("campaign_extra.please_enter_sponsoring_authority_department_name", "Please enter Sponsoring Authority / Department Name"));
           return;
         }
         if (!formData.clientName.trim()) {
-          toast.error('Please enter Nodal Officer / Contact Name');
+          toast.error(t("campaign_extra.please_enter_nodal_officer_contact_name", "Please enter Nodal Officer / Contact Name"));
           return;
         }
         if (!formData.clientPhone.trim()) {
-          toast.error('Please enter Official Contact Phone');
+          toast.error(t("campaign_extra.please_enter_official_contact_phone", "Please enter Official Contact Phone"));
           return;
         }
         if (!formData.clientEmail.trim()) {
-          toast.error('Please enter Official Department Email');
+          toast.error(t("campaign_extra.please_enter_official_department_email", "Please enter Official Department Email"));
           return;
         }
       }
@@ -1258,7 +1280,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
       const hasCreativeList = creativeItems.length > 0;
       const hasSingle = Boolean(formData.previewUrl || formData.fileName || formData.videoUrl.trim());
       if (!hasCreativeList && !hasSingle) {
-        toast.error('Please attach at least one creative file (Image, Video, PDF) or enter a Video URL');
+        toast.error(t("campaign_extra.please_attach_at_least_one_creative_file_image_video_pdf_or_enter_a_video_url", "Please attach at least one creative file (Image, Video, PDF) or enter a Video URL"));
         return;
       }
     }
@@ -1268,7 +1290,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
       const hasRoutes = targets.length > 0;
       const hasLegacyFleets = formData.selectedFleets.length > 0;
       if (!hasRoutes && !hasLegacyFleets) {
-        toast.error('Please select at least one transit route for your campaign');
+        toast.error(t("campaign_extra.please_select_at_least_one_transit_route_for_your_campaign", "Please select at least one transit route for your campaign"));
         return;
       }
       const totalVehicles = Number(formData.vehicles || 0) > 0
@@ -1279,7 +1301,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
         : targets.reduce((sum, t) => sum + (Number(t.totalScreens) || (t.screenIds?.length || 0)), 0);
 
       if (hasRoutes && (totalVehicles <= 0 || totalScreens <= 0)) {
-        toast.error('Selected routes currently have 0 buses or screens targeted. Please select at least one active bus screen.');
+        toast.error(t("campaign_extra.selected_routes_currently_have_0_buses_or_screens_targeted_please_select_at_least_one_active_bus_screen", "Selected routes currently have 0 buses or screens targeted. Please select at least one active bus screen."));
         return;
       }
       if (formData.vehicles !== totalVehicles || formData.totalScreens !== totalScreens) {
@@ -1289,15 +1311,15 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
 
     if (currentStep === 4) {
       if (!formData.startDate) {
-        toast.error('Please choose a Start Date');
+        toast.error(t("campaign_extra.please_choose_a_start_date", "Please choose a Start Date"));
         return;
       }
       if (!formData.endDate) {
-        toast.error('Please choose an End Date');
+        toast.error(t("campaign_extra.please_choose_an_end_date", "Please choose an End Date"));
         return;
       }
       if (formData.endDate < formData.startDate) {
-        toast.error('End Date cannot be before Start Date');
+        toast.error(t("campaign_extra.end_date_cannot_be_before_start_date", "End Date cannot be before Start Date"));
         return;
       }
       {
@@ -1305,28 +1327,28 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
         const startAt = new Date(`${formData.startDate}T${formData.startTime || '00:00'}`);
         const endAt = new Date(`${formData.endDate}T${formData.endTime || '23:59'}`);
         if (startAt.getTime() < nowMs - 60000) {
-          toast.error('Broadcast Start date & time cannot be in the past');
+          toast.error(t("campaign_extra.broadcast_start_date_time_cannot_be_in_the_past", "Broadcast Start date & time cannot be in the past"));
           return;
         }
         if (endAt.getTime() <= nowMs) {
-          toast.error('Broadcast End date & time cannot be in the past');
+          toast.error(t("campaign_extra.broadcast_end_date_time_cannot_be_in_the_past", "Broadcast End date & time cannot be in the past"));
           return;
         }
         if (endAt <= startAt) {
-          toast.error('Broadcast End must be later than Broadcast Start');
+          toast.error(t("campaign_extra.broadcast_end_must_be_later_than_broadcast_start", "Broadcast End must be later than Broadcast Start"));
           return;
         }
       }
       if (!formData.selectedDays || formData.selectedDays.length === 0) {
-        toast.error('Please select at least one active broadcast day of the week');
+        toast.error(t("campaign_extra.please_select_at_least_one_active_broadcast_day_of_the_week", "Please select at least one active broadcast day of the week"));
         return;
       }
       if (formData.dailySlotStart && formData.dailySlotEnd && formData.dailySlotStart >= formData.dailySlotEnd) {
-        toast.error('Daily Broadcast End Time must be later than Start Time');
+        toast.error(t("campaign_extra.daily_broadcast_end_time_must_be_later_than_start_time", "Daily Broadcast End Time must be later than Start Time"));
         return;
       }
       if (slotCheck.data?.conflict) {
-        toast.error('The selected route slot is already booked for this time window. Please pick a different time or route before proceeding.');
+        toast.error(t("campaign_extra.the_selected_route_slot_is_already_booked_for_this_time_window_please_pick_a_different_time_or_route_before_proceeding", "The selected route slot is already booked for this time window. Please pick a different time or route before proceeding."));
         return;
       }
     }
@@ -1337,7 +1359,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
         : (Number(formData.budget) || 0);
       const effectiveTotal = breakdownCalc.finalTotal;
       if (effectiveBase <= 0 && effectiveTotal <= 0) {
-        toast.error('Please enter a valid Campaign Budget (greater than ₹0)');
+        toast.error(t("campaign_extra.please_enter_a_valid_campaign_budget_greater_than_0", "Please enter a valid Campaign Budget (greater than ₹0)"));
         return;
       }
       if (!formData.budget && effectiveBase > 0) {
@@ -1370,46 +1392,46 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
       return;
     }
     if (!canSubmitCampaign && !isSuperAdmin) {
-      toast.error('Permission denied: campaigns.submit is required to submit campaigns.');
+      toast.error(t("campaign_extra.permission_denied_campaigns_submit_is_required_to_submit_campaigns", "Permission denied: campaigns.submit is required to submit campaigns."));
       return;
     }
     if (!formData.name.trim()) {
-      toast.error('Please enter a Campaign Name');
+      toast.error(t("campaign_extra.please_enter_a_campaign_name", "Please enter a Campaign Name"));
       return;
     }
     // Government PSA campaigns have no external brand/customer; only commercial ads require these.
     if (!isGov) {
       if (!formData.brandName.trim()) {
-        toast.error('Please enter Brand Name');
+        toast.error(t("campaign_extra.please_enter_brand_name", "Please enter Brand Name"));
         return;
       }
       if (!formData.clientName.trim()) {
-        toast.error('Please enter Customer / Client Contact Name');
+        toast.error(t("campaign_extra.please_enter_customer_client_contact_name", "Please enter Customer / Client Contact Name"));
         return;
       }
       if (!formData.clientPhone.trim()) {
-        toast.error('Please enter Customer Mobile Number');
+        toast.error(t("campaign_extra.please_enter_customer_mobile_number", "Please enter Customer Mobile Number"));
         return;
       }
       if (!formData.clientEmail.trim()) {
-        toast.error('Please enter Customer Email Address');
+        toast.error(t("campaign_extra.please_enter_customer_email_address", "Please enter Customer Email Address"));
         return;
       }
     }
     const hasTargets = (formData.selectedTargets && formData.selectedTargets.length > 0);
     const hasFleets = (formData.selectedFleets && formData.selectedFleets.length > 0);
     if (!hasTargets && !hasFleets) {
-      toast.error('Please select at least one route or fleet operator');
+      toast.error(t("campaign_extra.please_select_at_least_one_route_or_fleet_operator", "Please select at least one route or fleet operator"));
       return;
     }
     if (!formData.startDate || !formData.endDate) {
-      toast.error('Please specify valid campaign schedule dates');
+      toast.error(t("campaign_extra.please_specify_valid_campaign_schedule_dates", "Please specify valid campaign schedule dates"));
       return;
     }
     // Government PSA campaigns are publicly funded (no paid budget required).
     const effectiveBudget = breakdownCalc.finalTotal || Number(formData.baseAmount) || Number(formData.budget) || 0;
     if (!isGov && effectiveBudget <= 0) {
-      toast.error('Please enter a valid Campaign Budget (greater than ₹0)');
+      toast.error(t("campaign_extra.please_enter_a_valid_campaign_budget_greater_than_0", "Please enter a valid Campaign Budget (greater than ₹0)"));
       return;
     }
 
@@ -1421,11 +1443,11 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
       let uploadedMediaList = [];
 
       if (creativeItems.length > 0) {
-        const uploadToastId = toast.loading(`Uploading creative assets (0/${creativeItems.length})...`);
+        const uploadToastId = toast.loading(t("campaign_extra.uploading_creative_assets_0_v0", "Uploading creative assets (0/{{v0}})...", { v0: creativeItems.length }));
         for (let i = 0; i < creativeItems.length; i++) {
           const item = creativeItems[i];
           if (item.file) {
-            toast.loading(`Uploading asset (${i + 1}/${creativeItems.length}): ${item.name}...`, { id: uploadToastId });
+            toast.loading(t("campaign_extra.uploading_asset_v0_v1_v2", "Uploading asset ({{v0}}/{{v1}}): {{v2}}...", { v0: i + 1, v1: creativeItems.length, v2: item.name }), { id: uploadToastId });
             let uploadRes;
             if (item.type === 'Video') {
               uploadRes = await uploadVideo(item.file);
@@ -1587,9 +1609,9 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
 
       if (editId) {
         await toast.promise(updateCampaign(editId, payload), {
-          loading: 'Updating campaign configurations...',
-          success: 'Campaign updated successfully!',
-          error: (e) => e?.message || 'Failed to update campaign',
+          loading: t("campaign_extra.updating_campaign_configurations", "Updating campaign configurations..."),
+          success: t("campaign_extra.campaign_updated_successfully", "Campaign updated successfully!"),
+          error: (e) => e?.message || t("campaign_extra.failed_to_update_campaign", "Failed to update campaign"),
         });
         await loadCampaigns().catch(() => {});
         isSubmittedRef.current = true;
@@ -1598,9 +1620,9 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
       }
 
       const created = await toast.promise(createCampaign(payload), {
-        loading: 'Publishing campaign to DOOH network...',
-        success: 'Campaign created successfully!',
-        error: (e) => e?.message || 'Failed to create campaign',
+        loading: t("campaign_extra.publishing_campaign_to_dooh_network", "Publishing campaign to DOOH network..."),
+        success: t("campaign_extra.campaign_created_successfully", "Campaign created successfully!"),
+        error: (e) => e?.message || t("campaign_extra.failed_to_create_campaign", "Failed to create campaign"),
       });
       if (isGov) {
         await govRole.loadCampaigns().catch(() => {});
@@ -1633,7 +1655,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
     } catch (err) {
       isSubmittingRef.current = false;
       setSubmitting(false);
-      toast.error(err?.message || 'Failed to upload assets or create campaign');
+      toast.error(err?.message || t("campaign_extra.failed_to_upload_assets_or_create_campaign", "Failed to upload assets or create campaign"));
     }
   };
 
@@ -1822,12 +1844,12 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
   const handleCheckSlotAvailability = useCallback(async (isManual = false) => {
     const targetsWithRoutes = (formData.selectedTargets || []).filter(t => t.routeId);
     if (!targetsWithRoutes.length) {
-      if (isManual) toast.error('Select at least one route in the Fleet & Screens step first.');
+      if (isManual) toast.error(t("campaign_extra.select_at_least_one_route_in_the_fleet_screens_step_first", "Select at least one route in the Fleet & Screens step first."));
       setSlotCheck({ loading: false, data: null, error: null });
       return;
     }
     if (!formData.startDate || !formData.endDate) {
-      if (isManual) toast.error('Set the campaign start and end dates first.');
+      if (isManual) toast.error(t("campaign_extra.set_the_campaign_start_and_end_dates_first", "Set the campaign start and end dates first."));
       setSlotCheck({ loading: false, data: null, error: null });
       return;
     }
@@ -1895,18 +1917,18 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
       if (isManual) {
         if (hasAnyConflict) {
           const names = conflictingRoutes.map(r => r.routeName).join(', ');
-          toast.error(`Slot already booked on: ${names}. Pick another time or route.`);
+          toast.error(t("campaign_extra.slot_already_booked_on_v0_pick_another_time_or_route", "Slot already booked on: {{v0}}. Pick another time or route.", { v0: names }));
         } else {
           toast.success(uniqueRoutes.length > 1
-            ? `All ${uniqueRoutes.length} selected routes are available for this time window!`
-            : 'Slot is available for your route and time.');
+            ? t("campaign_extra.all_v0_selected_routes_are_available_for_this_time_window", "All {{v0}} selected routes are available for this time window!", { v0: uniqueRoutes.length })
+            : t("campaign_extra.slot_is_available_for_your_route_and_time", "Slot is available for your route and time."));
         }
       }
     } catch (err) {
-      setSlotCheck({ loading: false, data: null, error: err?.message || 'Could not check availability' });
-      if (isManual) toast.error(err?.message || 'Could not check slot availability');
+      setSlotCheck({ loading: false, data: null, error: err?.message || t("campaign_extra.could_not_check_availability", "Could not check availability") });
+      if (isManual) toast.error(err?.message || t("campaign_extra.could_not_check_slot_availability", "Could not check slot availability"));
     }
-  }, [formData.selectedTargets, formData.selectedDays, formData.startDate, formData.endDate, formData.dailySlotStart, formData.dailySlotEnd, loadSlotAvailability]);
+  }, [formData.selectedTargets, formData.selectedDays, formData.startDate, formData.endDate, formData.dailySlotStart, formData.dailySlotEnd, loadSlotAvailability, t]);
 
   // Debounced auto-check: runs automatically when schedule or targets change
   useEffect(() => {
@@ -1944,7 +1966,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
   }, [dailyOperatingHours]);
 
   const calcDurationDays = () => {
-    return `${durationDaysNumber} Days (${activeBroadcastDaysCount} Active)`;
+    return t("campaign_extra.v0_days_v1_active", "{{v0}} Days ({{v1}} Active)", { v0: durationDaysNumber, v1: activeBroadcastDaysCount });
   };
 
   const effectiveScreens = useMemo(() => {
@@ -1958,9 +1980,9 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
   const effectiveReach = effectiveScreens * 1200;
   const effectiveReachFormatted = effectiveReach > 0
     ? (effectiveReach >= 1000000
-        ? `${(effectiveReach / 1000000).toFixed(1)} Million Commuters`
-        : `${effectiveReach.toLocaleString()} Commuters`)
-    : '0 Commuters';
+        ? t("campaign_extra.v0_million_commuters", "{{v0}} Million Commuters", { v0: (effectiveReach / 1000000).toFixed(1) })
+        : t('campaign_extra.commuters_count', '{{count}} Commuters', { count: effectiveReach.toLocaleString() }))
+      : t('campaign_extra.commuters_count', '{{count}} Commuters', { count: 0 });
 
   const costPerScreenFormatted = effectiveScreens > 0 && budgetNum > 0
     ? `₹ ${Math.round(budgetNum / effectiveScreens).toLocaleString()}`
@@ -2096,7 +2118,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
             </div>
             <div>
               <p className="text-xs font-bold text-slate-900 dark:text-white">
-                {t('campaign_create.saved_draft_avail', 'Saved Draft Available:')} <span className="text-blue-700 dark:text-blue-400 font-extrabold">{draftInfo.name || 'Untitled Campaign'}</span>
+                {t('campaign_create.saved_draft_avail', 'Saved Draft Available:')} <span className="text-blue-700 dark:text-blue-400 font-extrabold">{draftInfo.name || t("campaign_extra.untitled_campaign", "Untitled Campaign")}</span>
               </p>
               <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium">
                 {t('campaign_create.last_saved_at', 'Last saved at')} {draftInfo.savedTime} · {t('campaign_create.ready_resume_step', 'Ready to resume from Step')} {draftInfo.step || 1}
@@ -2237,13 +2259,13 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
 
               <div className="space-y-1.5 md:col-span-2">
                 <label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                  {isGov ? 'Government Department / Sponsoring Authority' : t('campaign_create.brand_company_name', 'Brand / Company Name')} <span className="text-rose-500">*</span>
+                  {isGov ? t("campaign_extra.government_department_sponsoring_authority", "Government Department / Sponsoring Authority") : t('campaign_create.brand_company_name', 'Brand / Company Name')} <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.brandName}
                   onChange={e => setFormData({ ...formData, brandName: e.target.value })}
-                  placeholder={isGov ? 'e.g. Ministry of Road Transport / Municipal Corporation' : t('campaign_create.brand_placeholder', 'e.g. Acme Corp / Your Brand Name')}
+                  placeholder={isGov ? t("campaign_extra.e_g_ministry_of_road_transport_municipal_corporation", "e.g. Ministry of Road Transport / Municipal Corporation") : t('campaign_create.brand_placeholder', 'e.g. Acme Corp / Your Brand Name')}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 bg-white dark:bg-zinc-800/80 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-600"
                 />
               </div>
@@ -2271,7 +2293,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                         }`}
                       >
                         <TypeIcon className={`w-6 h-6 mb-2 ${formData.type === type.label ? 'text-white' : 'text-slate-600 dark:text-zinc-400'}`} />
-                        <span className="text-xs font-bold">{type.label}</span>
+                        <span className="text-xs font-bold">{translateCampaignLabel(t, type.label)}</span>
                       </button>
                     );
                   })}
@@ -2364,7 +2386,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                     type="text"
                     value={formData.clientName}
                     onChange={e => setFormData({ ...formData, clientName: e.target.value })}
-                    placeholder={isGov ? 'e.g. S. K. Verma / Deputy Director' : t('campaign_create.customer_contact_ph', 'e.g. Rajesh Sharma / Business Owner')}
+                    placeholder={isGov ? t("campaign_extra.e_g_s_k_verma_deputy_director", "e.g. S. K. Verma / Deputy Director") : t('campaign_create.customer_contact_ph', 'e.g. Rajesh Sharma / Business Owner')}
                     className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 bg-white dark:bg-zinc-800/80 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-600"
                   />
                 </div>
@@ -2377,7 +2399,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                     type="text"
                     value={formData.clientCompany}
                     onChange={e => setFormData({ ...formData, clientCompany: e.target.value })}
-                    placeholder={isGov ? 'e.g. Directorate of Urban Transport / Ministry of Health' : t('campaign_create.customer_company_ph', 'e.g. Sharma Traders Pvt Ltd')}
+                    placeholder={isGov ? t("campaign_extra.e_g_directorate_of_urban_transport_ministry_of_health", "e.g. Directorate of Urban Transport / Ministry of Health") : t('campaign_create.customer_company_ph', 'e.g. Sharma Traders Pvt Ltd')}
                     className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 bg-white dark:bg-zinc-800/80 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-600"
                   />
                 </div>
@@ -2388,7 +2410,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                       {isGov ? t('campaign_create.gov_phone', 'Official Contact Phone') : t('campaign_create.customer_mobile_number', 'Customer Mobile Number')} <span className="text-rose-500">*</span>
                     </label>
                     <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-900/50 px-2 py-0.5 rounded-md inline-flex items-center gap-1">
-                      <IconPhone className="w-3 h-3" /> {isGov ? 'Broadcast Alerts' : t('campaign_create.sms_payment_link_badge', 'SMS Payment Link')}
+                      <IconPhone className="w-3 h-3" /> {isGov ? t("campaign_extra.broadcast_alerts", "Broadcast Alerts") : t('campaign_create.sms_payment_link_badge', 'SMS Payment Link')}
                     </span>
                   </div>
                   <input
@@ -2399,11 +2421,11 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                       const val = e.target.value.replace(/[^0-9+\s-]/g, '');
                       setFormData({ ...formData, clientPhone: val });
                     }}
-                    placeholder={isGov ? 'e.g. +91 98765 43210' : t('campaign_create.customer_mobile_ph', 'e.g. +91 98765 43210')}
+                    placeholder={isGov ? t("campaign_create.customer_mobile_ph", "e.g. +91 98765 43210") : t('campaign_create.customer_mobile_ph', 'e.g. +91 98765 43210')}
                     className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 bg-white dark:bg-zinc-800/80 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-600"
                   />
                   <p className="text-[11px] text-slate-400 dark:text-zinc-500">
-                    {isGov ? 'Broadcast clearance alerts and verification notifications will be sent to this number.' : t('campaign_create.sms_hint', 'Payment checkout SMS link will be sent directly to this number.')}
+                    {isGov ? t("campaign_extra.broadcast_clearance_alerts_and_verification_notifications_will_be_sent_to_this_number", "Broadcast clearance alerts and verification notifications will be sent to this number.") : t('campaign_create.sms_hint', 'Payment checkout SMS link will be sent directly to this number.')}
                   </p>
                 </div>
 
@@ -2413,7 +2435,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                       {isGov ? t('campaign_create.gov_email', 'Official Department Email') : t('campaign_create.customer_email_address', 'Customer Email Address')} <span className="text-rose-500">*</span>
                     </label>
                     <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-900/50 px-2 py-0.5 rounded-md inline-flex items-center gap-1">
-                      <IconMail className="w-3 h-3" /> {isGov ? 'Official Notification' : t('campaign_create.email_invoice_link_badge', 'Email Invoice & Link')}
+                      <IconMail className="w-3 h-3" /> {isGov ? t("campaign_extra.official_notification", "Official Notification") : t('campaign_create.email_invoice_link_badge', 'Email Invoice & Link')}
                     </span>
                   </div>
                   <input
@@ -2424,7 +2446,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                     className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 bg-white dark:bg-zinc-800/80 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-600"
                   />
                   <p className="text-[11px] text-slate-400 dark:text-zinc-500">
-                    {isGov ? 'Official broadcast clearance and sanction order will be sent to this email.' : t('campaign_create.email_hint', 'Official GST invoice and payment link will be sent to this email.')}
+                    {isGov ? t("campaign_extra.official_broadcast_clearance_and_sanction_order_will_be_sent_to_this_email", "Official broadcast clearance and sanction order will be sent to this email.") : t('campaign_create.email_hint', 'Official GST invoice and payment link will be sent to this email.')}
                   </p>
                 </div>
 
@@ -2437,11 +2459,11 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                       </div>
                       <div>
                         <span className="text-xs font-black text-slate-800 dark:text-zinc-200 uppercase tracking-wider block">
-                          {isGov ? 'Department Office / Headquarters Location' : t('campaign_create.customer_business_location', 'Customer Business Location & Geocoding')}
+                          {isGov ? t("campaign_extra.department_office_headquarters_location", "Department Office / Headquarters Location") : t('campaign_create.customer_business_location', 'Customer Business Location & Geocoding')}
                         </span>
                         <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium">
                           {isGov
-                            ? 'Set department headquarters or municipal office coordinates for regional broadcasts.'
+                            ? t("campaign_extra.set_department_headquarters_or_municipal_office_coordinates_for_regional_broadcasts", "Set department headquarters or municipal office coordinates for regional broadcasts.")
                             : t('campaign_create.customer_business_location_sub', 'Set client headquarters or store location for geo-targeted reporting, checkout SMS and billing invoice.')}
                         </p>
                       </div>
@@ -2466,13 +2488,13 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                     }}
                     onChange={handleClientAddressChange}
                     disabled={submitting}
-                    searchLabel={isGov ? "Search Department / Municipal Office / Landmark" : "Search Client / Business Location / Landmark"}
-                    searchPlaceholder={isGov ? "Search department office, municipal building, landmark, or city in India..." : "Search client office, shop, landmark, colony, or town in India..."}
-                    searchHint={isGov ? "Search any government office, secretariat, or landmark — or drag the pin on the map to set exact coordinates." : "Search any business address, shop, or landmark in India — or drag the pin on the map to set exact coordinates."}
+                    searchLabel={isGov ? t('campaign_create.search_dept_label', 'Search Department / Municipal Office / Landmark') : t('campaign_create.search_client_label', 'Search Client / Business Location / Landmark')}
+                    searchPlaceholder={isGov ? t('campaign_create.search_dept_ph', 'Search department office, municipal building, landmark, or city in India...') : t('campaign_create.search_client_ph', 'Search client office, shop, landmark, colony, or town in India...')}
+                    searchHint={isGov ? t('campaign_create.search_dept_hint', 'Search any government office, secretariat, or landmark — or drag the pin on the map to set exact coordinates.') : t('campaign_create.search_client_hint', 'Search any business address, shop, or landmark in India — or drag the pin on the map to set exact coordinates.')}
                     pinColor="#2563eb"
-                    pinLabel={isGov ? "Agency Office" : "Client Business"}
-                    addressLabel={isGov ? "Department Full Address / Building" : "Client Full Street Address / Building"}
-                    addressPlaceholder="Office/Block No, Secretariat/Building Name, Street, Landmark"
+                    pinLabel={isGov ? t('campaign_create.pin_dept', 'Agency Office') : t('campaign_create.pin_client', 'Client Business')}
+                    addressLabel={isGov ? t('campaign_create.addr_dept_label', 'Department Full Address / Building') : t('campaign_create.addr_client_label', 'Client Full Street Address / Building')}
+                    addressPlaceholder={t('campaign_create.addr_dept_ph', 'Office/Block No, Secretariat/Building Name, Street, Landmark')}
                   />
                 </div>
               </div>
@@ -2492,10 +2514,10 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
             {/* Creative Type Selector Pills */}
             <div className="flex items-center gap-2 border-b border-slate-200 dark:border-zinc-800 pb-3 overflow-x-auto no-scrollbar">
               {[
-                { type: 'All', label: 'All Creatives', icon: IconFolder },
+                { type: 'All', label: t("campaign_extra.all_creatives", "All Creatives"), icon: IconFolder },
                 { type: 'Image', label: 'Image', icon: IconImage },
                 { type: 'Video', label: 'Video', icon: IconVideo },
-                { type: 'PDF', label: 'PDF Document', icon: IconDocument },
+                { type: 'PDF', label: t("ag.shared.multipledocumentuploader.pdf_document", "PDF Document"), icon: IconDocument },
                 { type: 'URL', label: 'URL (YouTube / Web)', icon: IconLink },
               ].map(item => {
                 const ItemIcon = item.icon;
@@ -2516,7 +2538,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                     }`}
                   >
                     <ItemIcon className="w-3.5 h-3.5" />
-                    <span>{item.label}</span>
+                    <span>{translateCampaignLabel(t, item.label)}</span>
                   </button>
                 );
               })}
@@ -2653,29 +2675,29 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     {[
                       {
-                        label: 'Resolution',
-                        value: activeCreative?.resolution || (isUrlMode ? (formData.videoUrl.trim() ? '1080p Stream' : '–') : (formData.resolution || '–')),
+                        label: t("campaign_create.resolution", "Resolution"),
+                        value: activeCreative?.resolution || (isUrlMode ? (formData.videoUrl.trim() ? t("campaign_create.stream_1080p", "1080p Stream") : '–') : (formData.resolution || '–')),
                       },
-                      { label: 'Aspect Ratio', value: '16:9' },
+                      { label: t("campaign_extra.aspect_ratio", "Aspect Ratio"), value: '16:9' },
                       {
-                        label: 'Duration',
-                        value: activeCreative?.duration || (isUrlMode ? 'Adaptive' : (formData.duration || '–')),
+                        label: t("admin.drivers.duration", "Duration"),
+                        value: activeCreative?.duration || (isUrlMode ? t("campaign_extra.adaptive", "Adaptive") : (formData.duration || '–')),
                       },
                       {
-                        label: 'Format',
+                        label: t("campaign_extra.format", "Format"),
                         value: activeCreative
                           ? (activeCreative.type === 'Video'
-                              ? 'MP4 / Video'
+                              ? t("campaign_extra.mp4_video", "MP4 / Video")
                               : activeCreative.type === 'PDF'
-                              ? 'PDF Document'
+                              ? t("ag.shared.multipledocumentuploader.pdf_document", "PDF Document")
                               : activeCreative.type === 'URL'
-                              ? 'Online Stream'
-                              : 'PNG / JPG Image')
-                          : (isUrlMode ? (ytId ? 'YouTube Stream' : 'Web Stream') : '–'),
+                              ? t("campaign_extra.online_stream", "Online Stream")
+                              : t("campaign_extra.png_jpg_image", "PNG / JPG Image"))
+                          : (isUrlMode ? (ytId ? t("campaign_extra.youtube_stream", "YouTube Stream") : t("campaign_extra.web_stream", "Web Stream")) : '–'),
                       },
                     ].map(spec => (
                       <div key={spec.label} className="bg-slate-50 dark:bg-zinc-800/60 rounded-xl p-3 text-center border border-slate-100 dark:border-zinc-800">
-                        <p className="text-xs font-black text-slate-900 dark:text-white">{spec.value}</p>
+                        <p className="text-xs font-black text-slate-900 dark:text-white">{translateCampaignLabel(t, spec.value)}</p>
                         <p className="text-[10px] text-slate-500 dark:text-zinc-400 font-medium mt-0.5">{spec.label}</p>
                       </div>
                     ))}
@@ -2950,7 +2972,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                             : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                         }`}
                       >
-                        {city}
+                        {city === 'All' ? translateCampaignLabel(t, city) : city}
                       </button>
                     );
                   })}
@@ -2963,7 +2985,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
               <div className="p-10 text-center bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
                 <IconLocation className="w-10 h-10 text-slate-400 mx-auto" />
                 <p className="text-sm font-bold text-slate-700">
-                  {routeSearch ? `No transit routes matching "${routeSearch}"` : 'No transit routes found'}
+                  {routeSearch ? t("campaign_extra.no_transit_routes_matching_v0", "No transit routes matching \"{{v0}}\"", { v0: routeSearch }) : t("campaign_extra.no_transit_routes_found", "No transit routes found")}
                 </p>
                 <p className="text-xs text-slate-400 max-w-md mx-auto">
                   {t('campaign_create.no_routes_matching_hint', 'Try clearing the search query or selecting "All" cities to see all available transit routes and digital screen inventory.')}
@@ -3013,7 +3035,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                             </span>
                             <span className="text-[11px] font-bold text-slate-600 dark:text-zinc-300 bg-slate-100 dark:bg-zinc-800 px-2.5 py-0.5 rounded-md flex items-center gap-1">
                               <IconLocation className="w-3 h-3 text-slate-500" />
-                              <span>{route.city || 'Transit Corridor'}</span>
+                              <span>{route.city || t("ag.superadmin.superemergencydetailspage.transit_corridor", "Transit Corridor")}</span>
                             </span>
                             {isPartialSelection && (
                               <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-300">
@@ -3031,7 +3053,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                           <button
                             type="button"
                             onClick={() => toggleRouteSelection(route)}
-                            aria-label={`Select ${route.name}`}
+                            aria-label={t("campaign_extra.select_v0", "Select {{v0}}", { v0: route.name })}
                             className={`w-6 h-6 rounded-lg flex items-center justify-center border-2 shrink-0 transition-all ${
                               selected
                                 ? 'bg-blue-600 border-blue-600 text-white shadow-sm scale-105'
@@ -3055,9 +3077,9 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                             {route.name}
                           </h3>
                           <div className="mt-1.5 flex items-center gap-2 text-xs font-semibold text-slate-500 flex-wrap">
-                            <span className="text-slate-800">{route.startPoint || 'Origin Station'}</span>
+                            <span className="text-slate-800">{route.startPoint || t("campaign_extra.origin_station", "Origin Station")}</span>
                             <FleetIcons.ArrowRight className="w-3.5 h-3.5 text-blue-600 inline-block" />
-                            <span className="text-slate-800">{route.endPoint || 'Destination Terminus'}</span>
+                            <span className="text-slate-800">{route.endPoint || t("campaign_extra.destination_terminus", "Destination Terminus")}</span>
                           </div>
                         </div>
 
@@ -3123,7 +3145,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                               }}
                               className="text-[11px] font-bold text-blue-600 hover:text-blue-700 underline flex items-center gap-1"
                             >
-                              <span>{isExpanded ? 'Hide Bus IDs' : `View ${route.vehicles.length} Bus IDs`}</span>
+                              <span>{isExpanded ? t("campaign_create.hide_bus_ids", "Hide Bus IDs") : t("campaign_extra.view_v0_bus_ids", "View {{v0}} Bus IDs", { v0: route.vehicles.length })}</span>
                               {isExpanded ? <IconChevronUp className="w-3 h-3" /> : <IconChevronDown className="w-3 h-3" />}
                             </button>
                           ) : (
@@ -3157,9 +3179,9 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                                         : 'border-slate-200 bg-white text-slate-400 opacity-60 hover:border-blue-300'
                                     }`}
                                   >
-                                    <span className="truncate">{v.busNumber || `Bus #${v.id}`}</span>
+                                    <span className="truncate">{v.busNumber || t("campaign_extra.bus_v0", "Bus #{{v0}}", { v0: v.id })}</span>
                                     <span className="text-[10px] font-extrabold text-purple-700 shrink-0 ml-1">
-                                      {vScreens} {vScreens === 1 ? 'Screen' : 'Screens'}
+                                      {vScreens} {vScreens === 1 ? t("ag.superadmin.edgedevicedetailspage.screen", "Screen") : t("advertiser.analytics.screens", "Screens")}
                                     </span>
                                   </button>
                                 );
@@ -3184,9 +3206,9 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                               <IconCheckCircle className="w-3.5 h-3.5" />
                               <span>
                                 {isZeroSelection
-                                  ? '0 Buses Selected'
+                                  ? t("campaign_extra.0_buses_selected", "0 Buses Selected")
                                   : (isPartialSelection
-                                      ? `Custom: ${selectedBusCount} of ${route.vehicleCount} Buses`
+                                      ? t("campaign_extra.custom_v0_of_v1_buses", "Custom: {{v0}} of {{v1}} Buses", { v0: selectedBusCount, v1: route.vehicleCount })
                                       : t('campaign_create.route_added_to_campaign', 'Route Added to Campaign'))}
                               </span>
                             </span>
@@ -3199,10 +3221,10 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                         <span className="text-[11px] font-medium opacity-90">
                           {selected
                             ? (isZeroSelection
-                                ? '0 Buses · 0 Screens'
+                                ? t("campaign_extra.0_buses_0_screens", "0 Buses · 0 Screens")
                                 : (isPartialSelection
-                                    ? `${selectedBusCount} of ${route.vehicleCount} Buses · ${selectedScreensCount} Screens`
-                                    : `${route.vehicleCount ?? 0} ${route.vehicleCount === 1 ? 'Bus' : 'Buses'} · ${route.totalScreens ?? 0} Screens`))
+                                    ? t("campaign_extra.v0_of_v1_buses_v2_screens", "{{v0}} of {{v1}} Buses · {{v2}} Screens", { v0: selectedBusCount, v1: route.vehicleCount, v2: selectedScreensCount })
+                                    : t("campaign_extra.v0_v1_v2_screens", "{{v0}} {{v1}} · {{v2}} Screens", { v0: route.vehicleCount ?? 0, v1: route.vehicleCount === 1 ? t("ag.fleet.fleetspage.bus", "Bus") : t("superadmin.onboard.buses", "Buses"), v2: route.totalScreens ?? 0 })))
                             : t('campaign_create.book_route', 'Book Route')}
                         </span>
                       </div>
@@ -3226,7 +3248,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                     </h4>
                     <p className="text-xs text-slate-300 mt-0.5">
                       {t('campaign_create.selected_corridors', 'Selected Corridors:')} {(formData.selectedTargets || []).map(t => t.routeName).slice(0, 3).join(', ')}
-                      {(formData.selectedTargets || []).length > 3 && ` +${(formData.selectedTargets || []).length - 3} more`}
+                      {(formData.selectedTargets || []).length > 3 && t("campaign_extra.v0_more", " +{{v0}} more", { v0: (formData.selectedTargets || []).length - 3 })}
                     </p>
                   </div>
 
@@ -3283,11 +3305,11 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                 {[
-                  { days: 7, label: '7 Days', sub: '1 Week Flight' },
-                  { days: 14, label: '14 Days', sub: '2 Weeks (Standard)' },
-                  { days: 30, label: '30 Days', sub: '1 Month Full Run' },
-                  { days: 60, label: '60 Days', sub: '2 Months Extended' },
-                  { days: 90, label: '90 Days', sub: 'Quarterly Campaign' },
+                  { days: 7, label: t("campaign_extra.7_days", "7 Days"), sub: t("campaign_extra.1_week_flight", "1 Week Flight") },
+                  { days: 14, label: t("campaign_extra.14_days", "14 Days"), sub: t("campaign_extra.2_weeks_standard", "2 Weeks (Standard)") },
+                  { days: 30, label: t("campaign_extra.30_days", "30 Days"), sub: t("campaign_extra.1_month_full_run", "1 Month Full Run") },
+                  { days: 60, label: t("campaign_extra.60_days", "60 Days"), sub: t("campaign_extra.2_months_extended", "2 Months Extended") },
+                  { days: 90, label: t("campaign_extra.90_days", "90 Days"), sub: t("campaign_extra.quarterly_campaign", "Quarterly Campaign") },
                 ].map(p => {
                   const isActive = durationDaysNumber === p.days;
                   return (
@@ -3339,13 +3361,13 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                     type="time"
                     min={formData.startDate === getFormattedDate(0) ? new Date().toTimeString().slice(0, 5) : undefined}
                     value={formData.startTime}
-                    onChange={e => setFormData({ ...formData, startTime: e.target.value })}
+                    onChange={e => setFormData(prev => ({ ...prev, startTime: e.target.value, dailySlotStart: e.target.value }))}
                     className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <p className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5">
                   <IconCalendar className="w-3.5 h-3.5 text-slate-400" />
-                  <span>{formatDisplayDate(formData.startDate) || 'Choose start date'} · {formData.startTime}</span>
+                  <span>{formatDisplayDate(formData.startDate, currentLanguage) || t("campaign_extra.choose_start_date", "Choose start date")} · {formData.startTime}</span>
                 </p>
               </div>
 
@@ -3372,13 +3394,13 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                     type="time"
                     min={formData.endDate === formData.startDate ? formData.startTime : (formData.endDate === getFormattedDate(0) ? new Date().toTimeString().slice(0, 5) : undefined)}
                     value={formData.endTime}
-                    onChange={e => setFormData({ ...formData, endTime: e.target.value })}
+                    onChange={e => setFormData(prev => ({ ...prev, endTime: e.target.value, dailySlotEnd: e.target.value }))}
                     className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <p className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5">
                   <IconFlag className="w-3.5 h-3.5 text-slate-400" />
-                  <span>{formatDisplayDate(formData.endDate) || 'Choose end date'} · {formData.endTime}</span>
+                  <span>{formatDisplayDate(formData.endDate, currentLanguage) || t("campaign_extra.choose_end_date", "Choose end date")} · {formData.endTime}</span>
                 </p>
               </div>
             </div>
@@ -3392,10 +3414,10 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                   {[
-                    { key: 'Daily', title: 'Daily (Everyday)', sub: 'Mon–Sun (All 7 Days)', icon: IconRefresh },
-                    { key: 'Weekdays', title: 'Weekdays Only', sub: 'Mon–Fri (Work Rush)', icon: IconBriefcase },
-                    { key: 'Weekends', title: 'Weekends Only', sub: 'Sat–Sun (Leisure)', icon: IconShoppingBag },
-                    { key: 'Custom', title: 'Custom Days', sub: 'Handpick Days', icon: IconCalendar },
+                    { key: 'Daily', title: t("campaign_extra.daily_everyday", "Daily (Everyday)"), sub: t("campaign_extra.mon_sun_all_7_days", "Mon–Sun (All 7 Days)"), icon: IconRefresh },
+                    { key: 'Weekdays', title: t("ag.fleet.addvehicleslotmodal.weekdays_only", "Weekdays Only"), sub: t("campaign_extra.mon_fri_work_rush", "Mon–Fri (Work Rush)"), icon: IconBriefcase },
+                    { key: 'Weekends', title: t("campaign_extra.weekends_only", "Weekends Only"), sub: t("campaign_extra.sat_sun_leisure", "Sat–Sun (Leisure)"), icon: IconShoppingBag },
+                    { key: 'Custom', title: t("campaign_extra.custom_days", "Custom Days"), sub: t("campaign_extra.handpick_days", "Handpick Days"), icon: IconCalendar },
                   ].map(f => {
                     const isActive = formData.repeat === f.key;
                     const FIcon = f.icon;
@@ -3459,18 +3481,18 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
 
                 <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
                   {[
-                    { id: 'Sun', name: 'Sunday' },
-                    { id: 'Mon', name: 'Monday' },
-                    { id: 'Tue', name: 'Tuesday' },
-                    { id: 'Wed', name: 'Wednesday' },
-                    { id: 'Thu', name: 'Thursday' },
-                    { id: 'Fri', name: 'Friday' },
-                    { id: 'Sat', name: 'Saturday' },
+                    { id: 'Sun', name: t("campaign_extra.sunday", "Sunday") },
+                    { id: 'Mon', name: t("campaign_extra.monday", "Monday") },
+                    { id: 'Tue', name: t("campaign_extra.tuesday", "Tuesday") },
+                    { id: 'Wed', name: t("campaign_extra.wednesday", "Wednesday") },
+                    { id: 'Thu', name: t("campaign_extra.thursday", "Thursday") },
+                    { id: 'Fri', name: t("campaign_extra.friday", "Friday") },
+                    { id: 'Sat', name: t("campaign_extra.saturday", "Saturday") },
                   ].map(day => {
                     const isSelected = formData.selectedDays.includes(day.id);
                     return (
                       <button
-                        key={day.id}
+                        key={translateCampaignLabel(t, day.id)}
                         type="button"
                         onClick={() => toggleDay(day.id)}
                         className={`py-2.5 sm:py-3 px-1 rounded-xl text-center border transition-all ${
@@ -3479,9 +3501,9 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                             : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-100 font-bold'
                         }`}
                       >
-                        <div className="text-xs uppercase tracking-wider">{day.id}</div>
+                        <div className="text-xs uppercase tracking-wider">{translateCampaignLabel(t, day.id)}</div>
                         <div className={`text-[9px] mt-0.5 truncate hidden sm:block ${isSelected ? 'text-blue-100 font-semibold' : 'text-slate-400'}`}>
-                          {isSelected ? 'On' : 'Off'}
+                          {isSelected ? t("campaign_extra.on", "On") : t("ag.admin.adminrolespermissionspage.off", "Off")}
                         </div>
                       </button>
                     );
@@ -3510,12 +3532,12 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                 {/* Time Slot Presets */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {[
-                    { start: '08:00', end: '22:00', label: 'Prime Transit', sub: '08:00 – 22:00 (14h)', rec: true },
-                    { start: '06:00', end: '23:00', label: 'Full Day', sub: '06:00 – 23:00 (17h)' },
-                    { start: '07:00', end: '12:00', label: 'Morning Rush', sub: '07:00 – 12:00 (5h)' },
-                    { start: '16:00', end: '22:00', label: 'Evening Rush', sub: '16:00 – 22:00 (6h)' },
+                    { start: '08:00', end: '22:00', label: t("campaign_extra.prime_transit", "Prime Transit"), sub: t("campaign_extra.08_00_22_00_14h", "08:00 – 22:00 (14h)"), rec: true },
+                    { start: '06:00', end: '23:00', label: t("campaign_extra.full_day", "Full Day"), sub: t("campaign_extra.06_00_23_00_17h", "06:00 – 23:00 (17h)") },
+                    { start: '07:00', end: '12:00', label: t("campaign_extra.morning_rush", "Morning Rush"), sub: t("campaign_extra.07_00_12_00_5h", "07:00 – 12:00 (5h)") },
+                    { start: '16:00', end: '22:00', label: t("campaign_extra.evening_rush", "Evening Rush"), sub: t("campaign_extra.16_00_22_00_6h", "16:00 – 22:00 (6h)") },
                   ].map(slot => {
-                    const isActive = formData.dailySlotStart === slot.start && formData.dailySlotEnd === slot.end;
+                    const isActive = (formData.dailySlotStart === slot.start || formData.startTime === slot.start) && (formData.dailySlotEnd === slot.end || formData.endTime === slot.end);
                     return (
                       <button
                         key={slot.label}
@@ -3547,28 +3569,40 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
               {/* Custom Time Slot Inputs */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg">
                 <div className="space-y-1">
-                  <span className="text-[11px] text-slate-600 font-bold flex items-center gap-1.5">
-                    <IconSun className="w-3.5 h-3.5 text-amber-500" />
-                    <span>{t('campaign_create.airtime_start', 'Airtime Start Time')}</span>
-                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] text-slate-600 dark:text-zinc-400 font-bold flex items-center gap-1.5">
+                      <IconSun className="w-3.5 h-3.5 text-amber-500" />
+                      <span>{t('campaign_create.airtime_start', 'Airtime Start Time')}</span>
+                    </span>
+                    <span className="text-[10px] font-semibold text-slate-400 dark:text-zinc-500">
+                      {t('campaign_create.auto_synced_start', 'Auto-synced with Broadcast Start')}
+                    </span>
+                  </div>
                   <input
                     type="time"
-                    value={formData.dailySlotStart}
-                    onChange={e => setFormData({ ...formData, dailySlotStart: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled
+                    readOnly
+                    value={formData.startTime || formData.dailySlotStart || '08:00'}
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-100 dark:bg-zinc-800 text-sm font-bold text-slate-500 dark:text-zinc-400 cursor-not-allowed select-none opacity-80"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-[11px] text-slate-600 font-bold flex items-center gap-1.5">
-                    <IconMoon className="w-3.5 h-3.5 text-indigo-500" />
-                    <span>{t('campaign_create.airtime_end', 'Airtime End Time')}</span>
-                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] text-slate-600 dark:text-zinc-400 font-bold flex items-center gap-1.5">
+                      <IconMoon className="w-3.5 h-3.5 text-indigo-500" />
+                      <span>{t('campaign_create.airtime_end', 'Airtime End Time')}</span>
+                    </span>
+                    <span className="text-[10px] font-semibold text-slate-400 dark:text-zinc-500">
+                      {t('campaign_create.auto_synced_end', 'Auto-synced with Broadcast End')}
+                    </span>
+                  </div>
                   <input
                     type="time"
-                    value={formData.dailySlotEnd}
-                    onChange={e => setFormData({ ...formData, dailySlotEnd: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled
+                    readOnly
+                    value={formData.endTime || formData.dailySlotEnd || '22:00'}
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-100 dark:bg-zinc-800 text-sm font-bold text-slate-500 dark:text-zinc-400 cursor-not-allowed select-none opacity-80"
                   />
                 </div>
               </div>
@@ -3604,7 +3638,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                   <div className={`text-[11px] font-semibold rounded-lg px-2.5 py-1.5 border ${slotCheck.data.conflict ? 'text-rose-700 bg-rose-50 border-rose-200 dark:bg-rose-950/40 dark:border-rose-800 dark:text-rose-300' : 'text-emerald-700 bg-emerald-50 border-emerald-200 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-300'}`}>
                     {slotCheck.data.conflict
                       ? (slotCheck.data.conflictingRoutes?.length > 0
-                          ? `Slot already booked on: ${slotCheck.data.conflictingRoutes.map(r => r.routeName).join(', ')}. Choose another time, bus, screen, or route.`
+                          ? t("campaign_extra.slot_already_booked_on_v0_choose_another_time_bus_screen_or_route", "Slot already booked on: {{v0}}. Choose another time, bus, screen, or route.", { v0: slotCheck.data.conflictingRoutes.map(r => r.routeName).join(', ') })
                           : t('campaign_create.slot_conflict', 'This inventory and time window is already booked. Choose another time, bus, screen, or route.'))
                       : t('campaign_create.slot_free', 'Slot available for the selected routes, buses, screens, days, and time window.')}
                     {Array.isArray(slotCheck.data.booked) && slotCheck.data.booked.length > 0 && (
@@ -3612,9 +3646,9 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                         <div>{t('campaign_create.already_booked', 'Existing bookings:')}</div>
                         {slotCheck.data.booked.slice(0, 8).map((b, bi) => (
                           <div key={`${b.campaignId || bi}-${b.screenId || b.vehicleId || bi}`} className="rounded-md border border-current/20 bg-white/60 dark:bg-black/10 px-2 py-1">
-                            <span className="font-bold">{b.campaignCode || b.campaignTitle || `Campaign #${b.campaignId}`}</span>
+                            <span className="font-bold">{b.campaignCode || b.campaignTitle || t("campaign_extra.campaign_v0", "Campaign #{{v0}}", { v0: b.campaignId })}</span>
                             {' | '}{b.startDate} {t('ag.advertiser.createcampaignpage.to', 'to')} {b.endDate}, {String(b.startTime).slice(0, 5)}-{String(b.endTime).slice(0, 5)}
-                            {' | '}{b.screenId ? `Screen #${b.screenId}` : b.vehicleId ? `Bus #${b.vehicleId}` : 'Whole route'}
+                            {' | '}{b.screenId ? t("campaign_extra.screen_v0", "Screen #{{v0}}", { v0: b.screenId }) : b.vehicleId ? t("campaign_extra.bus_v0", "Bus #{{v0}}", { v0: b.vehicleId }) : t("campaign_extra.whole_route", "Whole route")}
                             {Array.isArray(b.activeDays) && b.activeDays.length > 0 ? ` | ${b.activeDays.join(', ')}` : ''}
                           </div>
                         ))}
@@ -3651,7 +3685,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
               <div className="flex items-center gap-2">
                 <IconGlobe className="w-4 h-4 text-blue-600" />
                 <div>
-                  <span className="font-bold text-slate-900 dark:text-white">{formData.timezone}</span>
+                  <span className="font-bold text-slate-900 dark:text-white">{translateCampaignLabel(t, formData.timezone)}</span>
                   <p className="text-[10px] text-slate-500 dark:text-zinc-400">{t('campaign_create.sync_iot_hint', 'Edge devices will automatically synchronize playback timing with vehicle IoT hardware')}</p>
                 </div>
               </div>
@@ -3671,10 +3705,10 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                     </span>
                   </div>
                   <p className="text-base font-black text-white mt-1">
-                    {durationDaysNumber} {t('common.days_flight', 'Days Flight')} · {formData.repeat} {t('campaign_create.broadcast_schedule', 'Broadcast Schedule')}
+                    {durationDaysNumber} {t('common.days_flight', 'Days Flight')} · {translateCampaignLabel(t, formData.repeat)} {t('campaign_create.broadcast_schedule', 'Broadcast Schedule')}
                   </p>
                   <p className="text-xs text-slate-300 mt-0.5">
-                    {formatDisplayDate(formData.startDate)} → {formatDisplayDate(formData.endDate)} ({activeBroadcastDaysCount} {t('campaign_create.active_broadcast_days', 'Active Broadcast Days')})
+                    {formatDisplayDate(formData.startDate, currentLanguage)} → {formatDisplayDate(formData.endDate, currentLanguage)} ({activeBroadcastDaysCount} {t('campaign_create.active_broadcast_days', 'Active Broadcast Days')})
                   </p>
                 </div>
 
@@ -3682,7 +3716,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                   <div className="bg-white/10 rounded-xl p-2.5 border border-white/10">
                     <p className="text-[10px] uppercase font-bold text-slate-300">{t('campaign_create.active_days_wk', 'Active Days / Wk')}</p>
                     <p className="text-sm font-black text-white mt-0.5">{formData.selectedDays.length} {t('common.days', 'Days')}</p>
-                    <p className="text-[10px] text-slate-300 capitalize">{formData.repeat}</p>
+                    <p className="text-[10px] text-slate-300 capitalize">{translateCampaignLabel(t, formData.repeat)}</p>
                   </div>
 
                   <div className="bg-white/10 rounded-xl p-2.5 border border-white/10">
@@ -3793,23 +3827,23 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                                   onChange={e => handleSelectBreakdownPreset(item.id, e.target.value)}
                                   className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-700 text-xs font-medium text-slate-800 dark:text-white bg-white dark:bg-zinc-900 focus:outline-none focus:ring-1 focus:ring-slate-400"
                                 >
-                                  <optgroup label="── Statutory Taxes ──">
+                                  <optgroup label={t("campaign_extra.statutory_taxes", "── Statutory Taxes ──")}>
                                     <option value="GST_CGST">{t('advertiser.create.cgst_9')}</option>
                                     <option value="GST_SGST">{t('advertiser.create.sgst_9')}</option>
                                     <option value="GST_IGST">{t('advertiser.create.igst_18')}</option>
                                     <option value="GST_CESS">{t('advertiser.create.gst_cess')}</option>
                                   </optgroup>
-                                  <optgroup label="── Commercial Charges ──">
+                                  <optgroup label={t("campaign_extra.commercial_charges", "── Commercial Charges ──")}>
                                     <option value="FEE_AIRTIME_BROADCAST">{t('advertiser.create.airtime_fee')}</option>
                                     <option value="FEE_HARDWARE_RENTAL">{t('advertiser.create.hardware_rental')}</option>
                                     <option value="FEE_CREATIVE_DESIGN">{t('advertiser.create.creative_review')}</option>
                                     <option value="FEE_ONBOARDING_SETUP">{t('advertiser.create.setup_deployment')}</option>
                                   </optgroup>
-                                  <optgroup label="── Discounts ──">
+                                  <optgroup label={t("campaign_extra.discounts", "── Discounts ──")}>
                                     <option value="DISCOUNT_VOLUME">{t('advertiser.create.volume_discount')}</option>
                                     <option value="DISCOUNT_PROMO">{t('advertiser.create.promo_discount')}</option>
                                   </optgroup>
-                                  <optgroup label="── Custom ──">
+                                  <optgroup label={t("superadmin.sub_plans.optgroup_custom", "── Custom ──")}>
                                     <option value="CUSTOM">{t('advertiser.create.custom_item')}</option>
                                   </optgroup>
                                 </select>
@@ -3954,8 +3988,8 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
 
                       return (
                         <div key={item.key || idx} className={`flex justify-between items-center ${textColor}`}>
-                          <span className="truncate pr-2" title={item.label}>
-                            {item.label}
+                          <span className="truncate pr-2" title={translateCampaignLabel(t, item.label)}>
+                            {translateCampaignLabel(t, item.label)}
                           </span>
                           <span className="font-bold shrink-0 font-mono">
                             {signPrefix}₹ {Math.abs(amountVal).toLocaleString()}
@@ -4089,7 +4123,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 text-xs">
                   <div className="p-3 bg-slate-50 dark:bg-zinc-800/60 border border-slate-100 dark:border-zinc-700 rounded-xl">
                     <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-400">{t('campaign_create.campaign_name', 'Campaign Name')}</span>
-                    <p className="font-bold text-slate-900 dark:text-white mt-1 break-words">{formData.name || 'Not specified'}</p>
+                    <p className="font-bold text-slate-900 dark:text-white mt-1 break-words">{formData.name || t("campaign_extra.not_specified", "Not specified")}</p>
                   </div>
                   <div className="p-3 bg-slate-50 dark:bg-zinc-800/60 border border-slate-100 dark:border-zinc-700 rounded-xl">
                     <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-400">{t('campaign_create.brand_product', 'Brand / Product')}</span>
@@ -4097,15 +4131,15 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                   </div>
                   <div className="p-3 bg-slate-50 dark:bg-zinc-800/60 border border-slate-100 dark:border-zinc-700 rounded-xl">
                     <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-400">{t('campaign_create.campaign_type', 'Campaign Type')}</span>
-                    <p className="font-bold text-slate-900 dark:text-white mt-1">{formData.type}</p>
+                    <p className="font-bold text-slate-900 dark:text-white mt-1">{translateCampaignLabel(t, formData.type)}</p>
                   </div>
                   <div className="p-3 bg-slate-50 dark:bg-zinc-800/60 border border-slate-100 dark:border-zinc-700 rounded-xl">
                     <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-400">{t('campaign_create.objective', 'Objective')}</span>
-                    <p className="font-bold text-slate-900 dark:text-white mt-1">{formData.objective}</p>
+                    <p className="font-bold text-slate-900 dark:text-white mt-1">{translateCampaignLabel(t, formData.objective)}</p>
                   </div>
                   <div className="p-3 bg-slate-50 dark:bg-zinc-800/60 border border-slate-100 dark:border-zinc-700 rounded-xl">
                     <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-400">{t('campaign_create.category', 'Category')}</span>
-                    <p className="font-bold text-slate-900 dark:text-white mt-1">{formData.category}</p>
+                    <p className="font-bold text-slate-900 dark:text-white mt-1">{translateCampaignLabel(t, formData.category)}</p>
                   </div>
                 </div>
 
@@ -4128,19 +4162,19 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                     </div>
                     <div>
                       <h3 className="text-xs font-black text-blue-950 dark:text-blue-300 uppercase tracking-wider flex items-center gap-1.5">
-                        <span>{isGov ? 'Department / Agency Information' : t('campaign_create.customer_info', 'Customer / Client Information')}</span>
+                        <span>{isGov ? t("campaign_extra.department_agency_information", "Department / Agency Information") : t('campaign_create.customer_info', 'Customer / Client Information')}</span>
                       </h3>
                       <p className="text-[11px] text-blue-800/80 dark:text-zinc-400 font-medium">
-                        {isGov ? 'Official clearance orders and broadcast notices will be dispatched to this authority.' : t('campaign_create.payment_checkout_dispatched_desc', 'Payment checkout link and official GST invoice will be automatically dispatched to this client.')}
+                        {isGov ? t("campaign_extra.official_clearance_orders_and_broadcast_notices_will_be_dispatched_to_this_authority", "Official clearance orders and broadcast notices will be dispatched to this authority.") : t('campaign_create.payment_checkout_dispatched_desc', 'Payment checkout link and official GST invoice will be automatically dispatched to this client.')}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 self-start sm:self-auto">
                     <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-blue-100 dark:bg-blue-950/70 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60">
-                      {isGov ? 'Official Authority Contact' : t('campaign_create.payment_link_recipient', 'Payment Link Recipient')}
+                      {isGov ? t("campaign_extra.official_authority_contact", "Official Authority Contact") : t('campaign_create.payment_link_recipient', 'Payment Link Recipient')}
                     </span>
                     <button type="button" disabled={submitting} onClick={() => !submitting && setCurrentStep(1)} className="text-xs font-bold text-blue-700 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 hover:underline disabled:opacity-50 disabled:pointer-events-none">
-                      {isGov ? 'Edit Authority' : t('campaign_create.edit_client', 'Edit Client')}
+                      {isGov ? t("campaign_extra.edit_authority", "Edit Authority") : t('campaign_create.edit_client', 'Edit Client')}
                     </button>
                   </div>
                 </div>
@@ -4149,14 +4183,14 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                   {/* Card 1: Contact Person & Company */}
                   <div className="p-3.5 bg-white dark:bg-zinc-900 border border-blue-100 dark:border-zinc-800 rounded-xl shadow-2xs space-y-1">
                     <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-500 tracking-wider">
-                      {isGov ? 'Nodal Officer & Department' : t('campaign_create.contact_company', 'Contact Person & Company')}
+                      {isGov ? t("campaign_extra.nodal_officer_department", "Nodal Officer & Department") : t('campaign_create.contact_company', 'Contact Person & Company')}
                     </span>
                     <p className="font-black text-slate-900 dark:text-white text-sm break-words">
                       {formData.clientName || '–'}
                     </p>
                     <p className="text-xs font-bold text-blue-700 dark:text-blue-400 break-words flex items-center gap-1 pt-0.5">
                       <IconBriefcase className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                      <span>{formData.clientCompany || (isGov ? 'Government Department' : 'Direct Business / Client')}</span>
+                      <span>{formData.clientCompany || (isGov ? t("campaign_extra.government_department", "Government Department") : t("campaign_extra.direct_business_client", "Direct Business / Client"))}</span>
                     </p>
                   </div>
 
@@ -4164,10 +4198,10 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                   <div className="p-3.5 bg-white dark:bg-zinc-900 border border-blue-100 dark:border-zinc-800 rounded-xl shadow-2xs space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-500 tracking-wider">
-                        {isGov ? 'Contact Phone (Broadcast Alerts)' : t('campaign_create.mobile_sms_checkout', 'Mobile (SMS Checkout)')}
+                        {isGov ? t("campaign_extra.contact_phone_broadcast_alerts", "Contact Phone (Broadcast Alerts)") : t('campaign_create.mobile_sms_checkout', 'Mobile (SMS Checkout)')}
                       </span>
                       <span className="text-[9px] font-extrabold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800/80">
-                        {isGov ? 'Alerts Phone' : t('campaign_create.sms_recipient_badge', 'SMS Recipient')}
+                        {isGov ? t("campaign_extra.alerts_phone", "Alerts Phone") : t('campaign_create.sms_recipient_badge', 'SMS Recipient')}
                       </span>
                     </div>
                     <p className="font-mono font-black text-slate-900 dark:text-white text-sm flex items-center gap-1.5 pt-0.5">
@@ -4175,7 +4209,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                       <span>{formData.clientPhone || '–'}</span>
                     </p>
                     <p className="text-[10px] text-slate-500 dark:text-zinc-400 font-medium">
-                      {isGov ? 'Clearance alerts dispatched to this phone' : t('campaign_create.checkout_sms_dispatched', 'Checkout link SMS is dispatched to this mobile')}
+                      {isGov ? t("campaign_extra.clearance_alerts_dispatched_to_this_phone", "Clearance alerts dispatched to this phone") : t('campaign_create.checkout_sms_dispatched', 'Checkout link SMS is dispatched to this mobile')}
                     </p>
                   </div>
 
@@ -4183,10 +4217,10 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                   <div className="p-3.5 bg-white dark:bg-zinc-900 border border-blue-100 dark:border-zinc-800 rounded-xl shadow-2xs space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-500 tracking-wider">
-                        {isGov ? 'Official Email (Clearance Orders)' : t('campaign_create.email_invoice_link', 'Email (Invoice Link)')}
+                        {isGov ? t("campaign_extra.official_email_clearance_orders", "Official Email (Clearance Orders)") : t('campaign_create.email_invoice_link', 'Email (Invoice Link)')}
                       </span>
                       <span className="text-[9px] font-extrabold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800/80">
-                        {isGov ? 'Authority Email' : t('campaign_create.email_recipient_badge', 'Email Recipient')}
+                        {isGov ? t("campaign_extra.authority_email", "Authority Email") : t('campaign_create.email_recipient_badge', 'Email Recipient')}
                       </span>
                     </div>
                     <p className="font-bold text-slate-900 dark:text-white text-xs break-all flex items-center gap-1.5 pt-0.5" title={formData.clientEmail}>
@@ -4194,7 +4228,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                       <span>{formData.clientEmail || '–'}</span>
                     </p>
                     <p className="text-[10px] text-slate-500 dark:text-zinc-400 font-medium">
-                      {isGov ? 'Official broadcast clearance notices sent here' : t('campaign_create.invoice_emailed_direct', 'GST invoice & payment link emailed directly')}
+                      {isGov ? t("campaign_extra.official_broadcast_clearance_notices_sent_here", "Official broadcast clearance notices sent here") : t('campaign_create.invoice_emailed_direct', 'GST invoice & payment link emailed directly')}
                     </p>
                   </div>
 
@@ -4202,20 +4236,20 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                   <div className="p-3.5 bg-white dark:bg-zinc-900 border border-blue-100 dark:border-zinc-800 rounded-xl shadow-2xs space-y-1">
                     <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-500 tracking-wider">{t('campaign_create.city_region', 'City & Region')}</span>
                     <p className="font-bold text-slate-900 dark:text-white text-xs break-words pt-0.5">
-                      {[formData.clientCity, formData.clientState].filter(Boolean).join(', ') || 'Not specified'}
+                      {[formData.clientCity, formData.clientState].filter(Boolean).join(', ') || t("campaign_extra.not_specified", "Not specified")}
                     </p>
                     <p className="text-[11px] font-mono text-slate-600 dark:text-zinc-400 font-semibold">
-                      {formData.clientPincode ? `Postal PIN: ${formData.clientPincode}` : (formData.clientCountry || 'India')}
+                      {formData.clientPincode ? t("campaign_extra.postal_pin_v0", "Postal PIN: {{v0}}", { v0: formData.clientPincode }) : ((formData.clientCountry && formData.clientCountry !== 'India') ? formData.clientCountry : t('campaign_extra.india', 'India'))}
                     </p>
                   </div>
 
                   {/* Card 5: Full Office / Billing Street Address */}
                   <div className="p-3.5 bg-white dark:bg-zinc-900 border border-blue-100 dark:border-zinc-800 rounded-xl shadow-2xs space-y-1 sm:col-span-2 lg:col-span-1">
                     <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-500 tracking-wider">
-                      {isGov ? 'Department Office Address' : t('campaign_create.billing_street', 'Billing Street Address')}
+                      {isGov ? t("campaign_extra.department_office_address", "Department Office Address") : t('campaign_create.billing_street', 'Billing Street Address')}
                     </span>
                     <p className="font-medium text-slate-900 dark:text-white text-xs break-words leading-relaxed pt-0.5">
-                      {formData.clientAddress || 'No full street address entered'}
+                      {formData.clientAddress || t("campaign_extra.no_full_street_address_entered", "No full street address entered")}
                     </p>
                   </div>
 
@@ -4326,7 +4360,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs flex-1 w-full">
                         <div>
                           <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-400">{t('campaign_create.format_type', 'Format / Type')}</span>
-                          <p className="font-bold text-slate-900 dark:text-white mt-0.5">{ytId ? 'YouTube Stream' : 'Video URL'}</p>
+                          <p className="font-bold text-slate-900 dark:text-white mt-0.5">{ytId ? t("campaign_extra.youtube_stream", "YouTube Stream") : t("campaign_extra.video_url", "Video URL")}</p>
                         </div>
                         <div className="sm:col-span-2 lg:col-span-1">
                           <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-400">{t('campaign_create.source_asset_url', 'Source Asset URL')}</span>
@@ -4406,7 +4440,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                             <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-1 flex flex-wrap items-center gap-1.5">
                               <span className="inline-flex items-center gap-1 font-medium">
                                 <IconLocation className="w-3 h-3 text-slate-400 shrink-0" />
-                                <span>{target.city || 'Transit Line'}</span>
+                                <span>{target.city || t("campaign_extra.transit_line", "Transit Line")}</span>
                               </span>
                               <span>·</span>
                               <span>{t('campaign_create.operator', 'Operator:')}<strong className="text-slate-700 dark:text-zinc-200">{target.fleetName}</strong></span>
@@ -4450,19 +4484,19 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
                   <div className="p-3 bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700 rounded-xl">
                     <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-400">{t('campaign_create.broadcast_start', 'Broadcast Start')}</span>
-                    <p className="font-bold text-slate-900 dark:text-white mt-0.5">{formatDisplayDate(formData.startDate) || 'Start Date'}</p>
+                    <p className="font-bold text-slate-900 dark:text-white mt-0.5">{formatDisplayDate(formData.startDate, currentLanguage) || t("campaign_create.start_date", "Start Date")}</p>
                     <p className="text-[10px] text-blue-700 dark:text-blue-400 font-bold mt-0.5">{formData.startTime} {t('common.launch', 'Launch')}</p>
                   </div>
                   <div className="p-3 bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700 rounded-xl">
                     <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-400">{t('campaign_create.broadcast_end', 'Broadcast End')}</span>
-                    <p className="font-bold text-slate-900 dark:text-white mt-0.5">{formatDisplayDate(formData.endDate) || 'End Date'}</p>
+                    <p className="font-bold text-slate-900 dark:text-white mt-0.5">{formatDisplayDate(formData.endDate, currentLanguage) || t("campaign_create.end_date", "End Date")}</p>
                     <p className="text-[10px] text-indigo-700 dark:text-indigo-400 font-bold mt-0.5">{formData.endTime} {t('common.expiry', 'Expiry')}</p>
                   </div>
                   <div className="p-3 bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700 rounded-xl">
                     <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-400">{t('campaign_create.repeat_active_days', 'Repeat & Active Days')}</span>
-                    <p className="font-bold text-slate-900 dark:text-white mt-0.5">{formData.repeat}</p>
+                    <p className="font-bold text-slate-900 dark:text-white mt-0.5">{translateCampaignLabel(t, formData.repeat)}</p>
                     <p className="text-[10px] text-slate-500 dark:text-zinc-400 font-medium mt-0.5">
-                      {(formData.selectedDays || []).length} {t('common.days_per_wk', 'Days/Wk')} ({formData.selectedDays?.join(', ')})
+                      {(formData.selectedDays || []).length} {t('common.days_per_wk', 'Days/Wk')} ({formData.selectedDays?.map(day => translateCampaignLabel(t, day)).join(', ')})
                     </p>
                   </div>
                   <div className="p-3 bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700 rounded-xl">
@@ -4475,7 +4509,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                 <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs">
                   <span className="text-slate-600 dark:text-zinc-300 font-medium flex items-center gap-1.5">
                     <IconGlobe className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
-                    <span>{t('campaign_create.timezone', 'Timezone:')}<strong className="text-slate-900 dark:text-white"> {formData.timezone}</strong></span>
+                    <span>{t('campaign_create.timezone', 'Timezone:')}<strong className="text-slate-900 dark:text-white"> {translateCampaignLabel(t, formData.timezone)}</strong></span>
                   </span>
                   <span className="text-slate-600 dark:text-zinc-300 font-medium">
                     {t('common.total_airtime', 'Total Airtime:')} <strong className="text-slate-900 dark:text-white">~{totalAirtimeHours} {t('common.hours', 'Hours')}</strong> ({activeBroadcastDaysCount} {t('campaign_create.active_days', 'active days')}) · {t('campaign_create.est_loop_cycles_short', 'Est. Loop Cycles:')} <strong className="text-slate-900 dark:text-white">~{estimatedLoopsPerDay} {t('common.plays_per_day', 'Plays / Day')}</strong> ({t('campaign_create.30_plays_hr', '30 plays/hr')})
@@ -4514,14 +4548,14 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                     const sign = isDiscount ? '- ' : '+ ';
                     return (
                       <div key={item.id || idx} className="p-3.5 bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700 rounded-xl">
-                        <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-400 truncate block" title={item.label}>
-                          {item.label}
+                        <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-400 truncate block" title={translateCampaignLabel(t, item.label)}>
+                          {translateCampaignLabel(t, item.label)}
                         </span>
                         <p className={`text-base sm:text-lg font-black mt-0.5 font-mono ${isDiscount ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-900 dark:text-white'}`}>
                           {sign}₹ {Math.abs(amountVal).toLocaleString()}
                         </p>
                         <p className="text-[10px] text-slate-500 dark:text-zinc-400 font-medium">
-                          {item.type === 'discount' ? 'Special Discount / Waiver' : (item.type === 'tax' ? 'Statutory Tax / Surcharge' : 'Addon & Service Fee')}
+                          {item.type === 'discount' ? t("campaign_extra.special_discount_waiver", "Special Discount / Waiver") : (item.type === 'tax' ? t("campaign_extra.statutory_tax_surcharge", "Statutory Tax / Surcharge") : t("campaign_extra.addon_service_fee", "Addon & Service Fee"))}
                         </p>
                       </div>
                     );
@@ -4557,7 +4591,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                       const colorClass = isDiscount ? 'text-emerald-700 dark:text-emerald-400' : (isTax ? 'text-amber-700 dark:text-amber-400' : 'text-slate-800 dark:text-zinc-200');
                       return (
                         <div key={idx} className={`flex justify-between items-center ${colorClass}`}>
-                          <span>{item.label}</span>
+                          <span>{translateCampaignLabel(t, item.label)}</span>
                           <span className="font-mono font-bold">{signPrefix}₹ {Math.abs(amountVal).toLocaleString()}</span>
                         </div>
                       );
@@ -4629,7 +4663,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-black text-blue-950 dark:text-blue-300 uppercase tracking-wider">
-                  {isGov ? 'Government PSA Broadcast Clearance Workflow' : t('campaign_create.verification_payment_workflow', 'Verification & Payment Workflow')}
+                  {isGov ? t("campaign_extra.government_psa_broadcast_clearance_workflow", "Government PSA Broadcast Clearance Workflow") : t('campaign_create.verification_payment_workflow', 'Verification & Payment Workflow')}
                 </p>
                 <p className="text-xs text-blue-900 dark:text-zinc-300 mt-1 leading-relaxed break-words">
                   {isGov ? (
@@ -4638,7 +4672,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
                     </>
                   ) : (
                     <>
-                      {t('campaign_create.checkout_workflow_prefix', 'Upon submission, your campaign will be reviewed by SuperAdmin. Once approved, the customer')} <strong className="text-slate-900 dark:text-white font-black">{formData.clientName || 'Client'}</strong> {t('campaign_create.checkout_sms_prefix', 'will receive a secure checkout payment link via SMS (')} <span className="font-mono font-bold text-blue-800 dark:text-blue-400">{formData.clientPhone || 'Mobile'}</span> {t('campaign_create.checkout_email_infix', ') and Email (')} <span className="font-mono font-bold text-blue-800 dark:text-blue-400 break-all">{formData.clientEmail || 'Email'}</span> {t('campaign_create.checkout_after_pay', '). After payment of')} <strong className="text-emerald-700 dark:text-emerald-400 font-black">₹{totalAmount.toLocaleString()}</strong> {t('campaign_create.checkout_launch_suffix', 'is settled, you can manually launch the live broadcast on transit displays.')}
+                      {t('campaign_create.checkout_workflow_prefix', 'Upon submission, your campaign will be reviewed by SuperAdmin. Once approved, the customer')} <strong className="text-slate-900 dark:text-white font-black">{formData.clientName || t("common.client", "Client")}</strong> {t('campaign_create.checkout_sms_prefix', 'will receive a secure checkout payment link via SMS (')} <span className="font-mono font-bold text-blue-800 dark:text-blue-400">{formData.clientPhone || t("campaign_extra.mobile", "Mobile")}</span> {t('campaign_create.checkout_email_infix', ') and Email (')} <span className="font-mono font-bold text-blue-800 dark:text-blue-400 break-all">{formData.clientEmail || t("ag.superadmin.supernotificationsettingspage.email_2", "Email")}</span> {t('campaign_create.checkout_after_pay', '). After payment of')} <strong className="text-emerald-700 dark:text-emerald-400 font-black">₹{totalAmount.toLocaleString()}</strong> {t('campaign_create.checkout_launch_suffix', 'is settled, you can manually launch the live broadcast on transit displays.')}
                     </>
                   )}
                 </p>
@@ -4655,7 +4689,7 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
             onClick={handleBack}
             className="w-full sm:w-auto px-6 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-bold hover:bg-slate-50 dark:hover:bg-zinc-800 active:scale-[0.99] transition-all text-center shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
           >
-            {currentStep === 1 ? 'Cancel' : '← Back'}
+            {currentStep === 1 ? t("ag.admin.addfleetoperatorpage.cancel", "Cancel") : t("ag.admin.fleetoperatordetailspage.back", "← Back")}
           </button>
 
           <button
@@ -4668,11 +4702,11 @@ export const CreateCampaignPage = ({ ownerType = 'advertiser' }) => {
               submitting ? (
                 <>
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
-                  <span>{editId ? 'Updating Campaign...' : 'Submitting Campaign...'}</span>
+                  <span>{editId ? t("campaign_extra.updating_campaign", "Updating Campaign...") : t("campaign_extra.submitting_campaign", "Submitting Campaign...")}</span>
                 </>
               ) : (
                 <>
-                  <span>{editId ? 'Update Campaign' : 'Submit Campaign'}</span>
+                  <span>{editId ? t("campaign_extra.update_campaign", "Update Campaign") : t("campaign_extra.submit_campaign", "Submit Campaign")}</span>
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>

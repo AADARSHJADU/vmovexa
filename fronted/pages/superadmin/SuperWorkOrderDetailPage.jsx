@@ -124,31 +124,31 @@ function getRoleBadgeConfig(role) {
   const r = String(role || '').toUpperCase();
   if (r.includes('SUPER') || r.includes('SUPERADMIN')) {
     return {
-      label: t('ag.superadmin.superworkorderdetailpage.super_admin', 'Super Admin'),
+      label: 'Super Admin',
       color: 'bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border-purple-300 dark:border-purple-800',
     };
   }
   if (r.includes('TECH') || r.includes('CENTRAL')) {
     return {
-      label: t('ag.superadmin.superworkorderdetailpage.central_field_engineer', 'Central Field Engineer'),
+      label: 'Central Field Engineer',
       color: 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800',
     };
   }
   if (r.includes('TENANT') || r.includes('FLEET') || r.includes('OPERATOR') || r.includes('ADMIN')) {
     return {
-      label: t('ag.superadmin.superworkorderdetailpage.fleet_manager_depot_admin', 'Fleet Manager / Depot Admin'),
+      label: 'Fleet Manager / Depot Admin',
       color: 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-800',
     };
   }
   if (r.includes('DRIVER')) {
     return {
-      label: t('ag.superadmin.superworkorderdetailpage.transit_driver', 'Transit Driver'),
+      label: 'Transit Driver',
       color: 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800',
     };
   }
   if (r.includes('FINANCE')) {
     return {
-      label: t('ag.superadmin.superworkorderdetailpage.corporate_finance_officer', 'Corporate Finance Officer'),
+      label: 'Corporate Finance Officer',
       color: 'bg-cyan-100 dark:bg-cyan-950/60 text-cyan-800 dark:text-cyan-300 border-cyan-300 dark:border-cyan-800',
     };
   }
@@ -164,41 +164,41 @@ function getEventBadgeConfig(event, description = '') {
 
   if (ev === 'created' || desc.includes('created') || desc.includes('filed')) {
     return {
-      label: t('ag.superadmin.superworkorderdetailpage.work_order_filed', 'Work Order Filed'),
+      label: 'Work Order Filed',
       badgeClass: 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
       dotClass: 'bg-emerald-500 ring-4 ring-emerald-100 dark:ring-emerald-950/60',
     };
   }
   if (desc.includes('dispatched') || desc.includes('assigned') || ev === 'assigned') {
     return {
-      label: t('ag.superadmin.superworkorderdetailpage.technician_dispatched', 'Technician Dispatched'),
+      label: 'Technician Dispatched',
       badgeClass: 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800',
       dotClass: 'bg-blue-500 ring-4 ring-blue-100 dark:ring-blue-950/60',
     };
   }
   if (desc.includes('on_site') || desc.includes('on site') || desc.includes('arrival')) {
     return {
-      label: t('ag.superadmin.superworkorderdetailpage.on_site_arrival', 'On-Site Arrival'),
+      label: 'On-Site Arrival',
       badgeClass: 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800',
       dotClass: 'bg-amber-500 ring-4 ring-amber-100 dark:ring-amber-950/60 animate-pulse',
     };
   }
   if (desc.includes('resolved') || ev === 'resolved') {
     return {
-      label: t('ag.superadmin.superworkorderdetailpage.resolved_certified', 'Resolved & Certified'),
+      label: 'Resolved & Certified',
       badgeClass: 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-200 border-emerald-300 dark:border-emerald-700 font-bold',
       dotClass: 'bg-emerald-600 ring-4 ring-emerald-200 dark:ring-emerald-900',
     };
   }
   if (desc.includes('rejected') || desc.includes('cancelled')) {
     return {
-      label: t('ag.superadmin.superworkorderdetailpage.request_rejected', 'Request Rejected'),
+      label: 'Request Rejected',
       badgeClass: 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800',
       dotClass: 'bg-rose-500 ring-4 ring-rose-100 dark:ring-rose-950/60',
     };
   }
   return {
-    label: t('ag.superadmin.superworkorderdetailpage.lifecycle_audit', 'Lifecycle Audit'),
+    label: 'Lifecycle Audit',
     badgeClass: 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800',
     dotClass: 'bg-indigo-500 ring-4 ring-indigo-100 dark:ring-indigo-950/60',
   };

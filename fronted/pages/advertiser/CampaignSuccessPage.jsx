@@ -58,10 +58,10 @@ export const CampaignSuccessModal = ({
     const ok = await copyToClipboard(String(campaignId));
     if (ok) {
       setCopied(true);
-      toast.success('Campaign code copied to clipboard!');
+      toast.success(t('campaign_extra.campaign_code_copied', 'Campaign code copied to clipboard!'));
       setTimeout(() => setCopied(false), 2000);
     } else {
-      toast.error('Failed to copy code');
+      toast.error(t('campaign_extra.failed_to_copy_code', 'Failed to copy code'));
     }
   };
 

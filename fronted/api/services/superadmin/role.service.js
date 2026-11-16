@@ -7,15 +7,12 @@ async function call(promise) {
   catch (err) { throw normalizeError(err); }
 }
 
+/** The system has exactly 8 fixed roles: they can be listed and have their permissions edited, nothing else. */
 export const superRoleService = {
-  getRoles:             ()              => call(apiClient.get(ENDPOINTS.RBAC.ROLES)),
-  getRole:              (id)            => call(apiClient.get(ENDPOINTS.RBAC.ROLE(id))),
-  createRole:           (data)          => call(apiClient.post(ENDPOINTS.RBAC.ROLES, data)),
-  updateRole:           (id, data)      => call(apiClient.patch(ENDPOINTS.RBAC.ROLE(id), data)),
-  deleteRole:           (id)            => call(apiClient.delete(ENDPOINTS.RBAC.ROLE(id))),
-  updateRolePermissions:(id, permIds)   => call(apiClient.patch(ENDPOINTS.RBAC.ROLE_PERMISSIONS(id), { permissionIds: permIds })),
-  getPermissions:       ()              => call(apiClient.get(ENDPOINTS.RBAC.PERMISSIONS)),
-  getPermissionModules: ()              => call(apiClient.get(ENDPOINTS.RBAC.PERMISSION_MODULES)),
+  getRoles:              ()           => call(apiClient.get(ENDPOINTS.RBAC.ROLES)),
+  getRole:               (id)         => call(apiClient.get(ENDPOINTS.RBAC.ROLE(id))),
+  updateRolePermissions: (id, keys)   => call(apiClient.put(ENDPOINTS.RBAC.ROLE_PERMISSIONS(id), { permissions: keys })),
+  getRegistry:           ()           => call(apiClient.get(ENDPOINTS.RBAC.REGISTRY)),
 };
 
 export default superRoleService;

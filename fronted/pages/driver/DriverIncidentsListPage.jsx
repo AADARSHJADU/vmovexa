@@ -145,7 +145,7 @@ export const DriverIncidentsListPage = () => {
             loading={refreshing}
             title={t('driver.incidents.refresh')}
           />
-          {hasPermission('drivers.incidents.report') && (
+          {hasPermission('driver.incidents.create') && (
             <Link
               to="/driver/incident-report"
               className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm flex items-center gap-2"
@@ -230,7 +230,9 @@ export const DriverIncidentsListPage = () => {
                     : 'bg-slate-50 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border-slate-200 dark:border-zinc-700 hover:bg-slate-100'
                 }`}
               >
-                {cat}
+                {cat === 'ALL'
+                  ? t('incident.all', 'ALL')
+                  : t(`incident.types.${cat.toLowerCase().replace(/[^a-z0-9]/g, '_')}`, cat)}
               </button>
             ))}
           </div>
@@ -282,7 +284,7 @@ export const DriverIncidentsListPage = () => {
                     </span>
                     <div>
                       <h3 className="text-sm font-black text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">
-                        {incType}
+                        {t(`incident.types.${incType.toLowerCase().replace(/[^a-z0-9]/g, '_')}`, incType)}
                       </h3>
                       <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium">
                         {t('ag.driver.driverincidentslistpage.reported', 'Reported:')} {inc.reported_at ? new Date(inc.reported_at).toLocaleString('en-GB') : (inc.createdAt || '—')}
@@ -292,10 +294,10 @@ export const DriverIncidentsListPage = () => {
 
                   <div className="flex items-center gap-2 self-start sm:self-auto">
                     <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${getSeverityBadge(incSeverity)}`}>
-                      ● {incSeverity}
+                      ● {incSeverity ? t(`incident.severity.${incSeverity.toLowerCase()}`, incSeverity) : t('incident.severity.low', 'low')}
                     </span>
                     <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${getStatusBadge(inc.status)}`}>
-                      {String(inc.status || 'open').replace('_', ' ')}
+                      {inc.status ? t(`incident.status.${inc.status.toLowerCase()}`, String(inc.status).replace('_', ' ')) : t('incident.status.open', 'Open')}
                     </span>
                   </div>
                 </div>

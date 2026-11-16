@@ -29,6 +29,45 @@ const statusClass = (status) => {
   return 'bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-700';
 };
 
+const getStatusLabel = (t, status) => {
+  if (!status) return '—';
+  const clean = String(status).toLowerCase();
+  const fallbacks = {
+    pending_approval: 'Pending Approval',
+    approved: 'Approved',
+    live: 'Live',
+    running: 'Running',
+    paused: 'Paused',
+    completed: 'Completed',
+    rejected: 'Rejected',
+    draft: 'Draft',
+  };
+  return t(`campaigns.status.${clean}`, fallbacks[clean] || status);
+};
+
+const getPaymentStatusLabel = (t, status) => {
+  if (!status) return '—';
+  const clean = String(status).toLowerCase();
+  const fallbacks = {
+    paid: 'Paid / cleared',
+    unpaid: 'Unpaid',
+    pending: 'Pending',
+  };
+  return t(`campaigns.payment_status.${clean}`, fallbacks[clean] || status);
+};
+
+const getScheduleStatusLabel = (t, status) => {
+  if (!status) return '—';
+  const clean = String(status).toLowerCase();
+  const fallbacks = {
+    scheduled: 'Scheduled',
+    awaiting_clearance: 'Awaiting Clearance',
+    running: 'Running',
+    normal: 'Normal',
+  };
+  return t(`campaigns.schedule_status.${clean}`, fallbacks[clean] || status);
+};
+
 export const SuperCampaignsPage = () => {
   const { t } = useTranslation();
   const { campaigns, loadCampaigns } = useSuperCampaign();
@@ -111,7 +150,7 @@ export const SuperCampaignsPage = () => {
       <div>
         <Breadcrumb
           items={[
-            { label: t('ag.superadmin.supercampaignspage.super_admin', 'Super Admin'), path: '/superadmin/dashboard' },
+            { label: t('common.super_admin', 'Super Admin'), path: '/superadmin/dashboard' },
             { label: t('superadmin.campaigns.title', 'Global Campaign Control') },
           ]}
           className="mb-2"
@@ -131,7 +170,7 @@ export const SuperCampaignsPage = () => {
             disabled={loading}
             className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs font-bold text-slate-700 dark:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800 disabled:opacity-60 cursor-pointer"
           >
-            <FleetIcons.RefreshCw className={`w-4 h-4 ${loading ? t('ag.superadmin.supercampaignspage.animate_spin', 'animate-spin') : ''}`} />
+            <FleetIcons.RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             <span>{loading ? t('common.refreshing', 'Refreshing...') : t('common.refresh', 'Refresh')}</span>
           </button>
         </div>
@@ -165,7 +204,7 @@ export const SuperCampaignsPage = () => {
         >
           <option value="all">{t('superadmin.campaigns.all_statuses', 'All statuses')}</option>
           {['pending_approval', 'approved', 'live', 'paused', 'completed', 'rejected'].map((s) => (
-            <option key={s} value={s}>{s}</option>
+            <option key={s} value={s}>{getStatusLabel(t, s)}</option>
           ))}
         </select>
 
@@ -289,12 +328,12 @@ export const SuperCampaignsPage = () => {
                     <strong className="dark:text-white">
                       {String(campaign.broadcast_start_time || '').slice(0, 5)}–{String(campaign.broadcast_end_time || '').slice(0, 5)}
                     </strong>
-                    <span className="block text-slate-500">{campaign.schedule_status || 'awaiting_clearance'}</span>
+                    <span className="block text-slate-500">{getScheduleStatusLabel(t, campaign.schedule_status || 'awaiting_clearance')}</span>
                   </td>
-                  <td className="p-3 font-bold dark:text-white">{campaign.payment_status}</td>
+                  <td className="p-3 font-bold dark:text-white">{getPaymentStatusLabel(t, campaign.payment_status)}</td>
                   <td className="p-3">
                     <span className={`px-2 py-1 border rounded-lg font-bold ${statusClass(campaign.status)}`}>
-                      {campaign.status}
+                      {getStatusLabel(t, campaign.status)}
                     </span>
                   </td>
                   <td className="p-3 text-right">

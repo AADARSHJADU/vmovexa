@@ -14,7 +14,7 @@ export const AddRoutePage = () => {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { hasPermission } = useAuth();
+  const { can } = useAuth();
   const { t } = useTranslation();
   const { createRoute, updateRoute, loadRouteDetails, selectedRoute } = useAdminRoute();
 
@@ -22,9 +22,9 @@ export const AddRoutePage = () => {
   const isFleetPortal = (location.pathname.startsWith('/fleet-operator') || location.pathname.startsWith('/fleet-operator'));
   const basePath = isFleetPortal ? '/fleet-operator/routes' : '/admin/routes';
 
-  const canCreate = hasPermission('fleet.routes.create');
-  const canUpdate = hasPermission('fleet.routes.update');
-  const canApprove = hasPermission('fleet.routes.approve');
+  const canCreate = can('routes.create');
+  const canUpdate = can('routes.update');
+  const canApprove = can('routes.approve');
 
   // RBAC guard
   useEffect(() => {

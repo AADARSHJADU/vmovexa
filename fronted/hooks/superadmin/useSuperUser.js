@@ -12,6 +12,7 @@ import {
   inviteUserThunk,
   fetchUserPermissionsThunk,
   updateUserPermissionsThunk,
+  resetUserPermissionsThunk,
 } from '../../store/slices/superadmin/userSlice.js';
 
 export const useSuperUser = () => {
@@ -29,6 +30,8 @@ export const useSuperUser = () => {
   const getUserPermissions = useCallback((id) => dispatch(fetchUserPermissionsThunk(id)).unwrap(), [dispatch]);
   const updateUserPermissions = useCallback((id, permissions) => dispatch(updateUserPermissionsThunk({ id, permissions })).unwrap(), [dispatch]);
 
+  const resetUserPermissions = useCallback((id) => dispatch(resetUserPermissionsThunk(id)).unwrap(), [dispatch]);
+
   return {
     users,
     loading,
@@ -41,6 +44,7 @@ export const useSuperUser = () => {
     inviteUser,
     getUserPermissions,
     updateUserPermissions,
+    resetUserPermissions,
   };
 };
 

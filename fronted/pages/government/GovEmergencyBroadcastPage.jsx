@@ -46,15 +46,15 @@ export const GovEmergencyBroadcastPage = () => {
 
   const handleBroadcast = async () => {
     if (!headline.trim()) {
-      toast.error('Please enter the alert broadcast headline.');
+      toast.error(t('gov.emergency.err_headline', 'Please enter the alert broadcast headline.'));
       return;
     }
     if (!mediaItems.length) {
-      toast.error('Please attach an emergency visual (image, video or PDF).');
+      toast.error(t('gov.emergency.err_visual', 'Please attach an emergency visual (image, video or PDF).'));
       return;
     }
     if (!targetAllScreens && selectedTargets.length === 0) {
-      toast.error('Select at least one route/vehicle, or choose "All Screens".');
+      toast.error(t('gov.emergency.err_target', 'Select at least one route/vehicle, or choose "All Screens".'));
       return;
     }
     const targets = targetAllScreens ? [] : selectedTargets.map((t) => ({
@@ -79,14 +79,14 @@ export const GovEmergencyBroadcastPage = () => {
     };
     setSubmitting(true);
     try {
-      const media = await toast.promise(uploadEmergencyMedia(mediaItems), { loading: 'Uploading creative assets...', success: 'Creative assets ready', error: e => e?.message || 'Media upload failed' });
+      const media = await toast.promise(uploadEmergencyMedia(mediaItems), { loading: t('gov.emergency.uploading_assets', 'Uploading creative assets...'), success: t('gov.emergency.assets_ready', 'Creative assets ready'), error: e => e?.message || t('gov.emergency.media_upload_failed', 'Media upload failed') });
       Object.assign(payload, { media, mediaUrl: media[0]?.mediaUrl || null, mediaType: media[0]?.mediaType || null });
       await toast.promise(createBroadcast(payload), {
-        loading: 'Submitting emergency broadcast override...',
+        loading: t('gov.emergency.submitting_override', 'Submitting emergency broadcast override...'),
         success: isSuperAdmin
-          ? 'Emergency broadcast submitted!'
-          : 'Submitted! Awaiting SuperAdmin verification before it goes live.',
-        error: (e) => e?.message || 'Failed to submit emergency',
+          ? t('gov.emergency.broadcast_submitted', 'Emergency broadcast submitted!')
+          : t('gov.emergency.submitted_awaiting', 'Submitted! Awaiting SuperAdmin verification before it goes live.'),
+        error: (e) => e?.message || t('gov.emergency.failed_to_submit', 'Failed to submit emergency'),
       });
       setHeadline('');
       setEmergencyNumber('');
@@ -310,7 +310,7 @@ export const GovEmergencyBroadcastPage = () => {
             <span>{submitting ? t('gov.emergency.transmitting', 'TRANSMITTING OVERRIDE…') : isSuperAdmin ? t('gov.emergency.submit_broadcast', 'SUBMIT EMERGENCY BROADCAST') : t('gov.emergency.submit_for_superadmin', 'SUBMIT FOR SUPER ADMIN APPROVAL')}</span>
           </button>
           <p className="text-[11px] text-slate-500 dark:text-zinc-400 text-center mt-2">
-            {t('ag.government.govemergencybroadcastpage.after', 'After')} {t('gov.emergency.awaiting_superadmin')}{t('ag.government.govemergencybroadcastpage.this_override_takes_precedence_over_all_sche', ', this override takes precedence over all scheduled commercial ad loops.')}
+            {t('gov.emergency.override_precedence_note', 'After Super Admin approval, this override takes precedence over all scheduled commercial ad loops.')}
           </p>
         </div>
       </div>

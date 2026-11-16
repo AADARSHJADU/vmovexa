@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -12,6 +12,13 @@ import { fleetDriverService } from '../../api/services/fleet/driver.service';
 import { superOrganizationService } from '../../api/services/superadmin/organization.service';
 import { useAuth } from '../../hooks/useAuth';
 import { reverseGeocodeCoords } from '../../utils/geolocation';
+
+const NON_APPROVED_DRIVER_STATUSES = new Set(['pending_approval', 'pending', 'rejected']);
+
+const isApprovedDriver = (driver) => {
+  const status = String(driver?.status || '').trim().toLowerCase();
+  return Boolean(status) && !NON_APPROVED_DRIVER_STATUSES.has(status);
+};
 
 export const StandardReportIncidentPage = ({
   roleTitle = 'Fleet Operator',
@@ -64,7 +71,7 @@ export const StandardReportIncidentPage = ({
     affectedParties: ['Vehicle'],
     immediateAction: '',
     contactPreference: 'Yes',
-    contactNumber: user?.phone || '',
+    contactNumber: '',
     // Emergency & Medical Fields
     deadCasualty: 0,
     injuredCount: 0,
@@ -87,8 +94,10 @@ export const StandardReportIncidentPage = ({
     if (assignedId) {
       const match = drivers.find((d) => String(d.id) === String(assignedId));
       if (match) return match;
-      if (v.driver) return { id: v.driver.id, name: v.driver.name, emp_id: v.driver.emp_id };
-      return { id: assignedId, name: `Driver #${assignedId}` };
+      if (v.driver && isApprovedDriver(v.driver)) {
+        return { id: v.driver.id, name: v.driver.name, emp_id: v.driver.emp_id, status: v.driver.status };
+      }
+      return null;
     }
     const matching = drivers.find((d) => Number(d.assigned_bus_id) === Number(v.id));
     return matching || null;
@@ -137,7 +146,10 @@ export const StandardReportIncidentPage = ({
 
     Promise.allSettled([
       fleetVehicleService.getVehicles(queryParams),
-      fleetDriverService.getDrivers(queryParams),
+      fleetDriverService.getDrivers({
+        ...queryParams,
+        exclude_status: 'pending_approval,pending,rejected',
+      }),
     ])
       .then(([vehResult, drvResult]) => {
         if (!isMounted) return;
@@ -151,7 +163,7 @@ export const StandardReportIncidentPage = ({
           const dList = Array.isArray(drvResult.value)
             ? drvResult.value
             : drvResult.value?.rows || drvResult.value?.items || drvResult.value?.drivers || [];
-          setDrivers(dList);
+          setDrivers(dList.filter(isApprovedDriver));
         }
       })
       .finally(() => {
@@ -203,7 +215,7 @@ export const StandardReportIncidentPage = ({
 
     if (autoDriverId && autoDriverName) {
       toast.success(
-        `Driver "${autoDriverName}" auto-selected for Bus ${foundVeh?.bus_number || vId}`,
+        t('incident.driver_auto_assigned_toast', `Driver "${autoDriverName}" auto-selected for Bus ${foundVeh?.bus_number || vId}`),
         {
           id: 'driver-auto-assigned',
           icon: '🚌',
@@ -224,7 +236,7 @@ export const StandardReportIncidentPage = ({
           if (foundVeh) {
             updated.vehicleId = String(foundVeh.id);
             toast.success(
-              `Bus "${foundVeh.bus_number}" auto-selected for Driver ${foundDriver.name}`,
+              t('incident.bus_auto_assigned_toast', `Bus "${foundVeh.bus_number}" auto-selected for Driver ${foundDriver.name}`),
               { id: 'veh-auto-assigned', icon: '🚌' }
             );
           }
@@ -234,25 +246,31 @@ export const StandardReportIncidentPage = ({
     });
   };
 
-  const incidentTypes = [
-    { id: 'Accident', label: 'Accident', desc: 'Road accident or collision', icon: <FleetIcons.Alert className="w-5 h-5 text-red-600" /> },
-    { id: 'Breakdown', label: 'Breakdown', desc: 'Mechanical / engine fault', icon: <FleetIcons.Settings className="w-5 h-5 text-amber-600" /> },
-    { id: 'Road Condition', label: 'Road Condition', desc: 'Damaged road, potholes, blockage', icon: <FleetIcons.Speed className="w-5 h-5 text-blue-600" /> },
-    { id: 'Traffic Issue', label: 'Traffic Issue', desc: 'Traffic congestion or diversion', icon: <FleetIcons.Traffic className="w-5 h-5 text-purple-600" /> },
-    { id: 'Passenger Issue', label: 'Passenger Issue', desc: 'Medical or onboard emergency', icon: <FleetIcons.Driver className="w-5 h-5 text-indigo-600" /> },
-    { id: 'Infrastructure', label: 'Infrastructure', desc: 'Bus shelter or display unit fault', icon: <FleetIcons.Layers className="w-5 h-5 text-teal-600" /> },
-    { id: 'Safety Concern', label: 'Safety Concern', desc: 'Hazardous route obstacle', icon: <FleetIcons.Shield className="w-5 h-5 text-rose-600" /> },
-    { id: 'Other', label: 'Other', desc: 'Any other transit incident', icon: <FleetIcons.Document className="w-5 h-5 text-slate-600" /> },
-  ];
+  const incidentTypes = useMemo(() => [
+    { id: 'Accident', label: t('incident.types.accident', 'Accident'), desc: t('incident.types.accident_desc', 'Road accident or collision'), icon: <FleetIcons.Alert className="w-5 h-5 text-red-600" /> },
+    { id: 'Breakdown', label: t('incident.types.breakdown', 'Breakdown'), desc: t('incident.types.breakdown_desc', 'Mechanical / engine fault'), icon: <FleetIcons.Settings className="w-5 h-5 text-amber-600" /> },
+    { id: 'Road Condition', label: t('incident.types.road_condition', 'Road Condition'), desc: t('incident.types.road_condition_desc', 'Damaged road, potholes, blockage'), icon: <FleetIcons.Speed className="w-5 h-5 text-blue-600" /> },
+    { id: 'Traffic Issue', label: t('incident.types.traffic_issue', 'Traffic Issue'), desc: t('incident.types.traffic_issue_desc', 'Traffic congestion or diversion'), icon: <FleetIcons.Traffic className="w-5 h-5 text-purple-600" /> },
+    { id: 'Passenger Issue', label: t('incident.types.passenger_issue', 'Passenger Issue'), desc: t('incident.types.passenger_issue_desc', 'Medical or onboard emergency'), icon: <FleetIcons.Driver className="w-5 h-5 text-indigo-600" /> },
+    { id: 'Infrastructure', label: t('incident.types.infrastructure', 'Infrastructure'), desc: t('incident.types.infrastructure_desc', 'Bus shelter or display unit fault'), icon: <FleetIcons.Layers className="w-5 h-5 text-teal-600" /> },
+    { id: 'Safety Concern', label: t('incident.types.safety_concern', 'Safety Concern'), desc: t('incident.types.safety_concern_desc', 'Hazardous route obstacle'), icon: <FleetIcons.Shield className="w-5 h-5 text-rose-600" /> },
+    { id: 'Other', label: t('incident.types.other', 'Other'), desc: t('incident.types.other_desc', 'Any other transit incident'), icon: <FleetIcons.Document className="w-5 h-5 text-slate-600" /> },
+  ], [t]);
 
-  const severityOptions = [
-    { id: 'low', label: 'Low', desc: 'Minor issue, no transit stoppage', color: 'emerald' },
-    { id: 'medium', label: 'Medium', desc: 'Moderate issue, minor route delay', color: 'amber' },
-    { id: 'high', label: 'High', desc: 'Major issue, schedule impacted', color: 'orange' },
-    { id: 'critical', label: 'Critical', desc: 'Severe emergency, transit halted', color: 'red' },
-  ];
+  const severityOptions = useMemo(() => [
+    { id: 'low', label: t('incident.severity.low', 'Low'), desc: t('incident.severity.low_desc', 'Minor issue, no transit stoppage'), color: 'emerald' },
+    { id: 'medium', label: t('incident.severity.medium', 'Medium'), desc: t('incident.severity.medium_desc', 'Moderate issue, minor route delay'), color: 'amber' },
+    { id: 'high', label: t('incident.severity.high', 'High'), desc: t('incident.severity.high_desc', 'Major issue, schedule impacted'), color: 'orange' },
+    { id: 'critical', label: t('incident.severity.critical', 'Critical'), desc: t('incident.severity.critical_desc', 'Severe emergency, transit halted'), color: 'red' },
+  ], [t]);
 
-  const affectedOptions = ['Passengers', 'Driver', 'Vehicle', 'Infrastructure', 'Other'];
+  const affectedOptions = useMemo(() => [
+    { id: 'Passengers', label: t('incident.affected.passengers', 'Passengers') },
+    { id: 'Driver', label: t('incident.affected.driver', 'Driver') },
+    { id: 'Vehicle', label: t('incident.affected.vehicle', 'Vehicle') },
+    { id: 'Infrastructure', label: t('incident.affected.infrastructure', 'Infrastructure') },
+    { id: 'Other', label: t('incident.affected.other', 'Other') },
+  ], [t]);
 
   const toggleAffected = (option) => {
     if (formData.affectedParties.includes(option)) {
@@ -265,11 +283,11 @@ export const StandardReportIncidentPage = ({
   // Browser Geolocation Detection with Reverse Geocoding
   const handleDetectGps = () => {
     if (!navigator.geolocation) {
-      toast.error('Geolocation is not supported by your browser.');
+      toast.error(t('incident.toasts.geolocation_not_supported', 'Geolocation is not supported by your browser.'));
       return;
     }
     setDetectingGps(true);
-    const toastId = toast.loading('Acquiring GPS location & resolving address...');
+    const toastId = toast.loading(t('incident.toasts.acquiring_gps', 'Acquiring GPS location & resolving address...'));
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const lat = parseFloat(pos.coords.latitude.toFixed(6));
@@ -278,7 +296,7 @@ export const StandardReportIncidentPage = ({
           const geo = await reverseGeocodeCoords(lat, lng);
           handleAddressPickerChange(geo);
           toast.dismiss(toastId);
-          toast.success(`GPS Location & Address locked: ${geo.city || geo.state || geo.address}`);
+          toast.success(`${t('incident.toasts.gps_locked', 'GPS Location & Address locked:')} ${geo.city || geo.state || geo.address}`);
         } catch {
           const fallback = `GPS Location (${lat}, ${lng})`;
           handleAddressPickerChange({
@@ -288,7 +306,7 @@ export const StandardReportIncidentPage = ({
             longitude: lng,
           });
           toast.dismiss(toastId);
-          toast.success(`GPS Coordinates captured (${lat}, ${lng})`);
+          toast.success(`${t('incident.toasts.gps_coords_captured', 'GPS Coordinates captured')} (${lat}, ${lng})`);
         } finally {
           setDetectingGps(false);
         }
@@ -296,7 +314,7 @@ export const StandardReportIncidentPage = ({
       (err) => {
         setDetectingGps(false);
         toast.dismiss(toastId);
-        toast.error('Could not detect GPS location: ' + err.message);
+        toast.error(t('incident.toasts.gps_failed', 'Could not detect GPS location: ') + err.message);
       },
       { timeout: 10000, enableHighAccuracy: true }
     );
@@ -332,10 +350,10 @@ export const StandardReportIncidentPage = ({
       const url = res?.url || res?.path || res?.fileUrl || res?.filePath;
       if (url) {
         setFormData((prev) => ({ ...prev, photos: [...prev.photos, url] }));
-        toast.success('Incident photo evidence uploaded');
+        toast.success(t('incident.toasts.photo_uploaded', 'Incident photo evidence uploaded'));
       }
     } catch (err) {
-      toast.error(err?.message || 'Failed to upload photo');
+      toast.error(err?.message || t('incident.toasts.photo_upload_failed', 'Failed to upload photo'));
     } finally {
       setUploadingImage(false);
       e.target.value = '';
@@ -352,10 +370,10 @@ export const StandardReportIncidentPage = ({
       const url = res?.url || res?.path || res?.fileUrl || res?.filePath;
       if (url) {
         setFormData((prev) => ({ ...prev, videos: [...prev.videos, url] }));
-        toast.success('Incident video recording uploaded');
+        toast.success(t('incident.toasts.video_uploaded', 'Incident video recording uploaded'));
       }
     } catch (err) {
-      toast.error(err?.message || 'Failed to upload video');
+      toast.error(err?.message || t('incident.toasts.video_upload_failed', 'Failed to upload video'));
     } finally {
       setUploadingVideo(false);
       e.target.value = '';
@@ -365,7 +383,7 @@ export const StandardReportIncidentPage = ({
   // Step 1 -> Step 2 validation
   const handleContinueToStep2 = () => {
     if (roleScope === 'superadmin' && !selectedOrgId) {
-      toast.error('Please select a Tenant Organization before continuing.');
+      toast.error(t('incident.toasts.select_tenant_org', 'Please select a Tenant Organization before continuing.'));
       return;
     }
     setCurrentStep(2);
@@ -377,13 +395,13 @@ export const StandardReportIncidentPage = ({
     if (submitting) return;
 
     if (roleScope === 'superadmin' && !selectedOrgId) {
-      toast.error('Please select a Tenant Organization.');
+      toast.error(t('incident.toasts.select_tenant_org', 'Please select a Tenant Organization.'));
       setCurrentStep(1);
       return;
     }
 
     if (!formData.description?.trim()) {
-      toast.error('Please provide a brief incident description.');
+      toast.error(t('incident.toasts.provide_description', 'Please provide a brief incident description.'));
       setCurrentStep(1);
       return;
     }
@@ -421,15 +439,15 @@ export const StandardReportIncidentPage = ({
     setSubmitting(true);
     try {
       const created = await toast.promise(fleetIncidentService.createIncident(payload), {
-        loading: 'Broadcasting emergency incident report & notifying dispatch...',
-        success: 'Incident report submitted successfully to Central Dispatch!',
-        error: (err) => err?.message || 'Failed to submit incident report',
+        loading: t('incident.toasts.broadcasting', 'Broadcasting emergency incident report & notifying dispatch...'),
+        success: t('incident.toasts.broadcast_success', 'Incident report submitted successfully to Central Dispatch!'),
+        error: (err) => err?.message || t('incident.toasts.submit_failed', 'Failed to submit incident report'),
       });
 
       navigate(`${basePath}/incident-report/success`, {
         state: { incident: created || payload },
       });
-    } catch (_) {
+    } catch {
       /* toast handles error UI */
     } finally {
       setSubmitting(false);
@@ -443,9 +461,9 @@ export const StandardReportIncidentPage = ({
         <div>
           <Breadcrumb
             items={[
-              { label: roleTitle, to: `${basePath}/dashboard` },
-              { label: 'Incidents Log', to: `${basePath}/incidents` },
-              { label: 'Report Incident' },
+              { label: t(`roles.${roleTitle.toLowerCase().replace(/[^a-z0-9]/g, '_')}`, roleTitle), to: `${basePath}/dashboard` },
+              { label: t('nav.incidents_log', 'Incidents Log'), to: `${basePath}/incidents` },
+              { label: t('nav.report_incident', 'Report Incident') },
             ]}
             className="mb-2"
           />
@@ -459,34 +477,34 @@ export const StandardReportIncidentPage = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+        <div className="flex items-center gap-2.5 self-stretch sm:self-auto w-full sm:w-auto justify-between sm:justify-start">
           <Link
             to={`${basePath}/incidents`}
-            className="px-3.5 py-2 bg-slate-900 dark:bg-zinc-800 hover:bg-slate-800 dark:hover:bg-zinc-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm border border-transparent dark:border-zinc-700"
+            className="w-full sm:w-auto justify-center px-3.5 py-2.5 sm:py-2 bg-slate-900 dark:bg-zinc-800 hover:bg-slate-800 dark:hover:bg-zinc-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm border border-transparent dark:border-zinc-700 text-center"
           >
-            <FleetIcons.Alert className="w-4 h-4 text-red-400" />
-            <span>{t('ag.shared.standardreportincidentpage.view_incidents_log', 'View Incidents Log')}</span>
+            <FleetIcons.Alert className="w-4 h-4 text-red-400 shrink-0" />
+            <span className="truncate">{t('ag.shared.standardreportincidentpage.view_incidents_log', 'View Incidents Log')}</span>
           </Link>
-          <span className="text-xs font-bold px-3 py-1 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-full">
+          <span className="text-xs font-bold px-3 py-1.5 sm:py-1 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-full shrink-0">
             {t('ag.shared.standardreportincidentpage.step', 'Step')} {currentStep} {t('ag.shared.standardreportincidentpage.of_4', 'of 4')}
           </span>
         </div>
       </div>
 
       {/* Stepper Navigation Bar */}
-      <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-4 shadow-sm">
+      <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-2.5 sm:p-4 shadow-sm">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {[
-            { step: 1, title: 'Type & Resources', desc: 'Category, Bus & Driver' },
-            { step: 2, title: 'GPS Location', desc: 'Address & Coordinates' },
-            { step: 3, title: 'Medical & Severity', desc: 'Casualties & Assistance' },
-            { step: 4, title: 'Media & Submit', desc: 'Evidence & Confirmation' },
+            { step: 1, title: t('incident.steps.type_resources', 'Type & Resources'), desc: t('incident.steps.type_resources_desc', 'Category, Bus & Driver') },
+            { step: 2, title: t('incident.steps.gps_location', 'GPS Location'), desc: t('incident.steps.gps_location_desc', 'Address & Coordinates') },
+            { step: 3, title: t('incident.steps.medical_severity', 'Medical & Severity'), desc: t('incident.steps.medical_severity_desc', 'Casualties & Assistance') },
+            { step: 4, title: t('incident.steps.media_submit', 'Media & Submit'), desc: t('incident.steps.media_submit_desc', 'Evidence & Confirmation') },
           ].map((s) => (
             <button
               key={s.step}
               type="button"
               onClick={() => setCurrentStep(s.step)}
-              className={`p-2.5 rounded-xl text-left transition-all flex items-center gap-3 cursor-pointer ${
+              className={`p-2 sm:p-2.5 rounded-xl text-left transition-all flex items-center gap-2 sm:gap-3 cursor-pointer ${
                 currentStep === s.step
                   ? 'bg-slate-900 dark:bg-blue-600 text-white shadow-sm'
                   : currentStep > s.step
@@ -495,7 +513,7 @@ export const StandardReportIncidentPage = ({
               }`}
             >
               <div
-                className={`w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs ${
+                className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center font-black text-xs shrink-0 ${
                   currentStep === s.step
                     ? 'bg-white/20 text-white'
                     : currentStep > s.step
@@ -505,7 +523,7 @@ export const StandardReportIncidentPage = ({
               >
                 {currentStep > s.step ? '✓' : s.step}
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <div className="text-xs font-bold truncate">{s.title}</div>
                 <div className="text-[10px] opacity-75 truncate">{s.desc}</div>
               </div>
@@ -515,7 +533,7 @@ export const StandardReportIncidentPage = ({
       </div>
 
       {/* FORM BODY */}
-      <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-sm">
+      <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-sm">
         {/* STEP 1: TYPE & TARGET RESOURCES */}
         {currentStep === 1 && (
           <div className="space-y-6 animate-in fade-in duration-200">
@@ -580,16 +598,16 @@ export const StandardReportIncidentPage = ({
                 >
                   <option value="">
                     {roleScope === 'superadmin' && !selectedOrgId
-                      ? 'Select Tenant Organization first'
-                      : 'Unassigned / General Incident'}
+                      ? t('incident.select_tenant_first', 'Select Tenant Organization first')
+                      : t('incident.unassigned_general', 'Unassigned / General Incident')}
                   </option>
                   {vehicles.map((v) => {
                     const drv = getVehicleAssignedDriver(v);
                     const drvName = drv ? (drv.name || drv.user?.name) : null;
                     return (
                       <option key={v.id} value={v.id}>
-                        {v.bus_number || v.code || `Vehicle #${v.id}`} — {v.model || v.vehicle_type || 'Bus'}
-                        {drvName ? ` (Driver: ${drvName})` : ' (No assigned driver)'}
+                        {v.bus_number || v.code || `Vehicle #${v.id}`} — {v.model || v.vehicle_type || t('incident.bus', 'Bus')}
+                        {drvName ? ` (${t('incident.driver', 'Driver')}: ${drvName})` : ` (${t('incident.no_assigned_driver', 'No assigned driver')})`}
                       </option>
                     );
                   })}
@@ -616,13 +634,13 @@ export const StandardReportIncidentPage = ({
                 >
                   <option value="">
                     {roleScope === 'superadmin' && !selectedOrgId
-                      ? 'Select Tenant Organization first'
-                      : 'Unassigned / Outside Driver'}
+                      ? t('incident.select_tenant_first', 'Select Tenant Organization first')
+                      : t('incident.unassigned_driver', 'Unassigned / Outside Driver')}
                   </option>
 
                   {/* Highlight the driver assigned to the selected bus */}
                   {assignedDriverForSelectedVeh && (
-                    <optgroup label={`⭐ Assigned Driver for Bus ${selectedVehicle?.bus_number || ''}`}>
+                    <optgroup label={`⭐ ${t('incident.assigned_driver_for_bus', 'Assigned Driver for Bus')} ${selectedVehicle?.bus_number || ''}`}>
                       <option value={assignedDriverForSelectedVeh.id}>
                         ⭐ {assignedDriverForSelectedVeh.name || assignedDriverForSelectedVeh.user?.name}
                         {assignedDriverForSelectedVeh.emp_id ? ` (${assignedDriverForSelectedVeh.emp_id})` : ''} {t('ag.shared.standardreportincidentpage.auto_linked', '[Auto-Linked]')}
@@ -630,7 +648,7 @@ export const StandardReportIncidentPage = ({
                     </optgroup>
                   )}
 
-                  <optgroup label={assignedDriverForSelectedVeh ? 'Other Drivers in Organization' : 'All Drivers'}>
+                  <optgroup label={assignedDriverForSelectedVeh ? t('incident.other_drivers_in_org', 'Other Drivers in Organization') : t('incident.all_drivers', 'All Drivers')}>
                     {drivers
                       .filter(
                         (d) =>
@@ -640,7 +658,7 @@ export const StandardReportIncidentPage = ({
                       .map((d) => (
                         <option key={d.id} value={d.id}>
                           {d.name || d.user?.name || `Driver #${d.id}`} {d.emp_id ? `(${d.emp_id})` : ''}
-                          {d.assigned_bus_number ? ` (Bus: ${d.assigned_bus_number})` : ''}
+                          {d.assigned_bus_number ? ` (${t('incident.bus', 'Bus')}: ${d.assigned_bus_number})` : ''}
                         </option>
                       ))}
                   </optgroup>
@@ -745,30 +763,30 @@ export const StandardReportIncidentPage = ({
               <div className="flex flex-wrap gap-2">
                 {affectedOptions.map((opt) => (
                   <button
-                    key={opt}
+                    key={opt.id}
                     type="button"
-                    onClick={() => toggleAffected(opt)}
+                    onClick={() => toggleAffected(opt.id)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                      formData.affectedParties.includes(opt)
+                      formData.affectedParties.includes(opt.id)
                         ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
                         : 'bg-slate-50 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 border-slate-200 dark:border-zinc-700 hover:bg-slate-100 dark:hover:bg-zinc-700'
                     }`}
                   >
-                    {formData.affectedParties.includes(opt) ? '✓ ' : '+ '}
-                    {opt}
+                    {formData.affectedParties.includes(opt.id) ? '✓ ' : '+ '}
+                    {opt.label}
                   </button>
                 ))}
               </div>
             </div>
 
             {/* Next Button */}
-            <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-zinc-800">
+            <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-zinc-800">
               <button
                 type="button"
                 onClick={handleContinueToStep2}
-                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all"
+                className="w-full sm:w-auto px-6 py-3 sm:py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
               >
-                {t('ag.shared.standardreportincidentpage.continue_to_gps_location', 'Continue to GPS Location →')}
+                <span>{t('ag.shared.standardreportincidentpage.continue_to_gps_location', 'Continue to GPS Location →')}</span>
               </button>
             </div>
           </div>
@@ -791,10 +809,10 @@ export const StandardReportIncidentPage = ({
                 type="button"
                 onClick={handleDetectGps}
                 disabled={detectingGps}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-all self-start sm:self-auto"
+                className="w-full sm:w-auto px-4 py-2.5 sm:py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer self-stretch sm:self-auto text-center"
               >
-                <FleetIcons.Speed className="w-4 h-4" />
-                <span>{detectingGps ? 'Detecting GPS...' : 'Auto-Detect Current GPS'}</span>
+                <FleetIcons.Speed className="w-4 h-4 shrink-0" />
+                <span>{detectingGps ? t('incident.detecting_gps', 'Detecting GPS...') : t('incident.auto_detect_gps', 'Auto-Detect Current GPS')}</span>
               </button>
             </div>
 
@@ -803,8 +821,10 @@ export const StandardReportIncidentPage = ({
               <DriverAddressPicker
                 addressData={formData}
                 onChange={handleAddressPickerChange}
-                searchLabel="Search Scene Location or Route Landmark"
-                searchPlaceholder="Search road, junction, depot or highway milestone..."
+                searchLabel={t('incident.search_scene_label', 'Search Scene Location or Route Landmark')}
+                searchPlaceholder={t('incident.search_scene_placeholder', 'Search road, junction, depot or highway milestone...')}
+                addressLabel={t('incident.scene_street_address', 'Scene / Street Address *')}
+                addressPlaceholder={t('incident.scene_address_placeholder', 'Road name, Highway km, Intersection, Landmark')}
               />
             </div>
 
@@ -831,7 +851,7 @@ export const StandardReportIncidentPage = ({
                   type="text"
                   value={formData.latitude || ''}
                   onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
-                  placeholder="e.g. 19.0760"
+                  placeholder={t('incident.e_g_lat', 'e.g. 19.0760')}
                   className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-xs text-slate-900 dark:text-white font-mono"
                 />
               </div>
@@ -844,27 +864,27 @@ export const StandardReportIncidentPage = ({
                   type="text"
                   value={formData.longitude || ''}
                   onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
-                  placeholder="e.g. 72.8777"
+                  placeholder={t('incident.e_g_lng', 'e.g. 72.8777')}
                   className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-xs text-slate-900 dark:text-white font-mono"
                 />
               </div>
             </div>
 
             {/* Stepper Navigation */}
-            <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-zinc-800">
+            <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-slate-100 dark:border-zinc-800">
               <button
                 type="button"
                 onClick={() => setCurrentStep(1)}
-                className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-bold text-xs rounded-xl transition-all"
+                className="w-full sm:w-auto px-5 py-3 sm:py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
               >
                 {t('ag.shared.standardreportincidentpage.back', '← Back')}
               </button>
               <button
                 type="button"
                 onClick={() => setCurrentStep(3)}
-                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all"
+                className="w-full sm:w-auto px-6 py-3 sm:py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
               >
-                {t('ag.shared.standardreportincidentpage.continue_to_medical_and_severity', 'Continue to Medical & Severity →')}
+                <span>{t('ag.shared.standardreportincidentpage.continue_to_medical_and_severity', 'Continue to Medical & Severity →')}</span>
               </button>
             </div>
           </div>
@@ -1012,27 +1032,24 @@ export const StandardReportIncidentPage = ({
                   />
                   <span>{t('ag.shared.standardreportincidentpage.towing_crane_requested', 'Towing / Crane Requested')}</span>
                 </label>
-                <p className="text-[11px] text-slate-500">
-                  {t('ag.shared.standardreportincidentpage.requests_breakdown_crane_assistance_from_nea', 'Requests breakdown crane assistance from nearest depot.')}
-                </p>
               </div>
             </div>
 
             {/* Stepper Navigation */}
-            <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-zinc-800">
+            <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-slate-100 dark:border-zinc-800">
               <button
                 type="button"
                 onClick={() => setCurrentStep(2)}
-                className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-bold text-xs rounded-xl transition-all"
+                className="w-full sm:w-auto px-5 py-3 sm:py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
               >
                 {t('ag.shared.standardreportincidentpage.back', '← Back')}
               </button>
               <button
                 type="button"
                 onClick={() => setCurrentStep(4)}
-                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all"
+                className="w-full sm:w-auto px-6 py-3 sm:py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
               >
-                {t('ag.shared.standardreportincidentpage.continue_to_media_and_submit', 'Continue to Media & Submit →')}
+                <span>{t('ag.shared.standardreportincidentpage.continue_to_media_and_submit', 'Continue to Media & Submit →')}</span>
               </button>
             </div>
           </div>
@@ -1060,7 +1077,7 @@ export const StandardReportIncidentPage = ({
                     <span>{t('ag.shared.standardreportincidentpage.photo_evidence', 'Photo Evidence (')}{formData.photos.length})</span>
                   </label>
                   <label className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-lg cursor-pointer transition-all">
-                    {uploadingImage ? 'Uploading...' : '+ Add Photo'}
+                    {uploadingImage ? t('incident.uploading', 'Uploading...') : t('incident.add_photo', '+ Add Photo')}
                     <input
                       type="file"
                       accept="image/*"
@@ -1079,7 +1096,7 @@ export const StandardReportIncidentPage = ({
                   <div className="grid grid-cols-3 gap-2">
                     {formData.photos.map((url, idx) => (
                       <div key={idx} className="relative group rounded-xl overflow-hidden h-20 bg-slate-200 dark:bg-zinc-800">
-                        <img src={resolveFileUrl(url)} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" />
+                        <img src={resolveFileUrl(url)} alt={`${t('incident.photo', 'Photo')} ${idx + 1}`} className="w-full h-full object-cover" />
                         <button
                           type="button"
                           onClick={() => setFormData({ ...formData, photos: formData.photos.filter((_, i) => i !== idx) })}
@@ -1101,7 +1118,7 @@ export const StandardReportIncidentPage = ({
                     <span>{t('ag.shared.standardreportincidentpage.video_recording', 'Video Recording (')}{formData.videos.length})</span>
                   </label>
                   <label className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-[11px] font-bold rounded-lg cursor-pointer transition-all">
-                    {uploadingVideo ? 'Uploading...' : '+ Add Video'}
+                    {uploadingVideo ? t('incident.uploading', 'Uploading...') : t('incident.add_video', '+ Add Video')}
                     <input
                       type="file"
                       accept="video/*"
@@ -1158,7 +1175,7 @@ export const StandardReportIncidentPage = ({
                   type="tel"
                   value={formData.contactNumber}
                   onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })}
-                  placeholder="e.g. +91 98765 43210"
+                  placeholder={t('incident.e_g_phone', 'e.g. +91 98765 43210')}
                   className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-xs text-slate-900 dark:text-white"
                 />
               </div>
@@ -1170,19 +1187,19 @@ export const StandardReportIncidentPage = ({
                 {t('ag.shared.standardreportincidentpage.dispatch_broadcast_summary', 'Dispatch Broadcast Summary')}
               </span>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-slate-700 dark:text-zinc-300 font-medium">
-                <div>{t('ag.shared.standardreportincidentpage.category', 'Category:')} <strong className="text-slate-900 dark:text-white">{formData.incidentType}</strong></div>
-                <div>{t('ag.shared.standardreportincidentpage.severity', 'Severity:')} <strong className="text-red-600 dark:text-red-400 uppercase">{formData.severity}</strong></div>
+                <div>{t('ag.shared.standardreportincidentpage.category', 'Category:')} <strong className="text-slate-900 dark:text-white">{t(`incident.types.${formData.incidentType.toLowerCase().replace(/[^a-z0-9]/g, '_')}`, formData.incidentType)}</strong></div>
+                <div>{t('ag.shared.standardreportincidentpage.severity', 'Severity:')} <strong className="text-red-600 dark:text-red-400 uppercase">{t(`incident.severity.${formData.severity.toLowerCase()}`, formData.severity)}</strong></div>
                 <div>{t('ag.shared.standardreportincidentpage.casualties', 'Casualties:')} <strong className="text-slate-900 dark:text-white">{formData.deadCasualty} {t('ag.shared.standardreportincidentpage.dead', 'Dead,')} {formData.injuredCount} {t('ag.shared.standardreportincidentpage.injured', 'Injured')}</strong></div>
-                <div>{t('ag.shared.standardreportincidentpage.scene', 'Scene:')} <strong className="text-slate-900 dark:text-white truncate block">{formData.location || formData.landmark || 'GPS Coordinated'}</strong></div>
+                <div>{t('ag.shared.standardreportincidentpage.scene', 'Scene:')} <strong className="text-slate-900 dark:text-white truncate block">{formData.location || formData.landmark || t('incident.gps_coordinated', 'GPS Coordinated')}</strong></div>
               </div>
             </div>
 
             {/* Stepper Navigation & Submit */}
-            <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-zinc-800">
+            <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-slate-100 dark:border-zinc-800">
               <button
                 type="button"
                 onClick={() => setCurrentStep(3)}
-                className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-bold text-xs rounded-xl transition-all"
+                className="w-full sm:w-auto px-5 py-3 sm:py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
               >
                 {t('ag.shared.standardreportincidentpage.back', '← Back')}
               </button>
@@ -1191,10 +1208,10 @@ export const StandardReportIncidentPage = ({
                 type="button"
                 onClick={handleSubmitReport}
                 disabled={submitting}
-                className="px-8 py-3 bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-red-600/20 transition-all flex items-center gap-2"
+                className="w-full sm:w-auto px-8 py-3.5 sm:py-3 bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-red-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer text-center disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <FleetIcons.Alert className="w-4 h-4 text-white" />
-                <span>{submitting ? 'Broadcasting Report...' : 'Broadcast Emergency Report'}</span>
+                <FleetIcons.Alert className="w-4 h-4 text-white shrink-0" />
+                <span>{submitting ? t('incident.broadcasting_report', 'Broadcasting Report...') : t('incident.broadcast_emergency_report', 'Broadcast Emergency Report')}</span>
               </button>
             </div>
           </div>

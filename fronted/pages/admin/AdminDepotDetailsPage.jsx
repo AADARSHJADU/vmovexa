@@ -17,10 +17,10 @@ export const AdminDepotDetailsPage = () => {
   const location = useLocation();
   const isFleetPortal = (location.pathname.startsWith('/fleet-operator') || location.pathname.startsWith('/fleet-operator'));
   const basePath = isFleetPortal ? '/fleet-operator/depots' : '/admin/depots';
-  const { hasPermission } = useAuth();
+  const { can } = useAuth();
 
-  const canView = hasPermission('fleet.depots.view');
-  const canUpdate = hasPermission('fleet.depots.update');
+  const canView = can('depots.view');
+  const canUpdate = can('depots.update');
 
   const { updateDepotStatus } = useAdminDepot();
   const [depot, setDepot] = useState(null);

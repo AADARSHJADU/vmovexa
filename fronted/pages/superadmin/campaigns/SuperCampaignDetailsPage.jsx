@@ -81,6 +81,46 @@ const getStatusBadge = (status) => {
   return 'bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-700';
 };
 
+const getStatusLabel = (t, status) => {
+  if (!status) return '—';
+  const clean = String(status).toLowerCase();
+  const fallbacks = {
+    pending_approval: 'Pending Approval',
+    approved: 'Approved',
+    live: 'Live',
+    running: 'Running',
+    paused: 'Paused',
+    completed: 'Completed',
+    rejected: 'Rejected',
+    draft: 'Draft',
+    active: 'Active',
+  };
+  return t(`campaigns.status.${clean}`, fallbacks[clean] || status);
+};
+
+const getPaymentStatusLabel = (t, status) => {
+  if (!status) return '—';
+  const clean = String(status).toLowerCase();
+  const fallbacks = {
+    paid: 'Paid / cleared',
+    unpaid: 'Unpaid',
+    pending: 'Pending',
+  };
+  return t(`campaigns.payment_status.${clean}`, fallbacks[clean] || status);
+};
+
+const getScheduleStatusLabel = (t, status) => {
+  if (!status) return '—';
+  const clean = String(status).toLowerCase();
+  const fallbacks = {
+    scheduled: 'Scheduled',
+    awaiting_clearance: 'Awaiting Clearance',
+    running: 'Running',
+    normal: 'Normal',
+  };
+  return t(`campaigns.schedule_status.${clean}`, fallbacks[clean] || status);
+};
+
 export const SuperCampaignDetailsPage = () => {
   const { t } = useTranslation();
   const { id } = useParams();
@@ -157,10 +197,10 @@ export const SuperCampaignDetailsPage = () => {
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">{campaign.title}</h1>
               <span className={`px-2.5 py-1 text-xs font-black uppercase rounded-full border shadow-2xs ${getStatusBadge(campaign.status)}`}>
-                {campaign.status}
+                {getStatusLabel(t, campaign.status)}
               </span>
               <span className="px-2.5 py-1 text-xs font-bold rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700">
-                {campaign.campaign_type || (government ? t('ag.superadmin.supercampaigndetailspage.government_psa', 'Government PSA') : t('ag.superadmin.supercampaigndetailspage.commercial_ad', 'Commercial Ad'))}
+                {campaign.campaign_type || (government ? t('campaigns.types.government_psa', 'Government PSA') : t('campaigns.types.commercial_ad', 'Commercial Ad'))}
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-1.5 flex items-center gap-2 flex-wrap font-medium">
@@ -191,25 +231,25 @@ export const SuperCampaignDetailsPage = () => {
           <p className="text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-500">{t('common.status', 'Campaign Status')}</p>
           <div className="flex items-center gap-2 mt-1">
             <span className={`w-2.5 h-2.5 rounded-full ${campaign.status === 'live' ? 'bg-emerald-500 animate-pulse' : campaign.status === 'completed' ? 'bg-slate-400' : 'bg-amber-500'}`} />
-            <p className="text-sm font-black text-slate-900 dark:text-white uppercase">{campaign.status}</p>
+            <p className="text-sm font-black text-slate-900 dark:text-white uppercase">{getStatusLabel(t, campaign.status)}</p>
           </div>
           <p className="text-[10px] text-slate-500 dark:text-zinc-400 mt-1 capitalize font-medium">
-            {t('ag.superadmin.supercampaigndetailspage.schedule', 'Schedule:')} {campaign.schedule_status || 'scheduled'}
+            {t('common.schedule', 'Schedule')}: {getScheduleStatusLabel(t, campaign.schedule_status || 'scheduled')}
           </p>
         </div>
 
         <div className="p-4 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xs">
           <p className="text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-500">{t('superadmin.campaign_details.payment_sanction', 'Payment / Sanction')}</p>
-          <p className="text-sm font-black text-emerald-600 dark:text-emerald-400 mt-1 uppercase">{campaign.payment_status}</p>
+          <p className="text-sm font-black text-emerald-600 dark:text-emerald-400 mt-1 uppercase">{getPaymentStatusLabel(t, campaign.payment_status)}</p>
           <p className="text-[10px] text-slate-500 dark:text-zinc-400 mt-1 font-medium">
-            ₹{Number(campaign.budget || 0).toLocaleString('en-IN')} {t('ag.superadmin.supercampaigndetailspage.total_budget', 'total budget')}
+            ₹{Number(campaign.budget || 0).toLocaleString('en-IN')} {t('campaigns.total_budget', 'total budget')}
           </p>
         </div>
 
         <div className="p-4 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xs">
           <p className="text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-500">{t('common.duration', 'Flight Duration')}</p>
           <p className="text-sm font-black text-slate-900 dark:text-white mt-1">
-            {scheduleMetrics?.durationDays} {scheduleMetrics?.durationDays === 1 ? t('ag.superadmin.supercampaigndetailspage.day', 'Day') : t('ag.superadmin.supercampaigndetailspage.days', 'Days')}
+            {scheduleMetrics?.durationDays} {scheduleMetrics?.durationDays === 1 ? t('common.day', 'Day') : t('common.days', 'Days')}
           </p>
           <p className="text-[10px] text-slate-500 dark:text-zinc-400 mt-1 font-medium">
             {scheduleMetrics?.startFormatted}
@@ -222,7 +262,7 @@ export const SuperCampaignDetailsPage = () => {
             {campaign.last_dispatch_count || 0} {t('superadmin.campaign_details.devices_count', 'device(s)')}
           </p>
           <p className="text-[10px] text-slate-500 dark:text-zinc-400 mt-1 font-medium capitalize">
-            {campaign.dispatch_status || 'normal'}
+            {getScheduleStatusLabel(t, campaign.dispatch_status || 'normal')}
           </p>
         </div>
       </div>
@@ -239,17 +279,17 @@ export const SuperCampaignDetailsPage = () => {
                 {t('campaign_details.broadcast_schedule', 'Campaign Flight Schedule & Broadcast Window')}
               </h2>
               <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
-                {t('ag.superadmin.supercampaigndetailspage.exact_duration_timing_daily_broadcast_hours_', 'Exact duration timing, daily broadcast hours, active calendar dates and transit airtime')}
+                {t('campaign_details.schedule_subtitle', 'Exact duration timing, daily broadcast hours, active calendar dates and transit airtime')}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
               <IconClock className="w-3.5 h-3.5" />
-              <span>{scheduleMetrics?.durationDays} {scheduleMetrics?.durationDays === 1 ? t('ag.superadmin.supercampaigndetailspage.day_total', 'Day Total') : t('ag.superadmin.supercampaigndetailspage.days_flight', 'Days Flight')}</span>
+              <span>{scheduleMetrics?.durationDays} {scheduleMetrics?.durationDays === 1 ? t('campaigns.day_total', 'Day Total') : t('campaigns.days_flight', 'Days Flight')}</span>
             </span>
             <span className={`px-3 py-1 rounded-full text-xs font-black uppercase border ${getStatusBadge(campaign.status)}`}>
-              {campaign.status === 'completed' ? t('ag.superadmin.supercampaigndetailspage.flight_ended_completed', '✓ Flight Ended (Completed)') : campaign.status === 'live' ? t('ag.superadmin.supercampaigndetailspage.broadcasting_live', '● Broadcasting Live') : t('ag.superadmin.supercampaigndetailspage.waiting_for_window', 'Waiting for Window')}
+              {campaign.status === 'completed' ? t('campaigns.flight_ended', '✓ Flight Ended (Completed)') : campaign.status === 'live' ? t('campaigns.broadcasting_live', '● Broadcasting Live') : t('campaigns.waiting_window', 'Waiting for Window')}
             </span>
           </div>
         </div>
@@ -259,68 +299,68 @@ export const SuperCampaignDetailsPage = () => {
           {/* Card 1: Flight Dates */}
           <div className="p-4 rounded-xl bg-white dark:bg-zinc-800/80 border border-indigo-100 dark:border-zinc-700/80 shadow-2xs space-y-1">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">{t('ag.superadmin.supercampaigndetailspage.flight_dates', 'Flight Dates')}</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">{t('campaigns.flight_dates', 'Flight Dates')}</span>
               <IconCalendar className="w-4 h-4 text-indigo-500" />
             </div>
             <p className="text-sm font-black text-slate-900 dark:text-white mt-1">
               {scheduleMetrics?.startFormatted}
             </p>
             <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium">
-              {t('ag.superadmin.supercampaigndetailspage.to', 'to')} <strong className="text-slate-800 dark:text-zinc-200">{scheduleMetrics?.endFormatted}</strong>
+              {t('common.to', 'to')} <strong className="text-slate-800 dark:text-zinc-200">{scheduleMetrics?.endFormatted}</strong>
             </p>
             <div className="pt-1.5 text-[10px] font-bold text-indigo-700 dark:text-indigo-300">
-              {t('ag.superadmin.supercampaigndetailspage.total', 'Total:')} {scheduleMetrics?.durationDays} {scheduleMetrics?.durationDays === 1 ? t('ag.superadmin.supercampaigndetailspage.day', 'Day') : t('ag.superadmin.supercampaigndetailspage.days', 'Days')}
+              {t('common.total', 'Total')}: {scheduleMetrics?.durationDays} {scheduleMetrics?.durationDays === 1 ? t('common.day', 'Day') : t('common.days', 'Days')}
             </div>
           </div>
 
           {/* Card 2: Daily Broadcast Window */}
           <div className="p-4 rounded-xl bg-white dark:bg-zinc-800/80 border border-indigo-100 dark:border-zinc-700/80 shadow-2xs space-y-1">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">{t('ag.superadmin.supercampaigndetailspage.daily_window', 'Daily Window')}</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">{t('campaigns.daily_window', 'Daily Window')}</span>
               <IconClock className="w-4 h-4 text-blue-500" />
             </div>
             <p className="text-sm font-black text-slate-900 dark:text-white mt-1">
               {scheduleMetrics?.startTimeDisplay} – {scheduleMetrics?.endTimeDisplay}
             </p>
             <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium">
-              {t('ag.superadmin.supercampaigndetailspage.timezone', 'Timezone:')} <strong className="text-slate-800 dark:text-zinc-200">{t('ag.superadmin.supercampaigndetailspage.ist_05_30', 'IST (+05:30)')}</strong>
+              {t('common.timezone', 'Timezone')}: <strong className="text-slate-800 dark:text-zinc-200">{t('common.ist_tz', 'IST (+05:30)')}</strong>
             </p>
             <div className="pt-1.5 text-[10px] font-bold text-blue-700 dark:text-blue-300">
-              {t('ag.superadmin.supercampaigndetailspage.airtime', 'Airtime: ~')}{scheduleMetrics?.diffMinutes} {t('ag.superadmin.supercampaigndetailspage.mins_day', 'mins / day (')}{scheduleMetrics?.diffHours} {t('ag.superadmin.supercampaigndetailspage.hrs', 'hrs)')}
+              {t('campaigns.airtime_approx', 'Airtime: ~')}{scheduleMetrics?.diffMinutes} {t('campaigns.mins_day', 'mins / day')} ({scheduleMetrics?.diffHours} {t('common.hrs', 'hrs')})
             </div>
           </div>
 
           {/* Card 3: Creative Per-Play Duration */}
           <div className="p-4 rounded-xl bg-white dark:bg-zinc-800/80 border border-indigo-100 dark:border-zinc-700/80 shadow-2xs space-y-1">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">{t('ag.superadmin.supercampaigndetailspage.slot_playtime', 'Slot Playtime')}</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">{t('campaigns.slot_playtime', 'Slot Playtime')}</span>
               <IconPlay className="w-4 h-4 text-emerald-500" />
             </div>
             <p className="text-sm font-black text-slate-900 dark:text-white mt-1">
-              {campaign.duration_per_play_sec || 15}{t('ag.superadmin.supercampaigndetailspage.s_per_play', 's Per Play')}
+              {campaign.duration_per_play_sec || 15} {t('campaigns.s_per_play', 's Per Play')}
             </p>
             <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium">
-              {t('ag.superadmin.supercampaigndetailspage.slot_type', 'Slot type:')} <strong className="text-slate-800 dark:text-zinc-200 capitalize">{campaign.slot_type || 'exclusive'}</strong>
+              {t('campaigns.slot_type', 'Slot type')}: <strong className="text-slate-800 dark:text-zinc-200 capitalize">{campaign.slot_type || 'exclusive'}</strong>
             </p>
             <div className="pt-1.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-300">
-              {t('ag.superadmin.supercampaigndetailspage.frequency', 'Frequency:')} {campaign.frequency || 'Daily loop'}
+              {t('campaigns.frequency', 'Frequency')}: {campaign.frequency || 'Daily loop'}
             </div>
           </div>
 
           {/* Card 4: Active Days & Auto-Schedule */}
           <div className="p-4 rounded-xl bg-white dark:bg-zinc-800/80 border border-indigo-100 dark:border-zinc-700/80 shadow-2xs space-y-1">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">{t('ag.superadmin.supercampaigndetailspage.active_days', 'Active Days')}</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">{t('campaigns.active_days', 'Active Days')}</span>
               <FleetIcons.Check className="w-4 h-4 text-purple-500" />
             </div>
             <p className="text-sm font-black text-slate-900 dark:text-white mt-1 truncate" title={scheduleMetrics?.activeDaysFormatted}>
               {scheduleMetrics?.activeDaysFormatted}
             </p>
             <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium">
-              {t('ag.superadmin.supercampaigndetailspage.auto_schedule', 'Auto Schedule:')} <strong className={campaign.auto_schedule_enabled ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500'}>{campaign.auto_schedule_enabled ? t('ag.superadmin.supercampaigndetailspage.enabled', 'Enabled') : t('ag.superadmin.supercampaigndetailspage.manual', 'Manual')}</strong>
+              {t('campaigns.auto_schedule', 'Auto Schedule')}: <strong className={campaign.auto_schedule_enabled ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500'}>{campaign.auto_schedule_enabled ? t('common.enabled', 'Enabled') : t('common.manual', 'Manual')}</strong>
             </p>
             <div className="pt-1.5 text-[10px] font-bold text-purple-700 dark:text-purple-300">
-              {t('ag.superadmin.supercampaigndetailspage.manual_pause', 'Manual Pause:')} {campaign.manual_pause ? t('ag.superadmin.supercampaigndetailspage.yes_paused', 'Yes (Paused)') : t('ag.superadmin.supercampaigndetailspage.no', 'No')}
+              {t('campaigns.manual_pause', 'Manual Pause')}: {campaign.manual_pause ? t('common.yes_paused', 'Yes (Paused)') : t('common.no', 'No')}
             </div>
           </div>
         </div>
@@ -328,11 +368,11 @@ export const SuperCampaignDetailsPage = () => {
         {/* 24-Hour Visual Airtime Bar */}
         <div className="p-4 bg-white dark:bg-zinc-800/70 border border-indigo-100 dark:border-zinc-700/80 rounded-xl space-y-2 shadow-2xs">
           <div className="flex items-center justify-between text-[11px] font-bold text-slate-600 dark:text-zinc-300">
-            <span>{t('ag.superadmin.supercampaigndetailspage.00_00_midnight', '00:00 (Midnight)')}</span>
+            <span>{t('campaigns.midnight_start', '00:00 (Midnight)')}</span>
             <span className="text-indigo-700 dark:text-indigo-400 font-black">
-              {t('ag.superadmin.supercampaigndetailspage.active_broadcast_flight', '★ Active Broadcast Flight:')} {scheduleMetrics?.startTimeDisplay} {t('ag.superadmin.supercampaigndetailspage.to', 'to')} {scheduleMetrics?.endTimeDisplay} ({scheduleMetrics?.diffMinutes} {t('ag.superadmin.supercampaigndetailspage.mins_daily', 'mins daily)')}
+              {t('campaigns.active_flight_star', '★ Active Broadcast Flight:')} {scheduleMetrics?.startTimeDisplay} {t('common.to', 'to')} {scheduleMetrics?.endTimeDisplay} ({scheduleMetrics?.diffMinutes} {t('campaigns.mins_daily', 'mins daily')})
             </span>
-            <span>{t('ag.superadmin.supercampaigndetailspage.24_00_midnight', '24:00 (Midnight)')}</span>
+            <span>{t('campaigns.midnight_end', '24:00 (Midnight)')}</span>
           </div>
           <div className="w-full h-3 bg-slate-100 dark:bg-zinc-700/80 rounded-full overflow-hidden flex relative border border-slate-200 dark:border-zinc-600">
             <div
@@ -344,7 +384,7 @@ export const SuperCampaignDetailsPage = () => {
             />
           </div>
           <p className="text-[10px] text-slate-500 dark:text-zinc-400 text-center font-medium">
-            {t('ag.superadmin.supercampaigndetailspage.displays_on_connected_edge_devices_only_duri', 'Displays on connected edge devices only during the highlighted time window. Once this flight duration finishes, status automatically transitions to Completed.')}
+            {t('campaigns.airtime_bar_help', 'Displays on connected edge devices only during the highlighted time window. Once this flight duration finishes, status automatically transitions to Completed.')}
           </p>
         </div>
       </section>
@@ -354,26 +394,26 @@ export const SuperCampaignDetailsPage = () => {
         <section className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 shadow-2xs">
           <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
             <IconMegaphone className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-            <span>{t('ag.superadmin.supercampaigndetailspage.client_and_advertiser_profile', 'Client & Advertiser Profile')}</span>
+            <span>{t('campaign_details.client_profile', 'Client & Advertiser Profile')}</span>
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-4 text-xs">
             <div className="p-3 bg-slate-50 dark:bg-zinc-800/60 rounded-xl border border-slate-200 dark:border-zinc-700">
-              <span className="text-slate-400 dark:text-zinc-500 font-medium">{t('ag.superadmin.supercampaigndetailspage.client_contact', 'Client / Contact')}</span>
+              <span className="text-slate-400 dark:text-zinc-500 font-medium">{t('campaign_details.client_contact', 'Client / Contact')}</span>
               <p className="font-bold text-slate-900 dark:text-white mt-0.5">{campaign.client_name || '—'}</p>
               <p className="text-[11px] text-indigo-600 dark:text-indigo-400 font-bold">{campaign.client_company || '—'}</p>
             </div>
             <div className="p-3 bg-slate-50 dark:bg-zinc-800/60 rounded-xl border border-slate-200 dark:border-zinc-700">
-              <span className="text-slate-400 dark:text-zinc-500 font-medium">{t('ag.superadmin.supercampaigndetailspage.contact_details', 'Contact Details')}</span>
+              <span className="text-slate-400 dark:text-zinc-500 font-medium">{t('campaign_details.contact_details', 'Contact Details')}</span>
               <p className="font-bold text-slate-900 dark:text-white mt-0.5">{campaign.client_phone || '—'}</p>
               <p className="text-[11px] text-slate-500 dark:text-zinc-400 truncate">{campaign.client_email || '—'}</p>
             </div>
             <div className="p-3 bg-slate-50 dark:bg-zinc-800/60 rounded-xl border border-slate-200 dark:border-zinc-700">
-              <span className="text-slate-400 dark:text-zinc-500 font-medium">{t('ag.superadmin.supercampaigndetailspage.location', 'Location')}</span>
+              <span className="text-slate-400 dark:text-zinc-500 font-medium">{t('common.location', 'Location')}</span>
               <p className="font-bold text-slate-900 dark:text-white mt-0.5">{campaign.client_city || 'Indore'}, {campaign.client_state || 'MP'}</p>
               <p className="text-[11px] text-slate-500 dark:text-zinc-400 truncate">{campaign.client_address || 'Transit Corridor'}</p>
             </div>
             <div className="p-3 bg-slate-50 dark:bg-zinc-800/60 rounded-xl border border-slate-200 dark:border-zinc-700">
-              <span className="text-slate-400 dark:text-zinc-500 font-medium">{t('ag.superadmin.supercampaigndetailspage.targeting_and_placement', 'Targeting & Placement')}</span>
+              <span className="text-slate-400 dark:text-zinc-500 font-medium">{t('campaign_details.targeting_placement', 'Targeting & Placement')}</span>
               <p className="font-bold text-slate-900 dark:text-white mt-0.5">{campaign.targeting_mode || 'All Screens'}</p>
               <p className="text-[11px] text-slate-500 dark:text-zinc-400">{campaign.placement || 'Rear Screen'}</p>
             </div>
@@ -405,7 +445,7 @@ export const SuperCampaignDetailsPage = () => {
             const isUrl = rawType === 'url' || /youtube\.com|youtu\.be/i.test(rawUrl);
             const ytId = isUrl ? extractYouTubeId(rawUrl) : null;
             const durationSec = media.display_duration_sec || media.duration_sec || campaign.duration_per_play_sec || 15;
-            const filename = rawUrl.split('/').pop() || `${t('ag.superadmin.supercampaigndetailspage.creative_num', 'Creative #')}${idx + 1}`;
+            const filename = rawUrl.split('/').pop() || `${t('common.creative', 'Creative')} #${idx + 1}`;
 
             return (
               <div
@@ -419,11 +459,11 @@ export const SuperCampaignDetailsPage = () => {
                       #{idx + 1}
                     </span>
                     <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-                      {isVideo ? t('ag.superadmin.supercampaigndetailspage.video', 'Video') : isPdf ? t('ag.superadmin.supercampaigndetailspage.pdf_vector', 'PDF Vector') : ytId ? t('ag.superadmin.supercampaigndetailspage.youtube', 'YouTube') : isUrl ? t('ag.superadmin.supercampaigndetailspage.cloud_stream', 'Cloud Stream') : t('ag.superadmin.supercampaigndetailspage.image', 'Image')}
+                      {isVideo ? t('media.types.video', 'Video') : isPdf ? t('media.types.pdf_vector', 'PDF Vector') : ytId ? t('media.types.youtube', 'YouTube') : isUrl ? t('media.types.cloud_stream', 'Cloud Stream') : t('media.types.image', 'Image')}
                     </span>
                   </div>
                   <span className="text-[11px] font-bold text-slate-600 dark:text-zinc-300 bg-slate-100 dark:bg-zinc-700/80 px-2 py-0.5 rounded-md">
-                    ⏱ {durationSec}{t('ag.superadmin.supercampaigndetailspage.s_airtime', 's airtime')}
+                    ⏱ {durationSec} {t('media.s_airtime', 's airtime')}
                   </span>
                 </div>
 
@@ -447,7 +487,7 @@ export const SuperCampaignDetailsPage = () => {
                     <div className="rounded-xl overflow-hidden bg-slate-900 border border-slate-200 dark:border-zinc-700 flex items-center justify-center">
                       <img
                         src={resolved}
-                        alt={`${t('ag.superadmin.supercampaigndetailspage.creative', 'Creative #') + ' '}${idx + 1}`}
+                        alt={`${t('common.creative', 'Creative')} #${idx + 1}`}
                         className="w-full aspect-video object-contain"
                         loading="lazy"
                         onError={(e) => {
@@ -458,7 +498,7 @@ export const SuperCampaignDetailsPage = () => {
                     </div>
                   )}
 
-                  {/* Case 3: PDF Document (Displays clean Vector PDF card with interactive embed and external button) */}
+                  {/* Case 3: PDF Document */}
                   {isPdf && (
                     <div className="p-4 bg-white dark:bg-zinc-800 rounded-xl border border-slate-200 dark:border-zinc-700 text-center space-y-3">
                       <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/60 flex items-center justify-center text-rose-600 dark:text-rose-400 mx-auto">
@@ -467,7 +507,7 @@ export const SuperCampaignDetailsPage = () => {
                       <div>
                         <p className="text-xs font-bold text-slate-800 dark:text-white break-all">{filename}</p>
                         <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">
-                          {media.file_size || 'Vector'} {t('ag.superadmin.supercampaigndetailspage.vector_document_for_transit_displays', '· Vector Document for Transit Displays')}
+                          {media.file_size || 'Vector'} {t('media.vector_transit_doc', '· Vector Document for Transit Displays')}
                         </p>
                       </div>
                       <a
@@ -476,18 +516,18 @@ export const SuperCampaignDetailsPage = () => {
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition-colors"
                       >
-                        <span>{t('ag.superadmin.supercampaigndetailspage.open_pdf_in_new_tab', 'Open PDF in New Tab')}</span>
+                        <span>{t('media.open_pdf', 'Open PDF in New Tab')}</span>
                         <FleetIcons.ExternalLink className="w-3.5 h-3.5" />
                       </a>
                     </div>
                   )}
 
-                  {/* Case 4: YouTube Stream Video (Responsive Embedded Player) */}
+                  {/* Case 4: YouTube Stream Video */}
                   {isUrl && ytId && (
                     <div className="rounded-xl overflow-hidden bg-black border border-slate-200 dark:border-zinc-700">
                       <iframe
                         src={`https://www.youtube-nocookie.com/embed/${ytId}`}
-                        title={t('ag.superadmin.supercampaigndetailspage.youtube_creative_player', 'YouTube Creative Player')}
+                        title={t('media.types.youtube', 'YouTube Creative Player')}
                         className="w-full aspect-video border-0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
@@ -495,7 +535,7 @@ export const SuperCampaignDetailsPage = () => {
                     </div>
                   )}
 
-                  {/* Case 5: External Streaming Link (Generic URL) */}
+                  {/* Case 5: External Streaming Link */}
                   {isUrl && !ytId && (
                     <div className="p-4 bg-white dark:bg-zinc-800 rounded-xl border border-slate-200 dark:border-zinc-700 space-y-2 text-center">
                       <IconLink className="w-8 h-8 text-blue-500 mx-auto" />
@@ -507,7 +547,7 @@ export const SuperCampaignDetailsPage = () => {
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-700 text-xs font-bold text-slate-700 dark:text-zinc-200 text-center"
                       >
-                        <span>{t('ag.superadmin.supercampaigndetailspage.visit_stream_link', 'Visit Stream Link')}</span>
+                        <span>{t('media.visit_stream_link', 'Visit Stream Link')}</span>
                         <FleetIcons.ExternalLink className="w-3.5 h-3.5" />
                       </a>
                     </div>
@@ -525,7 +565,7 @@ export const SuperCampaignDetailsPage = () => {
                       rel="noopener noreferrer"
                       className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
                     >
-                      <span>{t('ag.superadmin.supercampaigndetailspage.view', 'View')}</span>
+                      <span>{t('media.view', 'View')}</span>
                       <FleetIcons.ExternalLink className="w-3 h-3" />
                     </a>
                   )}
@@ -566,12 +606,12 @@ export const SuperCampaignDetailsPage = () => {
                     <div key={vehicle.id} className="rounded-lg bg-slate-50 dark:bg-zinc-800 p-3">
                       <strong className="text-xs dark:text-white">{vehicle.bus_number}</strong>
                       <p className="text-[11px] text-slate-500 dark:text-zinc-400">
-                        {t('ag.superadmin.supercampaigndetailspage.edge', 'Edge:')} {vehicle.edgeDevice?.box_id || 'Not linked'} · {vehicle.edgeDevice?.status || 'offline'}
+                        {t('common.edge', 'Edge')}: {vehicle.edgeDevice?.box_id || 'Not linked'} · {vehicle.edgeDevice?.status || 'offline'}
                       </p>
                       <div className="flex flex-wrap gap-1 mt-2">
                         {screens.map((screen) => (
                           <span key={screen.id} className="px-2 py-1 text-[10px] font-bold rounded bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
-                            {screen.code} · {screen.status}
+                            {screen.code} · {getStatusLabel(t, screen.status)}
                           </span>
                         ))}
                         {screens.length === 0 && (
@@ -620,14 +660,14 @@ export const SuperCampaignDetailsPage = () => {
                     {slot.start_date} {t('common.to', 'to')} {slot.end_date}
                   </td>
                   <td className="py-2.5 pr-4 text-slate-500 dark:text-zinc-400">
-                    {String(slot.start_time || '').slice(0, 5)}-{String(slot.end_time || '').slice(0, 5)} {t('ag.superadmin.supercampaigndetailspage.ist', 'IST')}
+                    {String(slot.start_time || '').slice(0, 5)}-{String(slot.end_time || '').slice(0, 5)} {t('common.ist', 'IST')}
                   </td>
                   <td className="py-2.5 pr-4 text-slate-500 dark:text-zinc-400">
                     {formatDays(slot.active_days, t('common.every_day', 'Every day'))}
                   </td>
                   <td className="py-2.5">
                     <span className={`px-2 py-1 rounded-lg font-bold ${slot.status === 'active' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300' : 'bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-400'}`}>
-                      {slot.status}
+                      {getStatusLabel(t, slot.status)}
                     </span>
                   </td>
                 </tr>

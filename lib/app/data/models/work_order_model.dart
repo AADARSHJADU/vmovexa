@@ -75,6 +75,14 @@ class WorkOrderModel {
   final String? requestedAt;
   final String? resolvedAt;
   final String? resolutionNotes;
+  final String? dispatchedAt;
+  final String? onSiteAt;
+  final String? vehicleModel;
+  final String? organizationName;
+  final String? depotAddress;
+  final String? maintenanceBay;
+  final List<String> partsReplaced;
+  final String? assignedByName;
   final WorkOrderTechnician? technician;
   final List<WorkOrderTimelineEntry> timeline;
 
@@ -94,6 +102,14 @@ class WorkOrderModel {
     this.requestedAt,
     this.resolvedAt,
     this.resolutionNotes,
+    this.dispatchedAt,
+    this.onSiteAt,
+    this.vehicleModel,
+    this.organizationName,
+    this.depotAddress,
+    this.maintenanceBay,
+    this.partsReplaced = const [],
+    this.assignedByName,
     this.technician,
     this.timeline = const [],
   });
@@ -146,6 +162,20 @@ class WorkOrderModel {
     final urgStr = (json['urgency'] ?? json['priority'] ?? 'normal').toString().toLowerCase();
     final statStr = (json['status'] ?? 'submitted').toString().toLowerCase();
 
+    final dispatchedStr = json['dispatched_at']?.toString() ?? json['dispatchedAt']?.toString();
+    final onSiteStr = json['on_site_at']?.toString() ?? json['onSiteAt']?.toString();
+    final vehModel = json['vehicle']?['model']?.toString() ?? json['vehicle_model']?.toString() ?? json['vehicleModel']?.toString();
+    final orgName = json['organization']?['name']?.toString() ?? json['organization_name']?.toString() ?? json['organizationName']?.toString();
+    final depotAddr = json['depot']?['address']?.toString() ?? json['depot_address']?.toString() ?? json['depotAddress']?.toString();
+    final bayStr = json['maintenance_bay']?.toString() ?? json['bay']?.toString() ?? json['slot']?.toString();
+    final assignedBy = json['assignedByUser']?['name']?.toString() ?? json['assigned_by_name']?.toString() ?? json['assignedByName']?.toString();
+
+    List<String> parts = [];
+    final rawParts = json['parts_replaced'] ?? json['partsReplaced'] ?? json['parts'];
+    if (rawParts is List) {
+      parts = rawParts.map((p) => p.toString()).toList();
+    }
+
     return WorkOrderModel(
       id: idStr,
       code: codeStr,
@@ -164,6 +194,14 @@ class WorkOrderModel {
           json['created_at']?.toString(),
       resolvedAt: json['resolved_at']?.toString() ?? json['completed_at']?.toString(),
       resolutionNotes: json['resolution_notes']?.toString(),
+      dispatchedAt: dispatchedStr,
+      onSiteAt: onSiteStr,
+      vehicleModel: vehModel,
+      organizationName: orgName,
+      depotAddress: depotAddr,
+      maintenanceBay: bayStr,
+      partsReplaced: parts,
+      assignedByName: assignedBy,
       technician: tech,
       timeline: timelineEntries,
     );
@@ -185,6 +223,14 @@ class WorkOrderModel {
     'requestedAt': requestedAt,
     'resolvedAt': resolvedAt,
     'resolutionNotes': resolutionNotes,
+    'dispatchedAt': dispatchedAt,
+    'onSiteAt': onSiteAt,
+    'vehicleModel': vehicleModel,
+    'organizationName': organizationName,
+    'depotAddress': depotAddress,
+    'maintenanceBay': maintenanceBay,
+    'partsReplaced': partsReplaced,
+    'assignedByName': assignedByName,
     'technician': technician?.toJson(),
   };
 
@@ -204,6 +250,14 @@ class WorkOrderModel {
     String? requestedAt,
     String? resolvedAt,
     String? resolutionNotes,
+    String? dispatchedAt,
+    String? onSiteAt,
+    String? vehicleModel,
+    String? organizationName,
+    String? depotAddress,
+    String? maintenanceBay,
+    List<String>? partsReplaced,
+    String? assignedByName,
     WorkOrderTechnician? technician,
     List<WorkOrderTimelineEntry>? timeline,
   }) {
@@ -223,6 +277,14 @@ class WorkOrderModel {
       requestedAt: requestedAt ?? this.requestedAt,
       resolvedAt: resolvedAt ?? this.resolvedAt,
       resolutionNotes: resolutionNotes ?? this.resolutionNotes,
+      dispatchedAt: dispatchedAt ?? this.dispatchedAt,
+      onSiteAt: onSiteAt ?? this.onSiteAt,
+      vehicleModel: vehicleModel ?? this.vehicleModel,
+      organizationName: organizationName ?? this.organizationName,
+      depotAddress: depotAddress ?? this.depotAddress,
+      maintenanceBay: maintenanceBay ?? this.maintenanceBay,
+      partsReplaced: partsReplaced ?? this.partsReplaced,
+      assignedByName: assignedByName ?? this.assignedByName,
       technician: technician ?? this.technician,
       timeline: timeline ?? this.timeline,
     );

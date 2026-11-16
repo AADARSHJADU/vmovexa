@@ -79,12 +79,12 @@ export const useGovernmentRole = () => {
   const loadAgencyAnalytics = useCallback((params) => dispatch(fetchGovAnalyticsThunk(params)).unwrap(), [dispatch]);
 
   // Permission helpers
-  const canCreateCampaign = hasPermission('campaigns.create') || hasPermission('government.campaigns.create');
-  const canEditCampaign = hasPermission('campaigns.update') || hasPermission('government.campaigns.update');
-  const canDeleteCampaign = hasPermission('campaigns.delete') || hasPermission('government.campaigns.delete');
-  const canSubmitCampaign = hasPermission('campaigns.submit');
-  const canVerifyCampaign = hasPermission('campaigns.verify') || hasPermission('campaigns.approve') || hasPermission('government.campaigns.approve');
-  const canPayCampaign = hasPermission('campaigns.pay');
+  const canCreateCampaign = hasPermission('government.campaigns.create');
+  const canEditCampaign = hasPermission('government.campaigns.update');
+  const canDeleteCampaign = hasPermission('government.campaigns.delete');
+  const canSubmitCampaign = hasPermission('government.campaigns.create');
+  const canVerifyCampaign = false;
+  const canPayCampaign = hasPermission('government.billing.view');
 
   return {
     user,

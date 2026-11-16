@@ -18,6 +18,7 @@ import {
   fetchOperatorActivityThunk,
   fetchOperatorPermissionsThunk,
   updateOperatorPermissionsThunk,
+  resetOperatorPermissionsThunk,
 } from '../../store/slices/admin/fleetOperatorSlice.js';
 import adminFleetOperatorService from '../../api/services/admin/fleetOperator.service.js';
 
@@ -39,6 +40,7 @@ export const useAdminFleetOperator = () => {
   const deleteFleetOperator = useCallback((id) => dispatch(deleteFleetOperatorThunk(id)).unwrap(), [dispatch]);
   const loadOperatorActivity = useCallback((id, params) => dispatch(fetchOperatorActivityThunk({ id, params })).unwrap(), [dispatch]);
   const loadOperatorPermissions = useCallback((id) => dispatch(fetchOperatorPermissionsThunk(id)).unwrap(), [dispatch]);
+  const resetOperatorPermissions = useCallback((id) => dispatch(resetOperatorPermissionsThunk(id)).unwrap(), [dispatch]);
   const updateOperatorPermissions = useCallback((id, permissions) => dispatch(updateOperatorPermissionsThunk({ id, permissions })).unwrap(), [dispatch]);
   const uploadAvatar = useCallback((file) => adminFleetOperatorService.uploadAvatar(file), []);
   const getQuotas = useCallback((params) => adminFleetOperatorService.getQuotas(params), []);
@@ -61,6 +63,7 @@ export const useAdminFleetOperator = () => {
     loadOperatorActivity,
     loadOperatorPermissions,
     updateOperatorPermissions,
+    resetOperatorPermissions,
     uploadAvatar,
     getQuotas,
     resetSelectedOperator,

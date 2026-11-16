@@ -228,7 +228,7 @@ export const EditVehiclePage = () => {
             className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-md shadow-blue-500/20 flex items-center justify-center gap-2"
           >
             <FleetIcons.Check className="w-4 h-4 text-white" />
-            <span>{t('common.save_changes')}</span>
+            <span>{t('admin.vehicles.update_vehicle', 'Update Vehicle')}</span>
           </button>
         </div>
       </div>
@@ -549,7 +549,7 @@ export const EditVehiclePage = () => {
             className="w-full sm:w-auto px-8 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 flex items-center justify-center gap-2"
           >
             <FleetIcons.Check className="w-4 h-4 text-white" />
-            <span>{t('fleet.vehicle.save_changes')}</span>
+            <span>{t('admin.vehicles.update_vehicle', 'Update Vehicle')}</span>
           </button>
         </div>
       </form>

@@ -66,13 +66,13 @@ const superDashboardSlice = createSlice({
         const payload = action.payload || {};
         const mqttBroker = payload.mqttBroker || (payload.mqtt ? {
           status: payload.mqtt.status === 'connected' ? 'Healthy / Connected' : 'Disconnected',
-          activeSockets: payload.mqtt.activeSockets ?? null,
+          activeSockets: payload.mqtt.activeSockets ?? 0,
           msgRateIn: payload.mqtt.msgRateIn ?? null,
           msgRateOut: payload.mqtt.msgRateOut ?? null,
           latency: payload.mqtt.latency ?? null,
         } : {
           status: 'Disconnected',
-          activeSockets: null,
+          activeSockets: 0,
           msgRateIn: null,
           msgRateOut: null,
           latency: null,

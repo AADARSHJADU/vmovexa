@@ -78,8 +78,8 @@ export const ROLE_HELP_DEFAULTS = {
       badge: 'Support Desk Hours: 24/7',
       title: "We're Here to Help!",
       description: 'Get dedicated assistance for IoT GPS binding, vehicle telemetry issues, and dispatch inquiries.',
-      ctaText: 'Open Priority Ticket',
-      actionAlert: 'Connecting to Fleet Operations technical desk...',
+      ctaText: '',
+      actionAlert: '',
     },
     guides: [
       { title: 'Fleet SOP Manual', desc: 'Depot dispatch & driver shifts', icon: 'Document' },

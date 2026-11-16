@@ -71,7 +71,7 @@ function calculateShiftDuration(start24, end24) {
       minutes: 0,
       totalMinutes: 1440,
       isOvernight: false,
-      label: t('ag.admin.adminadddriverpage.24_hrs_00_mins', '24 hrs 00 mins'),
+      label: '24 hrs 00 mins',
       shortLabel: '24h',
     };
   }
@@ -143,13 +143,13 @@ export const AdminAddDriverPage = () => {
   const basePath = isFleetPortal ? '/fleet-operator/drivers' : '/admin/drivers';
   const dashboardLink = isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard';
 
-  const { user, hasPermission } = useAuth();
+  const { user, can, loadSession } = useAuth();
   // RBAC permission gates (always true for Admin portal)
-  const canCreate = !isFleetPortal || hasPermission('fleet.drivers.create');
-  const canUpdate = !isFleetPortal || hasPermission('fleet.drivers.update');
-  const canViewDrivers = !isFleetPortal || hasPermission('fleet.drivers.view');
-  const canViewDepots = !isFleetPortal || hasPermission('fleet.depots.view');
-  const canViewVehicles = !isFleetPortal || hasPermission('fleet.vehicles.view');
+  const canCreate = can('drivers.create');
+  const canUpdate = can('drivers.update');
+  const canViewDrivers = can('drivers.view');
+  const canViewDepots = can('depots.view');
+  const canViewVehicles = can('vehicles.view');
   const canAccessForm = isEditMode ? canUpdate : canCreate;
 
   const { drivers, createDriver, updateDriver, loadDriver, loadDrivers, uploadAvatar } = useAdminDriver();
@@ -171,7 +171,7 @@ export const AdminAddDriverPage = () => {
       })
     : null;
 
-  // Auto-detect operator's assigned depot from profile, user or single-depot list
+  // Auto-detect operator's assigned depot from profile, user, myFleet or single-depot list
   const operatorDepot = useMemo(() => {
     const rawDepotId =
       user?.fleetOperatorProfile?.depot_id ||
@@ -179,12 +179,18 @@ export const AdminAddDriverPage = () => {
       user?.depot_id ||
       user?.depotId ||
       user?.assignedDepot?.id ||
+      myFleet?.fleetOperatorProfile?.depot_id ||
+      myFleet?.depot_id ||
+      myFleet?.depotId ||
+      myFleet?.depot?.id ||
       (isFleetPortal && depotsList.length === 1 ? depotsList[0]?.id : null);
 
     if (rawDepotId) {
       const match = depotsList.find((d) => String(d.id) === String(rawDepotId));
       if (match) return match;
       if (user?.fleetOperatorProfile?.depot) return user.fleetOperatorProfile.depot;
+      if (myFleet?.depot) return myFleet.depot;
+      if (myFleet?.fleetOperatorProfile?.depot) return myFleet.fleetOperatorProfile.depot;
       return { id: rawDepotId, name: `Depot #${rawDepotId}` };
     }
 
@@ -193,7 +199,7 @@ export const AdminAddDriverPage = () => {
     }
 
     return null;
-  }, [user, depotsList, isFleetPortal]);
+  }, [user, depotsList, isFleetPortal, myFleet]);
 
   const [loading, setLoading] = useState(false);
   const [fetchingDriver, setFetchingDriver] = useState(false);
@@ -370,14 +376,23 @@ export const AdminAddDriverPage = () => {
     });
   };
 
+  // Proactively ensure profile / session is loaded when entering the section
+  useEffect(() => {
+    if (isFleetPortal && (!user?.fleetOperatorProfile || !user?.fleetOperatorProfile?.depot_id)) {
+      if (typeof loadSession === 'function') {
+        loadSession().catch(() => {});
+      }
+    }
+  }, [isFleetPortal, user, loadSession]);
+
   useEffect(() => {
     if (!canAccessForm) return;
-    if (canViewDepots) loadDepots().catch(() => {});
+    loadDepots().catch(() => {});
     if (canViewVehicles) {
       loadVehicles({ exclude_status: 'pending_approval,pending,rejected', limit: 100 }).catch(() => {});
     }
     loadFleetOperators({ limit: 100 }).catch(() => {});
-  }, [canAccessForm, canViewDepots, canViewVehicles, loadDepots, loadVehicles, loadFleetOperators]);
+  }, [canAccessForm, canViewVehicles, loadDepots, loadVehicles, loadFleetOperators]);
 
   // Handle queryFleetId pre-selection
   useEffect(() => {
@@ -430,13 +445,19 @@ export const AdminAddDriverPage = () => {
   // Auto-select assigned depot for Fleet Operator when creating a new driver
   useEffect(() => {
     if (isEditMode) return;
-    if (operatorDepot?.id && (!formData.depot || !formData.depotName)) {
+    if (operatorDepot?.id) {
+      const targetId = String(operatorDepot.id);
+      const matchedDepot = depotsList.find((d) => String(d.id) === targetId);
+      const targetName = matchedDepot?.name || (operatorDepot.name && !operatorDepot.name.startsWith('Depot #') ? operatorDepot.name : (matchedDepot?.code ? `${matchedDepot.name} (${matchedDepot.code})` : operatorDepot.name || `Depot #${targetId}`));
+
       setFormData((prev) => {
-        if (prev.depot && prev.depot === String(operatorDepot.id)) return prev;
+        if (prev.depot === targetId && prev.depotName && !prev.depotName.startsWith('Depot #') && prev.depotName === targetName) {
+          return prev;
+        }
         return {
           ...prev,
-          depot: String(operatorDepot.id),
-          depotName: operatorDepot.name || (operatorDepot.code ? `${operatorDepot.name || 'Depot'} (${operatorDepot.code})` : ''),
+          depot: targetId,
+          depotName: targetName,
         };
       });
       setFieldErrors((prev) => {
@@ -446,7 +467,7 @@ export const AdminAddDriverPage = () => {
         return next;
       });
     }
-  }, [isEditMode, operatorDepot, formData.depot, formData.depotName]);
+  }, [isEditMode, operatorDepot, depotsList]);
 
   useEffect(() => {
     if (!canAccessForm) return;
@@ -1651,11 +1672,11 @@ export const AdminAddDriverPage = () => {
             onChange={handleAddressChange}
             fieldErrors={fieldErrors}
             disabled={loading}
-            searchLabel="Search Address"
+            searchLabel={t('ag.driver.driveraddresspicker.search_address', 'Search Address')}
             searchPlaceholder={t('ag.admin.adminadddriverpage.search_street_area_or_city', 'Search street, area, or city...')}
-            searchHint="Search an address or click anywhere on the map to set location."
-            addressLabel="Street Address *"
-            addressPlaceholder="House/Flat No, Building, Street, Area"
+            searchHint={t('ag.driver.driveraddresspicker.search_hint', 'Search an address or click anywhere on the map to set location.')}
+            addressLabel={t('ag.driver.driveraddresspicker.street_address', 'Street Address *')}
+            addressPlaceholder={t('ag.driver.driveraddresspicker.street_address_placeholder', 'House/Flat No, Building, Street, Area')}
             pinLabel={t('ag.admin.adminadddriverpage.residence', 'Residence')}
           />
         </div>
@@ -1821,9 +1842,9 @@ export const AdminAddDriverPage = () => {
               <select
                 value={formData.depot || (isFleetPortal && operatorDepot?.id ? String(operatorDepot.id) : '')}
                 onChange={(e) => handleFieldChange('depot', e.target.value)}
-                disabled={isFleetPortal && Boolean(user?.fleetOperatorProfile?.depot_id)}
+                disabled={isFleetPortal && Boolean(user?.fleetOperatorProfile?.depot_id || operatorDepot?.id)}
                 className={`w-full h-11 px-3.5 rounded-xl border text-xs font-bold text-slate-800 dark:text-white focus:outline-none transition-all ${
-                  isFleetPortal && user?.fleetOperatorProfile?.depot_id
+                  isFleetPortal && (user?.fleetOperatorProfile?.depot_id || operatorDepot?.id)
                     ? 'bg-slate-100 dark:bg-zinc-800/80 cursor-not-allowed border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-200'
                     : fieldErrors.depot
                     ? 'border-rose-400 dark:border-rose-500 bg-rose-50/20 dark:bg-rose-950/20 focus:border-rose-500'
@@ -1831,14 +1852,17 @@ export const AdminAddDriverPage = () => {
                 }`}
               >
                 {!formData.depot && !operatorDepot?.id && <option value="">{t('admin.drivers.select_depot') || 'Select a depot'}</option>}
-                {formData.depot && !depotsList.some((d) => String(d.id) === String(formData.depot)) && (
+                {operatorDepot?.id && !depotsList.some((d) => String(d.id) === String(operatorDepot.id)) && (
+                  <option value={String(operatorDepot.id)}>{operatorDepot.name || formData.depotName || `Depot #${operatorDepot.id}`}</option>
+                )}
+                {formData.depot && formData.depot !== String(operatorDepot?.id) && !depotsList.some((d) => String(d.id) === String(formData.depot)) && (
                   <option value={formData.depot}>{formData.depotName || `Depot #${formData.depot}`}</option>
                 )}
                 {depotsList.map((d) => (
                   <option key={d.id} value={d.id}>{d.name} {d.code ? `(${d.code})` : ''}</option>
                 ))}
               </select>
-              {isFleetPortal && user?.fleetOperatorProfile?.depot_id ? (
+              {isFleetPortal && (user?.fleetOperatorProfile?.depot_id || operatorDepot?.id) ? (
                 <p className="text-[11px] text-slate-500 dark:text-zinc-400 flex items-center gap-1 mt-1">
                   <FleetIcons.Pin className="w-3 h-3 text-emerald-500 shrink-0" />
                   <span>{t('admin.drivers.depot_fixed_hint') || 'Depot is fixed to your assigned operational facility.'}</span>
@@ -2102,6 +2126,8 @@ export const AdminAddDriverPage = () => {
             title={t('admin.drivers.upload_docs_title') || "Upload Documents (License, Aadhaar, Medical Certificate)"}
             purpose="driver_kyc"
             deferUpload={true}
+            showVerifyStatus={!isFleetPortal && isEditMode}
+            allowToggleVerify={!isFleetPortal && isEditMode}
           />
           {fieldErrors.documents && (
             <div className="p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 rounded-xl text-xs font-bold text-rose-700 dark:text-rose-300 flex items-center gap-2 mt-2">

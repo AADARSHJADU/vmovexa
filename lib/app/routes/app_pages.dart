@@ -77,9 +77,19 @@ import '../modules/roles/technician/profile/bindings/profile_binding.dart';
 import '../modules/roles/technician/profile/view/profile_view.dart';
 import '../modules/roles/technician/edit_profile/bindings/edit_profile_binding.dart';
 import '../modules/roles/technician/edit_profile/view/edit_profile_view.dart';
+import '../modules/roles/technician/profile/help_support/bindings/tech_help_support_binding.dart';
+import '../modules/roles/technician/profile/help_support/view/tech_help_support_view.dart';
+import '../modules/roles/technician/profile/help_support/bindings/tech_support_history_binding.dart';
+import '../modules/roles/technician/profile/help_support/view/tech_support_history_view.dart';
+import '../modules/roles/technician/profile/help_support/bindings/tech_ticket_conversation_binding.dart';
+import '../modules/roles/technician/profile/help_support/view/tech_ticket_conversation_view.dart';
 import '../modules/roles/technician/technician_dashboard/view/technician_dashboard_view.dart';
 import '../modules/roles/technician/work_orders/bindings/tech_work_orders_binding.dart';
 import '../modules/roles/technician/work_orders/views/tech_work_orders_view.dart';
+import '../modules/roles/technician/work_orders/bindings/tech_work_order_detail_binding.dart';
+import '../modules/roles/technician/work_orders/views/tech_work_order_detail_view.dart';
+import '../modules/roles/technician/edge_setup/bindings/tech_edge_setup_binding.dart';
+import '../modules/roles/technician/edge_setup/views/tech_edge_setup_view.dart';
 import 'app_routes.dart';
 
 import '../modules/splash/bindings/splash_binding.dart';
@@ -678,6 +688,18 @@ class AppPages {
       transition: Transition.rightToLeft,
     ),
     GetPage(
+      name: Routes.TECHNICIAN_WORK_ORDER_DETAILS,
+      page: () => const TechWorkOrderDetailView(),
+      binding: TechWorkOrderDetailBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.TECH_EDGE_SETUP,
+      page: () => const TechEdgeSetupView(),
+      binding: TechEdgeSetupBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
       name: '/dashboard',
       page: () => const HomeView(),
       binding: HomeBinding(),
@@ -735,6 +757,24 @@ class AppPages {
       name: Routes.TECHNICIAN_EDIT_PROFILE,
       page: () => const EditProfileView(),
       binding: EditProfileBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.TECHNICIAN_HELP_SUPPORT,
+      page: () => const TechHelpSupportView(),
+      binding: TechHelpSupportBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.TECHNICIAN_SUPPORT_HISTORY,
+      page: () => const TechSupportHistoryView(),
+      binding: TechSupportHistoryBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.TECHNICIAN_SUPPORT_TICKET_DETAILS,
+      page: () => const TechTicketConversationView(),
+      binding: TechTicketConversationBinding(),
       transition: Transition.rightToLeft,
     ),
 

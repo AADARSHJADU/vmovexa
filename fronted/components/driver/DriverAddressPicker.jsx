@@ -22,15 +22,21 @@ export const DriverAddressPicker = ({
   onChange,
   fieldErrors = {},
   disabled = false,
-  searchLabel = 'Search Address',
-  searchPlaceholder = 'Search street, area, or city...',
-  searchHint = 'Search an address or click anywhere on the map to set location.',
+  searchLabel,
+  searchPlaceholder,
+  searchHint,
   pinColor = '#059669',
-  pinLabel = 'Residence',
-  addressLabel = 'Street Address *',
-  addressPlaceholder = 'House/Flat No, Building, Street, Area',
+  pinLabel,
+  addressLabel,
+  addressPlaceholder,
 }) => {
   const { t } = useTranslation();
+  const effectiveSearchLabel = searchLabel || t('ag.driver.driveraddresspicker.search_address', 'Search Address');
+  const effectiveSearchPlaceholder = searchPlaceholder || t('ag.driver.driveraddresspicker.search_placeholder', 'Search street, area, or city...');
+  const effectiveSearchHint = searchHint || t('ag.driver.driveraddresspicker.search_hint', 'Search an address or click anywhere on the map to set location.');
+  const effectivePinLabel = pinLabel || t('ag.driver.driveraddresspicker.location_pin', 'Location Pin');
+  const effectiveAddressLabel = addressLabel || t('ag.driver.driveraddresspicker.street_address', 'Street Address *');
+  const effectiveAddressPlaceholder = addressPlaceholder || t('ag.driver.driveraddresspicker.street_address_placeholder', 'House/Flat No, Building, Street, Area');
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markerRef = useRef(null);
@@ -114,7 +120,7 @@ export const DriverAddressPicker = ({
         ...addressData,
         ...geo,
       });
-      toast.success(`Address resolved: ${geo.city || geo.state || geo.address}`);
+      toast.success(t('campaign_extra.address_resolved', 'Address resolved: {{address}}', { address: geo.city || geo.state || geo.address }));
     } catch {
       const fallback = `GPS Location (${lat.toFixed(5)}, ${lng.toFixed(5)})`;
       setSearchQuery(fallback);
@@ -157,8 +163,8 @@ export const DriverAddressPicker = ({
 
     marker.bindPopup(`
       <div style="font-family: sans-serif; font-size: 12px; line-height: 1.4;">
-        <strong style="color: ${pinColor};">${hasValidCoords ? pinLabel : 'India Center'}</strong><br/>
-        <span style="color: #64748b;">${addressData.address || `Search place above or drag pin to ${pinLabel.toLowerCase()}`}</span>
+        <strong style="color: ${pinColor};">${hasValidCoords ? effectivePinLabel : 'India Center'}</strong><br/>
+        <span style="color: #64748b;">${addressData.address || `Search place above or drag pin to ${effectivePinLabel.toLowerCase()}`}</span>
       </div>
     `);
 
@@ -292,7 +298,7 @@ export const DriverAddressPicker = ({
         placeId: parsed.place_id || place.id || addressData.placeId,
       });
 
-      toast.success(`Positioned to ${place.displayName?.text || 'selected location'}!`);
+      toast.success(t('campaign_extra.positioned_to_place', 'Positioned to {{place}}!', { place: place.displayName?.text || t('campaign_extra.selected_location', 'selected location') }));
     }
   };
 
@@ -316,7 +322,7 @@ export const DriverAddressPicker = ({
       },
       (err) => {
         toast.dismiss(toastId);
-        toast.error(`Unable to retrieve GPS: ${err.message}`);
+        toast.error(t('campaign_extra.unable_to_retrieve_gps', 'Unable to retrieve GPS: {{error}}', { error: err.message }));
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -329,7 +335,7 @@ export const DriverAddressPicker = ({
         <label className="flex items-center justify-between text-xs font-bold text-slate-800 dark:text-zinc-200">
           <span className="flex items-center gap-1.5">
             <FleetIcons.Pin className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span>{searchLabel}</span>
+            <span>{effectiveSearchLabel}</span>
           </span>
           <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
             {t('ag.driver.driveraddresspicker.powered_by_google_places_api', 'Powered by Google Places API')}
@@ -346,7 +352,7 @@ export const DriverAddressPicker = ({
           <input
             type="text"
             disabled={disabled}
-            placeholder={searchPlaceholder}
+            placeholder={effectiveSearchPlaceholder}
             value={searchQuery}
             onChange={handleSearchInput}
             onFocus={() => { if (predictions.length > 0) setIsDropdownOpen(true); }}
@@ -372,7 +378,7 @@ export const DriverAddressPicker = ({
 
         <p className="text-[11px] text-slate-500 dark:text-zinc-400 pt-0.5 flex items-center gap-1.5">
           <FleetIcons.Info className="w-3.5 h-3.5 text-slate-400 dark:text-zinc-500 shrink-0" />
-          <span>{searchHint}</span>
+          <span>{effectiveSearchHint}</span>
         </p>
 
         {/* Predictions Dropdown */}
@@ -456,12 +462,12 @@ export const DriverAddressPicker = ({
         {/* Full Street Address (Spans 2 cols on lg) */}
         <div className="sm:col-span-2 lg:col-span-2">
           <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1">
-            {addressLabel}
+            {effectiveAddressLabel}
           </label>
           <input
             type="text"
             disabled={disabled}
-            placeholder={addressPlaceholder}
+            placeholder={effectiveAddressPlaceholder}
             value={addressData.address || ''}
             onChange={(e) => onChange({ ...addressData, address: e.target.value })}
             className={`w-full px-3.5 py-2.5 rounded-xl border text-xs font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none transition-all ${
@@ -534,7 +540,7 @@ export const DriverAddressPicker = ({
             type="text"
             maxLength={10}
             disabled={disabled}
-            placeholder="e.g. 411001"
+            placeholder={t('ag.driver.driveraddresspicker.e_g_pincode', 'e.g. 411001')}
             value={addressData.pincode || ''}
             onChange={(e) => onChange({ ...addressData, pincode: e.target.value.replace(/\s+/g, '') })}
             className={`w-full px-3.5 py-2.5 rounded-xl border text-xs font-mono font-bold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none transition-all ${
@@ -559,7 +565,7 @@ export const DriverAddressPicker = ({
             type="text"
             disabled={disabled}
             placeholder={t('ag.driver.driveraddresspicker.country', 'Country')}
-            value={addressData.country || 'India'}
+            value={addressData.country ? (addressData.country.toLowerCase() === 'india' ? t('common.india', 'India') : addressData.country) : t('common.india', 'India')}
             onChange={(e) => onChange({ ...addressData, country: e.target.value })}
             className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-slate-800 dark:text-zinc-200 focus:outline-none"
           />
@@ -575,7 +581,7 @@ export const DriverAddressPicker = ({
             type="number"
             step="0.0000001"
             disabled={disabled}
-            placeholder="e.g. 22.7196000"
+            placeholder={t('ag.driver.driveraddresspicker.e_g_22_7196000', 'e.g. 22.7196000')}
             value={addressData.latitude != null ? addressData.latitude : ''}
             onChange={(e) => {
               const val = e.target.value !== '' ? parseFloat(e.target.value) : null;
@@ -595,7 +601,7 @@ export const DriverAddressPicker = ({
             type="number"
             step="0.0000001"
             disabled={disabled}
-            placeholder="e.g. 75.8577000"
+            placeholder={t('ag.driver.driveraddresspicker.e_g_75_8577000', 'e.g. 75.8577000')}
             value={addressData.longitude != null ? addressData.longitude : ''}
             onChange={(e) => {
               const val = e.target.value !== '' ? parseFloat(e.target.value) : null;

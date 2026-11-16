@@ -263,7 +263,7 @@ export const RevenueReportingPage = () => {
       const summary = typeof r.summary === 'string' ? JSON.parse(r.summary || '{}') : (r.summary || {});
       const repType = params.reportType || r.report_type || 'revenue';
       const title = params.title || r.title || `${repType.replace(/_/g, ' ').toUpperCase()} Ledger`;
-      const period = params.period || (params.startDate && params.endDate ? `${fmtDate(params.startDate)} → ${fmtDate(params.endDate)}` : 'All Time');
+      const period = params.period || (params.startDate && params.endDate ? `${fmtDate(params.startDate)} → ${fmtDate(params.endDate)}` : t('finance.reports.preset_all_time', 'All Time'));
 
       return {
         id: r.id ?? '—',
