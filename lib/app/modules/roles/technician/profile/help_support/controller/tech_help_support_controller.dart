@@ -152,7 +152,7 @@ class TechHelpSupportController extends GetxController {
       } catch (e) {
         Get.snackbar(
           'error'.tr,
-          'Could not open document: $e',
+          '${'failed_to_load_doc'.tr}: $e',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent,
           colorText: Colors.white,

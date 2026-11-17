@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import '../controller/gps_installation_controller.dart';
 import 'gps_installation_view.dart' show GpsInstallationView;
 
@@ -8,8 +9,6 @@ class GpsInstallationSuccessView extends GetView<GpsInstallationController> {
 
   static const Color kBg = GpsInstallationView.kBg;
   static const Color kCardBg = GpsInstallationView.kCardBg;
-  static const Color kPurple = GpsInstallationView.kPurple;
-  static const Color kIndigo = GpsInstallationView.kIndigo;
   static const Color kBorder = GpsInstallationView.kBorder;
   static const Color kGreen = GpsInstallationView.kGreen;
 
@@ -36,16 +35,16 @@ class GpsInstallationSuccessView extends GetView<GpsInstallationController> {
               const SizedBox(height: 14),
               _buildSuccessBadge(),
               const SizedBox(height: 18),
-              const Text(
-                'GPS Installed Successfully!',
+              Text(
+                'gps_installed_success'.tr,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800),
+                style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 6),
-              const Text(
-                'The telematics unit has been registered and assigned. Live satellite telemetry is now active.',
+              Text(
+                'gps_installed_success_desc'.tr,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white54, fontSize: 12.5, height: 1.35),
+                style: const TextStyle(color: Colors.white54, fontSize: 12.5, height: 1.35),
               ),
               const SizedBox(height: 24),
               _buildDetailsCard(),
@@ -132,9 +131,9 @@ class GpsInstallationSuccessView extends GetView<GpsInstallationController> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'ASSIGNED VEHICLE',
-                      style: TextStyle(
+                    Text(
+                      'assigned_vehicle_caps'.tr,
+                      style: const TextStyle(
                         color: Colors.white38,
                         fontSize: 10.5,
                         fontWeight: FontWeight.w700,
@@ -145,7 +144,7 @@ class GpsInstallationSuccessView extends GetView<GpsInstallationController> {
                     Text(
                       controller.installedBusNumber.value.isNotEmpty
                           ? controller.installedBusNumber.value
-                          : (controller.selectedVehicle.value?.registrationNumber ?? 'Bus MH12 AB 1234'),
+                          : (controller.selectedVehicle.value?.registrationNumber ?? '—'),
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
@@ -162,14 +161,14 @@ class GpsInstallationSuccessView extends GetView<GpsInstallationController> {
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: kGreen.withValues(alpha: 0.4)),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.circle, color: kGreen, size: 7),
-                      SizedBox(width: 5),
+                      const Icon(Icons.circle, color: kGreen, size: 7),
+                      const SizedBox(width: 5),
                       Text(
-                        'Assigned & Active',
-                        style: TextStyle(color: kGreen, fontSize: 11, fontWeight: FontWeight.w700),
+                        'assigned_and_active'.tr,
+                        style: const TextStyle(color: kGreen, fontSize: 11, fontWeight: FontWeight.w700),
                       ),
                     ],
                   ),
@@ -182,28 +181,28 @@ class GpsInstallationSuccessView extends GetView<GpsInstallationController> {
 
             // 4 Fields Grid
             _detailRow(
-              label: 'GPS Device ID',
+              label: 'gps_device_id_label'.tr,
               value: controller.installedGpsId.value.isNotEmpty
                   ? controller.installedGpsId.value
-                  : (controller.gpsDeviceIdCtrl.text.isNotEmpty ? controller.gpsDeviceIdCtrl.text : 'GPS-MX-00123'),
+                  : (controller.gpsDeviceIdCtrl.text.isNotEmpty ? controller.gpsDeviceIdCtrl.text : '—'),
               isMono: true,
               valueColor: const Color(0xFF60A5FA),
             ),
             const SizedBox(height: 10),
             _detailRow(
-              label: 'Depot Location',
+              label: 'depot_location_label'.tr,
               value: controller.installedDepot.value.isNotEmpty
                   ? controller.installedDepot.value
                   : controller.selectedVehicleDepot,
             ),
             const SizedBox(height: 10),
             _detailRow(
-              label: 'Assigned On',
+              label: 'assigned_on_label'.tr,
               value: controller.assignedOnText,
             ),
             const SizedBox(height: 10),
             _detailRow(
-              label: 'Technician',
+              label: 'technician_label'.tr,
               value: controller.assignedByLabel.value,
             ),
           ],
@@ -249,21 +248,26 @@ class GpsInstallationSuccessView extends GetView<GpsInstallationController> {
         width: double.infinity,
         height: 50,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF6366F1), Color(0xFF4F46E5)],
-          ),
+          gradient: AppTheme.primaryGradient,
           borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.gradientPink.withValues(alpha: 0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         alignment: Alignment.center,
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'View Hardware & GPS Status',
-              style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+              'view_hardware_gps_status'.tr,
+              style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
             ),
-            SizedBox(width: 8),
-            Icon(Icons.arrow_forward, color: Colors.white, size: 16),
+            const SizedBox(width: 8),
+            const Icon(Icons.arrow_forward, color: Colors.white, size: 16),
           ],
         ),
       ),
@@ -283,9 +287,9 @@ class GpsInstallationSuccessView extends GetView<GpsInstallationController> {
           border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
         ),
         alignment: Alignment.center,
-        child: const Text(
-          'Go to Dashboard',
-          style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w700),
+        child: Text(
+          'go_to_dashboard'.tr,
+          style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w700),
         ),
       ),
     );

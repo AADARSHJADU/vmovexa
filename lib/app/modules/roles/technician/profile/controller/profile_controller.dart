@@ -180,8 +180,8 @@ class ProfileController extends GetxController {
 
       isUploadingPhoto.value = true;
       Get.snackbar(
-        'Uploading Avatar',
-        'Uploading image to server...',
+        'uploading_photo'.tr,
+        'uploading_doc_msg'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFB042FF),
         colorText: Colors.white,
@@ -242,8 +242,8 @@ class ProfileController extends GetxController {
           }
 
           Get.snackbar(
-            'Success',
-            'Profile picture updated successfully.',
+            'success'.tr,
+            'photo_uploaded_successfully'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF2ECC71).withValues(alpha: 0.9),
             colorText: Colors.white,
@@ -251,7 +251,7 @@ class ProfileController extends GetxController {
         }
       } else {
         Get.snackbar(
-          'Upload Failed',
+          'upload_failed'.tr,
           res.message ?? 'Failed to upload photo.',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFFFF4D4D).withValues(alpha: 0.9),
@@ -260,7 +260,7 @@ class ProfileController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Upload Error',
+        'upload_error'.tr,
         'An error occurred while uploading: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFFF4D4D).withValues(alpha: 0.9),
@@ -300,8 +300,8 @@ class ProfileController extends GetxController {
 
   void goToDeviceSessions() {
     Get.snackbar(
-      'Device Sessions',
-      'Manage active sessions functionality is coming soon.',
+      'device_sessions'.tr,
+      'manage_sessions_coming_soon'.tr,
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: const Color(0xFF15151F),
       colorText: Colors.white,

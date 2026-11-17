@@ -529,7 +529,7 @@ class EditProfileView extends GetView<EditProfileController> {
       style: const TextStyle(color: Colors.white, fontSize: 13.5),
       decoration: _getInputDecoration(
         labelText: label,
-        hintText: 'Select date of birth',
+        hintText: 'select_dob_hint'.tr,
         prefixIcon: svgPath != null
             ? Padding(
                 padding: const EdgeInsets.all(12),
@@ -558,21 +558,28 @@ class EditProfileView extends GetView<EditProfileController> {
     IconData? icon,
     String? svgPath,
   }) {
-    final List<String> genders = ['Male', 'Female', 'Other'];
+    final List<Map<String, String>> genders = [
+      {'value': 'Male', 'key': 'gender_male'},
+      {'value': 'Female', 'key': 'gender_female'},
+      {'value': 'Other', 'key': 'gender_other'},
+    ];
+    final currentVal = controller.text;
+    final match = genders.firstWhereOrNull((g) => g['value'] == currentVal) ?? genders[0];
+
     return DropdownButtonFormField<String>(
       dropdownColor: kCardBg,
-      value: genders.contains(controller.text) ? controller.text : genders[0],
+      value: match['value'],
       items: genders
           .map((opt) => DropdownMenuItem(
-                value: opt,
-                child: Text(opt, style: const TextStyle(color: Colors.white, fontSize: 13.5)),
+                value: opt['value'],
+                child: Text(opt['key']!.tr, style: const TextStyle(color: Colors.white, fontSize: 13.5)),
               ))
           .toList(),
       onChanged: (val) => controller.text = val ?? 'Male',
       style: const TextStyle(color: Colors.white, fontSize: 13.5),
       decoration: _getInputDecoration(
         labelText: label,
-        hintText: 'Select gender',
+        hintText: 'select_gender_hint'.tr,
         prefixIcon: svgPath != null
             ? Padding(
                 padding: const EdgeInsets.all(12),

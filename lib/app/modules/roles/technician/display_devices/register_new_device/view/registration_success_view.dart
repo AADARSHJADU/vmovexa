@@ -142,7 +142,7 @@ class RegistrationSuccessView extends GetView<RegisterDeviceController> {
           _divider(),
           _detailRow(
             icon: Icons.event_available_outlined,
-            label: 'technician.registered.registered_on'.tr.isNotEmpty ? 'technician.registered.registered_on'.tr : 'Registered On',
+            label: 'registered_on_label'.tr,
             value: controller.registeredOnText,
             isLast: true,
           ),

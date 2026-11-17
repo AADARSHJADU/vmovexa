@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import 'package:vmovexa/app/data/models/api_response_model.dart';
 import 'package:vmovexa/app/data/models/edge_device_model.dart';
 import 'package:vmovexa/app/data/models/fleet_models.dart';
@@ -344,7 +345,7 @@ class RegisterDeviceController extends GetxController {
     if (isEditMode.value) return; // Box ID locked in edit mode
 
     Get.defaultDialog(
-      title: 'Scan QR / Barcode',
+      title: 'scan_qr_barcode_title'.tr,
       titleStyle: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
       backgroundColor: const Color(0xFF15151F),
       radius: 14,
@@ -354,10 +355,10 @@ class RegisterDeviceController extends GetxController {
           children: [
             const Icon(Icons.qr_code_scanner_rounded, color: Color(0xFFB042FF), size: 54),
             const SizedBox(height: 12),
-            const Text(
-              'Align RK3588 hardware serial label or enter serial number manually.',
+            Text(
+              'align_rk3588_serial_desc'.tr,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white70, fontSize: 12),
+              style: const TextStyle(color: Colors.white70, fontSize: 12),
             ),
             const SizedBox(height: 14),
             Row(
@@ -371,14 +372,23 @@ class RegisterDeviceController extends GetxController {
                   child: Text('cancel'.tr, style: const TextStyle(color: Colors.white70)),
                 ),
                 const SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    final simulatedSerial = 'APC3588Q${(DateTime.now().millisecondsSinceEpoch % 100000000).toString().padLeft(8, '0')}';
-                    boxIdCtrl.text = simulatedSerial;
-                    Get.back();
-                  },
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF3B82F6)),
-                  child: const Text('Auto-Fill Serial', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      final simulatedSerial = 'APC3588Q${(DateTime.now().millisecondsSinceEpoch % 100000000).toString().padLeft(8, '0')}';
+                      boxIdCtrl.text = simulatedSerial;
+                      Get.back();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                    ),
+                    child: Text('autofill_serial_btn'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
                 ),
               ],
             ),
@@ -396,7 +406,7 @@ class RegisterDeviceController extends GetxController {
     if (boxId.isEmpty) {
       boxIdError.value = 'box_id_required'.tr;
       Get.snackbar(
-        'Missing Information',
+        'missing_information'.tr,
         'box_id_required'.tr,
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
         colorText: Colors.white,
@@ -409,7 +419,7 @@ class RegisterDeviceController extends GetxController {
     if (selectedOrganizationId.value == null || selectedOrganizationId.value.toString().isEmpty) {
       orgError.value = 'select_org_first'.tr;
       Get.snackbar(
-        'Missing Information',
+        'missing_information'.tr,
         'select_org_first'.tr,
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
         colorText: Colors.white,
@@ -468,7 +478,7 @@ class RegisterDeviceController extends GetxController {
           Get.back();
         } else {
           Get.snackbar(
-            'Update Failed',
+            'update_failed'.tr,
             res.displayErrorMessage,
             backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
             colorText: Colors.white,
@@ -484,7 +494,7 @@ class RegisterDeviceController extends GetxController {
           registeredDeviceBoxId.value = boxId;
 
           Get.snackbar(
-            'Device Registered',
+            'device_registered'.tr,
             'device_registered_success'.tr,
             backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
             colorText: Colors.white,
@@ -499,7 +509,7 @@ class RegisterDeviceController extends GetxController {
           Get.off(() => const RegistrationSuccessView());
         } else {
           Get.snackbar(
-            'Registration Failed',
+            'registration_failed'.tr,
             res.displayErrorMessage,
             backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
             colorText: Colors.white,
@@ -510,7 +520,7 @@ class RegisterDeviceController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         e.toString(),
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
         colorText: Colors.white,

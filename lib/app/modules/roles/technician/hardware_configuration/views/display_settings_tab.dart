@@ -14,19 +14,19 @@ class DisplaySettingsTab extends GetView<HardwareConfigController> {
         // ---------------- Display Settings Card ----------------
         SectionCard(
           icon: Icons.tv_outlined,
-          title: 'Display Settings',
+          title: 'display_settings'.tr,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Control screen illumination, screen timeouts, and display aspect',
-                style: TextStyle(color: Colors.white38, fontSize: 11),
+              Text(
+                'display_settings_desc'.tr,
+                style: const TextStyle(color: Colors.white38, fontSize: 11),
               ),
               const SizedBox(height: 14),
               Obx(
                 () => SettingSliderRow(
                   icon: Icons.wb_sunny_outlined,
-                  label: 'Screen Brightness',
+                  label: 'screen_brightness'.tr,
                   value: controller.brightness.value.clamp(10.0, 100.0),
                   min: 10.0,
                   max: 100.0,
@@ -38,7 +38,7 @@ class DisplaySettingsTab extends GetView<HardwareConfigController> {
               Obx(
                 () => SettingDropdownRow(
                   icon: Icons.timer_outlined,
-                  label: 'Screen Timeout',
+                  label: 'screen_timeout'.tr,
                   value: controller.screenTimeout.value,
                   items: controller.screenTimeoutOptions,
                   onChanged: controller.setScreenTimeout,
@@ -48,7 +48,7 @@ class DisplaySettingsTab extends GetView<HardwareConfigController> {
               Obx(
                 () => SettingDropdownRow(
                   icon: Icons.fullscreen,
-                  label: 'Display Mode',
+                  label: 'display_mode'.tr,
                   value: controller.displayMode.value,
                   items: controller.displayModeOptions,
                   onChanged: controller.setDisplayMode,
@@ -58,7 +58,7 @@ class DisplaySettingsTab extends GetView<HardwareConfigController> {
               Obx(
                 () => SettingDropdownRow(
                   icon: Icons.crop_landscape_outlined,
-                  label: 'Screen Orientation',
+                  label: 'screen_orientation'.tr,
                   value: controller.screenOrientation.value,
                   items: controller.screenOrientationOptions,
                   onChanged: controller.setScreenOrientation,
@@ -68,8 +68,8 @@ class DisplaySettingsTab extends GetView<HardwareConfigController> {
               Obx(
                 () => SettingToggleRow(
                   icon: Icons.brightness_auto_outlined,
-                  label: 'Auto Ambient Light Sensor',
-                  subtitle: 'Dynamically adjust illumination for sunny mornings & tunnel transits',
+                  label: 'ambient_sensor'.tr,
+                  subtitle: 'ambient_sensor_desc'.tr,
                   value: controller.autoBrightness.value,
                   onChanged: controller.toggleAutoBrightness,
                 ),
@@ -79,35 +79,35 @@ class DisplaySettingsTab extends GetView<HardwareConfigController> {
         ),
         const SizedBox(height: 16),
 
-        // ---------------- Audio & Sound Settings Card ----------------
+        // ---------------- Audio Settings Card ----------------
         SectionCard(
           icon: Icons.volume_up_outlined,
-          title: 'Audio & Sound Settings',
+          title: 'audio_settings'.tr,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Configure speaker output, volume decibel limits, and mute schedules',
-                style: TextStyle(color: Colors.white38, fontSize: 11),
+              Text(
+                'audio_settings_desc'.tr,
+                style: const TextStyle(color: Colors.white38, fontSize: 11),
               ),
               const SizedBox(height: 14),
               Obx(
                 () => SettingSliderRow(
                   icon: Icons.volume_up_outlined,
-                  label: 'Volume Level',
+                  label: 'volume_level'.tr,
                   value: controller.isMuted.value ? 0.0 : controller.audioVolume.value.clamp(0.0, 100.0),
                   min: 0.0,
                   max: 100.0,
                   enabled: !controller.isMuted.value,
                   onChanged: controller.setAudioVolume,
-                  valueLabel: controller.isMuted.value ? 'Muted' : '${controller.audioVolume.value.round()}%',
+                  valueLabel: controller.isMuted.value ? 'muted_status'.tr : '${controller.audioVolume.value.round()}%',
                 ),
               ),
               const SizedBox(height: 14),
               Obx(
                 () => SettingDropdownRow(
                   icon: Icons.speaker_outlined,
-                  label: 'Audio Output Source',
+                  label: 'audio_source'.tr,
                   value: controller.audioSource.value,
                   items: controller.audioSourceOptions,
                   onChanged: controller.setAudioSource,
@@ -117,8 +117,8 @@ class DisplaySettingsTab extends GetView<HardwareConfigController> {
               Obx(
                 () => SettingToggleRow(
                   icon: Icons.volume_off_outlined,
-                  label: 'Master Hardware Mute',
-                  subtitle: 'Completely mute all video sound tracks and keep visual captions only',
+                  label: 'hw_mute'.tr,
+                  subtitle: 'hw_mute_desc'.tr,
                   value: controller.isMuted.value,
                   onChanged: controller.toggleMute,
                 ),
@@ -131,19 +131,19 @@ class DisplaySettingsTab extends GetView<HardwareConfigController> {
         // ---------------- Power Management Card ----------------
         SectionCard(
           icon: Icons.power_settings_new_outlined,
-          title: 'Power Management',
+          title: 'power_mgmt'.tr,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Automatic operating schedules and low battery voltage protections',
-                style: TextStyle(color: Colors.white38, fontSize: 11),
+              Text(
+                'power_mgmt_desc'.tr,
+                style: const TextStyle(color: Colors.white38, fontSize: 11),
               ),
               const SizedBox(height: 14),
               Obx(
                 () => SettingDropdownRow(
                   icon: Icons.battery_charging_full_outlined,
-                  label: 'Power Profile Mode',
+                  label: 'power_mode'.tr,
                   value: controller.powerMode.value,
                   items: controller.powerModeOptions,
                   onChanged: controller.setPowerMode,
@@ -154,14 +154,14 @@ class DisplaySettingsTab extends GetView<HardwareConfigController> {
                 children: [
                   Expanded(
                     child: _buildTimeInput(
-                      label: 'Auto Power On',
+                      label: 'auto_power_on'.tr,
                       controller: controller.autoPowerOnCtrl,
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: _buildTimeInput(
-                      label: 'Auto Power Off',
+                      label: 'auto_power_off'.tr,
                       controller: controller.autoPowerOffCtrl,
                     ),
                   ),
@@ -170,8 +170,6 @@ class DisplaySettingsTab extends GetView<HardwareConfigController> {
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        const InfoNoteBanner(text: 'Changes will be applied to the device over the air after saving.'),
       ],
     );
   }

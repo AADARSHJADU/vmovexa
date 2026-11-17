@@ -103,7 +103,7 @@ class RegisterDeviceView extends GetView<RegisterDeviceController> {
             final boxId = controller.boxIdCtrl.text.trim();
             final title = isEdit ? 'edit_edge_device'.tr : 'register_edge_device'.tr;
             final subtitle = isEdit
-                ? (boxId.isNotEmpty ? 'Update details for Box ID: $boxId' : 'edit_edge_device_subtitle'.tr)
+                ? (boxId.isNotEmpty ? '${'update_details_for_box'.tr}$boxId' : 'edit_edge_device_subtitle'.tr)
                 : 'register_edge_device_subtitle'.tr;
 
             return Column(
@@ -560,7 +560,7 @@ class RegisterDeviceView extends GetView<RegisterDeviceController> {
 
             final currentVehicleId = controller.selectedVehicleId.value?.toString();
             final items = availableList.map((v) {
-              final label = v.registrationNumber.isNotEmpty ? 'Bus #${v.registrationNumber}' : 'Bus #${v.id}';
+              final label = v.registrationNumber.isNotEmpty ? '${'bus_prefix'.tr}${v.registrationNumber}' : '${'bus_prefix'.tr}${v.id}';
               final sub = v.model.isNotEmpty ? ' (${v.model})' : (v.vehicleType.isNotEmpty ? ' (${v.vehicleType})' : '');
               return DropdownMenuItem<String>(
                 value: v.id,

@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:vmovexa/app/modules/roles/technician/profile/view/profile_view.dart';
 import '../../../../../theme/app_colors.dart';
 import '../../display_devices/view/display_devices_view.dart';
-import '../../hardware_configuration/views/hardware_configuration_view.dart';
 import '../../work_orders/views/tech_work_orders_view.dart';
 import '../../home/view/home_view.dart';
 import '../controller/technician_dashboard_controller.dart';
@@ -28,9 +27,9 @@ class TechnicianDashboardView extends GetView<TechnicianDashboardController> {
               return const TechWorkOrdersView();
             case 2:
               return DisplayDevicesView();
+            // case 3:
+            //   return const HardwareConfigurationView();
             case 3:
-              return const HardwareConfigurationView();
-            case 4:
               return const ProfileView();
             default:
               return const HomeView();
@@ -104,21 +103,6 @@ class TechnicianDashboardView extends GetView<TechnicianDashboardController> {
               ),
               BottomNavigationBarItem(
                 icon: SvgPicture.asset(
-                  'assets/icons/fleet_operator_icons/profileHeaderSettingA.svg',
-                  width: 20,
-                  height: 20,
-                  colorFilter: const ColorFilter.mode(AppColors.textMuted, BlendMode.srcIn),
-                ),
-                activeIcon: SvgPicture.asset(
-                  'assets/icons/fleet_operator_icons/profileHeaderSettingA.svg',
-                  width: 20,
-                  height: 20,
-                  colorFilter: const ColorFilter.mode(Color(0xFF818CF8), BlendMode.srcIn),
-                ),
-                label: 'hardware_config'.tr,
-              ),
-              BottomNavigationBarItem(
-                icon: SvgPicture.asset(
                   'assets/icons/profile.svg',
                   width: 20,
                   height: 20,
@@ -132,6 +116,22 @@ class TechnicianDashboardView extends GetView<TechnicianDashboardController> {
                 ),
                 label: 'profile'.tr,
               ),
+              // BottomNavigationBarItem(
+              //   icon: SvgPicture.asset(
+              //     'assets/icons/fleet_operator_icons/profileHeaderSettingA.svg',
+              //     width: 20,
+              //     height: 20,
+              //     colorFilter: const ColorFilter.mode(AppColors.textMuted, BlendMode.srcIn),
+              //   ),
+              //   activeIcon: SvgPicture.asset(
+              //     'assets/icons/fleet_operator_icons/profileHeaderSettingA.svg',
+              //     width: 20,
+              //     height: 20,
+              //     colorFilter: const ColorFilter.mode(Color(0xFF818CF8), BlendMode.srcIn),
+              //   ),
+              //   label: 'hardware_config'.tr,
+              // ),
+
             ],
           ),
         ),

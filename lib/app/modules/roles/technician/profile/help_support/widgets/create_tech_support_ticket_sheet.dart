@@ -20,14 +20,14 @@ class _CreateTechSupportTicketSheetState extends State<CreateTechSupportTicketSh
   final TextEditingController _subjectController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
 
-  final List<String> _categories = [
-    'General Hardware',
-    'Display & Screen',
-    'CAN-bus & Telematics',
-    'Firmware & Flashing',
-    'GPS & GNSS Antenna',
-    'Power Supply & Wiring',
-    'Depot Spares & RMA',
+  final List<Map<String, String>> _categories = [
+    {'value': 'General Hardware', 'key': 'cat_support_gen_hw'},
+    {'value': 'Display & Screen', 'key': 'cat_support_display'},
+    {'value': 'CAN-bus & Telematics', 'key': 'cat_support_canbus'},
+    {'value': 'Firmware & Flashing', 'key': 'cat_support_firmware'},
+    {'value': 'GPS & GNSS Antenna', 'key': 'cat_support_gps'},
+    {'value': 'Power Supply & Wiring', 'key': 'cat_support_power'},
+    {'value': 'Depot Spares & RMA', 'key': 'cat_support_spares'},
   ];
 
   final List<Map<String, dynamic>> _priorities = [
@@ -259,9 +259,9 @@ class _CreateTechSupportTicketSheetState extends State<CreateTechSupportTicketSh
                           value: _selectedCategory,
                           items: _categories.map((cat) {
                             return DropdownMenuItem(
-                              value: cat,
+                              value: cat['value'],
                               child: Text(
-                                cat,
+                                cat['key']!.tr,
                                 style: const TextStyle(color: Colors.white, fontSize: 13),
                               ),
                             );

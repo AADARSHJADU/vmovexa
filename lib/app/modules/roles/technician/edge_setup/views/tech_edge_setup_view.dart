@@ -434,7 +434,7 @@ class TechEdgeSetupView extends GetView<TechEdgeSetupController> {
                   value: devList.any((d) => d.boxId == controller.targetBoxId.value)
                       ? controller.targetBoxId.value
                       : null,
-                  hint: const Text('Select Deployed Device', style: TextStyle(color: Colors.white60, fontSize: 12)),
+                  hint: Text('select_deployed_device_hint'.tr, style: const TextStyle(color: Colors.white60, fontSize: 12)),
                   isExpanded: true,
                   dropdownColor: const Color(0xFF1E293B),
                   style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
@@ -713,12 +713,12 @@ class TechEdgeSetupView extends GetView<TechEdgeSetupController> {
   // ---------------- Card 4: Diagnostics Accordion ----------------
   Widget _buildDiagnosticsAccordion(BuildContext context) {
     final adbCommands = [
-      {'label': 'Check Connected USB Devices', 'cmd': 'adb devices'},
-      {'label': 'Read Hardware Serial Number', 'cmd': 'adb shell getprop ro.serialno'},
-      {'label': 'Stream Live CORE Log', 'cmd': 'adb shell "tail -f /data/vmovexa-core/core.log"'},
-      {'label': 'Manual CORE Recovery', 'cmd': 'adb shell "/data/vmovexa-core/run.sh"'},
-      {'label': 'Open Fully Kiosk Player Now', 'cmd': 'adb shell "am start --user 0 -n de.ozerov.fully/.MainActivity -a android.intent.action.VIEW -d http://127.0.0.1:8888"'},
-      {'label': 'Reboot Edge Box', 'cmd': 'adb reboot'},
+      {'key': 'adb_cmd_usb_devices', 'cmd': 'adb devices'},
+      {'key': 'adb_cmd_serial_number', 'cmd': 'adb shell getprop ro.serialno'},
+      {'key': 'adb_cmd_stream_core_log', 'cmd': 'adb shell "tail -f /data/vmovexa-core/core.log"'},
+      {'key': 'adb_cmd_manual_recovery', 'cmd': 'adb shell "/data/vmovexa-core/run.sh"'},
+      {'key': 'adb_cmd_open_fully_kiosk', 'cmd': 'adb shell "am start --user 0 -n de.ozerov.fully/.MainActivity -a android.intent.action.VIEW -d http://127.0.0.1:8888"'},
+      {'key': 'adb_cmd_reboot_box', 'cmd': 'adb reboot'},
     ];
 
     return Container(
@@ -761,19 +761,19 @@ class TechEdgeSetupView extends GetView<TechEdgeSetupController> {
                           children: [
                             Expanded(
                               child: Text(
-                                item['label']!,
+                                item['key']!.tr,
                                 style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600),
                               ),
                             ),
                             InkWell(
-                              onTap: () => controller.copyCommand(item['cmd']!, item['label']!),
+                              onTap: () => controller.copyCommand(item['cmd']!, item['key']!.tr),
                               child: Row(
-                                children: const [
-                                  Icon(Icons.copy_rounded, color: Color(0xFF818CF8), size: 12),
-                                  SizedBox(width: 4),
+                                children: [
+                                  const Icon(Icons.copy_rounded, color: Color(0xFF818CF8), size: 12),
+                                  const SizedBox(width: 4),
                                   Text(
-                                    'Copy',
-                                    style: TextStyle(color: Color(0xFF818CF8), fontSize: 10.5, fontWeight: FontWeight.bold),
+                                    'copy'.tr,
+                                    style: const TextStyle(color: Color(0xFF818CF8), fontSize: 10.5, fontWeight: FontWeight.bold),
                                   ),
                                 ],
                               ),

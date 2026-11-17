@@ -1,3 +1,4 @@
+import 'package:vmovexa/app/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/hardware_config_controller.dart';
@@ -114,50 +115,50 @@ class ConfigurationSavedView extends GetView<HardwareConfigController> {
           children: [
             _detailRow(
               icon: Icons.desktop_windows_outlined,
-              label: 'Device: ${controller.deviceId.value}',
+              label: '${'device_colon'.tr} ${controller.deviceId.value}',
               value: '${controller.vehicleNumber.value} · ${controller.depotLocation.value}',
               trailing: Row(
-                children: const [
-                  Icon(Icons.circle, color: kGreen, size: 7),
-                  SizedBox(width: 5),
-                  Text('Online', style: TextStyle(color: kGreen, fontSize: 11.5, fontWeight: FontWeight.w600)),
+                children: [
+                  const Icon(Icons.circle, color: kGreen, size: 7),
+                  const SizedBox(width: 5),
+                  Text('online'.tr, style: const TextStyle(color: kGreen, fontSize: 11.5, fontWeight: FontWeight.w600)),
                 ],
               ),
               isHeaderRow: true,
             ),
             _divider(),
-            _detailRow(icon: Icons.event_available_outlined, label: 'Saved On', value: controller.savedOnText, alignEnd: true),
+            _detailRow(icon: Icons.event_available_outlined, label: 'saved_on_label'.tr, value: controller.savedOnText, alignEnd: true),
             _divider(),
-            _detailRow(icon: Icons.person_outline, label: 'Saved By', value: controller.savedByLabel.value, alignEnd: true),
+            _detailRow(icon: Icons.person_outline, label: 'saved_by_label'.tr, value: controller.savedByLabel.value, alignEnd: true),
             _divider(),
             _detailRow(
               icon: Icons.info_outline,
-              label: 'Configuration Version',
+              label: 'config_version_label'.tr,
               value: controller.configVersionLabel.value,
               alignEnd: true,
             ),
             _divider(),
             _detailRow(
               icon: Icons.checklist_rtl,
-              label: 'Sections Updated',
+              label: 'sections_updated_label'.tr,
               value: controller.sectionsUpdatedLabel.value,
               alignEnd: true,
             ),
             _divider(),
             _detailRow(
               icon: Icons.description_outlined,
-              label: 'Change Log',
+              label: 'change_log_label'.tr,
               value: '',
               alignEnd: true,
               trailing: GestureDetector(
                 onTap: () {
                   // TODO: navigate to a detailed change-log screen
                 },
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('View Details', style: TextStyle(color: kPurple, fontSize: 11.5, fontWeight: FontWeight.w600)),
-                    Icon(Icons.chevron_right, color: kPurple, size: 15),
+                    Text('view_details_btn'.tr, style: const TextStyle(color: kPurple, fontSize: 11.5, fontWeight: FontWeight.w600)),
+                    const Icon(Icons.chevron_right, color: kPurple, size: 15),
                   ],
                 ),
               ),
@@ -265,16 +266,23 @@ class ConfigurationSavedView extends GetView<HardwareConfigController> {
         width: double.infinity,
         height: 52,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [kPurple, kIndigo]),
+          gradient: AppTheme.primaryGradient,
           borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.gradientPink.withValues(alpha: 0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         alignment: Alignment.center,
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.home_outlined, color: Colors.white, size: 18),
-            SizedBox(width: 8),
-            Text('Go to Display Devices', style: TextStyle(color: Colors.white, fontSize: 14.5, fontWeight: FontWeight.w700)),
+            const Icon(Icons.home_outlined, color: Colors.white, size: 18),
+            const SizedBox(width: 8),
+            Text('go_to_display_devices'.tr, style: const TextStyle(color: Colors.white, fontSize: 14.5, fontWeight: FontWeight.w700)),
           ],
         ),
       ),
@@ -292,12 +300,12 @@ class ConfigurationSavedView extends GetView<HardwareConfigController> {
           border: Border.all(color: kPurple.withValues(alpha: 0.5)),
         ),
         alignment: Alignment.center,
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.tune, color: kPurple, size: 18),
-            SizedBox(width: 8),
-            Text('Configure Another Device', style: TextStyle(color: kPurple, fontSize: 14.5, fontWeight: FontWeight.w700)),
+            const Icon(Icons.tune, color: kPurple, size: 18),
+            const SizedBox(width: 8),
+            Text('configure_another_device'.tr, style: const TextStyle(color: kPurple, fontSize: 14.5, fontWeight: FontWeight.w700)),
           ],
         ),
       ),

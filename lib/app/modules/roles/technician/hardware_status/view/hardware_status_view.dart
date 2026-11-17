@@ -128,10 +128,10 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
                       letterSpacing: -0.5,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
-                    'Real-time multi-subsystem telemetry matrix across GPS, Displays, Network, and Core Hardware',
-                    style: TextStyle(
+                    'hardware_status_subtitle'.tr,
+                    style: const TextStyle(
                       color: Colors.white54,
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
@@ -169,7 +169,7 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
         const SizedBox(height: 12),
         // Run All Diagnostics Button
         CustomButton(
-          text: 'Run All Diagnostics',
+          text: 'run_all_diagnostics'.tr,
           prefixIcon: const Icon(Icons.track_changes_rounded, size: 16, color: Colors.white),
           onTap: controller.runAllDiagnostics,
           height: 44,
@@ -192,8 +192,8 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
             SizedBox(
               width: cardWidth,
               child: _KpiStatCard(
-                title: 'TOTAL MONITORED',
-                value: '${controller.totalMonitored} Fleets',
+                title: 'total_monitored_caps'.tr,
+                value: '${controller.totalMonitored} ${'fleets_count_label'.tr}',
                 textColor: Colors.white,
                 borderColor: kCardBorder,
                 icon: Icons.directions_bus_rounded,
@@ -203,8 +203,8 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
             SizedBox(
               width: cardWidth,
               child: _KpiStatCard(
-                title: 'ONLINE DEVICES',
-                value: '${controller.onlineDevices} Systems',
+                title: 'online_devices_caps'.tr,
+                value: '${controller.onlineDevices} ${'systems_count_label'.tr}',
                 textColor: kEmeraldText,
                 borderColor: const Color(0x3310B981),
                 icon: Icons.check_circle_rounded,
@@ -214,8 +214,8 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
             SizedBox(
               width: cardWidth,
               child: _KpiStatCard(
-                title: 'WITH ISSUES',
-                value: '${controller.brokenWithIssues} Issues',
+                title: 'with_issues_caps'.tr,
+                value: '${controller.brokenWithIssues} ${'issues_count_label'.tr}',
                 textColor: kAmberText,
                 borderColor: const Color(0x33F59E0B),
                 icon: Icons.warning_amber_rounded,
@@ -225,8 +225,8 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
             SizedBox(
               width: cardWidth,
               child: _KpiStatCard(
-                title: 'OFFLINE / FAULTS',
-                value: '${controller.offlineDevices} Offline',
+                title: 'offline_faults_caps'.tr,
+                value: '${controller.offlineDevices} ${'offline_count_label'.tr}',
                 textColor: kRedText,
                 borderColor: const Color(0x33EF4444),
                 icon: Icons.error_outline_rounded,
@@ -246,10 +246,10 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
     return Obx(() {
       final current = controller.activeFilter.value;
       final tabs = [
-        {'label': 'All', 'count': controller.totalMonitored},
-        {'label': 'Healthy', 'count': controller.healthyVehiclesCount},
-        {'label': 'Warnings', 'count': controller.warningVehiclesCount},
-        {'label': 'Critical / Offline', 'count': controller.criticalVehiclesCount},
+        {'id': 'All', 'label': 'all'.tr, 'count': controller.totalMonitored},
+        {'id': 'Healthy', 'label': 'filter_healthy'.tr, 'count': controller.healthyVehiclesCount},
+        {'id': 'Warnings', 'label': 'filter_warnings'.tr, 'count': controller.warningVehiclesCount},
+        {'id': 'Critical / Offline', 'label': 'filter_critical_offline'.tr, 'count': controller.criticalVehiclesCount},
       ];
 
       return SingleChildScrollView(
@@ -257,14 +257,15 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
         physics: const BouncingScrollPhysics(),
         child: Row(
           children: tabs.map((tab) {
+            final filterId = tab['id'] as String;
             final label = tab['label'] as String;
             final count = tab['count'] as int;
-            final isSelected = current == label;
+            final isSelected = current == filterId;
 
             return Padding(
               padding: const EdgeInsets.only(right: 8),
               child: InkWell(
-                onTap: () => controller.setFilter(label),
+                onTap: () => controller.setFilter(filterId),
                 borderRadius: BorderRadius.circular(10),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
@@ -343,13 +344,13 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
               onChanged: controller.onSearchChanged,
               style: const TextStyle(color: Colors.white, fontSize: 13),
               cursorColor: kPurple,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 border: InputBorder.none,
                 isDense: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 11),
-                hintText: 'Search by Device ID, Bus or Depot...',
-                hintStyle: TextStyle(color: Colors.white38, fontSize: 12),
-                prefixIcon: Icon(Icons.search_rounded, color: Colors.white38, size: 19),
+                contentPadding: const EdgeInsets.symmetric(vertical: 11),
+                hintText: 'search_hardware_hint'.tr,
+                hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
+                prefixIcon: const Icon(Icons.search_rounded, color: Colors.white38, size: 19),
               ),
             ),
           ),
@@ -379,7 +380,7 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    controller.viewMode.value == 'card' ? 'Card' : 'Table',
+                    controller.viewMode.value == 'card' ? 'card_view_label'.tr : 'table_view_label'.tr,
                     style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w600),
                   ),
                 ],
@@ -415,15 +416,15 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
                     child: const Icon(Icons.search_off_rounded, color: Colors.white38, size: 32),
                   ),
                   const SizedBox(height: 14),
-                  const Text(
-                    'No Fleet Hardware Found',
-                    style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700),
+                  Text(
+                    'no_fleet_hardware_found'.tr,
+                    style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
-                    'No vehicles or edge units match the current search query or filter criteria.',
+                  Text(
+                    'no_fleet_hardware_desc'.tr,
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white38, fontSize: 12),
+                    style: const TextStyle(color: Colors.white38, fontSize: 12),
                   ),
                   const SizedBox(height: 16),
                   OutlinedButton(
@@ -432,7 +433,7 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
                       side: const BorderSide(color: kPurple),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
-                    child: const Text('Reset All Filters', style: TextStyle(color: kPurple, fontSize: 12)),
+                    child: Text('reset_all_filters'.tr, style: const TextStyle(color: kPurple, fontSize: 12)),
                   ),
                 ],
               ),
@@ -497,19 +498,19 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'Last updated: ${controller.lastUpdatedText}',
+            '${'last_updated'.tr}: ${controller.lastUpdatedText}',
             style: const TextStyle(color: Colors.white38, fontSize: 11),
           ),
           InkWell(
             onTap: controller.onRefresh,
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.refresh_rounded, color: kPurple, size: 14),
-                SizedBox(width: 4),
+                const Icon(Icons.refresh_rounded, color: kPurple, size: 14),
+                const SizedBox(width: 4),
                 Text(
-                  'Refresh',
-                  style: TextStyle(color: kPurple, fontSize: 12, fontWeight: FontWeight.w700),
+                  'refresh'.tr,
+                  style: const TextStyle(color: kPurple, fontSize: 12, fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -599,6 +600,27 @@ class _SubsystemPill extends StatelessWidget {
 
     final st = status.trim();
 
+    String displayLabel = st;
+    if (st == 'Online') {
+      displayLabel = 'online'.tr;
+    } else if (st == 'Offline') {
+      displayLabel = 'offline'.tr;
+    } else if (st == 'Healthy') {
+      displayLabel = 'filter_healthy'.tr;
+    } else if (st == 'Good Signal') {
+      displayLabel = 'good_signal'.tr;
+    } else if (st == 'Weak Signal') {
+      displayLabel = 'weak_signal'.tr;
+    } else if (st == 'Not Installed') {
+      displayLabel = 'not_installed'.tr.isNotEmpty ? 'not_installed'.tr : 'Not Installed';
+    } else if (st == 'Degraded / Offline') {
+      displayLabel = 'degraded_offline'.tr;
+    } else if (st == 'Maintenance') {
+      displayLabel = 'maintenance'.tr.isNotEmpty ? 'maintenance'.tr : 'Maintenance';
+    } else if (st.startsWith('Connected')) {
+      displayLabel = st.replaceFirst('Connected', 'connected'.tr);
+    }
+
     if (st == 'Online' ||
         st == 'Good Signal' ||
         st.startsWith('Connected') ||
@@ -642,7 +664,7 @@ class _SubsystemPill extends StatelessWidget {
           const SizedBox(width: 4.5),
           Flexible(
             child: Text(
-              st.isEmpty ? '—' : st,
+              displayLabel.isEmpty ? '—' : displayLabel,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(color: text, fontSize: 10.5, fontWeight: FontWeight.w700),
@@ -744,26 +766,26 @@ class _VehicleHardwareCard extends StatelessWidget {
             child: Column(
               children: [
                 _buildTelemetryRow(
-                  label: 'GPS Telematics',
+                  label: 'gps_telematics_label'.tr,
                   subLabel: vehicle.gpsDeviceId ?? vehicle.vin,
                   pill: _SubsystemPill(status: gpsStatus),
                 ),
                 const Divider(height: 14, color: Color(0x0FFFFFFF)),
                 _buildTelemetryRow(
-                  label: 'Display Screen',
-                  subLabel: device?.displayId ?? 'No Display',
+                  label: 'display_screen_label'.tr,
+                  subLabel: device?.displayId ?? 'no_display_label'.tr,
                   pill: _SubsystemPill(status: displayStatus),
                 ),
                 const Divider(height: 14, color: Color(0x0FFFFFFF)),
                 _buildTelemetryRow(
-                  label: 'Network',
-                  subLabel: device?.simNetwork ?? 'Cellular',
+                  label: 'network_label'.tr,
+                  subLabel: device?.simNetwork ?? 'cellular_label'.tr,
                   pill: _SubsystemPill(status: netStatus),
                 ),
                 const Divider(height: 14, color: Color(0x0FFFFFFF)),
                 _buildTelemetryRow(
-                  label: 'Hardware Health',
-                  subLabel: device?.status.toUpperCase() ?? 'UNLINKED',
+                  label: 'hardware_health_label'.tr,
+                  subLabel: device?.status.toUpperCase() ?? 'unlinked_label'.tr,
                   pill: _SubsystemPill(status: hwHealth),
                 ),
               ],
@@ -790,9 +812,9 @@ class _VehicleHardwareCard extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: onRunDiagnostics,
                     icon: const Icon(Icons.bolt_rounded, size: 14, color: Colors.white),
-                    label: const Text(
-                      'Run Diagnostics',
-                      style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Colors.white),
+                    label: Text(
+                      'run_diagnostics_btn'.tr,
+                      style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Colors.white),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
@@ -809,9 +831,9 @@ class _VehicleHardwareCard extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: onTroubleshoot,
                 icon: const Icon(Icons.build_outlined, size: 13, color: Color(0xFF60A5FA)),
-                label: const Text(
-                  'Troubleshoot',
-                  style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFF60A5FA)),
+                label: Text(
+                  'troubleshoot_btn'.tr,
+                  style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFF60A5FA)),
                 ),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Color(0x3360A5FA)),
@@ -943,7 +965,7 @@ class _VehicleHardwareTableRow extends StatelessWidget {
                         color: const Color(0xFF27273A),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: const Text('Test', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.w700)),
+                      child: Text('test_btn'.tr, style: const TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.w700)),
                     ),
                   ),
                   const SizedBox(width: 6),
@@ -955,7 +977,7 @@ class _VehicleHardwareTableRow extends StatelessWidget {
                         color: const Color(0x2660A5FA),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: const Text('Fix', style: TextStyle(color: Color(0xFF60A5FA), fontSize: 10.5, fontWeight: FontWeight.w700)),
+                      child: Text('fix_btn'.tr, style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 10.5, fontWeight: FontWeight.w700)),
                     ),
                   ),
                 ],

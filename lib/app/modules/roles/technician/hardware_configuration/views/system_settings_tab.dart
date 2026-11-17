@@ -1,4 +1,3 @@
-import 'package:vmovexa/app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/hardware_config_controller.dart';
@@ -15,8 +14,6 @@ class SystemSettingsTab extends GetView<HardwareConfigController> {
         _buildDeviceHardwareInfoCard(),
         const SizedBox(height: 16),
         _buildRemoteDeviceOperationsCard(),
-        const SizedBox(height: 16),
-        const InfoNoteBanner(text: 'Changes will be applied to the device over the air after saving.'),
       ],
     );
   }
@@ -28,13 +25,13 @@ class SystemSettingsTab extends GetView<HardwareConfigController> {
 
       return SectionCard(
         icon: Icons.memory_outlined,
-        title: 'Device Hardware Information',
+        title: 'hw_info_title'.tr,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Cryptographic identifiers and ledger serial keys',
-              style: TextStyle(color: Colors.white38, fontSize: 11),
+            Text(
+              'hw_info_desc'.tr,
+              style: const TextStyle(color: Colors.white38, fontSize: 11),
             ),
             const SizedBox(height: 14),
             GridView.count(
@@ -45,12 +42,12 @@ class SystemSettingsTab extends GetView<HardwareConfigController> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               children: [
-                _infoTile('MAC Address:', dev?.mac ?? '00:1A:2B:3C:4D:5E', isMonospace: true),
-                _infoTile('Box ID:', dev?.boxId ?? 'VMX-BOX-8841'),
-                _infoTile('Status:', (dev?.status ?? 'online').toUpperCase(), isStatus: true, status: dev?.status ?? 'online'),
+                _infoTile('mac_address_label'.tr, (dev != null && dev.mac.isNotEmpty) ? dev.mac : '—', isMonospace: true),
+                _infoTile('box_id_label'.tr, (dev != null && dev.boxId.isNotEmpty) ? dev.boxId : (dev?.id?.toString() ?? '—')),
+                _infoTile('status'.tr, (dev?.status ?? 'offline').toUpperCase(), isStatus: true, status: dev?.status ?? 'offline'),
                 _infoTile(
-                  'Edge Agent Engine:',
-                  '${dev?.agentVersion ?? "v2.4.1"} · ${dev?.simNetwork ?? "Jio 5G"}',
+                  'edge_agent_engine'.tr,
+                  '${(dev != null && dev.agentVersion.isNotEmpty) ? dev.agentVersion : "—"} · ${(dev != null && dev.simNetwork.isNotEmpty) ? dev.simNetwork : "—"}',
                 ),
               ],
             ),
@@ -106,24 +103,44 @@ class SystemSettingsTab extends GetView<HardwareConfigController> {
   Widget _buildRemoteDeviceOperationsCard() {
     return SectionCard(
       icon: Icons.settings_remote_outlined,
-      title: 'Remote Device Operations',
+      title: 'remote_ops'.tr,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Perform software restarts and factory provisioning wipes',
-            style: TextStyle(color: Colors.white38, fontSize: 11),
+          Text(
+            'remote_ops_desc'.tr,
+            style: const TextStyle(color: Colors.white38, fontSize: 11),
           ),
           const SizedBox(height: 16),
 
           // Reboot Button
           Obx(
-            () => CustomButton(
-              text: 'Reboot Display Controller',
-              prefixIcon: const Icon(Icons.refresh_rounded, size: 18, color: Colors.white),
-              onTap: controller.onRebootController,
-              isLoading: controller.isRebooting.value,
+            () => SizedBox(
+              width: double.infinity,
               height: 46,
+              child: ElevatedButton.icon(
+                onPressed: controller.isRebooting.value ? null : controller.onRebootController,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: kFieldBg,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                  ),
+                ),
+                icon: controller.isRebooting.value
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                      )
+                    : const Icon(Icons.refresh_rounded, size: 18, color: Colors.white70),
+                label: Text(
+                  'reboot_ctrl'.tr,
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -148,12 +165,12 @@ class SystemSettingsTab extends GetView<HardwareConfigController> {
                     ? const SizedBox(
                         width: 16,
                         height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFEF4444)),
+                        child: CircularProgressIndicator(color: Color(0xFFEF4444), strokeWidth: 2),
                       )
-                    : const Icon(Icons.warning_amber_rounded, size: 18),
-                label: const Text(
-                  'Remote Factory Reset',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                    : const Icon(Icons.warning_amber_rounded, size: 18, color: Color(0xFFEF4444)),
+                label: Text(
+                  'factory_reset'.tr,
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
                 ),
               ),
             ),

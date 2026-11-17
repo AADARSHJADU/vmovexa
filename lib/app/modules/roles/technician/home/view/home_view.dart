@@ -55,7 +55,7 @@ class HomeView extends GetView<HomeController> {
                 const SizedBox(height: 22),
 
                 // 5. Quick Actions Grid (6 Field Consoles)
-                _buildSectionHeader('quick_actions_caps'.tr),
+                _buildQuickActionsHeader(),
                 const SizedBox(height: 10),
                 _buildQuickActionsGrid(),
                 const SizedBox(height: 30),
@@ -1035,6 +1035,46 @@ class HomeView extends GetView<HomeController> {
   }
 
   // ---------------- 5. Quick Action Grid (6 Field Consoles) ----------------
+  Widget _buildQuickActionsHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'quick_actions_caps'.tr,
+          style: const TextStyle(
+            color: AppColors.textMuted,
+            fontSize: 10.5,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.1,
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppTheme.primaryGradient.colors.first.withValues(alpha: 0.2),
+                AppTheme.primaryGradient.colors.last.withValues(alpha: 0.2),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: AppTheme.primaryGradient.colors.first.withValues(alpha: 0.4),
+            ),
+          ),
+          child: Text(
+            'field_console'.tr,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildQuickActionsGrid() {
     return Obx(() {
       final assignedTasks = controller.todaysWorkOrders.length;
@@ -1049,16 +1089,16 @@ class HomeView extends GetView<HomeController> {
         childAspectRatio: 1.45,
         children: [
           _buildQuickActionTile(
-            title: 'assigned_work_orders'.tr,
-            subtitle: 'repair_dispatch_queue'.tr,
+            title: 'field_work_orders'.tr,
+            subtitle: 'assigned_depot_tasks'.tr,
             badge: '$assignedTasks ${'assigned'.tr}',
             icon: 'assets/icons/fleet_operator_icons/fleetsManagedA2.svg',
             iconColor: const Color(0xFF38BDF8),
             onTap: controller.onViewAllTasks,
           ),
           _buildQuickActionTile(
-            title: 'edge_devices'.tr,
-            subtitle: 'transit_screen_units'.tr,
+            title: 'display_devices'.tr,
+            subtitle: 'active_edge_units'.tr,
             badge: '$totalDevices ${'total'.tr}',
             icon: 'assets/icons/tv.svg',
             iconColor: const Color(0xFF818CF8),
@@ -1066,7 +1106,7 @@ class HomeView extends GetView<HomeController> {
           ),
           _buildQuickActionTile(
             title: 'hardware_config'.tr,
-            subtitle: 'screen_network_power'.tr,
+            subtitle: 'screen_network_setup'.tr,
             badge: 'configure_btn'.tr,
             icon: 'assets/icons/fleet_operator_icons/profileHeaderSettingA.svg',
             iconColor: const Color(0xFFF59E0B),
@@ -1074,15 +1114,15 @@ class HomeView extends GetView<HomeController> {
           ),
           _buildQuickActionTile(
             title: 'gps_installation'.tr,
-            subtitle: 'vehicle_pairing_mount'.tr,
-            badge: 'assign'.tr,
+            subtitle: 'telematics_wiring'.tr,
+            badge: 'install_badge'.tr,
             icon: 'assets/icons/location.svg',
             iconColor: const Color(0xFF10B981),
             onTap: controller.goToGpsInstallation,
           ),
           _buildQuickActionTile(
-            title: 'diagnostics_self_test'.tr,
-            subtitle: 'hardware_self_test'.tr,
+            title: 'device_diagnostics'.tr,
+            subtitle: 'run_subsystem_tests'.tr,
             badge: 'run_test_btn'.tr,
             icon: 'assets/icons/doctor.svg',
             iconColor: const Color(0xFFEC4899),
@@ -1131,6 +1171,7 @@ class HomeView extends GetView<HomeController> {
                   decoration: BoxDecoration(
                     color: iconColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: iconColor.withValues(alpha: 0.25)),
                   ),
                   child: SvgPicture.asset(
                     icon,
@@ -1144,6 +1185,7 @@ class HomeView extends GetView<HomeController> {
                   decoration: BoxDecoration(
                     color: const Color(0xFF1E293B),
                     borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: const Color(0x1AFFFFFF)),
                   ),
                   child: Text(
                     badge,

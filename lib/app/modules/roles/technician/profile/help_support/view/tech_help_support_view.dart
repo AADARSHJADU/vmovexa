@@ -321,7 +321,7 @@ class TechHelpSupportView extends GetView<TechHelpSupportController> {
       },
       {
         'title': 'video_academy'.tr,
-        'subtitle': '$videoCount Tutorials',
+        'subtitle': '$videoCount ${'tutorials_count_label'.tr}',
         'icon': Icons.play_circle_outline_rounded,
         'color': const Color(0xFF2ECC71),
         'onTap': onVideosTap,

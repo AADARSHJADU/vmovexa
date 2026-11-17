@@ -14,8 +14,6 @@ class NetworkSettingsTab extends GetView<HardwareConfigController> {
         _buildCurrentNetworkStatusCard(),
         const SizedBox(height: 16),
         _buildPrivacyProxyCard(),
-        const SizedBox(height: 16),
-        const InfoNoteBanner(text: 'Changes will be applied to the device over the air after saving.'),
       ],
     );
   }
@@ -28,7 +26,7 @@ class NetworkSettingsTab extends GetView<HardwareConfigController> {
 
       return SectionCard(
         icon: Icons.wifi,
-        title: 'Current Network Status',
+        title: 'current_net_status'.tr,
         trailingBadge: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
           decoration: BoxDecoration(
@@ -49,7 +47,7 @@ class NetworkSettingsTab extends GetView<HardwareConfigController> {
               ),
               const SizedBox(width: 5),
               Text(
-                isOnline ? 'Connected' : 'Disconnected',
+                isOnline ? 'connected_status'.tr : 'disconnected_status'.tr,
                 style: TextStyle(
                   color: isOnline ? kGreen : kRed,
                   fontSize: 10.5,
@@ -62,9 +60,9 @@ class NetworkSettingsTab extends GetView<HardwareConfigController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Real-time connection telemetry and IP addressing',
-              style: TextStyle(color: Colors.white38, fontSize: 11),
+            Text(
+              'current_net_desc'.tr,
+              style: const TextStyle(color: Colors.white38, fontSize: 11),
             ),
             const SizedBox(height: 14),
 
@@ -84,16 +82,24 @@ class NetworkSettingsTab extends GetView<HardwareConfigController> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
-                  _telemetryItem('Connection Type:', controller.networkType.value, Colors.white),
+                  _telemetryItem('connection_type_label'.tr, controller.networkType.value, Colors.white),
                   _telemetryItem(
-                    'SSID Network:',
-                    controller.ssidCtrl.text.isNotEmpty ? controller.ssidCtrl.text : 'VMOVEXA_DEPOT_5G',
+                    'ssid_network_label'.tr,
+                    controller.ssidCtrl.text.isNotEmpty
+                        ? controller.ssidCtrl.text
+                        : (dev?.simNetwork ?? '—'),
                     Colors.white,
                   ),
-                  _telemetryItem('Local IP Address:', controller.ipAddress.value, const Color(0xFF60A5FA)),
                   _telemetryItem(
-                    'SIM Network:',
-                    dev?.simNetwork ?? 'Jio 5G',
+                    'local_ip_label'.tr,
+                    controller.ipAddress.value.isNotEmpty
+                        ? controller.ipAddress.value
+                        : ((dev != null && dev.ipAddress.isNotEmpty) ? dev.ipAddress : '—'),
+                    const Color(0xFF60A5FA),
+                  ),
+                  _telemetryItem(
+                    'sim_network_label'.tr,
+                    dev?.simNetwork ?? '—',
                     kGreen,
                   ),
                 ],
@@ -104,7 +110,7 @@ class NetworkSettingsTab extends GetView<HardwareConfigController> {
             // Network Interface Dropdown
             SettingDropdownRow(
               icon: Icons.settings_ethernet,
-              label: 'Network Interface *',
+              label: 'net_interface'.tr,
               value: controller.networkType.value,
               items: controller.networkTypeOptions,
               onChanged: controller.setNetworkType,
@@ -115,9 +121,9 @@ class NetworkSettingsTab extends GetView<HardwareConfigController> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Wi-Fi SSID',
-                  style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600),
+                Text(
+                  'wifi_ssid_label'.tr,
+                  style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 6),
                 Container(
@@ -130,11 +136,11 @@ class NetworkSettingsTab extends GetView<HardwareConfigController> {
                   child: TextField(
                     controller: controller.ssidCtrl,
                     style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: InputBorder.none,
                       isDense: true,
-                      hintText: 'Enter Wi-Fi SSID network',
-                      hintStyle: TextStyle(color: Colors.white30, fontSize: 12),
+                      hintText: 'enter_wifi_ssid'.tr,
+                      hintStyle: const TextStyle(color: Colors.white30, fontSize: 12),
                     ),
                   ),
                 ),
@@ -167,19 +173,19 @@ class NetworkSettingsTab extends GetView<HardwareConfigController> {
     return Obx(
       () => SectionCard(
         icon: Icons.shield_outlined,
-        title: 'Privacy & Enterprise Proxy',
+        title: 'proxy_vpn_settings'.tr,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Route media downloads and telemetry through corporate proxies',
-              style: TextStyle(color: Colors.white38, fontSize: 11),
+            Text(
+              'proxy_vpn_desc'.tr,
+              style: const TextStyle(color: Colors.white38, fontSize: 11),
             ),
             const SizedBox(height: 14),
             SettingToggleRow(
               icon: Icons.vpn_lock_outlined,
-              label: 'Enable Corporate Peer Proxy',
-              subtitle: 'Use encrypted transit VPN tunnels for all outbound requests',
+              label: 'enable_peer_proxy'.tr,
+              subtitle: 'vpn_tunnel_desc'.tr,
               value: controller.peerProxy.value,
               onChanged: controller.togglePeerProxy,
             ),
@@ -187,7 +193,7 @@ class NetworkSettingsTab extends GetView<HardwareConfigController> {
               const SizedBox(height: 14),
               SettingDropdownRow(
                 icon: Icons.alt_route,
-                label: 'Proxy Protocol',
+                label: 'proxy_protocol'.tr,
                 value: controller.proxyType.value,
                 items: controller.proxyTypeOptions,
                 onChanged: controller.setProxyType,
@@ -198,8 +204,8 @@ class NetworkSettingsTab extends GetView<HardwareConfigController> {
                   Expanded(
                     flex: 2,
                     child: _buildTextInput(
-                      label: 'Proxy Host',
-                      hint: 'proxy.vmovexa.internal',
+                      label: 'proxy_host'.tr,
+                      hint: 'proxy_host_hint'.tr,
                       controller: controller.proxyHostCtrl,
                     ),
                   ),
@@ -207,7 +213,7 @@ class NetworkSettingsTab extends GetView<HardwareConfigController> {
                   Expanded(
                     flex: 1,
                     child: _buildTextInput(
-                      label: 'Port',
+                      label: 'proxy_port'.tr,
                       hint: '8080',
                       controller: controller.proxyPortCtrl,
                     ),

@@ -170,9 +170,7 @@ class HomeController extends GetxController {
   }
 
   void goToHardwareConfigTab() {
-    if (Get.isRegistered<TechnicianDashboardController>()) {
-      Get.find<TechnicianDashboardController>().onNavItemTapped(3); // Hardware Config tab
-    }
+    Get.toNamed(Routes.HARDWARE_CONFIGURATION);
   }
 
   void goToGpsInstallation() {

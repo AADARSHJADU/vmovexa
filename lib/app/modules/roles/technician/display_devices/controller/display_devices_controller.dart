@@ -164,7 +164,7 @@ class DisplayDevicesController extends GetxController {
       final res = await TechnicianService.to.toggleEdgeDevice(device.id.toString(), nextStatus);
       if (res.success) {
         Get.snackbar(
-          nextStatus ? 'Device Activated' : 'Device Deactivated',
+          nextStatus ? 'device_activated'.tr : 'device_deactivated'.tr,
           '${device.boxId} is now ${nextStatus ? 'Active' : 'Inactive'}.',
           backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
           colorText: Colors.white,
@@ -174,7 +174,7 @@ class DisplayDevicesController extends GetxController {
         await fetchDevices();
       } else {
         Get.snackbar(
-          'Toggle Failed',
+          'toggle_failed'.tr,
           res.displayErrorMessage,
           backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
           colorText: Colors.white,
@@ -184,7 +184,7 @@ class DisplayDevicesController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         e.toString(),
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
         colorText: Colors.white,
@@ -250,7 +250,7 @@ class DisplayDevicesController extends GetxController {
       await fetchDevices();
     } catch (e) {
       Get.snackbar(
-        'Reboot Error',
+        'reboot_error'.tr,
         e.toString(),
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
         colorText: Colors.white,
@@ -299,7 +299,7 @@ class DisplayDevicesController extends GetxController {
       final res = await TechnicianService.to.deleteEdgeDevice(device.id.toString());
       if (res.success) {
         Get.snackbar(
-          'Device Deleted',
+          'device_deleted'.tr,
           'Edge Device ${device.boxId} has been removed.',
           backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
           colorText: Colors.white,
@@ -309,7 +309,7 @@ class DisplayDevicesController extends GetxController {
         await fetchDevices();
       } else {
         Get.snackbar(
-          'Delete Failed',
+          'delete_failed'.tr,
           res.displayErrorMessage,
           backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
           colorText: Colors.white,
@@ -319,7 +319,7 @@ class DisplayDevicesController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         e.toString(),
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
         colorText: Colors.white,

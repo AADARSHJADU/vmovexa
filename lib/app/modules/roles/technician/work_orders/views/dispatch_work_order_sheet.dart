@@ -33,14 +33,14 @@ class _DispatchWorkOrderSheetState extends State<DispatchWorkOrderSheet> {
   String _selectedUrgency = 'normal';
 
   static const List<String> _urgencies = ['low', 'normal', 'high', 'critical'];
-  static const List<String> _categories = [
-    'Hardware Maintenance',
-    'Display Screen Signal Loss',
-    'GPS Calibration Fault',
-    'Power Surge & Fuse Tripped',
-    'Edge Box Firmware Crash',
-    'Wiring & Harness Damage',
-    'Network & SIM Disconnection',
+  static const List<Map<String, String>> _categories = [
+    {'value': 'Hardware Maintenance', 'key': 'cat_hw_maintenance'},
+    {'value': 'Display Screen Signal Loss', 'key': 'cat_display_loss'},
+    {'value': 'GPS Calibration Fault', 'key': 'cat_gps_calib'},
+    {'value': 'Power Surge & Fuse Tripped', 'key': 'cat_power_surge'},
+    {'value': 'Edge Box Firmware Crash', 'key': 'cat_firmware_crash'},
+    {'value': 'Wiring & Harness Damage', 'key': 'cat_wiring_damage'},
+    {'value': 'Network & SIM Disconnection', 'key': 'cat_network_sim'},
   ];
 
   @override
@@ -128,26 +128,18 @@ class _DispatchWorkOrderSheetState extends State<DispatchWorkOrderSheet> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Dispatch Work Order',
-                          style: TextStyle(
+                          'dispatch_work_order_title'.tr,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        // Text(
-                        //   'POST /api/v1/work-orders/dispatch',
-                        //   style: TextStyle(
-                        //     color: AppColors.textMuted,
-                        //     fontSize: 11,
-                        //     fontFamily: 'monospace',
-                        //   ),
-                        // ),
                       ],
                     ),
                   ),
@@ -173,19 +165,19 @@ class _DispatchWorkOrderSheetState extends State<DispatchWorkOrderSheet> {
                       children: [
                         Expanded(
                           child: _buildFormField(
-                            label: 'Vehicle ID *',
+                            label: 'vehicle_id_label'.tr,
                             controller: _vehicleIdCtrl,
                             keyboardType: TextInputType.number,
-                            validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                            validator: (v) => (v == null || v.isEmpty) ? 'required_field'.tr : null,
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: _buildFormField(
-                            label: 'Technician ID *',
+                            label: 'technician_id_label'.tr,
                             controller: _technicianIdCtrl,
                             keyboardType: TextInputType.number,
-                            validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                            validator: (v) => (v == null || v.isEmpty) ? 'required_field'.tr : null,
                           ),
                         ),
                       ],
@@ -205,7 +197,7 @@ class _DispatchWorkOrderSheetState extends State<DispatchWorkOrderSheet> {
                       children: [
                         Expanded(
                           child: _buildFormField(
-                            label: 'SLA Target (Hours)',
+                            label: 'sla_target_hours_label'.tr,
                             controller: _slaHoursCtrl,
                             keyboardType: TextInputType.number,
                           ),
@@ -213,9 +205,9 @@ class _DispatchWorkOrderSheetState extends State<DispatchWorkOrderSheet> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: _buildFormField(
-                            label: 'Estimated Arrival (ETA)',
+                            label: 'estimated_arrival_eta_label'.tr,
                             controller: _etaCtrl,
-                            hintText: 'e.g. 2 hours, 18:00',
+                            hintText: 'eta_hint'.tr,
                           ),
                         ),
                       ],
@@ -224,18 +216,18 @@ class _DispatchWorkOrderSheetState extends State<DispatchWorkOrderSheet> {
 
                     // Issue Description
                     _buildFormField(
-                      label: 'Fault Description',
+                      label: 'fault_description_label'.tr,
                       controller: _descriptionCtrl,
-                      hintText: 'Diagnosed fault summary...',
+                      hintText: 'diagnosed_fault_hint'.tr,
                       maxLines: 2,
                     ),
                     const SizedBox(height: 14),
 
                     // Dispatch Engineering Instructions
                     _buildFormField(
-                      label: 'Engineering Instructions',
+                      label: 'engineering_instructions_label'.tr,
                       controller: _instructionsCtrl,
-                      hintText: 'Tools required, safety procedures, gate entry instructions...',
+                      hintText: 'engineering_instructions_hint'.tr,
                       maxLines: 2,
                     ),
                     const SizedBox(height: 20),
@@ -284,14 +276,14 @@ class _DispatchWorkOrderSheetState extends State<DispatchWorkOrderSheet> {
                                   color: Colors.white,
                                 ),
                               )
-                            : const Row(
+                            : Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.flash_on_rounded, color: Colors.white, size: 18),
-                                  SizedBox(width: 8),
+                                  const Icon(Icons.flash_on_rounded, color: Colors.white, size: 18),
+                                  const SizedBox(width: 8),
                                   Text(
-                                    'Confirm Dispatch & Notify',
-                                    style: TextStyle(
+                                    'confirm_dispatch_notify_btn'.tr,
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,
@@ -363,12 +355,15 @@ class _DispatchWorkOrderSheetState extends State<DispatchWorkOrderSheet> {
   }
 
   Widget _buildCategoryDropdown() {
+    final currentVal = _issueCategoryCtrl.text;
+    final match = _categories.firstWhereOrNull((c) => c['value'] == currentVal) ?? _categories.first;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Issue Category *',
-          style: TextStyle(
+        Text(
+          'issue_category_label'.tr,
+          style: const TextStyle(
             color: Color(0xFF94A3B8),
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -384,17 +379,15 @@ class _DispatchWorkOrderSheetState extends State<DispatchWorkOrderSheet> {
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
-              value: _categories.contains(_issueCategoryCtrl.text)
-                  ? _issueCategoryCtrl.text
-                  : _categories.first,
+              value: match['value'],
               dropdownColor: const Color(0xFF1E293B),
               isExpanded: true,
               icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF94A3B8)),
               items: _categories.map((cat) {
                 return DropdownMenuItem<String>(
-                  value: cat,
+                  value: cat['value'],
                   child: Text(
-                    cat,
+                    cat['key']!.tr,
                     style: const TextStyle(color: Colors.white, fontSize: 13),
                   ),
                 );
@@ -415,9 +408,9 @@ class _DispatchWorkOrderSheetState extends State<DispatchWorkOrderSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Priority & Urgency',
-          style: TextStyle(
+        Text(
+          'priority_urgency_label'.tr,
+          style: const TextStyle(
             color: Color(0xFF94A3B8),
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -458,7 +451,7 @@ class _DispatchWorkOrderSheetState extends State<DispatchWorkOrderSheet> {
                   ),
                   child: Center(
                     child: Text(
-                      urg.toUpperCase(),
+                      urg.tr.toUpperCase(),
                       style: TextStyle(
                         color: isSelected ? color : const Color(0xFF94A3B8),
                         fontSize: 10,

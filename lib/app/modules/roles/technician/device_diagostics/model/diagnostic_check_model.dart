@@ -72,3 +72,51 @@ class DiagnosticCheck {
     }
   }
 }
+
+class DiagnosticStepModel {
+  final int id;
+  final String nameKey;
+  final String nameDefault;
+  String status; // 'pending', 'running', 'pass', 'warning'
+  String detail;
+
+  DiagnosticStepModel({
+    required this.id,
+    required this.nameKey,
+    required this.nameDefault,
+    this.status = 'pending',
+    this.detail = '',
+  });
+}
+
+class DiagnosticLogEntry {
+  final String id;
+  final String type; // 'SYSTEM', 'GPS', 'HEALTH', 'MQTT', 'DIAGS'
+  final String time;
+  final String badge;
+  final String message;
+  final Color badgeColor;
+
+  DiagnosticLogEntry({
+    required this.id,
+    required this.type,
+    required this.time,
+    required this.badge,
+    required this.message,
+    required this.badgeColor,
+  });
+}
+
+class DiagnosticAssessmentResult {
+  final String status; // 'PASSED' or 'CHECK REQUIRED'
+  final String timestamp;
+  final String summary;
+  final int latency;
+
+  DiagnosticAssessmentResult({
+    required this.status,
+    required this.timestamp,
+    required this.summary,
+    required this.latency,
+  });
+}

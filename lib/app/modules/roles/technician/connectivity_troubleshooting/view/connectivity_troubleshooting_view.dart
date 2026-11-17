@@ -133,15 +133,15 @@ class ConnectivityTroubleshootingView extends GetView<ConnectivityTroubleshootin
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: kCardBorder),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Diagnostics',
-                      style: TextStyle(color: kPurple, fontSize: 11, fontWeight: FontWeight.w700),
+                      'diagnostics'.tr,
+                      style: const TextStyle(color: kPurple, fontSize: 11, fontWeight: FontWeight.w700),
                     ),
-                    SizedBox(width: 3),
-                    Icon(Icons.arrow_forward_rounded, color: kPurple, size: 13),
+                    const SizedBox(width: 3),
+                    const Icon(Icons.arrow_forward_rounded, color: kPurple, size: 13),
                   ],
                 ),
               ),
@@ -277,7 +277,7 @@ class ConnectivityTroubleshootingView extends GetView<ConnectivityTroubleshootin
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        'Vehicle ${dev?.vehicleRegistration ?? '—'} · MAC: ${dev?.mac.isNotEmpty == true ? dev!.mac : "—"}',
+                        '${'vehicle'.tr} ${dev?.vehicleRegistration ?? '—'} · MAC: ${dev?.mac.isNotEmpty == true ? dev!.mac : "—"}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(color: Colors.white54, fontSize: 11),
@@ -297,11 +297,11 @@ class ConnectivityTroubleshootingView extends GetView<ConnectivityTroubleshootin
   // Connectivity Matrix Header
   // =====================================================================
   Widget _buildMatrixHeader() {
-    return const Row(
+    return Row(
       children: [
         Text(
-          'Connectivity Status Matrix',
-          style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+          'connectivity_status_matrix'.tr,
+          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
         ),
       ],
     );
@@ -321,17 +321,17 @@ class ConnectivityTroubleshootingView extends GetView<ConnectivityTroubleshootin
         children: [
           // Row 1: Check 1 (Device Connectivity) & Check 2 (Network Status)
           _MatrixCard(
-            title: 'DEVICE CONNECTIVITY',
-            statusLabel: isOnline ? 'Online' : 'Offline',
+            title: 'device_connectivity_caps'.tr,
+            statusLabel: isOnline ? 'online'.tr : 'offline'.tr,
             isOk: isOnline,
-            primaryText: dev?.lastHeartbeat.isNotEmpty == true ? 'Heartbeat received' : (isOnline ? 'Heartbeat received' : 'No heartbeat yet'),
-            secondaryText: 'Last heartbeat: ${dev?.lastHeartbeat.isNotEmpty == true ? dev!.lastHeartbeat : (isOnline ? "Just now" : "—")}',
+            primaryText: dev?.lastHeartbeat.isNotEmpty == true ? 'heartbeat_received'.tr : (isOnline ? 'heartbeat_received'.tr : 'no_heartbeat_yet'.tr),
+            secondaryText: '${'last_heartbeat_prefix'.tr}${dev?.lastHeartbeat.isNotEmpty == true ? dev!.lastHeartbeat : (isOnline ? "just_now".tr : "—")}',
           ),
           const SizedBox(height: 10),
 
           _MatrixCard(
-            title: 'NETWORK STATUS',
-            statusLabel: isOnline ? 'Connected' : 'Disconnected',
+            title: 'network_status_caps'.tr,
+            statusLabel: isOnline ? 'connected'.tr : 'disconnected'.tr,
             isOk: isOnline,
             primaryText: dev?.simNetwork.isNotEmpty == true ? dev!.simNetwork : (tele?.cellularNetwork ?? '4G LTE'),
             secondaryText: 'Agent: ${dev?.agentVersion.isNotEmpty == true ? dev!.agentVersion : "v2.4.1"}',
@@ -340,21 +340,21 @@ class ConnectivityTroubleshootingView extends GetView<ConnectivityTroubleshootin
 
           // Row 2: Check 3 (GPS Connection) & Check 4 (Last Test)
           _MatrixCard(
-            title: 'GPS CONNECTION',
-            statusLabel: tele?.gpsLocked == true ? 'Locked' : 'Locked',
+            title: 'gps_connection_caps'.tr,
+            statusLabel: tele?.gpsLocked == true ? 'locked'.tr : 'locked'.tr,
             isOk: tele?.gpsLocked != false,
-            primaryText: '${tele?.satellitesCount ?? 8} satellites',
-            secondaryText: 'Accuracy: ${tele?.gpsAccuracy ?? "2.4 m CEP"}',
+            primaryText: '${tele?.satellitesCount ?? 8} ${'satellites_label'.tr}',
+            secondaryText: '${'accuracy_prefix'.tr}${tele?.gpsAccuracy ?? "2.4 m CEP"}',
           ),
           const SizedBox(height: 10),
 
           _MatrixCard(
-            title: 'LAST TEST',
-            statusLabel: test?.status ?? (isOnline ? 'healthy' : 'offline'),
+            title: 'last_test_caps'.tr,
+            statusLabel: test != null ? (test.isHealthy ? 'healthy'.tr : test.status) : (isOnline ? 'healthy'.tr : 'offline'.tr),
             isOk: test?.isHealthy ?? isOnline,
             statusColor: kBlue,
-            primaryText: test?.timestamp.isNotEmpty == true ? test!.timestamp : 'Today · Just now',
-            secondaryText: test != null ? '${test.latency} ms · ${test.packetLoss}% loss' : '32 ms · 0.0% loss',
+            primaryText: test?.timestamp.isNotEmpty == true ? test!.timestamp : 'today_just_now'.tr,
+            secondaryText: test != null ? '${test.latency} ms · ${test.packetLoss}% ${'loss_text'.tr}' : '32 ms · 0.0% ${'loss_text'.tr}',
           ),
         ],
       );
@@ -368,14 +368,14 @@ class ConnectivityTroubleshootingView extends GetView<ConnectivityTroubleshootin
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Troubleshooting Actions',
-          style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+        Text(
+          'troubleshooting_actions'.tr,
+          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 2),
-        const Text(
-          'Run interactive network resolution scripts',
-          style: TextStyle(color: Colors.white54, fontSize: 11.5),
+        Text(
+          'run_troubleshooting_scripts_desc'.tr,
+          style: const TextStyle(color: Colors.white54, fontSize: 11.5),
         ),
         const SizedBox(height: 12),
         Obx(
@@ -385,10 +385,10 @@ class ConnectivityTroubleshootingView extends GetView<ConnectivityTroubleshootin
               _ActionCard(
                 icon: Icons.speed_rounded,
                 iconColor: kEmerald,
-                title: 'Test Network Latency',
-                subtitle: 'Ping gateway, DNS, and remote cloud telemetry host',
+                title: 'test_network_latency'.tr,
+                subtitle: 'ping_gateway_dns_desc'.tr,
                 isLoading: controller.isTestingConnection.value,
-                loadingText: 'Pinging Host & Gateway...',
+                loadingText: 'pinging_host_gateway'.tr,
                 onTap: controller.onTestConnection,
               ),
               const SizedBox(height: 10),
@@ -397,10 +397,10 @@ class ConnectivityTroubleshootingView extends GetView<ConnectivityTroubleshootin
               _ActionCard(
                 icon: Icons.restart_alt_rounded,
                 iconColor: kPurple,
-                title: 'Force Reconnect / Renew DHCP',
-                subtitle: 'Cycle cellular modem interface and renew device IP address',
+                title: 'force_reconnect_dhcp'.tr,
+                subtitle: 'cycle_cellular_modem_desc'.tr,
                 isLoading: controller.isReconnecting.value,
-                loadingText: 'Cycling Modem Interface...',
+                loadingText: 'cycling_modem_interface'.tr,
                 onTap: controller.onReconnect,
               ),
             ],
@@ -424,10 +424,10 @@ class ConnectivityTroubleshootingView extends GetView<ConnectivityTroubleshootin
             borderRadius: BorderRadius.circular(14),
             border: Border.all(color: kCardBorder),
           ),
-          child: const Center(
+          child: Center(
             child: Text(
-              'No connectivity tests recorded yet for this device.',
-              style: TextStyle(color: Colors.white38, fontSize: 12),
+              'no_conn_tests_recorded'.tr,
+              style: const TextStyle(color: Colors.white38, fontSize: 12),
             ),
           ),
         );
@@ -456,9 +456,9 @@ class ConnectivityTroubleshootingView extends GetView<ConnectivityTroubleshootin
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Latest Connectivity Test',
-                    style: TextStyle(
+                  Text(
+                    'latest_connectivity_test'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 13.5,
                       fontWeight: FontWeight.w700,
@@ -469,28 +469,28 @@ class ConnectivityTroubleshootingView extends GetView<ConnectivityTroubleshootin
                     text: TextSpan(
                       style: const TextStyle(color: Colors.white70, fontSize: 12, height: 1.4),
                       children: [
-                        const TextSpan(text: 'Ping latency is '),
+                        TextSpan(text: 'ping_latency_is'.tr),
                         TextSpan(
                           text: '${test.latency} ms',
                           style: const TextStyle(color: kEmeraldText, fontWeight: FontWeight.bold),
                         ),
-                        const TextSpan(text: ' with '),
+                        TextSpan(text: 'with_text'.tr),
                         TextSpan(
                           text: '${test.packetLoss}%',
                           style: const TextStyle(color: kEmeraldText, fontWeight: FontWeight.bold),
                         ),
-                        const TextSpan(text: ' packet loss. RSSI '),
+                        TextSpan(text: 'packet_loss_rssi'.tr),
                         TextSpan(
                           text: '${test.rssi ?? -68} dBm',
                           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                         ),
-                        TextSpan(text: ' · Status ${test.status}.'),
+                        TextSpan(text: '${'status_dot'.tr}${test.status}.'),
                       ],
                     ),
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Last checked: ${controller.lastCheckedText}',
+                    '${'last_checked_prefix'.tr}${controller.lastCheckedText}',
                     style: const TextStyle(color: Colors.white38, fontSize: 10.5),
                   ),
                 ],
@@ -520,9 +520,9 @@ class ConnectivityTroubleshootingView extends GetView<ConnectivityTroubleshootin
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Select Target Unit',
-                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800),
+                Text(
+                  'select_target_unit'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800),
                 ),
                 IconButton(
                   onPressed: () => Get.back(),
@@ -531,9 +531,9 @@ class ConnectivityTroubleshootingView extends GetView<ConnectivityTroubleshootin
               ],
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Pick a device to run live telemetry ping tests:',
-              style: TextStyle(color: Colors.white54, fontSize: 12),
+            Text(
+              'pick_device_ping_tests_desc'.tr,
+              style: const TextStyle(color: Colors.white54, fontSize: 12),
             ),
             const SizedBox(height: 12),
             // Search Input
@@ -548,13 +548,13 @@ class ConnectivityTroubleshootingView extends GetView<ConnectivityTroubleshootin
                 onChanged: controller.onSearchChanged,
                 style: const TextStyle(color: Colors.white, fontSize: 12.5),
                 cursorColor: kPurple,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   border: InputBorder.none,
                   isDense: true,
-                  contentPadding: EdgeInsets.symmetric(vertical: 10),
-                  hintText: 'Filter by ID or Bus...',
-                  hintStyle: TextStyle(color: Colors.white38, fontSize: 12),
-                  prefixIcon: Icon(Icons.search_rounded, color: Colors.white38, size: 18),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                  hintText: 'filter_by_id_or_bus'.tr,
+                  hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
+                  prefixIcon: const Icon(Icons.search_rounded, color: Colors.white38, size: 18),
                 ),
               ),
             ),
@@ -563,8 +563,8 @@ class ConnectivityTroubleshootingView extends GetView<ConnectivityTroubleshootin
               child: Obx(() {
                 final list = controller.filteredDevicesList;
                 if (list.isEmpty) {
-                  return const Center(
-                    child: Text('No devices found', style: TextStyle(color: Colors.white38)),
+                  return Center(
+                    child: Text('no_devices_found'.tr, style: const TextStyle(color: Colors.white38)),
                   );
                 }
 

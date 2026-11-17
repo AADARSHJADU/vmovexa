@@ -329,7 +329,7 @@ class TechWorkOrdersController extends GetxController {
       if (res.success) {
         Get.snackbar(
           'dispatched'.tr,
-          'Work order dispatched successfully to technician.',
+          'work_order_dispatched_success'.tr,
           backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,

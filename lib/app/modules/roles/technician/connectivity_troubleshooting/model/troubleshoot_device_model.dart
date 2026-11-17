@@ -1,10 +1,11 @@
 // import 'hardware_status_device_model.dart' show DeviceOnlineState;
+import 'package:get/get.dart';
 import '../../hardware_status/model/hardware_status_device_model.dart';
 
 enum ConnSubStatus { connected, disconnected }
 
 extension ConnSubStatusX on ConnSubStatus {
-  String get label => this == ConnSubStatus.connected ? 'Connected' : 'Disconnected';
+  String get label => this == ConnSubStatus.connected ? 'connected'.tr : 'disconnected'.tr;
 }
 
 class TroubleshootDevice {

@@ -251,28 +251,4 @@ class SettingToggleRow extends StatelessWidget {
   }
 }
 
-/// Bottom info banner: "Changes will be applied to the device over the air after saving."
-class InfoNoteBanner extends StatelessWidget {
-  final String text;
-  const InfoNoteBanner({super.key, this.text = 'Changes will be applied to the device after saving.'});
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: kFieldBg,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.info_outline, color: Colors.white38, size: 15),
-          const SizedBox(width: 8),
-          Expanded(child: Text(text, style: const TextStyle(color: Colors.white54, fontSize: 11))),
-        ],
-      ),
-    );
-  }
-}

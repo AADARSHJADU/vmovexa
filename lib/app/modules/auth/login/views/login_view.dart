@@ -131,7 +131,7 @@ class LoginView extends GetView<LoginController> {
               ),
               const SizedBox(height: 32),
 
-              Row(
+              /*Row(
                 children: [
                   const Expanded(
                     child: Divider(color: Color(0xFF1E202F), thickness: 1.2),
@@ -172,7 +172,7 @@ class LoginView extends GetView<LoginController> {
                     onTap: () {},
                   ),
                 ],
-              ),
+              ),*/
               // const SizedBox(height: 36),
               //
               // Row(

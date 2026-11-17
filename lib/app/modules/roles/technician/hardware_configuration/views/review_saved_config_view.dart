@@ -38,17 +38,17 @@ class ReviewAndSaveConfigView extends GetView<HardwareConfigController> {
                   const SizedBox(height: 14),
                   _buildSectionCard(
                     icon: Icons.directions_bus_filled_outlined,
-                    title: 'Assigned Vehicle',
+                    title: 'assigned_vehicle_section'.tr,
                     tabIndexToEdit: null,
                     child: Obx(
                           () => Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _kv('Vehicle', controller.assignedVehicle.value),
-                          _kv('Organization / Fleet', controller.organizationFleet.value),
-                          _kv('Depot / Location', controller.depotLocation.value),
-                          _kv('Installation Position', controller.installationPosition.value),
-                          _kv('Power Source', controller.vehiclePowerSource.value),
+                          _kv('vehicle'.tr, controller.assignedVehicle.value),
+                          _kv('organization'.tr, controller.organizationFleet.value),
+                          _kv('depot'.tr, controller.depotLocation.value),
+                          _kv('installation_position'.tr, controller.installationPosition.value),
+                          _kv('power_source'.tr, controller.vehiclePowerSource.value),
                         ],
                       ),
                     ),
@@ -56,17 +56,17 @@ class ReviewAndSaveConfigView extends GetView<HardwareConfigController> {
                   const SizedBox(height: 14),
                   _buildSectionCard(
                     icon: Icons.tv_outlined,
-                    title: 'Display Settings',
+                    title: 'display_settings_section'.tr,
                     tabIndexToEdit: 0,
                     child: Obx(
                           () => Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _kv('Screen Brightness', '${controller.screenBrightness.value.round()}%'),
-                          _kv('Screen Timeout', controller.screenTimeout.value),
-                          _kv('Auto Brightness', controller.autoBrightness.value ? 'Enabled' : 'Disabled'),
-                          _kv('Screen Orientation', controller.screenOrientation.value),
-                          _kv('Display Mode', controller.displayMode.value),
+                          _kv('screen_brightness_label'.tr, '${controller.screenBrightness.value.round()}%'),
+                          _kv('screen_timeout_label'.tr, controller.screenTimeout.value),
+                          _kv('auto_brightness_label'.tr, controller.autoBrightness.value ? 'enabled_status'.tr : 'disabled_status'.tr),
+                          _kv('screen_orientation_label'.tr, controller.screenOrientation.value),
+                          _kv('display_mode_label'.tr, controller.displayMode.value),
                         ],
                       ),
                     ),
@@ -74,18 +74,18 @@ class ReviewAndSaveConfigView extends GetView<HardwareConfigController> {
                   const SizedBox(height: 14),
                   _buildSectionCard(
                     icon: Icons.wifi,
-                    title: 'Network Settings',
+                    title: 'network_settings_section'.tr,
                     tabIndexToEdit: 1,
                     child: Obx(
                           () => Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _kv('Connection Type', controller.connectionType.value),
-                          _kv('SSID', controller.wifiSsid.value),
-                          _kv('IP Configuration', 'DHCP'),
-                          _kv('IP Address', controller.ipAddress.value),
-                          _kvSignal('Signal Strength', controller.signalStrengthPercent.value),
-                          _kv('Proxy', controller.useProxy.value ? 'Enabled' : 'Disabled'),
+                          _kv('connection_type_label'.tr, controller.connectionType.value),
+                          _kv('ssid_label'.tr, controller.wifiSsid.value),
+                          _kv('ip_config_label'.tr, 'DHCP'),
+                          _kv('ip_address'.tr, controller.ipAddress.value),
+                          _kvSignal('signal_strength_label'.tr, controller.signalStrengthPercent.value),
+                          _kv('proxy_label'.tr, controller.useProxy.value ? 'enabled_status'.tr : 'disabled_status'.tr),
                         ],
                       ),
                     ),
@@ -93,17 +93,17 @@ class ReviewAndSaveConfigView extends GetView<HardwareConfigController> {
                   const SizedBox(height: 14),
                   _buildSectionCard(
                     icon: Icons.settings_outlined,
-                    title: 'System Settings',
+                    title: 'system_settings_section'.tr,
                     tabIndexToEdit: 2,
                     child: Obx(
                           () => Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _kv('Device Date & Time', controller.deviceDateTime.value),
-                          _kv('Time Zone', controller.timeZoneLabel.value),
-                          _kv('Auto Time Sync', controller.autoTimeSync.value ? 'Enabled' : 'Disabled'),
-                          _kv('Firmware Version', controller.firmwareVersion.value),
-                          _kv('Edge Agent Version', controller.edgeAgentVersion.value),
+                          _kv('device_datetime_label'.tr, controller.deviceDateTime.value),
+                          _kv('timezone_label'.tr, controller.timeZoneLabel.value),
+                          _kv('auto_time_sync_label'.tr, controller.autoTimeSync.value ? 'enabled_status'.tr : 'disabled_status'.tr),
+                          _kv('firmware_version_label'.tr, controller.firmwareVersion.value),
+                          _kv('edge_agent_version_label'.tr, controller.edgeAgentVersion.value),
                         ],
                       ),
                     ),
@@ -111,15 +111,15 @@ class ReviewAndSaveConfigView extends GetView<HardwareConfigController> {
                   const SizedBox(height: 14),
                   _buildSectionCard(
                     icon: Icons.volume_up_outlined,
-                    title: 'Audio Settings',
+                    title: 'audio_settings_section'.tr,
                     tabIndexToEdit: 0,
                     child: Obx(
                           () => Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _kv('Volume Level', '${controller.volumeLevel.value.round()}%'),
-                          _kv('Mute', controller.isMuted.value ? 'Enabled' : 'Disabled'),
-                          _kv('Audio Output', controller.audioOutput.value),
+                          _kv('volume_level_label'.tr, '${controller.volumeLevel.value.round()}%'),
+                          _kv('mute_label'.tr, controller.isMuted.value ? 'enabled_status'.tr : 'disabled_status'.tr),
+                          _kv('audio_output_label'.tr, controller.audioOutput.value),
                         ],
                       ),
                     ),
@@ -127,15 +127,15 @@ class ReviewAndSaveConfigView extends GetView<HardwareConfigController> {
                   const SizedBox(height: 14),
                   _buildSectionCard(
                     icon: Icons.bolt_outlined,
-                    title: 'Power Settings',
+                    title: 'power_settings_section'.tr,
                     tabIndexToEdit: 0,
                     child: Obx(
                           () => Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _kv('Power Mode', controller.powerMode.value),
-                          _kv('Auto Power On', controller.autoPowerOn.value),
-                          _kv('Auto Power Off', controller.autoPowerOff.value),
+                          _kv('power_mode_label'.tr, controller.powerMode.value),
+                          _kv('auto_power_on_label'.tr, controller.autoPowerOn.value),
+                          _kv('auto_power_off_label'.tr, controller.autoPowerOff.value),
                         ],
                       ),
                     ),
@@ -159,15 +159,15 @@ class ReviewAndSaveConfigView extends GetView<HardwareConfigController> {
           child: const Icon(Icons.arrow_back, color: Colors.white),
         ),
         const SizedBox(width: 10),
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Review & Save', style: TextStyle(color: Colors.white, fontSize: 16.5, fontWeight: FontWeight.w700)),
-              SizedBox(height: 2),
+              Text('review_and_save_title'.tr, style: const TextStyle(color: Colors.white, fontSize: 16.5, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 2),
               Text(
-                'Review all settings before saving the configuration.',
-                style: TextStyle(color: Colors.white54, fontSize: 11.5),
+                'review_and_save_subtitle'.tr,
+                style: const TextStyle(color: Colors.white54, fontSize: 11.5),
               ),
             ],
           ),
@@ -175,11 +175,11 @@ class ReviewAndSaveConfigView extends GetView<HardwareConfigController> {
         Obx(
               () => GestureDetector(
             onTap: controller.isSaving.value ? null : controller.onConfirmSaveConfig,
-            child: const Column(
+            child: Column(
               children: [
-                Icon(Icons.save_outlined, color: kPurple, size: 20),
-                SizedBox(height: 2),
-                Text('Save Config', style: TextStyle(color: kPurple, fontSize: 10, fontWeight: FontWeight.w600)),
+                const Icon(Icons.save_outlined, color: kPurple, size: 20),
+                const SizedBox(height: 2),
+                Text('save_config_action'.tr, style: const TextStyle(color: kPurple, fontSize: 10, fontWeight: FontWeight.w600)),
               ],
             ),
           ),
@@ -211,7 +211,7 @@ class ReviewAndSaveConfigView extends GetView<HardwareConfigController> {
                   () => Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Device: ${controller.deviceId.value}',
+                  Text('${'device_colon'.tr} ${controller.deviceId.value}',
                       style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 2),
                   Text('${controller.vehicleNumber.value} · ${controller.depotLocation.value}',
@@ -233,7 +233,7 @@ class ReviewAndSaveConfigView extends GetView<HardwareConfigController> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  controller.isDeviceOnline.value ? 'Online' : 'Offline',
+                  controller.isDeviceOnline.value ? 'online'.tr : 'offline'.tr,
                   style: TextStyle(
                     color: controller.isDeviceOnline.value ? kGreen : Colors.redAccent,
                     fontSize: 11,
@@ -279,12 +279,12 @@ class ReviewAndSaveConfigView extends GetView<HardwareConfigController> {
               if (tabIndexToEdit != null)
                 GestureDetector(
                   onTap: () => controller.onEditSection(tabIndexToEdit),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('Edit', style: TextStyle(color: kPurple, fontSize: 12, fontWeight: FontWeight.w600)),
-                      SizedBox(width: 3),
-                      Icon(Icons.edit_outlined, color: kPurple, size: 13),
+                      Text('edit'.tr, style: const TextStyle(color: kPurple, fontSize: 12, fontWeight: FontWeight.w600)),
+                      const SizedBox(width: 3),
+                      const Icon(Icons.edit_outlined, color: kPurple, size: 13),
                     ],
                   ),
                 ),
@@ -320,7 +320,7 @@ class ReviewAndSaveConfigView extends GetView<HardwareConfigController> {
           Expanded(child: Text(label, style: const TextStyle(color: Colors.white54, fontSize: 11.5))),
           const Icon(Icons.signal_cellular_alt, color: kGreen, size: 13),
           const SizedBox(width: 4),
-          Text('Excellent ($percent%)',
+          Text('${'good_signal'.tr} ($percent%)',
               style: const TextStyle(color: kGreen, fontSize: 11.5, fontWeight: FontWeight.w600)),
         ],
       ),
@@ -352,10 +352,10 @@ class ReviewAndSaveConfigView extends GetView<HardwareConfigController> {
                     border: Border.all(color: kPurple.withValues(alpha: 0.4)),
                   ),
                   alignment: Alignment.center,
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.chevron_left, color: kPurple, size: 18),
-                      Text('Back', style: TextStyle(color: kPurple, fontSize: 13.5, fontWeight: FontWeight.w700)),
+                      const Icon(Icons.chevron_left, color: kPurple, size: 18),
+                      Text('back'.tr, style: const TextStyle(color: kPurple, fontSize: 13.5, fontWeight: FontWeight.w700)),
                     ],
                   ),
                 ),
@@ -378,14 +378,14 @@ class ReviewAndSaveConfigView extends GetView<HardwareConfigController> {
                         height: 20,
                         child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.4),
                       )
-                          : const Row(
+                          : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.save_outlined, color: Colors.white, size: 17),
-                          SizedBox(width: 8),
+                          const Icon(Icons.save_outlined, color: Colors.white, size: 17),
+                          const SizedBox(width: 8),
                           Text(
-                            'Save Configuration',
-                            style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+                            'save_configuration'.tr,
+                            style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
                           ),
                         ],
                       ),
@@ -396,14 +396,14 @@ class ReviewAndSaveConfigView extends GetView<HardwareConfigController> {
             ],
           ),
           const SizedBox(height: 8),
-          const Row(
+          Row(
             children: [
-              Icon(Icons.info_outline, color: Colors.white38, size: 13),
-              SizedBox(width: 6),
+              const Icon(Icons.info_outline, color: Colors.white38, size: 13),
+              const SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  'Configuration will be applied to the device after saving.',
-                  style: TextStyle(color: Colors.white38, fontSize: 10.5),
+                  'review_and_save_subtitle'.tr,
+                  style: const TextStyle(color: Colors.white38, fontSize: 10.5),
                 ),
               ),
             ],

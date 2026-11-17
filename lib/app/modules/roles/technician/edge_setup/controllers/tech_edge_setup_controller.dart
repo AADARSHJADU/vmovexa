@@ -52,7 +52,7 @@ class TechEdgeSetupController extends GetxController {
     final id = (boxId != null && boxId.trim().isNotEmpty) ? boxId.trim() : targetBoxId.value.trim();
     if (id.isEmpty) {
       Get.snackbar(
-        'Missing Box ID',
+        'box_id_required'.tr,
         'enter_box_id_ph'.tr,
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.25),
         colorText: Colors.white,
@@ -90,7 +90,7 @@ class TechEdgeSetupController extends GetxController {
       final isOnline = handshakeData.value?['isOnline'] == true;
       if (isOnline) {
         Get.snackbar(
-          'ONLINE',
+          'online'.tr,
           'Device $id is ONLINE & transmitting live telemetry!',
           backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.25),
           colorText: Colors.white,
@@ -99,7 +99,7 @@ class TechEdgeSetupController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Handshake Failed',
+        'handshake_failed'.tr,
         e.toString(),
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.25),
         colorText: Colors.white,
@@ -116,7 +116,7 @@ class TechEdgeSetupController extends GetxController {
       final res = await TechnicianService.to.getEdgeDevicePackageDownload();
       if (res.success) {
         Get.snackbar(
-          'Package Download Initiated',
+          'package_download_initiated'.tr,
           'VMOVEXA Core installer ZIP package requested.',
           backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.25),
           colorText: Colors.white,
@@ -124,7 +124,7 @@ class TechEdgeSetupController extends GetxController {
         );
       } else {
         Get.snackbar(
-          'Download Failed',
+          'download_failed'.tr,
           res.displayErrorMessage,
           backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.25),
           colorText: Colors.white,
@@ -133,7 +133,7 @@ class TechEdgeSetupController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         e.toString(),
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.25),
         colorText: Colors.white,
@@ -147,7 +147,7 @@ class TechEdgeSetupController extends GetxController {
   Future<void> copyCommand(String cmd, String label) async {
     await Clipboard.setData(ClipboardData(text: cmd));
     Get.snackbar(
-      'Copied to Clipboard',
+      'copied_to_clipboard'.tr,
       '$label: $cmd',
       backgroundColor: const Color(0xFF6366F1).withValues(alpha: 0.25),
       colorText: Colors.white,

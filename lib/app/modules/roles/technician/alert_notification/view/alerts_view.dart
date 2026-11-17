@@ -67,22 +67,6 @@ class AlertsView extends GetView<AlertsController> {
             ],
           ),
         ),
-        GestureDetector(
-          onTap: controller.onOpenFilterSheet,
-          child: Container(
-            padding: const EdgeInsets.all(11),
-            decoration: BoxDecoration(
-              color: kCardBg,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: kBorder),
-            ),
-            child: SvgPicture.asset(
-              'assets/icons/filter.svg',
-              width: 18,
-              height: 18,
-            ),
-          ),
-        ),
       ],
     );
   }
