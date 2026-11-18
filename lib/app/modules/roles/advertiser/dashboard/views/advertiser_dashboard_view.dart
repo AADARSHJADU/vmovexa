@@ -3112,10 +3112,61 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               Image.asset('assets/app_logo/newLogo.png', width: 140, height: 38),
               Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 24),
-                    onPressed: () => Get.toNamed(Routes.ADVERTISER_NOTIFICATIONS),
-                  ),
+                  Obx(() {
+                    final count = controller.unreadNotificationCount.value;
+                    return Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 24),
+                          onPressed: () async {
+                            await Get.toNamed(Routes.ADVERTISER_NOTIFICATIONS);
+                            controller.fetchUnreadNotificationCount();
+                          },
+                        ),
+                        if (count > 0)
+                          Positioned(
+                            top: 4,
+                            right: 4,
+                            child: IgnorePointer(
+                              child: Container(
+                                constraints: const BoxConstraints(
+                                  minWidth: 18,
+                                  minHeight: 18,
+                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEF4444),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: const Color(0xFF0F172A),
+                                    width: 1.5,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.35),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    count > 99 ? '99+' : (count > 9 ? '9+' : '$count'),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w900,
+                                      height: 1.0,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  }),
                   const SizedBox(width: 4),
                   GestureDetector(
                     onTap: controller.switchToProfile,
@@ -4381,29 +4432,42 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                         border: Border.all(color: AppColors.cardBorder, width: 1.2),
                       ),
                       child: TextField(
+                        controller: controller.searchController,
                         style: const TextStyle(color: Colors.white, fontSize: 13),
                         onChanged: controller.searchCampaigns,
-                        decoration: const InputDecoration(
-                          hintText: 'Search by title, brand, client, id...',
-                          hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                        decoration: InputDecoration(
+                          hintText: 'search_campaigns_ph'.tr,
+                          hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                          prefixIcon: Icon(Icons.search_rounded, color: AppColors.textMuted, size: 18),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 18),
+                          suffixIcon: Obx(() {
+                            if (controller.searchQuery.value.isNotEmpty) {
+                              return IconButton(
+                                icon: const Icon(Icons.close_rounded, color: AppColors.textMuted, size: 16),
+                                onPressed: () {
+                                  controller.searchController.clear();
+                                  controller.searchCampaigns('');
+                                },
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          }),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   PopupMenuButton<String>(
-                    tooltip: 'Sort Campaigns',
+                    tooltip: controller.getSortLabel(controller.selectedSort.value),
                     color: const Color(0xFF1E293B),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     onSelected: controller.setSort,
                     itemBuilder: (context) {
-                      // Read once, outside the map, so the value is stable while the menu builds
                       final current = controller.selectedSort.value;
                       return controller.sortOptions.map((opt) {
                         final isSel = current == opt;
+                        final label = controller.getSortLabel(opt);
                         return PopupMenuItem<String>(
                           value: opt,
                           child: Row(
@@ -4415,7 +4479,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                opt,
+                                label,
                                 style: TextStyle(
                                   color: isSel ? Colors.white : AppColors.textSecondary,
                                   fontSize: 12,
@@ -4439,7 +4503,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                           SvgPicture.asset('assets/icons/advertiser_ic/filter.svg'),
                           const SizedBox(width: 6),
                           Obx(() => Text(
-                            controller.selectedSort.value, // RxString read inside Obx
+                            controller.getSortLabel(controller.selectedSort.value),
                             style: const TextStyle(
                                 color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                           )),
@@ -4459,7 +4523,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: controller.statusTabs.length, // plain list, fixed tabs
+                itemCount: controller.statusTabs.length,
                 itemBuilder: (context, idx) {
                   final tab = controller.statusTabs[idx];
                   return _buildFilterPill(tab);
@@ -4471,26 +4535,134 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             // Campaign list
             Expanded(
               child: Obx(() {
-                final list = controller.filteredCampaigns; // RxList read inside Obx
+                final list = controller.filteredCampaigns;
                 if (list.isEmpty) {
                   return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.campaign_outlined,
-                            size: 48, color: AppColors.textMuted.withOpacity(0.4)),
-                        const SizedBox(height: 12),
-                        const Text('No campaigns found in this view',
-                            style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
-                        const SizedBox(height: 16),
-                        CustomButton(
-                          width: 160,
-                          height: 40,
-                          text: 'Create Campaign',
-                          isGradient: true,
-                          onTap: controller.goToCreateCampaign,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Container(
+                        margin: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: AppColors.cardBg,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: AppColors.cardBorder),
                         ),
-                      ],
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 58,
+                              height: 58,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1E293B),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: AppColors.cardBorder),
+                              ),
+                              child: const Icon(
+                                Icons.campaign_rounded,
+                                size: 30,
+                                color: Color(0xFF94A3B8),
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            Text(
+                              'no_campaigns_found'.tr,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'no_campaigns_sub'.tr,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: AppColors.textMuted,
+                                fontSize: 11.5,
+                                height: 1.4,
+                              ),
+                            ),
+                            const SizedBox(height: 18),
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              spacing: 10,
+                              runSpacing: 10,
+                              children: [
+                                // Clear Filters Button
+                                OutlinedButton.icon(
+                                  onPressed: controller.clearFilters,
+                                  icon: const Icon(Icons.filter_alt_off_rounded, size: 15, color: Colors.white),
+                                  label: Text(
+                                    'clear_filters'.tr,
+                                    style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
+                                  ),
+                                  style: OutlinedButton.styleFrom(
+                                    side: const BorderSide(color: AppColors.cardBorder),
+                                    backgroundColor: const Color(0xFF0F172A),
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  ),
+                                ),
+
+                                // Refresh List Button with Primary Gradient
+                                Container(
+                                  decoration: BoxDecoration(
+                                    gradient: AppTheme.primaryGradient,
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+                                        blurRadius: 6,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      onTap: () => controller.fetchCampaigns(),
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(Icons.refresh_rounded, size: 15, color: Colors.white),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              'refresh_list'.tr,
+                                              style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 14),
+                            SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton.icon(
+                                onPressed: controller.goToCreateCampaign,
+                                icon: const Icon(Icons.add_rounded, size: 16, color: Color(0xFF8B5CF6)),
+                                label: Text(
+                                  'create_campaign'.tr,
+                                  style: const TextStyle(color: Color(0xFF8B5CF6), fontSize: 12, fontWeight: FontWeight.bold),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(color: Color(0xFF8B5CF6)),
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   );
                 }
@@ -4529,6 +4701,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
     return Obx(() {
       final isSelected = controller.activeFilter.value == filter;
       final int count = controller.getTabCount(filter);
+      final label = controller.getTabLabel(filter);
 
       return GestureDetector(
         onTap: () => controller.filterCampaigns(filter),
@@ -4549,7 +4722,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                filter,
+                label,
                 style: TextStyle(
                   color: isSelected ? Colors.white : AppColors.textSecondary,
                   fontSize: 11.5,
@@ -4677,98 +4850,98 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                           }
                         },
                         itemBuilder: (context) => [
-                          const PopupMenuItem<String>(
+                          PopupMenuItem<String>(
                             value: 'view_details',
                             child: Row(
                               children: [
-                                Icon(Icons.visibility_outlined, size: 16, color: Colors.white70),
-                                SizedBox(width: 10),
-                                Text('View Details', style: TextStyle(color: Colors.white, fontSize: 12)),
+                                const Icon(Icons.visibility_outlined, size: 16, color: Colors.white70),
+                                const SizedBox(width: 10),
+                                Text('view_details'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
                               ],
                             ),
                           ),
                           if (isEditable)
-                            const PopupMenuItem<String>(
+                            PopupMenuItem<String>(
                               value: 'edit_campaign',
                               child: Row(
                                 children: [
-                                  Icon(Icons.edit_outlined, size: 16, color: Colors.white70),
-                                  SizedBox(width: 10),
-                                  Text('Edit Campaign', style: TextStyle(color: Colors.white, fontSize: 12)),
+                                  const Icon(Icons.edit_outlined, size: 16, color: Colors.white70),
+                                  const SizedBox(width: 10),
+                                  Text('edit_campaign'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
                                 ],
                               ),
                             ),
                           if (isApproved)
-                            const PopupMenuItem<String>(
+                            PopupMenuItem<String>(
                               value: 'start_broadcast',
                               child: Row(
                                 children: [
-                                  Icon(Icons.play_arrow_rounded, size: 16, color: Color(0xFF10B981)),
-                                  SizedBox(width: 10),
-                                  Text('Start Broadcast',
-                                      style: TextStyle(
+                                  const Icon(Icons.play_arrow_rounded, size: 16, color: Color(0xFF10B981)),
+                                  const SizedBox(width: 10),
+                                  Text('start_broadcast'.tr,
+                                      style: const TextStyle(
                                           color: Color(0xFF10B981), fontSize: 12, fontWeight: FontWeight.bold)),
                                 ],
                               ),
                             ),
                           if (isRunning)
-                            const PopupMenuItem<String>(
+                            PopupMenuItem<String>(
                               value: 'pause_ad',
                               child: Row(
                                 children: [
-                                  Icon(Icons.pause_rounded, size: 16, color: Color(0xFFF59E0B)),
-                                  SizedBox(width: 10),
-                                  Text('Pause Ad',
-                                      style: TextStyle(
+                                  const Icon(Icons.pause_rounded, size: 16, color: Color(0xFFF59E0B)),
+                                  const SizedBox(width: 10),
+                                  Text('pause_ad'.tr,
+                                      style: const TextStyle(
                                           color: Color(0xFFF59E0B), fontSize: 12, fontWeight: FontWeight.bold)),
                                 ],
                               ),
                             ),
                           if (isPaused)
-                            const PopupMenuItem<String>(
+                            PopupMenuItem<String>(
                               value: 'resume_ad',
                               child: Row(
                                 children: [
-                                  Icon(Icons.play_arrow_rounded, size: 16, color: Color(0xFF10B981)),
-                                  SizedBox(width: 10),
-                                  Text('Resume Ad',
-                                      style: TextStyle(
+                                  const Icon(Icons.play_arrow_rounded, size: 16, color: Color(0xFF10B981)),
+                                  const SizedBox(width: 10),
+                                  Text('resume_ad'.tr,
+                                      style: const TextStyle(
                                           color: Color(0xFF10B981), fontSize: 12, fontWeight: FontWeight.bold)),
                                 ],
                               ),
                             ),
                           if (isRunning || isPaused)
-                            const PopupMenuItem<String>(
+                            PopupMenuItem<String>(
                               value: 'end_campaign',
                               child: Row(
                                 children: [
-                                  Icon(Icons.stop_rounded, size: 16, color: Color(0xFFEF4444)),
-                                  SizedBox(width: 10),
-                                  Text('End Campaign',
-                                      style: TextStyle(
+                                  const Icon(Icons.stop_rounded, size: 16, color: Color(0xFFEF4444)),
+                                  const SizedBox(width: 10),
+                                  Text('end_campaign'.tr,
+                                      style: const TextStyle(
                                           color: Color(0xFFEF4444), fontSize: 12, fontWeight: FontWeight.bold)),
                                 ],
                               ),
                             ),
-                          const PopupMenuItem<String>(
+                          PopupMenuItem<String>(
                             value: 'view_analytics',
                             child: Row(
                               children: [
-                                Icon(Icons.bar_chart_rounded, size: 16, color: Colors.white70),
-                                SizedBox(width: 10),
-                                Text('View Analytics', style: TextStyle(color: Colors.white, fontSize: 12)),
+                                const Icon(Icons.bar_chart_rounded, size: 16, color: Colors.white70),
+                                const SizedBox(width: 10),
+                                Text('view_analytics'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
                               ],
                             ),
                           ),
                           if (isEditable)
-                            const PopupMenuItem<String>(
+                            PopupMenuItem<String>(
                               value: 'delete_campaign',
                               child: Row(
                                 children: [
-                                  Icon(Icons.delete_outline_rounded, size: 16, color: Color(0xFFEF4444)),
-                                  SizedBox(width: 10),
-                                  Text('Delete Campaign',
-                                      style: TextStyle(
+                                  const Icon(Icons.delete_outline_rounded, size: 16, color: Color(0xFFEF4444)),
+                                  const SizedBox(width: 10),
+                                  Text('delete_campaign'.tr,
+                                      style: const TextStyle(
                                           color: Color(0xFFEF4444), fontSize: 12, fontWeight: FontWeight.bold)),
                                 ],
                               ),
@@ -4816,7 +4989,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                           const Icon(Icons.person_outline_rounded, size: 10, color: Color(0xFF60A5FA)),
                           const SizedBox(width: 3),
                           Text(
-                            'Client: ${c.clientName}',
+                            '${'client_prefix'.tr} ${c.clientName}',
                             style: const TextStyle(color: Color(0xFF93C5FD), fontSize: 9, fontWeight: FontWeight.bold),
                           ),
                         ],
@@ -4889,7 +5062,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                       border: Border.all(color: const Color(0xFF6366F1).withOpacity(0.3)),
                     ),
                     child: Text(
-                      'Payment: ${c.paymentBreakdown != null ? 'Paid' : 'Unpaid'}',
+                      '${'payment_prefix'.tr} ${c.isPaid ? 'paid'.tr : 'Unpaid'}',
                       style: const TextStyle(color: Color(0xFFA5B4FC), fontSize: 8.5, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -4907,7 +5080,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Flight Duration', style: TextStyle(color: AppColors.textMuted, fontSize: 9)),
+                          Text('flight_duration'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9)),
                           const SizedBox(height: 2),
                           Text(c.dates,
                               style: const TextStyle(
@@ -4917,7 +5090,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          const Text('Total Amount', style: TextStyle(color: AppColors.textMuted, fontSize: 9)),
+                          Text('total_amount'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9)),
                           const SizedBox(height: 2),
                           Text(c.budget,
                               style: const TextStyle(
@@ -4945,7 +5118,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                             const Icon(Icons.tv_rounded, size: 13, color: Color(0xFF8B5CF6)),
                             const SizedBox(width: 6),
                             Text(
-                              '${c.screensCount} Target Screens',
+                              '${c.screensCount} ${'target_screens'.tr}',
                               style: const TextStyle(
                                   color: Color(0xFFC4B5FD), fontSize: 11, fontWeight: FontWeight.bold),
                             ),
@@ -4956,7 +5129,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                             const Icon(Icons.location_on_outlined, size: 12, color: AppColors.textMuted),
                             const SizedBox(width: 4),
                             Text(
-                              '${c.targets.isNotEmpty ? c.targets.length : 1} Cities',
+                              '${c.targets.isNotEmpty ? c.targets.length : 1} ${'cities_count'.tr}',
                               style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
                             ),
                           ],
@@ -5331,74 +5504,6 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           ),
         );
       }).toList(),
-    );
-  }
-
-  Widget _buildContactSupportBanner() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Row(
-        children: [
-          const Icon(
-            Icons.headset_mic_outlined,
-            color: Color(0xFF8B5CF6),
-            size: 28,
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  'We\'re here to help!',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Our support team is available 24/7 to assist you with any issues.',
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 9.5),
-                  maxLines: 2,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            decoration: BoxDecoration(
-              gradient: AppTheme.primaryGradient,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              ),
-              child: const Text(
-                'Raise a Ticket ›',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 

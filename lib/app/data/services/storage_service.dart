@@ -96,6 +96,35 @@ class StorageService extends GetxService {
     return _prefs.getString(_keyCountryCode) ?? 'US';
   }
 
+  static const String _keyCampaignDraft = 'vmovexa_draft_campaign';
+
+  // Save campaign draft
+  Future<void> saveCampaignDraft(Map<String, dynamic> data) async {
+    await _prefs.setString(_keyCampaignDraft, jsonEncode(data));
+  }
+
+  // Get campaign draft
+  Map<String, dynamic>? getCampaignDraft() {
+    final raw = _prefs.getString(_keyCampaignDraft);
+    if (raw != null && raw.isNotEmpty) {
+      try {
+        return jsonDecode(raw) as Map<String, dynamic>;
+      } catch (_) {}
+    }
+    return null;
+  }
+
+  // Has campaign draft
+  bool hasCampaignDraft() {
+    final raw = _prefs.getString(_keyCampaignDraft);
+    return raw != null && raw.isNotEmpty;
+  }
+
+  // Clear campaign draft
+  Future<void> clearCampaignDraft() async {
+    await _prefs.remove(_keyCampaignDraft);
+  }
+
   // Clear session on logout
   Future<void> clearAuth() async {
     await _prefs.remove(_keyAccessToken);

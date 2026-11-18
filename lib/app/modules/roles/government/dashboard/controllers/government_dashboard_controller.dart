@@ -49,6 +49,7 @@ class GovernmentDashboardController extends GetxController {
   final RxString autoExpireAlert = '6 Hours'.obs;
   final RxString attachedMediaUrl = ''.obs;
   final RxString attachedMediaName = ''.obs;
+  final RxInt unreadNotificationCount = 0.obs;
 
   @override
   void onInit() {
@@ -64,6 +65,7 @@ class GovernmentDashboardController extends GetxController {
   Future<void> loadDashboardData({bool silent = false}) async {
     if (!silent) isLoading.value = true;
     try {
+      fetchUnreadNotificationCount();
       final results = await Future.wait([
         _govService.getAgencyAnalytics(),
         _govService.getCampaigns(ownerType: 'government'),
@@ -117,6 +119,15 @@ class GovernmentDashboardController extends GetxController {
   Future<void> onRefresh() async {
     isRefreshing.value = true;
     await loadDashboardData(silent: true);
+  }
+
+  Future<void> fetchUnreadNotificationCount() async {
+    try {
+      final res = await _govService.getNotifications(limit: 50);
+      if (res.success && res.data != null) {
+        unreadNotificationCount.value = res.data!.where((n) => !n.isRead.value).length;
+      }
+    } catch (_) {}
   }
 
   void updateNavIndex(int index) {

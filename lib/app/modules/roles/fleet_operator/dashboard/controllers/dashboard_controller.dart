@@ -12,6 +12,7 @@ class FleetOpDashboardController extends GetxController {
   final RxInt selectedNavIndex = 0.obs;
   final RxBool isLoading = false.obs;
   final RxBool isRefreshing = false.obs;
+  final RxInt unreadNotificationCount = 0.obs;
 
   final Rx<UserModel?> user = Rx<UserModel?>(null);
   final Rx<FleetKpisModel> kpis = FleetKpisModel().obs;
@@ -63,6 +64,7 @@ class FleetOpDashboardController extends GetxController {
       await Future.wait([
         _loadKpis(),
         _loadAssignedVehicles(),
+        fetchUnreadNotificationCount(),
       ]);
     } finally {
       isLoading.value = false;
@@ -75,9 +77,21 @@ class FleetOpDashboardController extends GetxController {
       await Future.wait([
         _loadKpis(),
         _loadAssignedVehicles(),
+        fetchUnreadNotificationCount(),
       ]);
     } finally {
       isRefreshing.value = false;
+    }
+  }
+
+  Future<void> fetchUnreadNotificationCount() async {
+    try {
+      final res = await FleetService.to.getNotifications(page: 1, limit: 50);
+      if (res.success && res.data != null) {
+        unreadNotificationCount.value = res.data!.where((n) => !n.isRead.value).length;
+      }
+    } catch (e) {
+      debugPrint('[FleetOpDashboard] Error fetching unread notifications: $e');
     }
   }
 

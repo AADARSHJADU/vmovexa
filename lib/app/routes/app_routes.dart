@@ -101,6 +101,7 @@ abstract class Routes {
   static const GOVERNMENT_CREATE_CAMPAIGN = '/government-create-campaign';
   static const GOV_CAMPAIGN_DETAILS = '/gov-campaign-details';
   static const GOV_BILLING = '/government-billing';
+  static const RECORD_OFFLINE_PAYMENT = '/record-offline-payment';
 
   //technician flow routes
   static const TECHNICIAN_DASHBOARD = '/technician-dashboard';

@@ -41,6 +41,7 @@ class HomeController extends GetxController {
   final RxInt offlineDevicesCount = 0.obs;
   final RxInt issuesDevicesCount = 0.obs;
   final RxInt totalDevicesCount = 0.obs;
+  final RxInt unreadNotificationCount = 0.obs;
 
   // ---------------- Today's Tasks / Field Work Orders ----------------
   final RxList<WorkOrderModel> todaysWorkOrders = <WorkOrderModel>[].obs;
@@ -97,12 +98,22 @@ class HomeController extends GetxController {
       await Future.wait([
         _fetchStatsAndKpis(),
         _fetchTodaysWorkOrders(),
+        fetchUnreadNotificationCount(),
       ]);
       _refreshSyncStatus();
     } catch (_) {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  Future<void> fetchUnreadNotificationCount() async {
+    try {
+      final res = await TechnicianService.to.getNotifications(limit: 50);
+      if (res.success && res.data != null) {
+        unreadNotificationCount.value = res.data!.where((n) => !n.isRead.value).length;
+      }
+    } catch (_) {}
   }
 
   Future<void> _fetchStatsAndKpis() async {
@@ -153,8 +164,9 @@ class HomeController extends GetxController {
     }
   }
 
-  void goToNotifications() {
-    Get.toNamed(Routes.ALERT_NOTIFICATION);
+  Future<void> goToNotifications() async {
+    await Get.toNamed(Routes.ALERT_NOTIFICATION);
+    fetchUnreadNotificationCount();
   }
 
   void onViewAllTasks() {

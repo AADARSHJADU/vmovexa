@@ -770,6 +770,7 @@ class AdvertiserDashboardController extends GetxController {
   final RxBool isBillingLoading = false.obs;
 
   // Real data state
+  final RxInt unreadNotificationCount = 0.obs;
   final RxList<CampaignModel> allCampaigns = <CampaignModel>[].obs;
   final RxList<CampaignModel> filteredCampaigns = <CampaignModel>[].obs;
   final RxMap<String, dynamic> overviewStats = <String, dynamic>{}.obs;
@@ -782,18 +783,59 @@ class AdvertiserDashboardController extends GetxController {
   // Active status category filter pill selection inside Campaigns Tab
   final RxString activeFilter = 'All'.obs;
   final RxString searchQuery = ''.obs;
+  final TextEditingController searchController = TextEditingController();
   final RxString selectedSort = 'Recent'.obs;
   final List<String> statusTabs = [
     'All',
-    'Under Review',
     'Approved',
     'Running',
     'Scheduled',
-    'Draft',
     'Completed',
     'Paused',
   ];
   final List<String> sortOptions = ['Recent', 'Name', 'Budget-High', 'Budget-Low', 'Screens'];
+
+  String getSortLabel(String sort) {
+    switch (sort) {
+      case 'Recent':
+        return 'sort_recent_first'.tr;
+      case 'Name':
+        return 'sort_name_az'.tr;
+      case 'Budget-High':
+        return 'sort_budget_high_low'.tr;
+      case 'Budget-Low':
+        return 'sort_budget_low_high'.tr;
+      case 'Screens':
+        return 'sort_most_screens'.tr;
+      default:
+        return 'sort_recent_first'.tr;
+    }
+  }
+
+  String getTabLabel(String tab) {
+    switch (tab) {
+      case 'All':
+        return 'tab_all'.tr;
+      case 'Approved':
+        return 'tab_approved'.tr;
+      case 'Running':
+        return 'tab_running'.tr;
+      case 'Scheduled':
+        return 'tab_scheduled'.tr;
+      case 'Completed':
+        return 'tab_completed'.tr;
+      case 'Paused':
+        return 'tab_paused'.tr;
+      default:
+        return tab;
+    }
+  }
+
+  void clearFilters() {
+    searchController.clear();
+    searchQuery.value = '';
+    activeFilter.value = 'All';
+  }
 
   // Lifecycle & Flow (Tab 2) state
   final RxString activeLifecycleTab = 'pipeline'.obs; // 'pipeline' | 'roles' | 'matrix'
@@ -830,12 +872,27 @@ class AdvertiserDashboardController extends GetxController {
         fetchOverviewAnalytics(),
         fetchMqttStatus(),
         fetchBillingData(),
+        fetchUnreadNotificationCount(),
       ]);
     } catch (e) {
       debugPrint('Error loading advertiser dashboard data: $e');
     } finally {
       isLoading.value = false;
       isRefreshing.value = false;
+    }
+  }
+
+  /// Fetch unread notifications count from GET /api/v1/notifications
+  Future<void> fetchUnreadNotificationCount() async {
+    try {
+      final res = await _service.getNotifications(page: 1, limit: 50);
+      if (res.success && res.data != null) {
+        final count = res.data!.where((n) => !n.isRead.value).length;
+        unreadNotificationCount.value = count;
+        debugPrint('🔔 [AdvertiserDashboard] Unread notifications: $count');
+      }
+    } catch (e) {
+      debugPrint('❌ [AdvertiserDashboard] Error fetching unread notifications: $e');
     }
   }
 
@@ -1319,13 +1376,11 @@ class AdvertiserDashboardController extends GetxController {
     final t = tab.toLowerCase();
     return allCampaigns.where((c) {
       final s = c.status.toLowerCase();
-      if (t == 'running') return s == 'live' || s == 'running' || s == 'active';
       if (t == 'approved') return s == 'approved';
+      if (t == 'running') return s == 'live' || s == 'running' || s == 'active';
       if (t == 'scheduled') return s == 'scheduled';
-      if (t == 'draft') return s == 'draft';
       if (t == 'completed') return s == 'completed';
       if (t == 'paused') return s == 'paused';
-      if (t == 'under review' || t == 'pending') return s == 'pending_approval' || s == 'pending' || s == 'under review';
       return s == t;
     }).length;
   }
@@ -1339,20 +1394,16 @@ class AdvertiserDashboardController extends GetxController {
     if (filter != 'all') {
       results = results.where((c) {
         final s = c.status.toLowerCase();
-        if (filter == 'running' || filter == 'live') {
-          return s == 'live' || s == 'running' || s == 'active';
-        } else if (filter == 'approved') {
+        if (filter == 'approved') {
           return s == 'approved';
+        } else if (filter == 'running' || filter == 'live') {
+          return s == 'live' || s == 'running' || s == 'active';
         } else if (filter == 'scheduled') {
           return s == 'scheduled';
-        } else if (filter == 'pending' || filter == 'under review') {
-          return s == 'pending' || s == 'pending_approval' || s == 'under review';
         } else if (filter == 'completed') {
           return s == 'completed';
         } else if (filter == 'paused') {
           return s == 'paused';
-        } else if (filter == 'draft') {
-          return s == 'draft';
         }
         return s == filter;
       }).toList();
@@ -1385,6 +1436,13 @@ class AdvertiserDashboardController extends GetxController {
       results.sort((a, b) => (a.rawBudget ?? 0).compareTo(b.rawBudget ?? 0));
     } else if (selectedSort.value == 'Screens') {
       results.sort((a, b) => b.screensCount.compareTo(a.screensCount));
+    } else {
+      // 'Recent' (Default) - Recent First (Newest created/start date first)
+      results.sort((a, b) {
+        final bDate = DateTime.tryParse(b.createdAt ?? '') ?? DateTime.tryParse(b.startDate ?? '') ?? DateTime(1970);
+        final aDate = DateTime.tryParse(a.createdAt ?? '') ?? DateTime.tryParse(a.startDate ?? '') ?? DateTime(1970);
+        return bDate.compareTo(aDate);
+      });
     }
 
     filteredCampaigns.assignAll(results);

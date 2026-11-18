@@ -8,6 +8,7 @@ import '../models/connectivity_test_model.dart';
 import '../models/device_config_model.dart';
 import '../models/gps_device_model.dart';
 import '../models/fleet_models.dart';
+import '../models/notification_model.dart';
 import '../../modules/roles/technician/profile/help_support/model/tech_help_support_models.dart';
 import '../../modules/roles/technician/home/model/home_models.dart';
 import 'http_client_service.dart';
@@ -16,6 +17,33 @@ class TechnicianService extends GetxService {
   static TechnicianService get to => Get.find<TechnicianService>();
 
   HttpClientService get _http => HttpClientService.to;
+
+  /// GET /api/v1/notifications
+  Future<ApiResponseModel<List<AppNotificationModel>>> getNotifications({
+    int page = 1,
+    int limit = 50,
+  }) async {
+    return _http.get<List<AppNotificationModel>>(
+      ApiConstants.notifications,
+      queryParams: {'page': page, 'limit': limit},
+      requiresAuth: true,
+      create: (data) {
+        if (data is List) {
+          return data
+              .whereType<Map>()
+              .map((item) => AppNotificationModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        } else if (data is Map && (data['rows'] is List || data['items'] is List || data['notifications'] is List)) {
+          final list = (data['rows'] ?? data['items'] ?? data['notifications']) as List;
+          return list
+              .whereType<Map>()
+              .map((item) => AppNotificationModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        }
+        return <AppNotificationModel>[];
+      },
+    );
+  }
 
   // ==========================================================
   // SECTION 1: Technician Self-Service (Work Orders)

@@ -93,40 +93,65 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
               Image.asset('assets/app_logo/newLogo.png', width: 140, height: 36),
               Row(
                 children: [
-                  // Notifications with badge
-                  InkWell(
-                    onTap: () => Get.toNamed(Routes.NOTIFICATIONS_LIST),
-                    borderRadius: BorderRadius.circular(20),
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        SvgPicture.asset(
-                          'assets/icons/notification.svg',
-                          width: 24,
-                          height: 24,
-                        ),
-                        Positioned(
-                          right: -4,
-                          top: -4,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFA855F7),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Text(
-                              '5',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold,
+                  // Notifications with dynamic badge
+                  Obx(() {
+                    final count = controller.unreadNotificationCount.value;
+                    return InkWell(
+                      onTap: () async {
+                        await Get.toNamed(Routes.NOTIFICATIONS_LIST);
+                        controller.fetchUnreadNotificationCount();
+                      },
+                      borderRadius: BorderRadius.circular(20),
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          SvgPicture.asset(
+                            'assets/icons/notification.svg',
+                            width: 24,
+                            height: 24,
+                          ),
+                          if (count > 0)
+                            Positioned(
+                              right: -4,
+                              top: -4,
+                              child: Container(
+                                constraints: const BoxConstraints(
+                                  minWidth: 18,
+                                  minHeight: 18,
+                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEF4444),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: const Color(0xFF0F172A),
+                                    width: 1.5,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.35),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    count > 99 ? '99+' : (count > 9 ? '9+' : '$count'),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                      height: 1.0,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                        ],
+                      ),
+                    );
+                  }),
                   // const SizedBox(width: 14),
                   // // Profile Avatar
                   // GestureDetector(

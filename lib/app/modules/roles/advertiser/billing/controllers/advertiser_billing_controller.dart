@@ -24,7 +24,7 @@ class AdvertiserBillingController extends GetxController {
   final RxDouble walletBalance = 0.0.obs;
 
   // Invoices & Tax Receipts: Filter Tabs & Search & Pagination
-  // Tabs: 'all' | 'awaiting' | 'paid'
+  // Tabs: 'all' | 'pending' | 'paid'
   final RxString selectedInvoiceTab = 'all'.obs;
   final RxString invoiceSearch = ''.obs;
   final RxInt invoicePage = 1.obs;
@@ -154,11 +154,28 @@ class AdvertiserBillingController extends GetxController {
           (invPo.startsWith('CMP-') ? invPo : null) ??
           (matchedCamp != null ? 'CMP-${matchedCamp.id}' : null);
 
+      // Only include invoices related to campaigns of advertiser portal (matches BillingPaymentsPage.jsx)
+      final isCampaignRelated = matchedCamp != null ||
+          (invPo.isNotEmpty && invPo.startsWith('CMP-')) ||
+          (inv.type == 'ad_spend' && resolvedCode != null) ||
+          (inv.payerType == 'advertiser');
+
+      if (!isCampaignRelated) {
+        continue;
+      }
+
       if (resolvedCode != null) {
         seenCampaignCodes.add(resolvedCode.toLowerCase());
       }
       if (matchedCamp != null) {
         seenCampaignCodes.add(matchedCamp.id.toString().toLowerCase());
+        seenCampaignCodes.add('cmp-${matchedCamp.id}'.toLowerCase());
+        if (matchedCamp.code != null && matchedCamp.code!.trim().isNotEmpty) {
+          seenCampaignCodes.add(matchedCamp.code!.trim().toLowerCase());
+        }
+      }
+      if (invPo.isNotEmpty) {
+        seenCampaignCodes.add(invPo.toLowerCase());
       }
 
       final isPaid = inv.isPaid || (matchedCamp != null && matchedCamp.isPaid);
@@ -203,7 +220,9 @@ class AdvertiserBillingController extends GetxController {
       final campCodeKey = (camp.code ?? '').toLowerCase();
       final campIdKey = camp.id.toString().toLowerCase();
 
-      if (!seenCampaignCodes.contains(campCodeKey) && !seenCampaignCodes.contains(campIdKey)) {
+      if (!seenCampaignCodes.contains(campCodeKey) &&
+          !seenCampaignCodes.contains(campIdKey) &&
+          !seenCampaignCodes.contains('cmp-$campIdKey')) {
         final resolvedCode = camp.code ?? 'CMP-${camp.id}';
         final isPaid = camp.isPaid;
         final calc = _calculateCampaignAmounts(camp);
@@ -251,7 +270,9 @@ class AdvertiserBillingController extends GetxController {
     }
 
     final baseBudget = breakdown['baseAmount'] != null ? parseVal(breakdown['baseAmount']) : (c.rawBudget ?? 0.0);
-    final gstAmount = breakdown['gstAmount'] != null ? parseVal(breakdown['gstAmount']) : (baseBudget * 0.18);
+    final gstAmount = breakdown['gstAmount'] != null
+        ? parseVal(breakdown['gstAmount'])
+        : (breakdown['items'] != null ? 0.0 : (baseBudget * 0.18).roundToDouble());
     final totalAmount = breakdown['totalAmount'] != null ? parseVal(breakdown['totalAmount']) : (baseBudget + gstAmount);
 
     return {
@@ -278,19 +299,21 @@ class AdvertiserBillingController extends GetxController {
   }
 
   // ==========================================================
-  // TOP 3 KPI VALUES
+  // TOP 3 KPI VALUES (100% Matches BillingPaymentsPage.jsx)
   // ==========================================================
 
   int get allInvoicesCount => allInvoices.length;
   int get invoicePaidCount => allInvoices.where((i) => i.isPaid).length;
   int get invoicePendingCount => allInvoices.where((i) => !i.isPaid).length;
 
+  /// Payment Pending KPI Total: Matches Admin Panel pendingCampaigns.reduce(...)
   double get pendingTotal {
-    return allInvoices.where((i) => !i.isPaid).fold(0.0, (sum, i) => sum + i.amount);
+    return pendingCampaigns.fold(0.0, (sum, c) => sum + _calculateCampaignAmounts(c)['total']!);
   }
 
+  /// Paid & Live on Screens KPI Total: Matches Admin Panel paidCampaigns.reduce(...)
   double get paidTotal {
-    return allInvoices.where((i) => i.isPaid).fold(0.0, (sum, i) => sum + i.amount);
+    return paidCampaigns.fold(0.0, (sum, c) => sum + _calculateCampaignAmounts(c)['total']!);
   }
 
   String formatCurrency(double val) {
@@ -309,8 +332,8 @@ class AdvertiserBillingController extends GetxController {
     final tab = selectedInvoiceTab.value;
 
     return allInvoices.where((inv) {
-      // 1. Tab status filter
-      if (tab == 'awaiting' && inv.isPaid) return false;
+      // 1. Tab status filter ('pending' / 'awaiting' / 'paid')
+      if ((tab == 'pending' || tab == 'awaiting') && inv.isPaid) return false;
       if (tab == 'paid' && !inv.isPaid) return false;
 
       // 2. Search query filter

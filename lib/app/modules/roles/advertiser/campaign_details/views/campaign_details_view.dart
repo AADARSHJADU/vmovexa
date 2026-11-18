@@ -1274,6 +1274,12 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                       _buildHeaderBanner(c),
                       const SizedBox(height: 16),
 
+                      // Dynamic Status & Approval Compliance Banner
+                      if (c.isApproved && !c.isPaid) ...[
+                        _buildApprovalPaymentBanner(c),
+                        const SizedBox(height: 16),
+                      ],
+
                       // Quick Action Buttons
                       _buildQuickActionButtons(c),
                       const SizedBox(height: 18),
@@ -1314,7 +1320,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
   // ==========================================================
   Widget _buildHeaderBanner(CampaignModel c) {
     final statusColor = c.statusColor;
-    final isPaid = c.paymentBreakdown != null;
+    final isPaid = c.isPaid;
 
     return Container(
       decoration: BoxDecoration(
@@ -1428,6 +1434,111 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
     );
   }
 
+  // ==========================================================
+  // DYNAMIC STATUS & APPROVAL COMPLIANCE BANNER
+  // ==========================================================
+  Widget _buildApprovalPaymentBanner(CampaignModel c) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+                ),
+                child: const Icon(Icons.check_circle_rounded, color: Color(0xFF34D399), size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'campaign_approved_compliance'.tr,
+                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'awaiting_customer_payment_desc'.tr,
+                      style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 38,
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ElevatedButton.icon(
+                    onPressed: controller.goToRecordOfflinePayment,
+                    icon: const Icon(Icons.payments_rounded, color: Colors.white, size: 15),
+                    label: Text(
+                      'record_offline_payment_title'.tr,
+                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: SizedBox(
+                  height: 38,
+                  child: OutlinedButton.icon(
+                    onPressed: controller.showSharePaymentModal,
+                    icon: const Icon(Icons.share_outlined, color: Colors.white70, size: 14),
+                    label: const Text(
+                      'Share Link',
+                      style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppColors.cardBorder),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildQuickActionButtons(CampaignModel c) {
     final isRunning = c.isLive;
     final isPaused = c.isPaused;
@@ -1438,7 +1549,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
       spacing: 8,
       runSpacing: 8,
       children: [
-        if (isApproved)
+        if (c.canStart)
           CustomButton(
             width: 150,
             height: 38,
@@ -1446,6 +1557,24 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
             isGradient: true,
             onTap: controller.startCampaign,
             prefixIcon: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 16),
+          ),
+        if (isApproved && !c.isPaid)
+          SizedBox(
+            width: 180,
+            height: 38,
+            child: ElevatedButton.icon(
+              onPressed: controller.goToRecordOfflinePayment,
+              icon: const Icon(Icons.payments_rounded, color: Colors.white, size: 16),
+              label: Text(
+                'record_offline_payment_title'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFF59E0B),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
           ),
         if (isRunning)
           SizedBox(
@@ -2105,13 +2234,13 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: (c.paymentBreakdown != null ? const Color(0xFF10B981) : const Color(0xFFEF4444)).withOpacity(0.15),
+                      color: (c.isPaid ? const Color(0xFF10B981) : const Color(0xFFEF4444)).withOpacity(0.15),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      c.paymentBreakdown != null ? 'PAID' : 'UNPAID',
+                      c.isPaid ? 'PAID' : 'UNPAID',
                       style: TextStyle(
-                        color: c.paymentBreakdown != null ? const Color(0xFF34D399) : const Color(0xFFF87171),
+                        color: c.isPaid ? const Color(0xFF34D399) : const Color(0xFFF87171),
                         fontSize: 9.5,
                         fontWeight: FontWeight.bold,
                       ),
@@ -2133,6 +2262,69 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                 onTap: controller.showSharePaymentModal,
                 // prefixIcon: const Icon(Icons.share_outlined, color: Colors.white, size: 16),
               ),
+              if (c.isApproved && !c.isPaid) ...[
+                const SizedBox(height: 14),
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF59E0B).withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.4)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              'received_offline_prompt'.tr,
+                              style: const TextStyle(color: Color(0xFFFBBF24), fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF59E0B).withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.5)),
+                            ),
+                            child: Text(
+                              'offline_mode_badge'.tr,
+                              style: const TextStyle(color: Color(0xFFFBBF24), fontSize: 9, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'record_offline_desc'.tr,
+                        style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 40,
+                        child: ElevatedButton.icon(
+                          onPressed: controller.goToRecordOfflinePayment,
+                          icon: const Icon(Icons.payments_rounded, color: Colors.white, size: 16),
+                          label: Text(
+                            'record_offline_payment_title'.tr,
+                            style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFF59E0B),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            elevation: 2,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
         ),

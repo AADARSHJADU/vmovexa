@@ -236,6 +236,8 @@ import '../modules/roles/advertiser/create_campaign/views/create_campaign_view.d
 
 import '../modules/roles/advertiser/campaign_details/bindings/campaign_details_binding.dart';
 import '../modules/roles/advertiser/campaign_details/views/campaign_details_view.dart';
+import '../modules/roles/advertiser/record_offline_payment/bindings/record_offline_payment_binding.dart';
+import '../modules/roles/advertiser/record_offline_payment/views/record_offline_payment_view.dart';
 
 import '../modules/roles/advertiser/campaign_analytics/bindings/campaign_analytics_binding.dart';
 import '../modules/roles/advertiser/campaign_analytics/views/campaign_analytics_view.dart';
@@ -593,6 +595,12 @@ class AppPages {
       name: Routes.CAMPAIGN_DETAILS,
       page: () => const CampaignDetailsView(),
       binding: CampaignDetailsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.RECORD_OFFLINE_PAYMENT,
+      page: () => const RecordOfflinePaymentView(),
+      binding: RecordOfflinePaymentBinding(),
       transition: Transition.rightToLeft,
     ),
     GetPage(

@@ -888,6 +888,12 @@ class CampaignDetailsController extends GetxController {
         ?.then((_) => refreshCampaignDetails());
   }
 
+  /// Navigation to Record Offline Payment
+  void goToRecordOfflinePayment() {
+    Get.toNamed(Routes.RECORD_OFFLINE_PAYMENT, arguments: campaign.value)
+        ?.then((_) => refreshCampaignDetails());
+  }
+
   /// POST /api/v1/campaigns/:id/share-payment-link
   Future<void> sharePaymentLink({required String channel, required String recipient}) async {
     if (recipient.trim().isEmpty) {

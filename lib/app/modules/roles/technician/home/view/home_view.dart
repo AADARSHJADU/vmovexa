@@ -84,12 +84,60 @@ class HomeView extends GetView<HomeController> {
             Image.asset('assets/app_logo/newLogo.png', width: 140, height: 38),
           ],
         ),
-        IconButton(
-          onPressed: controller.goToNotifications,
-          icon: const Icon(Icons.notifications_none_rounded, color: Colors.white70, size: 24),
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
-        ),
+        Obx(() {
+          final count = controller.unreadNotificationCount.value;
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              IconButton(
+                onPressed: controller.goToNotifications,
+                icon: const Icon(Icons.notifications_none_rounded, color: Colors.white70, size: 24),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+              if (count > 0)
+                Positioned(
+                  top: -6,
+                  right: -6,
+                  child: IgnorePointer(
+                    child: Container(
+                      constraints: const BoxConstraints(
+                        minWidth: 18,
+                        minHeight: 18,
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEF4444),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: const Color(0xFF0F172A),
+                          width: 1.5,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.35),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Text(
+                          count > 99 ? '99+' : (count > 9 ? '9+' : '$count'),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            height: 1.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        }),
       ],
     );
   }
