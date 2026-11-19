@@ -96,6 +96,8 @@ abstract class Routes {
   static const ADVERTISER_CHANGE_PASSWORD = '/advertiser-change-password';
   static const ADVERTISER_NOTIFICATION_SETTINGS = '/advertiser-notification-settings';
   static const ADVERTISER_HELP_SUPPORT = '/advertiser-help-support';
+  static const ADVERTISER_RAISE_TICKET = '/advertiser-raise-ticket';
+  static const ADVERTISER_SUPPORT_HISTORY = '/advertiser-support-history';
   static const ADVERTISER_NOTIFICATIONS = '/advertiser-notifications';
   static const GOVERNMENT_DASHBOARD = '/government-dashboard';
   static const GOVERNMENT_CREATE_CAMPAIGN = '/government-create-campaign';

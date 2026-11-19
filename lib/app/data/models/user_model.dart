@@ -58,6 +58,7 @@ class UserModel {
   final String? language;
   final String? timezone;
   final String? companyName;
+  final Map<String, dynamic>? advertiser;
 
   UserModel({
     this.id,
@@ -79,6 +80,7 @@ class UserModel {
     this.language,
     this.timezone,
     this.companyName,
+    this.advertiser,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -128,16 +130,29 @@ class UserModel {
       parsedOrg = OrganizationModel.fromJson(Map<String, dynamic>.from(json['organization'] as Map));
     }
 
-    // Parse branch
-    String? parsedBranch = json['branch']?.toString();
+    Map<String, dynamic>? parsedAdvertiser;
+    if (json['advertiser'] is Map) {
+      parsedAdvertiser = Map<String, dynamic>.from(json['advertiser'] as Map);
+    }
+
+    // Parse branch - exactly matching Admin Panel:
+    // user.branch || user.city || 'Regional Advertising Desk'
+    String? parsedBranch = json['branch']?.toString() ??
+        parsedAdvertiser?['branch']?.toString() ??
+        json['city']?.toString() ??
+        parsedAdvertiser?['city']?.toString();
     if (parsedBranch == null && json['fleetOperatorProfile'] is Map) {
       parsedBranch = json['fleetOperatorProfile']['location']?.toString();
     } else if (parsedBranch == null && json['fleet_operator_profile'] is Map) {
       parsedBranch = json['fleet_operator_profile']['location']?.toString();
     }
+    parsedBranch ??= 'Regional Advertising Desk';
 
-    // Parse office address / address
-    String? parsedAddress = json['office_address']?.toString() ??
+    // Parse office address / address - exactly matching Admin Panel:
+    // user.advertiser?.address || user.organization?.office_address || user.address || ''
+    String? parsedAddress = parsedAdvertiser?['address']?.toString() ??
+        parsedAdvertiser?['office_address']?.toString() ??
+        json['office_address']?.toString() ??
         json['officeAddress']?.toString() ??
         json['address']?.toString() ??
         parsedOrg?.officeAddress;
@@ -155,15 +170,25 @@ class UserModel {
         json['timeZone']?.toString() ??
         json['time_zone']?.toString();
 
-    // Parse company name
-    String? parsedCompanyName = json['companyName']?.toString() ??
+    // Parse company name - exactly matching Admin Panel:
+    // user.advertiser?.company_name || user.advertiser?.name || user.organization?.name || user.company_name || user.companyName || ''
+    String? parsedCompanyName = parsedAdvertiser?['company_name']?.toString() ??
+        parsedAdvertiser?['name']?.toString() ??
+        json['companyName']?.toString() ??
         json['company_name']?.toString() ??
         json['organization_name']?.toString() ??
         parsedOrg?.name;
 
+    // Parse code / empId - exactly matching Admin Panel:
+    // user.advertiser?.code || user.enrollment_no || user.code || (user.id ? `ADV-${user.id}` : 'ADV-001')
+    String? parsedCode = parsedAdvertiser?['code']?.toString() ??
+        json['code']?.toString() ??
+        json['enrollment_no']?.toString() ??
+        (json['id'] != null ? 'ADV-${json['id']}' : 'ADV-001');
+
     return UserModel(
       id: json['id']?.toString(),
-      code: json['code']?.toString(),
+      code: parsedCode,
       enrollmentNo: json['enrollment_no']?.toString(),
       name: json['name']?.toString(),
       email: json['email']?.toString(),
@@ -181,6 +206,7 @@ class UserModel {
       language: parsedLang,
       timezone: parsedTimezone,
       companyName: parsedCompanyName,
+      advertiser: parsedAdvertiser,
     );
   }
 
@@ -207,6 +233,7 @@ class UserModel {
       'timezone': timezone,
       'company_name': companyName,
       'companyName': companyName,
+      if (advertiser != null) 'advertiser': advertiser,
     };
   }
 

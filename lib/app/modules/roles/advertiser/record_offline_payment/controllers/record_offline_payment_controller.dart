@@ -285,7 +285,7 @@ class RecordOfflinePaymentController extends GetxController {
 
     final c = campaign.value;
     if (c == null) {
-      Get.snackbar('alert_title'.tr, 'No campaign selected', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+      Get.snackbar('alert_title'.tr, 'no_campaign_selected_msg'.tr, backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return;
     }
 
@@ -301,7 +301,7 @@ class RecordOfflinePaymentController extends GetxController {
         return;
       }
       if (bankNameController.text.trim().isEmpty) {
-        Get.snackbar('alert_title'.tr, 'Bank name is required', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+        Get.snackbar('alert_title'.tr, 'bank_name_required_msg'.tr, backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
         return;
       }
     }
@@ -317,7 +317,7 @@ class RecordOfflinePaymentController extends GetxController {
 
     if (isUpi) {
       if (transactionIdController.text.trim().isEmpty && referenceNumberController.text.trim().isEmpty) {
-        Get.snackbar('alert_title'.tr, 'UPI Transaction ID is required', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+        Get.snackbar('alert_title'.tr, 'upi_tx_id_required_msg'.tr, backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
         return;
       }
     }
@@ -337,7 +337,7 @@ class RecordOfflinePaymentController extends GetxController {
     }
 
     if (verifiedByNameController.text.trim().isEmpty) {
-      Get.snackbar('alert_title'.tr, 'Verified / Recorded By name is required', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+      Get.snackbar('alert_title'.tr, 'verified_by_required_msg'.tr, backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return;
     }
 

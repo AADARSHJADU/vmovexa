@@ -101,7 +101,7 @@
 //     try {
 //       final res = await _service.startCampaign(campaign.value.id);
 //       if (res.success) {
-//         Get.snackbar('Success', 'Campaign started! Broadcast is now live on screens',
+//         Get.snackbar('success'.tr, 'campaign_started_live_msg'.tr,
 //             backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
 //         await refreshCampaignDetails();
 //       } else {
@@ -122,7 +122,7 @@
 //     try {
 //       final res = await _service.pauseCampaign(campaign.value.id);
 //       if (res.success) {
-//         Get.snackbar('Success', 'Campaign paused successfully',
+//         Get.snackbar('success'.tr, 'campaign_paused_msg'.tr,
 //             backgroundColor: const Color(0xFFF97316), colorText: Colors.white);
 //         await refreshCampaignDetails();
 //       } else {
@@ -143,7 +143,7 @@
 //     try {
 //       final res = await _service.endCampaign(campaign.value.id);
 //       if (res.success) {
-//         Get.snackbar('Success', 'Campaign completed and broadcast stopped',
+//         Get.snackbar('success'.tr, 'campaign_completed_stopped_msg'.tr,
 //             backgroundColor: const Color(0xFF3B82F6), colorText: Colors.white);
 //         await refreshCampaignDetails();
 //       } else {
@@ -207,7 +207,7 @@
 //       final res = await _service.deleteCampaign(campaign.value.id);
 //       if (res.success) {
 //         Get.back();
-//         Get.snackbar('Success', 'Campaign deleted',
+//         Get.snackbar('success'.tr, 'campaign_deleted_msg'.tr,
 //             backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
 //       } else {
 //         Get.snackbar('Error', res.message ?? 'Failed to delete',
@@ -231,7 +231,7 @@
 //   /// POST /api/v1/campaigns/:id/share-payment-link
 //   Future<void> sharePaymentLink({required String channel, required String recipient}) async {
 //     if (recipient.trim().isEmpty) {
-//       Get.snackbar('Required', 'Please enter recipient $channel address',
+//       Get.snackbar('required_label'.tr, 'Please enter recipient $channel address',
 //           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
 //       return;
 //     }
@@ -600,11 +600,11 @@
 //                           ? null
 //                           : () {
 //                               if (utrController.text.trim().isEmpty) {
-//                                 Get.snackbar('Required', 'Please enter UTR / Reference number', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+//                                 Get.snackbar('required_label'.tr, 'Please enter UTR / Reference number', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
 //                                 return;
 //                               }
 //                               if (bankController.text.trim().isEmpty) {
-//                                 Get.snackbar('Required', 'Please enter remitting bank name', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+//                                 Get.snackbar('required_label'.tr, 'Please enter remitting bank name', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
 //                                 return;
 //                               }
 //                               recordOfflinePayment(
@@ -677,10 +677,10 @@ class CampaignDetailsController extends GetxController {
       initialId = (arg['campaign'] as CampaignModel).id;
     } else if (arg is Map && (arg['id'] != null || arg['campaignId'] != null)) {
       initialId = (arg['id'] ?? arg['campaignId']).toString();
-      campaign = CampaignModel(id: initialId, title: 'Loading Campaign...', status: 'loading').obs;
+      campaign = CampaignModel(id: initialId, title: 'loading'.tr, status: 'loading').obs;
     } else if (arg is String && arg.isNotEmpty) {
       initialId = arg;
-      campaign = CampaignModel(id: initialId, title: 'Loading Campaign...', status: 'loading').obs;
+      campaign = CampaignModel(id: initialId, title: 'loading'.tr, status: 'loading').obs;
     } else {
       campaign = CampaignModel(id: '', title: '', status: '').obs;
       isNotFound.value = true;
@@ -761,7 +761,7 @@ class CampaignDetailsController extends GetxController {
     try {
       final res = await _service.startCampaign(campaign.value.id);
       if (res.success) {
-        Get.snackbar('Success', 'Campaign started! Broadcast is now live on screens',
+        Get.snackbar('success'.tr, 'campaign_started_live_msg'.tr,
             backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
         await refreshCampaignDetails();
       } else {
@@ -782,7 +782,7 @@ class CampaignDetailsController extends GetxController {
     try {
       final res = await _service.pauseCampaign(campaign.value.id);
       if (res.success) {
-        Get.snackbar('Success', 'Campaign paused successfully',
+        Get.snackbar('success'.tr, 'campaign_paused_msg'.tr,
             backgroundColor: const Color(0xFFF97316), colorText: Colors.white);
         await refreshCampaignDetails();
       } else {
@@ -803,7 +803,7 @@ class CampaignDetailsController extends GetxController {
     try {
       final res = await _service.endCampaign(campaign.value.id);
       if (res.success) {
-        Get.snackbar('Success', 'Campaign completed and broadcast stopped',
+        Get.snackbar('success'.tr, 'campaign_completed_stopped_msg'.tr,
             backgroundColor: const Color(0xFF3B82F6), colorText: Colors.white);
         await refreshCampaignDetails();
       } else {
@@ -821,17 +821,17 @@ class CampaignDetailsController extends GetxController {
     final confirmed = await Get.dialog<bool>(
       AlertDialog(
         backgroundColor: const Color(0xFF1E293B),
-        title: const Text('End Campaign Broadcast',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text('end_campaign_broadcast_title'.tr,
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         content: Text(
-            'Are you sure you want to end "${campaign.value.displayTitle}"? Ad broadcast on screens will be permanently terminated.',
+            '${campaign.value.displayTitle}: ${'end_campaign_confirm_desc'.tr}',
             style: const TextStyle(color: Color(0xFF94A3B8))),
         actions: [
-          TextButton(onPressed: () => Get.back(result: false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(result: false), child: Text('cancel'.tr)),
           TextButton(
             onPressed: () => Get.back(result: true),
-            child: const Text('End Broadcast',
-                style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.bold)),
+            child: Text('end_broadcast'.tr,
+                style: const TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -847,17 +847,17 @@ class CampaignDetailsController extends GetxController {
     final confirmed = await Get.dialog<bool>(
       AlertDialog(
         backgroundColor: const Color(0xFF1E293B),
-        title: const Text('Delete Campaign',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text('delete_campaign'.tr,
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         content: Text(
-            'Are you sure you want to delete "${campaign.value.displayTitle}"? This action cannot be undone.',
+            'delete_campaign_confirm_desc'.tr,
             style: const TextStyle(color: Color(0xFF94A3B8))),
         actions: [
-          TextButton(onPressed: () => Get.back(result: false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(result: false), child: Text('cancel'.tr)),
           TextButton(
             onPressed: () => Get.back(result: true),
-            child: const Text('Delete',
-                style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.bold)),
+            child: Text('delete'.tr,
+                style: const TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -867,7 +867,7 @@ class CampaignDetailsController extends GetxController {
       final res = await _service.deleteCampaign(campaign.value.id);
       if (res.success) {
         Get.back();
-        Get.snackbar('Success', 'Campaign deleted',
+        Get.snackbar('success'.tr, 'campaign_deleted_msg'.tr,
             backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
       } else {
         Get.snackbar('Error', res.message ?? 'Failed to delete',
@@ -897,7 +897,7 @@ class CampaignDetailsController extends GetxController {
   /// POST /api/v1/campaigns/:id/share-payment-link
   Future<void> sharePaymentLink({required String channel, required String recipient}) async {
     if (recipient.trim().isEmpty) {
-      Get.snackbar('Required', 'Please enter recipient $channel address',
+      Get.snackbar('required_label'.tr, 'Please enter recipient $channel address',
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return;
     }
@@ -943,8 +943,8 @@ class CampaignDetailsController extends GetxController {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Share Checkout Link',
-                      style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text('share_checkout_link'.tr,
+                      style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                   IconButton(
                     icon: const Icon(Icons.close, color: Colors.white70, size: 20),
                     onPressed: () => Get.back(),
@@ -954,8 +954,8 @@ class CampaignDetailsController extends GetxController {
               const SizedBox(height: 14),
 
               // SMS Option
-              const Text('Send SMS Checkout Link',
-                  style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
+              Text('send_sms_checkout_link'.tr,
+                  style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
               const SizedBox(height: 6),
               Row(
                 children: [
@@ -971,11 +971,11 @@ class CampaignDetailsController extends GetxController {
                         controller: smsPhoneController,
                         keyboardType: TextInputType.phone,
                         style: const TextStyle(color: Colors.white, fontSize: 13),
-                        decoration: const InputDecoration(
-                          hintText: 'Enter client mobile...',
-                          hintStyle: TextStyle(color: Color(0xFF64748B), fontSize: 12),
+                        decoration: InputDecoration(
+                          hintText: 'enter_client_mobile_hint'.tr,
+                          hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 12),
                           border: InputBorder.none,
-                          prefixIcon: Icon(Icons.phone_iphone_rounded, size: 16, color: Color(0xFF60A5FA)),
+                          prefixIcon: const Icon(Icons.phone_iphone_rounded, size: 16, color: Color(0xFF60A5FA)),
                         ),
                       ),
                     ),
@@ -988,15 +988,15 @@ class CampaignDetailsController extends GetxController {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     ),
-                    child: const Text('Send SMS', style: TextStyle(color: Colors.white, fontSize: 11)),
+                    child: Text('send_sms'.tr, style: const TextStyle(color: Colors.white, fontSize: 11)),
                   ),
                 ],
               ),
               const SizedBox(height: 18),
 
               // Email Option
-              const Text('Send Email Invoice & Checkout',
-                  style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
+              Text('send_email_invoice_checkout'.tr,
+                  style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
               const SizedBox(height: 6),
               Row(
                 children: [
@@ -1012,11 +1012,11 @@ class CampaignDetailsController extends GetxController {
                         controller: emailInvoiceController,
                         keyboardType: TextInputType.emailAddress,
                         style: const TextStyle(color: Colors.white, fontSize: 13),
-                        decoration: const InputDecoration(
-                          hintText: 'Enter client email...',
-                          hintStyle: TextStyle(color: Color(0xFF64748B), fontSize: 12),
+                        decoration: InputDecoration(
+                          hintText: 'enter_client_email_hint'.tr,
+                          hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 12),
                           border: InputBorder.none,
-                          prefixIcon: Icon(Icons.mail_outline_rounded, size: 16, color: Color(0xFF8B5CF6)),
+                          prefixIcon: const Icon(Icons.mail_outline_rounded, size: 16, color: Color(0xFF8B5CF6)),
                         ),
                       ),
                     ),
@@ -1029,7 +1029,7 @@ class CampaignDetailsController extends GetxController {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     ),
-                    child: const Text('Send Email', style: TextStyle(color: Colors.white, fontSize: 11)),
+                    child: Text('send_email'.tr, style: const TextStyle(color: Colors.white, fontSize: 11)),
                   ),
                 ],
               ),

@@ -23,10 +23,10 @@ class AdvertiserReportsView extends GetView<AdvertiserReportsController> {
                 children: [
                   const CustomBackButton(),
                   const SizedBox(width: 8),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Report & Analytics',
-                      style: TextStyle(
+                      'campaign_reports_title'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
@@ -42,7 +42,7 @@ class AdvertiserReportsView extends GetView<AdvertiserReportsController> {
                               )
                             : const Icon(Icons.refresh_rounded, color: Colors.white, size: 22),
                         onPressed: controller.refreshing.value ? null : () => controller.handleRefresh(),
-                        tooltip: 'Refresh Reports',
+                        tooltip: 'refresh_reports_tooltip'.tr,
                       )),
                 ],
               ),
@@ -59,7 +59,7 @@ class AdvertiserReportsView extends GetView<AdvertiserReportsController> {
   }
 }
 
-/// Unified reusable widget for Report & Analytics
+/// Unified reusable widget for Campaign Reports
 class AdvertiserReportsContent extends StatelessWidget {
   final AdvertiserReportsController controller;
 
@@ -84,23 +84,19 @@ class AdvertiserReportsContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top Action Buttons Header (PDF, XLSX, CSV Exports)
+              // Top Action Header (Export CSV with AppTheme.primaryGradient)
               _buildTopActionHeader(),
               const SizedBox(height: 14),
 
-              // Customization & Filter Card
-              _buildCustomizationCard(),
-              const SizedBox(height: 14),
-
-              // 4 Summary KPI Cards
-              _buildKpiOverviewGrid(),
+              // Report Customization Card (Target Campaign + Start Date & End Date Calendars)
+              _buildCustomizationCard(context),
               const SizedBox(height: 14),
 
               // Active Scope Financial & Performance Snapshot
               _buildScopeFinancialSnapshot(),
               const SizedBox(height: 16),
 
-              // Generated Reports Archive (Search + 4 Tabs: All, PDF, XLSX, CSV)
+              // Generated Reports Archive (Search + EXACTLY 3 Tabs: All, PDF, CSV + Single Download HTML Button)
               _buildReportsArchiveSection(),
               const SizedBox(height: 32),
             ],
@@ -111,106 +107,69 @@ class AdvertiserReportsContent extends StatelessWidget {
   }
 
   // ==========================================================
-  // TOP ACTIONS (PDF, XLSX, CSV DOWNLOADS WITH GRADIENT)
+  // TOP ACTIONS (EXPORT CSV WITH PRIMARY GRADIENT)
   // ==========================================================
   Widget _buildTopActionHeader() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Export verified DOOH proof-of-play records, GPS-validated screen broadcast logs, budget spend statements, and tax-compliant reconciliation files.',
-          style: TextStyle(
+        Text(
+          'campaign_reports_desc'.tr,
+          style: const TextStyle(
             color: Colors.white60,
             fontSize: 11.5,
             height: 1.4,
           ),
         ),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            // PDF Button
-            Expanded(
-              child: _buildExportButton(
-                label: 'PDF Report',
-                icon: Icons.picture_as_pdf_outlined,
-                format: 'pdf',
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFE11D48), Color(0xFFF43F5E)],
+        // Export CSV Primary Action Button
+        GestureDetector(
+          onTap: controller.isGenerating.value ? null : () => controller.handleExportCsv(),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            decoration: BoxDecoration(
+              gradient: AppTheme.primaryGradient,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF8B5CF6).withValues(alpha: 0.35),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
                 ),
-              ),
+              ],
             ),
-            const SizedBox(width: 8),
-            // XLSX Button
-            Expanded(
-              child: _buildExportButton(
-                label: 'Excel (.xlsx)',
-                icon: Icons.table_chart_outlined,
-                format: 'xlsx',
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF059669), Color(0xFF10B981)],
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                controller.isGenerating.value
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Icon(Icons.description_outlined, color: Colors.white, size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  controller.isGenerating.value ? 'exporting_text'.tr : 'export_csv'.tr,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
+              ],
             ),
-            const SizedBox(width: 8),
-            // CSV Button
-            Expanded(
-              child: _buildExportButton(
-                label: 'Export CSV',
-                icon: Icons.description_outlined,
-                format: 'csv',
-                gradient: AppTheme.primaryGradient,
-              ),
-            ),
-          ],
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildExportButton({
-    required String label,
-    required IconData icon,
-    required String format,
-    required LinearGradient gradient,
-  }) {
-    return GestureDetector(
-      onTap: controller.isGenerating.value ? null : () => controller.handleExport(format),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          gradient: gradient,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: gradient.colors.first.withValues(alpha: 0.35),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: Colors.white, size: 14),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   // ==========================================================
-  // CUSTOMIZATION & FILTER CARD
+  // REPORT CUSTOMIZATION CARD (TARGET CAMPAIGN + CALENDAR PICKERS)
   // ==========================================================
-  Widget _buildCustomizationCard() {
+  Widget _buildCustomizationCard(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -237,12 +196,12 @@ class AdvertiserReportsContent extends StatelessWidget {
                     child: const Icon(Icons.tune_rounded, color: Color(0xFFC084FC), size: 16),
                   ),
                   const SizedBox(width: 10),
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'REPORT CUSTOMIZATION',
-                        style: TextStyle(
+                        'report_customization_hdr'.tr,
+                        style: const TextStyle(
                           color: Colors.white54,
                           fontSize: 9,
                           fontWeight: FontWeight.bold,
@@ -250,34 +209,45 @@ class AdvertiserReportsContent extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'Select Audit Parameters',
-                        style: TextStyle(
+                        'select_audit_parameters_sub'.tr,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 5),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E293B),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.cardBorder),
+                        ),
+                        child: Text(
+                          '${controller.totalCampaignsCount} ${'campaigns_in_portfolio'.tr}',
+                          style: const TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
                   ),
                 ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1E293B),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.cardBorder),
-                ),
-                child: Text(
-                  '${controller.totalCampaignsCount} in Portfolio',
-                  style: const TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold),
-                ),
-              ),
+
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
 
-          // Campaign Selector Dropdown Trigger
+          // Target Campaign: Dropdown
+          Text(
+            'target_campaign_label'.tr,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 6),
           GestureDetector(
             onTap: () => _openCampaignPickerSheet(),
             child: Container(
@@ -292,8 +262,8 @@ class AdvertiserReportsContent extends StatelessWidget {
                   Expanded(
                     child: Text(
                       controller.activeCampaign != null
-                          ? '${controller.activeCampaign!.displayTitle} [${controller.activeCampaign!.displayCode}]'
-                          : 'All Campaigns Aggregate Audit',
+                          ? '${controller.activeCampaign!.displayTitle} — [${controller.activeCampaign!.displayCode}] (${controller.activeCampaign!.status.toUpperCase()})'
+                          : 'all_campaigns_dropdown'.tr,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
@@ -308,9 +278,189 @@ class AdvertiserReportsContent extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(height: 14),
+
+          // Start Date & End Date Calendar Row
+          Row(
+            children: [
+              // Start Date Picker Field
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'start_date_label'.tr,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    GestureDetector(
+                      onTap: () => _pickStartDate(context),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0F172A),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: controller.startDate.value != null
+                                ? const Color(0xFF8B5CF6)
+                                : AppColors.cardBorder,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.calendar_today_rounded, color: Color(0xFF38BDF8), size: 14),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                controller.formattedStartDate.isNotEmpty
+                                    ? controller.formattedStartDate
+                                    : 'select_start_date'.tr,
+                                style: TextStyle(
+                                  color: controller.formattedStartDate.isNotEmpty
+                                      ? Colors.white
+                                      : Colors.white38,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (controller.startDate.value != null)
+                              GestureDetector(
+                                onTap: () => controller.setStartDate(null),
+                                child: const Icon(Icons.close_rounded, color: Colors.white54, size: 14),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              // End Date Picker Field
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'end_date_label'.tr,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    GestureDetector(
+                      onTap: () => _pickEndDate(context),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0F172A),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: controller.endDate.value != null
+                                ? const Color(0xFF8B5CF6)
+                                : AppColors.cardBorder,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.calendar_today_rounded, color: Color(0xFF38BDF8), size: 14),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                controller.formattedEndDate.isNotEmpty
+                                    ? controller.formattedEndDate
+                                    : 'select_end_date'.tr,
+                                style: TextStyle(
+                                  color: controller.formattedEndDate.isNotEmpty
+                                      ? Colors.white
+                                      : Colors.white38,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (controller.endDate.value != null)
+                              GestureDetector(
+                                onTap: () => controller.setEndDate(null),
+                                child: const Icon(Icons.close_rounded, color: Colors.white54, size: 14),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
+  }
+
+  Future<void> _pickStartDate(BuildContext context) async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: controller.startDate.value ?? now,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2035),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: Color(0xFF8B5CF6),
+              surface: Color(0xFF1E293B),
+              onSurface: Colors.white,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      controller.setStartDate(picked);
+    }
+  }
+
+  Future<void> _pickEndDate(BuildContext context) async {
+    final first = controller.startDate.value ?? DateTime(2020);
+    final initial = (controller.endDate.value != null && controller.endDate.value!.isAfter(first))
+        ? controller.endDate.value!
+        : (controller.startDate.value ?? DateTime.now());
+
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: first,
+      lastDate: DateTime(2035),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: Color(0xFF8B5CF6),
+              surface: Color(0xFF1E293B),
+              onSurface: Colors.white,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      controller.setEndDate(picked);
+    }
   }
 
   void _openCampaignPickerSheet() {
@@ -331,9 +481,9 @@ class AdvertiserReportsContent extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Select Campaign for Report',
-                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  Text(
+                    'select_campaign_report_lbl'.tr,
+                    style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close_rounded, color: Colors.white70),
@@ -348,8 +498,8 @@ class AdvertiserReportsContent extends StatelessWidget {
                   physics: const BouncingScrollPhysics(),
                   children: [
                     _buildPickerItem(
-                      title: 'All Campaigns Aggregate Audit',
-                      subtitle: 'Combines all DOOH campaign broadcasts across all corridors',
+                      title: 'all_campaigns_dropdown'.tr,
+                      subtitle: 'combines_all_campaigns_desc'.tr,
                       isSelected: controller.selectedCampaignId.value.isEmpty,
                       onTap: () {
                         controller.selectedCampaignId.value = '';
@@ -419,99 +569,6 @@ class AdvertiserReportsContent extends StatelessWidget {
   }
 
   // ==========================================================
-  // 4 KPI OVERVIEW SUMMARY CARDS
-  // ==========================================================
-  Widget _buildKpiOverviewGrid() {
-    final kpis = [
-      {
-        'label': 'Total Campaigns',
-        'value': controller.totalCampaignsCount.toString(),
-        'sub': 'In System Portfolio',
-        'icon': Icons.track_changes_rounded,
-        'color': const Color(0xFF38BDF8),
-      },
-      {
-        'label': 'Active Campaigns',
-        'value': controller.activeCampaignsCount.toString(),
-        'sub': 'Approved or Live',
-        'icon': Icons.bolt_rounded,
-        'color': const Color(0xFFF59E0B),
-      },
-      {
-        'label': 'Total Managed',
-        'value': '₹${controller.totalBudgetAmount.toStringAsFixed(0)}',
-        'sub': 'All Campaigns Value',
-        'icon': Icons.currency_rupee_rounded,
-        'color': const Color(0xFF10B981),
-      },
-      {
-        'label': 'Impressions Delivered',
-        'value': controller.totalImpressionsCount.toString(),
-        'sub': 'GPS-Verified Slots',
-        'icon': Icons.tv_rounded,
-        'color': const Color(0xFF8B5CF6),
-      },
-    ];
-
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(child: _buildSmallKpiCard(kpis[0])),
-            const SizedBox(width: 10),
-            Expanded(child: _buildSmallKpiCard(kpis[1])),
-          ],
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(child: _buildSmallKpiCard(kpis[2])),
-            const SizedBox(width: 10),
-            Expanded(child: _buildSmallKpiCard(kpis[3])),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSmallKpiCard(Map<String, dynamic> item) {
-    final color = item['color'] as Color;
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.cardBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                (item['label'] as String).toUpperCase(),
-                style: const TextStyle(color: Colors.white54, fontSize: 8.5, fontWeight: FontWeight.bold),
-              ),
-              Icon(item['icon'] as IconData, color: color, size: 15),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            item['value'] as String,
-            style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w900),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            item['sub'] as String,
-            style: const TextStyle(color: Colors.white38, fontSize: 9),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ==========================================================
   // ACTIVE SCOPE FINANCIAL & PERFORMANCE SNAPSHOT
   // ==========================================================
   Widget _buildScopeFinancialSnapshot() {
@@ -530,47 +587,47 @@ class AdvertiserReportsContent extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Active Scope Financial Snapshot',
-                    style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                    'active_scope_snapshot_lbl'.tr,
+                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
-                    'Summary metrics compiled into exported reports.',
-                    style: TextStyle(color: Colors.white54, fontSize: 10),
+                    'summary_metrics_desc'.tr,
+                    style: const TextStyle(color: Colors.white54, fontSize: 10),
+                  ),
+                  const SizedBox(height: 2),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E293B),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: AppColors.cardBorder),
+                    ),
+                    child: Text(
+                      active != null ? active.displayCode : 'ALL-CAMPAIGNS',
+                      style: const TextStyle(
+                        color: Color(0xFF38BDF8),
+                        fontFamily: 'monospace',
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
 
             ],
           ),
-          const SizedBox(height: 5),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: AppColors.cardBorder),
-            ),
-            child: Text(
-              active != null ? active.displayCode : 'ALL-CAMPAIGNS',
-              style: const TextStyle(
-                color: Color(0xFF38BDF8),
-                fontFamily: 'monospace',
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
           const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
                 child: _buildSnapshotPill(
-                  label: 'TOTAL AMOUNT',
+                  label: 'TOTAL MANAGED',
                   value: '₹${controller.totalBudgetAmount.toStringAsFixed(0)}',
                 ),
               ),
@@ -597,7 +654,7 @@ class AdvertiserReportsContent extends StatelessWidget {
 
   Widget _buildSnapshotPill({required String label, required String value}) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 8),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: const Color(0xFF0F172A),
         borderRadius: BorderRadius.circular(10),
@@ -620,13 +677,14 @@ class AdvertiserReportsContent extends StatelessWidget {
   }
 
   // ==========================================================
-  // GENERATED REPORTS ARCHIVE (TABS: ALL, PDF, XLSX, CSV)
+  // GENERATED REPORTS ARCHIVE (EXACTLY 3 TABS: ALL, PDF, CSV)
+  // SINGLE DOWNLOAD HTML BUTTON ON RIGHT SIDE
   // ==========================================================
   Widget _buildReportsArchiveSection() {
     final reports = controller.paginatedReports;
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(16),
@@ -639,9 +697,9 @@ class AdvertiserReportsContent extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Generated Reports Archive',
-                style: TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.bold),
+              Text(
+                'generated_reports_archive_hdr'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.bold),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -651,20 +709,20 @@ class AdvertiserReportsContent extends StatelessWidget {
                   border: Border.all(color: AppColors.cardBorder),
                 ),
                 child: Text(
-                  '${controller.filteredReports.length} Records',
+                  '${controller.filteredReports.length} ${'records_count_label'.tr}',
                   style: const TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 2),
-          const Text(
-            'Previously compiled proof-of-play audits ready for instant download.',
-            style: TextStyle(color: Colors.white54, fontSize: 10.5),
+          Text(
+            'generated_campaign_reports_archive_sub'.tr,
+            style: const TextStyle(color: Colors.white54, fontSize: 10.5),
           ),
           const SizedBox(height: 12),
 
-          // Format Filter Tabs (All, PDF, XLSX, CSV) with AppTheme.primaryGradient
+          // Format Filter Tabs - EXACTLY 3 TABS: All, PDF, CSV (with AppTheme.primaryGradient on active)
           _buildFormatFilterTabs(),
           const SizedBox(height: 12),
 
@@ -684,12 +742,12 @@ class AdvertiserReportsContent extends StatelessWidget {
                   child: TextField(
                     onChanged: controller.setReportSearch,
                     style: const TextStyle(color: Colors.white, fontSize: 12),
-                    decoration: const InputDecoration(
-                      hintText: 'Search by report title or ID...',
-                      hintStyle: TextStyle(color: Colors.white38, fontSize: 11),
+                    decoration: InputDecoration(
+                      hintText: 'search_report_title_id_hint'.tr,
+                      hintStyle: const TextStyle(color: Colors.white38, fontSize: 11),
                       border: InputBorder.none,
                       isDense: true,
-                      contentPadding: EdgeInsets.symmetric(vertical: 10),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 10),
                     ),
                   ),
                 ),
@@ -714,12 +772,12 @@ class AdvertiserReportsContent extends StatelessWidget {
     );
   }
 
+  /// Exactly 3 tabs: all, pdf, csv
   Widget _buildFormatFilterTabs() {
     final formats = [
-      {'key': 'all', 'label': 'All'},
-      {'key': 'pdf', 'label': 'PDF'},
-      {'key': 'xlsx', 'label': 'XLSX'},
-      {'key': 'csv', 'label': 'CSV'},
+      {'key': 'all', 'label': 'format_all_tab'.tr},
+      {'key': 'pdf', 'label': 'format_pdf_tab'.tr},
+      {'key': 'csv', 'label': 'format_csv_tab'.tr},
     ];
 
     return Row(
@@ -743,7 +801,7 @@ class AdvertiserReportsContent extends StatelessWidget {
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: const Color(0xFF8B5CF6).withValues(alpha: 0.3),
+                            color: const Color(0xFF8B5CF6).withValues(alpha: 0.35),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -768,12 +826,13 @@ class AdvertiserReportsContent extends StatelessWidget {
     );
   }
 
+  /// Archive Card with Single "Download HTML" button on the right side
   Widget _buildReportItemCard(AdvertiserReportModel rep) {
     Color formatBadgeColor = const Color(0xFF8B5CF6);
-    if (rep.format == 'PDF') {
+    if (rep.format == 'PDF' || rep.format == 'HTML') {
       formatBadgeColor = const Color(0xFFF43F5E);
-    } else if (rep.format == 'XLSX') {
-      formatBadgeColor = const Color(0xFF10B981);
+    } else if (rep.format == 'CSV') {
+      formatBadgeColor = const Color(0xFF38BDF8);
     }
 
     return Container(
@@ -814,7 +873,7 @@ class AdvertiserReportsContent extends StatelessWidget {
                         border: Border.all(color: formatBadgeColor.withValues(alpha: 0.4)),
                       ),
                       child: Text(
-                        rep.format,
+                        rep.format == 'PDF' ? 'HTML' : rep.format,
                         style: TextStyle(
                           color: formatBadgeColor,
                           fontFamily: 'monospace',
@@ -826,7 +885,7 @@ class AdvertiserReportsContent extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(width: 5),
+              const SizedBox(width: 6),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
@@ -834,14 +893,14 @@ class AdvertiserReportsContent extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.circle, color: Color(0xFF10B981), size: 5),
-                    SizedBox(width: 4),
+                    const Icon(Icons.circle, color: Color(0xFF10B981), size: 5),
+                    const SizedBox(width: 4),
                     Text(
-                      'Ready',
-                      style: TextStyle(color: Color(0xFF34D399), fontSize: 8.5, fontWeight: FontWeight.bold),
+                      'ready_status_badge'.tr,
+                      style: const TextStyle(color: Color(0xFF34D399), fontSize: 8.5, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -851,42 +910,46 @@ class AdvertiserReportsContent extends StatelessWidget {
           const SizedBox(height: 6),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                'Compiled: ${rep.generatedOn} · #${rep.id}',
-                style: const TextStyle(color: Colors.white54, fontSize: 10),
+              Expanded(
+                child: Text(
+                  '${'compiled_at_prefix'.tr} ${rep.generatedOn} · #${rep.id}',
+                  style: const TextStyle(color: Colors.white54, fontSize: 10),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
+              const SizedBox(width: 8),
 
-
-            ],
-          ),
-          const SizedBox(height: 6),
-          // Download Button
-          GestureDetector(
-            onTap: () => controller.handleDownloadFile(rep),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.cardBorder),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.download_rounded, color: Color(0xFF38BDF8), size: 13),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Download ${rep.format}',
-                    style: const TextStyle(
-                      color: Color(0xFF38BDF8),
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.bold,
-                    ),
+              // Single "Download HTML" Button on right side
+              GestureDetector(
+                onTap: () => controller.handleDownloadHtml(rep),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E293B),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFF38BDF8).withValues(alpha: 0.5)),
                   ),
-                ],
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.download_rounded, color: Color(0xFF38BDF8), size: 14),
+                      const SizedBox(width: 5),
+                      Text(
+                        'download_html_btn'.tr,
+                        style: const TextStyle(
+                          color: Color(0xFF38BDF8),
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         ],
       ),
@@ -898,7 +961,7 @@ class AdvertiserReportsContent extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Page ${controller.currentPage.value} of ${controller.totalPages}',
+          '${'page'.tr} ${controller.currentPage.value} ${'of'.tr} ${controller.totalPages}',
           style: const TextStyle(color: Colors.white54, fontSize: 11),
         ),
         Row(
@@ -917,7 +980,7 @@ class AdvertiserReportsContent extends StatelessWidget {
                   border: Border.all(color: AppColors.cardBorder),
                 ),
                 child: Text(
-                  'Prev',
+                  'prev_btn'.tr,
                   style: TextStyle(
                     color: controller.currentPage.value > 1 ? Colors.white : Colors.white24,
                     fontSize: 10.5,
@@ -944,9 +1007,18 @@ class AdvertiserReportsContent extends StatelessWidget {
                   border: controller.currentPage.value < controller.totalPages
                       ? null
                       : Border.all(color: AppColors.cardBorder),
+                  boxShadow: controller.currentPage.value < controller.totalPages
+                      ? [
+                          BoxShadow(
+                            color: const Color(0xFF8B5CF6).withValues(alpha: 0.25),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
                 ),
                 child: Text(
-                  'Next',
+                  'next'.tr,
                   style: TextStyle(
                     color: controller.currentPage.value < controller.totalPages
                         ? Colors.white
@@ -971,19 +1043,20 @@ class AdvertiserReportsContent extends StatelessWidget {
         children: [
           const Icon(Icons.description_outlined, color: Colors.white24, size: 36),
           const SizedBox(height: 8),
-          const Text(
-            'No reports found in this format',
-            style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+          Text(
+            'no_reports_found_title'.tr,
+            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Click PDF Report, Excel (.xlsx), or Export CSV above to compile a fresh report.',
+          Text(
+            controller.reportSearch.value.isNotEmpty
+                ? 'no_reports_search_sub'.tr
+                : 'no_reports_generate_sub'.tr,
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white38, fontSize: 10.5),
+            style: const TextStyle(color: Colors.white38, fontSize: 10.5),
           ),
         ],
       ),
     );
   }
 }
-

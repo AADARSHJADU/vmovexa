@@ -22,12 +22,11 @@ class AdvertiserChangePasswordView extends GetView<AdvertiserChangePasswordContr
                 children: [
                   const CustomBackButton(),
                   const SizedBox(width: 8),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Security & Password',
+                        Text('security_and_password'.tr,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 17,
@@ -35,8 +34,7 @@ class AdvertiserChangePasswordView extends GetView<AdvertiserChangePasswordContr
                           ),
                         ),
                         SizedBox(height: 2),
-                        Text(
-                          'Update your advertiser credentials',
+                        Text('update_credentials_sub'.tr,
                           style: TextStyle(
                             color: Color(0xFF94A3B8),
                             fontSize: 11,
@@ -47,7 +45,7 @@ class AdvertiserChangePasswordView extends GetView<AdvertiserChangePasswordContr
                   ),
                   TextButton(
                     onPressed: () => Get.back(),
-                    child: const Text('Cancel', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                    child: Text('cancel'.tr, style: const TextStyle(color: Colors.white70, fontSize: 13)),
                   ),
                 ],
               ),
@@ -85,8 +83,7 @@ class AdvertiserChangePasswordView extends GetView<AdvertiserChangePasswordContr
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              const Text(
-                                'CHANGE ACCOUNT PASSWORD',
+                              Text('change_account_password_hdr'.tr,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,
@@ -99,8 +96,7 @@ class AdvertiserChangePasswordView extends GetView<AdvertiserChangePasswordContr
                           const SizedBox(height: 18),
 
                           // 1. Current Password
-                          const Text(
-                            'Current Password',
+                          Text('current_password_label'.tr,
                             style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 12, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 6),
@@ -108,22 +104,22 @@ class AdvertiserChangePasswordView extends GetView<AdvertiserChangePasswordContr
                                 controller: controller.currentPasswordController,
                                 obscure: controller.currentObscure.value,
                                 onToggleObscure: () => controller.currentObscure.toggle(),
-                                hintText: 'Enter your current account password',
+                                hintText: 'enter_current_password_hint'.tr,
                                 prefixIcon: Icons.lock_outline_rounded,
                               )),
                           const SizedBox(height: 18),
 
                           // 2. New Password
-                          const Text(
-                            'New Password',
-                            style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 12, fontWeight: FontWeight.bold),
+                          Text(
+                            'new_password'.tr,
+                            style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 12, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 6),
                           Obx(() => _buildPasswordField(
                                 controller: controller.newPasswordController,
                                 obscure: controller.newObscure.value,
                                 onToggleObscure: () => controller.newObscure.toggle(),
-                                hintText: 'Enter new secure password',
+                                hintText: 'enter_new_password_hint'.tr,
                                 prefixIcon: Icons.key_rounded,
                               )),
                           const SizedBox(height: 12),
@@ -140,7 +136,7 @@ class AdvertiserChangePasswordView extends GetView<AdvertiserChangePasswordContr
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text('Password Strength', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
+                                    Text('password_strength'.tr, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
                                     Text(
                                       strength,
                                       style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold),
@@ -179,8 +175,7 @@ class AdvertiserChangePasswordView extends GetView<AdvertiserChangePasswordContr
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'PASSWORD REQUIREMENTS',
+                                Text('password_requirements_title'.tr,
                                   style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5),
                                 ),
                                 const SizedBox(height: 8),
@@ -197,16 +192,16 @@ class AdvertiserChangePasswordView extends GetView<AdvertiserChangePasswordContr
                           const SizedBox(height: 18),
 
                           // 3. Confirm New Password
-                          const Text(
-                            'Confirm New Password',
-                            style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 12, fontWeight: FontWeight.bold),
+                          Text(
+                            'confirm_new_password'.tr,
+                            style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 12, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 6),
                           Obx(() => _buildPasswordField(
                                 controller: controller.confirmPasswordController,
                                 obscure: controller.confirmObscure.value,
                                 onToggleObscure: () => controller.confirmObscure.toggle(),
-                                hintText: 'Re-enter your new password',
+                                hintText: 'reenter_new_password_hint'.tr,
                                 prefixIcon: Icons.lock_clock_outlined,
                               )),
                         ],
@@ -244,14 +239,13 @@ class AdvertiserChangePasswordView extends GetView<AdvertiserChangePasswordContr
                                   height: 22,
                                   child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.2),
                                 )
-                              : const Row(
+                              : Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.shield_rounded, color: Colors.white, size: 18),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Save New Password',
-                                      style: TextStyle(
+                                    const Icon(Icons.shield_rounded, color: Colors.white, size: 18),
+                                    const SizedBox(width: 8),
+                                    Text('save_new_password_btn'.tr,
+                                      style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,

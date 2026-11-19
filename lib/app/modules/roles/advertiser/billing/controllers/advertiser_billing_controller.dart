@@ -452,7 +452,7 @@ class AdvertiserBillingController extends GetxController {
         duration: const Duration(seconds: 4),
         mainButton: TextButton(
           onPressed: () => _openDownloadedFile(file.path),
-          child: const Text('OPEN', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          child: Text('open'.tr.toUpperCase(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         ),
       );
 
@@ -526,8 +526,7 @@ Certified digital tax document issued by VMOVEXA Advertising Platform.
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Tax Invoice Saved',
+                      Text('tax_invoice_saved'.tr,
                         style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       Text(
@@ -561,10 +560,10 @@ Certified digital tax document issued by VMOVEXA Advertising Platform.
                   ),
                   IconButton(
                     icon: const Icon(Icons.copy_rounded, color: Color(0xFF8B5CF6), size: 18),
-                    tooltip: 'Copy path',
+                    tooltip: 'copy_path'.tr,
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: filePath));
-                      Get.snackbar('Copied', 'Path copied to clipboard',
+                      Get.snackbar('copied_title'.tr, 'path_copied_clipboard_msg'.tr,
                           snackPosition: SnackPosition.BOTTOM, duration: const Duration(seconds: 2));
                     },
                   ),
@@ -583,7 +582,7 @@ Certified digital tax document issued by VMOVEXA Advertising Platform.
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    child: const Text('Close'),
+                    child: Text('close'.tr),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -600,7 +599,7 @@ Certified digital tax document issued by VMOVEXA Advertising Platform.
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                     icon: const Icon(Icons.visibility_rounded, size: 16),
-                    label: const Text('Open File'),
+                    label: Text('open_file'.tr),
                   ),
                 ),
               ],

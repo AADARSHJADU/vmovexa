@@ -478,7 +478,7 @@ class CreateCampaignController extends GetxController {
   void addVideoUrlToCreatives() {
     final url = videoUrlController.text.trim();
     if (url.isEmpty) {
-      Get.snackbar('Missing URL', 'Please enter a valid YouTube or video streaming URL',
+      Get.snackbar('missing_url'.tr, 'enter_valid_streaming_url_msg'.tr,
           backgroundColor: const Color(0xFFF59E0B), colorText: Colors.white);
       return;
     }
@@ -777,7 +777,7 @@ class CreateCampaignController extends GetxController {
 
   void setEndDate(DateTime date) {
     if (date.isBefore(startDate.value)) {
-      Get.snackbar('Invalid Date', 'End date cannot be earlier than start date',
+      Get.snackbar('invalid_date'.tr, 'end_date_earlier_msg'.tr,
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return;
     }
@@ -830,7 +830,7 @@ class CreateCampaignController extends GetxController {
         selectedDays.remove(day);
         repeatFrequency.value = 'Custom';
       } else {
-        Get.snackbar('Warning', 'At least 1 active day is required',
+        Get.snackbar('status_warning_badge'.tr, 'at_least_one_active_day_msg'.tr,
             backgroundColor: const Color(0xFFF59E0B), colorText: Colors.white);
       }
     } else {
@@ -1099,27 +1099,27 @@ class CreateCampaignController extends GetxController {
   // ==========================================================
   bool validateStep1() {
     if (nameController.text.trim().isEmpty) {
-      Get.snackbar('Required', 'Please enter a Campaign Name',
+      Get.snackbar('required_label'.tr, 'enter_campaign_name_msg'.tr,
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return false;
     }
     if (brandNameController.text.trim().isEmpty) {
-      Get.snackbar('Required', 'Please enter Brand / Company Name',
+      Get.snackbar('required_label'.tr, 'enter_brand_name_msg'.tr,
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return false;
     }
     if (clientNameController.text.trim().isEmpty) {
-      Get.snackbar('Required', 'Please enter Customer / Client Contact Name',
+      Get.snackbar('required_label'.tr, 'enter_client_contact_msg'.tr,
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return false;
     }
     if (clientPhoneController.text.trim().isEmpty) {
-      Get.snackbar('Required', 'Please enter Customer Mobile Number (required for SMS payment link)',
+      Get.snackbar('required_label'.tr, 'enter_customer_mobile_msg'.tr,
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return false;
     }
     if (clientEmailController.text.trim().isEmpty) {
-      Get.snackbar('Required', 'Please enter Customer Email Address (required for invoice & link)',
+      Get.snackbar('required_label'.tr, 'enter_customer_email_msg'.tr,
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return false;
     }
@@ -1132,7 +1132,7 @@ class CreateCampaignController extends GetxController {
       addVideoUrlToCreatives();
     }
     if (creativeItems.isEmpty) {
-      Get.snackbar('Required', 'Please attach at least one creative file (Image, Video) or enter a Video URL',
+      Get.snackbar('required_label'.tr, 'attach_creative_or_url_msg'.tr,
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return false;
     }
@@ -1141,12 +1141,12 @@ class CreateCampaignController extends GetxController {
 
   bool validateStep3() {
     if (selectedTargets.isEmpty) {
-      Get.snackbar('Required', 'Please select at least one transit route for your campaign',
+      Get.snackbar('required_label'.tr, 'select_transit_route_msg'.tr,
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return false;
     }
     if (totalSelectedScreens <= 0) {
-      Get.snackbar('Required', 'Selected routes have 0 active screens. Please select at least one bus screen.',
+      Get.snackbar('required_label'.tr, 'routes_zero_screens_msg'.tr,
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return false;
     }
@@ -1155,17 +1155,17 @@ class CreateCampaignController extends GetxController {
 
   bool validateStep4() {
     if (endDate.value.isBefore(startDate.value)) {
-      Get.snackbar('Required', 'End Date cannot be before Start Date',
+      Get.snackbar('required_label'.tr, 'end_date_before_start_msg'.tr,
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return false;
     }
     if (selectedDays.isEmpty) {
-      Get.snackbar('Required', 'Please select at least one active broadcast day of the week',
+      Get.snackbar('required_label'.tr, 'Please select at least one active broadcast day of the week',
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return false;
     }
     if (dailySlotStart.value.compareTo(dailySlotEnd.value) >= 0) {
-      Get.snackbar('Required', 'Daily Broadcast End Time must be later than Start Time',
+      Get.snackbar('required_label'.tr, 'Daily Broadcast End Time must be later than Start Time',
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return false;
     }
@@ -1174,7 +1174,7 @@ class CreateCampaignController extends GetxController {
 
   bool validateStep5() {
     if (finalTotalAmount <= 0) {
-      Get.snackbar('Required', 'Please enter a valid Campaign Budget (greater than ₹0)',
+      Get.snackbar('required_label'.tr, 'Please enter a valid Campaign Budget (greater than ₹0)',
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return false;
     }
@@ -1329,7 +1329,7 @@ class CreateCampaignController extends GetxController {
           hasSavedDraft.value = false;
           draftSavedAt.value = '';
           draftInfo.value = null;
-          Get.snackbar('Success', 'Campaign updated successfully',
+          Get.snackbar('success'.tr, 'Campaign updated successfully',
               backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
         } else {
           Get.snackbar('Update Failed', res.message ?? 'Failed to update campaign',

@@ -1354,7 +1354,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Active Broadcast Days', style: TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold)),
+            Text('active_broadcast_days_title'.tr, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold)),
             Obx(() => Text('${controller.activeBroadcastDaysCount} ${'active_days_of_7_count'.tr}', style: const TextStyle(color: Color(0xFF8B5CF6), fontSize: 10.5, fontWeight: FontWeight.bold))),
           ],
         ),
@@ -1421,8 +1421,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
           ],
         ),
         const SizedBox(height: 4),
-        const Text(
-          'Select the daily transit broadcast window during which onboard screens actively loop your ad.',
+        Text('daily_broadcast_window_desc'.tr,
           style: TextStyle(color: AppColors.textMuted, fontSize: 10),
         ),
         const SizedBox(height: 10),
@@ -1515,8 +1514,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                                 color: const Color(0xFFF59E0B),
                                 borderRadius: BorderRadius.circular(4),
                               ),
-                              child: const Text(
-                                'Best',
+                              child: Text('best_badge'.tr,
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 8.5,
@@ -1621,7 +1619,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                                 color: const Color(0xFFF59E0B),
                                 borderRadius: BorderRadius.circular(4),
                               ),
-                              child: const Text('Best', style: TextStyle(color: Colors.black, fontSize: 8.5, fontWeight: FontWeight.w900)),
+                              child: Text('best_badge'.tr, style: const TextStyle(color: Colors.black, fontSize: 8.5, fontWeight: FontWeight.w900)),
                             ),
                         ],
                       ),
@@ -1697,8 +1695,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          'Auto-synced with Broadcast Start',
+                        Text('auto_synced_start'.tr,
                           style: TextStyle(color: AppColors.textMuted, fontSize: 8.5),
                         ),
                       ],
@@ -1760,8 +1757,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          'Auto-synced with Broadcast End',
+                        Text('auto_synced_end'.tr,
                           style: TextStyle(color: AppColors.textMuted, fontSize: 8.5),
                         ),
                       ],
@@ -1794,12 +1790,12 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('00:00 (Night)', style: TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
+                    Text('time_night_label'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
                     Text(
                       'Active Airtime: ${controller.dailySlotStart.value} – ${controller.dailySlotEnd.value} (${controller.formattedDailyOperatingHours}h)',
                       style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 10, fontWeight: FontWeight.bold),
                     ),
-                    const Text('24:00 (Midnight)', style: TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
+                    Text('time_midnight_label'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -2029,18 +2025,18 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                                     isExpanded: true,
                                     dropdownColor: const Color(0xFF1E293B),
                                     style: const TextStyle(color: Colors.white, fontSize: 11),
-                                    items: const [
-                                      DropdownMenuItem(value: 'GST_CGST', child: Text('CGST (9%)')),
-                                      DropdownMenuItem(value: 'GST_SGST', child: Text('SGST (9%)')),
-                                      DropdownMenuItem(value: 'GST_IGST', child: Text('IGST (18%)')),
-                                      DropdownMenuItem(value: 'GST_CESS', child: Text('GST Cess (1%)')),
-                                      DropdownMenuItem(value: 'FEE_AIRTIME_BROADCAST', child: Text('Airtime Playback Fee')),
-                                      DropdownMenuItem(value: 'FEE_HARDWARE_RENTAL', child: Text('Hardware Screen Rental')),
-                                      DropdownMenuItem(value: 'FEE_CREATIVE_DESIGN', child: Text('Creative Review Fee')),
-                                      DropdownMenuItem(value: 'FEE_ONBOARDING_SETUP', child: Text('Setup & Deployment')),
-                                      DropdownMenuItem(value: 'DISCOUNT_VOLUME', child: Text('Volume Fleet Discount')),
-                                      DropdownMenuItem(value: 'DISCOUNT_PROMO', child: Text('Promotional Discount')),
-                                      DropdownMenuItem(value: 'CUSTOM', child: Text('Custom Line Item')),
+                                    items: [
+                                      DropdownMenuItem(value: 'GST_CGST', child: Text('cgst_rate'.tr)),
+                                      DropdownMenuItem(value: 'GST_SGST', child: Text('sgst_rate'.tr)),
+                                      DropdownMenuItem(value: 'GST_IGST', child: Text('igst_rate'.tr)),
+                                      DropdownMenuItem(value: 'GST_CESS', child: Text('gst_cess_rate'.tr)),
+                                      DropdownMenuItem(value: 'FEE_AIRTIME_BROADCAST', child: Text('fee_airtime_playback'.tr)),
+                                      DropdownMenuItem(value: 'FEE_HARDWARE_RENTAL', child: Text('fee_hardware_rental'.tr)),
+                                      DropdownMenuItem(value: 'FEE_CREATIVE_DESIGN', child: Text('fee_creative_review'.tr)),
+                                      DropdownMenuItem(value: 'FEE_ONBOARDING_SETUP', child: Text('fee_setup_deployment'.tr)),
+                                      DropdownMenuItem(value: 'DISCOUNT_VOLUME', child: Text('discount_volume_fleet'.tr)),
+                                      DropdownMenuItem(value: 'DISCOUNT_PROMO', child: Text('discount_promotional'.tr)),
+                                      DropdownMenuItem(value: 'CUSTOM', child: Text('fee_custom_line_item'.tr)),
                                     ],
                                     onChanged: (v) {
                                       if (v != null) controller.selectBreakdownPreset(item.id, v);
@@ -2120,14 +2116,14 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Description', style: TextStyle(color: AppColors.textMuted, fontSize: 10)),
+                              Text('description'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
                               const SizedBox(height: 4),
                               TextField(
                                 controller: TextEditingController(text: item.label),
                                 onChanged: (v) => controller.updateBreakdownItemLabel(item.id, v),
                                 style: const TextStyle(color: Colors.white, fontSize: 11),
                                 decoration: InputDecoration(
-                                  hintText: 'Description',
+                                  hintText: 'description'.tr,
                                   hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 10),
                                   filled: true,
                                   fillColor: const Color(0xFF0F172A),
@@ -2150,7 +2146,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text('Amount (₹)', style: TextStyle(color: AppColors.textMuted, fontSize: 10)),
+                                  Text('amount_inr'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
                                   if (isTax)
                                     Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -2488,7 +2484,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                           onPressed: controller.copyTrackingGatewayUrl,
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
-                          tooltip: 'Copy Link',
+                          tooltip: 'copy_link_tooltip'.tr,
                         ),
                       ],
                     ),

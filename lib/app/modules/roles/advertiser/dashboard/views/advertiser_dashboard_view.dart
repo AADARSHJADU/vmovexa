@@ -650,7 +650,7 @@
 //             minimumSize: Size.zero,
 //             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
 //           ),
-//           child: const Text('View All ›', style: TextStyle(color: Color(0xFF818CF8), fontSize: 11, fontWeight: FontWeight.bold)),
+//           child: Text('view_all_arrow'.tr, style: TextStyle(color: Color(0xFF818CF8), fontSize: 11, fontWeight: FontWeight.bold)),
 //         ),
 //       ],
 //     );
@@ -1197,7 +1197,7 @@
 //                         children: const [
 //                           Icon(Icons.share_rounded, color: Color(0xFF60A5FA), size: 13),
 //                           SizedBox(width: 4),
-//                           Text('Send Payment Link', style: TextStyle(color: Color(0xFF60A5FA), fontSize: 10, fontWeight: FontWeight.bold)),
+//                           Text('send_payment_link'.tr, style: TextStyle(color: Color(0xFF60A5FA), fontSize: 10, fontWeight: FontWeight.bold)),
 //                         ],
 //                       ),
 //                     ),
@@ -3198,7 +3198,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                               width: 36,
                               height: 36,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => const Center(
+                              errorBuilder: (context, error, stackTrace) => const Center(
                                 child: Icon(Icons.person_outline_rounded, color: Colors.white, size: 18),
                               ),
                             );
@@ -3296,8 +3296,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                     ),
                   ),
                   const SizedBox(height: 2),
-                  const Text(
-                    'Transit display ad campaign telemetry & insights.',
+                  Text('transit_display_telemetry_sub'.tr,
                     style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
                   ),
                 ],
@@ -3523,8 +3522,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                     style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 2),
-                  const Text(
-                    'Last 7 Days verified telemetry',
+                  Text('last_7_days_telemetry'.tr,
                     style: TextStyle(color: AppColors.textMuted, fontSize: 10),
                   ),
                 ],
@@ -3546,11 +3544,10 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               padding: const EdgeInsets.symmetric(vertical: 24),
               child: Center(
                 child: Column(
-                  children: const [
-                    Icon(Icons.bar_chart_rounded, color: AppColors.textMuted, size: 36),
-                    SizedBox(height: 8),
-                    Text(
-                      'No telemetry data recorded in the last 7 days.',
+                  children: [
+                    const Icon(Icons.bar_chart_rounded, color: AppColors.textMuted, size: 36),
+                    const SizedBox(height: 8),
+                    Text('no_telemetry_7days'.tr,
                       style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
                     ),
                   ],
@@ -3612,10 +3609,9 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               ),
             ),
             const SizedBox(height: 10),
-            const Center(
-              child: Text(
-                'Daily impressions delivered across transit fleet screens',
-                style: TextStyle(color: AppColors.textMuted, fontSize: 9.5),
+            Center(
+              child: Text('daily_impressions_fleet_sub'.tr,
+                style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5),
               ),
             ),
           ],
@@ -3639,38 +3635,38 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           child: Row(
             children: [
               _buildQuickActionChip(
-                label: 'create_campaign'.tr,
+                label: 'create_new_campaign'.tr,
                 icon: Icons.add_circle_outline_rounded,
                 color: const Color(0xFF6366F1),
                 onTap: controller.goToCreateCampaign,
               ),
               const SizedBox(width: 10),
               _buildQuickActionChip(
-                label: 'campaigns_hub'.tr,
+                label: 'view_all_campaigns'.tr,
                 icon: Icons.campaign_outlined,
                 color: const Color(0xFF0EA5E9),
                 onTap: () => controller.changeTab(1),
               ),
               const SizedBox(width: 10),
               _buildQuickActionChip(
-                label: 'lifecycle_and_flow'.tr,
-                icon: Icons.account_tree_outlined,
-                color: const Color(0xFF8B5CF6),
-                onTap: () => controller.changeTab(2),
-              ),
-              const SizedBox(width: 10),
-              _buildQuickActionChip(
-                label: 'analytics'.tr,
+                label: 'reports_and_analytics'.tr,
                 icon: Icons.bar_chart_rounded,
-                color: const Color(0xFF10B981),
-                onTap: () => controller.changeTab(3),
+                color: const Color(0xFF14B8A6),
+                onTap: () => Get.toNamed(Routes.ADVERTISER_REPORTS),
               ),
               const SizedBox(width: 10),
               _buildQuickActionChip(
-                label: 'billing_and_wallet'.tr,
-                icon: Icons.account_balance_wallet_outlined,
-                color: const Color(0xFFF59E0B),
+                label: 'billing_and_payments'.tr,
+                icon: Icons.credit_card_outlined,
+                color: const Color(0xFF10B981),
                 onTap: controller.switchToBilling,
+              ),
+              const SizedBox(width: 10),
+              _buildQuickActionChip(
+                label: 'help_support'.tr,
+                icon: Icons.help_outline_rounded,
+                color: const Color(0xFF8B5CF6),
+                onTap: () => Get.toNamed(Routes.ADVERTISER_HELP_SUPPORT),
               ),
             ],
           ),
@@ -3753,8 +3749,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Create your first campaign to launch on transit screens.',
+            Text('create_first_campaign_transit'.tr,
               style: TextStyle(color: AppColors.textSecondary, fontSize: 10),
               textAlign: TextAlign.center,
             ),
@@ -3892,8 +3887,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                 icon: const Icon(Icons.menu_rounded, color: Colors.white, size: 28),
                 onPressed: controller.openDrawer,
               ),
-              const Text(
-                'Lifecycle & Flow',
+              Text('lifecycle_and_flow'.tr,
                 style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
               ),
               IconButton(
@@ -3923,8 +3917,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     children: [
-                      const Text(
-                        'Campaigns by Stage',
+                      Text('campaigns_by_stage_hdr'.tr,
                         style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(width: 8),
@@ -4099,8 +4092,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                             style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 4),
-                          const Text(
-                            'Select another stage or create a new campaign.',
+                          Text('select_another_stage_sub'.tr,
                             style: TextStyle(color: AppColors.textMuted, fontSize: 11),
                           ),
                         ],
@@ -4271,10 +4263,10 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Icon(Icons.share_rounded, color: Color(0xFF60A5FA), size: 13),
-                          SizedBox(width: 4),
-                          Text('Send Payment Link', style: TextStyle(color: Color(0xFF60A5FA), fontSize: 10, fontWeight: FontWeight.bold)),
+                        children: [
+                          const Icon(Icons.share_rounded, color: Color(0xFF60A5FA), size: 13),
+                          const SizedBox(width: 4),
+                          Text('send_payment_link'.tr, style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 10, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
@@ -4296,10 +4288,10 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Icon(Icons.play_arrow_rounded, color: Color(0xFF34D399), size: 14),
-                          SizedBox(width: 2),
-                          Text('Start Ad', style: TextStyle(color: Color(0xFF34D399), fontSize: 10, fontWeight: FontWeight.bold)),
+                        children: [
+                          const Icon(Icons.play_arrow_rounded, color: Color(0xFF34D399), size: 14),
+                          const SizedBox(width: 2),
+                          Text('start_ad'.tr, style: const TextStyle(color: Color(0xFF34D399), fontSize: 10, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
@@ -4321,10 +4313,10 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Icon(Icons.pause_rounded, color: Color(0xFFFB923C), size: 14),
-                          SizedBox(width: 2),
-                          Text('Pause Ad', style: TextStyle(color: Color(0xFFFB923C), fontSize: 10, fontWeight: FontWeight.bold)),
+                        children: [
+                          const Icon(Icons.pause_rounded, color: Color(0xFFFB923C), size: 14),
+                          const SizedBox(width: 2),
+                          Text('pause_ad'.tr, style: const TextStyle(color: Color(0xFFFB923C), fontSize: 10, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
@@ -4346,10 +4338,10 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Icon(Icons.stop_rounded, color: Color(0xFFF87171), size: 14),
-                          SizedBox(width: 2),
-                          Text('End', style: TextStyle(color: Color(0xFFF87171), fontSize: 10, fontWeight: FontWeight.bold)),
+                        children: [
+                          const Icon(Icons.stop_rounded, color: Color(0xFFF87171), size: 14),
+                          const SizedBox(width: 2),
+                          Text('end_action'.tr, style: const TextStyle(color: Color(0xFFF87171), fontSize: 10, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
@@ -4365,7 +4357,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                     gradient: AppTheme.primaryGradient,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text('View ›', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                  child: Text('view_arrow_action'.tr, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                 ),
               ),
               const SizedBox(width: 6),
@@ -4405,15 +4397,14 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                 children: [
                   SvgPicture.asset('assets/icons/advertiser_ic/speaker.svg'),
                   const SizedBox(width: 10),
-                  const Text(
-                    'Campaigns',
+                  Text('campaigns_title'.tr,
                     style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
                   IconButton(
                     icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 20),
                     onPressed: () => controller.fetchCampaigns(),
-                    tooltip: 'Refresh Campaigns',
+                    tooltip: 'refresh_campaigns_tooltip'.tr,
                   ),
                 ],
               ),
@@ -4811,9 +4802,9 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: statusColor.withOpacity(0.12),
+                          color: statusColor.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: statusColor.withOpacity(0.4), width: 1),
+                          border: Border.all(color: statusColor.withValues(alpha: 0.4), width: 1),
                         ),
                         child: Text(
                           c.statusLabel,
@@ -4979,9 +4970,9 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF3B82F6).withOpacity(0.12),
+                        color: const Color(0xFF3B82F6).withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.3), width: 1),
+                        border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.3), width: 1),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -5034,9 +5025,9 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF10B981).withOpacity(0.12),
+                        color: const Color(0xFF10B981).withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: const Color(0xFF10B981).withOpacity(0.3)),
+                        border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -5057,9 +5048,9 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF6366F1).withOpacity(0.12),
+                      color: const Color(0xFF6366F1).withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: const Color(0xFF6366F1).withOpacity(0.3)),
+                      border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.3)),
                     ),
                     child: Text(
                       '${'payment_prefix'.tr} ${c.isPaid ? 'paid'.tr : 'Unpaid'}',
@@ -5106,7 +5097,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1E293B).withOpacity(0.6),
+                      color: const Color(0xFF1E293B).withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: AppColors.cardBorder),
                     ),
@@ -5170,10 +5161,9 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                 colorFilter: const ColorFilter.mode(Color(0xFF8B5CF6), BlendMode.srcIn),
               ),
               const SizedBox(width: 10),
-              const Expanded(
-                child: Text(
-                  'Analytics & Heatmaps',
-                  style: TextStyle(
+              Expanded(
+                child: Text('analytics_and_heatmaps'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -5192,7 +5182,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                 )
                     : const Icon(Icons.refresh_rounded, color: Colors.white, size: 22),
                 onPressed: analyticsCtrl.refreshing.value ? null : () => analyticsCtrl.handleRefresh(),
-                tooltip: 'Refresh Analytics',
+                tooltip: 'refresh_analytics_tooltip'.tr,
               )),
             ],
           ),
@@ -5220,10 +5210,10 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             children: [
               SvgPicture.asset('assets/icons/profile.svg', width: 22, height: 22),
               const SizedBox(width: 10),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Profile',
-                  style: TextStyle(
+                  'profile'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -5233,12 +5223,12 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               IconButton(
                 icon: const Icon(Icons.edit_note_rounded, color: Color(0xFF8B5CF6), size: 24),
                 onPressed: () => Get.toNamed(Routes.ADVERTISER_EDIT_PROFILE),
-                tooltip: 'Edit Profile',
+                tooltip: 'edit_profile'.tr,
               ),
               IconButton(
                 icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 22),
                 onPressed: () => profileCtrl.loadProfileData(),
-                tooltip: 'Refresh Profile',
+                tooltip: 'refresh_profile_tooltip'.tr,
               ),
             ],
           ),
@@ -5288,10 +5278,10 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Text(
-                    'Help & Support',
-                    style: TextStyle(
+                    'help_support'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -5300,10 +5290,6 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                 ],
               ),
               SvgPicture.asset('assets/icons/fleet_operator_icons/profileHeaderSettingA.svg')
-              // IconButton(
-              //   icon: const Icon(Icons.settings_outlined, color: Colors.white, size: 20),
-              //   onPressed: controller.switchToProfile,
-              // ),
             ],
           ),
         ),
@@ -5320,16 +5306,16 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: AppColors.cardBorder, width: 1.2),
                 ),
-                child: const TextField(
-                  style: TextStyle(color: Colors.white, fontSize: 13),
+                child: TextField(
+                  style: const TextStyle(color: Colors.white, fontSize: 13),
                   decoration: InputDecoration(
-                    hintText: 'Search for help articles, FAQs...',
-                    hintStyle: TextStyle(
+                    hintText: 'search_help_hint'.tr,
+                    hintStyle: const TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 12,
                     ),
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(
+                    contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 14,
                     ),
@@ -5344,8 +5330,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               const SizedBox(height: 20),
 
               // Quick Help Grid
-              const Text(
-                'Quick Help',
+              Text('quick_help'.tr,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 12,
@@ -5368,8 +5353,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'My Support Tickets',
+                  Text('my_support_tickets'.tr,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 12,
@@ -5378,8 +5362,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                   ),
                   GestureDetector(
                     onTap: () => Get.toNamed(Routes.ADVERTISER_HELP_SUPPORT),
-                    child: const Text(
-                      'View All ›',
+                    child: Text('view_all_arrow'.tr,
                       style: TextStyle(
                         color: Color(0xFF8B5CF6),
                         fontSize: 10,
@@ -5397,8 +5380,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Popular Articles',
+                  Text('popular_articles'.tr,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 12,
@@ -5407,8 +5389,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                   ),
                   GestureDetector(
                     onTap: () => Get.toNamed(Routes.ADVERTISER_HELP_SUPPORT),
-                    child: const Text(
-                      'View All ›',
+                    child: Text('view_all_arrow'.tr,
                       style: TextStyle(
                         color: Color(0xFF8B5CF6),
                         fontSize: 10,
@@ -5625,10 +5606,9 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.cardBorder, width: 1.2),
           ),
-          child: const Center(
-            child: Text(
-              'No active support tickets found',
-              style: TextStyle(color: Color(0xFF64748B), fontSize: 11),
+          child: Center(
+            child: Text('no_active_tickets_found'.tr,
+              style: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
             ),
           ),
         );
@@ -5701,7 +5681,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: col.withOpacity(0.12),
+                        color: col.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(

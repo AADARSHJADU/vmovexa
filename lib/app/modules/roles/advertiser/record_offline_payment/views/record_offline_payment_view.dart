@@ -27,7 +27,7 @@ class RecordOfflinePaymentView extends GetView<RecordOfflinePaymentController> {
                 children: [
                   const Icon(Icons.campaign_outlined, size: 64, color: AppColors.textMuted),
                   const SizedBox(height: 16),
-                  const Text('Campaign not found', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text('campaign_not_found'.tr, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => Get.back(),
@@ -602,7 +602,7 @@ class RecordOfflinePaymentView extends GetView<RecordOfflinePaymentController> {
                 maxLines: 3,
                 style: const TextStyle(color: Colors.white, fontSize: 12),
                 decoration: InputDecoration(
-                  hintText: 'Settlement notes, instrument receipt acknowledgement...',
+                  hintText: 'settlement_notes_hint'.tr,
                   hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                   filled: true,
                   fillColor: const Color(0xFF0F172A),

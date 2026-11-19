@@ -257,6 +257,8 @@ import '../modules/roles/advertiser/notification_settings/bindings/advertiser_no
 import '../modules/roles/advertiser/notification_settings/views/advertiser_notification_settings_view.dart';
 import '../modules/roles/advertiser/help_support/bindings/advertiser_help_support_binding.dart';
 import '../modules/roles/advertiser/help_support/views/advertiser_help_support_view.dart';
+import '../modules/roles/advertiser/help_support/views/advertiser_raise_ticket_view.dart';
+import '../modules/roles/advertiser/help_support/views/advertiser_support_history_view.dart';
 import '../modules/roles/advertiser/notifications/bindings/advertiser_notifications_binding.dart';
 import '../modules/roles/advertiser/notifications/views/advertiser_notifications_view.dart';
 
@@ -648,6 +650,18 @@ class AppPages {
     GetPage(
       name: Routes.ADVERTISER_HELP_SUPPORT,
       page: () => const AdvertiserHelpSupportView(),
+      binding: AdvertiserHelpSupportBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.ADVERTISER_RAISE_TICKET,
+      page: () => const AdvertiserRaiseTicketView(),
+      binding: AdvertiserHelpSupportBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.ADVERTISER_SUPPORT_HISTORY,
+      page: () => const AdvertiserSupportHistoryView(),
       binding: AdvertiserHelpSupportBinding(),
       transition: Transition.rightToLeft,
     ),

@@ -23,10 +23,10 @@ class CampaignAnalyticsView extends GetView<CampaignAnalyticsController> {
                 children: [
                   const CustomBackButton(),
                   const SizedBox(width: 8),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Analytics & Heatmaps',
-                      style: TextStyle(
+                      'analytics_and_heatmaps'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
@@ -45,7 +45,7 @@ class CampaignAnalyticsView extends GetView<CampaignAnalyticsController> {
                               )
                             : const Icon(Icons.refresh_rounded, color: Colors.white, size: 22),
                         onPressed: controller.refreshing.value ? null : () => controller.handleRefresh(),
-                        tooltip: 'Refresh Analytics',
+                        tooltip: 'refresh_analytics_tooltip'.tr,
                       )),
                 ],
               ),
@@ -62,7 +62,7 @@ class CampaignAnalyticsView extends GetView<CampaignAnalyticsController> {
   }
 }
 
-/// Unified reusable Analytics content widget used both in standalone page & Bottom Nav Tab 3
+/// Unified reusable Analytics content widget used both in standalone page & Bottom Nav Tab
 class CampaignAnalyticsContent extends StatelessWidget {
   final CampaignAnalyticsController controller;
 
@@ -95,7 +95,7 @@ class CampaignAnalyticsContent extends StatelessWidget {
               _buildCampaignSelectorCard(),
               const SizedBox(height: 16),
 
-              // 5 KPI Performance Cards
+              // Exactly 4 KPI Performance Cards (2x2 Grid)
               _buildKpiMetricsGrid(),
               const SizedBox(height: 20),
 
@@ -131,9 +131,9 @@ class CampaignAnalyticsContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Real-time telemetry, DOOH transit screen impression auditing, GPS proof-of-play verified logs, and QR scan attribution.',
-          style: TextStyle(
+        Text(
+          'analytics_hero_desc'.tr,
+          style: const TextStyle(
             color: Colors.white60,
             fontSize: 11.5,
             height: 1.4,
@@ -171,7 +171,7 @@ class CampaignAnalyticsContent extends StatelessWidget {
                           : const Icon(Icons.description_outlined, color: Colors.white, size: 16),
                       const SizedBox(width: 8),
                       Text(
-                        controller.isExporting.value ? 'Exporting...' : 'Export CSV Report',
+                        controller.isExporting.value ? 'exporting_text'.tr : 'export_csv_report'.tr,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12.5,
@@ -204,9 +204,9 @@ class CampaignAnalyticsContent extends StatelessWidget {
                           )
                         : const Icon(Icons.sync_rounded, color: Colors.white70, size: 16),
                     const SizedBox(width: 6),
-                    const Text(
-                      'Refresh',
-                      style: TextStyle(
+                    Text(
+                      'refresh_tooltip'.tr,
+                      style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -252,12 +252,12 @@ class CampaignAnalyticsContent extends StatelessWidget {
                     child: const Icon(Icons.track_changes_rounded, color: Color(0xFF38BDF8), size: 16),
                   ),
                   const SizedBox(width: 10),
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'ACTIVE FILTER',
-                        style: TextStyle(
+                        'active_filter_hdr'.tr,
+                        style: const TextStyle(
                           color: Colors.white54,
                           fontSize: 9.5,
                           fontWeight: FontWeight.bold,
@@ -265,8 +265,8 @@ class CampaignAnalyticsContent extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'Select Campaign',
-                        style: TextStyle(
+                        'select_campaign'.tr,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
@@ -284,7 +284,7 @@ class CampaignAnalyticsContent extends StatelessWidget {
                   border: Border.all(color: AppColors.cardBorder),
                 ),
                 child: Text(
-                  '${controller.campaigns.length} Available',
+                  '${controller.campaigns.length} ${'campaigns_available_count'.tr}',
                   style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 10,
@@ -311,7 +311,7 @@ class CampaignAnalyticsContent extends StatelessWidget {
                   Expanded(
                     child: Text(
                       controller.isOverview
-                          ? 'All Campaigns Overview'
+                          ? 'all_campaigns_overview'.tr
                           : '${controller.currentCampaign?.title ?? controller.title} [${controller.code}]',
                       style: const TextStyle(
                         color: Colors.white,
@@ -345,19 +345,19 @@ class CampaignAnalyticsContent extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: AppColors.cardBorder),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'View Campaign Details',
-                      style: TextStyle(
+                      'view_campaign_details'.tr,
+                      style: const TextStyle(
                         color: Color(0xFF38BDF8),
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(width: 6),
-                    Icon(Icons.open_in_new_rounded, color: Color(0xFF38BDF8), size: 14),
+                    const SizedBox(width: 6),
+                    const Icon(Icons.open_in_new_rounded, color: Color(0xFF38BDF8), size: 14),
                   ],
                 ),
               ),
@@ -386,9 +386,9 @@ class CampaignAnalyticsContent extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Select Campaign Analytics',
-                    style: TextStyle(
+                  Text(
+                    'select_campaign_analytics'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -408,8 +408,8 @@ class CampaignAnalyticsContent extends StatelessWidget {
                   children: [
                     // All Campaigns option
                     _buildPickerItem(
-                      title: 'All Campaigns Overview',
-                      subtitle: 'Aggregated analytics across all DOOH broadcasts',
+                      title: 'all_campaigns_overview'.tr,
+                      subtitle: 'aggregated_analytics'.tr,
                       code: 'ALL-CAMPAIGNS',
                       isSelected: controller.selectedCampaignId.value == 'all',
                       onTap: () {
@@ -513,49 +513,41 @@ class CampaignAnalyticsContent extends StatelessWidget {
   }
 
   // ==========================================================
-  // TOP 5 KPI PERFORMANCE CARDS
+  // EXACTLY 4 TOP KPI PERFORMANCE CARDS (2x2 GRID MATCHING ADMIN PANEL)
   // ==========================================================
   Widget _buildKpiMetricsGrid() {
     final kpis = [
       {
-        'label': 'Impressions Delivered',
+        'label': 'impressions_delivered'.tr,
         'value': controller.impressions.toString(),
-        'sub': 'Audited DOOH Displays',
+        'sub': 'audited_dooh_displays'.tr,
         'accent': [const Color(0xFF3B82F6), const Color(0xFF6366F1)],
         'icon': Icons.visibility_rounded,
         'badge': null,
       },
       {
-        'label': 'Screen Playbacks',
+        'label': 'screen_playbacks'.tr,
         'value': controller.playbacks.toString(),
-        'sub': 'GPS-Verified Slots',
+        'sub': 'gps_verified_slots'.tr,
         'accent': [const Color(0xFF6366F1), const Color(0xFFA855F7)],
         'icon': Icons.tv_rounded,
         'badge': null,
       },
       {
-        'label': 'Smart QR Leads',
+        'label': 'smart_qr_leads'.tr,
         'value': controller.scans.toString(),
-        'sub': 'CTR: ${controller.ctr}% scan rate',
+        'sub': 'CTR: ${controller.ctr}% ${'scan_rate_text'.tr}',
         'accent': [const Color(0xFF10B981), const Color(0xFF14B8A6)],
         'icon': Icons.smartphone_rounded,
         'badge': null,
       },
       {
-        'label': 'Total Campaign Amount',
+        'label': 'total_campaign_amount'.tr,
         'value': '₹${controller.budget.toStringAsFixed(0)}',
-        'sub': '${controller.budgetUtilization}% Budget Utilized',
+        'sub': '${controller.budgetUtilization}% ${'budget_utilized_text'.tr}',
         'accent': [const Color(0xFFF59E0B), const Color(0xFFEA580C)],
         'icon': Icons.currency_rupee_rounded,
         'badge': controller.status.toUpperCase(),
-      },
-      {
-        'label': 'Effective CPM',
-        'value': '₹${controller.cpm}',
-        'sub': 'Cost per 1k impressions',
-        'accent': [const Color(0xFFA855F7), const Color(0xFFEC4899)],
-        'icon': Icons.flash_on_rounded,
-        'badge': null,
       },
     ];
 
@@ -576,8 +568,6 @@ class CampaignAnalyticsContent extends StatelessWidget {
             Expanded(child: _buildKpiCard(kpis[3])),
           ],
         ),
-        const SizedBox(height: 10),
-        _buildKpiCard(kpis[4]),
       ],
     );
   }
@@ -659,12 +649,12 @@ class CampaignAnalyticsContent extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: badge == 'LIVE' || badge == 'ACTIVE'
+                              color: badge == 'LIVE' || badge == 'ACTIVE' || badge == 'सक्रिय'
                                   ? const Color(0xFF10B981).withValues(alpha: 0.15)
                                   : const Color(0xFFF59E0B).withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
-                                color: badge == 'LIVE' || badge == 'ACTIVE'
+                                color: badge == 'LIVE' || badge == 'ACTIVE' || badge == 'सक्रिय'
                                     ? const Color(0xFF10B981)
                                     : const Color(0xFFF59E0B),
                                 width: 0.8,
@@ -673,7 +663,7 @@ class CampaignAnalyticsContent extends StatelessWidget {
                             child: Text(
                               badge,
                               style: TextStyle(
-                                color: badge == 'LIVE' || badge == 'ACTIVE'
+                                color: badge == 'LIVE' || badge == 'ACTIVE' || badge == 'सक्रिय'
                                     ? const Color(0xFF34D399)
                                     : const Color(0xFFFBBF24),
                                 fontSize: 8.5,
@@ -698,9 +688,9 @@ class CampaignAnalyticsContent extends StatelessWidget {
   // ==========================================================
   Widget _buildTabsNavigation() {
     final tabs = [
-      {'id': 'overview', 'label': 'Performance Trend & Charts', 'icon': Icons.bar_chart_rounded},
-      {'id': 'routes', 'label': 'Transit Route & Display Nodes', 'icon': Icons.directions_bus_rounded},
-      {'id': 'qr', 'label': 'Smart QR Attributes', 'icon': Icons.qr_code_2_rounded},
+      {'id': 'overview', 'label': 'performance_trend_and_charts'.tr, 'icon': Icons.bar_chart_rounded},
+      {'id': 'routes', 'label': 'transit_route_and_display_nodes'.tr, 'icon': Icons.directions_bus_rounded},
+      {'id': 'qr', 'label': 'smart_qr_attribution'.tr, 'icon': Icons.qr_code_2_rounded},
     ];
 
     return SingleChildScrollView(
@@ -724,7 +714,7 @@ class CampaignAnalyticsContent extends StatelessWidget {
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: const Color(0xFF8B5CF6).withValues(alpha: 0.3),
+                            color: const Color(0xFF8B5CF6).withValues(alpha: 0.35),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -779,34 +769,34 @@ class CampaignAnalyticsContent extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Telemetry Log & GPS Proof-of-Play',
-                      style: TextStyle(
+                      'telemetry_proof_play_hdr'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 13.5,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
-                      'Daily DOOH verified impression logs',
-                      style: TextStyle(color: Colors.white54, fontSize: 10.5),
+                      'daily_verified_impression_sub'.tr,
+                      style: const TextStyle(color: Colors.white54, fontSize: 10.5),
                     ),
                   ],
                 ),
               ),
-              // Period Filter Pills
+              // Period Filter Pills with primaryGradient on active
               Row(
                 children: [
-                  _buildPeriodPill('7d', '7 Days'),
+                  _buildPeriodPill('7d', 'days_7_label'.tr),
                   const SizedBox(width: 4),
-                  _buildPeriodPill('30d', '30 Days'),
+                  _buildPeriodPill('30d', 'days_30_label'.tr),
                   const SizedBox(width: 4),
-                  _buildPeriodPill('all', 'All'),
+                  _buildPeriodPill('all', 'all'.tr),
                 ],
               ),
             ],
@@ -816,8 +806,8 @@ class CampaignAnalyticsContent extends StatelessWidget {
           if (telemetry.isEmpty)
             _buildEmptyState(
               icon: Icons.bar_chart_rounded,
-              title: 'No Telemetry Recorded Yet',
-              sub: 'Proof-of-play rows appear here once the campaign goes live and transit screens report playbacks.',
+              title: 'no_telemetry_recorded_yet'.tr,
+              sub: 'recorded_analytics_rows_will_appear_here_whe'.tr,
             )
           else ...[
             // Daily Telemetry Bar Visual
@@ -830,34 +820,33 @@ class CampaignAnalyticsContent extends StatelessWidget {
             _buildTelemetryTable(paginated),
 
             // Pagination Controls
-            if (controller.totalTelemetryPages > 1) ...[
-              const SizedBox(height: 12),
-              _buildPaginationControls(
-                currentPage: controller.telemetryPage.value,
-                totalPages: controller.totalTelemetryPages,
-                onPrev: controller.telemetryPage.value > 1
-                    ? () => controller.telemetryPage.value--
-                    : null,
-                onNext: controller.telemetryPage.value < controller.totalTelemetryPages
-                    ? () => controller.telemetryPage.value++
-                    : null,
-              ),
-            ],
+            const SizedBox(height: 14),
+            _buildPaginationControls(
+              currentPage: controller.telemetryPage.value,
+              totalPages: controller.totalTelemetryPages,
+              onPrev: controller.telemetryPage.value > 1
+                  ? () => controller.telemetryPage.value--
+                  : null,
+              onNext: controller.telemetryPage.value < controller.totalTelemetryPages
+                  ? () => controller.telemetryPage.value++
+                  : null,
+            ),
           ],
         ],
       ),
     );
   }
 
-  Widget _buildPeriodPill(String key, String label) {
-    final isSelected = controller.period.value == key;
+  Widget _buildPeriodPill(String periodKey, String label) {
+    final isSelected = controller.period.value == periodKey;
     return GestureDetector(
-      onTap: () => controller.setPeriod(key),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      onTap: () => controller.setPeriod(periodKey),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
         decoration: BoxDecoration(
           gradient: isSelected ? AppTheme.primaryGradient : null,
-          color: isSelected ? null : const Color(0xFF0F172A),
+          color: isSelected ? null : const Color(0xFF1E293B),
           borderRadius: BorderRadius.circular(8),
           border: isSelected ? null : Border.all(color: AppColors.cardBorder),
         ),
@@ -866,35 +855,34 @@ class CampaignAnalyticsContent extends StatelessWidget {
           style: TextStyle(
             color: isSelected ? Colors.white : Colors.white60,
             fontSize: 9.5,
-            fontWeight: FontWeight.bold,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildDailyBarVisual(List<Map<String, dynamic>> items) {
-    int maxVal = 1;
-    for (final d in items) {
-      final imp = d['impressions'] as int? ?? 0;
-      if (imp > maxVal) maxVal = imp;
-    }
+  Widget _buildDailyBarVisual(List<Map<String, dynamic>> data) {
+    final maxImp = data.map((d) => (d['impressions'] as int?) ?? 0).fold(0, (a, b) => a > b ? a : b);
+    final safeMax = maxImp > 0 ? maxImp : 1;
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          height: 130,
+          height: 110,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
-            itemCount: items.length,
-            itemBuilder: (context, idx) {
-              final item = items[idx];
-              final imp = item['impressions'] as int? ?? 0;
-              final heightPct = ((imp / maxVal) * 80).clamp(10.0, 80.0);
+            itemCount: data.length,
+            itemBuilder: (context, i) {
+              final item = data[i];
+              final imp = (item['impressions'] as int?) ?? 0;
+              final heightPct = (imp / safeMax).clamp(0.08, 1.0);
 
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6),
+              return Container(
+                width: 44,
+                margin: const EdgeInsets.only(right: 8),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -905,26 +893,29 @@ class CampaignAnalyticsContent extends StatelessWidget {
                         fontSize: 9,
                         fontWeight: FontWeight.bold,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
-                    Container(
-                      width: 32,
-                      height: 75,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF0F172A),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      alignment: Alignment.bottomCenter,
-                      child: Container(
-                        height: heightPct,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            colors: [Color(0xFF2563EB), Color(0xFF8B5CF6)],
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: FractionallySizedBox(
+                          heightFactor: heightPct,
+                          child: Container(
+                            width: 24,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.bottomCenter,
+                                end: Alignment.topCenter,
+                                colors: [
+                                  const Color(0xFF3B82F6),
+                                  const Color(0xFF8B5CF6).withValues(alpha: 0.8),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
                           ),
-                          borderRadius: BorderRadius.circular(6),
                         ),
                       ),
                     ),
@@ -944,9 +935,9 @@ class CampaignAnalyticsContent extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        const Text(
-          'Daily DOOH audited impressions delivered across transit corridors',
-          style: TextStyle(color: Colors.white38, fontSize: 10),
+        Text(
+          'daily_audited_impressions_sub'.tr,
+          style: const TextStyle(color: Colors.white38, fontSize: 10),
         ),
       ],
     );
@@ -962,35 +953,35 @@ class CampaignAnalyticsContent extends StatelessWidget {
             color: const Color(0xFF0F172A),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: const Row(
+          child: Row(
             children: [
               Expanded(
                 flex: 2,
                 child: Text(
-                  'DATE',
-                  style: TextStyle(color: Colors.white54, fontSize: 9.5, fontWeight: FontWeight.bold),
+                  'date'.tr,
+                  style: const TextStyle(color: Colors.white54, fontSize: 9.5, fontWeight: FontWeight.bold),
                 ),
               ),
               Expanded(
                 flex: 2,
                 child: Text(
-                  'IMPRESSIONS',
-                  style: TextStyle(color: Colors.white54, fontSize: 9.5, fontWeight: FontWeight.bold),
+                  'impressions'.tr,
+                  style: const TextStyle(color: Colors.white54, fontSize: 9.5, fontWeight: FontWeight.bold),
                 ),
               ),
               Expanded(
                 flex: 2,
                 child: Text(
-                  'PLAYBACKS',
-                  style: TextStyle(color: Colors.white54, fontSize: 9.5, fontWeight: FontWeight.bold),
+                  'playbacks_col'.tr,
+                  style: const TextStyle(color: Colors.white54, fontSize: 9.5, fontWeight: FontWeight.bold),
                 ),
               ),
               Expanded(
                 flex: 2,
                 child: Text(
-                  'STATUS',
+                  'status_label'.tr,
                   textAlign: TextAlign.end,
-                  style: TextStyle(color: Colors.white54, fontSize: 9.5, fontWeight: FontWeight.bold),
+                  style: const TextStyle(color: Colors.white54, fontSize: 9.5, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -1043,14 +1034,14 @@ class CampaignAnalyticsContent extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.circle, color: Color(0xFF10B981), size: 5),
-                          SizedBox(width: 4),
+                          const Icon(Icons.circle, color: Color(0xFF10B981), size: 5),
+                          const SizedBox(width: 4),
                           Text(
-                            'Verified',
-                            style: TextStyle(
+                            'verified_badge'.tr,
+                            style: const TextStyle(
                               color: Color(0xFF34D399),
                               fontSize: 9,
                               fontWeight: FontWeight.bold,
@@ -1089,21 +1080,21 @@ class CampaignAnalyticsContent extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Targeted Transit Corridors',
-                    style: TextStyle(
+                    'targeted_transit_corridors_hdr'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 13.5,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
-                    'Transit corridors and connected\ndisplay node screens',
-                    style: TextStyle(color: Colors.white54, fontSize: 10.5),
+                    'transit_corridors_sub'.tr,
+                    style: const TextStyle(color: Colors.white54, fontSize: 10.5),
                   ),
                 ],
               ),
@@ -1115,7 +1106,7 @@ class CampaignAnalyticsContent extends StatelessWidget {
                   border: Border.all(color: AppColors.cardBorder),
                 ),
                 child: Text(
-                  '${routes.length} Corridors',
+                  '${routes.length} ${'corridors_count_label'.tr}',
                   style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 10,
@@ -1130,10 +1121,8 @@ class CampaignAnalyticsContent extends StatelessWidget {
           if (routes.isEmpty)
             _buildEmptyState(
               icon: Icons.directions_bus_rounded,
-              title: 'No Targeted Corridors Configured',
-              sub: controller.isOverview
-                  ? 'Select a specific campaign from active filter to view its targeted corridors.'
-                  : 'This campaign has no route corridors assigned yet.',
+              title: 'no_targeted_routes'.tr,
+              sub: 'select_a_specific_campaign_to_view_its_targeted_transit_corridors'.tr,
             )
           else ...[
             ...paginated.map((route) {
@@ -1179,9 +1168,8 @@ class CampaignAnalyticsContent extends StatelessWidget {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF38BDF8).withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(color: const Color(0xFF38BDF8).withValues(alpha: 0.4)),
+                                  color: const Color(0xFF1E293B),
+                                  borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
                                   code,
@@ -1197,18 +1185,19 @@ class CampaignAnalyticsContent extends StatelessWidget {
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: isLive
                                 ? const Color(0xFF10B981).withValues(alpha: 0.15)
-                                : const Color(0xFF1E293B),
-                            borderRadius: BorderRadius.circular(10),
+                                : const Color(0xFF64748B).withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(6),
                             border: Border.all(
-                              color: isLive ? const Color(0xFF10B981) : AppColors.cardBorder,
+                              color: isLive ? const Color(0xFF10B981) : const Color(0xFF64748B),
+                              width: 0.8,
                             ),
                           ),
                           child: Text(
-                            isLive ? 'Broadcasting' : controller.status.toUpperCase(),
+                            isLive ? 'broadcasting_status'.tr : controller.status.toUpperCase(),
                             style: TextStyle(
                               color: isLive ? const Color(0xFF34D399) : Colors.white60,
                               fontSize: 9,
@@ -1220,23 +1209,17 @@ class CampaignAnalyticsContent extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'City: $city${(start != null && end != null) ? ' • From $start ➔ $end' : ''}',
+                      '${'city_text'.tr}: $city${(start != null && end != null) ? ' • ${'from_route_prefix'.tr} $start ➔ $end' : ''}',
                       style: const TextStyle(color: Colors.white54, fontSize: 10.5),
                     ),
                     const SizedBox(height: 10),
+
+                    // Metrics Strip
                     Row(
                       children: [
-                        _buildRouteMetricPill(
-                          label: 'SCREENS',
-                          value: '$screens Displays',
-                          icon: Icons.tv_rounded,
-                        ),
-                        const SizedBox(width: 10),
-                        _buildRouteMetricPill(
-                          label: 'VEHICLES',
-                          value: '$vehicles Buses',
-                          icon: Icons.directions_bus_rounded,
-                        ),
+                        _buildRouteMetricPill('screens_caps'.tr, screens.toString(), Icons.tv_rounded),
+                        const SizedBox(width: 8),
+                        _buildRouteMetricPill('vehicles_caps'.tr, vehicles.toString(), Icons.directions_bus_rounded),
                       ],
                     ),
                   ],
@@ -1244,41 +1227,36 @@ class CampaignAnalyticsContent extends StatelessWidget {
               );
             }),
 
-            // Routes Pagination Controls
-            if (controller.totalRoutePages > 1) ...[
-              const SizedBox(height: 10),
-              _buildPaginationControls(
-                currentPage: controller.routesPage.value,
-                totalPages: controller.totalRoutePages,
-                onPrev: controller.routesPage.value > 1
-                    ? () => controller.routesPage.value--
-                    : null,
-                onNext: controller.routesPage.value < controller.totalRoutePages
-                    ? () => controller.routesPage.value++
-                    : null,
-              ),
-            ],
+            // Pagination Controls
+            const SizedBox(height: 14),
+            _buildPaginationControls(
+              currentPage: controller.routesPage.value,
+              totalPages: controller.totalRoutePages,
+              onPrev: controller.routesPage.value > 1
+                  ? () => controller.routesPage.value--
+                  : null,
+              onNext: controller.routesPage.value < controller.totalRoutePages
+                  ? () => controller.routesPage.value++
+                  : null,
+            ),
           ],
         ],
       ),
     );
   }
 
-  Widget _buildRouteMetricPill({
-    required String label,
-    required String value,
-    required IconData icon,
-  }) {
+  Widget _buildRouteMetricPill(String label, String value, IconData icon) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: const Color(0xFF1E293B),
         borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.cardBorder),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: const Color(0xFF8B5CF6), size: 14),
+          Icon(icon, color: const Color(0xFF38BDF8), size: 14),
           const SizedBox(width: 6),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1302,10 +1280,11 @@ class CampaignAnalyticsContent extends StatelessWidget {
   // TAB 3: SMART QR ATTRIBUTION
   // ==========================================================
   Widget _buildQrAttributionTab() {
-    final qrCodeStr = controller.analyticsData['qrCode']?.toString() ?? 'VMX-QR-${controller.code}';
+    final hasQr = controller.hasQrCode;
+    final qrCodeStr = hasQr ? controller.analyticsData['qrCode'].toString() : '';
     final redirectUrl = controller.currentCampaign?.qrRedirectUrl ??
         controller.analyticsData['qr_redirect_url']?.toString() ??
-        'Default VMOVEXA Smart Gateway';
+        '—';
     final reviews = controller.reviewsData.value;
 
     return Container(
@@ -1322,248 +1301,253 @@ class CampaignAnalyticsContent extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Smart QR Attribution',
-                      style: TextStyle(
+                      'smart_qr_attribution_hdr'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 13.5,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
-                      'Real-time passenger scan engagement telemetry',
-                      style: TextStyle(color: Colors.white54, fontSize: 10.5),
+                      'realtime_passenger_scan_sub'.tr,
+                      style: const TextStyle(color: Colors.white54, fontSize: 10.5),
                     ),
                   ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
-                ),
-                child: Text(
-                  '${controller.scans} Conversions',
-                  style: const TextStyle(
-                    color: Color(0xFF34D399),
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
+              if (hasQr)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
+                  ),
+                  child: Text(
+                    '${controller.scans} ${'conversions_title'.tr}',
+                    style: const TextStyle(
+                      color: Color(0xFF34D399),
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
           const SizedBox(height: 16),
 
-          // Visual QR Frame Card
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xFF0F172A),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.cardBorder),
-            ),
-            child: Row(
-              children: [
-                // Stylized VMOVEXA QR Box
-                Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                        decoration: BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: BorderRadius.circular(4),
+          // If QR code is not configured or in Overview mode -> Show Empty State matching Admin Panel
+          if (!hasQr)
+            _buildEmptyState(
+              icon: Icons.qr_code_2_rounded,
+              title: 'qr_attribution_is_not_configured'.tr,
+              sub: 'no_qr_code_record_is_available_for_the_selec'.tr,
+            )
+          else ...[
+            // Visual QR Frame Card
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0F172A),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.cardBorder),
+              ),
+              child: Row(
+                children: [
+                  // Stylized VMOVEXA QR Box
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
                         ),
-                        child: const Text(
-                          'VMOVEXA',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 7.5,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1,
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text(
+                            'VMOVEXA',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 7.5,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      const Icon(Icons.qr_code_2_rounded, color: Colors.black, size: 54),
-                      const SizedBox(height: 2),
-                      const Text(
-                        'SCAN TO ENGAGE',
-                        style: TextStyle(
-                          color: Colors.black54,
-                          fontSize: 6.5,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
+                        const SizedBox(height: 4),
+                        const Icon(Icons.qr_code_2_rounded, color: Colors.black, size: 54),
+                        const SizedBox(height: 2),
+                        Text(
+                          'scan_to_engage'.tr,
+                          style: const TextStyle(
+                            color: Colors.black54,
+                            fontSize: 6.5,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-
-                // QR Details
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'DYNAMIC QR ATTRIBUTION',
-                        style: TextStyle(color: Colors.white38, fontSize: 8.5, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        qrCodeStr,
-                        style: const TextStyle(
-                          color: Color(0xFF38BDF8),
-                          fontFamily: 'monospace',
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      const Text(
-                        'Passengers scanning this QR on transit screens are counted through the proof-of-scan pipeline.',
-                        style: TextStyle(color: Colors.white54, fontSize: 10),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
-
-          // Two Small Stat Cards: Passenger Scans & Conversion Rate
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0F172A),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.cardBorder),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'PASSENGER SCANS',
-                        style: TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        controller.scans.toString(),
-                        style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0F172A),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.cardBorder),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'CONVERSION RATE',
-                        style: TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${controller.ctr}%',
-                        style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-
-          // Target Redirect URL Box
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF0F172A),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.cardBorder),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Target Destination Redirect URL',
-                  style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 6),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(9),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E293B),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.cardBorder),
-                  ),
-                  child: Text(
-                    redirectUrl,
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 10.5,
-                      color: Color(0xFF38BDF8),
+                      ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Every passenger who scans the QR on transit screens is redirected through VMOVEXA\'s attribution engine before landing on your destination page.',
-                  style: TextStyle(color: Colors.white38, fontSize: 9.5),
-                ),
-              ],
-            ),
-          ),
+                  const SizedBox(width: 16),
 
-          // Customer Reviews Section (Public QR feedback)
-          if (!controller.isOverview && reviews != null) ...[
+                  // QR Details
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'dynamic_qr_attr_hdr'.tr,
+                          style: const TextStyle(color: Colors.white38, fontSize: 8.5, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          qrCodeStr,
+                          style: const TextStyle(
+                            color: Color(0xFF38BDF8),
+                            fontFamily: 'monospace',
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Stats mini grid
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1E293B),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'passenger_scans_kpi'.tr,
+                                      style: const TextStyle(color: Colors.white38, fontSize: 8, fontWeight: FontWeight.bold),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      controller.scans.toString(),
+                                      style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1E293B),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'scan_rate_kpi'.tr,
+                                      style: const TextStyle(color: Colors.white38, fontSize: 8, fontWeight: FontWeight.bold),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      '${controller.ctr}%',
+                                      style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            // Target Redirect URL Box
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0F172A),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.cardBorder),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'target_dest_redirect_url'.tr,
+                    style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(9),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E293B),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.cardBorder),
+                    ),
+                    child: Text(
+                      redirectUrl,
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 10.5,
+                        color: Color(0xFF38BDF8),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'every_passenger_scan_desc'.tr,
+                    style: const TextStyle(color: Colors.white38, fontSize: 9.5),
+                  ),
+                ],
+              ),
+            ),
+          ],
+
+          // Customer Reviews Section: STRICTLY HIDDEN IN OVERVIEW MODE (matching Admin Panel)
+          if (!controller.isOverview && reviews != null && reviews.count > 0) ...[
             const SizedBox(height: 18),
             const Divider(color: AppColors.cardBorder),
             const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'CUSTOMER REVIEWS (FROM QR SCANS)',
-                  style: TextStyle(
+                Text(
+                  'customer_reviews_qr_hdr'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
@@ -1577,7 +1561,7 @@ class CampaignAnalyticsContent extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
-                    '${reviews.count} reviews',
+                    '${reviews.count} ${'reviews_text'.tr}',
                     style: const TextStyle(color: Colors.white70, fontSize: 9.5, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -1585,53 +1569,46 @@ class CampaignAnalyticsContent extends StatelessWidget {
             ),
             const SizedBox(height: 10),
 
-            if (reviews.count > 0) ...[
-              // 3 Rating Averages
-              Row(
-                children: [
-                  Expanded(child: _buildReviewAvgCard('Driver', reviews.driverAvg)),
-                  const SizedBox(width: 8),
-                  Expanded(child: _buildReviewAvgCard('Bus', reviews.busAvg)),
-                  const SizedBox(width: 8),
-                  Expanded(child: _buildReviewAvgCard('Service', reviews.serviceAvg)),
-                ],
-              ),
-              const SizedBox(height: 10),
+            // 3 Rating Averages
+            Row(
+              children: [
+                Expanded(child: _buildReviewAvgCard('driver_title'.tr, reviews.driverAvg)),
+                const SizedBox(width: 8),
+                Expanded(child: _buildReviewAvgCard('bus_title'.tr, reviews.busAvg)),
+                const SizedBox(width: 8),
+                Expanded(child: _buildReviewAvgCard('service_title'.tr, reviews.serviceAvg)),
+              ],
+            ),
+            const SizedBox(height: 10),
 
-              // Individual Review Cards
-              ...reviews.reviews.take(5).map((r) {
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 6),
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0F172A),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.cardBorder),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+            // Individual Review Cards
+            ...reviews.reviews.take(5).map((r) {
+              return Container(
+                margin: const EdgeInsets.only(bottom: 6),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0F172A),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.cardBorder),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${'driver_title'.tr} ${r.driverRating}★ • ${'bus_title'.tr} ${r.busRating}★ • ${'service_title'.tr} ${r.serviceRating}★',
+                      style: const TextStyle(color: Color(0xFFFBBF24), fontSize: 10.5, fontWeight: FontWeight.bold),
+                    ),
+                    if (r.comment != null && r.comment!.isNotEmpty) ...[
+                      const SizedBox(height: 4),
                       Text(
-                        'Driver ${r.driverRating}★ • Bus ${r.busRating}★ • Service ${r.serviceRating}★',
-                        style: const TextStyle(color: Color(0xFFFBBF24), fontSize: 10.5, fontWeight: FontWeight.bold),
+                        r.comment!,
+                        style: const TextStyle(color: Colors.white70, fontSize: 10),
                       ),
-                      if (r.comment != null && r.comment!.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          r.comment!,
-                          style: const TextStyle(color: Colors.white70, fontSize: 10),
-                        ),
-                      ],
                     ],
-                  ),
-                );
-              }),
-            ] else ...[
-              const Text(
-                'No verified passenger reviews recorded yet for this campaign.',
-                style: TextStyle(color: Colors.white38, fontSize: 10.5),
-              ),
-            ],
+                  ],
+                ),
+              );
+            }),
           ],
         ],
       ),
@@ -1679,7 +1656,7 @@ class CampaignAnalyticsContent extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Page $currentPage of $totalPages',
+          '${'page'.tr} $currentPage ${'of'.tr} $totalPages',
           style: const TextStyle(color: Colors.white54, fontSize: 11),
         ),
         Row(
@@ -1694,7 +1671,7 @@ class CampaignAnalyticsContent extends StatelessWidget {
                   border: Border.all(color: AppColors.cardBorder),
                 ),
                 child: Text(
-                  'Prev',
+                  'prev_btn'.tr,
                   style: TextStyle(
                     color: onPrev != null ? Colors.white : Colors.white24,
                     fontSize: 10.5,
@@ -1713,9 +1690,18 @@ class CampaignAnalyticsContent extends StatelessWidget {
                   color: onNext != null ? null : const Color(0xFF0F172A),
                   borderRadius: BorderRadius.circular(8),
                   border: onNext != null ? null : Border.all(color: AppColors.cardBorder),
+                  boxShadow: onNext != null
+                      ? [
+                          BoxShadow(
+                            color: const Color(0xFF8B5CF6).withValues(alpha: 0.25),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
                 ),
                 child: Text(
-                  'Next',
+                  'next'.tr,
                   style: TextStyle(
                     color: onNext != null ? Colors.white : Colors.white24,
                     fontSize: 10.5,
@@ -1730,6 +1716,9 @@ class CampaignAnalyticsContent extends StatelessWidget {
     );
   }
 
+  // ==========================================================
+  // REUSABLE EMPTY STATE WIDGET
+  // ==========================================================
   Widget _buildEmptyState({
     required IconData icon,
     required String title,
@@ -1737,11 +1726,21 @@ class CampaignAnalyticsContent extends StatelessWidget {
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: Colors.white24, size: 36),
-          const SizedBox(height: 10),
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E293B),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.cardBorder),
+            ),
+            child: Icon(icon, color: Colors.white38, size: 24),
+          ),
+          const SizedBox(height: 12),
           Text(
             title,
             style: const TextStyle(
@@ -1749,12 +1748,13 @@ class CampaignAnalyticsContent extends StatelessWidget {
               fontSize: 13,
               fontWeight: FontWeight.bold,
             ),
+            textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             sub,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white38, fontSize: 10.5),
+            style: const TextStyle(color: Colors.white38, fontSize: 10.5, height: 1.4),
           ),
         ],
       ),

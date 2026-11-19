@@ -67,9 +67,8 @@ class AdvertiserNotificationSettingsController extends GetxController {
     try {
       final res = await _service.updateNotificationSettings({fieldKey: newVal});
       if (res.success) {
-        Get.snackbar(
-          'Preference Saved',
-          'Notification channel updated successfully',
+        Get.snackbar('preference_saved_title'.tr,
+          'notification_channel_updated_msg'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,

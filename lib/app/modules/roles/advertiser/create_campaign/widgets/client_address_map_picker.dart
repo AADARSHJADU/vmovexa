@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
@@ -209,15 +210,13 @@ class _ClientAddressMapPickerState extends State<ClientAddressMapPicker> {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      'Customer Business Location & Map Geocoding',
-                      style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  children: [
+                    Text('customer_business_loc_title'.tr,
+                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 2),
-                    Text(
-                      'Search landmark or tap on map to drop pin for client address',
-                      style: TextStyle(color: AppColors.textMuted, fontSize: 10),
+                    const SizedBox(height: 2),
+                    Text('search_landmark_pin_sub'.tr,
+                      style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
                     ),
                   ],
                 ),
@@ -248,7 +247,7 @@ class _ClientAddressMapPickerState extends State<ClientAddressMapPicker> {
                 onChanged: _onSearchQueryChanged,
                 style: const TextStyle(color: Colors.white, fontSize: 12),
                 decoration: InputDecoration(
-                  hintText: 'Search client office, shop, landmark, or city in India...',
+                  hintText: 'search_client_address_hint'.tr,
                   hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                   prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 18),
                   suffixIcon: _isLoadingSearch
@@ -424,8 +423,7 @@ class _ClientAddressMapPickerState extends State<ClientAddressMapPicker> {
           const SizedBox(height: 14),
 
           // Structured Address Fields
-          const Text(
-            'Street Address / Building *',
+          Text('street_address_building'.tr,
             style: TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 6),
@@ -433,7 +431,7 @@ class _ClientAddressMapPickerState extends State<ClientAddressMapPicker> {
             controller: widget.addressController,
             style: const TextStyle(color: Colors.white, fontSize: 12),
             decoration: InputDecoration(
-              hintText: 'Office/Shop No, Building Name, Street, Landmark',
+              hintText: 'office_shop_landmark_hint'.tr,
               hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 11),
               filled: true,
               fillColor: const Color(0xFF0F172A),
@@ -452,13 +450,13 @@ class _ClientAddressMapPickerState extends State<ClientAddressMapPicker> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('City *', style: TextStyle(color: AppColors.textSecondary, fontSize: 10, fontWeight: FontWeight.bold)),
+                    Text('city_required'.tr, style: const TextStyle(color: AppColors.textSecondary, fontSize: 10, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
                     TextField(
                       controller: widget.cityController,
                       style: const TextStyle(color: Colors.white, fontSize: 11),
                       decoration: InputDecoration(
-                        hintText: 'City',
+                        hintText: 'city'.tr,
                         hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 10),
                         filled: true,
                         fillColor: const Color(0xFF0F172A),
@@ -476,13 +474,13 @@ class _ClientAddressMapPickerState extends State<ClientAddressMapPicker> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('State', style: TextStyle(color: AppColors.textSecondary, fontSize: 10, fontWeight: FontWeight.bold)),
+                    Text('state_label'.tr, style: const TextStyle(color: AppColors.textSecondary, fontSize: 10, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
                     TextField(
                       controller: widget.stateController,
                       style: const TextStyle(color: Colors.white, fontSize: 11),
                       decoration: InputDecoration(
-                        hintText: 'State',
+                        hintText: 'state_label'.tr,
                         hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 10),
                         filled: true,
                         fillColor: const Color(0xFF0F172A),
@@ -500,14 +498,14 @@ class _ClientAddressMapPickerState extends State<ClientAddressMapPicker> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Pincode', style: TextStyle(color: AppColors.textSecondary, fontSize: 10, fontWeight: FontWeight.bold)),
+                    Text('pincode_label'.tr, style: const TextStyle(color: AppColors.textSecondary, fontSize: 10, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
                     TextField(
                       controller: widget.pincodeController,
                       keyboardType: TextInputType.number,
                       style: const TextStyle(color: Colors.white, fontSize: 11),
                       decoration: InputDecoration(
-                        hintText: 'Pincode',
+                        hintText: 'pincode_label'.tr,
                         hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 10),
                         filled: true,
                         fillColor: const Color(0xFF0F172A),
