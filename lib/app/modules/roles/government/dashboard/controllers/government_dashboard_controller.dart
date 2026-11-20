@@ -33,12 +33,26 @@ class GovernmentDashboardController extends GetxController {
   final Rxn<EmergencyBroadcastModel> activeAlert = Rxn<EmergencyBroadcastModel>();
 
   // Filter & Search
-  final RxString campaignsFilterTab = 'All'.obs; // 'All', 'Active', 'Scheduled', 'Completed', 'Emergency'
+  static const List<String> campaignTabs = [
+    'All',
+    'Approved',
+    'Running',
+    'Under Review',
+    'Scheduled',
+    'Draft',
+    'Completed',
+    'Paused',
+    'Rejected',
+  ];
+
+  final RxString campaignsFilterTab = 'All'.obs;
   final campaignSearchController = TextEditingController();
   final RxString campaignSearchQuery = ''.obs;
-  final RxString sortBy = 'latest'.obs; // 'latest', 'oldest'
+  final RxString sortBy = 'Recent'.obs; // 'Recent', 'Name', 'Budget-High', 'Budget-Low', 'Screens'
+  final RxMap<String, int> tabCounts = <String, int>{}.obs;
 
   // Emergency Broadcast Form Fields
+  final alertHeadlineController = TextEditingController();
   final alertMessageController = TextEditingController();
   final emergencyNumberController = TextEditingController();
   final RxString selectedSeverity = 'Critical'.obs; // Critical, High, Medium, Low
@@ -51,12 +65,23 @@ class GovernmentDashboardController extends GetxController {
   final RxString attachedMediaName = ''.obs;
   final RxInt unreadNotificationCount = 0.obs;
 
+  // Emergency Broadcasts List Controls & Filter (Mirroring GovEmergencyListPage.jsx)
+  final emergencySearchController = TextEditingController();
+  final RxString emergencySearchQuery = ''.obs;
+  final RxString selectedEmergencyTab = 'All'.obs; // 'All', 'Active', 'Pending Approval', 'Approved', 'Revoked', 'Expired'
+  final RxString selectedEmergencySeverity = 'all'.obs; // 'all', 'critical', 'high', 'medium', 'low'
+  final RxString selectedEmergencyScope = 'all'.obs; // 'all', 'all_screens', 'partial'
+  final RxString selectedEmergencySort = 'newest'.obs; // 'newest', 'oldest', 'severity'
+
   @override
   void onInit() {
     super.onInit();
     campaignSearchController.addListener(() {
       campaignSearchQuery.value = campaignSearchController.text.trim();
       filterCampaigns();
+    });
+    emergencySearchController.addListener(() {
+      emergencySearchQuery.value = emergencySearchController.text.trim();
     });
     loadDashboardData();
   }
@@ -145,32 +170,39 @@ class GovernmentDashboardController extends GetxController {
     filterCampaigns();
   }
 
+  void computeTabCounts() {
+    final Map<String, int> counts = {};
+    for (final tab in campaignTabs) {
+      if (tab == 'All') {
+        counts[tab] = campaigns.length;
+      } else {
+        counts[tab] = campaigns.where((c) => c.mappedStatus == tab).length;
+      }
+    }
+    tabCounts.value = counts;
+  }
+
   void filterCampaigns() {
+    computeTabCounts();
     final query = campaignSearchQuery.value.toLowerCase();
     final tab = campaignsFilterTab.value;
 
     final list = campaigns.where((camp) {
       // Tab filter
-      final status = (camp.status ?? '').toLowerCase();
-      bool matchesTab = true;
-      if (tab == 'Active') {
-        matchesTab = status == 'live' || status == 'active';
-      } else if (tab == 'Scheduled') {
-        matchesTab = status == 'pending_approval' || status == 'scheduled' || status == 'draft';
-      } else if (tab == 'Completed') {
-        matchesTab = status == 'completed';
-      } else if (tab == 'Emergency') {
-        matchesTab = status == 'emergency' || (camp.priority ?? '').toLowerCase() == 'emergency';
-      }
+      final matchesTab = (tab == 'All') || (camp.mappedStatus == tab);
 
       // Search filter
       final title = (camp.title ?? camp.name ?? '').toLowerCase();
+      final brand = (camp.brandName ?? camp.clientCompany ?? camp.departmentOrClient).toLowerCase();
+      final client = (camp.clientName ?? '').toLowerCase();
       final code = (camp.code ?? camp.id ?? '').toLowerCase();
       final cat = (camp.category ?? '').toLowerCase();
       final loc = (camp.displayLocations).toLowerCase();
 
       final matchesSearch = query.isEmpty ||
           title.contains(query) ||
+          brand.contains(query) ||
+          client.contains(query) ||
           code.contains(query) ||
           cat.contains(query) ||
           loc.contains(query);
@@ -178,14 +210,250 @@ class GovernmentDashboardController extends GetxController {
       return matchesTab && matchesSearch;
     }).toList();
 
-    // Sort
-    if (sortBy.value == 'latest') {
-      list.sort((a, b) => (b.createdAt ?? DateTime(2025)).compareTo(a.createdAt ?? DateTime(2025)));
+    // Sort options: 'Recent', 'Name', 'Budget-High', 'Budget-Low', 'Screens'
+    if (sortBy.value == 'Name') {
+      list.sort((a, b) => a.displayName.toLowerCase().compareTo(b.displayName.toLowerCase()));
+    } else if (sortBy.value == 'Budget-High') {
+      list.sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
+    } else if (sortBy.value == 'Budget-Low') {
+      list.sort((a, b) => a.totalAmount.compareTo(b.totalAmount));
+    } else if (sortBy.value == 'Screens') {
+      list.sort((a, b) => b.totalScreens.compareTo(a.totalScreens));
     } else {
-      list.sort((a, b) => (a.createdAt ?? DateTime(2025)).compareTo(b.createdAt ?? DateTime(2025)));
+      // 'Recent'
+      list.sort((a, b) => (b.createdAt ?? DateTime(2025)).compareTo(a.createdAt ?? DateTime(2025)));
     }
 
     filteredCampaigns.value = list;
+  }
+
+  // ==========================================
+  // CAMPAIGN 3-DOTS ACTIONS
+  // ==========================================
+  Future<void> handleStartCampaign(GovCampaignModel c) async {
+    final id = c.id ?? '';
+    if (id.isEmpty) return;
+    try {
+      final res = await _govService.startCampaign(id);
+      if (res.success) {
+        Get.snackbar(
+          'Broadcast Started',
+          'Campaign broadcast is live on transit screens.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color(0xFF10B981),
+          colorText: Colors.white,
+        );
+        loadDashboardData(silent: true);
+      } else {
+        Get.snackbar('Failed', res.message ?? 'Could not start campaign', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to start campaign: $e', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+    }
+  }
+
+  Future<void> handlePauseCampaign(GovCampaignModel c) async {
+    final id = c.id ?? '';
+    if (id.isEmpty) return;
+    try {
+      final res = await _govService.pauseCampaign(id);
+      if (res.success) {
+        Get.snackbar(
+          'Broadcast Paused',
+          'Campaign transit broadcast has been paused.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color(0xFFF59E0B),
+          colorText: Colors.white,
+        );
+        loadDashboardData(silent: true);
+      } else {
+        Get.snackbar('Failed', res.message ?? 'Could not pause campaign', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to pause campaign: $e', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+    }
+  }
+
+  Future<void> handleEndCampaign(GovCampaignModel c) async {
+    final id = c.id ?? '';
+    if (id.isEmpty) return;
+    final confirmed = await Get.dialog<bool>(
+      AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('gov_confirm_end_title'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        content: Text('gov_confirm_end_msg'.tr, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text('Cancel'.tr, style: const TextStyle(color: Colors.white60)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFEF4444),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () => Get.back(result: true),
+            child: Text('Confirm'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      try {
+        final res = await _govService.endCampaign(id);
+        if (res.success) {
+          Get.snackbar(
+            'Campaign Ended',
+            'Broadcast ended permanently.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color(0xFF10B981),
+            colorText: Colors.white,
+          );
+          loadDashboardData(silent: true);
+        } else {
+          Get.snackbar('Failed', res.message ?? 'Could not end campaign', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+        }
+      } catch (e) {
+        Get.snackbar('Error', 'Failed to end campaign: $e', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+      }
+    }
+  }
+
+  Future<void> handleApproveCampaign(GovCampaignModel c) async {
+    final id = c.id ?? '';
+    if (id.isEmpty) return;
+    try {
+      final res = await _govService.approveCampaign(id);
+      if (res.success) {
+        Get.snackbar(
+          'Broadcast Approved',
+          'Public service broadcast cleared for transit screens.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color(0xFF10B981),
+          colorText: Colors.white,
+        );
+        loadDashboardData(silent: true);
+      } else {
+        Get.snackbar('Failed', res.message ?? 'Approval failed', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Approval failed: $e', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+    }
+  }
+
+  Future<void> handleRejectCampaign(GovCampaignModel c) async {
+    final id = c.id ?? '';
+    if (id.isEmpty) return;
+    final remarksController = TextEditingController();
+    final confirmed = await Get.dialog<bool>(
+      AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('gov_reject_dialog_title'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('gov_reject_dialog_hint'.tr, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+            const SizedBox(height: 12),
+            TextField(
+              controller: remarksController,
+              style: const TextStyle(color: Colors.white, fontSize: 13),
+              maxLines: 3,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: const Color(0xFF0F172A),
+                hintText: 'Enter reason...',
+                hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text('Cancel'.tr, style: const TextStyle(color: Colors.white60)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFEF4444),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () => Get.back(result: true),
+            child: Text('Submit'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final reason = remarksController.text.trim();
+      try {
+        final res = await _govService.rejectCampaign(id, reason.isNotEmpty ? reason : 'Creative specifications incomplete');
+        if (res.success) {
+          Get.snackbar(
+            'Campaign Rejected',
+            'Revision remarks submitted.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color(0xFFEF4444),
+            colorText: Colors.white,
+          );
+          loadDashboardData(silent: true);
+        } else {
+          Get.snackbar('Failed', res.message ?? 'Could not reject campaign', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+        }
+      } catch (e) {
+        Get.snackbar('Error', 'Failed to reject campaign: $e', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+      }
+    }
+  }
+
+  Future<void> handleDeleteCampaign(GovCampaignModel c) async {
+    final id = c.id ?? '';
+    if (id.isEmpty) return;
+    final confirmed = await Get.dialog<bool>(
+      AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('gov_confirm_delete_title'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        content: Text('gov_confirm_delete_msg'.tr, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text('Cancel'.tr, style: const TextStyle(color: Colors.white60)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFEF4444),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () => Get.back(result: true),
+            child: Text('Confirm'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      try {
+        final res = await _govService.deleteCampaign(id);
+        if (res.success) {
+          Get.snackbar(
+            'Campaign Deleted',
+            'Campaign deleted successfully.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color(0xFF10B981),
+            colorText: Colors.white,
+          );
+          loadDashboardData(silent: true);
+        } else {
+          Get.snackbar('Failed', res.message ?? 'Could not delete campaign', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+        }
+      } catch (e) {
+        Get.snackbar('Error', 'Failed to delete campaign: $e', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+      }
+    }
   }
 
   // ==========================================
@@ -196,13 +464,17 @@ class GovernmentDashboardController extends GetxController {
     if (msg.isEmpty) {
       Get.snackbar(
         'Required Field',
-        'Please enter the emergency alert message to broadcast.',
+        'gov_emergency.err_message_required'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),
         colorText: Colors.white,
       );
       return;
     }
+
+    final headline = alertHeadlineController.text.trim().isNotEmpty
+        ? alertHeadlineController.text.trim()
+        : '${selectedSeverity.value} Emergency Alert';
 
     isBroadcasting.value = true;
     try {
@@ -212,8 +484,8 @@ class GovernmentDashboardController extends GetxController {
       if (autoExpireAlert.value.contains('24')) autoExpireMins = 1440;
 
       final payload = {
-        'title': '${selectedSeverity.value} Alert: Transit Override',
-        'headline': '${selectedSeverity.value} Emergency Alert',
+        'title': '$headline: Transit Override',
+        'headline': headline,
         'message': msg,
         'bodyText': msg,
         'tickerText': msg,
@@ -235,13 +507,14 @@ class GovernmentDashboardController extends GetxController {
       if (response.success) {
         Get.snackbar(
           'Emergency Alert Broadcasted',
-          'Override transmitted immediately across selected transit displays.',
+          'gov_emergency.broadcast_success'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
           duration: const Duration(seconds: 4),
         );
 
+        alertHeadlineController.clear();
         alertMessageController.clear();
         emergencyNumberController.clear();
         attachedMediaUrl.value = '';
@@ -253,6 +526,11 @@ class GovernmentDashboardController extends GetxController {
           emergencyBroadcasts.value = broadcastsRes.data!;
           final activeList = broadcastsRes.data!.where((b) => b.active && b.status != 'revoked').toList();
           activeAlert.value = activeList.isNotEmpty ? activeList.first : null;
+        }
+
+        // Return from Create Screen if pushed
+        if (Get.key.currentState?.canPop() ?? false) {
+          Get.back();
         }
       } else {
         Get.snackbar(
@@ -266,7 +544,7 @@ class GovernmentDashboardController extends GetxController {
     } catch (e) {
       Get.snackbar(
         'Error',
-        'An unexpected error occurred while transmitting alert.',
+        'An unexpected error occurred while transmitting alert: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),
         colorText: Colors.white,
@@ -282,7 +560,7 @@ class GovernmentDashboardController extends GetxController {
       if (res.success) {
         Get.snackbar(
           'Alert Revoked',
-          'Emergency override has been successfully deactivated.',
+          'gov_emergency.revoke_success'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
@@ -299,6 +577,32 @@ class GovernmentDashboardController extends GetxController {
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to revoke alert.', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+    }
+  }
+
+  Future<void> deleteEmergencyBroadcast(String id) async {
+    try {
+      final res = await _govService.deleteEmergencyBroadcast(id);
+      if (res.success) {
+        Get.snackbar(
+          'Deleted',
+          'gov_emergency.delete_success'.tr,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color(0xFF10B981),
+          colorText: Colors.white,
+        );
+        // Refresh broadcasts
+        final broadcastsRes = await _govService.getEmergencyBroadcasts();
+        if (broadcastsRes.success && broadcastsRes.data != null) {
+          emergencyBroadcasts.value = broadcastsRes.data!;
+          final activeList = broadcastsRes.data!.where((b) => b.active && b.status != 'revoked').toList();
+          activeAlert.value = activeList.isNotEmpty ? activeList.first : null;
+        }
+      } else {
+        Get.snackbar('Delete Failed', res.message ?? 'Failed to delete broadcast', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to delete broadcast: $e', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
     }
   }
 
@@ -365,14 +669,25 @@ class GovernmentDashboardController extends GetxController {
     return days[DateTime.now().weekday - 1];
   }
 
+  List<GovCampaignModel> get recentCampaigns {
+    final nonDraft = campaigns.where((c) => (c.status ?? '').toLowerCase() != 'draft').toList();
+    return nonDraft.take(3).toList();
+  }
+
   int get kpiActiveCampaignsCount {
     if (analytics.value.activeCampaigns > 0) return analytics.value.activeCampaigns;
-    return campaigns.where((c) => (c.status ?? '') == 'live' || (c.status ?? '') == 'active').length;
+    return campaigns.where((c) {
+      final s = (c.status ?? '').toLowerCase();
+      return s == 'live' || s == 'active' || s == 'approved';
+    }).length;
   }
 
   int get kpiScheduledCampaignsCount {
     if (analytics.value.pendingApprovals > 0) return analytics.value.pendingApprovals;
-    return campaigns.where((c) => (c.status ?? '') == 'pending_approval' || (c.status ?? '') == 'scheduled' || (c.status ?? '') == 'draft').length;
+    return campaigns.where((c) {
+      final s = (c.status ?? '').toLowerCase();
+      return s == 'pending_approval' || s == 'scheduled' || s == 'draft';
+    }).length;
   }
 
   int get kpiCompletedCampaignsCount {
@@ -380,9 +695,15 @@ class GovernmentDashboardController extends GetxController {
     return campaigns.where((c) => (c.status ?? '') == 'completed').length;
   }
 
+  int get kpiVehiclesWithGpsCount => liveTracking.value.withGps;
+  int get kpiBroadcastingVehiclesCount => liveTracking.value.broadcasting;
+  int get kpiTotalVehiclesCount => liveTracking.value.total;
+
   int get kpiEmergencyAlertsCount {
     final active = emergencyBroadcasts.where((b) => b.active && (b.status ?? '') != 'revoked').length;
-    return active > 0 ? active : (analytics.value.emergencyBroadcasts > 0 ? analytics.value.emergencyBroadcasts : 0);
+    if (active > 0) return active;
+    if (analytics.value.emergencyBroadcasts > 0) return analytics.value.emergencyBroadcasts;
+    return emergencyBroadcasts.length;
   }
 
   int get calculatedTotalQrScans {
@@ -430,11 +751,138 @@ class GovernmentDashboardController extends GetxController {
     );
   }
 
+  // ==========================================
+  // EMERGENCY BROADCASTS LIST & FILTER GETTERS
+  // ==========================================
+  Map<String, int> get emergencyCounts {
+    final list = emergencyBroadcasts;
+    int all = list.length;
+    int active = 0;
+    int pending = 0;
+    int approved = 0;
+    int revoked = 0;
+    int expired = 0;
+
+    for (final b in list) {
+      final st = (b.status ?? '').toLowerCase();
+      final isAct = b.active == true || st == 'active';
+      if (isAct && st != 'revoked' && st != 'expired') {
+        active++;
+      } else if (st == 'pending_approval' || st == 'pending') {
+        pending++;
+      } else if (st == 'approved') {
+        approved++;
+      } else if (st == 'revoked') {
+        revoked++;
+      } else if (st == 'expired') {
+        expired++;
+      }
+    }
+    return {
+      'all': all,
+      'active': active,
+      'pending': pending,
+      'approved': approved,
+      'revoked': revoked,
+      'expired': expired,
+      'inactive': revoked + expired,
+    };
+  }
+
+  List<EmergencyBroadcastModel> get filteredEmergencyBroadcasts {
+    final q = emergencySearchController.text.trim().toLowerCase();
+    final tab = selectedEmergencyTab.value;
+    final sev = selectedEmergencySeverity.value.toLowerCase();
+    final scope = selectedEmergencyScope.value.toLowerCase();
+    final sort = selectedEmergencySort.value;
+
+    final filtered = emergencyBroadcasts.where((b) {
+      final st = (b.status ?? '').toLowerCase();
+      final isAct = b.active == true || st == 'active';
+
+      // Tab filtering (Mirroring GovEmergencyListPage.jsx lines 138-142)
+      if (tab == 'Active' && !(isAct && st != 'revoked' && st != 'expired')) return false;
+      if (tab == 'Pending Approval' && !(st == 'pending_approval' || st == 'pending')) return false;
+      if (tab == 'Approved' && !(st == 'approved' && !isAct)) return false;
+      if (tab == 'Revoked' && st != 'revoked') return false;
+      if (tab == 'Expired' && st != 'expired') return false;
+
+      // Severity filtering
+      if (sev != 'all') {
+        if ((b.severity ?? '').toLowerCase() != sev) return false;
+      }
+
+      // Scope filtering
+      if (scope != 'all') {
+        final scp = (b.targetScope ?? '').toLowerCase();
+        if (scope == 'all_screens' && (scp != 'all' && scp != 'all_screens')) return false;
+        if (scope == 'partial' && (scp == 'all' || scp == 'all_screens')) return false;
+      }
+
+      // Keyword Search filtering
+      if (q.isNotEmpty) {
+        final headline = (b.headline ?? b.title ?? '').toLowerCase();
+        final code = (b.code ?? b.id ?? '').toLowerCase();
+        final msg = (b.message ?? b.bodyText ?? '').toLowerCase();
+        final authority = (b.authority ?? '').toLowerCase();
+        final area = (b.targetArea ?? '').toLowerCase();
+        if (!headline.contains(q) &&
+            !code.contains(q) &&
+            !msg.contains(q) &&
+            !authority.contains(q) &&
+            !area.contains(q)) {
+          return false;
+        }
+      }
+
+      return true;
+    }).toList();
+
+    // Sorting (Mirroring GovEmergencyListPage.jsx lines 172-183)
+    filtered.sort((a, b) {
+      if (sort == 'oldest') {
+        final dateA = a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final dateB = b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        return dateA.compareTo(dateB);
+      }
+      if (sort == 'severity') {
+        const rank = {'critical': 4, 'high': 3, 'medium': 2, 'low': 1};
+        final rankA = rank[(a.severity ?? '').toLowerCase()] ?? 0;
+        final rankB = rank[(b.severity ?? '').toLowerCase()] ?? 0;
+        return rankB.compareTo(rankA);
+      }
+      // default newest
+      final dateA = a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+      final dateB = b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+      return dateB.compareTo(dateA);
+    });
+
+    return filtered;
+  }
+
+  bool get hasActiveEmergencyFilters =>
+      selectedEmergencyTab.value != 'All' ||
+      emergencySearchController.text.trim().isNotEmpty ||
+      selectedEmergencySeverity.value != 'all' ||
+      selectedEmergencyScope.value != 'all' ||
+      selectedEmergencySort.value != 'newest';
+
+  void resetEmergencyFilters() {
+    selectedEmergencyTab.value = 'All';
+    emergencySearchController.clear();
+    emergencySearchQuery.value = '';
+    selectedEmergencySeverity.value = 'all';
+    selectedEmergencyScope.value = 'all';
+    selectedEmergencySort.value = 'newest';
+  }
+
   @override
   void onClose() {
     campaignSearchController.dispose();
+    alertHeadlineController.dispose();
     alertMessageController.dispose();
     emergencyNumberController.dispose();
+    emergencySearchController.dispose();
     super.onClose();
   }
 }

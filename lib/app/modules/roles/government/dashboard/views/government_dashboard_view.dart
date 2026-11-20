@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart' hide TextDirection;
+import 'package:latlong2/latlong.dart' hide Path;
 import '../../../../../theme/app_theme.dart';
 import '../../goverment_profile/view/goverment_profile_view.dart';
 import '../controllers/government_dashboard_controller.dart';
 import 'package:vmovexa/app/data/models/government_models.dart';
 import '../../../../../theme/app_colors.dart';
 import '../../../../../routes/app_routes.dart';
-import '../../../../../widgets/custom_text_field.dart';
 import '../widgets/gov_side_drawer.dart';
+import 'gov_create_emergency_view.dart';
+import 'gov_emergency_details_sheet.dart';
 
 class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
   const GovernmentDashboardView({super.key});
@@ -26,7 +30,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
               child: Column(
                 children: [
                   // Top Navigation Header
-                  index == 4 ? const SizedBox() : _buildTopHeader(scaffoldContext, index),
+                  index == 4 || index == 1 || index == 2 ? const SizedBox() : _buildTopHeader(scaffoldContext, index),
 
                   // Main Tab Content
                   Expanded(
@@ -317,134 +321,26 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Greeting & Date Card
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Good Morning, ${controller.officerName}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        controller.officerDepartment,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      controller.currentDateFormatted,
-                      maxLines: 1,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      controller.currentDayName,
-                      style: const TextStyle(
-                        color: AppColors.textMuted,
-                        fontSize: 9,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 12),
 
-            // Metrics Summary Row (Live KPIs)
-            Obx(() => SizedBox(
-              height: 140,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
-                children: [
-                  _buildHomeMetricCard(
-                    controller.kpiActiveCampaignsCount.toString().padLeft(2, '0'),
-                    'active_campaigns'.tr,
-                    'Realtime',
-                    const Color(0xFF3B82F6),
-                    "assets/icons/advertiser_ic/speaker.svg",
-                  ),
-                  const SizedBox(width: 10),
-                  _buildHomeMetricCard(
-                    controller.kpiScheduledCampaignsCount.toString().padLeft(2, '0'),
-                    'scheduled_campaigns'.tr,
-                    'Queued',
-                    const Color(0xFF8B5CF6),
-                    "assets/icons/advertiser_ic/calender.svg",
-                  ),
-                  const SizedBox(width: 10),
-                  _buildHomeMetricCard(
-                    controller.kpiLiveCoveragePercentage,
-                    'live_coverage'.tr,
-                    'Broadcasting',
-                    const Color(0xFF10B981),
-                    "assets/icons/lsicon_map.svg",
-                  ),
-                  const SizedBox(width: 10),
-                  _buildHomeMetricCard(
-                    controller.kpiEmergencyAlertsCount.toString().padLeft(2, '0'),
-                    'active_alerts'.tr,
-                    'Emergency',
-                    const Color(0xFFEF4444),
-                    "assets/icons/AlertsNew.svg",
-                  ),
-                ],
-              ),
-            )),
-            const SizedBox(height: 20),
+            // 1. Header Banner & Quick Actions
+            _buildGovHeaderCard(),
+            const SizedBox(height: 16),
 
-            // Emergency Broadcast red banner
-            _buildEmergencyBroadcastBanner(),
-            const SizedBox(height: 20),
+            // 2. Real 4 KPI Cards (2x2 Grid)
+            _buildRealKpiGrid(),
+            const SizedBox(height: 16),
 
-            // Live Communication Coverage Map
-            Text('live_comm_coverage'.tr,
-                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
+            // 3. Emergency Hero Box (Channel Title & Override Dispatch)
+            _buildEmergencyHeroCard(),
+            const SizedBox(height: 16),
+
+            // 4. Live Transit Coverage (Google Maps via FlutterMap)
             _buildLiveCoverageMapCard(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
-            // Recent Campaigns Section
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('recent_campaigns'.tr,
-                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-                GestureDetector(
-                  onTap: () => controller.selectedNavIndex.value = 1,
-                  child: Text('view_all'.tr,
-                      style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 11, fontWeight: FontWeight.bold)),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            _buildRecentCampaignsList(),
+            // 5. Recent Broadcast Campaigns (List Format)
+            _buildRecentBroadcastCampaignsCard(),
             const SizedBox(height: 24),
           ],
         ),
@@ -452,63 +348,135 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
     );
   }
 
-  Widget _buildHomeMetricCard(String val, String title, String sub, Color color, String icon) {
+  // 1. Header Banner & Quick Actions
+  Widget _buildGovHeaderCard() {
     return Container(
-      width: 110,
-      padding: const EdgeInsets.all(12),
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SvgPicture.asset(icon,width: 30,height: 30,),
-          const SizedBox(height: 3),
-          Text(val, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 6),
-          Text(title, style: const TextStyle(fontWeight:FontWeight.w500,color: Colors.white, fontSize: 11), maxLines: 2,
-              overflow: TextOverflow.ellipsis),
-          const SizedBox(height: 2),
-          Text(sub, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmergencyBroadcastBanner() {
-    return Obx(() {
-      final active = controller.activeAlert.value;
-      if (active != null) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: const Color(0xFFEF4444).withOpacity(0.12),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFEF4444), width: 1.5),
+          // Official State Agency Badge
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFF3B82F6).withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.3)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF3B82F6),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  'official_state_agency'.tr,
+                  style: const TextStyle(
+                    color: Color(0xFF60A5FA),
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+              ],
+            ),
           ),
-          child: Row(
+          const SizedBox(height: 10),
+
+          // Title
+          Text(
+            '${controller.officerName} ${'public_transit_communication_console'.tr}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.w900,
+              letterSpacing: -0.2,
+            ),
+          ),
+          const SizedBox(height: 4),
+
+          // Subtitle
+          Text(
+            'monitor_and_manage_state_public_welfare_camp'.tr,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 11,
+              height: 1.35,
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // Action Buttons Row (Refresh, Emergency Alert, Create Campaign)
+          Row(
             children: [
-              SvgPicture.asset("assets/icons/active-alert.svg", width: 32, height: 32),
-              const SizedBox(width: 14),
+              // Refresh Button
+              Obx(() => InkWell(
+                onTap: controller.isLoading.value ? null : () => controller.loadDashboardData(),
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  height: 36,
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.cardBg,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.cardBorder, width: 1.2),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      controller.isLoading.value
+                          ? const SizedBox(
+                              width: 12,
+                              height: 12,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            )
+                          : const Icon(Icons.refresh_rounded, size: 14, color: Colors.white),
+                      const SizedBox(width: 4),
+                      Text(
+                        'refresh'.tr,
+                        style: const TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              )),
+              const SizedBox(width: 8),
+
+              // Emergency Alert Button
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+                child: InkWell(
+                  onTap: () => controller.selectedNavIndex.value = 2,
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    height: 36,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEF4444).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.4), width: 1.2),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          'ACTIVE ${active.displaySeverity} ALERT',
-                          style: const TextStyle(
-                            color: Color(0xFFEF4444),
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
                         Container(
                           width: 6,
                           height: 6,
@@ -517,299 +485,1140 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                             shape: BoxShape.circle,
                           ),
                         ),
+                        const SizedBox(width: 6),
+                        const Icon(Icons.warning_amber_rounded, size: 14, color: Color(0xFFEF4444)),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            'emergency_alert'.tr,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Color(0xFFEF4444),
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
-                    const SizedBox(height: 3),
-                    Text(
-                      active.message ?? 'Emergency advisory currently active across transit displays.',
-                      style: const TextStyle(color: Colors.white, fontSize: 11, height: 1.2),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
-              TextButton(
-                onPressed: () {
-                  controller.selectedNavIndex.value = 2; // Open Emergency tab
-                },
-                style: TextButton.styleFrom(
-                  backgroundColor: const Color(0xFFEF4444),
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-                child: const Text('Manage',
-                    style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
-              ),
-            ],
-          ),
-        );
-      }
 
-      // Default banner
-      return Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xFF1E293B),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFEF4444).withOpacity(0.3), width: 1.2),
-        ),
-        child: Row(
-          children: [
-            SvgPicture.asset("assets/icons/active-alert.svg", width: 32, height: 32),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    'Emergency Broadcast',
-                    style: TextStyle(color: Color(0xFFf7887e), fontSize: 13, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 2),
-                  Text(
-                    'Send immediate alerts to all or specific displays.',
-                    style: TextStyle(color: Color(0xffa8a1a0), fontSize: 11, fontWeight: FontWeight.w500),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
-            Container(
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xffFF5A1F), Color(0xffF7332E)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: InkWell(
-                onTap: () {
-                  controller.selectedNavIndex.value = 2; // Go to emergency tab
-                },
-                borderRadius: BorderRadius.circular(10),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Create Alert',
-                        style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(width: 4),
-                      Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 8),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    });
-  }
-
-  Widget _buildLiveCoverageMapCard() {
-    return Obx(() {
-      final totalVehicles = controller.liveTracking.value.total;
-      final broadcasting = controller.liveTracking.value.broadcasting;
-      final withGps = controller.liveTracking.value.withGps;
-
-      return GestureDetector(
-        onTap: () => Get.toNamed(Routes.LIVE_TRACKING),
-        child: Container(
-          height: 240,
-          decoration: BoxDecoration(
-            color: AppColors.cardBg,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.cardBorder, width: 1.2),
-          ),
-          child: Stack(
-            children: [
-              // Google Static Map preview
-              Positioned.fill(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: Image.network(
-                    controller.googleMapPreviewUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => CustomPaint(
-                      painter: BhopalCoverageMapPainter(),
+              // Create Campaign Button (Primary Gradient)
+              Expanded(
+                child: InkWell(
+                  onTap: controller.createNewCampaign,
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    height: 36,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      gradient: AppTheme.primaryGradient,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF2563EB).withValues(alpha: 0.3),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return CustomPaint(
-                        painter: BhopalCoverageMapPainter(),
-                      );
-                    },
-                  ),
-                ),
-              ),
-              // Dark gradient overlay for readability
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black.withOpacity(0.55),
-                        Colors.transparent,
-                        Colors.black.withOpacity(0.65),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.add_rounded, size: 15, color: Colors.white),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            'create_campaign'.tr,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ),
               ),
-              // Stats overlays
-              Positioned(
-                top: 14,
-                left: 14,
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.8),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.cardBorder, width: 1),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildMapStatRow(
-                        'assets/icons/fleet_operator_icons/fleetsManagedA2.svg',
-                        '$totalVehicles Vehicles',
-                        '$broadcasting Broadcasting',
-                        const Color(0xFF3B82F6),
-                      ),
-                      const SizedBox(height: 8),
-                      _buildMapStatRow(
-                        'assets/icons/advertiser_ic/tv.svg',
-                        '$withGps GPS Online',
-                        'Realtime',
-                        const Color(0xFF10B981),
-                      ),
-                    ],
-                  ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 2. Real 4 KPI Cards (2x2 Grid)
+  Widget _buildRealKpiGrid() {
+    return Obx(() {
+      final active = controller.kpiActiveCampaignsCount;
+      final scheduled = controller.kpiScheduledCampaignsCount;
+      final onlineVehicles = controller.kpiVehiclesWithGpsCount;
+      final broadcasting = controller.kpiBroadcastingVehiclesCount;
+      final totalVehicles = controller.kpiTotalVehiclesCount;
+      final alerts = controller.kpiEmergencyAlertsCount;
+
+      return Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: _buildRealKpiCard(
+                  title: 'active_campaigns'.tr,
+                  val: '$active',
+                  sub: 'live_screens'.tr,
+                  icon: Icons.flag_rounded,
+                  color: const Color(0xFFF59E0B),
+                  onTap: () => controller.selectedNavIndex.value = 1,
                 ),
               ),
-              // Tap to View Live Corridors indicator
-              Positioned(
-                bottom: 12,
-                left: 14,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF3B82F6).withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.touch_app_rounded, color: Colors.white, size: 12),
-                      SizedBox(width: 4),
-                      Text('Tap to View Fleet Map',
-                          style: TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildRealKpiCard(
+                  title: 'pending_scheduled'.tr,
+                  val: '$scheduled',
+                  sub: 'awaiting_approval_admin'.tr,
+                  icon: Icons.access_time_rounded,
+                  color: const Color(0xFF0284C7),
+                  onTap: () => controller.selectedNavIndex.value = 1,
                 ),
               ),
-              // Map utilities (zoom and layers overlay controls)
-              Positioned(
-                bottom: 12,
-                right: 12,
-                child: Column(
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _buildRealKpiCard(
+                  title: 'vehicles_gps'.tr,
+                  val: '$onlineVehicles',
+                  sub: '$broadcasting ${'broadcasting_label'.tr} · $totalVehicles ${'total_label'.tr}',
+                  icon: Icons.gps_fixed_rounded,
+                  color: const Color(0xFF10B981),
+                  onTap: () => Get.toNamed(Routes.LIVE_TRACKING),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildRealKpiCard(
+                  title: 'active_alerts'.tr,
+                  val: '$alerts',
+                  sub: 'active_alerts_sub'.tr,
+                  icon: Icons.notifications_active_rounded,
+                  color: const Color(0xFFEF4444),
+                  isAlert: true,
+                  onTap: () => controller.selectedNavIndex.value = 2,
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildRealKpiCard({
+    required String title,
+    required String val,
+    required String sub,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+    bool isAlert = false,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        height: 118,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    title.toUpperCase(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: isAlert ? const Color(0xFFEF4444) : AppColors.textSecondary,
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: color.withValues(alpha: 0.25), width: 1),
+                  ),
+                  child: Center(
+                    child: Icon(icon, size: 14, color: color),
+                  ),
+                ),
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  val,
+                  style: TextStyle(
+                    color: isAlert ? const Color(0xFFEF4444) : Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  sub,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: isAlert ? const Color(0xFFEF4444).withValues(alpha: 0.85) : AppColors.textMuted,
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 3. Emergency Hero Box
+  Widget _buildEmergencyHeroCard() {
+    return Obx(() {
+      final active = controller.activeAlert.value;
+
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E1719),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.35), width: 1.2),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFEF4444).withValues(alpha: 0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // If active alert exists, show active banner
+            if (active != null) ...[
+              Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEF4444).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.4)),
+                ),
+                child: Row(
                   children: [
-                    _buildMapControlIcon(Icons.gps_fixed_rounded),
-                    const SizedBox(height: 6),
-                    _buildMapControlIcon(Icons.layers_outlined),
+                    Container(
+                      width: 7,
+                      height: 7,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFEF4444),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${'active_critical_alert'.tr}: ${active.displaySeverity}',
+                      style: const TextStyle(
+                        color: Color(0xFFEF4444),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.4,
+                      ),
+                    ),
                   ],
                 ),
               ),
             ],
-          ),
+
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEF4444).withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.3), width: 1),
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.warning_amber_rounded, size: 22, color: Color(0xFFEF4444)),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'channel_title'.tr,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'submit_high_priority_override_alerts_super_a'.tr,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 10.5,
+                          height: 1.35,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+
+            // Dispatch Alert Action Button
+            InkWell(
+              onTap: () => controller.selectedNavIndex.value = 2,
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 9),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFDC2626), Color(0xFFB91C1C)],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFDC2626).withValues(alpha: 0.25),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'dispatch_alert'.tr,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    const Icon(Icons.arrow_forward_rounded, size: 14, color: Colors.white),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       );
     });
   }
 
-  Widget _buildMapStatRow(String icon, String val, String status, Color color) {
-    return Row(
-      children: [
-        SvgPicture.asset(icon, width: 10, height: 10),
-        const SizedBox(width: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(val, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-            Text(status, style: TextStyle(color: color, fontSize: 8, fontWeight: FontWeight.bold)),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMapControlIcon(IconData icon) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.7),
-        shape: BoxShape.circle,
-        border: Border.all(color: AppColors.cardBorder, width: 1),
-      ),
-      child: Icon(icon, color: Colors.white, size: 14),
-    );
-  }
-
-  Widget _buildRecentCampaignsList() {
+  // 4. Live Communication Coverage Map
+  Widget _buildLiveCoverageMapCard() {
     return Obx(() {
-      final recentList = controller.campaigns.take(3).toList();
-      if (recentList.isEmpty) {
-        return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-          decoration: BoxDecoration(
-            color: AppColors.cardBg,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.cardBorder, width: 1.2),
-          ),
+      final vehicles = controller.liveTracking.value.vehicles;
+      final withGpsList = vehicles.where((v) => v.lat != null && v.lng != null).toList();
+      final hasGps = withGpsList.isNotEmpty;
+
+      final centerLat = hasGps ? withGpsList.first.lat! : 23.2380;
+      final centerLng = hasGps ? withGpsList.first.lng! : 77.4180;
+
+      final markers = withGpsList.map((v) {
+        final color = v.screenStatus == 'Broadcasting'
+            ? const Color(0xFF10B981)
+            : (v.screenStatus == 'Standby' ? const Color(0xFFF59E0B) : const Color(0xFF64748B));
+
+        return Marker(
+          point: LatLng(v.lat!, v.lng!),
+          width: 80,
+          height: 40,
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.campaign_outlined, color: AppColors.textMuted, size: 36),
-              const SizedBox(height: 8),
-              const Text(
-                'No Campaigns Available',
-                style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                'Create a public welfare broadcast to reach citizens.',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              ElevatedButton.icon(
-                onPressed: controller.createNewCampaign,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3B82F6),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              Container(
+                width: 16,
+                height: 16,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.28),
+                  shape: BoxShape.circle,
                 ),
-                icon: const Icon(Icons.add, size: 14, color: Colors.white),
-                label: const Text('Create Campaign',
-                    style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                child: Center(
+                  child: Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 1.5),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0F172A).withValues(alpha: 0.92),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  v.id,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 7.5,
+                    fontWeight: FontWeight.w800,
+                    fontFamily: 'monospace',
+                  ),
+                ),
               ),
             ],
           ),
         );
-      }
-      return Column(
-        children: recentList.map((c) => _buildGovCampaignItemCard(c)).toList(),
+      }).toList();
+
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 7,
+                            height: 7,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF3B82F6),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'live_comm_coverage_maps'.tr.toUpperCase(),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'maps_sub'.tr,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                InkWell(
+                  onTap: () => Get.toNamed(Routes.LIVE_TRACKING),
+                  borderRadius: BorderRadius.circular(6),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'view_full_map'.tr,
+                          style: const TextStyle(
+                            color: Color(0xFF3B82F6),
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 3),
+                        const Icon(Icons.arrow_forward_rounded, size: 12, color: Color(0xFF3B82F6)),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // Map Container
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: SizedBox(
+                height: 240,
+                width: double.infinity,
+                child: Stack(
+                  children: [
+                    FlutterMap(
+                      options: MapOptions(
+                        initialCenter: LatLng(centerLat, centerLng),
+                        initialZoom: 11.5,
+                        interactionOptions: const InteractionOptions(
+                          flags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
+                        ),
+                      ),
+                      children: [
+                        TileLayer(
+                          urlTemplate: 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+                          userAgentPackageName: 'com.vmovexa.app',
+                        ),
+                        MarkerLayer(markers: markers),
+                      ],
+                    ),
+
+                    // Empty state backdrop if no GPS
+                    if (!hasGps)
+                      Positioned.fill(
+                        child: Container(
+                          color: const Color(0xFF0F172A).withValues(alpha: 0.65),
+                          child: Center(
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 24),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: AppColors.cardBg.withValues(alpha: 0.95),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.cardBorder),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'no_gps_positions'.tr,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    'gps_appear_desc'.tr,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      color: AppColors.textSecondary,
+                                      fontSize: 9.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                    // Floating Bottom Pills (Online Vehicles & Broadcasting Live)
+                    Positioned(
+                      bottom: 8,
+                      left: 8,
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0F172A).withValues(alpha: 0.9),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: AppColors.cardBorder),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFF10B981),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  '${controller.kpiVehiclesWithGpsCount}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'vehicles_gps'.tr,
+                                  style: const TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 9,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0F172A).withValues(alpha: 0.9),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: AppColors.cardBorder),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFF3B82F6),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  '${controller.kpiBroadcastingVehiclesCount}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'broadcasting_live'.tr,
+                                  style: const TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 9,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       );
     });
+  }
+
+  // 5. Recent Broadcast Campaigns (List Format)
+  Widget _buildRecentBroadcastCampaignsCard() {
+    return Obx(() {
+      final recent = controller.recentCampaigns;
+
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.campaign_rounded, size: 16, color: Color(0xFF6366F1)),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'recent_campaigns'.tr.toUpperCase(),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'recent_sub'.tr,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+
+                // Actions: New Campaign & View All
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // InkWell(
+                    //   onTap: controller.createNewCampaign,
+                    //   borderRadius: BorderRadius.circular(8),
+                    //   child: Container(
+                    //     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                    //     decoration: BoxDecoration(
+                    //       gradient: AppTheme.primaryGradient,
+                    //       borderRadius: BorderRadius.circular(8),
+                    //     ),
+                    //     child: Row(
+                    //       mainAxisSize: MainAxisSize.min,
+                    //       children: [
+                    //         const Icon(Icons.add_rounded, size: 12, color: Colors.white),
+                    //         const SizedBox(width: 3),
+                    //         Text(
+                    //           'create_campaign'.tr,
+                    //           style: const TextStyle(
+                    //             color: Colors.white,
+                    //             fontSize: 9.5,
+                    //             fontWeight: FontWeight.bold,
+                    //           ),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
+                    // const SizedBox(width: 6),
+                    InkWell(
+                      onTap: () => controller.selectedNavIndex.value = 1,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: AppColors.cardBg,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.cardBorder),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '${'view_all'.tr} (${controller.campaigns.length})',
+                              style: const TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(width: 2),
+                            const Icon(Icons.arrow_forward_rounded, size: 10, color: AppColors.textSecondary),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+
+            // Content
+            if (recent.isEmpty)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0F172A).withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.cardBorder, width: 0.8),
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Center(
+                        child: Icon(Icons.campaign_outlined, color: AppColors.textMuted, size: 24),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'no_campaigns'.tr,
+                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'create_first_campaign'.tr,
+                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    InkWell(
+                      onTap: controller.createNewCampaign,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.primaryGradient,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.add_rounded, size: 13, color: Colors.white),
+                            const SizedBox(width: 4),
+                            Text(
+                              'create_first_broadcast'.tr,
+                              style: const TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              Column(
+                children: List.generate(recent.length, (index) {
+                  final camp = recent[index];
+                  return Column(
+                    children: [
+                      _buildRecentCampaignItem(camp),
+                      if (index < recent.length - 1)
+                        const Divider(color: AppColors.cardBorder, height: 20),
+                    ],
+                  );
+                }),
+              ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildRecentCampaignItem(GovCampaignModel camp) {
+    final statusColor = _getGovStatusColor(camp.status);
+    final mediaThumb = camp.thumbnailOrMedia;
+
+    return InkWell(
+      onTap: () => Get.toNamed(Routes.GOV_CAMPAIGN_DETAILS, arguments: camp),
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Column(
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Left Creative Thumbnail Box
+                Container(
+                  width: 74,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F172A),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.cardBorder, width: 1),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: mediaThumb.isNotEmpty
+                            ? Image.network(
+                                mediaThumb,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => const Center(
+                                  child: Icon(Icons.campaign_outlined, color: AppColors.textMuted, size: 22),
+                                ),
+                              )
+                            : const Center(
+                                child: Icon(Icons.campaign_outlined, color: AppColors.textMuted, size: 22),
+                              ),
+                      ),
+                      // Category overlay pill
+                      Positioned(
+                        bottom: 3,
+                        right: 3,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.85),
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                          child: Text(
+                            camp.displayCategory,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 7.5,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+
+                // Middle Info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Code & Department
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0F172A),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: AppColors.cardBorder, width: 0.8),
+                            ),
+                            child: Text(
+                              camp.displayCode,
+                              style: const TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 8.5,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'monospace',
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              camp.departmentOrClient,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+
+                      // Title
+                      Text(
+                        camp.displayName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+
+                      // Date & Time
+                      Row(
+                        children: [
+                          const Icon(Icons.calendar_today_rounded, size: 10, color: AppColors.textMuted),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              camp.displayDates,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5),
+                            ),
+                          ),
+                          if (camp.timeDisplay != null) ...[
+                            const SizedBox(width: 6),
+                            const Icon(Icons.access_time_rounded, size: 10, color: AppColors.textMuted),
+                            const SizedBox(width: 3),
+                            Text(
+                              camp.timeDisplay!,
+                              style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+
+            // Bottom Reach, Impressions, Status & Arrow
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Buses & Screens
+                Text(
+                  '${camp.totalBuses} ${'buses_label'.tr} · ${camp.totalScreens} ${'screens_label'.tr}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                // Impressions
+                Text(
+                  '${camp.impressions ?? 0} ${'impressions'.tr}',
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 9.5,
+                  ),
+                ),
+
+                // Status Pill
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                  decoration: BoxDecoration(
+                    color: statusColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: statusColor.withValues(alpha: 0.35)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 5,
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: statusColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        (camp.status ?? 'active').toUpperCase(),
+                        style: TextStyle(
+                          color: statusColor,
+                          fontSize: 8.5,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Forward Arrow
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F172A),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: AppColors.cardBorder),
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.arrow_forward_rounded, size: 12, color: AppColors.textSecondary),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Color _getGovStatusColor(String? status) {
+    final s = (status ?? '').toLowerCase();
+    if (s == 'live' || s == 'running' || s == 'active') {
+      return const Color(0xFF10B981);
+    }
+    if (s == 'completed') {
+      return const Color(0xFF64748B);
+    }
+    if (s == 'scheduled') {
+      return const Color(0xFF6366F1);
+    }
+    if (s == 'approved') {
+      return const Color(0xFF3B82F6);
+    }
+    if (s == 'paused') {
+      return const Color(0xFFF59E0B);
+    }
+    if (s == 'pending_approval' || s == 'under review') {
+      return const Color(0xFFA855F7);
+    }
+    return const Color(0xFF94A3B8);
   }
 
   // ==========================================
@@ -820,97 +1629,28 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
-          // Filter Tabs row
+          // Header with Create Campaign button
           _buildCampaignTabHeader(
-            'Create Campaign',
+            'gov_campaigns_create_btn'.tr,
             controller.createNewCampaign,
           ),
           const SizedBox(height: 14),
 
-          // Overview cards row (Real derived KPIs)
-          Obx(() => Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => controller.setCampaignsFilterTab('Active'),
-                  child: _buildListStatCard("assets/icons/advertiser_ic/speaker.svg",
-                      '${controller.kpiActiveCampaignsCount}', 'Active', const Color(0xFF3B82F6)),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => controller.setCampaignsFilterTab('Scheduled'),
-                  child: _buildListStatCard("assets/icons/advertiser_ic/calender.svg",
-                      '${controller.kpiScheduledCampaignsCount}', 'Scheduled', const Color(0xFF8B5CF6)),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => controller.setCampaignsFilterTab('Completed'),
-                  child: _buildListStatCard("assets/icons/completeNew.svg",
-                      '${controller.kpiCompletedCampaignsCount}', 'Completed', const Color(0xFF10B981)),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => controller.setCampaignsFilterTab('Emergency'),
-                  child: _buildListStatCard("assets/icons/infoNew.svg",
-                      '${controller.kpiEmergencyAlertsCount}', 'Emergency', const Color(0xFFEF4444)),
-                ),
-              ),
-            ],
-          )),
-          const SizedBox(height: 14),
-
-          // Filter Tab Pills
-          Obx(() {
-            final active = controller.campaignsFilterTab.value;
-            return SizedBox(
-              height: 32,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
-                children: ['All', 'Active', 'Scheduled', 'Completed', 'Emergency'].map((tab) {
-                  final isSelected = active == tab;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ChoiceChip(
-                      label: Text(tab, style: TextStyle(
-                        color: isSelected ? Colors.white : AppColors.textSecondary,
-                        fontSize: 10,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                      )),
-                      selected: isSelected,
-                      selectedColor: const Color(0xFF3B82F6),
-                      backgroundColor: AppColors.cardBg,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      side: BorderSide(color: isSelected ? const Color(0xFF3B82F6) : AppColors.cardBorder),
-                      onSelected: (_) => controller.setCampaignsFilterTab(tab),
-                    ),
-                  );
-                }).toList(),
-              ),
-            );
-          }),
-          const SizedBox(height: 12),
-
-          // Search and Sort
+          // Search and Sort controls
           Row(
             children: [
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                  height: 44,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
                     color: AppColors.cardBg,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppColors.cardBorder, width: 1),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 16),
+                      const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 18),
                       const SizedBox(width: 8),
                       Expanded(
                         child: TextField(
@@ -919,11 +1659,15 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                           style: const TextStyle(color: Colors.white, fontSize: 12),
                           decoration: InputDecoration(
                             hintTextDirection: TextDirection.ltr,
-                            hintText: 'Search campaigns by title, route...',
+                            hintText: 'gov_campaigns_search_placeholder'.tr,
                             hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                             border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(vertical: 12),
                             suffixIcon: Obx(() => controller.campaignSearchQuery.value.isNotEmpty
                                 ? IconButton(
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
                                     icon: const Icon(Icons.clear, size: 14, color: AppColors.textMuted),
                                     onPressed: () => controller.campaignSearchController.clear(),
                                   )
@@ -935,34 +1679,109 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               GestureDetector(
-                onTap: () {
-                  controller.sortBy.value = controller.sortBy.value == 'latest' ? 'oldest' : 'latest';
-                  controller.filterCampaigns();
-                },
+                onTap: () => _showSortBottomSheet(),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                  height: 44,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
                     color: AppColors.cardBg,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppColors.cardBorder, width: 1),
                   ),
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
+                      const Icon(Icons.tune_rounded, color: Colors.white, size: 15),
+                      const SizedBox(width: 6),
                       Obx(() => Text(
-                        controller.sortBy.value == 'latest' ? 'Sort: Latest' : 'Sort: Oldest',
-                        style: const TextStyle(color: Colors.white, fontSize: 10),
+                        _getSortLabel(controller.sortBy.value),
+                        style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
                       )),
                       const SizedBox(width: 4),
-                      const Icon(Icons.sort_rounded, color: Colors.white, size: 14),
+                      const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textSecondary, size: 16),
                     ],
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
+
+          // Filter Tab Pills (Admin Panel parity)
+          Obx(() {
+            final active = controller.campaignsFilterTab.value;
+            return SizedBox(
+              height: 36,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                itemCount: GovernmentDashboardController.campaignTabs.length,
+                separatorBuilder: (_, index) => const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  final tab = GovernmentDashboardController.campaignTabs[index];
+                  final isSelected = active == tab;
+                  final count = controller.tabCounts[tab] ?? 0;
+                  return GestureDetector(
+                    onTap: () => controller.setCampaignsFilterTab(tab),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      decoration: BoxDecoration(
+                        gradient: isSelected ? AppTheme.primaryGradient : null,
+                        color: isSelected ? null : AppColors.cardBg,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: isSelected ? Colors.transparent : AppColors.cardBorder,
+                          width: 1,
+                        ),
+                        boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                  color: const Color(0xFF9333EA).withOpacity(0.25),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _getTabLabel(tab),
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : AppColors.textSecondary,
+                              fontSize: 11,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: isSelected ? Colors.white.withOpacity(0.25) : const Color(0xFF1E293B),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              '$count',
+                              style: TextStyle(
+                                color: isSelected ? Colors.white : AppColors.textMuted,
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            );
+          }),
+          const SizedBox(height: 14),
 
           // Live dynamic scrollable list
           Expanded(
@@ -984,14 +1803,55 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                       Text(
                         controller.campaignSearchQuery.value.isNotEmpty
                             ? 'No campaigns found for "${controller.campaignSearchQuery.value}"'
-                            : 'No ${controller.campaignsFilterTab.value} campaigns found',
+                            : 'gov_campaign_no_found'.tr,
                         style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 6),
-                      const Text(
-                        'Launch a public broadcast or adjust your search filter.',
-                        style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                      Text(
+                        'gov_campaign_no_match'.tr,
+                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
                         textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 15),
+                      Container(
+                        height: 38,
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.primaryGradient,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF9333EA).withOpacity(0.25),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: controller.createNewCampaign,
+                            borderRadius: BorderRadius.circular(10),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.add, color: Colors.white, size: 15),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'gov_campaigns_create_btn'.tr,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -1022,917 +1882,1149 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-         Text('Government Campaigns',
-             style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
-        Container(
-          width:135,
-          height: 40,
-          decoration: BoxDecoration(
-            gradient: AppTheme.primaryGradient,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF9333EA).withOpacity(0.25),
-                blurRadius: 16,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: onTap,
-              borderRadius: BorderRadius.circular(14),
-              child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.add, color: Colors.white, size: 14),
-                      const SizedBox(width: 5),
-                    Text(
-                      btnText,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.3,
-                      ),
-                    ),
-                  ],
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'gov_campaigns_title'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
                 ),
-              ),
+
+              ],
             ),
-          ),
-        )
-        // CustomButton(
-        //   height: 40,
-        //   width: 170,
-        //   prefixIcon:  const Icon(Icons.add, color: Colors.white, size: 14),
-        //   isGradient: true,
-        //   text: btnText,
-        //   onTap: onTap,
-        // ),
-        // ElevatedButton.icon(
-        //   onPressed: onTap,
-        //   style: ElevatedButton.styleFrom(
-        //     backgroundColor: const Color(0xFF3B82F6),
-        //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        //     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        //   ),
-        //   icon: const Icon(Icons.add, color: Colors.white, size: 14),
-        //   label: Text(btnText, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-        // ),
+            const SizedBox(height: 2),
+            Text(
+              'gov_campaigns_subtitle'.tr,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
+            ),
+
+          ],
+        ),
+
       ],
     );
   }
 
-  Widget _buildListStatCard(String icon,String val, String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 0),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SvgPicture.asset(icon),
-          Column(
-            children: [
-              Text(val, style: TextStyle(color: color, fontSize: 15, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 4),
-              Text(label, style: const TextStyle(color: Colors.white, fontSize: 8.5)),
-            ],
-          ),
-
-        ],
-      ),
-    );
-  }
-
-  Widget _buildListSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(title, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-          const Text('View All', style: TextStyle(color: Color(0xFF3B82F6), fontSize: 9.5, fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildGovCampaignItemCard(GovCampaign c) {
-    final isEmergency = c.type == 'Emergency';
-    return GestureDetector(
-      onTap: () => Get.toNamed(Routes.GOV_CAMPAIGN_DETAILS, arguments: c),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+  void _showSortBottomSheet() {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        decoration: const BoxDecoration(
+          color: Color(0xFF1E293B),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Left Image
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  image: DecorationImage(
-                    image: NetworkImage(c.imagePath),
-                    fit: BoxFit.cover,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'gov_sort_by'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white70, size: 20),
+                  onPressed: () => Get.back(),
+                ),
+              ],
+            ),
+            const Divider(color: Color(0xFF334155), height: 16),
+            ...[
+              {'key': 'Recent', 'label': 'gov_sort_recent'.tr},
+              {'key': 'Name', 'label': 'gov_sort_name'.tr},
+              {'key': 'Budget-High', 'label': 'gov_sort_budget_high'.tr},
+              {'key': 'Budget-Low', 'label': 'gov_sort_budget_low'.tr},
+              {'key': 'Screens', 'label': 'gov_sort_screens'.tr},
+            ].map((opt) {
+              final isSelected = controller.sortBy.value == opt['key'];
+              return ListTile(
+                dense: true,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                title: Text(
+                  opt['label']!,
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : Colors.white70,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontSize: 13,
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
+                trailing: isSelected
+                    ? Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          gradient: AppTheme.primaryGradient,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.check, color: Colors.white, size: 14),
+                      )
+                    : null,
+                onTap: () {
+                  controller.sortBy.value = opt['key']!;
+                  controller.filterCampaigns();
+                  Get.back();
+                },
+              );
+            }),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+      isScrollControlled: true,
+    );
+  }
 
-              // Middle info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            c.displayName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
+  String _getTabLabel(String tab) {
+    switch (tab) {
+      case 'All': return 'gov_tab_all'.tr;
+      case 'Approved': return 'gov_tab_approved'.tr;
+      case 'Running': return 'gov_tab_running'.tr;
+      case 'Under Review': return 'gov_tab_under_review'.tr;
+      case 'Scheduled': return 'gov_tab_scheduled'.tr;
+      case 'Draft': return 'gov_tab_draft'.tr;
+      case 'Completed': return 'gov_tab_completed'.tr;
+      case 'Paused': return 'gov_tab_paused'.tr;
+      case 'Rejected': return 'gov_tab_rejected'.tr;
+      default: return tab;
+    }
+  }
+
+  String _getSortLabel(String sort) {
+    switch (sort) {
+      case 'Recent': return 'gov_sort_recent'.tr;
+      case 'Name': return 'gov_sort_name'.tr;
+      case 'Budget-High': return 'gov_sort_budget_high'.tr;
+      case 'Budget-Low': return 'gov_sort_budget_low'.tr;
+      case 'Screens': return 'gov_sort_screens'.tr;
+      default: return sort;
+    }
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'Running': return const Color(0xFF10B981);
+      case 'Approved': return const Color(0xFF3B82F6);
+      case 'Under Review': return const Color(0xFFF59E0B);
+      case 'Scheduled': return const Color(0xFF6366F1);
+      case 'Paused': return const Color(0xFFF97316);
+      case 'Completed': return const Color(0xFF64748B);
+      case 'Draft': return const Color(0xFF71717A);
+      case 'Rejected': return const Color(0xFFF43F5E);
+      default: return const Color(0xFF94A3B8);
+    }
+  }
+
+  String _getPaymentStatusLabel(String? status) {
+    switch (status) {
+      case 'Treasury Paid': return 'gov_payment_treasury_paid'.tr;
+      case 'Online Paid': return 'gov_payment_online_paid'.tr;
+      case 'Gov Cleared': return 'gov_payment_gov_cleared'.tr;
+      default: return 'gov_payment_pending_sanction'.tr;
+    }
+  }
+
+  Widget _buildGovCampaignItemCard(GovCampaignModel c) {
+    final statusColor = _getStatusColor(c.mappedStatus);
+    final mediaType = c.primaryMediaType;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.18),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top Accent Gradient Line
+            Container(
+              height: 3.5,
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: AppTheme.primaryGradient,
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 1. Top Meta Row: ID + Status + 3-Dots Menu
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0F172A),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: const Color(0xFF334155), width: 0.8),
+                        ),
+                        child: Text(
+                          c.displayCode,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'monospace',
                           ),
                         ),
-
-                        const SizedBox(width: 6),
-
-                        Flexible(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                              color: isEmergency
-                                  ? const Color(0xFFEF4444).withOpacity(0.12)
-                                  : const Color(0xFF3B82F6).withOpacity(0.12),
-                              borderRadius: BorderRadius.circular(4),
+                              color: statusColor.withOpacity(0.14),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: statusColor.withOpacity(0.4), width: 1),
                             ),
                             child: Text(
-                              c.type.toUpperCase(),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              _getTabLabel(c.mappedStatus).toUpperCase(),
                               style: TextStyle(
-                                color: isEmergency
-                                    ? const Color(0xFFEF4444)
-                                    : const Color(0xFF3B82F6),
-                                fontSize: 7,
+                                color: statusColor,
+                                fontSize: 9.5,
                                 fontWeight: FontWeight.bold,
+                                letterSpacing: 0.4,
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                     SvgPicture.asset('assets/icons/calendar.svg',width: 12,height: 12,),
-                        const SizedBox(width: 6),
-                        Text(c.dates, style: const TextStyle(color: AppColors.textSecondary, fontSize: 9)),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        SvgPicture.asset('assets/icons/location.svg',width: 12,height: 12,),
-                        const SizedBox(width: 6),
-                        Text(c.locations, style: const TextStyle(color: AppColors.textSecondary, fontSize: 9)),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const Divider(color: AppColors.cardBorder, height: 16),
-
-          // Bottom coverage & reach stats
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    const Text('Coverage: ', style: TextStyle(color: AppColors.textMuted, fontSize: 9)),
-                    Text('${c.coverage}%', style: const TextStyle(color: Color(0xFF10B981), fontSize: 9.5, fontWeight: FontWeight.bold)),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(2),
-                        child: LinearProgressIndicator(
-                          value: c.coverage / 100,
-                          backgroundColor: const Color(0xFF1E293B),
-                          valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF10B981)),
-                          minHeight: 3.5,
-                        ),
+                          const SizedBox(width: 4),
+                          PopupMenuButton<String>(
+                            icon: const Icon(Icons.more_vert, color: Colors.white70, size: 18),
+                            color: const Color(0xFF1E293B),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            onSelected: (val) {
+                              if (val == 'view') {
+                                Get.toNamed(Routes.GOV_CAMPAIGN_DETAILS, arguments: c);
+                              } else if (val == 'edit') {
+                                Get.toNamed(Routes.GOVERNMENT_CREATE_CAMPAIGN, arguments: c);
+                              } else if (val == 'start' || val == 'resume') {
+                                controller.handleStartCampaign(c);
+                              } else if (val == 'pause') {
+                                controller.handlePauseCampaign(c);
+                              } else if (val == 'end') {
+                                controller.handleEndCampaign(c);
+                              } else if (val == 'approve') {
+                                controller.handleApproveCampaign(c);
+                              } else if (val == 'reject') {
+                                controller.handleRejectCampaign(c);
+                              } else if (val == 'delete') {
+                                controller.handleDeleteCampaign(c);
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              PopupMenuItem(
+                                value: 'view',
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.visibility_outlined, color: Colors.white70, size: 16),
+                                    const SizedBox(width: 8),
+                                    Text('gov_action_view_details'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                                  ],
+                                ),
+                              ),
+                              if (['Draft', 'Under Review', 'Rejected'].contains(c.mappedStatus))
+                                PopupMenuItem(
+                                  value: 'edit',
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.edit_outlined, color: Colors.white70, size: 16),
+                                      const SizedBox(width: 8),
+                                      Text('gov_action_edit_campaign'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                                    ],
+                                  ),
+                                ),
+                              if (c.mappedStatus == 'Under Review')
+                                PopupMenuItem(
+                                  value: 'approve',
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.check_circle_outline, color: Color(0xFF10B981), size: 16),
+                                      const SizedBox(width: 8),
+                                      Text('gov_action_approve_broadcast'.tr, style: const TextStyle(color: Color(0xFF10B981), fontSize: 12, fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                ),
+                              if (c.mappedStatus == 'Approved')
+                                PopupMenuItem(
+                                  value: 'start',
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.play_circle_outline, color: Color(0xFF10B981), size: 16),
+                                      const SizedBox(width: 8),
+                                      Text('gov_action_start_broadcast'.tr, style: const TextStyle(color: Color(0xFF10B981), fontSize: 12, fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                ),
+                              if (c.mappedStatus == 'Running')
+                                PopupMenuItem(
+                                  value: 'pause',
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.pause_circle_outline, color: Color(0xFFF59E0B), size: 16),
+                                      const SizedBox(width: 8),
+                                      Text('gov_action_pause_broadcast'.tr, style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 12, fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                ),
+                              if (c.mappedStatus == 'Paused')
+                                PopupMenuItem(
+                                  value: 'resume',
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.play_circle_outline, color: Color(0xFF10B981), size: 16),
+                                      const SizedBox(width: 8),
+                                      Text('gov_action_resume_broadcast'.tr, style: const TextStyle(color: Color(0xFF10B981), fontSize: 12, fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                ),
+                              if (c.mappedStatus == 'Running' || c.mappedStatus == 'Paused')
+                                PopupMenuItem(
+                                  value: 'end',
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.stop_circle_outlined, color: Color(0xFFEF4444), size: 16),
+                                      const SizedBox(width: 8),
+                                      Text('gov_action_end_campaign'.tr, style: const TextStyle(color: Color(0xFFEF4444), fontSize: 12, fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                ),
+                              if (c.mappedStatus == 'Under Review')
+                                PopupMenuItem(
+                                  value: 'reject',
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.cancel_outlined, color: Color(0xFFEF4444), size: 16),
+                                      const SizedBox(width: 8),
+                                      Text('gov_action_reject_broadcast'.tr, style: const TextStyle(color: Color(0xFFEF4444), fontSize: 12, fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                ),
+                              if (['Draft', 'Completed', 'Rejected', 'Under Review'].contains(c.mappedStatus))
+                                PopupMenuItem(
+                                  value: 'delete',
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.delete_outline, color: Color(0xFFEF4444), size: 16),
+                                      const SizedBox(width: 8),
+                                      Text('gov_action_delete_campaign'.tr, style: const TextStyle(color: Color(0xFFEF4444), fontSize: 12, fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 20),
-              Row(
-                children: [
-                  const Text('Reach: ', style: TextStyle(color: AppColors.textMuted, fontSize: 9)),
-                  Text('${c.reach} Displays', style: const TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-  // ==========================================
-  // TAB 3: EMERGENCY BROADCAST
-  // ==========================================
-  Widget _buildEmergencyBroadcastTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      physics: const BouncingScrollPhysics(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Sub bar header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('Emergency Broadcast', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppColors.cardBg,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.cardBorder, width: 1.2),
-                ),
-                child: Row(
-                  children: const [
-                    Icon(Icons.history_rounded, color: AppColors.textSecondary, size: 12),
-                    SizedBox(width: 4),
-                    Text('Broadcast History', style: TextStyle(color: AppColors.textSecondary, fontSize: 9, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          // Active Emergency Alert status card with Revoke Action
-          Obx(() {
-            final active = controller.activeAlert.value;
-            if (active != null) {
-              return Container(
-                width: double.infinity,
-                margin: const EdgeInsets.only(bottom: 14),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      const Color(0xFFEF4444).withOpacity(0.2),
-                      const Color(0xFFEF4444).withOpacity(0.06),
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFEF4444), width: 1.5),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            SvgPicture.asset("assets/icons/active-alert.svg", width: 24, height: 24),
-                            const SizedBox(width: 8),
-                            Text(
-                              'ACTIVE ${active.displaySeverity.toUpperCase()} ALERT',
-                              style: const TextStyle(color: Color(0xFFEF4444), fontSize: 11.5, fontWeight: FontWeight.bold, letterSpacing: 0.8),
-                            ),
-                          ],
+                  const SizedBox(height: 8),
+
+                  // 2. Campaign Title & Department Info
+                  GestureDetector(
+                    onTap: () => Get.toNamed(Routes.GOV_CAMPAIGN_DETAILS, arguments: c),
+                    child: Text(
+                      c.displayName,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: -0.2,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          c.departmentOrClient,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
                         ),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            Get.defaultDialog(
-                              title: 'Revoke Alert?',
-                              titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                              middleText: 'Are you sure you want to stop this override and resume normal transit displays?',
-                              middleTextStyle: const TextStyle(color: Colors.white70),
-                              backgroundColor: const Color(0xFF15151F),
-                              textConfirm: 'Revoke Now',
-                              textCancel: 'Cancel',
-                              confirmTextColor: Colors.white,
-                              cancelTextColor: Colors.white60,
-                              buttonColor: const Color(0xFFEF4444),
-                              onConfirm: () {
-                                Get.back();
-                                if (active.id != null) {
-                                  controller.revokeEmergencyAlert(active.id!);
-                                }
-                              },
-                            );
-                          },
-                          icon: const Icon(Icons.cancel_outlined, color: Colors.white, size: 14),
-                          label: const Text('Revoke', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFEF4444),
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      if (c.clientName != null && c.clientName!.isNotEmpty) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF3B82F6).withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.3), width: 0.8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.person_outline, size: 10, color: Color(0xFF60A5FA)),
+                              const SizedBox(width: 3),
+                              Text(
+                                '${'gov_contact_label'.tr} ${c.clientName}',
+                                style: const TextStyle(color: Color(0xFF93C5FD), fontSize: 9.5, fontWeight: FontWeight.bold),
+                              ),
+                            ],
                           ),
                         ),
                       ],
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+
+                  // 3. Badges Row: Media format + QR code + Payment
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      // Format badge
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0F172A),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: const Color(0xFF334155), width: 0.8),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              mediaType == 'video'
+                                  ? Icons.videocam_outlined
+                                  : mediaType == 'pdf'
+                                      ? Icons.description_outlined
+                                      : mediaType == 'url'
+                                          ? Icons.link_rounded
+                                          : Icons.image_outlined,
+                              size: 11,
+                              color: mediaType == 'video'
+                                  ? const Color(0xFF818CF8)
+                                  : mediaType == 'pdf'
+                                      ? const Color(0xFFF87171)
+                                      : mediaType == 'url'
+                                          ? const Color(0xFF60A5FA)
+                                          : const Color(0xFF34D399),
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              mediaType == 'video'
+                                  ? 'gov_campaign_video'.tr
+                                  : mediaType == 'pdf'
+                                      ? 'gov_campaign_pdf'.tr
+                                      : mediaType == 'url'
+                                          ? 'gov_campaign_url'.tr
+                                          : 'gov_campaign_image'.tr,
+                              style: const TextStyle(color: Colors.white70, fontSize: 9, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // QR Code badge (if present)
+                      if (c.qrCode != null && c.qrCode!.isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF10B981).withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: const Color(0xFF10B981).withOpacity(0.3), width: 0.8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.qr_code_2_rounded, size: 11, color: Color(0xFF34D399)),
+                              const SizedBox(width: 3),
+                              Text(
+                                c.qrCode!,
+                                style: const TextStyle(color: Color(0xFF6EE7B7), fontSize: 9, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      // Payment Status badge
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF6366F1).withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: const Color(0xFF6366F1).withOpacity(0.3), width: 0.8),
+                        ),
+                        child: Text(
+                          '${'gov_payment_label'.tr} ${_getPaymentStatusLabel(c.paymentStatus)}',
+                          style: const TextStyle(color: Color(0xFFA5B4FC), fontSize: 9, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+
+                  // 4. Flight Duration & Budget Row
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0F172A).withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFF334155).withOpacity(0.6), width: 0.8),
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      active.message ?? 'Public emergency broadcast currently active across transit network.',
-                      style: const TextStyle(color: Colors.white, fontSize: 11, height: 1.3),
-                    ),
-                    if (active.emergencyNumber != null && active.emergencyNumber!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        'Helpline: ${active.emergencyNumber}',
-                        style: const TextStyle(color: Color(0xFFFCA5A5), fontSize: 10.5, fontWeight: FontWeight.w600),
-                      ),
-                    ],
-                  ],
-                ),
-              );
-            }
-            return const SizedBox.shrink();
-          }),
-
-          // EMERGENCY ALERT red glow banner
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  const Color(0xFFEF4444).withOpacity(0.15),
-                  const Color(0xFFEF4444).withOpacity(0.04),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFEF4444).withOpacity(0.4), width: 1.5),
-            ),
-            child: Row(
-              children: [
-                // Container(
-                //   padding: const EdgeInsets.all(10),
-                //   decoration: BoxDecoration(
-                //     color: const Color(0xFFEF4444).withOpacity(0.2),
-                //     shape: BoxShape.circle,
-                //     boxShadow: [
-                //       BoxShadow(
-                //         color: const Color(0xFFEF4444).withOpacity(0.3),
-                //         blurRadius: 8,
-                //         spreadRadius: 1,
-                //       ),
-                //     ],
-                //   ),
-                //   child: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 24),
-                // ),
-                SvgPicture.asset("assets/icons/active-alert.svg",width: 35,height: 35,),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
-                        'EMERGENCY ALERT',
-                        style: TextStyle(color: Color(0xFFEF4444), fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1),
-                      ),
-                      SizedBox(height: 3),
-                      Text(
-                        'This message will be sent immediately to the selected vehicles and displays.',
-                        style: TextStyle(color: Colors.white, fontSize:11, height: 1.3),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 18),
-
-          // Alert Message Text Area
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                 SvgPicture.asset('assets/icons/fleet_operator_icons/smsNotificationA.svg',color: Color(0xfff74317),),
-                  SizedBox(width: 10,),
-                  Text('Alert Message', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                ],
-              ),
-              Text('132/500', style: TextStyle(color: AppColors.textMuted, fontSize: 9)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          CustomTextField(
-            hintText: 'Enter alert message...',
-            controller: controller.alertMessageController,
-            maxLines: 3,
-          ),
-          const SizedBox(height: 18),
-
-          // Departmental Helpline Contact Number
-          const Row(
-            children: [
-              Icon(Icons.phone_in_talk_rounded, color: Color(0xFFEF4444), size: 16),
-              SizedBox(width: 8),
-              Text('Emergency Helpline / Contact', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          CustomTextField(
-            hintText: 'e.g. 112, 108, or official toll-free helpline',
-            controller: controller.emergencyNumberController,
-          ),
-          const SizedBox(height: 18),
-
-          // Severity Level Grid Selection
-          Row(
-            children: [
-              SvgPicture.asset('assets/icons/fleet_operator_icons/securityA.svg',color: Color(0xfff74317),),
-              SizedBox(width: 10,),
-              const Text('Severity Level', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Obx(() {
-            final severity = controller.selectedSeverity.value;
-            return GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 4,
-              mainAxisSpacing: 8,
-              crossAxisSpacing: 8,
-              childAspectRatio: 1.1,
-              children: [
-                _buildSeverityItem('Critical', 'High Impact', "assets/icons/critical.svg", const Color(0xFFEF4444), severity == 'Critical'),
-                _buildSeverityItem('High', 'Important', "assets/icons/high.svg", const Color(0xFFF59E0B), severity == 'High'),
-                _buildSeverityItem('Medium', 'Moderate', "assets/icons/medium.svg", const Color(0xFFEAB308), severity == 'Medium'),
-                _buildSeverityItem('Low', 'General Info',"assets/icons/low.svg", const Color(0xFF3B82F6), severity == 'Low'),
-              ],
-            );
-          }),
-          const SizedBox(height: 18),
-
-          // Target Area row
-          Row(
-            children: [
-              SvgPicture.asset('assets/icons/location.svg',width: 25,height: 25,),
-              SizedBox(width: 10,),
-              const Text('Target Area', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              color: AppColors.cardBg,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Color(0xff5e3ea2), width: 1.2),
-            ),
-            child: Row(
-              children: [
-                SvgPicture.asset('assets/icons/location.svg',width: 25,height: 25,),
-                // Container(
-                //   padding: const EdgeInsets.all(8),
-                //   decoration: BoxDecoration(
-                //     color: const Color(0xFF8B5CF6).withOpacity(0.08),
-                //     shape: BoxShape.circle,
-                //   ),
-                //   child: const Icon(Icons.location_on_rounded, color: Color(0xFF8B5CF6), size: 14),
-                // ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text('Bhopal Region', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                      SizedBox(height: 2),
-                      Text('48°24\'N 11°30\'E', style: TextStyle(color: AppColors.textMuted, fontSize: 8)),
-                    ],
-                  ),
-                ),
-                const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 16),
-              ],
-            ),
-          ),
-          const SizedBox(height: 18),
-
-          // Broadcast To checklist
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-               Row(
-                 children: [
-                   SvgPicture.asset('assets/icons/tower.svg',width: 25,height: 25,),
-                   SizedBox(width: 10,),
-                   Text('Broadcast To', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                 ],
-               ),
-              Row(
-                children: [
-                  const Text('Select All', style: TextStyle(color: AppColors.textSecondary, fontSize: 9.5)),
-                  const SizedBox(width: 4),
-                  Checkbox(
-                    value: true,
-                    onChanged: (val) {},
-                    activeColor: const Color(0xFF3B82F6),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Obx(() => Column(
-            children: [
-              _buildBroadcastToRow('All Vehicles', '248 Vehicles', 'assets/icons/fleet_operator_icons/fleetsManagedA2.svg', const Color(0xFF3B82F6), controller.broadcastToVehicles.value, (val) => controller.broadcastToVehicles.value = val ?? false),
-              const SizedBox(height: 8),
-              _buildBroadcastToRow('All Displays', '721 Displays','assets/icons/advertiser_ic/tv.svg', const Color(0xFF10B981), controller.broadcastToDisplays.value, (val) => controller.broadcastToDisplays.value = val ?? false),
-            ],
-          )),
-          const SizedBox(height: 18),
-
-          // Push Notifications toggle
-          Obx(() => Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppColors.cardBg,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.cardBorder, width: 1),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children:  [
-                 SvgPicture.asset('assets/icons/fleet_operator_icons/notification.svg',width: 18,height: 18,),
-                    SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Send Push Notification', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                        SizedBox(height: 2),
-                        Text('Notify user app with this alert', style: TextStyle(color: AppColors.textMuted, fontSize: 8.5)),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'gov_flight_duration'.tr,
+                              style: const TextStyle(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.w600),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              c.displayDates,
+                              style: const TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              'gov_budget_grant'.tr,
+                              style: const TextStyle(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.w600),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              c.totalAmount > 0 ? '₹ ${c.totalAmount.toStringAsFixed(0)}' : 'gov_public_welfare_psa'.tr,
+                              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
-                  ],
-                ),
-                Switch(
-                  value: controller.sendPushNotification.value,
-                  onChanged: (val) => controller.sendPushNotification.value = val,
-                  activeTrackColor: const Color(0xFFFF6A00),
-                  activeThumbColor: Colors.white,
-                  inactiveTrackColor: Colors.grey.shade300,
-                  inactiveThumbColor: Colors.white,
-                  trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+                  ),
+                  const SizedBox(height: 8),
 
-                ),
-              ],
-            ),
-          )),
-          const SizedBox(height: 12),
-
-          // Auto Expire Alert selector
-          GestureDetector(
-            onTap: () {
-              Get.bottomSheet(
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF1E293B),
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Select Auto Expire Duration',
-                          style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 14),
-                      ...['2 Hours', '6 Hours', '12 Hours', '24 Hours'].map((dur) {
-                        return ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(dur, style: const TextStyle(color: Colors.white, fontSize: 13)),
-                          trailing: controller.autoExpireAlert.value == dur
-                              ? const Icon(Icons.check, color: Color(0xFF8B5CF6))
-                              : null,
-                          onTap: () {
-                            controller.autoExpireAlert.value = dur;
-                            Get.back();
-                          },
-                        );
-                      }),
-                    ],
-                  ),
-                ),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              decoration: BoxDecoration(
-                color: AppColors.cardBg,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.cardBorder, width: 1),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      SvgPicture.asset('assets/icons/clock.svg', width: 18, height: 18),
-                      const SizedBox(width: 12),
-                      const Text('Auto Expire Alert',
-                          style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Obx(() => Text(controller.autoExpireAlert.value,
-                          style: const TextStyle(color: Color(0xFF8B5CF6), fontSize: 10, fontWeight: FontWeight.bold))),
-                      const SizedBox(width: 4),
-                      const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 16),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // Optional Advisory Media Attachment
-          GestureDetector(
-            onTap: controller.pickMediaForAlert,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              decoration: BoxDecoration(
-                color: AppColors.cardBg,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.cardBorder, width: 1),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: const [
-                      Icon(Icons.attachment_rounded, color: Color(0xFF3B82F6), size: 18),
-                      SizedBox(width: 12),
-                      Text('Attach Advisory Image',
-                          style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                  Obx(() {
-                    if (controller.isUploadingMedia.value) {
-                      return const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.blue));
-                    }
-                    if (controller.attachedMediaName.value.isNotEmpty) {
-                      return Flexible(
-                        child: Text(
-                          controller.attachedMediaName.value,
-                          style: const TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.bold),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      );
-                    }
-                    return const Text('Optional', style: TextStyle(color: AppColors.textMuted, fontSize: 10));
-                  }),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Broadcast button
-          Obx(() => Container(
-            width: double.infinity,
-            height: 48,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(colors: [Color(0xFFEF4444), Color(0xFFB91C1C)]),
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFFEF4444).withOpacity(0.3),
-                  blurRadius: 10,
-                  spreadRadius: 1,
-                ),
-              ],
-            ),
-            child: ElevatedButton(
-              onPressed: controller.isBroadcasting.value ? null : controller.broadcastEmergencyAlert,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: controller.isBroadcasting.value
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                  : const Row(
+                  // 5. Target Screens Pill
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E293B),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFF334155), width: 0.8),
+                    ),
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.warning_amber_rounded, color: Colors.white, size: 22),
-                        SizedBox(width: 8),
-                        Text('BROADCAST NOW',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.8,
-                            )),
+                        const Icon(Icons.tv_rounded, size: 14, color: Color(0xFF60A5FA)),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${'gov_target_screens'.tr.toUpperCase()}: ',
+                          style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          '${c.totalScreens} ${'gov_screens_count'.tr}',
+                          style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 11, fontWeight: FontWeight.bold),
+                        ),
                       ],
                     ),
-            ),
-          )),
-          const SizedBox(height: 8),
-          const Center(
-            child: Text(
-              '🔒 This action broadcasts immediately to public transit displays',
-              style: TextStyle(color: AppColors.textMuted, fontSize: 8.5),
-            ),
-          ),
-          const SizedBox(height: 24),
+                  ),
+                  const SizedBox(height: 10),
 
-          // Active & Recent Broadcasts History Section
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('Broadcast History & Active Alerts',
-                  style: TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.bold)),
-              IconButton(
-                icon: const Icon(Icons.refresh_rounded, size: 16, color: AppColors.textSecondary),
-                onPressed: () => controller.loadDashboardData(silent: true),
+                  // 6. Bottom Action Footer
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 7,
+                            height: 7,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF10B981),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${c.citiesCount} ${c.citiesCount == 1 ? 'gov_city_label'.tr : 'gov_cities_label'.tr} · ${c.fleetOperatorName}',
+                            style: const TextStyle(color: AppColors.textSecondary, fontSize: 10.5, fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                      GestureDetector(
+                        onTap: () => Get.toNamed(Routes.GOV_CAMPAIGN_DETAILS, arguments: c),
+                        child: Row(
+                          children: [
+                            Text(
+                              'gov_action_view_details'.tr,
+                              style: const TextStyle(
+                                color: Color(0xFF60A5FA),
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(Icons.arrow_forward_rounded, size: 13, color: Color(0xFF60A5FA)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Obx(() {
-            if (controller.emergencyBroadcasts.isEmpty) {
-              return Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: AppColors.cardBg,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.cardBorder, width: 1),
-                ),
-                child: const Center(
-                  child: Text('No emergency broadcasts issued yet.',
-                      style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
-                ),
-              );
-            }
-
-            return Column(
-              children: controller.emergencyBroadcasts.map((b) => _buildEmergencyHistoryCard(b)).toList(),
-            );
-          }),
-          const SizedBox(height: 20),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSeverityItem(String title, String subtitle, String icon, Color color, bool isSelected) {
-    return GestureDetector(
-      onTap: () => controller.selectedSeverity.value = title,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.08) : AppColors.cardBg,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: isSelected ? color : AppColors.cardBorder,
-            width: isSelected ? 1.5 : 1,
-          ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SvgPicture.asset(icon),
-            const SizedBox(height: 6),
-            Text(title, style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 2),
-            Text(subtitle, style: const TextStyle(color: AppColors.textMuted, fontSize: 7), textAlign: TextAlign.center),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildEmergencyHistoryCard(EmergencyBroadcastModel b) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: b.severityColor.withOpacity(0.35),
-          width: 1.2,
-        ),
-      ),
+  // ==========================================
+  // TAB 3: EMERGENCY BROADCASTS (Mirroring GovEmergencyListPage.jsx)
+  // ==========================================
+  Widget _buildEmergencyBroadcastTab() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: b.severityColor.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  b.displaySeverity,
-                  style: TextStyle(color: b.severityColor, fontSize: 8.5, fontWeight: FontWeight.bold),
+          // 1. Header with Title, Live Badge, and "+ New Broadcast" button
+          _buildEmergencyTabHeader(),
+          const SizedBox(height: 12),
+
+          // 2. Main Scrollable List Area
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () => controller.loadDashboardData(silent: true),
+              color: const Color(0xFFEF4444),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 5 Status Breakdown Stat Cards (Clickable)
+                    _buildEmergencyStatCards(),
+                    const SizedBox(height: 14),
+
+                    // 6 Status Filter Tabs with Live Badges
+                    _buildEmergencyFilterTabs(),
+                    const SizedBox(height: 12),
+
+                    // Search Box & Dropdown Filters Bar
+                    _buildEmergencySearchAndFilters(),
+                    const SizedBox(height: 10),
+
+                    // Active Filters Chips Bar & Reset
+                    _buildEmergencyActiveFilterChips(),
+                    const SizedBox(height: 10),
+
+                    // Broadcasts Cards List
+                    _buildEmergencyBroadcastsList(),
+                    const SizedBox(height: 24),
+                  ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: b.active && b.status != 'revoked'
-                      ? const Color(0xFF10B981).withOpacity(0.15)
-                      : Colors.white.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Header with "+ New Broadcast" button and Live Overrides beacon
+  Widget _buildEmergencyTabHeader() {
+    return Obx(() {
+      final counts = controller.emergencyCounts;
+      final activeCount = counts['active'] ?? 0;
+
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        'gov_emergency.emergency_broadcasts'.tr,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (activeCount > 0) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEF4444).withOpacity(0.18),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color(0xFFEF4444).withOpacity(0.5), width: 1),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 6,
+                              height: 6,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFEF4444),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '$activeCount ${activeCount > 1 ? 'gov_emergency.overrides_active'.tr : 'gov_emergency.override_active'.tr}',
+                              style: const TextStyle(
+                                color: Color(0xFFFCA5A5),
+                                fontSize: 8.5,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-                child: Text(
-                  (b.status ?? 'active').toUpperCase(),
-                  style: TextStyle(
-                    color: b.active && b.status != 'revoked' ? const Color(0xFF10B981) : AppColors.textMuted,
-                    fontSize: 8,
-                    fontWeight: FontWeight.bold,
+                const SizedBox(height: 2),
+                Text(
+                  'gov_emergency.subtitle'.tr,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.refresh_rounded, color: AppColors.textSecondary, size: 20),
+                onPressed: () => controller.loadDashboardData(silent: true),
+                tooltip: 'Refresh',
+                constraints: const BoxConstraints(),
+                padding: const EdgeInsets.all(6),
+              ),
+              const SizedBox(width: 6),
+              // "+ New Broadcast" button
+              Container(
+                height: 34,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFEF4444).withOpacity(0.35),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Get.to(() => const GovCreateEmergencyView())?.then((_) {
+                      controller.loadDashboardData(silent: true);
+                    });
+                  },
+                  icon: SvgPicture.asset(
+                    'assets/icons/active-alert.svg',
+                    width: 14,
+                    height: 14,
+                  ),
+                  label: Text(
+                    'gov_emergency.new_broadcast'.tr,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            b.message ?? '',
-            style: const TextStyle(color: Colors.white, fontSize: 11, height: 1.3),
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
+        ],
+      );
+    });
+  }
+
+  // 5 Status Breakdown Stat Cards (Matching Admin Panel lines 450-520)
+  Widget _buildEmergencyStatCards() {
+    return Obx(() {
+      final counts = controller.emergencyCounts;
+      final currentTab = controller.selectedEmergencyTab.value;
+
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        child: Row(
+          children: [
+            _buildStatCard(
+              title: 'gov_emergency.total_alerts'.tr,
+              count: counts['all'] ?? 0,
+              subtitle: 'gov_emergency.all_logs'.tr,
+              isSelected: currentTab == 'All',
+              borderColor: const Color(0xFF64748B),
+              accentColor: Colors.white,
+              onTap: () => controller.selectedEmergencyTab.value = 'All',
+            ),
+            const SizedBox(width: 8),
+            _buildStatCard(
+              title: 'gov_emergency.live_overrides'.tr,
+              count: counts['active'] ?? 0,
+              subtitle: 'gov_emergency.broadcasting_now'.tr,
+              isSelected: currentTab == 'Active',
+              borderColor: const Color(0xFF10B981),
+              accentColor: const Color(0xFF10B981),
+              isLive: true,
+              onTap: () => controller.selectedEmergencyTab.value = 'Active',
+            ),
+            const SizedBox(width: 8),
+            _buildStatCard(
+              title: 'gov_emergency.pending_approval'.tr,
+              count: counts['pending'] ?? 0,
+              subtitle: 'gov_emergency.awaiting_superadmin'.tr,
+              isSelected: currentTab == 'Pending Approval',
+              borderColor: const Color(0xFFF59E0B),
+              accentColor: const Color(0xFFF59E0B),
+              onTap: () => controller.selectedEmergencyTab.value = 'Pending Approval',
+            ),
+            const SizedBox(width: 8),
+            _buildStatCard(
+              title: 'gov_emergency.approved'.tr,
+              count: counts['approved'] ?? 0,
+              subtitle: 'gov_emergency.authorized_broadcasts'.tr,
+              isSelected: currentTab == 'Approved',
+              borderColor: const Color(0xFF3B82F6),
+              accentColor: const Color(0xFF3B82F6),
+              onTap: () => controller.selectedEmergencyTab.value = 'Approved',
+            ),
+            const SizedBox(width: 8),
+            _buildStatCard(
+              title: 'gov_emergency.revoked_expired'.tr,
+              count: counts['inactive'] ?? 0,
+              subtitle: 'gov_emergency.override_terminated'.tr,
+              isSelected: currentTab == 'Revoked',
+              borderColor: const Color(0xFFEF4444),
+              accentColor: const Color(0xFFEF4444),
+              onTap: () => controller.selectedEmergencyTab.value = 'Revoked',
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildStatCard({
+    required String title,
+    required int count,
+    required String subtitle,
+    required bool isSelected,
+    required Color borderColor,
+    required Color accentColor,
+    bool isLive = false,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 124,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? borderColor.withOpacity(0.12) : AppColors.cardBg,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? borderColor : AppColors.cardBorder,
+            width: isSelected ? 1.6 : 1,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      color: isSelected ? accentColor : AppColors.textMuted,
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.4,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (isLive && count > 0)
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF10B981),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '$count',
+              style: TextStyle(
+                color: accentColor,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              style: TextStyle(
+                color: accentColor.withOpacity(0.75),
+                fontSize: 7.5,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 6 Status Filter Tabs with Live Badges (Matching Admin Panel lines 525-576)
+  Widget _buildEmergencyFilterTabs() {
+    return Obx(() {
+      final counts = controller.emergencyCounts;
+      final selectedTab = controller.selectedEmergencyTab.value;
+
+      final tabs = [
+        {'label': 'All', 'title': 'gov_emergency.tab_all'.tr, 'count': counts['all'] ?? 0, 'color': AppColors.primaryButtonBlue},
+        {'label': 'Active', 'title': 'gov_emergency.tab_active'.tr, 'count': counts['active'] ?? 0, 'color': const Color(0xFF10B981), 'isLive': true},
+        {'label': 'Pending Approval', 'title': 'gov_emergency.tab_pending'.tr, 'count': counts['pending'] ?? 0, 'color': const Color(0xFFF59E0B)},
+        {'label': 'Approved', 'title': 'gov_emergency.tab_approved'.tr, 'count': counts['approved'] ?? 0, 'color': const Color(0xFF3B82F6)},
+        {'label': 'Revoked', 'title': 'gov_emergency.tab_revoked'.tr, 'count': counts['revoked'] ?? 0, 'color': const Color(0xFFEF4444)},
+        {'label': 'Expired', 'title': 'gov_emergency.tab_expired'.tr, 'count': counts['expired'] ?? 0, 'color': const Color(0xFF64748B)},
+      ];
+
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        child: Row(
+          children: tabs.map((t) {
+            final label = t['label'] as String;
+            final isCurrent = selectedTab == label;
+            final color = t['color'] as Color;
+            final count = t['count'] as int;
+            final title = t['title'] as String;
+            final isLive = (t['isLive'] as bool?) ?? false;
+
+            return GestureDetector(
+              onTap: () => controller.selectedEmergencyTab.value = label,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                margin: const EdgeInsets.only(right: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  gradient: isCurrent ? AppTheme.primaryGradient : null,
+                  color: isCurrent ? null : AppColors.cardBg,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: isCurrent ? Colors.transparent : AppColors.cardBorder,
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (isLive && count > 0 && !isCurrent) ...[
+                      Container(
+                        width: 5,
+                        height: 5,
+                        margin: const EdgeInsets.only(right: 4),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF10B981),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ],
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: isCurrent ? Colors.white : AppColors.textSecondary,
+                        fontSize: 10,
+                        fontWeight: isCurrent ? FontWeight.bold : FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: isCurrent
+                            ? Colors.black.withOpacity(0.25)
+                            : color.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        '$count',
+                        style: TextStyle(
+                          color: isCurrent ? Colors.white : color,
+                          fontSize: 8.5,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      );
+    });
+  }
+
+  // Search Box & Dropdown Filters Bar (Matching Admin Panel lines 580-655)
+  Widget _buildEmergencySearchAndFilters() {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.cardBorder, width: 1),
+      ),
+      child: Column(
+        children: [
+          // Search Input
+          Container(
+            height: 38,
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFF131826),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.cardBorder, width: 1),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 16),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: controller.emergencySearchController,
+                    style: const TextStyle(color: Colors.white, fontSize: 11),
+                    decoration: InputDecoration(
+                      hintText: 'gov_emergency.search_ph'.tr,
+                      hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 10.5),
+                      border: InputBorder.none,
+                      isDense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                ),
+                Obx(() {
+                  if (controller.emergencySearchQuery.value.isNotEmpty) {
+                    return GestureDetector(
+                      onTap: () {
+                        controller.emergencySearchController.clear();
+                        controller.emergencySearchQuery.value = '';
+                      },
+                      child: const Icon(Icons.close_rounded, color: AppColors.textMuted, size: 16),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                }),
+              ],
+            ),
           ),
           const SizedBox(height: 8),
+
+          // 3 Filter Dropdowns: Severity, Scope, Sort By
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.location_on_outlined, size: 12, color: AppColors.textMuted),
-                  const SizedBox(width: 4),
-                  Text(
-                    b.targetArea ?? 'All Transit Corridors',
-                    style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
-                  ),
-                ],
+              // Severity Filter
+              Expanded(
+                child: Obx(() => _buildFilterDropdown<String>(
+                      value: controller.selectedEmergencySeverity.value,
+                      items: const [
+                        DropdownMenuItem(value: 'all', child: Text('All Severity')),
+                        DropdownMenuItem(value: 'critical', child: Text('Critical')),
+                        DropdownMenuItem(value: 'high', child: Text('High')),
+                        DropdownMenuItem(value: 'medium', child: Text('Medium')),
+                        DropdownMenuItem(value: 'low', child: Text('Low')),
+                      ],
+                      onChanged: (val) {
+                        if (val != null) controller.selectedEmergencySeverity.value = val;
+                      },
+                    )),
               ),
-              if (b.isRevocable && b.id != null)
-                TextButton(
-                  onPressed: () => controller.revokeEmergencyAlert(b.id!),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    backgroundColor: const Color(0xFFEF4444).withOpacity(0.15),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                  ),
-                  child: const Text('Revoke',
-                      style: TextStyle(color: Color(0xFFEF4444), fontSize: 9.5, fontWeight: FontWeight.bold)),
-                ),
+              const SizedBox(width: 6),
+
+              // Scope Filter
+              Expanded(
+                child: Obx(() => _buildFilterDropdown<String>(
+                      value: controller.selectedEmergencyScope.value,
+                      items: const [
+                        DropdownMenuItem(value: 'all', child: Text('All Scope')),
+                        DropdownMenuItem(value: 'all_screens', child: Text('Entire Network')),
+                        DropdownMenuItem(value: 'partial', child: Text('Selected Routes')),
+                      ],
+                      onChanged: (val) {
+                        if (val != null) controller.selectedEmergencyScope.value = val;
+                      },
+                    )),
+              ),
+              const SizedBox(width: 6),
+
+              // Sort By
+              Expanded(
+                child: Obx(() => _buildFilterDropdown<String>(
+                      value: controller.selectedEmergencySort.value,
+                      items: const [
+                        DropdownMenuItem(value: 'newest', child: Text('Newest')),
+                        DropdownMenuItem(value: 'oldest', child: Text('Oldest')),
+                        DropdownMenuItem(value: 'severity', child: Text('Highest Sev')),
+                      ],
+                      onChanged: (val) {
+                        if (val != null) controller.selectedEmergencySort.value = val;
+                      },
+                    )),
+              ),
             ],
           ),
         ],
@@ -1940,43 +3032,577 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
     );
   }
 
-  Widget _buildBroadcastToRow(String title, String count, String icon, Color color, bool value, ValueChanged<bool?> onChanged) {
+  Widget _buildFilterDropdown<T>({
+    required T value,
+    required List<DropdownMenuItem<T>> items,
+    required ValueChanged<T?> onChanged,
+  }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      height: 32,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(12),
+        color: const Color(0xFF131826),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.cardBorder, width: 1),
       ),
-      child: Row(
-        children: [
-          SvgPicture.asset(icon),
-          // Container(
-          //   padding: const EdgeInsets.all(6),
-          //   decoration: BoxDecoration(
-          //     color: color.withOpacity(0.08),
-          //     shape: BoxShape.circle,
-          //   ),
-          //   child: Icon(icon, color: color, size: 14),
-          // ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(title, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                Text(count, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
-              ],
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<T>(
+          value: value,
+          items: items,
+          onChanged: onChanged,
+          isExpanded: true,
+          dropdownColor: const Color(0xFF131826),
+          style: const TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.w600),
+          icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.textMuted, size: 16),
+        ),
+      ),
+    );
+  }
+
+  // Active Filters Chips Bar & "Reset All Filters"
+  Widget _buildEmergencyActiveFilterChips() {
+    return Obx(() {
+      if (!controller.hasActiveEmergencyFilters) return const SizedBox.shrink();
+
+      final tab = controller.selectedEmergencyTab.value;
+      final sev = controller.selectedEmergencySeverity.value;
+      final scope = controller.selectedEmergencyScope.value;
+      final q = controller.emergencySearchQuery.value;
+
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+        child: Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Text(
+              'gov_emergency.active_filters'.tr,
+              style: const TextStyle(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold),
             ),
+            if (tab != 'All')
+              _buildFilterChip(
+                label: 'Tab: $tab',
+                color: const Color(0xFFEF4444),
+                onClear: () => controller.selectedEmergencyTab.value = 'All',
+              ),
+            if (sev != 'all')
+              _buildFilterChip(
+                label: 'Severity: ${sev.toUpperCase()}',
+                color: const Color(0xFFF59E0B),
+                onClear: () => controller.selectedEmergencySeverity.value = 'all',
+              ),
+            if (scope != 'all')
+              _buildFilterChip(
+                label: scope == 'all_screens' ? 'Scope: Network' : 'Scope: Routes',
+                color: const Color(0xFF3B82F6),
+                onClear: () => controller.selectedEmergencyScope.value = 'all',
+              ),
+            if (q.isNotEmpty)
+              _buildFilterChip(
+                label: 'Query: "$q"',
+                color: Colors.white60,
+                onClear: () {
+                  controller.emergencySearchController.clear();
+                  controller.emergencySearchQuery.value = '';
+                },
+              ),
+            GestureDetector(
+              onTap: controller.resetEmergencyFilters,
+              child: Text(
+                'gov_emergency.reset_all_filters'.tr,
+                style: const TextStyle(
+                  color: Color(0xFFEF4444),
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildFilterChip({
+    required String label,
+    required Color color,
+    required VoidCallback onClear,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.14),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withOpacity(0.4), width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: TextStyle(color: color, fontSize: 8.5, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(width: 14),
-          Checkbox(
-            value: value,
-            onChanged: onChanged,
-            activeColor: color,
+          const SizedBox(width: 4),
+          GestureDetector(
+            onTap: onClear,
+            child: Icon(Icons.close_rounded, size: 10, color: color),
           ),
         ],
       ),
+    );
+  }
+
+  // Broadcasts Cards List (Matching Admin Panel lines 760-960)
+  Widget _buildEmergencyBroadcastsList() {
+    return Obx(() {
+      final list = controller.filteredEmergencyBroadcasts;
+
+      if (list.isEmpty) {
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 20),
+          decoration: BoxDecoration(
+            color: AppColors.cardBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.cardBorder, width: 1),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppColors.cardBorder),
+                ),
+                child: const Center(
+                  child: Icon(Icons.warning_amber_rounded, color: AppColors.textMuted, size: 26),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'gov_emergency.no_broadcasts'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                controller.hasActiveEmergencyFilters
+                    ? 'gov_emergency.try_adjusting_filters'.tr
+                    : 'gov_emergency.no_alerts_logged'.tr,
+                style: const TextStyle(color: AppColors.textMuted, fontSize: 10.5),
+                textAlign: TextAlign.center,
+              ),
+              if (controller.hasActiveEmergencyFilters) ...[
+                const SizedBox(height: 12),
+                TextButton(
+                  onPressed: controller.resetEmergencyFilters,
+                  child: Text(
+                    'gov_emergency.reset_all_filters'.tr,
+                    style: const TextStyle(color: Color(0xFFEF4444), fontSize: 11, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        );
+      }
+
+      return Column(
+        children: list.map((b) => _buildEmergencyCard(b)).toList(),
+      );
+    });
+  }
+
+  // Single Broadcast Card
+  Widget _buildEmergencyCard(EmergencyBroadcastModel item) {
+    final isAct = item.isLiveOverride;
+    final sevColor = item.severityColor;
+
+    return GestureDetector(
+      onTap: () => GovEmergencyDetailsSheet.show(Get.context!, item),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isAct ? const Color(0xFFEF4444).withOpacity(0.5) : AppColors.cardBorder,
+            width: isAct ? 1.4 : 1,
+          ),
+          boxShadow: isAct
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFFEF4444).withOpacity(0.12),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top Row: Siren Icon, Headline, Code, and 3-Dot Actions Menu
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Siren Icon
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: isAct
+                        ? const Color(0xFFEF4444).withOpacity(0.18)
+                        : Colors.white.withOpacity(0.06),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: isAct
+                          ? const Color(0xFFEF4444).withOpacity(0.4)
+                          : AppColors.cardBorder,
+                      width: 1,
+                    ),
+                  ),
+                  child: Center(
+                    child: SvgPicture.asset(
+                      'assets/icons/critical.svg',
+                      width: 18,
+                      height: 18,
+                      colorFilter: ColorFilter.mode(
+                        isAct ? const Color(0xFFEF4444) : Colors.white60,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+
+                // Headline & Code
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.displayHeadline,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Text(
+                            item.displayCode,
+                            style: const TextStyle(
+                              color: AppColors.textMuted,
+                              fontSize: 9.5,
+                              fontFamily: 'monospace',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          if (item.authority != null) ...[
+                            const SizedBox(width: 6),
+                            const Text('·', style: TextStyle(color: AppColors.textMuted, fontSize: 9)),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                item.authority!,
+                                style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // 3-Dot Action Menu
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert_rounded, color: AppColors.textSecondary, size: 18),
+                  color: const Color(0xFF131826),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: AppColors.cardBorder, width: 1),
+                  ),
+                  onSelected: (val) {
+                    if (val == 'details') {
+                      GovEmergencyDetailsSheet.show(Get.context!, item);
+                    } else if (val == 'revoke') {
+                      if (item.id != null) {
+                        _showRevokeConfirm(item);
+                      }
+                    } else if (val == 'delete') {
+                      if (item.id != null) {
+                        _showDeleteConfirm(item);
+                      }
+                    }
+                  },
+                  itemBuilder: (ctx) => [
+                    PopupMenuItem(
+                      value: 'details',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.remove_red_eye_outlined, color: Color(0xFF60A5FA), size: 14),
+                          const SizedBox(width: 8),
+                          Text('gov_emergency.view_full_details'.tr, style: const TextStyle(color: Colors.white, fontSize: 11)),
+                        ],
+                      ),
+                    ),
+                    if (item.isRevocable && item.id != null)
+                      PopupMenuItem(
+                        value: 'revoke',
+                        child: Row(
+                          children: [
+                            const Icon(Icons.cancel_outlined, color: Color(0xFFEF4444), size: 14),
+                            const SizedBox(width: 8),
+                            Text('gov_emergency.revoke_broadcast'.tr, style: const TextStyle(color: Color(0xFFEF4444), fontSize: 11, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ),
+                    if (item.canDelete && item.id != null)
+                      PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 14),
+                            const SizedBox(width: 8),
+                            Text('gov_emergency.delete_broadcast'.tr, style: const TextStyle(color: Color(0xFFEF4444), fontSize: 11)),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+
+            // Message Snippet
+            Text(
+              item.message?.isNotEmpty == true ? item.message! : (item.bodyText ?? ''),
+              style: const TextStyle(color: Colors.white70, fontSize: 10.5, height: 1.35),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 10),
+
+            // Scope & Timing Info Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.gps_fixed_rounded, size: 11, color: AppColors.textMuted),
+                    const SizedBox(width: 4),
+                    Text(
+                      item.displayScope,
+                      style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '(${item.affectedBusesCount} buses)',
+                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 9, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    const Icon(Icons.schedule_rounded, size: 11, color: AppColors.textMuted),
+                    const SizedBox(width: 4),
+                    Text(
+                      item.createdAt != null
+                          ? DateFormat('dd MMM, hh:mm a').format(item.createdAt!)
+                          : item.displayDuration,
+                      style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+
+            // Badges Row: Severity Badge on Left & Status Badge on Right
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Severity Badge
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: sevColor.withOpacity(0.14),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: sevColor.withOpacity(0.35), width: 1),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.warning_amber_rounded, size: 10, color: sevColor),
+                      const SizedBox(width: 3),
+                      Text(
+                        item.displaySeverity,
+                        style: TextStyle(
+                          color: sevColor,
+                          fontSize: 8.5,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Status Badge
+                _buildCardStatusBadge(item),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCardStatusBadge(EmergencyBroadcastModel item) {
+    if (item.isLiveOverride) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+        decoration: BoxDecoration(
+          color: const Color(0xFF10B981).withOpacity(0.18),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: const Color(0xFF10B981).withOpacity(0.5), width: 1),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            Icon(Icons.circle, color: Color(0xFF10B981), size: 5),
+            SizedBox(width: 4),
+            Text(
+              'LIVE OVERRIDE',
+              style: TextStyle(
+                color: Color(0xFF10B981),
+                fontSize: 8,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    if (item.isPendingApproval) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF59E0B).withOpacity(0.18),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: const Text(
+          'PENDING REVIEW',
+          style: TextStyle(
+            color: Color(0xFFF59E0B),
+            fontSize: 8,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+    }
+    if (item.isApproved) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+        decoration: BoxDecoration(
+          color: const Color(0xFF3B82F6).withOpacity(0.18),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: const Text(
+          'APPROVED',
+          style: TextStyle(
+            color: Color(0xFF3B82F6),
+            fontSize: 8,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+    }
+    if (item.isRevoked) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+        decoration: BoxDecoration(
+          color: const Color(0xFFEF4444).withOpacity(0.18),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: const Text(
+          'REVOKED',
+          style: TextStyle(
+            color: Color(0xFFEF4444),
+            fontSize: 8,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: const Text(
+        'EXPIRED',
+        style: TextStyle(
+          color: AppColors.textMuted,
+          fontSize: 8,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  void _showRevokeConfirm(EmergencyBroadcastModel item) {
+    Get.defaultDialog(
+      title: 'gov_emergency.confirm_revoke_title'.tr,
+      titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+      middleText: 'gov_emergency.confirm_revoke_desc'.tr,
+      middleTextStyle: const TextStyle(color: Colors.white70, fontSize: 12),
+      backgroundColor: const Color(0xFF151828),
+      textConfirm: 'gov_emergency.revoke_broadcast'.tr,
+      textCancel: 'common.cancel'.tr,
+      confirmTextColor: Colors.white,
+      cancelTextColor: Colors.white60,
+      buttonColor: const Color(0xFFEF4444),
+      onConfirm: () {
+        Get.back();
+        if (item.id != null) {
+          controller.revokeEmergencyAlert(item.id!);
+        }
+      },
+    );
+  }
+
+  void _showDeleteConfirm(EmergencyBroadcastModel item) {
+    Get.defaultDialog(
+      title: 'gov_emergency.confirm_delete_title'.tr,
+      titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+      middleText: 'gov_emergency.confirm_delete_desc'.tr,
+      middleTextStyle: const TextStyle(color: Colors.white70, fontSize: 12),
+      backgroundColor: const Color(0xFF151828),
+      textConfirm: 'gov_emergency.delete_broadcast'.tr,
+      textCancel: 'common.cancel'.tr,
+      confirmTextColor: Colors.white,
+      cancelTextColor: Colors.white60,
+      buttonColor: const Color(0xFFEF4444),
+      onConfirm: () {
+        Get.back();
+        if (item.id != null) {
+          controller.deleteEmergencyBroadcast(item.id!);
+        }
+      },
     );
   }
 

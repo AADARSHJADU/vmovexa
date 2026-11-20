@@ -17,6 +17,9 @@ class ClientAddressMapPicker extends StatefulWidget {
   final TextEditingController pincodeController;
   final double? initialLat;
   final double? initialLng;
+  final String? title;
+  final String? subtitle;
+  final String? searchHint;
   final Function(double lat, double lng, String address, String city, String state, String pincode)? onLocationChanged;
 
   const ClientAddressMapPicker({
@@ -28,6 +31,9 @@ class ClientAddressMapPicker extends StatefulWidget {
     required this.pincodeController,
     this.initialLat,
     this.initialLng,
+    this.title,
+    this.subtitle,
+    this.searchHint,
     this.onLocationChanged,
   });
 
@@ -211,11 +217,13 @@ class _ClientAddressMapPickerState extends State<ClientAddressMapPicker> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('customer_business_loc_title'.tr,
+                    Text(
+                      widget.title ?? 'customer_business_loc_title'.tr,
                       style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 2),
-                    Text('search_landmark_pin_sub'.tr,
+                    Text(
+                      widget.subtitle ?? 'search_landmark_pin_sub'.tr,
                       style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
                     ),
                   ],
@@ -247,7 +255,7 @@ class _ClientAddressMapPickerState extends State<ClientAddressMapPicker> {
                 onChanged: _onSearchQueryChanged,
                 style: const TextStyle(color: Colors.white, fontSize: 12),
                 decoration: InputDecoration(
-                  hintText: 'search_client_address_hint'.tr,
+                  hintText: widget.searchHint ?? 'search_client_address_hint'.tr,
                   hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                   prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 18),
                   suffixIcon: _isLoadingSearch

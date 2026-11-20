@@ -168,6 +168,49 @@ class GovernmentService extends GetxService {
     );
   }
 
+  /// 8a. POST /api/v1/campaigns/:id/approve — Approve broadcast
+  Future<ApiResponseModel<dynamic>> approveCampaign(String id) async {
+    return _http.post(
+      ApiConstants.campaignApprove(id),
+      requiresAuth: true,
+    );
+  }
+
+  /// 8b. POST /api/v1/campaigns/:id/reject — Reject campaign with remarks
+  Future<ApiResponseModel<dynamic>> rejectCampaign(String id, String reason) async {
+    return _http.post(
+      ApiConstants.campaignReject(id),
+      body: {'reason': reason, 'notes': reason},
+      requiresAuth: true,
+    );
+  }
+
+  /// 8c. PUT /api/v1/campaigns/:id — End campaign
+  Future<ApiResponseModel<dynamic>> endCampaign(String id) async {
+    return _http.put(
+      ApiConstants.campaignOne(id),
+      body: {'status': 'completed'},
+      requiresAuth: true,
+    );
+  }
+
+  /// 8d. POST /api/v1/campaigns/:id/submit — Submit for review
+  Future<ApiResponseModel<dynamic>> submitCampaign(String id) async {
+    return _http.post(
+      ApiConstants.campaignSubmit(id),
+      requiresAuth: true,
+    );
+  }
+
+  /// 8e. POST /api/v1/campaigns/:id/share-payment-link — Share payment/sanction link
+  Future<ApiResponseModel<dynamic>> sharePaymentLink(String id, Map<String, dynamic> data) async {
+    return _http.post(
+      ApiConstants.campaignSharePaymentLink(id),
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
   /// 9. GET /api/v1/emergency-broadcasts — List emergency broadcasts
   Future<ApiResponseModel<List<EmergencyBroadcastModel>>> getEmergencyBroadcasts({
     int? page,

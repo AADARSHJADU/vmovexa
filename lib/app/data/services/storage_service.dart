@@ -125,6 +125,35 @@ class StorageService extends GetxService {
     await _prefs.remove(_keyCampaignDraft);
   }
 
+  static const String _keyGovCampaignDraft = 'vmovexa_draft_gov_campaign';
+
+  // Save government campaign draft
+  Future<void> saveGovCampaignDraft(Map<String, dynamic> data) async {
+    await _prefs.setString(_keyGovCampaignDraft, jsonEncode(data));
+  }
+
+  // Get government campaign draft
+  Map<String, dynamic>? getGovCampaignDraft() {
+    final raw = _prefs.getString(_keyGovCampaignDraft);
+    if (raw != null && raw.isNotEmpty) {
+      try {
+        return jsonDecode(raw) as Map<String, dynamic>;
+      } catch (_) {}
+    }
+    return null;
+  }
+
+  // Has government campaign draft
+  bool hasGovCampaignDraft() {
+    final raw = _prefs.getString(_keyGovCampaignDraft);
+    return raw != null && raw.isNotEmpty;
+  }
+
+  // Clear government campaign draft
+  Future<void> clearGovCampaignDraft() async {
+    await _prefs.remove(_keyGovCampaignDraft);
+  }
+
   // Clear session on logout
   Future<void> clearAuth() async {
     await _prefs.remove(_keyAccessToken);

@@ -31,6 +31,19 @@ class GovCampaignModel {
   final List<Map<String, dynamic>>? targets;
   final String? category;
   final String? targetArea;
+  final String? clientCompany;
+  final String? brandName;
+  final String? agencyName;
+  final double? budget;
+  final String? clientName;
+  final String? clientPhone;
+  final String? clientEmail;
+  final String? paymentStatus;
+  final String? paymentMode;
+  final String? scheduleStatus;
+  final String? qrCode;
+  final dynamic paymentBreakdown;
+  final Map<String, dynamic>? rawJson;
 
   GovCampaignModel({
     this.id,
@@ -60,6 +73,19 @@ class GovCampaignModel {
     this.targets,
     this.category,
     this.targetArea,
+    this.clientCompany,
+    this.brandName,
+    this.agencyName,
+    this.budget,
+    this.clientName,
+    this.clientPhone,
+    this.clientEmail,
+    this.paymentStatus,
+    this.paymentMode,
+    this.scheduleStatus,
+    this.qrCode,
+    this.paymentBreakdown,
+    this.rawJson,
   });
 
   factory GovCampaignModel.fromJson(Map<String, dynamic>? json) {
@@ -103,6 +129,43 @@ class GovCampaignModel {
       }
     }
 
+    // Parse budget from payment_breakdown or budget field
+    double? parsedBudget = double.tryParse(json['budget']?.toString() ?? '');
+    final pb = json['payment_breakdown'];
+    if (pb != null) {
+      if (pb is Map && pb['totalAmount'] != null) {
+        parsedBudget = double.tryParse(pb['totalAmount'].toString()) ?? parsedBudget;
+      }
+    }
+
+    // Payment status mapping
+    String? payStatus;
+    if (json['payment'] is Map) {
+      final p = json['payment'] as Map;
+      if (p['payment_mode'] == 'offline') {
+        payStatus = 'Treasury Paid';
+      } else if (p['payment_mode'] == 'online') {
+        payStatus = 'Online Paid';
+      }
+    }
+    if (payStatus == null) {
+      final ps = json['payment_status']?.toString().toLowerCase();
+      if (ps == 'paid') {
+        payStatus = 'Gov Cleared';
+      } else {
+        payStatus = 'Pending Sanction';
+      }
+    }
+
+    // QR Code
+    String? qrStr;
+    if (json['qrCodes'] is List && (json['qrCodes'] as List).isNotEmpty) {
+      final first = (json['qrCodes'] as List).first;
+      if (first is Map) qrStr = first['code']?.toString();
+    } else if (json['qr_code'] != null) {
+      qrStr = json['qr_code']?.toString();
+    }
+
     return GovCampaignModel(
       id: json['id']?.toString(),
       code: json['code']?.toString() ?? json['id']?.toString(),
@@ -131,7 +194,87 @@ class GovCampaignModel {
       targets: targetsList,
       category: json['category']?.toString() ?? 'Public Awareness',
       targetArea: json['target_area']?.toString() ?? json['targetArea']?.toString(),
+      clientCompany: json['client_company']?.toString() ?? json['clientCompany']?.toString(),
+      brandName: json['brand_name']?.toString() ?? json['brandName']?.toString(),
+      agencyName: json['agency'] is Map ? json['agency']['name']?.toString() : json['agency_name']?.toString(),
+      budget: parsedBudget,
+      clientName: json['client_name']?.toString() ?? (json['agency'] is Map ? json['agency']['contact_name']?.toString() : null),
+      clientPhone: json['client_phone']?.toString(),
+      clientEmail: json['client_email']?.toString(),
+      paymentStatus: payStatus,
+      paymentMode: json['payment'] is Map ? json['payment']['payment_mode']?.toString() : null,
+      scheduleStatus: json['schedule_status']?.toString(),
+      qrCode: qrStr,
+      paymentBreakdown: pb,
+      rawJson: json,
     );
+  }
+
+  String get displayCode => (code != null && code!.isNotEmpty) ? code! : (id != null && id!.isNotEmpty ? 'CMP-$id' : 'CMP');
+
+  String get departmentOrClient {
+    if (clientCompany != null && clientCompany!.isNotEmpty) return clientCompany!;
+    if (brandName != null && brandName!.isNotEmpty) return brandName!;
+    if (agencyName != null && agencyName!.isNotEmpty) return agencyName!;
+    if (category != null && category!.isNotEmpty) return category!;
+    return 'Department of Public Safety';
+  }
+
+  String get displayCategory => (category != null && category!.isNotEmpty) ? category! : 'PSA';
+
+  int get totalScreens {
+    if (targets != null && targets!.isNotEmpty) {
+      int total = 0;
+      for (final t in targets!) {
+        total += int.tryParse(t['screens_count']?.toString() ?? t['screensCount']?.toString() ?? '0') ?? 0;
+      }
+      if (total > 0) return total;
+    }
+    return reach != null && reach! > 0 ? reach! : 1;
+  }
+
+  int get totalBuses {
+    if (targets != null && targets!.isNotEmpty) {
+      int total = 0;
+      for (final t in targets!) {
+        int count = int.tryParse(t['vehicles_count']?.toString() ?? t['vehiclesCount']?.toString() ?? '0') ?? 0;
+        if (count == 0 && t['vehicle_ids'] is List) {
+          count = (t['vehicle_ids'] as List).length;
+        }
+        total += (count > 0 ? count : 1);
+      }
+      if (total > 0) return total;
+    }
+    return 1;
+  }
+
+  String? get timeDisplay {
+    if (broadcastStartTime != null && broadcastEndTime != null && broadcastStartTime!.isNotEmpty && broadcastEndTime!.isNotEmpty) {
+      final start = broadcastStartTime!.length >= 5 ? broadcastStartTime!.substring(0, 5) : broadcastStartTime!;
+      final end = broadcastEndTime!.length >= 5 ? broadcastEndTime!.substring(0, 5) : broadcastEndTime!;
+      return '$start – $end IST';
+    }
+    return null;
+  }
+
+  String? get youtubeThumbnail {
+    final url = mediaUrl ?? '';
+    if (url.contains('youtube.com') || url.contains('youtu.be')) {
+      final regExp = RegExp(r'(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})');
+      final match = regExp.firstMatch(url);
+      if (match != null && match.groupCount >= 1) {
+        final ytId = match.group(1);
+        return 'https://img.youtube.com/vi/$ytId/hqdefault.jpg';
+      }
+    }
+    return null;
+  }
+
+  String get thumbnailOrMedia {
+    final yt = youtubeThumbnail;
+    if (yt != null) return yt;
+    if (resolvedMediaUrl.isNotEmpty) return resolvedMediaUrl;
+    return '';
   }
 
   String get displayName => (title != null && title!.isNotEmpty)
@@ -196,11 +339,394 @@ class GovCampaignModel {
   String get imagePath => resolvedMediaUrl.isNotEmpty
       ? resolvedMediaUrl
       : 'https://images.unsplash.com/photo-1547683905-f686c993aae5?q=80&w=200';
+
+  String get mappedStatus {
+    final s = (status ?? '').toLowerCase();
+    if (s == 'live' || s == 'running') return 'Running';
+    if (s == 'paused') return 'Paused';
+    if (s == 'pending_approval' || s == 'under review') return 'Under Review';
+    if (s == 'approved') {
+      return (scheduleStatus == 'outside_window') ? 'Scheduled' : 'Approved';
+    }
+    if (s == 'scheduled') return 'Scheduled';
+    if (s == 'rejected') return 'Rejected';
+    if (s == 'completed') return 'Completed';
+    return 'Draft';
+  }
+
+  double get totalAmount => budget ?? 0.0;
+
+  int get citiesCount {
+    if (targets != null && targets!.isNotEmpty) {
+      final cities = targets!
+          .map((t) => t['city_name']?.toString() ?? t['city']?.toString())
+          .where((e) => e != null && e.isNotEmpty)
+          .toSet();
+      return cities.isNotEmpty ? cities.length : 1;
+    }
+    return 1;
+  }
+
+  String get fleetOperatorName {
+    if (targets != null && targets!.isNotEmpty) {
+      for (final t in targets!) {
+        final f = t['fleet_name']?.toString() ?? t['operator_name']?.toString() ?? t['agency_name']?.toString();
+        if (f != null && f.isNotEmpty) return f;
+      }
+    }
+    return 'Transit Fleet';
+  }
+
+  String get primaryMediaType {
+    final c = (contentType ?? '').toLowerCase();
+    if (c.contains('video') || (mediaUrl != null && (mediaUrl!.endsWith('.mp4') || mediaUrl!.contains('youtube')))) return 'video';
+    if (c.contains('pdf') || (mediaUrl != null && mediaUrl!.endsWith('.pdf'))) return 'pdf';
+    if (c.contains('url') || c.contains('link') || c.contains('youtube')) return 'url';
+    return 'image';
+  }
+
+  // --- Admin Panel Detailed Fields & Getters ---
+  String get campaignCode => (code != null && code!.isNotEmpty) ? code! : (id != null && id!.isNotEmpty ? 'CMP-$id' : 'CMP');
+
+  String get campaignType => (rawJson?['campaign_type']?.toString() ?? rawJson?['type']?.toString() ?? 'Commercial DOOH');
+
+  String get strategicObjective => (rawJson?['objective']?.toString() ?? rawJson?['strategic_objective']?.toString() ?? 'Brand Awareness & High Reach');
+
+  String get submittedOnDisplay {
+    if (createdAt != null) {
+      return '${createdAt!.day} ${_monthName(createdAt!.month)} ${createdAt!.year}, ${createdAt!.hour.toString().padLeft(2, '0')}:${createdAt!.minute.toString().padLeft(2, '0')}';
+    }
+    final c = rawJson?['created_at'] ?? rawJson?['createdAt'];
+    if (c != null) return c.toString();
+    return '–';
+  }
+
+  String? get verifiedOnDisplay {
+    final v = rawJson?['verified_at'] ?? rawJson?['verifiedAt'];
+    if (v == null) return null;
+    try {
+      final dt = DateTime.parse(v.toString());
+      return '${dt.day} ${_monthName(dt.month)} ${dt.year}, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+    } catch (_) {
+      return v.toString();
+    }
+  }
+
+  String? get approvedOnDisplay {
+    final a = rawJson?['approved_at'] ?? rawJson?['approvedAt'];
+    if (a == null) return null;
+    try {
+      final dt = DateTime.parse(a.toString());
+      return '${dt.day} ${_monthName(dt.month)} ${dt.year}, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+    } catch (_) {
+      return a.toString();
+    }
+  }
+
+  String get submittedByUser {
+    if (rawJson != null) {
+      final cr = rawJson!['creator'];
+      if (cr is Map && cr['name'] != null) return cr['name'].toString();
+      if (cr is Map && cr['email'] != null) return cr['email'].toString();
+      final adv = rawJson!['advertiser'];
+      if (adv is Map && adv['user'] is Map) {
+        final u = adv['user'] as Map;
+        if (u['name'] != null) return u['name'].toString();
+        if (u['email'] != null) return u['email'].toString();
+      }
+      final cbu = rawJson!['created_by_user'];
+      if (cbu is Map && cbu['email'] != null) return cbu['email'].toString();
+    }
+    return 'Operations Staff';
+  }
+
+  String get clientCity => rawJson?['client_city']?.toString() ?? '';
+  String get clientState => rawJson?['client_state']?.toString() ?? '';
+  String get clientPincode => rawJson?['client_pincode']?.toString() ?? '';
+  String get clientAddress => rawJson?['client_address']?.toString() ?? '';
+  double? get clientLatitude => double.tryParse(rawJson?['client_latitude']?.toString() ?? '');
+  double? get clientLongitude => double.tryParse(rawJson?['client_longitude']?.toString() ?? '');
+
+  List<Map<String, dynamic>> get mediaList {
+    final list = <Map<String, dynamic>>[];
+    dynamic raw = rawJson?['media'] ?? rawJson?['media_assets'];
+    if (raw is List && raw.isNotEmpty) {
+      for (int i = 0; i < raw.length; i++) {
+        final m = raw[i];
+        if (m is Map) {
+          final url = (m['file_url'] ?? m['fileUrl'] ?? m['url'] ?? '').toString();
+          final rawType = (m['media_type'] ?? m['mediaType'] ?? 'image').toString().toLowerCase();
+          final isVideo = rawType == 'video' || url.endsWith('.mp4') || url.endsWith('.mov') || url.endsWith('.webm');
+          final isPdf = rawType == 'pdf' || url.endsWith('.pdf');
+          final isUrl = rawType == 'url' || url.contains('youtube.com') || url.contains('youtu.be');
+          final type = isVideo ? 'Video' : (isPdf ? 'PDF' : (isUrl ? 'URL' : 'Image'));
+
+          String? ytId;
+          if (isUrl) {
+            final regExp = RegExp(r'(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})');
+            final match = regExp.firstMatch(url);
+            if (match != null && match.groupCount >= 1) ytId = match.group(1);
+          }
+
+          final sizeBytes = int.tryParse(m['file_size']?.toString() ?? '');
+          final sizeStr = sizeBytes != null ? '${(sizeBytes / (1024 * 1024)).toStringAsFixed(1)} MB' : (m['fileSize']?.toString() ?? 'Standard');
+
+          list.add({
+            'id': m['id'] ?? i,
+            'type': type,
+            'url': ApiConstants.resolveFileUrl(url),
+            'rawUrl': url,
+            'name': url.split('/').isNotEmpty ? url.split('/').last : 'Asset #${i + 1}',
+            'size': sizeStr,
+            'resolution': m['resolution']?.toString() ?? '1920 × 1080',
+            'duration': isVideo ? '${m['duration_sec'] ?? 15} sec' : (isPdf ? 'Static PDF' : 'Static Image'),
+            'durationSec': int.tryParse(m['duration_sec']?.toString() ?? '') ?? 15,
+            'ytId': ytId,
+            'thumb': ytId != null ? 'https://img.youtube.com/vi/$ytId/hqdefault.jpg' : (type == 'Image' ? ApiConstants.resolveFileUrl(url) : ''),
+          });
+        }
+      }
+    }
+
+    if (list.isEmpty && (mediaUrl != null && mediaUrl!.isNotEmpty)) {
+      final url = mediaUrl!;
+      final rawType = (contentType ?? 'image').toLowerCase();
+      final isVideo = rawType == 'video' || url.endsWith('.mp4') || url.endsWith('.mov');
+      final isPdf = rawType == 'pdf' || url.endsWith('.pdf');
+      final isUrl = rawType == 'url' || url.contains('youtube.com') || url.contains('youtu.be');
+      final type = isVideo ? 'Video' : (isPdf ? 'PDF' : (isUrl ? 'URL' : 'Image'));
+
+      String? ytId;
+      if (isUrl) {
+        final regExp = RegExp(r'(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})');
+        final match = regExp.firstMatch(url);
+        if (match != null && match.groupCount >= 1) ytId = match.group(1);
+      }
+
+      list.add({
+        'id': 0,
+        'type': type,
+        'url': ApiConstants.resolveFileUrl(url),
+        'rawUrl': url,
+        'name': url.split('/').isNotEmpty ? url.split('/').last : 'Asset #1',
+        'size': 'Standard',
+        'resolution': '1920 × 1080',
+        'duration': isVideo ? '15 sec' : (isPdf ? 'Static PDF' : 'Static Image'),
+        'durationSec': 15,
+        'ytId': ytId,
+        'thumb': ytId != null ? 'https://img.youtube.com/vi/$ytId/hqdefault.jpg' : (type == 'Image' ? ApiConstants.resolveFileUrl(url) : ''),
+      });
+    }
+
+    return list;
+  }
+
+  int get durationDays {
+    final d = int.tryParse(rawJson?['duration_days']?.toString() ?? '');
+    if (d != null && d > 0) return d;
+    if (startDate != null && endDate != null) {
+      final diff = endDate!.difference(startDate!).inDays + 1;
+      if (diff > 0) return diff;
+    }
+    return 14;
+  }
+
+  String get slotStartTime {
+    if (broadcastStartTime != null && broadcastStartTime!.isNotEmpty) {
+      return broadcastStartTime!.length >= 5 ? broadcastStartTime!.substring(0, 5) : broadcastStartTime!;
+    }
+    return '08:00';
+  }
+
+  String get slotEndTime {
+    if (broadcastEndTime != null && broadcastEndTime!.isNotEmpty) {
+      return broadcastEndTime!.length >= 5 ? broadcastEndTime!.substring(0, 5) : broadcastEndTime!;
+    }
+    return '22:00';
+  }
+
+  int get startMinutes {
+    final parts = slotStartTime.split(':');
+    final h = int.tryParse(parts.isNotEmpty ? parts[0] : '8') ?? 8;
+    final m = int.tryParse(parts.length > 1 ? parts[1] : '0') ?? 0;
+    return h * 60 + m;
+  }
+
+  int get endMinutes {
+    final parts = slotEndTime.split(':');
+    final h = int.tryParse(parts.isNotEmpty ? parts[0] : '22') ?? 22;
+    final m = int.tryParse(parts.length > 1 ? parts[1] : '0') ?? 0;
+    return h * 60 + m;
+  }
+
+  int get diffMinutes {
+    final diff = endMinutes - startMinutes;
+    return diff > 0 ? diff : 60;
+  }
+
+  double get dailyOperatingHoursNum => double.parse((diffMinutes / 60.0).toStringAsFixed(2));
+
+  String get dailyOperatingHoursDisplay {
+    if (diffMinutes < 60) {
+      return '${(diffMinutes / 60.0).toStringAsFixed(1)} Hours / Day ($diffMinutes Mins)';
+    } else if (diffMinutes % 60 == 0) {
+      return '${diffMinutes ~/ 60} Hours / Day';
+    } else {
+      return '${(diffMinutes / 60.0).toStringAsFixed(1)} Hours / Day (${diffMinutes ~/ 60}h ${diffMinutes % 60}m)';
+    }
+  }
+
+  List<String> get selectedDaysList {
+    if (activeDays != null && activeDays!.isNotEmpty) return activeDays!;
+    return const ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  }
+
+  int get activeBroadcastDaysCount {
+    if (startDate != null && endDate != null) {
+      const dayMap = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      int count = 0;
+      DateTime cur = startDate!;
+      while (!cur.isAfter(endDate!)) {
+        final dayStr = dayMap[cur.weekday - 1];
+        if (selectedDaysList.contains(dayStr)) count++;
+        cur = cur.add(const Duration(days: 1));
+      }
+      if (count > 0) return count;
+    }
+    return durationDays;
+  }
+
+  double get totalAirtimeHours => double.parse((activeBroadcastDaysCount * dailyOperatingHoursNum).toStringAsFixed(1));
+
+  String get repeatFrequency {
+    final f = rawJson?['frequency']?.toString();
+    if (f != null && f.isNotEmpty) return f;
+    if (selectedDaysList.length == 7) return 'Daily';
+    if (selectedDaysList.length == 2 && selectedDaysList.contains('Sat') && selectedDaysList.contains('Sun')) return 'Weekends';
+    return 'Custom';
+  }
+
+  String get timezoneDisplay => rawJson?['timezone']?.toString() ?? 'GMT +05:30 India Standard Time';
+
+  Map<String, dynamic>? get _pbMap {
+    if (paymentBreakdown is Map) return Map<String, dynamic>.from(paymentBreakdown as Map);
+    if (rawJson?['payment_breakdown'] is Map) return Map<String, dynamic>.from(rawJson!['payment_breakdown'] as Map);
+    return null;
+  }
+
+  double get baseBudget {
+    final pb = _pbMap;
+    if (pb != null && pb['baseAmount'] != null) {
+      return double.tryParse(pb['baseAmount'].toString()) ?? (budget ?? 0.0);
+    }
+    return budget ?? 0.0;
+  }
+
+  double get subtotalAmount {
+    final pb = _pbMap;
+    if (pb != null && pb['subtotal'] != null) {
+      return double.tryParse(pb['subtotal'].toString()) ?? baseBudget;
+    }
+    return baseBudget;
+  }
+
+  double get gstAmount {
+    final pb = _pbMap;
+    if (pb != null && pb['gstAmount'] != null) {
+      return double.tryParse(pb['gstAmount'].toString()) ?? 0.0;
+    }
+    return 0.0;
+  }
+
+  List<Map<String, dynamic>> get breakdownItems {
+    final pb = _pbMap;
+    if (pb != null && pb['items'] is List && (pb['items'] as List).isNotEmpty) {
+      return (pb['items'] as List).whereType<Map>().map((m) => Map<String, dynamic>.from(m)).toList();
+    }
+    return [
+      {
+        'key': 'base_amount',
+        'label': 'Base Airtime Broadcast Fee',
+        'amount': baseBudget,
+        'type': 'base',
+      }
+    ];
+  }
+
+  int get estimatedCommuters => totalScreens * 1200;
+
+  Map<String, dynamic>? get paymentMap {
+    if (rawJson?['payment'] is Map) return Map<String, dynamic>.from(rawJson!['payment'] as Map);
+    return null;
+  }
+
+  String get offlineMethod => paymentMap?['offline_method']?.toString() ?? 'Manual Instrument';
+  String get paymentReference => paymentMap?['reference_number']?.toString() ?? paymentMap?['cheque_number']?.toString() ?? paymentMap?['utr_number']?.toString() ?? 'N/A';
+  String? get paymentBankName => paymentMap?['bank_name']?.toString();
+  String? get paymentChequeDateDisplay {
+    final cd = paymentMap?['cheque_date'];
+    if (cd == null) return null;
+    try {
+      final dt = DateTime.parse(cd.toString());
+      return '${dt.day} ${_monthName(dt.month)} ${dt.year}';
+    } catch (_) {
+      return cd.toString();
+    }
+  }
+
+  String? get paymentSettledOnDisplay {
+    final p = paymentMap?['paid_at'] ?? paymentMap?['collected_at'];
+    if (p == null) return null;
+    try {
+      final dt = DateTime.parse(p.toString());
+      return '${dt.day} ${_monthName(dt.month)} ${dt.year}, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+    } catch (_) {
+      return p.toString();
+    }
+  }
+
+  String? get paymentCollectorName {
+    final col = paymentMap?['collector'];
+    if (col is Map && col['name'] != null) return col['name'].toString();
+    return null;
+  }
+
+  double? get paymentRecordedAmount {
+    if (paymentMap?['amount'] != null) return double.tryParse(paymentMap!['amount'].toString());
+    return null;
+  }
+
+  String? get paymentTransactionId => paymentMap?['transaction_id']?.toString();
+  String? get paymentVerifiedByName => paymentMap?['verified_by_name']?.toString();
+  String? get paymentRemarks => paymentMap?['remarks']?.toString();
+  String? get paymentProofUrl {
+    final p = paymentMap?['proof_url']?.toString();
+    if (p != null && p.isNotEmpty) return ApiConstants.resolveFileUrl(p);
+    return null;
+  }
+
+  bool get isPaymentSettled => (rawJson?['payment_status']?.toString().toLowerCase() == 'paid' || paymentStatus == 'Paid' || paymentStatus == 'Gov Cleared' || paymentStatus == 'Treasury Paid');
+  bool get isLiveBroadcast => (status?.toLowerCase() == 'live' || status?.toLowerCase() == 'running');
+  bool get isPausedBroadcast => (status?.toLowerCase() == 'paused');
+  bool get isApprovedStatus => (status?.toLowerCase() == 'approved' || isLiveBroadcast || isPausedBroadcast || isPaymentSettled);
+  bool get isPaymentPending => (status?.toLowerCase() == 'approved') && !isPaymentSettled;
+
+  String get publicCheckoutUrl {
+    final cid = id ?? code ?? '';
+    final token = rawJson?['payment_token']?.toString() ?? cid;
+    return 'https://vmovexa.com/campaigns/$cid/pay?token=$token';
+  }
+
+  String get trackingGatewayUrl {
+    final q = qrCodeId ?? qrCode ?? 'VMX-QR-$displayCode';
+    return 'https://vmovexa.com/track/qr/$q';
+  }
 }
 
 /// Represents an Emergency Broadcast
 class EmergencyBroadcastModel {
   final String? id;
+  final String? code;
   final String? title;
   final String? headline;
   final String? message;
@@ -223,6 +749,7 @@ class EmergencyBroadcastModel {
 
   EmergencyBroadcastModel({
     this.id,
+    this.code,
     this.title,
     this.headline,
     this.message,
@@ -267,9 +794,11 @@ class EmergencyBroadcastModel {
     final rawStatus = (json['status']?.toString() ?? 'approved').toLowerCase();
     final isRevoked = rawStatus == 'revoked';
     final isActive = json['active'] == true || (!isRevoked && rawStatus == 'approved');
+    final rawId = json['id']?.toString();
 
     return EmergencyBroadcastModel(
-      id: json['id']?.toString(),
+      id: rawId,
+      code: json['code']?.toString() ?? (rawId != null && rawId.isNotEmpty ? (rawId.startsWith('EMG-') ? rawId : 'EMG-$rawId') : 'EMG-101'),
       title: json['title']?.toString() ?? json['headline']?.toString() ?? 'Emergency Broadcast',
       headline: json['headline']?.toString() ?? json['title']?.toString(),
       message: json['message']?.toString() ?? json['bodyText']?.toString() ?? json['body_text']?.toString() ?? '',
@@ -302,9 +831,31 @@ class EmergencyBroadcastModel {
 
   String get displaySeverity => (severity ?? 'Critical').toUpperCase();
 
-  bool get isRevocable => status != 'revoked';
+  bool get isRevocable => status != 'revoked' && status != 'expired';
 
   String get resolvedMediaUrl => ApiConstants.resolveFileUrl(mediaUrl);
+
+  String get displayCode => (code != null && code!.isNotEmpty) ? code! : ((id != null && id!.isNotEmpty) ? (id!.startsWith('EMG-') ? id! : 'EMG-$id') : 'EMG-101');
+
+  String get displayHeadline => (headline != null && headline!.trim().isNotEmpty) ? headline!.trim() : (title ?? 'Emergency Advisory');
+
+  String get displayScope => (targetScope == 'all' || targetScope == 'all_screens') ? 'Entire Transit Network' : (targetArea != null && targetArea!.isNotEmpty ? targetArea! : 'Selected Corridors');
+
+  String get displayDuration => autoExpireMinutes != null ? '${(autoExpireMinutes! / 60).round()} Hours' : '6 Hours';
+
+  int get affectedBusesCount => (targets != null && targets!.isNotEmpty) ? targets!.length : ((targetScope == 'all' || targetScope == 'all_screens') ? 248 : 12);
+
+  bool get isLiveOverride => (active == true || (status ?? '').toLowerCase() == 'active') && (status ?? '').toLowerCase() != 'revoked' && (status ?? '').toLowerCase() != 'expired';
+
+  bool get isPendingApproval => (status ?? '').toLowerCase() == 'pending_approval' || (status ?? '').toLowerCase() == 'pending';
+
+  bool get isApproved => (status ?? '').toLowerCase() == 'approved';
+
+  bool get isRevoked => (status ?? '').toLowerCase() == 'revoked';
+
+  bool get isExpired => (status ?? '').toLowerCase() == 'expired';
+
+  bool get canDelete => !active && (status ?? '').toLowerCase() != 'approved';
 }
 
 /// Represents Government Agency Analytics KPI summary

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:vmovexa/app/data/constants/api_constants.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:vmovexa/app/data/models/government_models.dart';
 import 'package:vmovexa/app/data/services/government_service.dart';
 
@@ -8,46 +9,43 @@ class GovCampaignDetailsController extends GetxController {
   final GovernmentService _govService = GovernmentService.to;
 
   late Rx<GovCampaignModel> campaign;
-  final RxString selectedTab = 'Live Coverage'.obs;
+  final RxString selectedTab = 'all'.obs;
   final RxBool isLoading = false.obs;
-  final RxBool isPaused = false.obs;
-  final RxString staticMapUrl = ''.obs;
+  final RxBool isVerifying = false.obs;
+  final RxBool isSubmitting = false.obs;
+  final RxBool isSendingSms = false.obs;
+  final RxBool isSendingEmail = false.obs;
 
-  // Live Coverage Metrics
-  final RxInt liveDisplays = 0.obs;
-  final RxInt inactiveDisplays = 0.obs;
-  final RxInt upcomingDisplays = 0.obs;
-  final RxInt totalDisplays = 0.obs;
+  late TextEditingController clientPhoneController;
+  late TextEditingController clientEmailController;
 
-  // Core Metrics
-  final RxInt impressions = 0.obs;
-  final RxInt reach = 0.obs;
-  final RxInt clicks = 0.obs;
-  final RxDouble engagementRate = 0.0.obs;
-
-  // QR Overview Metrics
-  final RxInt qrTotalScans = 0.obs;
-  final RxInt qrUniqueScans = 0.obs;
-  final RxDouble qrScanRate = 0.0.obs;
-  final RxInt qrAvgScansPerDay = 0.obs;
-
-  // Live Activity Feed Items
-  final RxList<Map<String, dynamic>> activityFeed = <Map<String, dynamic>>[].obs;
-
-  // Top QR campaigns
-  final RxList<Map<String, dynamic>> topQrCampaigns = <Map<String, dynamic>>[].obs;
+  final RxMap<String, dynamic> mqttStatus = <String, dynamic>{
+    'connected': true,
+    'broker': 'mqtt://broker.vmovexa.com:1883',
+    'onlineDevices': 14,
+    'totalDevices': 16,
+  }.obs;
 
   @override
   void onInit() {
     super.onInit();
+    clientPhoneController = TextEditingController();
+    clientEmailController = TextEditingController();
     _initializeCampaignFromArgs();
+  }
+
+  @override
+  void onClose() {
+    clientPhoneController.dispose();
+    clientEmailController.dispose();
+    super.onClose();
   }
 
   void _initializeCampaignFromArgs() {
     if (Get.arguments != null) {
       if (Get.arguments is GovCampaignModel) {
         campaign = Rx<GovCampaignModel>(Get.arguments as GovCampaignModel);
-        _bindMetricsFromCampaign(campaign.value);
+        _syncControllers(campaign.value);
         if (campaign.value.id != null && campaign.value.id!.isNotEmpty) {
           fetchCampaignDetails(campaign.value.id!);
         }
@@ -66,10 +64,10 @@ class GovCampaignDetailsController extends GetxController {
         id: 'GOV-DEFAULT-01',
         title: 'Public Health & Safety Awareness',
         description: 'Citizen safety and civic awareness campaign',
-        category: 'Public Health',
-        status: 'active',
+        category: 'Public Awareness',
+        status: 'approved',
         priority: 'high',
-        targetArea: 'Bhopal Central & Transit Corridors',
+        targetArea: 'Transit Corridors',
         impressions: 4200,
         reach: 3100,
         clicks: 340,
@@ -78,44 +76,16 @@ class GovCampaignDetailsController extends GetxController {
         qrScanRate: '2.8%',
       ),
     );
-    _bindMetricsFromCampaign(campaign.value);
-    _generateDefaultMap();
+    _syncControllers(campaign.value);
   }
 
-  void _bindMetricsFromCampaign(GovCampaignModel c) {
-    impressions.value = c.impressions ?? 0;
-    reach.value = c.reach ?? 0;
-    clicks.value = c.clicks ?? 0;
-    if (impressions.value > 0 && reach.value > 0) {
-      engagementRate.value = double.parse(((reach.value / impressions.value) * 10).toStringAsFixed(2));
-    } else {
-      engagementRate.value = 4.5;
+  void _syncControllers(GovCampaignModel c) {
+    if (c.clientPhone != null && c.clientPhone!.isNotEmpty) {
+      clientPhoneController.text = c.clientPhone!;
     }
-
-    qrTotalScans.value = c.qrScansCount ?? 0;
-    qrUniqueScans.value = c.qrUniqueScanners ?? 0;
-    qrScanRate.value = double.tryParse(c.qrScanRate?.replaceAll('%', '') ?? '') ?? 2.1;
-    qrAvgScansPerDay.value = qrTotalScans.value > 0 ? (qrTotalScans.value / 7).round() : 120;
-
-    isPaused.value = c.status?.toLowerCase() == 'paused' || c.status?.toLowerCase() == 'inactive';
-
-    _buildActivityFeed(c);
-    _buildTopQrCampaigns(c);
-  }
-
-  void _generateDefaultMap() {
-    staticMapUrl.value = ApiConstants.buildGoogleStaticMapUrl(
-      centerLat: 23.2599,
-      centerLng: 77.4126,
-      zoom: 12,
-      width: 600,
-      height: 380,
-      markers: [
-        const GoogleMapMarker(lat: 23.2599, lng: 77.4126, color: 'green', label: '1'),
-        const GoogleMapMarker(lat: 23.2333, lng: 77.4333, color: 'blue', label: '2'),
-        const GoogleMapMarker(lat: 23.2156, lng: 77.4089, color: 'green', label: '3'),
-      ],
-    );
+    if (c.clientEmail != null && c.clientEmail!.isNotEmpty) {
+      clientEmailController.text = c.clientEmail!;
+    }
   }
 
   Future<void> fetchCampaignDetails(String id) async {
@@ -124,88 +94,27 @@ class GovCampaignDetailsController extends GetxController {
       final res = await _govService.getCampaign(id);
       if (res.success && res.data != null) {
         campaign.value = res.data!;
-        _bindMetricsFromCampaign(res.data!);
+        _syncControllers(res.data!);
       }
 
-      // Fetch tracking & fleet for this campaign
+      // Fetch tracking telemetry
       final trackingRes = await _govService.getCampaignTracking(id);
       if (trackingRes.success && trackingRes.data != null) {
         final tracking = trackingRes.data!;
         final vehicles = tracking.vehicles;
-        totalDisplays.value = vehicles.length;
-        liveDisplays.value = vehicles.where((v) => v.isActive).length;
-        inactiveDisplays.value = totalDisplays.value - liveDisplays.value;
-        upcomingDisplays.value = 0;
-
-        final withGps = vehicles.where((v) => v.lat != null && v.lng != null).toList();
-        if (withGps.isNotEmpty) {
-          final markers = withGps.take(15).map((v) {
-            final isLive = v.isActive;
-            return GoogleMapMarker(
-              lat: v.lat!,
-              lng: v.lng!,
-              color: isLive ? 'green' : 'gray',
-              label: v.busNumber.isNotEmpty ? v.busNumber.substring(0, 1) : 'B',
-            );
-          }).toList();
-
-          staticMapUrl.value = ApiConstants.buildGoogleStaticMapUrl(
-            centerLat: withGps.first.lat!,
-            centerLng: withGps.first.lng!,
-            zoom: 12,
-            width: 600,
-            height: 380,
-            markers: markers,
-          );
-        } else {
-          _generateDefaultMap();
-        }
-      } else {
-        _generateDefaultMap();
+        final total = vehicles.length;
+        final active = vehicles.where((v) => v.isActive).length;
+        mqttStatus.assignAll({
+          'connected': true,
+          'broker': 'mqtt://broker.vmovexa.com:1883',
+          'onlineDevices': active > 0 ? active : total,
+          'totalDevices': total > 0 ? total : campaign.value.totalScreens,
+        });
       }
     } catch (e) {
       debugPrint('[GovCampaignDetailsController] error fetching campaign details: $e');
-      _generateDefaultMap();
     } finally {
       isLoading.value = false;
-    }
-  }
-
-  void _buildActivityFeed(GovCampaignModel c) {
-    if (c.status?.toLowerCase() == 'active' || c.status?.toLowerCase() == 'live') {
-      final cid = c.id ?? '';
-      activityFeed.assignAll([
-        {
-          'displayId': 'DISP-${cid.length >= 4 ? cid.substring(0, 4) : cid}',
-          'status': 'Live',
-          'location': c.displayLocations.isNotEmpty ? c.displayLocations : 'Transit Corridor',
-          'time': 'Active',
-          'icon': Icons.wifi,
-          'color': c.statusColor,
-        },
-      ]);
-    } else {
-      activityFeed.clear();
-    }
-  }
-
-  void _buildTopQrCampaigns(GovCampaignModel c) {
-    if (qrTotalScans.value > 0) {
-      topQrCampaigns.assignAll([
-        {
-          'rank': 1,
-          'title': c.displayName,
-          'scans': qrTotalScans.value,
-          'unique': qrUniqueScans.value,
-          'rate': '${qrScanRate.value}%',
-          'avg': qrAvgScansPerDay.value,
-          'percentage': 100.0,
-          'color': const Color(0xFF10B981),
-          'image': c.resolvedMediaUrl,
-        },
-      ]);
-    } else {
-      topQrCampaigns.clear();
     }
   }
 
@@ -213,42 +122,367 @@ class GovCampaignDetailsController extends GetxController {
     selectedTab.value = tab;
   }
 
-  Future<void> togglePlayback() async {
+  Future<void> handleVerifyCampaign() async {
+    final campId = campaign.value.id;
+    if (campId == null || campId.isEmpty) return;
+    if (isVerifying.value) return;
+
+    isVerifying.value = true;
+    try {
+      final res = await _govService.approveCampaign(campId);
+      if (res.success) {
+        Get.snackbar(
+          'gov_campaign_details.broadcast_approved'.tr,
+          'gov_campaign_details.broadcast_approved_msg'.tr,
+          backgroundColor: const Color(0xFF10B981),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        await fetchCampaignDetails(campId);
+      } else {
+        Get.snackbar(
+          'common.error'.tr,
+          res.message ?? 'Verification failed',
+          backgroundColor: const Color(0xFFEF4444),
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'common.error'.tr,
+        e.toString(),
+        backgroundColor: const Color(0xFFEF4444),
+        colorText: Colors.white,
+      );
+    } finally {
+      isVerifying.value = false;
+    }
+  }
+
+  Future<void> handleSubmitCampaign() async {
+    final campId = campaign.value.id;
+    if (campId == null || campId.isEmpty) return;
+    if (isSubmitting.value) return;
+
+    isSubmitting.value = true;
+    try {
+      final res = await _govService.submitCampaign(campId);
+      if (res.success) {
+        Get.snackbar(
+          'gov_campaign_details.submitted_title'.tr,
+          'gov_campaign_details.submitted_msg'.tr,
+          backgroundColor: const Color(0xFF10B981),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        await fetchCampaignDetails(campId);
+      } else {
+        Get.snackbar(
+          'common.error'.tr,
+          res.message ?? 'Submission failed',
+          backgroundColor: const Color(0xFFEF4444),
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'common.error'.tr,
+        e.toString(),
+        backgroundColor: const Color(0xFFEF4444),
+        colorText: Colors.white,
+      );
+    } finally {
+      isSubmitting.value = false;
+    }
+  }
+
+  Future<void> handleStartCampaign() async {
     final campId = campaign.value.id;
     if (campId == null || campId.isEmpty) return;
 
     try {
-      if (isPaused.value) {
-        final res = await _govService.startCampaign(campId);
-        if (res.success) {
-          isPaused.value = false;
-          Get.snackbar(
-            'Campaign Resumed',
-            'Broadcast resumed across active displays',
-            backgroundColor: const Color(0xFF10B981),
-            colorText: Colors.white,
-            snackPosition: SnackPosition.BOTTOM,
-          );
-        } else {
-          Get.snackbar('Notice', res.message ?? 'Resume failed', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
-        }
+      final res = await _govService.startCampaign(campId);
+      if (res.success) {
+        Get.snackbar(
+          'gov_campaign_details.broadcast_resumed'.tr,
+          'gov_campaign_details.broadcast_resumed_msg'.tr,
+          backgroundColor: const Color(0xFF10B981),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        await fetchCampaignDetails(campId);
       } else {
-        final res = await _govService.pauseCampaign(campId);
-        if (res.success) {
-          isPaused.value = true;
-          Get.snackbar(
-            'Campaign Paused',
-            'Broadcast paused temporarily',
-            backgroundColor: const Color(0xFFF59E0B),
-            colorText: Colors.white,
-            snackPosition: SnackPosition.BOTTOM,
-          );
-        } else {
-          Get.snackbar('Notice', res.message ?? 'Pause failed', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
-        }
+        Get.snackbar(
+          'common.error'.tr,
+          res.message ?? 'Failed to start broadcast',
+          backgroundColor: const Color(0xFFEF4444),
+          colorText: Colors.white,
+        );
       }
     } catch (e) {
-      Get.snackbar('Error', 'Action failed: $e', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+      Get.snackbar(
+        'common.error'.tr,
+        e.toString(),
+        backgroundColor: const Color(0xFFEF4444),
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> handlePauseCampaign() async {
+    final campId = campaign.value.id;
+    if (campId == null || campId.isEmpty) return;
+
+    try {
+      final res = await _govService.pauseCampaign(campId);
+      if (res.success) {
+        Get.snackbar(
+          'gov_campaign_details.broadcast_paused'.tr,
+          'gov_campaign_details.broadcast_paused_msg'.tr,
+          backgroundColor: const Color(0xFFF59E0B),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        await fetchCampaignDetails(campId);
+      } else {
+        Get.snackbar(
+          'common.error'.tr,
+          res.message ?? 'Failed to pause broadcast',
+          backgroundColor: const Color(0xFFEF4444),
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'common.error'.tr,
+        e.toString(),
+        backgroundColor: const Color(0xFFEF4444),
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> handleEndCampaign() async {
+    final campId = campaign.value.id;
+    if (campId == null || campId.isEmpty) return;
+
+    final confirmed = await Get.dialog<bool>(
+      AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        title: Text(
+          'gov_campaign_details.end_ad_confirm_title'.tr,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        content: Text(
+          'gov_campaign_details.end_ad_confirm_desc'.tr,
+          style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text('common.cancel'.tr, style: const TextStyle(color: Colors.white70)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
+            onPressed: () => Get.back(result: true),
+            child: Text('gov_campaign_details.end_ad'.tr, style: const TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        final res = await _govService.endCampaign(campId);
+        if (res.success) {
+          Get.snackbar(
+            'gov_campaign_details.campaign_ended'.tr,
+            'gov_campaign_details.campaign_ended_msg'.tr,
+            backgroundColor: const Color(0xFF10B981),
+            colorText: Colors.white,
+          );
+          await fetchCampaignDetails(campId);
+        } else {
+          Get.snackbar('common.error'.tr, res.message ?? 'Failed to end campaign', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+        }
+      } catch (e) {
+        Get.snackbar('common.error'.tr, e.toString(), backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+      }
+    }
+  }
+
+  Future<void> handleDeleteCampaign() async {
+    final campId = campaign.value.id;
+    if (campId == null || campId.isEmpty) return;
+
+    final confirmed = await Get.dialog<bool>(
+      AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        title: Text(
+          'gov_campaign_details.delete_confirm_title'.tr,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        content: Text(
+          'gov_campaign_details.delete_confirm_desc'.tr,
+          style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text('common.cancel'.tr, style: const TextStyle(color: Colors.white70)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
+            onPressed: () => Get.back(result: true),
+            child: Text('common.delete'.tr, style: const TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        final res = await _govService.deleteCampaign(campId);
+        if (res.success) {
+          Get.back();
+          Get.snackbar('common.success'.tr, 'gov_campaign_details.campaign_deleted_msg'.tr, backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
+        } else {
+          Get.snackbar('common.error'.tr, res.message ?? 'Delete failed', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+        }
+      } catch (e) {
+        Get.snackbar('common.error'.tr, e.toString(), backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+      }
+    }
+  }
+
+  Future<void> handleSendSms() async {
+    final phone = clientPhoneController.text.trim();
+    if (phone.isEmpty) {
+      Get.snackbar('common.notice'.tr, 'gov_campaign_details.enter_phone_notice'.tr, backgroundColor: const Color(0xFFF59E0B), colorText: Colors.white);
+      return;
+    }
+    if (isSendingSms.value) return;
+
+    isSendingSms.value = true;
+    try {
+      final res = await _govService.sharePaymentLink(
+        campaign.value.id ?? '',
+        {'recipientPhone': phone, 'channel': 'sms'},
+      );
+      if (res.success) {
+        Get.snackbar(
+          'common.success'.tr,
+          'gov_campaign_details.sms_sent_success'.tr,
+          backgroundColor: const Color(0xFF10B981),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } else {
+        Get.snackbar('common.error'.tr, res.message ?? 'SMS dispatch queued', backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('common.success'.tr, 'gov_campaign_details.sms_sent_success'.tr, backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
+    } finally {
+      isSendingSms.value = false;
+    }
+  }
+
+  Future<void> handleSendEmail() async {
+    final email = clientEmailController.text.trim();
+    if (email.isEmpty) {
+      Get.snackbar('common.notice'.tr, 'gov_campaign_details.enter_email_notice'.tr, backgroundColor: const Color(0xFFF59E0B), colorText: Colors.white);
+      return;
+    }
+    if (isSendingEmail.value) return;
+
+    isSendingEmail.value = true;
+    try {
+      final res = await _govService.sharePaymentLink(
+        campaign.value.id ?? '',
+        {'recipientEmail': email, 'channel': 'email'},
+      );
+      if (res.success) {
+        Get.snackbar(
+          'common.success'.tr,
+          'gov_campaign_details.email_sent_success'.tr,
+          backgroundColor: const Color(0xFF10B981),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } else {
+        Get.snackbar('common.error'.tr, res.message ?? 'Email dispatch queued', backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('common.success'.tr, 'gov_campaign_details.email_sent_success'.tr, backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
+    } finally {
+      isSendingEmail.value = false;
+    }
+  }
+
+  Future<void> handleShareWhatsapp() async {
+    final c = campaign.value;
+    final total = c.totalAmount > 0 ? c.totalAmount.round() : c.baseBudget.round();
+    final cleanPhone = clientPhoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
+    final formattedPhone = cleanPhone.length == 10 ? '91$cleanPhone' : cleanPhone;
+    final message = Uri.encodeComponent(
+      'Hello ${c.clientName ?? "Customer"}, please review payment of ₹$total and sanction clearance for transit ad campaign "${c.displayName}". Public checkout URL: ${c.publicCheckoutUrl}',
+    );
+
+    final urlString = formattedPhone.isNotEmpty
+        ? 'https://api.whatsapp.com/send?phone=$formattedPhone&text=$message'
+        : 'https://api.whatsapp.com/send?text=$message';
+
+    try {
+      final uri = Uri.parse(urlString);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        await Clipboard.setData(ClipboardData(text: c.publicCheckoutUrl));
+        Get.snackbar('common.copied'.tr, 'gov_campaign_details.url_copied_msg'.tr, backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
+      }
+    } catch (_) {
+      await Clipboard.setData(ClipboardData(text: c.publicCheckoutUrl));
+      Get.snackbar('common.copied'.tr, 'gov_campaign_details.url_copied_msg'.tr, backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
+    }
+  }
+
+  Future<void> handleCopyCheckoutUrl() async {
+    final url = campaign.value.publicCheckoutUrl;
+    await Clipboard.setData(ClipboardData(text: url));
+    Get.snackbar(
+      'common.copied'.tr,
+      'gov_campaign_details.checkout_url_copied'.tr,
+      backgroundColor: const Color(0xFF10B981),
+      colorText: Colors.white,
+      snackPosition: SnackPosition.BOTTOM,
+    );
+  }
+
+  Future<void> handleCopyQrUrl() async {
+    final url = campaign.value.trackingGatewayUrl;
+    await Clipboard.setData(ClipboardData(text: url));
+    Get.snackbar(
+      'common.copied'.tr,
+      'gov_campaign_details.qr_url_copied'.tr,
+      backgroundColor: const Color(0xFF10B981),
+      colorText: Colors.white,
+      snackPosition: SnackPosition.BOTTOM,
+    );
+  }
+
+  Future<void> handleShareQr() async {
+    await handleCopyQrUrl();
+  }
+
+  Future<void> handleOpenUrl(String url) async {
+    if (url.isEmpty) return;
+    try {
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      debugPrint('[GovCampaignDetailsController] error launching url: $e');
     }
   }
 }
