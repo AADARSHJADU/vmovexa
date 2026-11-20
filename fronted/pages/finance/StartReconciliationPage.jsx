@@ -58,8 +58,8 @@ export const StartReconciliationPage = () => {
       }
     }
     return {
-      name: accounts[0]?.name || accounts[0]?.accountName || 'Consolidated Corporate Accounts',
-      num: accounts[0]?.accountNumber || 'All Active Feeds',
+      name: accounts[0]?.name || accounts[0]?.accountName || t('finance.recon.consolidated_accounts', 'Consolidated Corporate Accounts'),
+      num: accounts[0]?.accountNumber || t('finance.recon.all_active_feeds', 'All Active Feeds'),
       balance: reconciliationSummary?.ledgerBalance || '₹0.00',
     };
   }, [accountId, reconciliationSummary]);
@@ -76,9 +76,9 @@ export const StartReconciliationPage = () => {
     setMatching(true);
     try {
       await toast.promise(autoMatchReconciliation(), {
-        loading: 'Running automated rule-based matching…',
-        success: 'All verified records matched successfully!',
-        error: (err) => err?.message || 'Failed to auto-match',
+        loading: t('finance.recon.running_auto_match', 'Running automated rule-based matching…'),
+        success: t('finance.recon.auto_match_success', 'All verified records matched successfully!'),
+        error: (err) => err?.message || t('finance.recon.auto_match_failed', 'Failed to auto-match'),
       });
       await loadReconciliationTransactions().catch(() => {});
       await loadReconciliationSummary().catch(() => {});
@@ -99,9 +99,9 @@ export const StartReconciliationPage = () => {
           accountId: accountId || 'corporate_all',
         }),
         {
-          loading: 'Generating verified BRS statement…',
-          success: 'Reconciliation finalized with zero variance!',
-          error: (err) => err?.message || 'Failed to finalize reconciliation',
+          loading: t('finance.recon.generating_brs', 'Generating verified BRS statement…'),
+          success: t('finance.recon.finalized_zero', 'Reconciliation finalized with zero variance!'),
+          error: (err) => err?.message || t('finance.recon.finalize_failed', 'Failed to finalize reconciliation'),
         }
       );
       navigate(`${basePath}/reconciliation/success`, {
@@ -111,7 +111,7 @@ export const StartReconciliationPage = () => {
             period: result?.period || new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' }),
             balance: result?.balance || accountInfo.balance || '₹0.00',
             matchedRate: result?.matchedRate || '100%',
-            discrepancy: result?.discrepancy || 'Zero Variance (Balanced)',
+            discrepancy: result?.discrepancy || t('finance.recon.zero_variance', 'Zero Variance (Balanced)'),
           },
         },
       });
@@ -127,9 +127,9 @@ export const StartReconciliationPage = () => {
       {/* Breadcrumb Navigation */}
       <Breadcrumb
         items={[
-          { label: basePath.startsWith('/superadmin') ? 'Super Admin' : 'Finance Portal', path: `${basePath}/dashboard` },
-          { label: 'Reconciliation', path: `${basePath}/reconciliation` },
-          { label: 'Reconciliation Wizard' },
+          { label: basePath.startsWith('/superadmin') ? t('nav.superadmin', 'Super Admin') : t('nav.headers.finance_portal', 'Finance Portal'), path: `${basePath}/dashboard` },
+          { label: t('finance.recon.breadcrumb', 'Reconciliation'), path: `${basePath}/reconciliation` },
+          { label: t('ag.finance.startreconciliationpage.reconciliation_wizard', 'Reconciliation Wizard') },
         ]}
         className="mb-2"
       />
@@ -163,7 +163,7 @@ export const StartReconciliationPage = () => {
             className="flex-1 sm:flex-none px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 active:scale-98"
           >
             <FleetIcons.Speed className="w-3.5 h-3.5 text-white" />
-            <span>{matching ? 'Matching…' : 'Auto-Match Records'}</span>
+            <span>{matching ? t('finance.recon.matching', 'Matching…') : t('finance.recon.auto_match_records', 'Auto-Match Records')}</span>
           </button>
         </div>
       </div>
@@ -216,7 +216,7 @@ export const StartReconciliationPage = () => {
               {txns.length === 0 && (
                 <tr>
                   <td colSpan={7} className="py-10 text-center text-slate-400 dark:text-zinc-500 font-medium">
-                    {loading ? 'Loading reconciliation transactions…' : 'No records found'}
+                    {loading ? t('finance.recon.loading_transactions', 'Loading reconciliation transactions…') : t('finance.recon.no_records', 'No records found')}
                   </td>
                 </tr>
               )}
@@ -282,7 +282,7 @@ export const StartReconciliationPage = () => {
           className="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer active:scale-98"
         >
           <FleetIcons.Check className="w-4 h-4" />
-          <span>{finalizing ? 'Finalizing…' : 'Finalize & Confirm Reconciliation'}</span>
+          <span>{finalizing ? t('finance.recon.finalizing', 'Finalizing…') : t('finance.recon.finalize_confirm', 'Finalize & Confirm Reconciliation')}</span>
         </button>
       </div>
     </div>

@@ -1,3 +1,4 @@
+import { translateCampaignLabel } from '../../utils/campaignTranslations';
 import React from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { IconPlus, IconVideo, IconDocument, IconLink, IconCheckCircle } from '../ui/CampaignIcons';
@@ -77,8 +78,8 @@ export function CreativeAssetsGallery({ creativeItems, selectedPreviewIndex, fil
                               {item.name}
                             </p>
                             <p className="text-[11px] text-slate-500 font-medium truncate mt-0.5">
-                              <span className="font-semibold text-slate-700 dark:text-zinc-300">{item.type}</span> · {item.size} · {item.resolution}
-                              {item.duration ? ` · ${item.duration}` : ''}
+                              <span className="font-semibold text-slate-700 dark:text-zinc-300">{translateCampaignLabel(t, item.type)}</span> · {item.size} · {translateCampaignLabel(t, item.resolution)}
+                              {item.duration ? ` · ${translateCampaignLabel(t, item.duration)}` : ''}
                             </p>
                           </div>
                         </div>
@@ -101,7 +102,7 @@ export function CreativeAssetsGallery({ creativeItems, selectedPreviewIndex, fil
                                 }
                               }}
                               className="w-14 px-1.5 py-1 rounded-lg border border-slate-200 dark:border-zinc-600 bg-white dark:bg-zinc-900 text-xs font-bold text-slate-800 dark:text-white text-center"
-                              aria-label={`Display seconds for ${item.name}`}
+                              aria-label={t('gov.emergency.display_seconds_for', 'Display seconds for {{name}}', { name: item.name })}
                             />
                             <span className="text-[10px] font-bold text-slate-500">{t('advertiser.create.sec')}</span>
                           </div>
@@ -115,7 +116,7 @@ export function CreativeAssetsGallery({ creativeItems, selectedPreviewIndex, fil
                             }`}
                           >
                             {isSelected && <IconCheckCircle className="w-3 h-3 text-white" />}
-                            <span>{isSelected ? 'Viewing' : 'Preview'}</span>
+                            <span>{isSelected ? t("campaign_extra.viewing", "Viewing") : t("ag.government.goveditemergencybroadcastpage.preview", "Preview")}</span>
                           </button>
                           <button
                             type="button"

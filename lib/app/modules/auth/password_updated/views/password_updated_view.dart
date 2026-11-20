@@ -11,6 +11,8 @@ class PasswordUpdatedView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isFromForgot = Get.arguments is Map && Get.arguments['from_forgot_password'] == true;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -20,13 +22,21 @@ class PasswordUpdatedView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(
-                children: const [
-                  CustomBackButton(),
+                children: [
+                  CustomBackButton(
+                    onTap: () {
+                      if (isFromForgot) {
+                        Get.offAllNamed(Routes.LOGIN);
+                      } else {
+                        Get.back();
+                      }
+                    },
+                  ),
                   Expanded(
                     child: Center(
                       child: Text(
-                        'Password Updated',
-                        style: TextStyle(
+                        'password_updated'.tr,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -34,26 +44,31 @@ class PasswordUpdatedView extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(width: 48), // Spacer to balance back button
+                  const SizedBox(width: 48), // Spacer to balance back button
                 ],
               ),
             ),
 
             Expanded(
               child: SingleChildScrollView(
-                padding:  EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: 20),
                     // Neon Success Checkmark ring
-                    SvgPicture.asset("assets/icons/fleet_operator_icons/passwordUpatedA.svg",width: 80,height: 80,fit: BoxFit.fill,),
+                    SvgPicture.asset(
+                      "assets/icons/fleet_operator_icons/passwordUpatedA.svg",
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.fill,
+                    ),
                     const SizedBox(height: 32),
 
                     // Success Texts
-                    const Text(
-                      'Password Updated Successfully',
-                      style: TextStyle(
+                    Text(
+                      'password_updated'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -61,9 +76,9 @@ class PasswordUpdatedView extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 10),
-                    const Text(
-                      'Your account password has been changed.\nYou can now continue with your work.',
-                      style: TextStyle(
+                    Text(
+                      'password_updated_sub'.tr,
+                      style: const TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 12,
                         height: 1.4,
@@ -85,19 +100,25 @@ class PasswordUpdatedView extends StatelessWidget {
                       ),
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          // Return to Dashboard and navigate to Profile tab index (4)
-                          Get.offAllNamed(Routes.FLEET_OP_DASHBOARD, arguments: {'tab': 4});
+                          if (isFromForgot) {
+                            Get.offAllNamed(Routes.LOGIN);
+                          } else {
+                            // Return to Dashboard and navigate to Profile tab index (4)
+                            Get.offAllNamed(Routes.FLEET_OP_DASHBOARD, arguments: {'tab': 3});
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
-                          // backgroundColor: const Color(0xFF3B82F6),
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           minimumSize: const Size(double.infinity, 50),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                         icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 16),
-                        label: const Text('Back to Profile', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                        label: Text(
+                          isFromForgot ? 'back_to_login'.tr : 'back_to_profile'.tr,
+                          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
                   ],
@@ -122,12 +143,12 @@ class PasswordUpdatedView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children:  [
-              SvgPicture.asset("assets/icons/fleet_operator_icons/accountSecureA.svg",width: 25,height: 25,),
-              SizedBox(width: 10),
+            children: [
+              SvgPicture.asset("assets/icons/fleet_operator_icons/accountSecureA.svg", width: 25, height: 25),
+              const SizedBox(width: 10),
               Text(
-                "What's Changed",
-                style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                'whats_changed'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -138,10 +159,10 @@ class PasswordUpdatedView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
-                children:  [
-                  SvgPicture.asset("assets/icons/fleet_operator_icons/changePasswordA.svg",width: 25,height: 25,),
-                  SizedBox(width: 10),
-                  Text('Password updated', style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                children: [
+                  SvgPicture.asset("assets/icons/fleet_operator_icons/changePasswordA.svg", width: 25, height: 25),
+                  const SizedBox(width: 10),
+                  Text('password_updated'.tr, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
                 ],
               ),
               const Text('15 Jul 2026, 09:45 AM', style: TextStyle(color: AppColors.textMuted, fontSize: 10)),
@@ -151,10 +172,10 @@ class PasswordUpdatedView extends StatelessWidget {
 
           // Row 2: Account stays secure
           Row(
-            children:  [
-              SvgPicture.asset("assets/icons/profile.svg",width: 25,height: 25,),
-              SizedBox(width: 10),
-              Text('Account stays secure', style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+            children: [
+              SvgPicture.asset("assets/icons/profile.svg", width: 25, height: 25),
+              const SizedBox(width: 10),
+              Text('account_stays_secure'.tr, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
             ],
           ),
         ],

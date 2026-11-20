@@ -23,8 +23,16 @@ import '../modules/roles/driver/notification/bindings/notifications_driver_bindi
 import '../modules/roles/driver/notification/view/notifications_driver_view.dart';
 import '../modules/roles/driver/profile/help_support/bindings/help_support_binding.dart';
 import '../modules/roles/driver/profile/help_support/view/driver_help_support_view.dart';
+import '../modules/roles/driver/profile/help_support/bindings/driver_support_history_binding.dart';
+import '../modules/roles/driver/profile/help_support/view/driver_support_history_view.dart';
+import '../modules/roles/driver/profile/help_support/bindings/driver_ticket_conversation_binding.dart';
+import '../modules/roles/driver/profile/help_support/view/driver_ticket_conversation_view.dart';
 import '../modules/roles/driver/routes/bindings/my_route_binding.dart';
 import '../modules/roles/driver/routes/view/my_route_view.dart';
+import '../modules/roles/driver/work_orders/bindings/driver_work_orders_binding.dart';
+import '../modules/roles/driver/work_orders/views/driver_work_orders_view.dart';
+import '../modules/roles/driver/work_orders/views/driver_create_work_order_view.dart';
+import '../modules/roles/driver/work_orders/views/driver_work_order_details_view.dart';
 import '../modules/roles/finance/finance_dashboard/bindings/finance_dashboard_bindings.dart';
 import '../modules/roles/finance/finance_dashboard/view/finance_dashboard_view.dart';
 import '../modules/roles/finance/finance_profile/help-support/bindings/finance_help_support_binding.dart';
@@ -69,9 +77,19 @@ import '../modules/roles/technician/profile/bindings/profile_binding.dart';
 import '../modules/roles/technician/profile/view/profile_view.dart';
 import '../modules/roles/technician/edit_profile/bindings/edit_profile_binding.dart';
 import '../modules/roles/technician/edit_profile/view/edit_profile_view.dart';
+import '../modules/roles/technician/profile/help_support/bindings/tech_help_support_binding.dart';
+import '../modules/roles/technician/profile/help_support/view/tech_help_support_view.dart';
+import '../modules/roles/technician/profile/help_support/bindings/tech_support_history_binding.dart';
+import '../modules/roles/technician/profile/help_support/view/tech_support_history_view.dart';
+import '../modules/roles/technician/profile/help_support/bindings/tech_ticket_conversation_binding.dart';
+import '../modules/roles/technician/profile/help_support/view/tech_ticket_conversation_view.dart';
 import '../modules/roles/technician/technician_dashboard/view/technician_dashboard_view.dart';
 import '../modules/roles/technician/work_orders/bindings/tech_work_orders_binding.dart';
 import '../modules/roles/technician/work_orders/views/tech_work_orders_view.dart';
+import '../modules/roles/technician/work_orders/bindings/tech_work_order_detail_binding.dart';
+import '../modules/roles/technician/work_orders/views/tech_work_order_detail_view.dart';
+import '../modules/roles/technician/edge_setup/bindings/tech_edge_setup_binding.dart';
+import '../modules/roles/technician/edge_setup/views/tech_edge_setup_view.dart';
 import 'app_routes.dart';
 
 import '../modules/splash/bindings/splash_binding.dart';
@@ -218,6 +236,8 @@ import '../modules/roles/advertiser/create_campaign/views/create_campaign_view.d
 
 import '../modules/roles/advertiser/campaign_details/bindings/campaign_details_binding.dart';
 import '../modules/roles/advertiser/campaign_details/views/campaign_details_view.dart';
+import '../modules/roles/advertiser/record_offline_payment/bindings/record_offline_payment_binding.dart';
+import '../modules/roles/advertiser/record_offline_payment/views/record_offline_payment_view.dart';
 
 import '../modules/roles/advertiser/campaign_analytics/bindings/campaign_analytics_binding.dart';
 import '../modules/roles/advertiser/campaign_analytics/views/campaign_analytics_view.dart';
@@ -237,6 +257,8 @@ import '../modules/roles/advertiser/notification_settings/bindings/advertiser_no
 import '../modules/roles/advertiser/notification_settings/views/advertiser_notification_settings_view.dart';
 import '../modules/roles/advertiser/help_support/bindings/advertiser_help_support_binding.dart';
 import '../modules/roles/advertiser/help_support/views/advertiser_help_support_view.dart';
+import '../modules/roles/advertiser/help_support/views/advertiser_raise_ticket_view.dart';
+import '../modules/roles/advertiser/help_support/views/advertiser_support_history_view.dart';
 import '../modules/roles/advertiser/notifications/bindings/advertiser_notifications_binding.dart';
 import '../modules/roles/advertiser/notifications/views/advertiser_notifications_view.dart';
 
@@ -578,6 +600,12 @@ class AppPages {
       transition: Transition.rightToLeft,
     ),
     GetPage(
+      name: Routes.RECORD_OFFLINE_PAYMENT,
+      page: () => const RecordOfflinePaymentView(),
+      binding: RecordOfflinePaymentBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
       name: Routes.CAMPAIGN_ANALYTICS,
       page: () => const CampaignAnalyticsView(),
       binding: CampaignAnalyticsBinding(),
@@ -626,6 +654,18 @@ class AppPages {
       transition: Transition.rightToLeft,
     ),
     GetPage(
+      name: Routes.ADVERTISER_RAISE_TICKET,
+      page: () => const AdvertiserRaiseTicketView(),
+      binding: AdvertiserHelpSupportBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.ADVERTISER_SUPPORT_HISTORY,
+      page: () => const AdvertiserSupportHistoryView(),
+      binding: AdvertiserHelpSupportBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
       name: Routes.ADVERTISER_NOTIFICATIONS,
       page: () => const AdvertiserNotificationsView(),
       binding: AdvertiserNotificationsBinding(),
@@ -667,6 +707,18 @@ class AppPages {
       name: Routes.TECHNICIAN_WORK_ORDERS,
       page: () => const TechWorkOrdersView(),
       binding: TechWorkOrdersBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.TECHNICIAN_WORK_ORDER_DETAILS,
+      page: () => const TechWorkOrderDetailView(),
+      binding: TechWorkOrderDetailBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.TECH_EDGE_SETUP,
+      page: () => const TechEdgeSetupView(),
+      binding: TechEdgeSetupBinding(),
       transition: Transition.rightToLeft,
     ),
     GetPage(
@@ -729,6 +781,24 @@ class AppPages {
       binding: EditProfileBinding(),
       transition: Transition.rightToLeft,
     ),
+    GetPage(
+      name: Routes.TECHNICIAN_HELP_SUPPORT,
+      page: () => const TechHelpSupportView(),
+      binding: TechHelpSupportBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.TECHNICIAN_SUPPORT_HISTORY,
+      page: () => const TechSupportHistoryView(),
+      binding: TechSupportHistoryBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.TECHNICIAN_SUPPORT_TICKET_DETAILS,
+      page: () => const TechTicketConversationView(),
+      binding: TechTicketConversationBinding(),
+      transition: Transition.rightToLeft,
+    ),
 
     //Driver flow routes
     GetPage(
@@ -787,6 +857,36 @@ class AppPages {
       name: Routes.DRIVER_HELP_SUPPORT,
       page: () => const DriverHelpSupportView(),
       binding: DriverHelpSupportBinding(),
+    ),
+    GetPage(
+      name: Routes.DRIVER_SUPPORT_HISTORY,
+      page: () => const DriverSupportHistoryView(),
+      binding: DriverSupportHistoryBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DRIVER_SUPPORT_TICKET_DETAILS,
+      page: () => const DriverTicketConversationView(),
+      binding: DriverTicketConversationBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DRIVER_WORK_ORDERS,
+      page: () => const DriverWorkOrdersView(),
+      binding: DriverWorkOrdersBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DRIVER_CREATE_WORK_ORDER,
+      page: () => const DriverCreateWorkOrderView(),
+      binding: DriverCreateWorkOrderBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DRIVER_WORK_ORDER_DETAILS,
+      page: () => const DriverWorkOrderDetailsView(),
+      binding: DriverWorkOrderDetailsBinding(),
+      transition: Transition.rightToLeft,
     ),
 
     //Finance flow routes

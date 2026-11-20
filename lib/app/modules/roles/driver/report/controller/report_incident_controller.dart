@@ -10,6 +10,7 @@ import 'package:vmovexa/app/data/services/driver_service.dart';
 import 'package:vmovexa/app/routes/app_routes.dart';
 import 'package:vmovexa/app/modules/roles/driver/driver_dashboard/controller/driver_dashboard_controller.dart';
 import 'package:vmovexa/app/modules/roles/driver/home/controller/driver_home_controller.dart';
+import 'driver_incidents_list_controller.dart';
 import '../view/additional_information_view.dart';
 
 class ReportIncidentController extends GetxController {
@@ -18,11 +19,11 @@ class ReportIncidentController extends GetxController {
 
   // ---------------- Stepper ----------------
   final RxInt currentStep = 1.obs; // 1=Incident Details, 2=Additional Information, 3=Review, 4=Submit
-  final List<String> stepLabels = const [
-    'Incident Details',
-    'Additional Information',
-    'Review',
-    'Submit',
+  List<String> get stepLabels => [
+    'incident_details'.tr,
+    'additional_info'.tr,
+    'review'.tr,
+    'submit'.tr,
   ];
 
   // ==========================================================
@@ -78,7 +79,7 @@ class ReportIncidentController extends GetxController {
             surface: Color(0xFF15151F),
             onSurface: Colors.white,
           ),
-          dialogBackgroundColor: const Color(0xFF0B0B14),
+          dialogTheme: const DialogThemeData(backgroundColor: Color(0xFF0B0B14)),
         ),
         child: child!,
       ),
@@ -451,6 +452,9 @@ class ReportIncidentController extends GetxController {
     resetWizard();
     if (Get.isRegistered<DriverDashboardController>()) {
       Get.find<DriverDashboardController>().selectedNavIndex.value = 3;
+    }
+    if (Get.isRegistered<DriverIncidentsListController>()) {
+      Get.find<DriverIncidentsListController>().fetchIncidents();
     }
     Get.offAllNamed(Routes.DRIVER_DASHBOARD);
   }

@@ -4,6 +4,7 @@ import 'package:vmovexa/app/routes/app_routes.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
 import 'package:vmovexa/app/data/constants/api_constants.dart';
 import 'package:vmovexa/app/data/services/storage_service.dart';
+import 'package:vmovexa/app/widgets/language_selector_sheet.dart';
 import '../controllers/dashboard_controller.dart';
 
 class FleetOpDrawer extends StatelessWidget {
@@ -118,10 +119,10 @@ class FleetOpDrawer extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                 children: [
                   // --- SECTION 1: OVERVIEW ---
-                  _buildSectionHeader('OVERVIEW'),
+                  _buildSectionHeader('overview_dashboard'.tr.toUpperCase()),
                   _buildDrawerItem(
                     icon: Icons.dashboard_rounded,
-                    title: 'Overview Dashboard',
+                    title: 'overview_dashboard'.tr,
                     color: const Color(0xFF6366F1),
                     onTap: () {
                       Get.back();
@@ -131,10 +132,10 @@ class FleetOpDrawer extends StatelessWidget {
 
                   const SizedBox(height: 12),
                   // --- SECTION 2: FLEET & TELEMATICS ---
-                  _buildSectionHeader('FLEET & TELEMATICS'),
+                  _buildSectionHeader('fleet_telematics'.tr.toUpperCase()),
                   _buildDrawerItem(
                     icon: Icons.alt_route_rounded,
-                    title: 'Transit Routes',
+                    title: 'transit_routes'.tr,
                     color: Colors.tealAccent,
                     onTap: () {
                       Get.back();
@@ -143,7 +144,7 @@ class FleetOpDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     icon: Icons.directions_car_rounded,
-                    title: 'Vehicles & Displays',
+                    title: 'vehicles_displays'.tr,
                     color: Colors.lightBlueAccent,
                     onTap: () {
                       Get.back();
@@ -152,7 +153,7 @@ class FleetOpDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     icon: Icons.badge_outlined,
-                    title: 'Drivers & Staff',
+                    title: 'drivers_staff'.tr,
                     color: const Color(0xFF10B981),
                     onTap: () {
                       Get.back();
@@ -161,7 +162,7 @@ class FleetOpDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     icon: Icons.calendar_month_rounded,
-                    title: 'Vehicle Slots & Timetable',
+                    title: 'vehicle_slots_timetable'.tr,
                     color: Colors.cyanAccent,
                     onTap: () {
                       Get.back();
@@ -170,7 +171,7 @@ class FleetOpDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     icon: Icons.memory_rounded,
-                    title: 'Edge Devices',
+                    title: 'edge_devices'.tr,
                     color: Colors.orangeAccent,
                     onTap: () {
                       Get.back();
@@ -179,7 +180,7 @@ class FleetOpDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     icon: Icons.my_location_rounded,
-                    title: 'Live Telematics',
+                    title: 'live_telematics'.tr,
                     color: const Color(0xFFF43F5E),
                     onTap: () {
                       Get.back();
@@ -188,7 +189,7 @@ class FleetOpDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     icon: Icons.schedule_rounded,
-                    title: 'Trips & Dispatch',
+                    title: 'trips_dispatch'.tr,
                     color: Colors.purpleAccent,
                     onTap: () {
                       Get.back();
@@ -197,7 +198,7 @@ class FleetOpDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     icon: Icons.build_circle_outlined,
-                    title: 'Technician Requests',
+                    title: 'technician_requests'.tr,
                     color: Colors.cyanAccent,
                     onTap: () {
                       Get.back();
@@ -206,7 +207,7 @@ class FleetOpDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     icon: Icons.warning_amber_rounded,
-                    title: 'Report Incident',
+                    title: 'report_incident'.tr,
                     color: Colors.redAccent,
                     onTap: () {
                       Get.back();
@@ -215,7 +216,7 @@ class FleetOpDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     icon: Icons.assignment_outlined,
-                    title: 'Incidents Log',
+                    title: 'incidents_log'.tr,
                     color: Colors.amberAccent,
                     onTap: () {
                       Get.back();
@@ -225,10 +226,10 @@ class FleetOpDrawer extends StatelessWidget {
 
                   const SizedBox(height: 12),
                   // --- SECTION 3: ANALYTICS & ALERTS ---
-                  _buildSectionHeader('ANALYTICS & ALERTS'),
+                  _buildSectionHeader('analytics_alerts'.tr.toUpperCase()),
                   _buildDrawerItem(
                     icon: Icons.bar_chart_rounded,
-                    title: 'Analytics & Reports',
+                    title: 'analytics_reports'.tr,
                     color: const Color(0xFF10B981),
                     onTap: () {
                       Get.back();
@@ -237,7 +238,7 @@ class FleetOpDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     icon: Icons.history_rounded,
-                    title: 'Activity Logs',
+                    title: 'activity_logs'.tr,
                     color: const Color(0xFF06B6D4),
                     onTap: () {
                       Get.back();
@@ -246,7 +247,7 @@ class FleetOpDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     icon: Icons.notifications_active_outlined,
-                    title: 'Alerts & Events',
+                    title: 'alerts_events'.tr,
                     color: const Color(0xFFA855F7),
                     badgeText: '5',
                     onTap: () {
@@ -257,10 +258,10 @@ class FleetOpDrawer extends StatelessWidget {
 
                   const SizedBox(height: 12),
                   // --- SECTION 4: ACCOUNT & SUPPORT ---
-                  _buildSectionHeader('ACCOUNT & SUPPORT'),
+                  _buildSectionHeader('settings'.tr.toUpperCase()),
                   _buildDrawerItem(
                     icon: Icons.person_outline_rounded,
-                    title: 'Operator Profile',
+                    title: 'profile'.tr,
                     color: Colors.white70,
                     onTap: () {
                       Get.back();
@@ -268,8 +269,17 @@ class FleetOpDrawer extends StatelessWidget {
                     },
                   ),
                   _buildDrawerItem(
+                    icon: Icons.language_rounded,
+                    title: 'change_language'.tr,
+                    color: const Color(0xFF60A5FA),
+                    onTap: () {
+                      Get.back();
+                      LanguageSelectorSheet.show(context);
+                    },
+                  ),
+                  _buildDrawerItem(
                     icon: Icons.help_outline_rounded,
-                    title: 'Help & Documentation',
+                    title: 'help_support'.tr,
                     color: Colors.white70,
                     onTap: () {
                       Get.back();
@@ -278,7 +288,7 @@ class FleetOpDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     icon: Icons.shield_outlined,
-                    title: 'Privacy Policy',
+                    title: 'privacy_policy'.tr,
                     color: Colors.white70,
                     onTap: () {
                       Get.back();
@@ -287,7 +297,7 @@ class FleetOpDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     icon: Icons.article_outlined,
-                    title: 'Terms & Conditions',
+                    title: 'terms_conditions'.tr,
                     color: Colors.white70,
                     onTap: () {
                       Get.back();
@@ -296,7 +306,7 @@ class FleetOpDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     icon: Icons.logout_rounded,
-                    title: 'Logout',
+                    title: 'logout'.tr,
                     color: Colors.redAccent,
                     onTap: () {
                       Get.back();

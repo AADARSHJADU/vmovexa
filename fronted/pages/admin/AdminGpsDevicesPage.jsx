@@ -54,7 +54,7 @@ export const AdminGpsDevicesPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, hasPermission } = useAuth();
+  const { user, can } = useAuth();
 
   const roleCode = typeof user?.role === 'string' ? user.role : (user?.role?.code || '');
   const isFleetPortal = location.pathname.startsWith('/fleet-operator');
@@ -66,8 +66,8 @@ export const AdminGpsDevicesPage = () => {
     roleCode === 'ROLE-SUPER-ADMIN' ||
     !isFleetPortal;
 
-  const canView = isAdmin || hasPermission('fleet.devices.read');
-  const canAssign = isAdmin || hasPermission('fleet.devices.assign');
+  const canView = isAdmin || can('devices.view');
+  const canAssign = isAdmin || can('devices.assign');
 
   const { devices, loadDevices, assignVehicle } = useFleetGps();
   const [search, setSearch] = useState('');

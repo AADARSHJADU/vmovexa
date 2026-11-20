@@ -186,8 +186,8 @@ class EditProfileController extends GetxController {
 
       isUploadingPhoto.value = true;
       Get.snackbar(
-        'Uploading Avatar',
-        'Uploading image to server...',
+        'uploading_photo'.tr,
+        'uploading_doc_msg'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFB042FF),
         colorText: Colors.white,
@@ -221,8 +221,8 @@ class EditProfileController extends GetxController {
           }
 
           Get.snackbar(
-            'Success',
-            'Profile picture updated successfully.',
+            'success'.tr,
+            'photo_uploaded_successfully'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF2ECC71).withOpacity(0.9),
             colorText: Colors.white,
@@ -230,7 +230,7 @@ class EditProfileController extends GetxController {
         }
       } else {
         Get.snackbar(
-          'Upload Failed',
+          'upload_failed'.tr,
           res.message ?? 'Failed to upload photo.',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFFFF4D4D).withOpacity(0.9),
@@ -239,7 +239,7 @@ class EditProfileController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Upload Error',
+        'upload_error'.tr,
         'An error occurred while uploading: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFFF4D4D).withOpacity(0.9),
@@ -284,8 +284,8 @@ class EditProfileController extends GetxController {
     final fullName = nameController.text.trim();
     if (fullName.isEmpty) {
       Get.snackbar(
-        'Validation Error',
-        'Full Name cannot be empty.',
+        'validation_error'.tr,
+        'full_name_required'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFFF4D4D).withOpacity(0.9),
         colorText: Colors.white,
@@ -338,8 +338,8 @@ class EditProfileController extends GetxController {
 
       Get.back(result: true);
       Get.snackbar(
-        'Profile Updated',
-        'Your profile details have been successfully updated.',
+        'profile_updated'.tr,
+        'profile_updated_success_msg'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF2ECC71).withOpacity(0.9),
         colorText: Colors.white,
@@ -349,7 +349,7 @@ class EditProfileController extends GetxController {
       profileController.profile.value = updatedProfile;
       Get.back(result: true);
       Get.snackbar(
-        'Profile Updated',
+        'profile_updated'.tr,
         'Updated locally. Sync with server failed: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFF39C12).withOpacity(0.9),

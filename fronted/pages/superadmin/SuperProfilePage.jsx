@@ -99,7 +99,7 @@ export const SuperProfilePage = () => {
       const avatarUrl = uploadRes?.url || uploadRes?.fileUrl || uploadRes?.path || uploadRes;
 
       if (!avatarUrl) {
-        throw new Error('Upload succeeded but no image URL was returned.');
+        throw new Error(t('superadmin.profile.upload_no_url', 'Upload succeeded but no image URL was returned.'));
       }
 
       await updateProfile({
@@ -110,7 +110,7 @@ export const SuperProfilePage = () => {
       if (fetchMe) await fetchMe();
       toast.success(t('ag.superadmin.superprofilepage.profile_picture_updated_successfully', 'Profile picture updated successfully!'), { id: toastId });
     } catch (err) {
-      toast.error(err?.message || 'Failed to upload profile picture.', { id: toastId });
+      toast.error(err?.message || t('superadmin.profile.upload_failed', 'Failed to upload profile picture.'), { id: toastId });
     } finally {
       setUploadingAvatar(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -129,7 +129,7 @@ export const SuperProfilePage = () => {
       if (fetchMe) await fetchMe();
       toast.success(t('ag.superadmin.superprofilepage.profile_picture_removed', 'Profile picture removed!'), { id: toastId });
     } catch (err) {
-      toast.error(err?.message || 'Failed to remove picture.', { id: toastId });
+      toast.error(err?.message || t('superadmin.profile.remove_failed', 'Failed to remove picture.'), { id: toastId });
     } finally {
       setUploadingAvatar(false);
     }
@@ -146,9 +146,9 @@ export const SuperProfilePage = () => {
           timezone: editForm.timezone,
         }),
         {
-          loading: 'Updating profile details...',
-          success: 'Profile updated successfully!',
-          error: (err) => err?.message || 'Failed to update profile.',
+          loading: t('superadmin.profile.updating_profile', 'Updating profile details...'),
+          success: t('superadmin.profile.profile_updated', 'Profile updated successfully!'),
+          error: (err) => err?.message || t('superadmin.profile.update_failed', 'Failed to update profile.'),
         }
       );
       if (fetchMe) fetchMe();
@@ -164,11 +164,11 @@ export const SuperProfilePage = () => {
     setPwError('');
 
     if (pwForm.newPassword !== pwForm.confirmPassword) {
-      setPwError('New passwords do not match');
+      setPwError(t('superadmin.profile.pw_mismatch', 'New passwords do not match'));
       return;
     }
     if (pwForm.newPassword.length < 8) {
-      setPwError('Password must be at least 8 characters long');
+      setPwError(t('superadmin.profile.pw_min_len', 'Password must be at least 8 characters long'));
       return;
     }
 
@@ -180,15 +180,15 @@ export const SuperProfilePage = () => {
           newPassword: pwForm.newPassword,
         }),
         {
-          loading: 'Updating password...',
-          success: 'Password updated successfully!',
-          error: (err) => err?.message || 'Failed to change password.',
+          loading: t('superadmin.profile.updating_pw', 'Updating password...'),
+          success: t('superadmin.profile.pw_updated', 'Password updated successfully!'),
+          error: (err) => err?.message || t('superadmin.profile.pw_change_failed', 'Failed to change password.'),
         }
       );
       setPwForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
       setActiveTab('overview');
     } catch (err) {
-      setPwError(err?.message || 'Password update failed.');
+      setPwError(err?.message || t('superadmin.profile.pw_update_failed', 'Password update failed.'));
     } finally {
       setPwSaving(false);
     }
@@ -219,6 +219,7 @@ export const SuperProfilePage = () => {
     : (authPermissions || []);
 
   const permissionsList = rawPerms.map((p) => {
+    if (p === '*') return { key: '*', label: 'FULL ACCESS (ALL PERMISSIONS)' };
     if (typeof p === 'string') return { key: p, label: p.replace(/_/g, ' ').toUpperCase() };
     return { key: p.key || p.name, label: p.label || p.name || p.key };
   });
@@ -424,7 +425,7 @@ export const SuperProfilePage = () => {
         {[
           { key: 'overview', label: t('ag.superadmin.superprofilepage.overview', 'Overview') },
           { key: 'edit', label: t('ag.superadmin.superprofilepage.edit_profile', 'Edit Profile') },
-          { key: 'permissions', label: `Permissions (${permissionsList.length})` },
+          { key: 'permissions', label: `${t('superadmin.profile.permissions', 'Permissions')} (${permissionsList.length})` },
           { key: 'security', label: t('ag.superadmin.superprofilepage.password_security', 'Password & Security') },
         ].map((tab) => (
           <button
@@ -474,7 +475,7 @@ export const SuperProfilePage = () => {
                 </div>
                 <div className="flex justify-between py-1">
                   <span className="text-slate-500 dark:text-zinc-400 font-medium">{t('superadmin.profile.system_language', 'System Language')}</span>
-                  <span className="font-semibold text-slate-900 dark:text-white">{user?.language?.name || 'English'}</span>
+                  <span className="font-semibold text-slate-900 dark:text-white">{user?.language?.name || t('superadmin.profile.lang_english', 'English')}</span>
                 </div>
               </div>
             </div>

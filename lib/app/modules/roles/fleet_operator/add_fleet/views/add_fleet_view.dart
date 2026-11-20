@@ -104,7 +104,7 @@ class AddFleetView extends GetView<AddFleetController> {
           const CustomBackButton(),
           Obx(
             () => Text(
-              controller.isEditMode.value ? 'Edit Fleet Operator' : 'Add Fleet Operator',
+              controller.isEditMode.value ? 'edit_fleet_operator'.tr : 'add_fleet_operator'.tr,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
@@ -253,13 +253,13 @@ class AddFleetView extends GetView<AddFleetController> {
       icon: Icons.apartment_rounded,
       iconColor: const Color(0xFF3B82F6),
       iconBg: const Color(0x263B82F6),
-      title: '1. Fleet Division & Enterprise Details',
-      subtitle: 'Core division naming, classification, and scope description.',
+      title: 'fleet_div_details'.tr,
+      subtitle: 'fleet_div_details_desc'.tr,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Fleet Name *
-          _buildFieldLabel('Fleet Operator / Company Name', isRequired: true),
+          _buildFieldLabel('division_name_req'.tr, isRequired: true),
           _buildInput(
             controller: controller.nameController,
             hintText: 'e.g. VMOVEXA Transit Services',
@@ -275,7 +275,7 @@ class AddFleetView extends GetView<AddFleetController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildFieldLabel('Fleet Code (Optional)'),
+                    _buildFieldLabel('division_code_req'.tr),
                     _buildInput(
                       controller: controller.codeController,
                       hintText: 'e.g. FLT-BLR-01',
@@ -289,7 +289,7 @@ class AddFleetView extends GetView<AddFleetController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildFieldLabel('Fleet Classification'),
+                    _buildFieldLabel('facility_classification_req'.tr),
                     Obx(
                       () => _buildDropdown(
                         value: controller.selectedFleetType.value,
@@ -326,13 +326,13 @@ class AddFleetView extends GetView<AddFleetController> {
       icon: Icons.person_rounded,
       iconColor: const Color(0xFFA855F7),
       iconBg: const Color(0x26A855F7),
-      title: '2. Operator & Contact Person Credentials',
-      subtitle: 'Fleet lead, primary email, mobile phone, and login access.',
+      title: 'operator_lead_credentials'.tr,
+      subtitle: 'operator_lead_desc'.tr,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Contact Person Name
-          _buildFieldLabel('Contact Person Name'),
+          _buildFieldLabel('contact_person_name_req'.tr),
           _buildInput(
             controller: controller.contactPersonController,
             hintText: 'Full Name (e.g. Ramesh Kumar)',
@@ -462,8 +462,8 @@ class AddFleetView extends GetView<AddFleetController> {
       icon: Icons.location_on_rounded,
       iconColor: const Color(0xFF10B981),
       iconBg: const Color(0x2610B981),
-      title: '3. Base Hub & Operational Schedule',
-      subtitle: 'Home depot facility, regional hub, timezone, and operating hours.',
+      title: 'base_hub_schedule'.tr,
+      subtitle: 'base_hub_desc'.tr,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -539,7 +539,7 @@ class AddFleetView extends GetView<AddFleetController> {
                   dropdownColor: const Color(0xFF161926),
                   icon: const Icon(Icons.arrow_drop_down_rounded, color: Colors.white70),
                   isExpanded: true,
-                  hint: const Text('Select Depot Base', style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
+                  hint: Text('select_depot_base'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
                   style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
                   items: controller.depotsList.map((DepotItemModel d) {
                     final label = d.code.isNotEmpty ? '${d.name} (${d.code})' : d.name;
@@ -676,7 +676,7 @@ class AddFleetView extends GetView<AddFleetController> {
                   Expanded(
                     child: _buildTimePickerButton(
                       context: context,
-                      label: 'Start Time',
+                      label: 'start_time_req'.tr,
                       time: controller.customStartTime.value,
                       onTimeSelected: (t) => controller.updateCustomTime(start: t),
                     ),
@@ -685,7 +685,7 @@ class AddFleetView extends GetView<AddFleetController> {
                   Expanded(
                     child: _buildTimePickerButton(
                       context: context,
-                      label: 'End Time',
+                      label: 'end_time_req'.tr,
                       time: controller.customEndTime.value,
                       onTimeSelected: (t) => controller.updateCustomTime(end: t),
                     ),
@@ -705,15 +705,15 @@ class AddFleetView extends GetView<AddFleetController> {
       icon: Icons.track_changes_rounded,
       iconColor: const Color(0xFFF59E0B),
       iconBg: const Color(0x26F59E0B),
-      title: '4. Operational Targets & Quotas',
-      subtitle: 'Target bus fleet capacity and active driver headcount.',
+      title: 'operational_targets_quotas'.tr,
+      subtitle: 'operational_targets_desc'.tr,
       child: Row(
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildFieldLabel('Allowed Bus Capacity (Max Buses)', isRequired: true),
+                _buildFieldLabel('allowed_bus_capacity'.tr, isRequired: true),
                 _buildInput(
                   controller: controller.assignedBusesController,
                   hintText: '50',
@@ -729,7 +729,7 @@ class AddFleetView extends GetView<AddFleetController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildFieldLabel('Allowed Driver Headcount', isRequired: true),
+                _buildFieldLabel('allowed_driver_headcount'.tr, isRequired: true),
                 _buildInput(
                   controller: controller.activeDriversController,
                   hintText: '65',
@@ -751,8 +751,8 @@ class AddFleetView extends GetView<AddFleetController> {
       icon: Icons.photo_camera_rounded,
       iconColor: const Color(0xFF06B6D4),
       iconBg: const Color(0x2606B6D4),
-      title: '5. Fleet Brand Logo & Media',
-      subtitle: 'Upload fleet logo or operator profile picture (PNG/JPG up to 2MB).',
+      title: 'fleet_brand_logo_media'.tr,
+      subtitle: 'fleet_brand_logo_desc'.tr,
       child: Obx(
         () => Row(
           children: [
@@ -842,8 +842,8 @@ class AddFleetView extends GetView<AddFleetController> {
       icon: Icons.assignment_outlined,
       iconColor: const Color(0xFF6366F1),
       iconBg: const Color(0x266366F1),
-      title: '6. Enterprise Compliance & KYC Papers',
-      subtitle: 'Upload registration papers, permits, and certificates.',
+      title: 'enterprise_compliance_kyc'.tr,
+      subtitle: 'enterprise_compliance_desc'.tr,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1038,8 +1038,8 @@ class AddFleetView extends GetView<AddFleetController> {
                 side: const BorderSide(color: AppColors.cardBorder, width: 1.2),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text(
-                'Cancel',
+              child: Text(
+                'cancel'.tr,
                 style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.bold),
               ),
             ),
@@ -1333,7 +1333,7 @@ class AddFleetView extends GetView<AddFleetController> {
                 backgroundColor: Color(0x263B82F6),
                 child: Icon(Icons.camera_alt_rounded, color: Color(0xFF3B82F6), size: 20),
               ),
-              title: const Text('Capture with Camera', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+              title: Text('capture_with_camera'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
               onTap: () {
                 Get.back();
                 onSourceSelected(ImageSource.camera);
@@ -1344,7 +1344,7 @@ class AddFleetView extends GetView<AddFleetController> {
                 backgroundColor: Color(0x2610B981),
                 child: Icon(Icons.photo_library_rounded, color: Color(0xFF10B981), size: 20),
               ),
-              title: const Text('Choose from Gallery', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+              title: Text('choose_from_gallery'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
               onTap: () {
                 Get.back();
                 onSourceSelected(ImageSource.gallery);
@@ -1387,7 +1387,7 @@ class AddFleetView extends GetView<AddFleetController> {
             ),
             const SizedBox(height: 16),
             CustomButton(
-              text: 'Got It',
+              text: 'ok'.tr,
               onTap: () => Get.back(),
               height: 46,
             ),

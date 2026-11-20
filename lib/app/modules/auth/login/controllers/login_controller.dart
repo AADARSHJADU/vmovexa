@@ -88,26 +88,46 @@ class LoginController extends GetxController {
           return;
         }
 
-        // Direct Login Success
+        // Direct Login Success ROLE-TENANT-ADMIN
         final user = authData.user;
         final resolvedRole = user?.displayRole ?? 'Fleet Operator';
-        print('resolvedRole===$resolvedRole');
+        print('user===${user?.role}');
+        // print('resolvedRole===$resolvedRole');
         currentRole = resolvedRole;
-        if (Get.isRegistered<StorageService>()) {
-          await StorageService.to.setCurrentRole(resolvedRole);
+        if(resolvedRole=='ROLE-SUPER-ADMIN'){
+          Get.snackbar(
+            'Invalid',
+            'Invalid email & password' ?? '',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+        }else if(user?.role=='ROLE-TENANT-ADMIN'){
+          Get.snackbar(
+            'Invalid',
+            'Invalid email & password' ?? '',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
         }
+        else{
+          if (Get.isRegistered<StorageService>()) {
+            await StorageService.to.setCurrentRole(resolvedRole);
+          }
 
-        Get.snackbar(
-          'Login Successful',
-          response.message ?? 'Welcome back to VMOVEXA ($resolvedRole)!',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color(0xFF10B981),
-          colorText: Colors.white,
-        );
+          Get.snackbar(
+            'Login Successful',
+            response.message ?? 'Welcome back to VMOVEXA ($resolvedRole)!',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color(0xFF10B981),
+            colorText: Colors.white,
+          );
 
-        final targetRoute = user?.dashboardRoute ?? Routes.FLEET_OP_DASHBOARD;
-        print('targetRoute===$targetRoute');
-        Get.offAllNamed(targetRoute);
+          final targetRoute = user?.dashboardRoute ?? Routes.FLEET_OP_DASHBOARD;
+          print('targetRoute===$targetRoute');
+          Get.offAllNamed(targetRoute);
+        }
       } else {
         debugPrint('api error====${response.displayErrorMessage}');
         Get.snackbar(

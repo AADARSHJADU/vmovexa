@@ -217,8 +217,8 @@ class ConnectivityTroubleshootingController extends GetxController {
       await loadDeviceData(devId);
 
       Get.snackbar(
-        'Connectivity Test Recorded',
-        'Ping latency: ${latestTest.value?.latency ?? 32} ms, Packet Loss: ${latestTest.value?.packetLoss ?? 0}%',
+        'connectivity_test_recorded'.tr,
+        '${'ping_latency_is'.tr}${latestTest.value?.latency ?? 32} ms, ${'packet_loss_rssi'.tr}${latestTest.value?.packetLoss ?? 0}%',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF10B981),
         colorText: Colors.white,
@@ -227,7 +227,7 @@ class ConnectivityTroubleshootingController extends GetxController {
       );
     } catch (e) {
       Get.snackbar(
-        'Test Failed',
+        'test_failed'.tr,
         e.toString(),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),
@@ -244,15 +244,15 @@ class ConnectivityTroubleshootingController extends GetxController {
     if (selectedDevice.value == null || isReconnecting.value) return;
 
     Get.defaultDialog(
-      title: 'Force Reconnect',
+      title: 'force_reconnect_title'.tr,
       titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16),
       middleText:
-          'A remote reconnect cycles the cellular modem interface and renews DHCP on ${selectedDevice.value?.displayId}. Proceed?',
+          '${'force_reconnect_confirm_msg'.tr} ${selectedDevice.value?.displayId}. ${'proceed_question'.tr.isNotEmpty ? 'proceed_question'.tr : 'Proceed?'}',
       middleTextStyle: const TextStyle(color: Colors.white70, fontSize: 13),
       backgroundColor: const Color(0xFF15151F),
       radius: 14,
-      textConfirm: 'Cycle Interface',
-      textCancel: 'Cancel',
+      textConfirm: 'cycle_interface_btn'.tr,
+      textCancel: 'cancel'.tr,
       confirmTextColor: Colors.white,
       cancelTextColor: Colors.white70,
       buttonColor: const Color(0xFFB042FF),
@@ -268,8 +268,8 @@ class ConnectivityTroubleshootingController extends GetxController {
 
           if (res.success) {
             Get.snackbar(
-              'Reconnect Dispatched',
-              'Reconnect command dispatched via MQTT topic for ${selectedDevice.value?.displayId}',
+              'reconnect_dispatched'.tr,
+              '${'reconnect_dispatched'.tr} for ${selectedDevice.value?.displayId}',
               snackPosition: SnackPosition.BOTTOM,
               backgroundColor: const Color(0xFFB042FF),
               colorText: Colors.white,
@@ -277,7 +277,7 @@ class ConnectivityTroubleshootingController extends GetxController {
             );
           } else {
             Get.snackbar(
-              'Reconnect Failed',
+              'reconnect_failed'.tr,
               res.message.toString(),
               snackPosition: SnackPosition.BOTTOM,
               backgroundColor: const Color(0xFFEF4444),
@@ -289,7 +289,7 @@ class ConnectivityTroubleshootingController extends GetxController {
           await loadDeviceData(devId);
         } catch (e) {
           Get.snackbar(
-            'Reconnect Error',
+            'reconnect_error'.tr,
             e.toString(),
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFFEF4444),

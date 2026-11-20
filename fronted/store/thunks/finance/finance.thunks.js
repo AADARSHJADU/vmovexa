@@ -81,6 +81,14 @@ export const fetchFinanceCampaignPaymentsThunk = createAsyncThunk(
   }
 );
 
+export const fetchFinanceCampaignPaymentByIdThunk = createAsyncThunk(
+  'finance/fetchCampaignPaymentById',
+  async (id, { rejectWithValue }) => {
+    try { return await financeService.getCampaignPayment(id); }
+    catch (err) { return rejectWithValue(err); }
+  }
+);
+
 export const shareFinanceCampaignPaymentLinkThunk = createAsyncThunk(
   'finance/shareCampaignPaymentLink',
   async ({ id, data }, { rejectWithValue }) => {

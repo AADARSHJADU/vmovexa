@@ -1203,10 +1203,9 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
               child: Row(
                 children: [
                   const CustomBackButton(),
-                  const Expanded(
+                  Expanded(
                     child: Center(
-                      child: Text(
-                        'Campaign Details',
+                      child: Text('campaign_details_title'.tr,
                         style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -1214,7 +1213,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                   IconButton(
                     icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 20),
                     onPressed: () => controller.refreshCampaignDetails(),
-                    tooltip: 'Refresh',
+                    tooltip: 'refresh'.tr,
                   ),
                 ],
               ),
@@ -1235,13 +1234,12 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                         children: [
                           const Icon(Icons.search_off_rounded, size: 64, color: AppColors.textMuted),
                           const SizedBox(height: 16),
-                          const Text(
-                            'Campaign Not Found',
-                            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                          Text(
+                            'campaign_not_found'.tr,
+                            style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 8),
-                          const Text(
-                            'The requested campaign does not exist or you do not have permission to view it.',
+                          Text('campaign_not_found_desc'.tr,
                             style: TextStyle(color: AppColors.textMuted, fontSize: 12),
                             textAlign: TextAlign.center,
                           ),
@@ -1249,7 +1247,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                           ElevatedButton.icon(
                             onPressed: () => Get.back(),
                             icon: const Icon(Icons.arrow_back),
-                            label: const Text('Back to Campaigns'),
+                            label: Text('back_to_campaigns'.tr),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF8B5CF6),
                               foregroundColor: Colors.white,
@@ -1273,6 +1271,12 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                       // Header Meta Card
                       _buildHeaderBanner(c),
                       const SizedBox(height: 16),
+
+                      // Dynamic Status & Approval Compliance Banner
+                      if (c.isApproved && !c.isPaid) ...[
+                        _buildApprovalPaymentBanner(c),
+                        const SizedBox(height: 16),
+                      ],
 
                       // Quick Action Buttons
                       _buildQuickActionButtons(c),
@@ -1314,7 +1318,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
   // ==========================================================
   Widget _buildHeaderBanner(CampaignModel c) {
     final statusColor = c.statusColor;
-    final isPaid = c.paymentBreakdown != null;
+    final isPaid = c.isPaid;
 
     return Container(
       decoration: BoxDecoration(
@@ -1415,13 +1419,117 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                       const SizedBox(width: 8),
                       const Text('·', style: TextStyle(color: AppColors.textMuted)),
                       const SizedBox(width: 8),
-                      Text('Client: ${c.clientName}',
+                      Text('${'client_prefix'.tr} ${c.clientName}',
                           style: const TextStyle(color: Color(0xFF93C5FD), fontSize: 11, fontWeight: FontWeight.bold)),
                     ],
                   ],
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ==========================================================
+  // DYNAMIC STATUS & APPROVAL COMPLIANCE BANNER
+  // ==========================================================
+  Widget _buildApprovalPaymentBanner(CampaignModel c) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+                ),
+                child: const Icon(Icons.check_circle_rounded, color: Color(0xFF34D399), size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'campaign_approved_compliance'.tr,
+                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'awaiting_customer_payment_desc'.tr,
+                      style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 38,
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ElevatedButton.icon(
+                    onPressed: controller.goToRecordOfflinePayment,
+                    icon: const Icon(Icons.payments_rounded, color: Colors.white, size: 15),
+                    label: Text(
+                      'record_offline_payment_title'.tr,
+                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: SizedBox(
+                  height: 38,
+                  child: OutlinedButton.icon(
+                    onPressed: controller.showSharePaymentModal,
+                    icon: const Icon(Icons.share_outlined, color: Colors.white70, size: 14),
+                    label: Text('share_link_action'.tr,
+                      style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppColors.cardBorder),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -1438,7 +1546,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
       spacing: 8,
       runSpacing: 8,
       children: [
-        if (isApproved)
+        if (c.canStart)
           CustomButton(
             width: 150,
             height: 38,
@@ -1447,6 +1555,24 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
             onTap: controller.startCampaign,
             prefixIcon: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 16),
           ),
+        if (isApproved && !c.isPaid)
+          SizedBox(
+            width: 180,
+            height: 38,
+            child: ElevatedButton.icon(
+              onPressed: controller.goToRecordOfflinePayment,
+              icon: const Icon(Icons.payments_rounded, color: Colors.white, size: 16),
+              label: Text(
+                'record_offline_payment_title'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFF59E0B),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          ),
         if (isRunning)
           SizedBox(
             width: 140,
@@ -1454,7 +1580,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
             child: ElevatedButton.icon(
               onPressed: controller.pauseCampaign,
               icon: const Icon(Icons.pause_rounded, color: Colors.white, size: 16),
-              label: const Text('Pause Ad', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+              label: Text('pause_ad'.tr, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFF59E0B),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -1468,7 +1594,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
             child: ElevatedButton.icon(
               onPressed: controller.startCampaign,
               icon: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 16),
-              label: const Text('Resume Ad', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+              label: Text('resume_ad'.tr, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF10B981),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -1482,7 +1608,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
             child: ElevatedButton.icon(
               onPressed: controller.confirmEndCampaign,
               icon: const Icon(Icons.stop_rounded, color: Colors.white, size: 16),
-              label: const Text('End Broadcast', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+              label: Text('end_broadcast'.tr, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFEF4444),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -1496,7 +1622,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
             child: OutlinedButton.icon(
               onPressed: controller.goToEdit,
               icon: const Icon(Icons.edit_outlined, color: Colors.white, size: 15),
-              label: const Text('Edit', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+              label: Text('edit'.tr, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.cardBorder),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -1509,7 +1635,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
           child: ElevatedButton.icon(
             onPressed: controller.goToAnalytics,
             icon: const Icon(Icons.bar_chart_rounded, color: Colors.white, size: 16),
-            label: const Text('View Analytics', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+            label: Text('view_analytics'.tr, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF6366F1),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -1523,7 +1649,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
             child: OutlinedButton.icon(
               onPressed: controller.confirmDeleteCampaign,
               icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 15),
-              label: const Text('Delete', style: TextStyle(color: Color(0xFFEF4444), fontSize: 11, fontWeight: FontWeight.bold)),
+              label: Text('delete'.tr, style: const TextStyle(color: Color(0xFFEF4444), fontSize: 11, fontWeight: FontWeight.bold)),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Color(0xFFEF4444)),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -1649,23 +1775,23 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.info_outline_rounded, color: Color(0xFF8B5CF6), size: 16),
-                  SizedBox(width: 8),
-                  Text('Campaign Information',
-                      style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                  const Icon(Icons.info_outline_rounded, color: Color(0xFF8B5CF6), size: 16),
+                  const SizedBox(width: 8),
+                  Text('campaign_info_title'.tr,
+                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                 ],
               ),
               const SizedBox(height: 14),
-              _buildTwoColInfo('Campaign Name', c.displayTitle, 'Brand / Company', c.brandName ?? 'Commercial'),
+              _buildTwoColInfo('campaign_name_text'.tr, c.displayTitle, 'brand_company_label'.tr, c.brandName ?? 'Commercial'),
               const SizedBox(height: 10),
-              _buildTwoColInfo('Campaign Type', c.type ?? 'Commercial DOOH', 'Category', c.category ?? 'Retail'),
+              _buildTwoColInfo('campaign_type_label'.tr, c.type ?? 'Commercial DOOH', 'filter_category'.tr, c.category ?? 'Retail'),
               const SizedBox(height: 10),
-              _buildTwoColInfo('Objective', c.targetAudience ?? 'Brand Awareness', 'Created At', c.createdAt?.split('T').first ?? '—'),
+              _buildTwoColInfo('objective_text'.tr, c.targetAudience ?? 'Brand Awareness', 'created_at_label'.tr, c.createdAt?.split('T').first ?? '—'),
               if (c.description != null && c.description!.trim().isNotEmpty) ...[
                 const SizedBox(height: 14),
-                const Text('Brief / Description', style: TextStyle(color: AppColors.textMuted, fontSize: 10)),
+                Text('brief_description_label'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
                 const SizedBox(height: 4),
                 Container(
                   width: double.infinity,
@@ -1700,47 +1826,38 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.person_outline_rounded, color: Color(0xFF60A5FA), size: 16),
-                      SizedBox(width: 8),
-                      Text('Customer / Client Details',
-                          style: TextStyle(color: Color(0xFF93C5FD), fontSize: 13, fontWeight: FontWeight.bold)),
+                      const Icon(Icons.person_outline_rounded, color: Color(0xFF60A5FA), size: 16),
+                      const SizedBox(width: 8),
+                      Text('customer_client_details_title'.tr,
+                          style: const TextStyle(color: Color(0xFF93C5FD), fontSize: 13, fontWeight: FontWeight.bold)),
                     ],
                   ),
-                  // Container(
-                  //   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  //   decoration: BoxDecoration(
-                  //     color: const Color(0xFF3B82F6).withOpacity(0.15),
-                  //     borderRadius: BorderRadius.circular(6),
-                  //   ),
-                  //   child: const Text('Payment Link Recipient',
-                  //       style: TextStyle(color: Color(0xFF93C5FD), fontSize: 9, fontWeight: FontWeight.bold)),
-                  // ),
                 ],
               ),
               const SizedBox(height: 14),
-              _buildTwoColInfo('Contact Person', c.clientName ?? '—', 'Company Name', c.clientCompany ?? '—'),
+              _buildTwoColInfo('contact_person_label'.tr, c.clientName ?? '—', 'company_name_label'.tr, c.clientCompany ?? '—'),
               const SizedBox(height: 10),
               _buildTwoColInfo(
-                'Mobile Phone (SMS)',
+                'mobile_phone_sms_label'.tr,
                 c.clientPhone ?? '—',
-                'Email Address (Invoice)',
+                'email_address_invoice_label'.tr,
                 c.clientEmail ?? '—',
                 isPhone: c.clientPhone != null,
                 isEmail: c.clientEmail != null,
               ),
               const SizedBox(height: 10),
               _buildTwoColInfo(
-                'City & State',
+                'city_state_label'.tr,
                 [c.clientCity, c.clientState].whereType<String>().where((s) => s.isNotEmpty).join(', ').isEmpty
                     ? '—'
                     : [c.clientCity, c.clientState].whereType<String>().where((s) => s.isNotEmpty).join(', '),
-                'Pincode',
+                'pincode_label'.tr,
                 c.clientPincode ?? '—',
               ),
               const SizedBox(height: 10),
-              const Text('Billing Address', style: TextStyle(color: AppColors.textMuted, fontSize: 10)),
+              Text('billing_address'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
               const SizedBox(height: 3),
               Text(c.clientAddress ?? '—',
                   style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
@@ -1769,12 +1886,12 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
     child: Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-    const Row(
+    Row(
     children: [
-    Icon(Icons.video_collection_outlined, color: Color(0xFF8B5CF6), size: 16),
-    SizedBox(width: 8),
-    Text('Creative Media Assets',
-    style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+    const Icon(Icons.video_collection_outlined, color: Color(0xFF8B5CF6), size: 16),
+    const SizedBox(width: 8),
+    Text('creative_media_assets_title'.tr,
+    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
     ],
     ),
     const SizedBox(height: 14),
@@ -1799,7 +1916,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
     ),
     const SizedBox(height: 8),
     Text(
-    'Format: ${(c.mediaType ?? 'Video').toUpperCase()}',
+    '${'format_prefix'.tr}: ${(c.mediaType ?? 'Video').toUpperCase()}',
     style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
     ),
     if (c.videoUrl != null && c.videoUrl!.isNotEmpty)
@@ -1835,12 +1952,12 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
     Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
-    const Row(
+    Row(
     children: [
-    Icon(Icons.directions_bus_outlined, color: Color(0xFF10B981), size: 16),
-    SizedBox(width: 8),
-    Text('Targeted Fleet & Screens',
-    style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+    const Icon(Icons.directions_bus_outlined, color: Color(0xFF10B981), size: 16),
+    const SizedBox(width: 8),
+    Text('targeted_fleet_screens_title'.tr,
+    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
     ],
     ),
     Container(
@@ -1850,7 +1967,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
     borderRadius: BorderRadius.circular(6),
     ),
     child: Text(
-    '${c.screensCount} Screens Total',
+    '${c.screensCount} ${'screens_total_suffix'.tr}',
     style: const TextStyle(color: Color(0xFF34D399), fontSize: 9.5, fontWeight: FontWeight.bold),
     ),
     ),
@@ -1859,11 +1976,11 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
     const SizedBox(height: 14),
 
     if (c.targets.isEmpty)
-    const Padding(
-    padding: EdgeInsets.symmetric(vertical: 12),
+    Padding(
+    padding: const EdgeInsets.symmetric(vertical: 12),
     child: Center(
-    child: Text('All city transit routes selected across fleet network',
-    style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+    child: Text('all_city_transit_routes_desc'.tr,
+    style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
     ),
     )
     else
@@ -1901,7 +2018,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                     ),
                   ],
                 ),
-                Text('${target.screensCount} Screens',
+                Text('${target.screensCount} ${'screens_suffix'.tr}',
                     style: const TextStyle(color: Color(0xFFC4B5FD), fontSize: 10, fontWeight: FontWeight.bold)),
               ],
             ),
@@ -1939,28 +2056,28 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.calendar_today_outlined, color: Color(0xFF3B82F6), size: 16),
-                  SizedBox(width: 8),
-                  Text('Broadcast Schedule & Airtime Window',
-                      style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                  const Icon(Icons.calendar_today_outlined, color: Color(0xFF3B82F6), size: 16),
+                  const SizedBox(width: 8),
+                  Text('broadcast_schedule_airtime_title'.tr,
+                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                 ],
               ),
               const SizedBox(height: 14),
-              _buildTwoColInfo('Flight Dates', c.dateRangeText, 'Duration', '${c.durationDays ?? 14} Days'),
+              _buildTwoColInfo('flight_dates'.tr, c.dateRangeText, 'duration'.tr, '${c.durationDays ?? 14} ${'days_suffix'.tr}'),
               const SizedBox(height: 10),
               _buildTwoColInfo(
-                'Operating Window',
+                'operating_window'.tr,
                 '${c.slot?.startTime ?? '08:00'} - ${c.slot?.endTime ?? '22:00'}',
-                'Active Days',
-                c.slot?.activeDays.isNotEmpty == true ? c.slot!.activeDays.join(', ') : 'Daily (All 7 Days)',
+                'active_days'.tr,
+                c.slot?.activeDays.isNotEmpty == true ? c.slot!.activeDays.join(', ') : 'daily_all_days'.tr,
               ),
               const SizedBox(height: 14),
 
               // Visual 24-hr Airtime Window Bar
-              const Text('Active Daily Airtime Visualizer (24-Hour Day)',
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 10)),
+              Text('active_daily_airtime_visualizer'.tr,
+                  style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
               const SizedBox(height: 6),
               Container(
                 height: 8,
@@ -1986,12 +2103,12 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                 ),
               ),
               const SizedBox(height: 4),
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('00:00 (Night)', style: TextStyle(color: AppColors.textMuted, fontSize: 8)),
-                  Text('08:00 - 22:00 (Active)', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 8, fontWeight: FontWeight.bold)),
-                  Text('24:00 (Midnight)', style: TextStyle(color: AppColors.textMuted, fontSize: 8)),
+                  Text('time_night_label'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 8)),
+                  Text('time_active_window_label'.tr, style: const TextStyle(color: Color(0xFF8B5CF6), fontSize: 8, fontWeight: FontWeight.bold)),
+                  Text('time_midnight_label'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 8)),
                 ],
               ),
             ],
@@ -2013,12 +2130,12 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.receipt_long_outlined, color: Color(0xFF10B981), size: 16),
-                      SizedBox(width: 8),
-                      Text('Budget & Invoice Breakdown',
-                          style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                      const Icon(Icons.receipt_long_outlined, color: Color(0xFF10B981), size: 16),
+                      const SizedBox(width: 8),
+                      Text('budget_invoice_breakdown_title'.tr,
+                          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                     ],
                   ),
                   Container(
@@ -2094,24 +2211,24 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.payment_outlined, color: Color(0xFF6366F1), size: 16),
-                      SizedBox(width: 8),
-                      Text('Payment Status & Checkout Token',
-                          style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                      const Icon(Icons.payment_outlined, color: Color(0xFF6366F1), size: 16),
+                      const SizedBox(width: 8),
+                      Text('payment_status_checkout_token_title'.tr,
+                          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                     ],
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: (c.paymentBreakdown != null ? const Color(0xFF10B981) : const Color(0xFFEF4444)).withOpacity(0.15),
+                      color: (c.isPaid ? const Color(0xFF10B981) : const Color(0xFFEF4444)).withOpacity(0.15),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      c.paymentBreakdown != null ? 'PAID' : 'UNPAID',
+                      c.isPaid ? 'PAID' : 'UNPAID',
                       style: TextStyle(
-                        color: c.paymentBreakdown != null ? const Color(0xFF34D399) : const Color(0xFFF87171),
+                        color: c.isPaid ? const Color(0xFF34D399) : const Color(0xFFF87171),
                         fontSize: 9.5,
                         fontWeight: FontWeight.bold,
                       ),
@@ -2133,6 +2250,69 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                 onTap: controller.showSharePaymentModal,
                 // prefixIcon: const Icon(Icons.share_outlined, color: Colors.white, size: 16),
               ),
+              if (c.isApproved && !c.isPaid) ...[
+                const SizedBox(height: 14),
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF59E0B).withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.4)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              'received_offline_prompt'.tr,
+                              style: const TextStyle(color: Color(0xFFFBBF24), fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF59E0B).withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.5)),
+                            ),
+                            child: Text(
+                              'offline_mode_badge'.tr,
+                              style: const TextStyle(color: Color(0xFFFBBF24), fontSize: 9, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'record_offline_desc'.tr,
+                        style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 40,
+                        child: ElevatedButton.icon(
+                          onPressed: controller.goToRecordOfflinePayment,
+                          icon: const Icon(Icons.payments_rounded, color: Colors.white, size: 16),
+                          label: Text(
+                            'record_offline_payment_title'.tr,
+                            style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFF59E0B),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            elevation: 2,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -2149,12 +2329,12 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.qr_code_2_rounded, color: Color(0xFF10B981), size: 16),
-                  SizedBox(width: 8),
-                  Text('Dynamic QR Lead Attribution',
-                      style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                  const Icon(Icons.qr_code_2_rounded, color: Color(0xFF10B981), size: 16),
+                  const SizedBox(width: 8),
+                  Text('dynamic_qr_lead_attribution_title'.tr,
+                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                 ],
               ),
               const SizedBox(height: 14),
@@ -2234,26 +2414,26 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 16),
-                      SizedBox(width: 8),
-                      Text('Customer Reviews & Ratings',
-                          style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                      const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 16),
+                      const SizedBox(width: 8),
+                      Text('customer_reviews_ratings_title'.tr,
+                          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                     ],
                   ),
-                  Text('${controller.reviews.length} Reviews',
+                  Text('${controller.reviews.length} ${'reviews_count_suffix'.tr}',
                       style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
                 ],
               ),
               const SizedBox(height: 14),
 
               if (controller.reviews.isEmpty)
-                const Center(
+                Center(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Text('No verified customer feedback submitted yet',
-                        style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Text('no_verified_feedback_yet'.tr,
+                        style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
                   ),
                 )
               else

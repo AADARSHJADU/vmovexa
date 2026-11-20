@@ -33,7 +33,7 @@ export const TenantDetailsPage = ({ org: orgProp = null, onClose = null }) => {
   const params = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { impersonateTenant, hasPermission } = useAuth();
+  const { impersonateTenant, isSuperAdmin, can } = useAuth();
   const routeId = params?.id;
   const { currentOrganization, loadOrganization, updateStatus } = useOrganization();
 
@@ -44,10 +44,10 @@ export const TenantDetailsPage = ({ org: orgProp = null, onClose = null }) => {
     ? '/superadmin/finance/subscriptions'
     : '/superadmin/tenants';
 
-  const canApprove = hasPermission('orgs.approve');
-  const canSuspend = hasPermission('orgs.suspend');
-  const canImpersonate = hasPermission('platform.impersonate');
-  const canEditTenant = hasPermission('orgs.update') || hasPermission('finance.subscriptions.update') || hasPermission('finance.subscriptions.manage');
+  const canApprove = isSuperAdmin;
+  const canSuspend = isSuperAdmin;
+  const canImpersonate = isSuperAdmin;
+  const canEditTenant = can('tenants.update');
 
   // In modal mode start with passed org object for instant display (no loading flicker)
   const [localOrg, setLocalOrg] = useState(orgProp);

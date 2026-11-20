@@ -279,8 +279,8 @@ class ActivityLogsController extends GetxController {
   void handleExportCSV() {
     if (logsList.isEmpty) {
       Get.snackbar(
-        'Export Empty',
-        'No activity logs available to export.',
+        'export_empty_title'.tr,
+        'no_logs_export_msg'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.amber.shade900,
         colorText: Colors.white,
@@ -325,12 +325,12 @@ class ActivityLogsController extends GetxController {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
-                  children: const [
-                    Icon(Icons.file_download_done_rounded, color: Color(0xFF06B6D4), size: 22),
-                    SizedBox(width: 8),
+                  children: [
+                    const Icon(Icons.file_download_done_rounded, color: Color(0xFF06B6D4), size: 22),
+                    const SizedBox(width: 8),
                     Text(
-                      'Export Activity Logs CSV',
-                      style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                      'export_activity_csv_title'.tr,
+                      style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -342,7 +342,7 @@ class ActivityLogsController extends GetxController {
             ),
             const SizedBox(height: 6),
             Text(
-              'File: $fileName • ${filteredLogs.length} Records',
+              'file_records_sub'.trParams({'file': fileName, 'count': filteredLogs.length.toString()}),
               style: const TextStyle(color: Color(0xFF06B6D4), fontSize: 12, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
@@ -374,13 +374,13 @@ class ActivityLogsController extends GetxController {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     icon: const Icon(Icons.copy_rounded, size: 16),
-                    label: const Text('Copy to Clipboard', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    label: Text('copy_to_clipboard'.tr, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: csvContent));
                       Get.back();
                       Get.snackbar(
-                        'CSV Copied',
-                        'CSV text copied to clipboard successfully!',
+                        'csv_copied_title'.tr,
+                        'csv_copied_msg'.tr,
                         snackPosition: SnackPosition.BOTTOM,
                         backgroundColor: const Color(0xFF06B6D4),
                         colorText: Colors.black,
@@ -398,13 +398,13 @@ class ActivityLogsController extends GetxController {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     icon: const Icon(Icons.download_rounded, size: 16),
-                    label: const Text('Save CSV', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
+                    label: Text('save_csv_file'.tr, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: csvContent));
                       Get.back();
                       Get.snackbar(
-                        'Export Complete',
-                        'File $fileName downloaded (${filteredLogs.length} rows exported).',
+                        'export_complete_title'.tr,
+                        'file_downloaded_msg'.trParams({'file': fileName, 'count': filteredLogs.length.toString()}),
                         snackPosition: SnackPosition.BOTTOM,
                         backgroundColor: const Color(0xFF06B6D4),
                         colorText: Colors.black,
@@ -430,8 +430,8 @@ class ActivityLogsController extends GetxController {
   void copyLogPayload(ActivityLogModel log) {
     Clipboard.setData(ClipboardData(text: log.rawJsonString));
     Get.snackbar(
-      'Payload Copied',
-      'Raw JSON log payload copied to clipboard.',
+      'payload_copied_title'.tr,
+      'payload_copied_msg'.tr,
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: const Color(0xFF06B6D4),
       colorText: Colors.black,

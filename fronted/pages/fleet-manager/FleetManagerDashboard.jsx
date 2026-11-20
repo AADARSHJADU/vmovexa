@@ -11,16 +11,16 @@ import { useAuth } from '../../hooks/useAuth';
 export const FleetManagerDashboard = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { hasPermission } = useAuth();
-  const canView = hasPermission('fleet.dashboard.view');
-  const canViewVehicles = hasPermission('fleet.vehicles.view');
-  const canCreateVehicles = hasPermission('fleet.vehicles.create');
-  const canViewDrivers = hasPermission('fleet.drivers.view');
-  const canViewDevices = hasPermission('fleet.devices.read');
-  const canViewTracking = hasPermission('fleet.tracking.view');
-  const canViewRoutes = hasPermission('fleet.routes.view');
-  const canViewTrips = hasPermission('fleet.trips.view');
-  const canViewReports = hasPermission('fleet.reports.view');
+  const { can } = useAuth();
+  const canView = can('dashboard.view');
+  const canViewVehicles = can('vehicles.view');
+  const canCreateVehicles = can('vehicles.create');
+  const canViewDrivers = can('drivers.view');
+  const canViewDevices = can('devices.view');
+  const canViewTracking = can('tracking.view');
+  const canViewRoutes = can('routes.view');
+  const canViewTrips = can('trips.view');
+  const canViewReports = can('reports.view');
 
   const { vehicles, loadVehicles, pagination: vehiclePagination } = useFleetVehicle();
   const { devices, loadDevices } = useFleetGps();

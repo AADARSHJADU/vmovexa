@@ -48,9 +48,9 @@ class FinanceProfileView extends GetView<FinanceProfileController> {
                       const SizedBox(height: 22),
 
                       // Section 1: Account & Security (Admin Panel Mirror)
-                      const Text(
-                        'ACCOUNT & SECURITY',
-                        style: TextStyle(
+                      Text(
+                        'account_security_caps'.tr,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
@@ -62,30 +62,23 @@ class FinanceProfileView extends GetView<FinanceProfileController> {
                         _MenuItem(
                           icon: Icons.person_outline,
                           iconColor: const Color(0xFF60A5FA),
-                          title: 'Personal Profile Settings',
-                          subtitle: 'Officer identity, contact details, profile photo & language preferences',
+                          title: 'personal_profile_settings'.tr,
+                          subtitle: 'personal_profile_sub'.tr,
                           onTap: controller.onPersonalProfileSettingsTap,
                           trailingText: 'Edit →',
                         ),
-                        // _MenuItem(
-                        //   icon: Icons.corporate_fare_outlined,
-                        //   iconColor: const Color(0xFF818CF8),
-                        //   title: 'Corporate & Invoicing Settings',
-                        //   subtitle: 'VMOVEXA legal entity, GST/PAN, bank accounts & invoice templates',
-                        //   onTap: controller.onCorporateSettingsTap,
-                        // ),
                         _MenuItem(
                           icon: Icons.lock_outline,
                           iconColor: const Color(0xFFFBBF24),
-                          title: 'Security & Password',
-                          subtitle: 'Change billing portal password and audit credentials',
+                          title: 'security_password'.tr,
+                          subtitle: 'security_password_sub'.tr,
                           onTap: controller.onSecurityTap,
                         ),
                         _MenuItem(
                           icon: Icons.notifications_none_outlined,
                           iconColor: const Color(0xFFA78BFA),
-                          title: 'Notification Settings',
-                          subtitle: 'Invoice generation alerts, gateway settlements, and reminders',
+                          title: 'notification_preferences'.tr,
+                          subtitle: 'notification_preferences_sub'.tr,
                           onTap: controller.onNotificationSettingsTap,
                         ),
                       ]),
@@ -93,9 +86,9 @@ class FinanceProfileView extends GetView<FinanceProfileController> {
                       const SizedBox(height: 22),
 
                       // Section 2: Helpdesk & Legal (Admin Panel Mirror)
-                      const Text(
-                        'HELPDESK & LEGAL',
-                        style: TextStyle(
+                      Text(
+                        'help_and_legal_caps'.tr,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
@@ -107,21 +100,21 @@ class FinanceProfileView extends GetView<FinanceProfileController> {
                         _MenuItem(
                           icon: Icons.headset_mic_outlined,
                           iconColor: const Color(0xFF38BDF8),
-                          title: 'Help & Support',
+                          title: 'help_support'.tr,
                           subtitle: 'GST filing guides, reconciliation FAQs, and dispute desk',
                           onTap: controller.onHelpSupportTap,
                         ),
                         _MenuItem(
                           icon: Icons.shield_outlined,
                           iconColor: const Color(0xFF34D399),
-                          title: 'Privacy Policy',
+                          title: 'privacy_policy'.tr,
                           subtitle: 'Financial data encryption, banking compliance, and privacy',
                           onTap: controller.onPrivacyPolicyTap,
                         ),
                         _MenuItem(
                           icon: Icons.description_outlined,
                           iconColor: const Color(0xFFF472B6),
-                          title: 'Terms & Conditions',
+                          title: 'terms_slas'.tr,
                           subtitle: 'Commercial SLA, corporate tax policies, and refund rules',
                           onTap: controller.onTermsTap,
                         ),
@@ -141,21 +134,21 @@ class FinanceProfileView extends GetView<FinanceProfileController> {
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.2)),
                           ),
-                          child: const Row(
+                          child: Row(
                             children: [
-                              Icon(Icons.logout, color: Color(0xFFEF4444), size: 18),
-                              SizedBox(width: 12),
+                              const Icon(Icons.logout, color: Color(0xFFEF4444), size: 18),
+                              const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
-                                  'Logout Account',
-                                  style: TextStyle(
+                                  'log_out'.tr,
+                                  style: const TextStyle(
                                     color: Color(0xFFEF4444),
                                     fontSize: 13,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
                               ),
-                              Icon(Icons.chevron_right, color: Color(0xFFEF4444), size: 18),
+                              const Icon(Icons.chevron_right, color: Color(0xFFEF4444), size: 18),
                             ],
                           ),
                         ),

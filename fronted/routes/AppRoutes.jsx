@@ -149,7 +149,6 @@ import { CreateSupportTicketPage } from '../pages/shared/CreateSupportTicketPage
 import { FinanceDashboardPage } from '../pages/finance/FinanceDashboardPage';
 import { InvoicesListPage } from '../pages/finance/InvoicesListPage';
 import { GenerateInvoicePage } from '../pages/finance/GenerateInvoicePage';
-import { InvoiceDesignerPage } from '../pages/finance/InvoiceDesignerPage';
 import { InvoicePreviewPage } from '../pages/finance/InvoicePreviewPage';
 import { PaymentsListPage } from '../pages/finance/PaymentsListPage';
 import { PaymentDetailsPage } from '../pages/finance/PaymentDetailsPage';
@@ -291,6 +290,7 @@ import RoutesListPage from '../pages/admin/routes/RoutesListPage';
 import AddRoutePage from '../pages/admin/routes/AddRoutePage';
 import RouteDetailsPage from '../pages/admin/routes/RouteDetailsPage';
 import { FinanceCampaignPaymentsPage } from '../pages/finance/FinanceCampaignPaymentsPage';
+import { FinanceCampaignDetailsPage } from '../pages/finance/FinanceCampaignDetailsPage';
 import { AdminCampaignMappingPage } from '../pages/admin/AdminCampaignMappingPage';
 
 // Mature Enterprise SVG Icons for Sidebar Navigation
@@ -438,22 +438,22 @@ const fleetManagerNavLinks = [
   { label: 'Transit Routes', path: '/fleet-operator/routes', iconSvg: Icons.Trips, permission: 'fleet.routes.view' },
   { label: 'Vehicles & Displays', path: '/fleet-operator/vehicles', iconSvg: Icons.Vehicles, permission: 'fleet.vehicles.view' },
   { label: 'Drivers & Staff', path: '/fleet-operator/drivers', iconSvg: Icons.Drivers, permission: 'fleet.drivers.view' },
-  { label: 'Vehicle Slots & Timetable', path: '/fleet-operator/slots', iconSvg: Icons.Slots, permission: ['fleet.slots.view', 'fleet.vehicles.view'] },
-  { label: 'Edge Devices', path: '/fleet-operator/edge-devices', iconSvg: Icons.EdgeDevice, permission: 'fleet.devices.read' },
+  { label: 'Vehicle Slots & Timetable', path: '/fleet-operator/slots', iconSvg: Icons.Slots, permission: 'fleet.slots.view' },
+  { label: 'Edge Devices', path: '/fleet-operator/edge-devices', iconSvg: Icons.EdgeDevice, permission: 'fleet.devices.view' },
   { label: 'Live Telematics', path: '/fleet-operator/tracking', iconSvg: Icons.Tracking, permission: 'fleet.tracking.view' },
   { label: 'Trips & Dispatch', path: '/fleet-operator/trips', iconSvg: Icons.Trips, permission: 'fleet.trips.view' },
-  { label: 'Technician Requests', path: '/fleet-operator/technician-requests', iconSvg: Icons.Tracking, permission: 'work_orders.view' },
+  { label: 'Technician Requests', path: '/fleet-operator/technician-requests', iconSvg: Icons.Tracking, permission: 'fleet.work_orders.view' },
   { label: 'Report Incident', path: '/fleet-operator/incident-report', iconSvg: Icons.Emergency, permission: 'fleet.incidents.create' },
   { label: 'Incidents Log', path: '/fleet-operator/incidents', iconSvg: Icons.Reports, permission: 'fleet.incidents.view' },
 
   { isHeader: true, label: 'Analytics & Alerts' },
   { label: 'Analytics & Reports', path: '/fleet-operator/reports', iconSvg: Icons.Reports, permission: 'fleet.reports.view' },
-  { label: 'Activity Logs', path: '/fleet-operator/activity', iconSvg: Icons.Trips, permission: 'activity.view' },
+  { label: 'Activity Logs', path: '/fleet-operator/activity', iconSvg: Icons.Trips, permission: 'fleet.activity.view' },
   { label: 'Alerts & Events', path: '/fleet-operator/notifications', iconSvg: Icons.Notifications },
 
   { isHeader: true, label: 'Account & Support' },
   { label: 'Operator Profile', path: '/fleet-operator/profile', iconSvg: Icons.Profile },
-  { label: 'Help & Documentation', path: '/fleet-operator/help', iconSvg: Icons.Help, permission: 'support.view' },
+  { label: 'Help & Documentation', path: '/fleet-operator/help', iconSvg: Icons.Help },
   { label: 'Privacy Policy', path: '/fleet-operator/privacy', iconSvg: Icons.Privacy },
   { label: 'Terms & Conditions', path: '/fleet-operator/terms', iconSvg: Icons.Terms },
 ];
@@ -463,14 +463,14 @@ const advertiserNavLinks = [
   { label: 'Overview Dashboard', path: '/advertiser/dashboard', iconSvg: Icons.Dashboard, permission: 'advertiser.dashboard.view' },
 
   { isHeader: true, label: 'Campaigns' },
-  { label: 'Campaigns Hub', path: '/advertiser/campaigns', iconSvg: Icons.Campaigns, permission: 'campaigns.view' },
-  { label: 'Create New Campaign', path: '/advertiser/campaigns/create', iconSvg: Icons.Campaigns, permission: 'campaigns.create' },
-  { label: 'Lifecycle & Flow', path: '/advertiser/campaigns/flow', iconSvg: Icons.Campaigns, permission: 'campaigns.view' },
-  { label: 'Campaign Analytics', path: '/advertiser/analytics', iconSvg: Icons.Analytics, permission: 'campaigns.analytics.view' },
-  { label: 'Campaign Reports', path: '/advertiser/reports', iconSvg: Icons.Reports, permission: 'reports.view' },
+  { label: 'Campaigns Hub', path: '/advertiser/campaigns', iconSvg: Icons.Campaigns, permission: 'advertiser.campaigns.view' },
+  { label: 'Create New Campaign', path: '/advertiser/campaigns/create', iconSvg: Icons.Campaigns, permission: 'advertiser.campaigns.create' },
+  { label: 'Lifecycle & Flow', path: '/advertiser/campaigns/flow', iconSvg: Icons.Campaigns, permission: 'advertiser.campaigns.view' },
+  { label: 'Campaign Analytics', path: '/advertiser/analytics', iconSvg: Icons.Analytics, permission: 'advertiser.analytics.view' },
+  { label: 'Campaign Reports', path: '/advertiser/reports', iconSvg: Icons.Reports, permission: 'advertiser.reports.view' },
 
   { isHeader: true, label: 'Billing & Alerts' },
-  { label: 'Billing & Wallet', path: '/advertiser/billing', iconSvg: Icons.Fleets, permission: 'finance.invoices.view' },
+  { label: 'Billing & Wallet', path: '/advertiser/billing', iconSvg: Icons.Fleets, permission: 'advertiser.billing.view' },
   { label: 'Alerts & Messages', path: '/advertiser/notifications', iconSvg: Icons.Notifications },
 
   { isHeader: true, label: 'Account & Legal' },
@@ -488,7 +488,7 @@ const governmentNavLinks = [
   { isHeader: true, label: 'Public Services' },
   { label: 'Public Campaigns', path: '/government/campaigns', iconSvg: Icons.Campaigns, permission: 'government.campaigns.view' },
   { label: 'Broadcast Campaign', path: '/government/campaigns/create', iconSvg: Icons.Campaigns, permission: 'government.campaigns.create' },
-  { label: 'Emergency Broadcast', path: '/government/emergency', iconSvg: Icons.Emergency, permission: 'government.emergency.manage' },
+  { label: 'Emergency Broadcast', path: '/government/emergency', iconSvg: Icons.Emergency, permission: 'government.emergency.view' },
   { label: 'Sovereign Tracking', path: '/government/tracking', iconSvg: Icons.Tracking, permission: 'government.tracking.view' },
 
   { isHeader: true, label: 'Analytics & Reports' },
@@ -496,7 +496,7 @@ const governmentNavLinks = [
   { label: 'Compliance Reports', path: '/government/reports', iconSvg: Icons.Reports, permission: 'government.reports.view' },
 
   { isHeader: true, label: 'Billing & Alerts' },
-  { label: 'Billing & Invoices', path: '/government/billing', iconSvg: Icons.Fleets },
+  { label: 'Billing & Invoices', path: '/government/billing', iconSvg: Icons.Fleets, permission: 'government.billing.view' },
   { label: 'Critical Alerts', path: '/government/notifications', iconSvg: Icons.Notifications },
 
   { isHeader: true, label: 'Account & Legal' },
@@ -512,41 +512,41 @@ const technicianNavLinks = [
   { label: 'Overview Dashboard', path: '/technician/dashboard', iconSvg: Icons.Dashboard, permission: 'technician.dashboard.view' },
 
   { isHeader: true, label: 'Work Orders & Field Tasks' },
-  { label: 'Field Work Orders', path: '/technician/work-orders', iconSvg: Icons.Reports, permission: 'work_orders.view' },
+  { label: 'Field Work Orders', path: '/technician/work-orders', iconSvg: Icons.Reports, permission: 'technician.work_orders.view' },
 
   { isHeader: true, label: 'Device Operations' },
   { label: 'Edge Setup', path: '/technician/edge-setup', iconSvg: Icons.Terminal, permission: 'technician.devices.view' },
   { label: 'Edge Devices', path: '/technician/devices', iconSvg: Icons.Gps, permission: 'technician.devices.view' },
-  { label: 'Hardware Status', path: '/technician/hardware-status', iconSvg: Icons.Analytics, permission: 'technician.hardware-status.view' },
-  { label: 'Diagnostics Tests', path: '/technician/diagnostics', iconSvg: Icons.Tracking, permission: 'technician.diagnostics.manage' },
+  { label: 'Hardware Status', path: '/technician/hardware-status', iconSvg: Icons.Analytics, permission: 'technician.hardware_status.view' },
+  { label: 'Diagnostics Tests', path: '/technician/diagnostics', iconSvg: Icons.Tracking, permission: 'technician.diagnostics.view' },
 
   { isHeader: true, label: 'Alerts & Account' },
   { label: 'Alerts & Events', path: '/technician/notifications', iconSvg: Icons.Notifications },
   { label: 'Technician Profile', path: '/technician/profile', iconSvg: Icons.Profile },
   { label: 'Account Settings', path: '/technician/settings', iconSvg: Icons.Terms },
-  { label: 'Help & Documentation', path: '/technician/help', iconSvg: Icons.Help, permission: 'support.view' },
+  { label: 'Help & Documentation', path: '/technician/help', iconSvg: Icons.Help },
   { label: 'Privacy Policy', path: '/technician/privacy', iconSvg: Icons.Privacy },
   { label: 'Terms & SLA', path: '/technician/terms', iconSvg: Icons.Terms },
 ];
 
 const driverNavLinks = [
   { isHeader: true, label: 'Overview' },
-  { label: 'Overview Dashboard', path: '/driver/dashboard', iconSvg: Icons.Dashboard, permission: 'drivers.portal.view' },
+  { label: 'Overview Dashboard', path: '/driver/dashboard', iconSvg: Icons.Dashboard, permission: 'driver.dashboard.view' },
 
   { isHeader: true, label: 'Dispatch & Routes' },
-  { label: 'My Routes', path: '/driver/routes', iconSvg: Icons.Tracking, permission: 'drivers.portal.view' },
-  { label: 'Completed Trips', path: '/driver/trips', iconSvg: Icons.Trips, permission: 'drivers.portal.view' },
-  { label: 'Shift Schedules', path: '/driver/schedule', iconSvg: Icons.Trips, permission: 'drivers.portal.view' },
-  { label: 'Fleet Work Orders', path: '/driver/work-orders', iconSvg: Icons.Reports, permission: ['drivers.work_orders.view', 'drivers.portal.view'] },
-  { label: 'Report Incident', path: '/driver/incident-report', iconSvg: Icons.Emergency, permission: 'drivers.incidents.report' },
-  { label: 'Incidents Log', path: '/driver/incidents', iconSvg: Icons.Reports, permission: 'drivers.portal.view' },
-  { label: 'Driver Documents', path: '/driver/documents', iconSvg: Icons.Fleets, permission: 'drivers.portal.view' },
+  { label: 'My Routes', path: '/driver/routes', iconSvg: Icons.Tracking, permission: 'driver.routes.view' },
+  { label: 'Completed Trips', path: '/driver/trips', iconSvg: Icons.Trips, permission: 'driver.trips.view' },
+  { label: 'Shift Schedules', path: '/driver/schedule', iconSvg: Icons.Trips, permission: 'driver.schedule.view' },
+  { label: 'Fleet Work Orders', path: '/driver/work-orders', iconSvg: Icons.Reports, permission: 'driver.work_orders.view' },
+  { label: 'Report Incident', path: '/driver/incident-report', iconSvg: Icons.Emergency, permission: 'driver.incidents.create' },
+  { label: 'Incidents Log', path: '/driver/incidents', iconSvg: Icons.Reports, permission: 'driver.incidents.view' },
+  { label: 'Driver Documents', path: '/driver/documents', iconSvg: Icons.Fleets, permission: 'driver.documents.view' },
 
   { isHeader: true, label: 'Alerts & Account' },
   { label: 'Operational Alerts', path: '/driver/notifications', iconSvg: Icons.Notifications },
   { label: 'Driver Profile', path: '/driver/profile', iconSvg: Icons.Profile },
   { label: 'Account Settings', path: '/driver/settings', iconSvg: Icons.Terms },
-  { label: 'Help & Documentation', path: '/driver/help', iconSvg: Icons.Help, permission: 'support.view' },
+  { label: 'Help & Documentation', path: '/driver/help', iconSvg: Icons.Help },
   { label: 'Privacy Policy', path: '/driver/privacy', iconSvg: Icons.Privacy },
   { label: 'Terms & Conditions', path: '/driver/terms', iconSvg: Icons.Terms },
 ];
@@ -556,9 +556,9 @@ const financeNavLinks = [
   { label: 'Overview Dashboard', path: '/finance/dashboard', iconSvg: Icons.Dashboard, permission: 'finance.dashboard.view' },
 
   { isHeader: true, label: 'Financial Management' },
-  { label: 'Tenants', path: '/finance/subscriptions', iconSvg: Icons.Fleets, permission: 'finance.subscriptions.view' },
+  { label: 'Tenants', path: '/finance/subscriptions', iconSvg: Icons.Fleets, permission: 'finance.tenants.view' },
   { label: 'Invoices & Billing', path: '/finance/invoices', iconSvg: Icons.Reports, permission: 'finance.invoices.view' },
-  { label: 'Campaign Payments', path: '/finance/campaign-payments', iconSvg: Icons.Campaigns, permission: 'finance.payments.view' },
+  { label: 'Campaign Payments', path: '/finance/campaign-payments', iconSvg: Icons.Campaigns, permission: 'finance.campaign_payments.view' },
   { label: 'Payments Ledger', path: '/finance/payments', iconSvg: Icons.Analytics, permission: 'finance.payments.view' },
   { label: 'Revenue Reports', path: '/finance/reports', iconSvg: Icons.Campaigns, permission: 'finance.reports.view' },
   { label: 'GST & Tax Returns', path: '/finance/gst', iconSvg: Icons.Emergency, permission: 'finance.gst.view' },
@@ -566,9 +566,9 @@ const financeNavLinks = [
 
   { isHeader: true, label: 'Alerts & Settings' },
   { label: 'Financial Alerts', path: '/finance/notifications', iconSvg: Icons.Notifications },
-  { label: 'Finance Settings', path: '/finance/settings', iconSvg: Icons.Settings, permission: 'finance.invoices.view' },
+  { label: 'Finance Settings', path: '/finance/settings', iconSvg: Icons.Settings, permission: 'finance.settings.view' },
   { label: 'Finance Profile', path: '/finance/profile', iconSvg: Icons.Profile },
-  { label: 'Help & Documentation', path: '/finance/help', iconSvg: Icons.Help, permission: 'support.view' },
+  { label: 'Help & Documentation', path: '/finance/help', iconSvg: Icons.Help },
   { label: 'Privacy Policy', path: '/finance/privacy', iconSvg: Icons.Privacy },
   { label: 'Terms & SLAs', path: '/finance/terms', iconSvg: Icons.Terms },
 ];
@@ -658,28 +658,28 @@ const superAdminNavLinks = [
 
 const adminNavLinks = [
   { isHeader: true, label: 'Overview' },
-  { label: 'Dashboard', path: '/admin/dashboard', iconSvg: Icons.Dashboard },
+  { label: 'Dashboard', path: '/admin/dashboard', iconSvg: Icons.Dashboard, permission: 'admin.dashboard.view' },
 
   { isHeader: true, label: 'Fleet Operations' },
-  { label: 'Bus Depots', path: '/admin/depots', iconSvg: Icons.Depots, permission: 'fleet.depots.view' },
-  { label: 'Routes', path: '/admin/routes', iconSvg: Icons.Trips, permission: 'fleet.routes.view' },
-  { label: 'Fleet Operator', path: '/admin/fleet-operators', iconSvg: Icons.Fleets, permission: 'fleet.fleets.view' },
-  { label: 'Drivers', path: '/admin/drivers', iconSvg: Icons.Drivers, permission: 'fleet.drivers.view' },
-  { label: 'Vehicles', path: '/admin/vehicles', iconSvg: Icons.Vehicles, permission: 'fleet.vehicles.view' },
-  { label: 'Vehicle Slots', path: '/admin/slots', iconSvg: Icons.Slots, permission: ['fleet.slots.view', 'fleet.vehicles.view'] },
-  { label: 'Campaign Mapping', path: '/admin/campaigns/mapping', iconSvg: Icons.Campaigns },
-  { label: 'Edge Devices', path: '/admin/edge-devices', iconSvg: Icons.EdgeDevice, permission: ['fleet.devices.read', 'fleet.gps.manage', 'devices.gps.manage'] },
-  { label: 'Report Incident', path: '/admin/incident-report', iconSvg: Icons.Emergency, permission: 'fleet.incidents.create' },
-  { label: 'Incidents Log', path: '/admin/incidents', iconSvg: Icons.Reports, permission: 'fleet.incidents.view' },
-  { label: 'Technician Requests', path: '/admin/technician-requests', iconSvg: Icons.Tracking, permission: 'work_orders.view' },
+  { label: 'Bus Depots', path: '/admin/depots', iconSvg: Icons.Depots, permission: 'admin.depots.view' },
+  { label: 'Routes', path: '/admin/routes', iconSvg: Icons.Trips, permission: 'admin.routes.view' },
+  { label: 'Fleet Operator', path: '/admin/fleet-operators', iconSvg: Icons.Fleets, permission: 'admin.fleet_operators.view' },
+  { label: 'Drivers', path: '/admin/drivers', iconSvg: Icons.Drivers, permission: 'admin.drivers.view' },
+  { label: 'Vehicles', path: '/admin/vehicles', iconSvg: Icons.Vehicles, permission: 'admin.vehicles.view' },
+  { label: 'Vehicle Slots', path: '/admin/slots', iconSvg: Icons.Slots, permission: 'admin.slots.view' },
+  { label: 'Campaign Mapping', path: '/admin/campaigns/mapping', iconSvg: Icons.Campaigns, permission: 'admin.campaign_mapping.view' },
+  { label: 'Edge Devices', path: '/admin/edge-devices', iconSvg: Icons.EdgeDevice, permission: 'admin.edge_devices.view' },
+  { label: 'Report Incident', path: '/admin/incident-report', iconSvg: Icons.Emergency, permission: 'admin.incidents.create' },
+  { label: 'Incidents Log', path: '/admin/incidents', iconSvg: Icons.Reports, permission: 'admin.incidents.view' },
+  { label: 'Technician Requests', path: '/admin/technician-requests', iconSvg: Icons.Tracking, permission: 'admin.work_orders.view' },
 
   { isHeader: true, label: 'Organization & Access' },
-  { label: 'Team & Users', path: '/admin/users', iconSvg: Icons.Profile, permission: 'users.view' },
-  { label: 'Activity Logs', path: '/admin/activity', iconSvg: Icons.Trips, permission: 'activity.view' },
+  { label: 'Team & Users', path: '/admin/users', iconSvg: Icons.Profile, permission: 'admin.users.view' },
+  { label: 'Activity Logs', path: '/admin/activity', iconSvg: Icons.Trips, permission: 'admin.activity.view' },
   { label: 'Alerts & Messages', path: '/admin/notifications', iconSvg: Icons.Notifications },
 
   { isHeader: true, label: 'Finance & Billing' },
-  { label: 'SaaS Subscription & Quotas', path: '/admin/billing', iconSvg: Icons.Reports, permission: 'billing.view' },
+  { label: 'SaaS Subscription & Quotas', path: '/admin/billing', iconSvg: Icons.Reports, permission: 'admin.billing.view' },
 
   { isHeader: true, label: 'Settings & Legal' },
   { label: 'Profile', path: '/admin/profile', iconSvg: Icons.Profile },
@@ -750,7 +750,7 @@ export const AppRoutes = () => {
 
       {/* Fleet Operator Routes (Full Comprehensive Portal) */}
       <Route element={<ProtectedRoute />}>
-        <Route element={<RoleRoute allow={[ROLE.FLEET_OPERATOR, ROLE.TENANT_ADMIN]} />}>
+        <Route element={<RoleRoute allow={[ROLE.FLEET_OPERATOR]} />}>
           <Route path="/fleet-operator" element={<RoleLayout roleTitle="Fleet Operator" navLinks={fleetManagerNavLinks} />}>
             <Route index element={<Navigate to="/fleet-operator/dashboard" replace />} />
 
@@ -813,20 +813,20 @@ export const AppRoutes = () => {
             </Route>
 
             {/* Vehicle Slots & Timetable */}
-            <Route element={<PermissionRoute permission={['fleet.slots.view', 'fleet.vehicles.view']} />}>
+            <Route element={<PermissionRoute permission="fleet.slots.view" />}>
               <Route path="slots" element={<VehicleSlotsPage />} />
               <Route path="slots/:id" element={<VehicleSlotDetailsPage />} />
             </Route>
-            <Route element={<PermissionRoute permission={['fleet.slots.create', 'fleet.vehicles.create', 'fleet.routes.assign']} />}>
+            <Route element={<PermissionRoute permission="fleet.slots.create" />}>
               <Route path="slots/schedule" element={<ScheduleSlotPage />} />
               <Route path="slots/add" element={<ScheduleSlotPage />} />
             </Route>
-            <Route element={<PermissionRoute permission={['fleet.slots.update', 'fleet.vehicles.update', 'fleet.routes.assign']} />}>
+            <Route element={<PermissionRoute permission="fleet.slots.update" />}>
               <Route path="slots/edit/:id" element={<ScheduleSlotPage />} />
             </Route>
 
             {/* Edge Devices & Connected Telematics */}
-            <Route element={<PermissionRoute permission="fleet.devices.read" />}>
+            <Route element={<PermissionRoute permission="fleet.devices.view" />}>
               <Route path="edge-devices" element={<AdminGpsDevicesPage />} />
               <Route path="edge-devices/:id" element={<AdminGpsDeviceDetailsPage />} />
               <Route path="gps" element={<Navigate to="/fleet-operator/edge-devices" replace />} />
@@ -859,6 +859,7 @@ export const AppRoutes = () => {
             {/* Emergency Incidents */}
             <Route element={<PermissionRoute permission="fleet.incidents.view" />}>
               <Route path="incidents" element={<FleetIncidentsPage />} />
+              <Route path="incidents/:id" element={<FleetIncidentsPage />} />
             </Route>
             <Route element={<PermissionRoute permission="fleet.incidents.create" />}>
               <Route path="incident-report" element={<FleetReportIncidentPage />} />
@@ -866,20 +867,20 @@ export const AppRoutes = () => {
             </Route>
 
             {/* Technician Requests / Maintenance Work Orders */}
-            <Route element={<PermissionRoute permission="work_orders.view" />}>
+            <Route element={<PermissionRoute permission="fleet.work_orders.view" />}>
               <Route path="technician-requests" element={<TechRequestsPage />} />
               <Route path="technician-requests/:id" element={<AdminTechRequestDetailsPage />} />
               <Route path="technician-requests/:id/rate" element={<RateTechnicianPage />} />
             </Route>
-            <Route element={<PermissionRoute permission="work_orders.create" />}>
+            <Route element={<PermissionRoute permission="fleet.work_orders.create" />}>
               <Route path="technician-requests/new" element={<NewTechRequestPage />} />
             </Route>
-            <Route element={<PermissionRoute permission="work_orders.update" />}>
+            <Route element={<PermissionRoute permission="fleet.work_orders.update" />}>
               <Route path="technician-requests/edit/:id" element={<NewTechRequestPage />} />
             </Route>
 
             {/* Activity Logs */}
-            <Route element={<PermissionRoute permission="activity.view" />}>
+            <Route element={<PermissionRoute permission="fleet.activity.view" />}>
               <Route path="activity" element={<AdminUserActivityPage />} />
             </Route>
 
@@ -895,7 +896,7 @@ export const AppRoutes = () => {
             <Route path="profile/security" element={<ChangePasswordPage />} />
             <Route path="profile/security/success" element={<PasswordUpdatedPage />} />
             <Route path="profile/notifications" element={<NotificationSettingsPage />} />
-            <Route element={<PermissionRoute permission="support.view" />}>
+            <Route element={<PermissionRoute />}>
               <Route path="help" element={<HelpSupportPage />} />
               <Route path="help/new" element={<CreateSupportTicketPage />} />
               <Route path="help/history" element={<SupportHistoryPage />} />
@@ -912,7 +913,7 @@ export const AppRoutes = () => {
 
       {/* Advertiser Routes (Full Enterprise Portal) */}
       <Route element={<ProtectedRoute />}>
-        <Route element={<RoleRoute allow={[ROLE.ADVERTISER, ROLE.TENANT_ADMIN, ROLE.SUPER_ADMIN]} />}>
+        <Route element={<RoleRoute allow={[ROLE.ADVERTISER, ROLE.SUPER_ADMIN]} />}>
           <Route path="/advertiser" element={<RoleLayout roleTitle="Advertiser" navLinks={advertiserNavLinks} />}>
             <Route index element={<Navigate to="/advertiser/dashboard" replace />} />
 
@@ -920,28 +921,30 @@ export const AppRoutes = () => {
               <Route path="dashboard" element={<AdvertiserDashboardPage />} />
             </Route>
 
-            <Route element={<PermissionRoute permission="campaigns.view" />}>
+            <Route element={<PermissionRoute permission="advertiser.campaigns.view" />}>
               <Route path="campaigns" element={<CampaignsListPage />} />
               <Route path="campaigns/flow" element={<CampaignLifecyclePage />} />
               <Route path="campaigns/:id" element={<CampaignDetailsPage />} />
+            </Route>
+            <Route element={<PermissionRoute permission="advertiser.campaigns.pay" />}>
               <Route path="campaigns/:id/record-payment" element={<RecordOfflinePaymentPage />} />
             </Route>
 
-            <Route element={<PermissionRoute permission="campaigns.create" />}>
+            <Route element={<PermissionRoute permission="advertiser.campaigns.create" />}>
               <Route path="campaigns/create" element={<CreateCampaignPage />} />
               <Route path="campaigns/create/success" element={<CampaignSuccessPage />} />
             </Route>
 
-            <Route element={<PermissionRoute permission="campaigns.analytics.view" />}>
+            <Route element={<PermissionRoute permission="advertiser.analytics.view" />}>
               <Route path="campaigns/:id/analytics" element={<CampaignAnalyticsPage />} />
               <Route path="analytics" element={<CampaignAnalyticsPage />} />
             </Route>
 
-            <Route element={<PermissionRoute permission="reports.view" />}>
+            <Route element={<PermissionRoute permission="advertiser.reports.view" />}>
               <Route path="reports" element={<ReportsHubPage />} />
             </Route>
 
-            <Route element={<PermissionRoute permission="billing.invoices.view" />}>
+            <Route element={<PermissionRoute permission="advertiser.billing.view" />}>
               <Route path="billing" element={<BillingPaymentsPage />} />
             </Route>
 
@@ -957,7 +960,7 @@ export const AppRoutes = () => {
             <Route path="settings/notifications" element={<AdvertiserNotificationSettingsPage />} />
             <Route path="notification-settings" element={<AdvertiserNotificationSettingsPage />} />
 
-            <Route element={<PermissionRoute permission="support.view" />}>
+            <Route element={<PermissionRoute />}>
               <Route path="help" element={<AdvertiserHelpPage />} />
               <Route path="help/new" element={<CreateSupportTicketPage />} />
               <Route path="help/history" element={<AdvertiserSupportHistoryPage />} />
@@ -972,7 +975,7 @@ export const AppRoutes = () => {
 
       {/* Government Routes (Full Comprehensive Portal) */}
       <Route element={<ProtectedRoute />}>
-        <Route element={<RoleRoute allow={[ROLE.GOVT_AGENCY, ROLE.TENANT_ADMIN, ROLE.SUPER_ADMIN]} />}>
+        <Route element={<RoleRoute allow={[ROLE.GOVT_AGENCY, ROLE.SUPER_ADMIN]} />}>
           <Route path="/government" element={<RoleLayout roleTitle="Government Agency" navLinks={governmentNavLinks} />}>
             <Route index element={<Navigate to="/government/dashboard" replace />} />
 
@@ -984,7 +987,10 @@ export const AppRoutes = () => {
               <Route path="campaigns" element={<GovCampaignsListPage />} />
               <Route path="campaigns/:id" element={<GovCampaignDetailsPage />} />
               <Route path="campaigns/:id/analytics" element={<GovCampaignAnalyticsPage />} />
+            </Route>
+            <Route element={<PermissionRoute permission="government.billing.view" />}>
               <Route path="campaigns/:id/record-payment" element={<GovRecordOfflinePaymentPage />} />
+              <Route path="billing" element={<GovBillingPaymentsPage />} />
             </Route>
 
             <Route element={<PermissionRoute permission="government.campaigns.create" />}>
@@ -992,11 +998,15 @@ export const AppRoutes = () => {
               <Route path="campaigns/create/success" element={<CampaignSuccessPage />} />
             </Route>
 
-            <Route element={<PermissionRoute permission="government.emergency.manage" />}>
+            <Route element={<PermissionRoute permission="government.emergency.view" />}>
               <Route path="emergency" element={<GovEmergencyListPage />} />
+              <Route path="emergency/:id" element={<GovEmergencyDetailsPage />} />
+            </Route>
+            <Route element={<PermissionRoute permission="government.emergency.create" />}>
               <Route path="emergency/new" element={<GovEmergencyBroadcastPage />} />
               <Route path="emergency/create" element={<GovEmergencyBroadcastPage />} />
-              <Route path="emergency/:id" element={<GovEmergencyDetailsPage />} />
+            </Route>
+            <Route element={<PermissionRoute permission="government.emergency.update" />}>
               <Route path="emergency/:id/edit" element={<GovEditEmergencyBroadcastPage />} />
             </Route>
 
@@ -1012,7 +1022,6 @@ export const AppRoutes = () => {
               <Route path="reports" element={<GovReportsPage />} />
             </Route>
 
-            <Route path="billing" element={<GovBillingPaymentsPage />} />
             <Route path="notifications" element={<GovNotificationsPage />} />
             <Route path="profile" element={<GovProfilePage />} />
             <Route path="profile/account" element={<GovAccountSettingsPage />} />
@@ -1024,7 +1033,7 @@ export const AppRoutes = () => {
             <Route path="settings/security/success" element={<GovPasswordUpdatedPage />} />
             <Route path="settings/notifications" element={<GovNotificationSettingsPage />} />
 
-            <Route element={<PermissionRoute permission="support.view" />}>
+            <Route element={<PermissionRoute />}>
               <Route path="help" element={<GovHelpSupportPage />} />
               <Route path="help/new" element={<CreateSupportTicketPage />} />
               <Route path="help/history" element={<GovSupportHistoryPage />} />
@@ -1038,7 +1047,7 @@ export const AppRoutes = () => {
 
       {/* Technician Routes (Full Engineering Portal) */}
       <Route element={<ProtectedRoute />}>
-        <Route element={<RoleRoute allow={[ROLE.CENTRAL_TECH, ROLE.TENANT_ADMIN, ROLE.SUPER_ADMIN]} />}>
+        <Route element={<RoleRoute allow={[ROLE.CENTRAL_TECH, ROLE.SUPER_ADMIN]} />}>
           <Route path="/technician" element={<RoleLayout roleTitle="Technician" navLinks={technicianNavLinks} />}>
             <Route index element={<Navigate to="/technician/dashboard" replace />} />
 
@@ -1046,7 +1055,7 @@ export const AppRoutes = () => {
               <Route path="dashboard" element={<TechnicianDashboard />} />
             </Route>
 
-            <Route element={<PermissionRoute permission="work_orders.view" />}>
+            <Route element={<PermissionRoute permission="technician.work_orders.view" />}>
               <Route path="work-orders" element={<TechWorkOrdersPage />} />
               <Route path="work-orders/:id" element={<TechWorkOrderDetailPage />} />
             </Route>
@@ -1056,22 +1065,22 @@ export const AppRoutes = () => {
               <Route path="devices/setup" element={<TechEdgeSetupPage />} />
               <Route path="devices" element={<EdgeDevicesPage />} />
               <Route path="devices/:id" element={<EdgeDeviceDetailsPage />} />
-              <Route path="devices/:id/edit" element={<RegisterEdgeDevicePage />} />
             </Route>
 
-            <Route element={<PermissionRoute permission="technician.hardware-config.manage" />}>
+            <Route element={<PermissionRoute permission="technician.devices.update" />}>
+              <Route path="devices/:id/edit" element={<RegisterEdgeDevicePage />} />
               <Route path="hardware-config" element={<TechHardwareConfigPage />} />
               <Route path="devices/:id/config" element={<TechHardwareConfigPage />} />
               <Route path="devices/:id/config/saved" element={<TechConfigSavedPage />} />
             </Route>
 
-            <Route element={<PermissionRoute permission={['technician.gps.manage', 'devices.gps.manage']} />}>
+            <Route element={<PermissionRoute permission="technician.devices.update" />}>
               <Route path="gps" element={<TechGpsInstallPage />} />
               <Route path="gps/success" element={<TechGpsInstalledPage />} />
               <Route path="devices/:id/gps" element={<TechGpsInstallPage />} />
             </Route>
 
-            <Route element={<PermissionRoute permission={['devices.register', 'technician.devices.view']} />}>
+            <Route element={<PermissionRoute permission="technician.devices.register" />}>
               <Route path="devices/register" element={<RegisterEdgeDevicePage />} />
               <Route path="devices/new" element={<RegisterEdgeDevicePage />} />
               <Route path="devices/add" element={<RegisterEdgeDevicePage />} />
@@ -1079,12 +1088,12 @@ export const AppRoutes = () => {
               <Route path="devices/register/success" element={<Navigate to="/technician/devices" replace />} />
             </Route>
 
-            <Route element={<PermissionRoute permission="technician.hardware-status.view" />}>
+            <Route element={<PermissionRoute permission="technician.hardware_status.view" />}>
               <Route path="hardware-status" element={<TechHardwareStatusPage />} />
               <Route path="devices/:id/status" element={<TechHardwareStatusPage />} />
             </Route>
 
-            <Route element={<PermissionRoute permission={['technician.diagnostics.manage', 'devices.diagnose']} />}>
+            <Route element={<PermissionRoute permission="technician.diagnostics.view" />}>
               <Route path="diagnostics" element={<TechDiagnosticsPage />} />
               <Route path="connectivity" element={<TechConnectivityPage />} />
             </Route>
@@ -1100,7 +1109,7 @@ export const AppRoutes = () => {
             <Route path="settings/security/success" element={<TechPasswordUpdatedPage />} />
             <Route path="settings/notifications" element={<TechNotificationSettingsPage />} />
 
-            <Route element={<PermissionRoute permission="support.view" />}>
+            <Route element={<PermissionRoute />}>
               <Route path="help" element={<TechHelpSupportPage />} />
               <Route path="help/new" element={<CreateSupportTicketPage />} />
               <Route path="help/history" element={<TechSupportHistoryPage />} />
@@ -1117,24 +1126,36 @@ export const AppRoutes = () => {
         <Route element={<RoleRoute allow={[ROLE.DRIVER]} />}>
           <Route path="/driver" element={<RoleLayout roleTitle="Driver" navLinks={driverNavLinks} />}>
             <Route index element={<Navigate to="/driver/dashboard" replace />} />
-            <Route element={<PermissionRoute permission="drivers.portal.view" />}>
+            <Route element={<PermissionRoute permission="driver.dashboard.view" />}>
               <Route path="dashboard" element={<DriverDashboard />} />
+            </Route>
+            <Route element={<PermissionRoute permission="driver.documents.view" />}>
               <Route path="documents" element={<DriverDocumentsPage />} />
-              <Route element={<VerifiedDriverRoute />}>
+            </Route>
+            <Route element={<VerifiedDriverRoute />}>
+              <Route element={<PermissionRoute permission="driver.routes.view" />}>
                 <Route path="routes" element={<DriverRoutesPage />} />
+              </Route>
+              <Route element={<PermissionRoute permission="driver.trips.view" />}>
                 <Route path="trips" element={<DriverTripsPage />} />
+              </Route>
+              <Route element={<PermissionRoute permission="driver.schedule.view" />}>
                 <Route path="schedule" element={<DriverSchedulePage />} />
+              </Route>
+              <Route element={<PermissionRoute permission="driver.incidents.view" />}>
                 <Route path="incidents" element={<DriverIncidentsListPage />} />
                 <Route path="incidents/:id" element={<DriverIncidentDetailsPage />} />
               </Route>
             </Route>
-            <Route element={<PermissionRoute permission={['drivers.work_orders.view', 'drivers.portal.view', 'work_orders.view']} />}>
+            <Route element={<PermissionRoute permission="driver.work_orders.view" />}>
               <Route path="work-orders" element={<TechRequestsPage />} />
-              <Route path="work-orders/new" element={<DriverCreateWorkOrderPage />} />
               <Route path="work-orders/:id" element={<AdminTechRequestDetailsPage />} />
               <Route path="work-orders/:id/rate" element={<RateTechnicianPage />} />
             </Route>
-            <Route element={<PermissionRoute permission="drivers.incidents.report" />}>
+            <Route element={<PermissionRoute permission="driver.work_orders.create" />}>
+              <Route path="work-orders/new" element={<DriverCreateWorkOrderPage />} />
+            </Route>
+            <Route element={<PermissionRoute permission="driver.incidents.create" />}>
               <Route element={<VerifiedDriverRoute />}>
                 <Route path="report" element={<Navigate to="/driver/incident-report" replace />} />
                 <Route path="incident-report" element={<DriverReportIncidentPage />} />
@@ -1142,7 +1163,7 @@ export const AppRoutes = () => {
                 <Route path="incident-report/success" element={<DriverIncidentSuccessPage />} />
               </Route>
             </Route>
-            <Route element={<PermissionRoute permission="drivers.documents.manage" />}>
+            <Route element={<PermissionRoute permission="driver.documents.manage" />}>
               <Route path="documents/upload" element={<DriverUploadDocumentPage />} />
               <Route path="documents/upload/success" element={<DriverDocumentSubmittedPage />} />
               <Route path="documents/success" element={<DriverDocumentSubmittedPage />} />
@@ -1153,7 +1174,7 @@ export const AppRoutes = () => {
             <Route path="settings/security" element={<DriverChangePasswordPage />} />
             <Route path="settings/security/success" element={<DriverPasswordUpdatedPage />} />
             <Route path="settings/notifications" element={<DriverNotificationSettingsPage />} />
-            <Route element={<PermissionRoute permission="support.view" />}>
+            <Route element={<PermissionRoute />}>
               <Route path="help" element={<DriverHelpSupportPage />} />
               <Route path="help/new" element={<CreateSupportTicketPage />} />
               <Route path="help/history" element={<DriverSupportHistoryPage />} />
@@ -1166,7 +1187,7 @@ export const AppRoutes = () => {
 
       {/* Finance Routes (Full Enterprise Financial Portal) */}
       <Route element={<ProtectedRoute />}>
-        <Route element={<RoleRoute allow={[ROLE.FINANCE_OFFICER, ROLE.TENANT_ADMIN, ROLE.SUPER_ADMIN]} />}>
+        <Route element={<RoleRoute allow={[ROLE.FINANCE_OFFICER, ROLE.SUPER_ADMIN]} />}>
           <Route path="/finance" element={<RoleLayout roleTitle="Finance Officer" navLinks={financeNavLinks} />}>
             <Route index element={<Navigate to="/finance/dashboard" replace />} />
 
@@ -1174,14 +1195,14 @@ export const AppRoutes = () => {
               <Route path="dashboard" element={<FinanceDashboardPage />} />
             </Route>
 
-            <Route element={<PermissionRoute permission="finance.subscriptions.view" />}>
+            <Route element={<PermissionRoute permission="finance.tenants.view" />}>
               <Route path="subscriptions" element={<TenantsListPage />} />
               <Route path="subscriptions/:id" element={<TenantDetailsPage />} />
             </Route>
-            <Route element={<PermissionRoute permission={['finance.subscriptions.create', 'finance.subscriptions.manage']} />}>
+            <Route element={<PermissionRoute permission="finance.tenants.create" />}>
               <Route path="subscriptions/onboard" element={<OnboardTenantPage />} />
             </Route>
-            <Route element={<PermissionRoute permission={['finance.subscriptions.update', 'finance.subscriptions.manage']} />}>
+            <Route element={<PermissionRoute permission="finance.tenants.update" />}>
               <Route path="subscriptions/:id/edit" element={<EditTenantPage />} />
             </Route>
 
@@ -1192,7 +1213,6 @@ export const AppRoutes = () => {
 
             <Route element={<PermissionRoute permission="finance.invoices.create" />}>
               <Route path="invoices/generate" element={<GenerateInvoicePage />} />
-              <Route path="invoices/design" element={<InvoiceDesignerPage />} />
             </Route>
 
             <Route element={<PermissionRoute permission="finance.payments.view" />}>
@@ -1200,8 +1220,9 @@ export const AppRoutes = () => {
               <Route path="payments/:id" element={<PaymentDetailsPage />} />
             </Route>
 
-            <Route element={<PermissionRoute permission="finance.payments.view" />}>
+            <Route element={<PermissionRoute permission="finance.campaign_payments.view" />}>
               <Route path="campaign-payments" element={<FinanceCampaignPaymentsPage />} />
+              <Route path="campaign-payments/:id" element={<FinanceCampaignDetailsPage />} />
             </Route>
 
             <Route element={<PermissionRoute permission="finance.reports.view" />}>
@@ -1218,7 +1239,7 @@ export const AppRoutes = () => {
               <Route path="reconciliation" element={<FinancialReconciliationPage />} />
               <Route path="reconciliation/success" element={<ReconciliationCompletePage />} />
             </Route>
-            <Route element={<PermissionRoute permission={['finance.reconciliation.manage', 'finance.reconciliation.create', 'finance.reconciliation.update']} />}>
+            <Route element={<PermissionRoute permission="finance.reconciliation.run" />}>
               <Route path="reconciliation/start" element={<StartReconciliationPage />} />
             </Route>
 
@@ -1229,7 +1250,7 @@ export const AppRoutes = () => {
             <Route path="profile/security" element={<FinanceChangePasswordPage />} />
             <Route path="profile/security/success" element={<FinancePasswordUpdatedPage />} />
             <Route path="profile/notifications" element={<FinanceNotificationSettingsPage />} />
-            <Route element={<PermissionRoute permission="finance.invoices.view" />}>
+            <Route element={<PermissionRoute permission="finance.settings.view" />}>
               <Route path="settings" element={<FinanceAccountSettingsPage />} />
             </Route>
             <Route path="settings/profile" element={<FinanceOfficerAccountSettingsPage />} />
@@ -1237,7 +1258,7 @@ export const AppRoutes = () => {
             <Route path="settings/security/success" element={<FinancePasswordUpdatedPage />} />
             <Route path="settings/notifications" element={<FinanceNotificationSettingsPage />} />
 
-            <Route element={<PermissionRoute permission="support.view" />}>
+            <Route element={<PermissionRoute />}>
               <Route path="help" element={<FinanceHelpSupportPage />} />
               <Route path="help/new" element={<CreateSupportTicketPage />} />
               <Route path="help/history" element={<FinanceSupportHistoryPage />} />
@@ -1255,18 +1276,18 @@ export const AppRoutes = () => {
           <Route path="/superadmin" element={<RoleLayout roleTitle="Super Admin" navLinks={superAdminNavLinks} />}>
             <Route index element={<Navigate to="/superadmin/dashboard" replace />} />
             <Route path="dashboard" element={<SuperadminDashboard />} />
-            <Route element={<PermissionRoute permission="campaigns.approve" />}>
+            <Route element={<PermissionRoute />}>
               <Route path="emergency-approvals" element={<SuperEmergencyApprovalsPage />} />
               <Route path="emergency-approvals/:id" element={<SuperEmergencyDetailsPage />} />
             </Route>
-            <Route element={<PermissionRoute permission="orgs.view" />}>
+            <Route element={<PermissionRoute />}>
               <Route path="tenants" element={<TenantsListPage />} />
               <Route path="tenants/:id" element={<TenantDetailsPage />} />
             </Route>
-            <Route element={<PermissionRoute permission="orgs.create" />}>
+            <Route element={<PermissionRoute />}>
               <Route path="tenants/onboard" element={<OnboardTenantPage />} />
             </Route>
-            <Route element={<PermissionRoute permission="orgs.update" />}>
+            <Route element={<PermissionRoute />}>
               <Route path="tenants/:id/edit" element={<EditTenantPage />} />
             </Route>
             <Route path="technicians" element={<CentralTechniciansPage />} />
@@ -1292,7 +1313,7 @@ export const AppRoutes = () => {
             <Route path="campaigns" element={<SuperCampaignsPage />} />
             <Route path="campaigns/:id" element={<SuperCampaignDetailsPage />} />
             <Route path="campaigns/mapping" element={<AdminCampaignMappingPage />} />
-            <Route element={<PermissionRoute permission="platform.broadcast" />}>
+            <Route element={<PermissionRoute />}>
               <Route path="campaigns/emergency" element={<EmergencyBroadcastPage />} />
             </Route>
             <Route path="devices" element={<EdgeDevicesPage />} />
@@ -1301,18 +1322,18 @@ export const AppRoutes = () => {
             <Route path="devices/:id" element={<EdgeDeviceDetailsPage />} />
             <Route path="devices/:id/edit" element={<RegisterEdgeDevicePage />} />
             <Route path="displays" element={<DisplayMatrixPage />} />
-            <Route element={<PermissionRoute permission="billing.plans.view" />}>
+            <Route element={<PermissionRoute />}>
               <Route path="plans" element={<SuperSubscriptionPlansPage />} />
             </Route>
-            <Route element={<PermissionRoute permission="billing.plans.manage" />}>
+            <Route element={<PermissionRoute />}>
               <Route path="plans/add" element={<SuperSubscriptionPlansPage isAddMode={true} />} />
               <Route path="plans/:id/edit" element={<SuperSubscriptionPlansPage isEditMode={true} />} />
               <Route path="plans/edit/:id" element={<SuperSubscriptionPlansPage isEditMode={true} />} />
             </Route>
-            <Route element={<PermissionRoute permission="billing.transactions.view" />}>
+            <Route element={<PermissionRoute />}>
               <Route path="transactions" element={<SuperTransactionsPage />} />
             </Route>
-            <Route element={<PermissionRoute permission="billing.subscriptions.view" />}>
+            <Route element={<PermissionRoute />}>
               <Route path="billing" element={<SuperBillingPage />} />
             </Route>
 
@@ -1355,11 +1376,11 @@ export const AppRoutes = () => {
             <Route path="finance/subscriptions/:id/edit" element={<EditTenantPage />} />
             <Route path="finance/invoices" element={<InvoicesListPage />} />
             <Route path="finance/invoices/generate" element={<GenerateInvoicePage />} />
-            <Route path="finance/invoices/design" element={<InvoiceDesignerPage />} />
             <Route path="finance/invoices/:id" element={<InvoicePreviewPage />} />
             <Route path="finance/payments" element={<PaymentsListPage />} />
             <Route path="finance/payments/:id" element={<PaymentDetailsPage />} />
             <Route path="finance/campaign-payments" element={<FinanceCampaignPaymentsPage />} />
+            <Route path="finance/campaign-payments/:id" element={<FinanceCampaignDetailsPage />} />
             <Route path="finance/reports" element={<RevenueReportingPage />} />
             <Route path="finance/reports/:id" element={<ReportDetailsPage />} />
             <Route path="finance/reports/success" element={<ReportGeneratedSuccessPage />} />
@@ -1415,28 +1436,29 @@ export const AppRoutes = () => {
 
             <Route path="users" element={<GlobalUsersPage />} />
             <Route path="users/:id/permissions" element={<SuperUserPermissionsPage />} />
-            <Route element={<PermissionRoute permission="rbac.roles.view" />}>
+            <Route element={<PermissionRoute />}>
               <Route path="roles" element={<SuperRolesPermissionsPage />} />
             </Route>
-            <Route element={<PermissionRoute permission="platform.audit" />}>
+            <Route element={<PermissionRoute />}>
               <Route path="activity" element={<SuperUserActivityPage />} />
               <Route path="system/live-logs" element={<LiveServerLogsPage />} />
               <Route path="notifications/logs" element={<NotificationDeliveryLogsPage />} />
             </Route>
-            <Route element={<PermissionRoute permission="platform.mqtt" />}>
+            <Route element={<PermissionRoute />}>
               <Route path="system" element={<MqttSystemLogsPage />} />
             </Route>
-            <Route element={<PermissionRoute permission="platform.content" />}>
+            <Route element={<PermissionRoute />}>
               <Route path="languages" element={<SuperLanguagesPage />} />
               <Route path="content" element={<SuperContentManagerPage />} />
             </Route>
             <Route path="faqs" element={<Navigate to="/superadmin/content" replace />} />
             <Route path="support" element={<SuperSupportDeskPage />} />
             <Route path="incidents" element={<SuperIncidentsPage />} />
+            <Route path="incidents/:id" element={<SuperIncidentsPage />} />
             <Route path="incident-report" element={<SuperReportIncidentPage />} />
             <Route path="incident-report/success" element={<SuperIncidentSuccessPage />} />
             <Route path="profile" element={<SuperProfilePage />} />
-            <Route element={<PermissionRoute permission="platform.settings" />}>
+            <Route element={<PermissionRoute />}>
               <Route path="settings" element={<SuperAccountSettingsPage />} />
               <Route path="settings/payment-gateways" element={<SuperPaymentGatewaysPage />} />
               <Route path="payment-gateways" element={<Navigate to="/superadmin/settings/payment-gateways" replace />} />
@@ -1444,7 +1466,7 @@ export const AppRoutes = () => {
             </Route>
             <Route path="settings/security" element={<SuperChangePasswordPage />} />
             <Route path="settings/security/success" element={<SuperPasswordUpdatedPage />} />
-            <Route element={<PermissionRoute permission="platform.keys" />}>
+            <Route element={<PermissionRoute />}>
               <Route path="settings/google-apis" element={<SuperGoogleApisPage />} />
               <Route path="google-apis" element={<Navigate to="/superadmin/settings/google-apis" replace />} />
               <Route path="test-google-apis" element={<SuperGoogleApisPlaygroundPage />} />
@@ -1474,118 +1496,139 @@ export const AppRoutes = () => {
               <Route path="pending-approval" element={<TenantPendingApprovalPage />} />
               <Route path="subscription" element={<TenantSubscriptionCheckoutPage />} />
               <Route index element={<Navigate to="/admin/dashboard" replace />} />
-              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route element={<PermissionRoute permission="admin.dashboard.view" />}>
+                <Route path="dashboard" element={<AdminDashboard />} />
+              </Route>
 
-              <Route element={<PermissionRoute permission="fleet.fleets.view" />}>
+              <Route element={<PermissionRoute permission="admin.fleet_operators.view" />}>
                 <Route path="fleet-operators" element={<FleetOperatorsPage />} />
                 <Route path="fleet-operators/:id" element={<FleetOperatorDetailsPage />} />
               </Route>
-              <Route element={<PermissionRoute permission="fleet.fleets.create" />}>
+              <Route element={<PermissionRoute permission="admin.fleet_operators.create" />}>
                 <Route path="fleet-operators/add" element={<AddFleetOperatorPage />} />
+              </Route>
+              <Route element={<PermissionRoute permission="admin.fleet_operators.update" />}>
                 <Route path="fleet-operators/edit/:id" element={<AddFleetOperatorPage />} />
               </Route>
 
-              <Route element={<PermissionRoute permission="fleet.drivers.view" />}>
+              <Route element={<PermissionRoute permission="admin.drivers.view" />}>
                 <Route path="drivers" element={<AdminDriversPage />} />
                 <Route path="drivers/:id" element={<AdminDriverDetailsPage />} />
               </Route>
-              <Route element={<PermissionRoute permission="fleet.drivers.create" />}>
+              <Route element={<PermissionRoute permission="admin.drivers.create" />}>
                 <Route path="drivers/add" element={<AdminAddDriverPage />} />
+              </Route>
+              <Route element={<PermissionRoute permission="admin.drivers.update" />}>
                 <Route path="drivers/edit/:id" element={<AdminAddDriverPage />} />
               </Route>
 
-              <Route element={<PermissionRoute permission="fleet.vehicles.view" />}>
+              <Route element={<PermissionRoute permission="admin.vehicles.view" />}>
                 <Route path="vehicles" element={<AdminVehiclesPage />} />
                 <Route path="vehicles/:id" element={<AdminVehicleDetailsPage />} />
               </Route>
-              <Route element={<PermissionRoute permission="fleet.vehicles.create" />}>
+              <Route element={<PermissionRoute permission="admin.vehicles.create" />}>
                 <Route path="vehicles/add" element={<AdminAddVehiclePage />} />
+              </Route>
+              <Route element={<PermissionRoute permission="admin.vehicles.update" />}>
                 <Route path="vehicles/edit/:id" element={<AdminAddVehiclePage />} />
               </Route>
 
               {/* Vehicle Slots */}
-              <Route element={<PermissionRoute permission={['fleet.slots.view', 'fleet.vehicles.view']} />}>
+              <Route element={<PermissionRoute permission="admin.slots.view" />}>
                 <Route path="slots" element={<AdminVehicleSlotsPage />} />
-                <Route path="slots/schedule" element={<ScheduleSlotPage />} />
-                <Route path="slots/add" element={<ScheduleSlotPage />} />
-                <Route path="slots/edit/:id" element={<ScheduleSlotPage />} />
                 <Route path="slots/:id" element={<AdminVehicleSlotDetailsPage />} />
               </Route>
+              <Route element={<PermissionRoute permission="admin.slots.create" />}>
+                <Route path="slots/schedule" element={<ScheduleSlotPage />} />
+                <Route path="slots/add" element={<ScheduleSlotPage />} />
+              </Route>
+              <Route element={<PermissionRoute permission="admin.slots.update" />}>
+                <Route path="slots/edit/:id" element={<ScheduleSlotPage />} />
+              </Route>
 
-              <Route element={<PermissionRoute permission="fleet.depots.view" />}>
+              <Route element={<PermissionRoute permission="admin.depots.view" />}>
                 <Route path="depots" element={<AdminDepotsPage />} />
                 <Route path="depots/:id" element={<AdminDepotDetailsPage />} />
               </Route>
-              <Route element={<PermissionRoute permission="fleet.depots.create" />}>
+              <Route element={<PermissionRoute permission="admin.depots.create" />}>
                 <Route path="depots/add" element={<AddDepotPage />} />
               </Route>
-              <Route element={<PermissionRoute permission="fleet.depots.update" />}>
+              <Route element={<PermissionRoute permission="admin.depots.update" />}>
                 <Route path="depots/edit/:id" element={<AddDepotPage />} />
               </Route>
 
-              <Route element={<PermissionRoute permission="fleet.routes.view" />}>
+              <Route element={<PermissionRoute permission="admin.routes.view" />}>
                 <Route path="routes" element={<RoutesListPage />} />
                 <Route path="routes/:id" element={<RouteDetailsPage />} />
               </Route>
-              <Route element={<PermissionRoute permission="fleet.routes.create" />}>
+              <Route element={<PermissionRoute permission="admin.routes.create" />}>
                 <Route path="routes/add" element={<AddRoutePage />} />
+              </Route>
+              <Route element={<PermissionRoute permission="admin.routes.update" />}>
                 <Route path="routes/edit/:id" element={<AddRoutePage />} />
               </Route>
 
-              <Route path="campaigns/mapping" element={<AdminCampaignMappingPage />} />
-
-              <Route element={<PermissionRoute permission="fleet.incidents.view" />}>
-                <Route path="incidents" element={<AdminIncidentsPage />} />
+              <Route element={<PermissionRoute permission="admin.campaign_mapping.view" />}>
+                <Route path="campaigns/mapping" element={<AdminCampaignMappingPage />} />
               </Route>
-              <Route element={<PermissionRoute permission="fleet.incidents.create" />}>
+
+              <Route element={<PermissionRoute permission="admin.incidents.view" />}>
+                <Route path="incidents" element={<AdminIncidentsPage />} />
+                <Route path="incidents/:id" element={<AdminIncidentsPage />} />
+              </Route>
+              <Route element={<PermissionRoute permission="admin.incidents.create" />}>
                 <Route path="incident-report" element={<AdminReportIncidentPage />} />
                 <Route path="incident-report/success" element={<AdminIncidentSuccessPage />} />
               </Route>
 
-              <Route element={<PermissionRoute permission="fleet.devices.read" />}>
+              <Route element={<PermissionRoute permission="admin.edge_devices.view" />}>
                 <Route path="edge-devices" element={<AdminGpsDevicesPage />} />
                 <Route path="edge-devices/:id" element={<AdminGpsDeviceDetailsPage />} />
                 <Route path="gps" element={<Navigate to="/admin/edge-devices" replace />} />
                 <Route path="gps/:id" element={<Navigate to="/admin/edge-devices" replace />} />
               </Route>
-              <Route element={<PermissionRoute permission="fleet.devices.create" />}>
+              <Route element={<PermissionRoute permission="admin.edge_devices.create" />}>
                 <Route path="edge-devices/add" element={<AdminAddGpsPage />} />
-                <Route path="edge-devices/edit/:id" element={<AdminAddGpsPage />} />
                 <Route path="gps/add" element={<Navigate to="/admin/edge-devices/add" replace />} />
+              </Route>
+              <Route element={<PermissionRoute permission="admin.edge_devices.update" />}>
+                <Route path="edge-devices/edit/:id" element={<AdminAddGpsPage />} />
                 <Route path="gps/edit/:id" element={<Navigate to="/admin/edge-devices" replace />} />
               </Route>
-              <Route element={<PermissionRoute permission="fleet.devices.assign" />}>
+              <Route element={<PermissionRoute permission="admin.edge_devices.assign" />}>
                 <Route path="edge-devices/:id/assign" element={<AdminAssignGpsPage />} />
                 <Route path="gps/:id/assign" element={<Navigate to="/admin/edge-devices" replace />} />
               </Route>
 
-              <Route element={<PermissionRoute permission="users.view" />}>
+              <Route element={<PermissionRoute permission="admin.users.view" />}>
                 <Route path="users" element={<AdminUserManagementPage />} />
               </Route>
-              <Route element={<PermissionRoute permission="users.permissions.manage" />}>
+              <Route element={<PermissionRoute permission="admin.users.permissions" />}>
                 <Route path="users/:id/permissions" element={<AdminUserPermissionsPage />} />
               </Route>
 
               <Route path="roles" element={<Navigate to="/admin/users" replace />} />
 
-              <Route element={<PermissionRoute permission="activity.view" />}>
+              <Route element={<PermissionRoute permission="admin.activity.view" />}>
                 <Route path="activity" element={<AdminUserActivityPage />} />
               </Route>
 
-              <Route element={<PermissionRoute permission="work_orders.view" />}>
+              <Route element={<PermissionRoute permission="admin.work_orders.view" />}>
                 <Route path="technician-requests" element={<TechRequestsPage />} />
                 <Route path="technician-requests/:id" element={<AdminTechRequestDetailsPage />} />
                 <Route path="technician-requests/:id/rate" element={<RateTechnicianPage />} />
               </Route>
-              <Route element={<PermissionRoute permission="work_orders.create" />}>
+              <Route element={<PermissionRoute permission="admin.work_orders.create" />}>
                 <Route path="technician-requests/new" element={<NewTechRequestPage />} />
+              </Route>
+              <Route element={<PermissionRoute permission="admin.work_orders.update" />}>
                 <Route path="technician-requests/edit/:id" element={<NewTechRequestPage />} />
               </Route>
               <Route path="tech-requests" element={<Navigate to="/admin/technician-requests" replace />} />
               <Route path="tech-requests/new" element={<Navigate to="/admin/technician-requests/new" replace />} />
 
               <Route path="revenue" element={<Navigate to="/admin/billing" replace />} />
-              <Route element={<PermissionRoute permission="billing.invoices.view" />}>
+              <Route element={<PermissionRoute permission="admin.billing.view" />}>
                 <Route path="billing" element={<AdminBillingPage />} />
                 <Route path="billing/upgrade" element={<AdminUpgradePlanPage />} />
               </Route>
@@ -1598,7 +1641,7 @@ export const AppRoutes = () => {
               <Route path="settings/notifications" element={<AdminNotificationSettingsPage />} />
               <Route path="notifications" element={<AdminNotificationsPage />} />
 
-              <Route element={<PermissionRoute permission="support.view" />}>
+              <Route element={<PermissionRoute />}>
                 <Route path="help" element={<AdminHelpSupportPage />} />
                 <Route path="help/new" element={<CreateSupportTicketPage />} />
                 <Route path="help/history" element={<AdminSupportHistoryPage />} />

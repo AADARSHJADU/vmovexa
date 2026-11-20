@@ -10,6 +10,7 @@ import {
   deleteUserThunk,
   fetchUserPermissionsThunk,
   updateUserPermissionsThunk,
+  resetUserPermissionsThunk,
 } from '../../store/slices/admin/userSlice.js';
 
 export const useAdminUser = () => {
@@ -25,7 +26,8 @@ export const useAdminUser = () => {
   const getUserPermissions = useCallback((id) => dispatch(fetchUserPermissionsThunk(id)).unwrap(), [dispatch]);
   const updateUserPermissions = useCallback((id, permissions) => dispatch(updateUserPermissionsThunk({ id, permissions })).unwrap(), [dispatch]);
 
-  return { users, pagination, loading, loadUsers, createUser, updateStatus, deleteUser, getUserPermissions, updateUserPermissions };
+  const resetUserPermissions = useCallback((id) => dispatch(resetUserPermissionsThunk(id)).unwrap(), [dispatch]);
+  return { users, pagination, loading, loadUsers, createUser, updateStatus, deleteUser, getUserPermissions, updateUserPermissions, resetUserPermissions };
 };
 
 export default useAdminUser;

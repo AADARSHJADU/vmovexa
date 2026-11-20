@@ -54,9 +54,9 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: const Color(0xFFEF4444),
         icon: const Icon(Icons.add_alert_rounded, color: Colors.white),
-        label: const Text(
-          'Report Incident',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        label: Text(
+          'report_incident'.tr,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         onPressed: () {
           controller.loadReportResources();
@@ -73,9 +73,9 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const CustomBackButton(),
-          const Text(
-            'Emergency & SOS',
-            style: TextStyle(
+          Text(
+            'emergency_sos'.tr,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -85,7 +85,7 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
           IconButton(
             onPressed: () => controller.fetchIncidents(),
             icon: const Icon(Icons.refresh_rounded, color: Colors.white70),
-            tooltip: 'Refresh',
+            tooltip: 'refresh'.tr,
           ),
         ],
       ),
@@ -100,12 +100,12 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFFEF4444).withOpacity(0.3),
+          color: const Color(0xFFEF4444).withValues(alpha: 0.3),
           width: 1.2,
         ),
         gradient: LinearGradient(
           colors: [
-            const Color(0xFFEF4444).withOpacity(0.12),
+            const Color(0xFFEF4444).withValues(alpha: 0.12),
             AppColors.cardBg,
           ],
           begin: Alignment.topLeft,
@@ -117,7 +117,7 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFFEF4444).withOpacity(0.2),
+              color: const Color(0xFFEF4444).withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -131,9 +131,9 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Safety & Incident Desk',
-                  style: TextStyle(
+                Text(
+                  'safety_incident_desk'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
@@ -141,7 +141,7 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  'Monitor breakdowns, accidents, driver SOS calls, and clearance status.',
+                  'safety_desk_sub'.tr,
                   style: TextStyle(
                     color: Colors.grey.shade400,
                     fontSize: 11.5,
@@ -162,7 +162,7 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
         children: [
           Expanded(
             child: _buildMetricCard(
-              label: 'Total Reports',
+              label: 'total_reports'.tr,
               value: controller.totalCount.toString(),
               icon: Icons.shield_outlined,
               iconColor: const Color(0xFF6366F1),
@@ -172,17 +172,17 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
           const SizedBox(width: 8),
           Expanded(
             child: _buildMetricCard(
-              label: 'Critical SOS',
+              label: 'critical_sos'.tr,
               value: controller.criticalCount.toString(),
               icon: Icons.error_outline_rounded,
               iconColor: const Color(0xFFEF4444),
-              borderColor: const Color(0xFFEF4444).withOpacity(0.3),
+              borderColor: const Color(0xFFEF4444).withValues(alpha: 0.3),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: _buildMetricCard(
-              label: 'Investigating',
+              label: 'investigating'.tr,
               value: controller.investigatingCount.toString(),
               icon: Icons.pending_actions_rounded,
               iconColor: const Color(0xFFF59E0B),
@@ -192,7 +192,7 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
           const SizedBox(width: 8),
           Expanded(
             child: _buildMetricCard(
-              label: 'Resolved',
+              label: 'resolved'.tr,
               value: controller.resolvedCount.toString(),
               icon: Icons.check_circle_outline_rounded,
               iconColor: const Color(0xFF10B981),
@@ -251,6 +251,31 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
     );
   }
 
+  String _getCategoryLabel(String cat) {
+    switch (cat) {
+      case 'ALL':
+        return 'all_incidents'.tr;
+      case 'Accident':
+        return 'incident_accident'.tr;
+      case 'Breakdown':
+        return 'incident_breakdown'.tr;
+      case 'Road Condition':
+        return 'incident_road_condition'.tr;
+      case 'Traffic Issue':
+        return 'incident_traffic_issue'.tr;
+      case 'Safety Concern':
+        return 'incident_safety_concern'.tr;
+      case 'Passenger Issue':
+        return 'incident_passenger_issue'.tr;
+      case 'Infrastructure':
+        return 'incident_infrastructure'.tr;
+      case 'Other':
+        return 'incident_other'.tr;
+      default:
+        return cat;
+    }
+  }
+
   Widget _buildSearchAndFilterSection() {
     return Column(
       children: [
@@ -266,7 +291,7 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
             controller: controller.searchController,
             style: const TextStyle(color: Colors.white, fontSize: 13),
             decoration: InputDecoration(
-              hintText: 'Search by Vehicle, Driver, Type, ID...',
+              hintText: 'search_incidents_hint'.tr,
               hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 12),
               prefixIcon: const Icon(Icons.search_rounded, color: Colors.grey, size: 20),
               suffixIcon: Obx(() {
@@ -283,19 +308,81 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
         ),
         const SizedBox(height: 12),
 
-        // Filter Pills
+        // Quick Category Filter Bar
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.category_outlined, size: 13, color: Colors.grey),
+                const SizedBox(width: 4),
+                Text(
+                  'quick_category_label'.tr,
+                  style: TextStyle(
+                    color: Colors.grey.shade400,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Obx(() {
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: controller.quickCategories.map((cat) {
+                    final isSelected = controller.selectedCategory.value == cat;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: GestureDetector(
+                        onTap: () => controller.selectedCategory.value = cat,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 150),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? const Color(0xFF2563EB).withValues(alpha: 0.2)
+                                : AppColors.cardBg,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isSelected ? const Color(0xFF3B82F6) : AppColors.cardBorder,
+                              width: isSelected ? 1.4 : 1.0,
+                            ),
+                          ),
+                          child: Text(
+                            _getCategoryLabel(cat),
+                            style: TextStyle(
+                              color: isSelected ? const Color(0xFF60A5FA) : Colors.grey.shade400,
+                              fontSize: 11,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              );
+            }),
+          ],
+        ),
+        const SizedBox(height: 10),
+
+        // Status Filter Pills
         Obx(() {
           return SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                _buildFilterPill('ALL', 'All Incidents', null),
+                _buildFilterPill('ALL', 'all_incidents'.tr, null),
                 const SizedBox(width: 8),
-                _buildFilterPill('critical', 'Critical SOS', const Color(0xFFEF4444)),
+                _buildFilterPill('critical', 'critical_sos'.tr, const Color(0xFFEF4444)),
                 const SizedBox(width: 8),
-                _buildFilterPill('investigating', 'Under Investigation', const Color(0xFFF59E0B)),
+                _buildFilterPill('investigating', 'under_investigation'.tr, const Color(0xFFF59E0B)),
                 const SizedBox(width: 8),
-                _buildFilterPill('resolved', 'Resolved & Cleared', const Color(0xFF10B981)),
+                _buildFilterPill('resolved', 'resolved_and_cleared'.tr, const Color(0xFF10B981)),
               ],
             ),
           );
@@ -313,7 +400,7 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected
-              ? (indicatorColor?.withOpacity(0.2) ?? const Color(0xFF6366F1).withOpacity(0.2))
+              ? (indicatorColor?.withValues(alpha: 0.2) ?? const Color(0xFF6366F1).withValues(alpha: 0.2))
               : AppColors.cardBg,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
@@ -377,15 +464,15 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
             children: [
               Icon(Icons.check_circle_outline_rounded, size: 48, color: Colors.grey.shade600),
               const SizedBox(height: 12),
-              const Text(
-                'No Incidents Found',
-                style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+              Text(
+                'no_incidents_found_title'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 6),
               Text(
                 controller.searchQuery.value.isNotEmpty
-                    ? 'No incidents match your search query.'
-                    : 'All fleet routes & vehicles are operating safely.',
+                    ? 'no_incidents_match_search'.tr
+                    : 'all_fleet_safe'.tr,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
               ),
@@ -420,7 +507,7 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: inc.isCritical
-                ? const Color(0xFFEF4444).withOpacity(0.4)
+                ? const Color(0xFFEF4444).withValues(alpha: 0.4)
                 : AppColors.cardBorder,
             width: inc.isCritical ? 1.4 : 1.0,
           ),
@@ -442,7 +529,7 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
                       const SizedBox(width: 6),
                       Flexible(
                         child: Text(
-                          inc.incidentType,
+                          _getCategoryLabel(inc.incidentType),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -459,9 +546,9 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: inc.severityColor.withOpacity(0.15),
+                    color: inc.severityColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: inc.severityColor.withOpacity(0.5)),
+                    border: Border.all(color: inc.severityColor.withValues(alpha: 0.5)),
                   ),
                   child: Text(
                     inc.severity.toUpperCase(),
@@ -477,9 +564,9 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: inc.statusColor.withOpacity(0.15),
+                    color: inc.statusColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: inc.statusColor.withOpacity(0.5)),
+                    border: Border.all(color: inc.statusColor.withValues(alpha: 0.5)),
                   ),
                   child: Text(
                     inc.formattedStatus.toUpperCase(),
@@ -511,7 +598,7 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppColors.background.withOpacity(0.6),
+                color: AppColors.background.withValues(alpha: 0.6),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Column(
@@ -567,7 +654,7 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEF4444).withOpacity(0.12),
+                  color: const Color(0xFFEF4444).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
@@ -576,7 +663,10 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
                     const Icon(Icons.local_hospital_rounded, size: 13, color: Color(0xFFEF4444)),
                     const SizedBox(width: 5),
                     Text(
-                      'Casualties: ${inc.deadCasualty} • Injured: ${inc.injuredCount}',
+                      'casualties_injured_count'.trParams({
+                        'dead': inc.deadCasualty.toString(),
+                        'injured': inc.injuredCount.toString(),
+                      }),
                       style: const TextStyle(
                         color: Color(0xFFEF4444),
                         fontSize: 10.5,
@@ -596,21 +686,23 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
                 Text(
                   inc.createdAt != null && inc.createdAt!.length >= 10
                       ? inc.createdAt!.substring(0, 10)
-                      : 'Recorded',
+                      : 'recorded'.tr,
                   style: TextStyle(color: Colors.grey.shade500, fontSize: 10),
                 ),
                 Row(
-                  children: const [
+                  children: [
+                    const Icon(Icons.phone_in_talk_rounded, size: 13, color: Color(0xFF60A5FA)),
+                    const SizedBox(width: 4),
                     Text(
-                      'View & Resolve',
-                      style: TextStyle(
-                        color: Color(0xFF6366F1),
+                      'voice_contact_notes_action'.tr,
+                      style: const TextStyle(
+                        color: Color(0xFF60A5FA),
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(width: 2),
-                    Icon(Icons.chevron_right_rounded, size: 16, color: Color(0xFF6366F1)),
+                    const SizedBox(width: 2),
+                    const Icon(Icons.chevron_right_rounded, size: 15, color: Color(0xFF60A5FA)),
                   ],
                 ),
               ],

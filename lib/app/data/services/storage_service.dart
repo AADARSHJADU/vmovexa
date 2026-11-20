@@ -12,6 +12,8 @@ class StorageService extends GetxService {
   static const String _keyRefreshToken = 'vmovexa_refresh_token';
   static const String _keyUser = 'vmovexa_user';
   static const String _keyRole = 'vmovexa_current_role';
+  static const String _keyLanguageCode = 'vmovexa_language_code';
+  static const String _keyCountryCode = 'vmovexa_country_code';
 
   Future<StorageService> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -78,6 +80,49 @@ class StorageService extends GetxService {
   bool isLoggedIn() {
     final token = getAccessToken();
     return token != null && token.isNotEmpty;
+  }
+
+  // Language persistence
+  Future<void> saveLanguage(String languageCode, String countryCode) async {
+    await _prefs.setString(_keyLanguageCode, languageCode);
+    await _prefs.setString(_keyCountryCode, countryCode);
+  }
+
+  String getLanguageCode() {
+    return _prefs.getString(_keyLanguageCode) ?? 'en';
+  }
+
+  String getCountryCode() {
+    return _prefs.getString(_keyCountryCode) ?? 'US';
+  }
+
+  static const String _keyCampaignDraft = 'vmovexa_draft_campaign';
+
+  // Save campaign draft
+  Future<void> saveCampaignDraft(Map<String, dynamic> data) async {
+    await _prefs.setString(_keyCampaignDraft, jsonEncode(data));
+  }
+
+  // Get campaign draft
+  Map<String, dynamic>? getCampaignDraft() {
+    final raw = _prefs.getString(_keyCampaignDraft);
+    if (raw != null && raw.isNotEmpty) {
+      try {
+        return jsonDecode(raw) as Map<String, dynamic>;
+      } catch (_) {}
+    }
+    return null;
+  }
+
+  // Has campaign draft
+  bool hasCampaignDraft() {
+    final raw = _prefs.getString(_keyCampaignDraft);
+    return raw != null && raw.isNotEmpty;
+  }
+
+  // Clear campaign draft
+  Future<void> clearCampaignDraft() async {
+    await _prefs.remove(_keyCampaignDraft);
   }
 
   // Clear session on logout

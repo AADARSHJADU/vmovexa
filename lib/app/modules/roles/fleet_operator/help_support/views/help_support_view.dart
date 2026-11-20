@@ -28,7 +28,7 @@ class HelpSupportView extends GetView<HelpSupportController> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        'Help & Support',
+                        'help_support'.tr,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -40,7 +40,7 @@ class HelpSupportView extends GetView<HelpSupportController> {
                   IconButton(
                     icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 20),
                     onPressed: c.loadHelpContent,
-                    tooltip: 'Refresh Content',
+                    tooltip: 'refresh_content'.tr,
                   ),
                 ],
               ),
@@ -66,7 +66,7 @@ class HelpSupportView extends GetView<HelpSupportController> {
                       const SizedBox(height: 20),
 
                       // User Guides Section
-                      const Text('User Guides & SOPs', style: TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.bold)),
+                      Text('user_guides_and_sops'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       _buildGuidesPanel(c),
                       const SizedBox(height: 24),
@@ -75,10 +75,10 @@ class HelpSupportView extends GetView<HelpSupportController> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Frequently Asked Questions', style: TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.bold)),
+                          Text('frequently_asked_questions'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.bold)),
                           Obx(
                             () => Text(
-                              '${c.filteredFaqs.length} FAQs',
+                              'faqs_count'.trParams({'count': c.filteredFaqs.length.toString()}),
                               style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 10, fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -89,20 +89,20 @@ class HelpSupportView extends GetView<HelpSupportController> {
                       const SizedBox(height: 24),
 
                       // Contact Support Section
-                      const Text('Contact Support Channels', style: TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 10),
-                      _buildContactSupportPanel(c),
-                      const SizedBox(height: 24),
-
-                      // Support History Section
-                      const Text('Your Support History', style: TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 10),
-                      _buildSupportHistoryPanel(c),
-                      const SizedBox(height: 24),
-
-                      // Commitment Footer card
-                      _buildCommitmentCard(),
-                      const SizedBox(height: 24),
+                      // Text('contact_support_channels'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.bold)),
+                      // const SizedBox(height: 10),
+                      // _buildContactSupportPanel(c),
+                      // const SizedBox(height: 24),
+                      //
+                      // // Support History Section
+                      // Text('your_support_history'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.bold)),
+                      // const SizedBox(height: 10),
+                      // _buildSupportHistoryPanel(c),
+                      // const SizedBox(height: 24),
+                      //
+                      // // Commitment Footer card
+                      // _buildCommitmentCard(),
+                      // const SizedBox(height: 24),
                     ],
                   ),
                 ),
@@ -201,7 +201,7 @@ class HelpSupportView extends GetView<HelpSupportController> {
         style: const TextStyle(color: Colors.white, fontSize: 12),
         decoration: InputDecoration(
           icon: const Icon(Icons.search_rounded, color: Color(0xFF64748B), size: 18),
-          hintText: 'Search FAQs, guide topics or dispatch rules...',
+          hintText: 'search_faqs_hint'.tr,
           hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 12),
@@ -232,16 +232,120 @@ class HelpSupportView extends GetView<HelpSupportController> {
             final isLast = c.guides.last == guide;
             return Column(
               children: [
-                _buildItemRow(
-                  guide.title,
-                  guide.desc,
-                  "assets/icons/fleet_operator_icons/userGuidesA.svg",
+                _buildGuideRow(
+                  guide,
                   () => c.openGuide(guide),
                 ),
                 if (!isLast) const Divider(color: AppColors.cardBorder, height: 16),
               ],
             );
           }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGuideRow(HelpGuideItem guide, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        color: Colors.transparent,
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              "assets/icons/fleet_operator_icons/userGuidesA.svg",
+              width: 24,
+              height: 24,
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          guide.title,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (guide.hasPdf) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0x1F10B981),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: const Color(0x4D10B981)),
+                          ),
+                          child: Text(
+                            'pdf'.tr,
+                            style: const TextStyle(
+                              color: Color(0xFF34D399),
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    guide.desc,
+                    style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 9.5,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      if (guide.hasPdf) ...[
+                        const Icon(
+                          Icons.download_rounded,
+                          color: Color(0xFF60A5FA),
+                          size: 11,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'download_read_sop'.tr,
+                          style: const TextStyle(
+                            color: Color(0xFF60A5FA),
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ] else ...[
+                        Text(
+                          'no_pdf_attached'.tr,
+                          style: const TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 9,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Icon(
+              guide.hasPdf ? Icons.open_in_new_rounded : Icons.chevron_right_rounded,
+              color: guide.hasPdf ? const Color(0xFF60A5FA) : AppColors.textMuted,
+              size: 16,
+            ),
+          ],
         ),
       ),
     );
@@ -258,10 +362,10 @@ class HelpSupportView extends GetView<HelpSupportController> {
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.cardBorder),
           ),
-          child: const Center(
+          child: Center(
             child: Text(
-              'No FAQs match your search query.',
-              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+              'no_faqs_match'.tr,
+              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
             ),
           ),
         );
@@ -352,11 +456,11 @@ class HelpSupportView extends GetView<HelpSupportController> {
         ),
         child: Column(
           children: [
-            _buildItemRow('Email Support Desk', c.supportEmail.value, "assets/icons/fleet_operator_icons/emailA.svg", c.openEmail),
+            _buildItemRow('email_support_desk'.tr, c.supportEmail.value, "assets/icons/fleet_operator_icons/emailA.svg", c.openEmail),
             const Divider(color: AppColors.cardBorder, height: 16),
-            _buildItemRow('24/7 Phone Hotline', c.supportPhone.value, "assets/icons/fleet_operator_icons/mobileNumberA.svg", c.openCall),
+            _buildItemRow('phone_hotline'.tr, c.supportPhone.value, "assets/icons/fleet_operator_icons/mobileNumberA.svg", c.openCall),
             const Divider(color: AppColors.cardBorder, height: 16),
-            _buildItemRow('WhatsApp Support Desk', c.supportPhone.value, "assets/icons/fleet_operator_icons/whatsappA.svg", c.openWhatsapp),
+            _buildItemRow('whatsapp_support_desk'.tr, c.supportPhone.value, "assets/icons/fleet_operator_icons/whatsappA.svg", c.openWhatsapp),
           ],
         ),
       ),
@@ -371,7 +475,7 @@ class HelpSupportView extends GetView<HelpSupportController> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.cardBorder, width: 1.2),
       ),
-      child: _buildItemRow('Your Support History', 'View your previous support requests and tickets', "assets/icons/fleet_operator_icons/supportHistoryA.svg", c.goToSupportHistory),
+      child: _buildItemRow('your_support_history'.tr, 'view_support_history_sub'.tr, "assets/icons/fleet_operator_icons/supportHistoryA.svg", c.goToSupportHistory),
     );
   }
 
@@ -390,15 +494,15 @@ class HelpSupportView extends GetView<HelpSupportController> {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  'Your satisfaction is our priority.',
-                  style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  'satisfaction_priority'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  'We are committed to providing you the best support experience across your fleet operations.',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 10),
+                  'support_commitment_desc'.tr,
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
                 ),
               ],
             ),

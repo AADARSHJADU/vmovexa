@@ -23,9 +23,8 @@ class AdvertiserEditProfileView extends GetView<AdvertiserProfileController> {
                 children: [
                   const CustomBackButton(),
                   const SizedBox(width: 8),
-                  const Expanded(
-                    child: Text(
-                      'Account Settings',
+                  Expanded(
+                    child: Text('account_settings'.tr,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 17,
@@ -35,7 +34,7 @@ class AdvertiserEditProfileView extends GetView<AdvertiserProfileController> {
                   ),
                   TextButton(
                     onPressed: () => Get.back(),
-                    child: const Text('Cancel', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                    child: Text('cancel'.tr, style: const TextStyle(color: Colors.white70, fontSize: 12)),
                   ),
                   const SizedBox(width: 4),
                   Obx(() => Container(
@@ -58,12 +57,12 @@ class AdvertiserEditProfileView extends GetView<AdvertiserProfileController> {
                                   height: 14,
                                   child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                                 )
-                              : const Row(
+                              : Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.check_rounded, color: Colors.white, size: 16),
-                                    SizedBox(width: 4),
-                                    Text('Save', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                                    const Icon(Icons.check_rounded, color: Colors.white, size: 16),
+                                    const SizedBox(width: 4),
+                                    Text('save'.tr, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                                   ],
                                 ),
                         ),
@@ -174,15 +173,13 @@ class AdvertiserEditProfileView extends GetView<AdvertiserProfileController> {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  'Profile Photo',
-                  style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+              children: [
+                Text('profile_photo'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 2),
-                Text(
-                  'Supports JPG, PNG or WEBP (max 5MB)',
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 10.5),
+                const SizedBox(height: 2),
+                Text('profile_photo_format_hint'.tr,
+                  style: const TextStyle(color: AppColors.textMuted, fontSize: 10.5),
                 ),
               ],
             ),
@@ -199,7 +196,7 @@ class AdvertiserEditProfileView extends GetView<AdvertiserProfileController> {
                 if (hasPhoto) ...[
                   IconButton(
                     icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 20),
-                    tooltip: 'Remove photo',
+                    tooltip: 'remove_photo_tooltip'.tr,
                     onPressed: () => controller.removeAvatar(),
                   ),
                   const SizedBox(width: 4),
@@ -214,7 +211,7 @@ class AdvertiserEditProfileView extends GetView<AdvertiserProfileController> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                   icon: const Icon(Icons.camera_alt_outlined, size: 14, color: Color(0xFF8B5CF6)),
-                  label: const Text('Change', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                  label: Text('change_btn'.tr, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                 ),
               ],
             );
@@ -254,14 +251,14 @@ class AdvertiserEditProfileView extends GetView<AdvertiserProfileController> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Select Profile Photo',
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            Text(
+              'select_profile_photo'.tr,
+              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Choose an option to upload your photo',
-              style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+            Text(
+              'choose_upload_option'.tr,
+              style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
             ),
             const SizedBox(height: 18),
             ListTile(
@@ -273,7 +270,7 @@ class AdvertiserEditProfileView extends GetView<AdvertiserProfileController> {
                 ),
                 child: const Icon(Icons.camera_alt_rounded, color: Color(0xFF8B5CF6), size: 20),
               ),
-              title: const Text('Take Photo with Camera', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+              title: Text('take_photo_camera'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
               onTap: () {
                 Get.back();
                 controller.pickImage(ImageSource.camera);
@@ -289,7 +286,7 @@ class AdvertiserEditProfileView extends GetView<AdvertiserProfileController> {
                 ),
                 child: const Icon(Icons.photo_library_rounded, color: Color(0xFF3B82F6), size: 20),
               ),
-              title: const Text('Choose from Gallery', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+              title: Text('choose_from_gallery'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
               onTap: () {
                 Get.back();
                 controller.pickImage(ImageSource.gallery);
@@ -320,8 +317,7 @@ class AdvertiserEditProfileView extends GetView<AdvertiserProfileController> {
             children: [
               Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF3B82F6), shape: BoxShape.circle)),
               const SizedBox(width: 8),
-              const Text(
-                '1. PERSONAL INFORMATION',
+              Text('personal_information_sec'.tr,
                 style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 0.5),
               ),
             ],
@@ -330,18 +326,18 @@ class AdvertiserEditProfileView extends GetView<AdvertiserProfileController> {
 
           // Full Name
           _buildFormField(
-            label: 'Full Name',
+            label: 'full_name'.tr,
             controller: controller.nameController,
-            hintText: 'Enter full name',
+            hintText: 'enter_full_name_hint'.tr,
             icon: Icons.person_outline_rounded,
           ),
           const SizedBox(height: 12),
 
           // Email Address
           _buildFormField(
-            label: 'Email Address',
+            label: 'email_address'.tr,
             controller: controller.emailController,
-            hintText: 'Enter email address',
+            hintText: 'enter_email_hint'.tr,
             icon: Icons.email_outlined,
             keyboardType: TextInputType.emailAddress,
           ),
@@ -349,9 +345,9 @@ class AdvertiserEditProfileView extends GetView<AdvertiserProfileController> {
 
           // Phone Number
           _buildFormField(
-            label: 'Phone / Mobile',
+            label: 'phone_mobile'.tr,
             controller: controller.phoneController,
-            hintText: 'Enter phone number',
+            hintText: 'enter_phone_hint'.tr,
             icon: Icons.phone_outlined,
             keyboardType: TextInputType.phone,
           ),
@@ -361,7 +357,7 @@ class AdvertiserEditProfileView extends GetView<AdvertiserProfileController> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Account Code (System ID)', style: TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.w600)),
+              Text('account_code_system_id'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.w600)),
               const SizedBox(height: 6),
               Container(
                 width: double.infinity,
@@ -399,11 +395,18 @@ class AdvertiserEditProfileView extends GetView<AdvertiserProfileController> {
         children: [
           Row(
             children: [
-              Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF8B5CF6), shape: BoxShape.circle)),
+              Container(
+                width: 9,
+                height: 9,
+                decoration: const BoxDecoration(
+                  gradient: AppTheme.primaryGradient,
+                  shape: BoxShape.circle,
+                ),
+              ),
               const SizedBox(width: 8),
-              const Text(
-                '2. BRAND / AGENCY INFORMATION',
-                style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+              Text(
+                'brand_agency_info_sec'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 0.5),
               ),
             ],
           ),
@@ -411,27 +414,27 @@ class AdvertiserEditProfileView extends GetView<AdvertiserProfileController> {
 
           // Company Name
           _buildFormField(
-            label: 'Company / Brand Name',
+            label: 'brand_company_label'.tr,
             controller: controller.companyController,
-            hintText: 'Enter brand or agency name',
+            hintText: 'enter_brand_agency_hint'.tr,
             icon: Icons.business_rounded,
           ),
           const SizedBox(height: 12),
 
           // Branch / Division
           _buildFormField(
-            label: 'Branch / Division',
+            label: 'branch_division'.tr,
             controller: controller.branchController,
-            hintText: 'e.g. Regional Advertising Desk',
+            hintText: 'branch_division_example_hint'.tr,
             icon: Icons.location_city_rounded,
           ),
           const SizedBox(height: 12),
 
           // Billing Address
           _buildFormField(
-            label: 'Registered Billing Address',
+            label: 'billing_address'.tr,
             controller: controller.addressController,
-            hintText: 'Enter complete office address',
+            hintText: 'enter_office_address_hint'.tr,
             icon: Icons.pin_drop_outlined,
             maxLines: 2,
           ),
@@ -476,8 +479,7 @@ class AdvertiserEditProfileView extends GetView<AdvertiserProfileController> {
             children: [
               Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle)),
               const SizedBox(width: 8),
-              const Text(
-                '3. PREFERENCES & TIMEZONE',
+              Text('preferences_timezone_sec'.tr,
                 style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 0.5),
               ),
             ],
@@ -488,7 +490,7 @@ class AdvertiserEditProfileView extends GetView<AdvertiserProfileController> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Interface Language', style: TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.w600)),
+              Text('interface_language'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.w600)),
               const SizedBox(height: 6),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -526,7 +528,7 @@ class AdvertiserEditProfileView extends GetView<AdvertiserProfileController> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Analytics Timezone', style: TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.w600)),
+              Text('analytics_timezone'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.w600)),
               const SizedBox(height: 6),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -579,7 +581,7 @@ class AdvertiserEditProfileView extends GetView<AdvertiserProfileController> {
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('Cancel', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+            child: Text('cancel'.tr, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
           ),
         ),
         const SizedBox(height: 12),
@@ -597,20 +599,20 @@ class AdvertiserEditProfileView extends GetView<AdvertiserProfileController> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 child: controller.isSaving.value
-                    ? const Row(
+                    ? Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
-                          SizedBox(width: 8),
-                          Text('Saving...', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                          const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
+                          const SizedBox(width: 8),
+                          Text('saving_status'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                         ],
                       )
-                    : const Row(
+                    : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.check_circle_outline_rounded, color: Colors.white, size: 18),
-                          SizedBox(width: 6),
-                          Text('Save Account Changes', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                          const Icon(Icons.check_circle_outline_rounded, color: Colors.white, size: 18),
+                          const SizedBox(width: 6),
+                          Text('save_account_changes'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                         ],
                       ),
               )),

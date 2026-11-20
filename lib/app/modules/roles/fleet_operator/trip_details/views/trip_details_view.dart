@@ -22,9 +22,9 @@ class TripDetailsView extends GetView<TripDetailsController> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const CustomBackButton(),
-                  const Text(
-                    'Trip Details',
-                    style: TextStyle(
+                  Text(
+                    'trip_details_title'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -49,13 +49,13 @@ class TripDetailsView extends GetView<TripDetailsController> {
                     const SizedBox(height: 24),
 
                     // Route Summary Section
-                    _buildSectionHeader('Route Summary'),
+                    _buildSectionHeader('route_overview'.tr),
                     const SizedBox(height: 14),
                     _buildRouteSummaryPanel(),
                     const SizedBox(height: 24),
 
                     // Live Statistics Section
-                    _buildSectionHeader('Live Statistics'),
+                    _buildSectionHeader('live_telematics'.tr),
                     const SizedBox(height: 14),
                     _buildLiveStatsGrid(),
                     const SizedBox(height: 24),
@@ -70,7 +70,7 @@ class TripDetailsView extends GetView<TripDetailsController> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildSubHeader('Trip Timeline'),
+                              _buildSubHeader('trip_details_title'.tr),
                               const SizedBox(height: 14),
                               _buildTimelinePanel(),
                             ],
@@ -83,11 +83,11 @@ class TripDetailsView extends GetView<TripDetailsController> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildSubHeader('Driver Information'),
+                              _buildSubHeader('driver_information'.tr),
                               const SizedBox(height: 12),
                               _buildDriverInfoCard(),
                               const SizedBox(height: 20),
-                              _buildSubHeader('Vehicle Information'),
+                              _buildSubHeader('vehicle_information'.tr),
                               const SizedBox(height: 12),
                               _buildVehicleInfoCard(),
                             ],
@@ -98,30 +98,30 @@ class TripDetailsView extends GetView<TripDetailsController> {
                     const SizedBox(height: 28),
 
                     // Quick Actions Section
-                    _buildSectionHeader('Quick Actions'),
+                    _buildSectionHeader('quick_actions'.tr),
                     const SizedBox(height: 14),
                     Row(
                       children: [
-                        Expanded(child: _buildQuickActionItem('Call Driver', Icons.call_outlined, const Color(0xFF10B981), controller.callDriver)),
+                        Expanded(child: _buildQuickActionItem('call'.tr, Icons.call_outlined, const Color(0xFF10B981), controller.callDriver)),
                         const SizedBox(width: 10),
-                        Expanded(child: _buildQuickActionItem('Navigate', Icons.navigation_outlined, const Color(0xFF3B82F6), controller.navigate)),
+                        Expanded(child: _buildQuickActionItem('navigation'.tr, Icons.navigation_outlined, const Color(0xFF3B82F6), controller.navigate)),
                         const SizedBox(width: 10),
-                        Expanded(child: _buildQuickActionItem('Send Alert', Icons.warning_amber_rounded, Colors.orangeAccent, controller.sendAlert)),
+                        Expanded(child: _buildQuickActionItem('alert'.tr, Icons.warning_amber_rounded, Colors.orangeAccent, controller.sendAlert)),
                         const SizedBox(width: 10),
-                        Expanded(child: _buildQuickActionItem('Download Report', Icons.download_rounded, const Color(0xFF8B5CF6), controller.downloadReport)),
+                        Expanded(child: _buildQuickActionItem('export_pdf_btn'.tr, Icons.download_rounded, const Color(0xFF8B5CF6), controller.downloadReport)),
                       ],
                     ),
                     const SizedBox(height: 40),
 
                     // Complete Trip button
                     CustomButton(
-                      text: 'Complete Trip',
+                      text: 'completed'.tr,
                       onTap: controller.completeTrip,
                       isGradient: true,
                     ),
                     const SizedBox(height: 14),
                     CustomButton(
-                      text: 'View Trip History',
+                      text: 'trips'.tr,
                       isOutlined: true,
                       onTap: () {},
                     ),
@@ -183,12 +183,12 @@ class TripDetailsView extends GetView<TripDetailsController> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF8B5CF6).withOpacity(0.12),
+                      color: const Color(0xFF8B5CF6).withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: const Text(
-                      'Trip Active',
-                      style: TextStyle(
+                    child: Text(
+                      'active'.tr,
+                      style: const TextStyle(
                         color: Color(0xFF8B5CF6),
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
@@ -320,16 +320,16 @@ class TripDetailsView extends GetView<TripDetailsController> {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text('Start', style: TextStyle(color: AppColors.textMuted, fontSize: 9)),
-                SizedBox(height: 2),
-                Text('MG Road, Bengaluru', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                Text('08:10 AM', style: TextStyle(color: AppColors.textSecondary, fontSize: 10)),
-                SizedBox(height: 16),
-                Text('Destination', style: TextStyle(color: AppColors.textMuted, fontSize: 9)),
-                SizedBox(height: 2),
-                Text('Kempegowda Bus Station', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                Text('09:25 AM', style: TextStyle(color: AppColors.textSecondary, fontSize: 10)),
+              children: [
+                Text('origin_station_name'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9)),
+                const SizedBox(height: 2),
+                const Text('MG Road, Bengaluru', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                const Text('08:10 AM', style: TextStyle(color: AppColors.textSecondary, fontSize: 10)),
+                const SizedBox(height: 16),
+                Text('dest_terminal_req'.tr.replaceAll('*', '').trim(), style: const TextStyle(color: AppColors.textMuted, fontSize: 9)),
+                const SizedBox(height: 2),
+                const Text('Kempegowda Bus Station', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                const Text('09:25 AM', style: TextStyle(color: AppColors.textSecondary, fontSize: 10)),
               ],
             ),
           ),
@@ -338,13 +338,13 @@ class TripDetailsView extends GetView<TripDetailsController> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildRouteStatText('18.6 km', 'Total Distance'),
+              _buildRouteStatText('18.6 km', 'total_distance'.tr),
               const SizedBox(height: 12),
-              _buildRouteStatText('6.2 km (33%)', 'Distance Covered'),
+              _buildRouteStatText('6.2 km (33%)', 'total_distance'.tr),
               const SizedBox(height: 12),
-              _buildRouteStatText('12.4 km', 'Distance Remaining'),
+              _buildRouteStatText('12.4 km', 'total_distance'.tr),
               const SizedBox(height: 12),
-              _buildRouteStatText('18 mins', 'ETA', color: const Color(0xFF3B82F6)),
+              _buildRouteStatText('18 mins', 'duration'.tr, color: const Color(0xFF3B82F6)),
             ],
           ),
         ],
@@ -371,12 +371,12 @@ class TripDetailsView extends GetView<TripDetailsController> {
       crossAxisSpacing: 10,
       childAspectRatio: 1.25,
       children: [
-        _buildStatCounter('42 km/h', 'Current Speed', Icons.speed_rounded, const Color(0xFF3B82F6)),
-        _buildStatCounter('36 km/h', 'Average Speed', Icons.speed_rounded, const Color(0xFF10B981)),
-        _buildStatCounter('68 km/h', 'Max Speed', Icons.speed_rounded, Colors.redAccent),
-        _buildStatCounter('08m 24s', 'Idle Time', Icons.hourglass_empty_rounded, Colors.orangeAccent),
-        _buildStatCounter('5', 'Stops Made', Icons.pause_circle_outline_rounded, Colors.amber),
-        _buildStatCounter('Strong', 'GPS Status', Icons.signal_cellular_alt_rounded, const Color(0xFF8B5CF6)),
+        _buildStatCounter('42 km/h', 'speed'.tr, Icons.speed_rounded, const Color(0xFF3B82F6)),
+        _buildStatCounter('36 km/h', 'average_speed'.tr, Icons.speed_rounded, const Color(0xFF10B981)),
+        _buildStatCounter('68 km/h', 'speed'.tr, Icons.speed_rounded, Colors.redAccent),
+        _buildStatCounter('08m 24s', 'time'.tr, Icons.hourglass_empty_rounded, Colors.orangeAccent),
+        _buildStatCounter('5', 'stops_count_suffix'.tr, Icons.pause_circle_outline_rounded, Colors.amber),
+        _buildStatCounter('Strong', 'gps'.tr, Icons.signal_cellular_alt_rounded, const Color(0xFF8B5CF6)),
       ],
     );
   }
@@ -456,7 +456,7 @@ class TripDetailsView extends GetView<TripDetailsController> {
                 boxShadow: isActive
                     ? [
                         BoxShadow(
-                          color: const Color(0xFF3B82F6).withOpacity(0.4),
+                          color: const Color(0xFF3B82F6).withValues(alpha: 0.4),
                           blurRadius: 6,
                           spreadRadius: 2,
                         )
@@ -580,12 +580,12 @@ class TripDetailsView extends GetView<TripDetailsController> {
       ),
       child: Column(
         children: [
-          _buildInfoTextRow('Vehicle Number', controller.vehicleName),
-          _buildInfoTextRow('Fleet Name', 'City Bus Fleet'),
-          _buildInfoTextRow('Vehicle Type', 'Volvo 8400 Electric'),
-          _buildInfoTextRow('GPS Device', 'GPS-TRK-00123'),
-          _buildInfoTextRow('Battery', '92%', suffixColor: const Color(0xFF10B981)),
-          _buildInfoTextRow('Ignition Status', 'ON', suffixColor: Colors.orangeAccent),
+          _buildInfoTextRow('vehicle'.tr, controller.vehicleName),
+          _buildInfoTextRow('fleet'.tr, 'City Bus Fleet'),
+          _buildInfoTextRow('classification_label'.tr, 'Volvo 8400 Electric'),
+          _buildInfoTextRow('gps'.tr, 'GPS-TRK-00123'),
+          _buildInfoTextRow('fuel_battery'.tr, '92%', suffixColor: const Color(0xFF10B981)),
+          _buildInfoTextRow('status'.tr, 'ON', suffixColor: Colors.orangeAccent),
         ],
       ),
     );

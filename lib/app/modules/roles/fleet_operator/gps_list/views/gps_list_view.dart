@@ -70,13 +70,13 @@ class GpsListView extends GetView<GpsListController> {
         children: [
           const CustomBackButton(),
           const SizedBox(width: 8),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'GPS & Telematics Units',
-                  style: TextStyle(
+                  'gps_telematics_units'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -84,8 +84,8 @@ class GpsListView extends GetView<GpsListController> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  'IoT tracking hardware & telematics binding',
-                  style: TextStyle(
+                  'iot_hardware_binding'.tr,
+                  style: const TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 11,
                   ),
@@ -96,7 +96,7 @@ class GpsListView extends GetView<GpsListController> {
           IconButton(
             icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 22),
             onPressed: controller.fetchDevices,
-            tooltip: 'Refresh list',
+            tooltip: 'refresh'.tr,
           ),
           Container(
             decoration: BoxDecoration(
@@ -115,16 +115,16 @@ class GpsListView extends GetView<GpsListController> {
               child: InkWell(
                 onTap: controller.goToAdd,
                 borderRadius: BorderRadius.circular(10),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.add_rounded, color: Colors.white, size: 16),
-                      SizedBox(width: 4),
+                      const Icon(Icons.add_rounded, color: Colors.white, size: 16),
+                      const SizedBox(width: 4),
                       Text(
-                        'Register',
-                        style: TextStyle(
+                        'register'.tr,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
@@ -153,14 +153,14 @@ class GpsListView extends GetView<GpsListController> {
         childAspectRatio: 1.8,
         children: [
           _buildStatCard(
-            title: 'TOTAL UNITS',
+            title: 'total_units'.tr,
             value: controller.totalCount.toString(),
             icon: Icons.memory_rounded,
             iconColor: const Color(0xFF3B82F6),
             bgColor: const Color(0xFF1E293B),
           ),
           _buildStatCard(
-            title: 'AVAILABLE / ACTIVE',
+            title: 'available_active'.tr,
             value: controller.availableCount.toString(),
             icon: Icons.check_circle_outline_rounded,
             iconColor: const Color(0xFF10B981),
@@ -168,7 +168,7 @@ class GpsListView extends GetView<GpsListController> {
             valueColor: const Color(0xFF10B981),
           ),
           _buildStatCard(
-            title: 'PENDING APPROVAL',
+            title: 'pending'.tr,
             value: controller.pendingCount.toString(),
             icon: Icons.pending_actions_rounded,
             iconColor: Colors.amberAccent,
@@ -176,7 +176,7 @@ class GpsListView extends GetView<GpsListController> {
             valueColor: Colors.amberAccent,
           ),
           _buildStatCard(
-            title: 'ASSIGNED / IN-USE',
+            title: 'bound_to_vehicle'.tr,
             value: controller.assignedCount.toString(),
             icon: Icons.directions_bus_rounded,
             iconColor: const Color(0xFF818CF8),
@@ -261,13 +261,13 @@ class GpsListView extends GetView<GpsListController> {
             child: TextField(
               controller: controller.searchController,
               style: const TextStyle(color: Colors.white, fontSize: 13),
-              decoration: const InputDecoration(
-                icon: Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 18),
-                hintText: 'Search by Code, IMEI, Vendor, Bus...',
-                hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 12),
+              decoration: InputDecoration(
+                icon: const Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 18),
+                hintText: 'search_devices_hint'.tr,
+                hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
                 border: InputBorder.none,
                 isDense: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(vertical: 12),
               ),
             ),
           ),
@@ -292,7 +292,7 @@ class GpsListView extends GetView<GpsListController> {
                     size: 20,
                   ),
                   onPressed: () => controller.setViewMode('table'),
-                  tooltip: 'List View',
+                  tooltip: 'list_view_tooltip'.tr,
                   padding: const EdgeInsets.all(8),
                   constraints: const BoxConstraints(),
                 ),
@@ -304,7 +304,7 @@ class GpsListView extends GetView<GpsListController> {
                     size: 18,
                   ),
                   onPressed: () => controller.setViewMode('grid'),
-                  tooltip: 'Grid View',
+                  tooltip: 'grid_view_tooltip'.tr,
                   padding: const EdgeInsets.all(8),
                   constraints: const BoxConstraints(),
                 ),
@@ -325,7 +325,7 @@ class GpsListView extends GetView<GpsListController> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: tabs.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final tab = tabs[index];
 
@@ -405,7 +405,7 @@ class GpsListView extends GetView<GpsListController> {
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           itemCount: tabs.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          separatorBuilder: (_, _) => const SizedBox(width: 8),
           itemBuilder: (context, index) {
             final tab = tabs[index];
             final isSelected = controller.activeTab.value == tab;
@@ -486,7 +486,7 @@ class GpsListView extends GetView<GpsListController> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: list.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 10),
+          separatorBuilder: (_, _) => const SizedBox(height: 10),
           itemBuilder: (context, index) {
             return _buildTableItem(list[index]);
           },
@@ -523,28 +523,28 @@ class GpsListView extends GetView<GpsListController> {
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
+            decoration: const BoxDecoration(
+              color: Color(0xFF1E293B),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.memory_rounded, color: AppColors.textMuted, size: 36),
           ),
           const SizedBox(height: 14),
-          const Text(
-            'No GPS Devices Found',
-            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          Text(
+            'no_gps_trackers_found'.tr,
+            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 6),
           Text(
             controller.searchQuery.isNotEmpty
                 ? 'No hardware units match your search query.'
-                : 'No GPS devices registered in this category yet.',
+                : 'no_gps_sub'.tr,
             style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
           CustomButton(
-            text: 'Register First GPS Unit',
+            text: 'register'.tr,
             prefixIcon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
             onTap: controller.goToAdd,
             width: 220,
@@ -583,7 +583,7 @@ class GpsListView extends GetView<GpsListController> {
                           width: 44,
                           height: 44,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _buildFallbackDeviceIcon(),
+                          errorBuilder: (_, _, _) => _buildFallbackDeviceIcon(),
                         )
                       : _buildFallbackDeviceIcon(),
                 ),
@@ -738,7 +738,7 @@ class GpsListView extends GetView<GpsListController> {
                           width: 44,
                           height: 44,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _buildFallbackDeviceIcon(),
+                          errorBuilder: (_, _, _) => _buildFallbackDeviceIcon(),
                         )
                       : _buildFallbackDeviceIcon(),
                 ),
@@ -1002,8 +1002,8 @@ class GpsListView extends GetView<GpsListController> {
               _buildSheetActionItem(
                 icon: Icons.visibility_rounded,
                 color: const Color(0xFF818CF8),
-                title: 'View Device Details',
-                subtitle: 'Hardware specs, diagnostics & vehicle pairing',
+                title: 'view_device_details'.tr,
+                subtitle: 'hw_specs_pairing_desc'.tr,
                 onTap: () {
                   Get.back();
                   controller.goToDetails(g);
@@ -1014,8 +1014,8 @@ class GpsListView extends GetView<GpsListController> {
               _buildSheetActionItem(
                 icon: Icons.edit_rounded,
                 color: const Color(0xFF60A5FA),
-                title: 'Edit Device Config',
-                subtitle: 'Update IMEI, SIM, model, mounting location',
+                title: 'edit_device_config'.tr,
+                subtitle: 'update_imei_mounting_desc'.tr,
                 onTap: () {
                   Get.back();
                   controller.goToEdit(g);
@@ -1026,10 +1026,10 @@ class GpsListView extends GetView<GpsListController> {
               _buildSheetActionItem(
                 icon: Icons.directions_bus_rounded,
                 color: Colors.amberAccent,
-                title: g.isAssigned ? 'Reassign / Unassign Bus' : 'Assign to Bus Vehicle',
+                title: g.isAssigned ? 'reassign_unassign_bus'.tr : 'assign_to_bus_vehicle'.tr,
                 subtitle: g.isAssigned
-                    ? 'Currently mounted on ${g.vehicle?.busNumber ?? 'Bus #' + g.vehicleId.toString()}'
-                    : 'Bind hardware tracker to a fleet vehicle',
+                    ? '${'currently_assigned_label'.tr} ${g.vehicle?.busNumber ?? 'Bus #${g.vehicleId}'}'
+                    : 'bind_hw_tracker_desc'.tr,
                 onTap: () {
                   Get.back();
                   controller.goToAssign(g);
@@ -1041,8 +1041,8 @@ class GpsListView extends GetView<GpsListController> {
                 _buildSheetActionItem(
                   icon: Icons.check_circle_rounded,
                   color: const Color(0xFF10B981),
-                  title: 'Approve Device',
-                  subtitle: 'Verify and activate telematics tracking',
+                  title: 'approve_device'.tr,
+                  subtitle: 'verify_activate_telematics_desc'.tr,
                   onTap: () {
                     Get.back();
                     controller.handleApprove(g);
@@ -1054,8 +1054,8 @@ class GpsListView extends GetView<GpsListController> {
                 _buildSheetActionItem(
                   icon: Icons.cancel_rounded,
                   color: Colors.redAccent,
-                  title: 'Reject Device',
-                  subtitle: 'Send rejection feedback to technician',
+                  title: 'reject_device'.tr,
+                  subtitle: 'send_rejection_feedback_desc'.tr,
                   onTap: () {
                     Get.back();
                     controller.showRejectDialog(g);
@@ -1066,8 +1066,8 @@ class GpsListView extends GetView<GpsListController> {
               _buildSheetActionItem(
                 icon: Icons.delete_outline_rounded,
                 color: Colors.redAccent,
-                title: 'Delete Hardware Record',
-                subtitle: g.isAssigned ? 'Cannot delete while assigned to a bus' : 'Permanently remove from inventory',
+                title: 'delete_hardware_record'.tr,
+                subtitle: g.isAssigned ? 'cannot_delete_while_assigned_desc'.tr : 'permanently_remove_inventory_desc'.tr,
                 isDestructive: true,
                 onTap: () {
                   Get.back();

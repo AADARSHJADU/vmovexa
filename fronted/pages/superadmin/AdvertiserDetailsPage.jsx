@@ -401,13 +401,9 @@ export const AdvertiserDetailsPage = ({ advertiser: advProp = null, onClose = nu
                 <span className="text-slate-400 dark:text-zinc-500">{t('superadmin.advertiser_details.pan')}</span>
                 <span className="font-mono font-semibold text-slate-900 dark:text-white">{adv.pan || '—'}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-slate-50 dark:border-zinc-800/50">
+              <div className="flex justify-between py-1">
                 <span className="text-slate-400 dark:text-zinc-500">{t('superadmin.advertiser_details.billing_email')}</span>
                 <span className="font-medium text-slate-900 dark:text-white">{adv.billing_email || email}</span>
-              </div>
-              <div className="flex justify-between py-1">
-                <span className="text-slate-400 dark:text-zinc-500">{t('superadmin.advertiser_details.payment_terms')}</span>
-                <span className="font-bold text-emerald-600 dark:text-emerald-400">{adv.payment_terms || 'Prepaid'}</span>
               </div>
             </div>
           </div>

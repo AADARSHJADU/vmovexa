@@ -12,6 +12,7 @@ class FleetOpDashboardController extends GetxController {
   final RxInt selectedNavIndex = 0.obs;
   final RxBool isLoading = false.obs;
   final RxBool isRefreshing = false.obs;
+  final RxInt unreadNotificationCount = 0.obs;
 
   final Rx<UserModel?> user = Rx<UserModel?>(null);
   final Rx<FleetKpisModel> kpis = FleetKpisModel().obs;
@@ -63,6 +64,7 @@ class FleetOpDashboardController extends GetxController {
       await Future.wait([
         _loadKpis(),
         _loadAssignedVehicles(),
+        fetchUnreadNotificationCount(),
       ]);
     } finally {
       isLoading.value = false;
@@ -75,9 +77,21 @@ class FleetOpDashboardController extends GetxController {
       await Future.wait([
         _loadKpis(),
         _loadAssignedVehicles(),
+        fetchUnreadNotificationCount(),
       ]);
     } finally {
       isRefreshing.value = false;
+    }
+  }
+
+  Future<void> fetchUnreadNotificationCount() async {
+    try {
+      final res = await FleetService.to.getNotifications(page: 1, limit: 50);
+      if (res.success && res.data != null) {
+        unreadNotificationCount.value = res.data!.where((n) => !n.isRead.value).length;
+      }
+    } catch (e) {
+      debugPrint('[FleetOpDashboard] Error fetching unread notifications: $e');
     }
   }
 
@@ -137,7 +151,7 @@ class FleetOpDashboardController extends GetxController {
 
   void openDepotsDialog() {
     Get.defaultDialog(
-      title: 'Depots & Transit Yards',
+      title: 'depots_transit_yards'.tr,
       titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
       backgroundColor: AppColors.cardBg,
       radius: 14,
@@ -156,14 +170,14 @@ class FleetOpDashboardController extends GetxController {
       confirm: ElevatedButton(
         style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1)),
         onPressed: () => Get.back(),
-        child: const Text('Close', style: TextStyle(color: Colors.white)),
+        child: Text('close'.tr, style: const TextStyle(color: Colors.white)),
       ),
     );
   }
 
   void openRoutesDialog() {
     Get.defaultDialog(
-      title: 'Transit Routes & Corridors',
+      title: 'transit_routes_corridors'.tr,
       titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
       backgroundColor: AppColors.cardBg,
       radius: 14,
@@ -182,14 +196,14 @@ class FleetOpDashboardController extends GetxController {
       confirm: ElevatedButton(
         style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1)),
         onPressed: () => Get.back(),
-        child: const Text('Close', style: TextStyle(color: Colors.white)),
+        child: Text('close'.tr, style: const TextStyle(color: Colors.white)),
       ),
     );
   }
 
   void openTechnicianDialog() {
     Get.defaultDialog(
-      title: 'Technician Work Orders',
+      title: 'technician_work_orders'.tr,
       titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
       backgroundColor: AppColors.cardBg,
       radius: 14,
@@ -206,14 +220,14 @@ class FleetOpDashboardController extends GetxController {
       confirm: ElevatedButton(
         style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1)),
         onPressed: () => Get.back(),
-        child: const Text('Close', style: TextStyle(color: Colors.white)),
+        child: Text('close'.tr, style: const TextStyle(color: Colors.white)),
       ),
     );
   }
 
   void openIncidentsDialog() {
     Get.defaultDialog(
-      title: 'Emergency Incidents & SOS',
+      title: 'emergency_incidents_sos'.tr,
       titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
       backgroundColor: AppColors.cardBg,
       radius: 14,
@@ -230,7 +244,7 @@ class FleetOpDashboardController extends GetxController {
       confirm: ElevatedButton(
         style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1)),
         onPressed: () => Get.back(),
-        child: const Text('Close', style: TextStyle(color: Colors.white)),
+        child: Text('close'.tr, style: const TextStyle(color: Colors.white)),
       ),
     );
   }

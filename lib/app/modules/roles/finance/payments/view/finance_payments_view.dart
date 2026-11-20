@@ -64,13 +64,13 @@ class FinancePaymentsView extends GetView<FinancePaymentsController> {
       children: [
         Row(
           children: [
-            const Text(
-              'Finance Portal  /  ',
-              style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+            Text(
+              'finance_portal_breadcrumb'.tr,
+              style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
             ),
-            const Text(
-              'Payment Settlements',
-              style: TextStyle(
+            Text(
+              'payment_settlements'.tr,
+              style: const TextStyle(
                 color: Color(0xFF60A5FA),
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
@@ -80,13 +80,13 @@ class FinancePaymentsView extends GetView<FinancePaymentsController> {
             IconButton(
               onPressed: controller.onRefresh,
               icon: const Icon(Icons.refresh, color: Colors.white70, size: 18),
-              tooltip: 'Refresh Settlements',
+              tooltip: 'refresh_settlements'.tr,
             ),
           ],
         ),
         const SizedBox(height: 2),
         Text(
-          'Payment Settlements',
+          'payment_settlements'.tr,
           style: GoogleFonts.raleway(
             color: Colors.white,
             fontSize: 20,
@@ -96,7 +96,7 @@ class FinancePaymentsView extends GetView<FinancePaymentsController> {
         ),
         const SizedBox(height: 3),
         Text(
-          'Audit inward collections, bank gateway settlements, and unpaid client receivables',
+          'audit_inward_sub'.tr,
           style: GoogleFonts.raleway(
             color: Colors.white54,
             fontSize: 11.5,
@@ -145,7 +145,7 @@ class FinancePaymentsView extends GetView<FinancePaymentsController> {
                       const Icon(Icons.account_balance_wallet_outlined, size: 16, color: Colors.white),
                       const SizedBox(width: 6),
                       Text(
-                        'Payments Ledger',
+                        'payments_ledger_tab'.tr,
                         style: TextStyle(
                           color: tab == 0 ? Colors.white : Colors.white60,
                           fontWeight: tab == 0 ? FontWeight.bold : FontWeight.normal,
@@ -183,7 +183,7 @@ class FinancePaymentsView extends GetView<FinancePaymentsController> {
                       const Icon(Icons.campaign_outlined, size: 16, color: Colors.white),
                       const SizedBox(width: 6),
                       Text(
-                        'Campaign Payments',
+                        'campaign_payments_tab'.tr,
                         style: TextStyle(
                           color: tab == 1 ? Colors.white : Colors.white60,
                           fontWeight: tab == 1 ? FontWeight.bold : FontWeight.normal,
@@ -213,9 +213,7 @@ class FinancePaymentsView extends GetView<FinancePaymentsController> {
         controller: controller.searchController,
         style: const TextStyle(color: Colors.white, fontSize: 13),
         decoration: InputDecoration(
-          hintText: controller.selectedTab.value == 0
-              ? 'Search by transaction ID or customer...'
-              : 'Search by campaign or advertiser...',
+          hintText: 'search_payments_hint'.tr,
           hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
           prefixIcon: const Icon(Icons.search, color: Colors.white38, size: 18),
           border: InputBorder.none,

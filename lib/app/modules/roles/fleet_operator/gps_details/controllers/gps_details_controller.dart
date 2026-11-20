@@ -55,9 +55,9 @@ class GpsDetailsController extends GetxController {
       AlertDialog(
         backgroundColor: const Color(0xFF161922),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Unassign GPS Tracker',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        title: Text(
+          'unassign'.tr,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         content: Text(
           'Are you sure you want to unassign GPS tracker ${d?.displayCode} from $busLabel?',
@@ -66,7 +66,7 @@ class GpsDetailsController extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white70)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -74,7 +74,7 @@ class GpsDetailsController extends GetxController {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () => Get.back(result: true),
-            child: const Text('Unassign', style: TextStyle(color: Colors.white)),
+            child: Text('unassign'.tr, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -85,7 +85,7 @@ class GpsDetailsController extends GetxController {
         final res = await FleetService.to.assignGpsVehicle(deviceId, null);
         if (res.success) {
           Get.snackbar(
-            'GPS Unassigned',
+            'success'.tr,
             'GPS device unassigned from vehicle!',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF10B981),
@@ -94,7 +94,7 @@ class GpsDetailsController extends GetxController {
           fetchDeviceDetails();
         } else {
           Get.snackbar(
-            'Error',
+            'error'.tr,
             res.message ?? 'Failed to unassign GPS device',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.redAccent,
@@ -102,7 +102,7 @@ class GpsDetailsController extends GetxController {
           );
         }
       } catch (e) {
-        Get.snackbar('Error', 'Failed to unassign: $e');
+        Get.snackbar('error'.tr, 'Failed to unassign: $e');
       }
     }
   }
@@ -112,7 +112,7 @@ class GpsDetailsController extends GetxController {
       final res = await FleetService.to.approveGpsDevice(deviceId);
       if (res.success) {
         Get.snackbar(
-          'Device Approved',
+          'success'.tr,
           'GPS Device ${device.value?.displayCode} approved successfully!',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
@@ -121,7 +121,7 @@ class GpsDetailsController extends GetxController {
         fetchDeviceDetails();
       } else {
         Get.snackbar(
-          'Error',
+          'error'.tr,
           res.message ?? 'Failed to approve GPS device',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent,
@@ -129,7 +129,7 @@ class GpsDetailsController extends GetxController {
         );
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to approve: $e');
+      Get.snackbar('error'.tr, 'Failed to approve: $e');
     }
   }
 
@@ -141,7 +141,7 @@ class GpsDetailsController extends GetxController {
         backgroundColor: const Color(0xFF161922),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          'Reject GPS Device: ${device.value?.displayCode}',
+          '${'reject_btn'.tr}: ${device.value?.displayCode}',
           style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
         ),
         content: Column(
@@ -158,7 +158,7 @@ class GpsDetailsController extends GetxController {
               maxLines: 3,
               style: const TextStyle(color: Colors.white, fontSize: 13),
               decoration: InputDecoration(
-                hintText: 'Enter rejection notes...',
+                hintText: 'enter_reason_hint'.tr,
                 hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 12),
                 filled: true,
                 fillColor: const Color(0xFF0F172A),
@@ -170,7 +170,7 @@ class GpsDetailsController extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white70)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -178,7 +178,7 @@ class GpsDetailsController extends GetxController {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () => Get.back(result: reasonController.text.trim()),
-            child: const Text('Confirm Reject', style: TextStyle(color: Colors.white)),
+            child: Text('reject_btn'.tr, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -189,7 +189,7 @@ class GpsDetailsController extends GetxController {
         final res = await FleetService.to.rejectGpsDevice(deviceId, result);
         if (res.success) {
           Get.snackbar(
-            'Device Rejected',
+            'success'.tr,
             'GPS device rejected.',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.amber.shade800,
@@ -198,7 +198,7 @@ class GpsDetailsController extends GetxController {
           fetchDeviceDetails();
         } else {
           Get.snackbar(
-            'Error',
+            'error'.tr,
             res.message ?? 'Failed to reject GPS device',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.redAccent,
@@ -206,7 +206,7 @@ class GpsDetailsController extends GetxController {
           );
         }
       } catch (e) {
-        Get.snackbar('Error', 'Failed to reject: $e');
+        Get.snackbar('error'.tr, 'Failed to reject: $e');
       }
     }
   }
@@ -215,7 +215,7 @@ class GpsDetailsController extends GetxController {
     final d = device.value;
     if (d?.isAssigned == true) {
       Get.snackbar(
-        'Action Prohibited',
+        'error'.tr,
         'Cannot delete a GPS device that is currently assigned to a vehicle.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.redAccent.shade700,
@@ -228,7 +228,7 @@ class GpsDetailsController extends GetxController {
       AlertDialog(
         backgroundColor: const Color(0xFF161922),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Delete GPS Device', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text('delete'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         content: Text(
           'Delete GPS device ${d?.displayCode} (${d?.imei})?',
           style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
@@ -236,7 +236,7 @@ class GpsDetailsController extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white70)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -244,7 +244,7 @@ class GpsDetailsController extends GetxController {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () => Get.back(result: true),
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+            child: Text('delete'.tr, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -256,7 +256,7 @@ class GpsDetailsController extends GetxController {
         if (res.success) {
           Get.back(); // Pop details screen
           Get.snackbar(
-            'Deleted',
+            'success'.tr,
             'GPS Device deleted successfully.',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF10B981),
@@ -264,7 +264,7 @@ class GpsDetailsController extends GetxController {
           );
         } else {
           Get.snackbar(
-            'Error',
+            'error'.tr,
             res.message ?? 'Failed to delete GPS device',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.redAccent,
@@ -272,7 +272,7 @@ class GpsDetailsController extends GetxController {
           );
         }
       } catch (e) {
-        Get.snackbar('Error', 'Failed to delete: $e');
+        Get.snackbar('error'.tr, 'Failed to delete: $e');
       }
     }
   }

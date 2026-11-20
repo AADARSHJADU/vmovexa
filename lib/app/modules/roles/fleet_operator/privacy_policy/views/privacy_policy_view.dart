@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import '../controllers/privacy_policy_controller.dart';
 import '../../../../../widgets/custom_back_button.dart';
 import '../../../../../theme/app_colors.dart';
-import '../../../../../theme/app_theme.dart';
 
 class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
   const PrivacyPolicyView({super.key});
@@ -36,7 +35,7 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        'Privacy Policy',
+                        'privacy_policy'.tr,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -77,37 +76,37 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
                       _buildAccordionList(c),
                       const SizedBox(height: 24),
 
-                      // Questions Card
-                      _buildQuestionsCard(c),
-                      const SizedBox(height: 24),
+                      // // Questions Card
+                      // _buildQuestionsCard(c),
+                      // const SizedBox(height: 24),
 
-                      // Bottom Acknowledge Button
-                      Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          gradient: AppTheme.primaryGradient,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: ElevatedButton(
-                          onPressed: c.acknowledgePolicy,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            minimumSize: const Size(double.infinity, 50),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          ),
-                          child: const Text(
-                            'Acknowledge & Confirm',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
+                      // // Bottom Acknowledge Button
+                      // Container(
+                      //   width: double.infinity,
+                      //   decoration: BoxDecoration(
+                      //     gradient: AppTheme.primaryGradient,
+                      //     borderRadius: BorderRadius.circular(10),
+                      //   ),
+                      //   child: ElevatedButton(
+                      //     onPressed: c.acknowledgePolicy,
+                      //     style: ElevatedButton.styleFrom(
+                      //       backgroundColor: Colors.transparent,
+                      //       shadowColor: Colors.transparent,
+                      //       padding: const EdgeInsets.symmetric(vertical: 14),
+                      //       minimumSize: const Size(double.infinity, 50),
+                      //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      //     ),
+                      //     child: Text(
+                      //       'acknowledge_and_confirm'.tr,
+                      //       style: const TextStyle(
+                      //         color: Colors.white,
+                      //         fontSize: 14,
+                      //         fontWeight: FontWeight.bold,
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
+                      // const SizedBox(height: 24),
                     ],
                   ),
                 ),
@@ -186,7 +185,7 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
         style: const TextStyle(color: Colors.white, fontSize: 12),
         decoration: InputDecoration(
           icon: const Icon(Icons.search_rounded, color: Color(0xFF64748B), size: 18),
-          hintText: 'Search fleet privacy clauses or telemetry governance...',
+          hintText: 'search_privacy_clauses_hint'.tr,
           hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 12),
@@ -215,10 +214,10 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.cardBorder),
           ),
-          child: const Center(
+          child: Center(
             child: Text(
-              'No policy sections match your search.',
-              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+              'no_policy_sections_match'.tr,
+              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
             ),
           ),
         );
@@ -237,45 +236,47 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
           separatorBuilder: (context, index) => const Divider(color: AppColors.cardBorder, height: 1),
           itemBuilder: (context, index) {
             final sec = sectionList[index];
-            final isExpanded = c.expandedIndex.value == index;
 
-            return InkWell(
-              onTap: () => c.toggleIndex(index),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            sec.title,
-                            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+            return Obx(() {
+              final isExpanded = sec.isExpanded.value;
+              return InkWell(
+                onTap: () => sec.isExpanded.value = !sec.isExpanded.value,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              sec.title,
+                              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Icon(
+                            isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                            color: AppColors.textMuted,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                      if (isExpanded) ...[
+                        const SizedBox(height: 10),
+                        Text(
+                          sec.content,
+                          style: const TextStyle(
+                            color: Color(0xFFCBD5E1),
+                            fontSize: 11,
+                            height: 1.5,
                           ),
                         ),
-                        Icon(
-                          isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
-                          color: AppColors.textMuted,
-                          size: 20,
-                        ),
                       ],
-                    ),
-                    if (isExpanded) ...[
-                      const SizedBox(height: 10),
-                      Text(
-                        sec.content,
-                        style: const TextStyle(
-                          color: Color(0xFFCBD5E1),
-                          fontSize: 11,
-                          height: 1.5,
-                        ),
-                      ),
                     ],
-                  ],
+                  ),
                 ),
-              ),
-            );
+              );
+            });
           },
         ),
       );
@@ -304,15 +305,15 @@ class PrivacyPolicyView extends GetView<PrivacyPolicyController> {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  'Questions about data privacy?',
-                  style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  'questions_data_privacy'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 3),
+                const SizedBox(height: 3),
                 Text(
-                  'Reach out to our Data Protection Officer at privacy@vmovexa.com',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 10),
+                  'reach_out_dpo_desc'.tr,
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
                 ),
               ],
             ),

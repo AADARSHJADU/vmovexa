@@ -35,10 +35,10 @@ class DepotDetailsView extends GetView<DepotDetailsController> {
                       children: [
                         const Icon(Icons.error_outline_rounded, size: 40, color: Colors.white38),
                         const SizedBox(height: 12),
-                        const Text('Depot Facility Not Found', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                        Text('depot_not_found'.tr, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 16),
                         CustomButton(
-                          text: 'Back to Depots',
+                          text: 'back_to_depots'.tr,
                           onTap: () => Get.back(),
                           width: 160,
                           height: 42,
@@ -103,7 +103,7 @@ class DepotDetailsView extends GetView<DepotDetailsController> {
         children: [
           const CustomBackButton(),
           Obx(() {
-            final name = controller.depot.value?.name ?? 'Depot Dossier';
+            final name = controller.depot.value?.name ?? 'depot_dossier'.tr;
             return Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -121,7 +121,7 @@ class DepotDetailsView extends GetView<DepotDetailsController> {
           }),
           IconButton(
             icon: const Icon(Icons.edit_outlined, color: Color(0xFF10B981), size: 22),
-            tooltip: 'Edit Facility',
+            tooltip: 'edit_facility'.tr,
             onPressed: controller.goToEdit,
           ),
         ],
@@ -223,36 +223,36 @@ class DepotDetailsView extends GetView<DepotDetailsController> {
       children: [
         Expanded(
           child: _buildKpiBox(
-            title: 'TOTAL BAYS',
+            title: 'total_bays_kpi'.tr,
             value: '${d.capacity}',
-            subtitle: 'Max capacity',
+            subtitle: 'max_capacity_sub'.tr,
             color: Colors.white,
           ),
         ),
         const SizedBox(width: 8),
         Expanded(
           child: _buildKpiBox(
-            title: 'EV CHARGERS',
+            title: 'ev_chargers_kpi'.tr,
             value: '${d.evChargers}',
-            subtitle: 'DC fast ports',
+            subtitle: 'dc_fast_ports_sub'.tr,
             color: const Color(0xFF38BDF8),
           ),
         ),
         const SizedBox(width: 8),
         Expanded(
           child: _buildKpiBox(
-            title: 'MAINT. PITS',
+            title: 'maint_pits_kpi'.tr,
             value: '${d.maintenanceBays}',
-            subtitle: 'Inspection bays',
+            subtitle: 'inspection_bays_sub'.tr,
             color: const Color(0xFFF59E0B),
           ),
         ),
         const SizedBox(width: 8),
         Expanded(
           child: _buildKpiBox(
-            title: 'WASH BAYS',
+            title: 'wash_bays_kpi'.tr,
             value: '${d.washingBays}',
-            subtitle: 'Cleaning units',
+            subtitle: 'cleaning_units_sub'.tr,
             color: const Color(0xFFA855F7),
           ),
         ),
@@ -319,13 +319,13 @@ class DepotDetailsView extends GetView<DepotDetailsController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.directions_bus_filled_rounded, color: Color(0xFF38BDF8), size: 18),
-                  SizedBox(width: 8),
+                  const Icon(Icons.directions_bus_filled_rounded, color: Color(0xFF38BDF8), size: 18),
+                  const SizedBox(width: 8),
                   Text(
-                    'Yard Parking Bays Occupancy',
-                    style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                    'yard_occupancy_title'.tr,
+                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -350,11 +350,11 @@ class DepotDetailsView extends GetView<DepotDetailsController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Stationed Buses: ${d.currentParked}',
+                '${'stationed_buses_prefix'.tr}${d.currentParked}',
                 style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
               ),
               Text(
-                'Total Capacity: ${d.capacity} Bays',
+                '${'total_capacity_prefix'.tr}${d.capacity} ${'bays_suffix'.tr}',
                 style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
               ),
             ],
@@ -378,13 +378,13 @@ class DepotDetailsView extends GetView<DepotDetailsController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.pin_drop_rounded, color: Color(0xFFA855F7), size: 18),
-                  SizedBox(width: 8),
+                  const Icon(Icons.pin_drop_rounded, color: Color(0xFFA855F7), size: 18),
+                  const SizedBox(width: 8),
                   Text(
-                    'Geospatial & Geofence\n Perimeter',
-                    style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                    'geospatial_perimeter_title'.tr,
+                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -396,7 +396,7 @@ class DepotDetailsView extends GetView<DepotDetailsController> {
                   border: Border.all(color: const Color(0xFFA855F7).withValues(alpha: 0.3)),
                 ),
                 child: Text(
-                  'Radius: ${d.geofenceRadius}m',
+                  '${'radius_prefix'.tr}${d.geofenceRadius}m',
                   style: const TextStyle(color: Color(0xFFA855F7), fontSize: 10, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -404,15 +404,15 @@ class DepotDetailsView extends GetView<DepotDetailsController> {
           ),
           const Divider(color: AppColors.cardBorder, height: 22),
 
-          _buildDetailRow('Complete Address', d.address.isNotEmpty ? d.address : 'Address not specified'),
+          _buildDetailRow('complete_address_label'.tr, d.address.isNotEmpty ? d.address : 'address_not_specified'.tr),
           const SizedBox(height: 8),
-          _buildDetailRow('City & State', '${d.city.isNotEmpty ? d.city : '—'}, ${d.state.isNotEmpty ? d.state : '—'} ${d.pincode.isNotEmpty ? "(${d.pincode})" : ""}'),
+          _buildDetailRow('city_state_label'.tr, '${d.city.isNotEmpty ? d.city : '—'}, ${d.state.isNotEmpty ? d.state : '—'} ${d.pincode.isNotEmpty ? "(${d.pincode})" : ""}'),
           const SizedBox(height: 8),
           _buildDetailRow(
-            'GPS Coordinates',
+            'gps_coords_label'.tr,
             d.latitude != null && d.longitude != null
                 ? '${d.latitude!.toStringAsFixed(6)}, ${d.longitude!.toStringAsFixed(6)}'
-                : 'Not specified',
+                : 'not_specified'.tr,
           ),
         ],
       ),
@@ -430,20 +430,20 @@ class DepotDetailsView extends GetView<DepotDetailsController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.bolt_rounded, color: Color(0xFFFBBF24), size: 18),
-              SizedBox(width: 8),
+              const Icon(Icons.bolt_rounded, color: Color(0xFFFBBF24), size: 18),
+              const SizedBox(width: 8),
               Text(
-                'Energy Support & Amenities',
-                style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                'energy_amenities_title'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
               ),
             ],
           ),
           const Divider(color: AppColors.cardBorder, height: 22),
 
           // Fuel types
-          const Text('SUPPORTED FUEL / ENERGY', style: TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.bold)),
+          Text('supported_fuel_energy_caps'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           if (d.fuelTypes.isEmpty)
             const Text('EV Charging, Diesel', style: TextStyle(color: Colors.white70, fontSize: 12))
@@ -473,7 +473,7 @@ class DepotDetailsView extends GetView<DepotDetailsController> {
           const SizedBox(height: 14),
 
           // Amenities
-          const Text('ON-SITE YARD AMENITIES', style: TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.bold)),
+          Text('onsite_yard_amenities_caps'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           if (d.amenities.isEmpty)
             const Text('Driver Rest Lounge, 24/7 Security', style: TextStyle(color: Colors.white70, fontSize: 12))
@@ -516,27 +516,27 @@ class DepotDetailsView extends GetView<DepotDetailsController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.support_agent_rounded, color: Color(0xFFEC4899), size: 18),
-              SizedBox(width: 8),
+              const Icon(Icons.support_agent_rounded, color: Color(0xFFEC4899), size: 18),
+              const SizedBox(width: 8),
               Text(
-                'Personnel & Helplines Desk',
-                style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                'personnel_helplines_title'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
               ),
             ],
           ),
           const Divider(color: AppColors.cardBorder, height: 22),
 
-          _buildDetailRow('Facility In-Charge', d.contactPerson.isNotEmpty ? d.contactPerson : 'Not assigned'),
+          _buildDetailRow('facility_incharge_label'.tr, d.contactPerson.isNotEmpty ? d.contactPerson : 'not_assigned'.tr),
           const SizedBox(height: 8),
-          _buildDetailRow('Helpline Phone', d.contactPhone.isNotEmpty ? d.contactPhone : '—'),
+          _buildDetailRow('helpline_phone_label'.tr, d.contactPhone.isNotEmpty ? d.contactPhone : '—'),
           const SizedBox(height: 8),
-          _buildDetailRow('Emergency Desk', d.emergencyPhone.isNotEmpty ? d.emergencyPhone : '—'),
+          _buildDetailRow('emergency_desk_label'.tr, d.emergencyPhone.isNotEmpty ? d.emergencyPhone : '—'),
           const SizedBox(height: 8),
-          _buildDetailRow('Official Email', d.email.isNotEmpty ? d.email : '—'),
+          _buildDetailRow('official_email_label'.tr, d.email.isNotEmpty ? d.email : '—'),
           const SizedBox(height: 8),
-          _buildDetailRow('Operating Hours', d.operatingHours.isNotEmpty ? d.operatingHours : '24x7'),
+          _buildDetailRow('operating_hours_label'.tr, d.operatingHours.isNotEmpty ? d.operatingHours : '24x7'),
         ],
       ),
     );
@@ -584,7 +584,7 @@ class DepotDetailsView extends GetView<DepotDetailsController> {
                       ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFF59E0B)))
                       : Icon(d.isOperational ? Icons.cancel_outlined : Icons.check_circle_outline_rounded, size: 18),
                   label: Text(
-                    d.isOperational ? 'Close Facility' : 'Reopen Facility',
+                    d.isOperational ? 'close_facility_btn'.tr : 'reopen_facility_btn'.tr,
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                   ),
                 ),
@@ -592,7 +592,7 @@ class DepotDetailsView extends GetView<DepotDetailsController> {
               const SizedBox(width: 10),
               Expanded(
                 child: CustomButton(
-                  text: 'Edit Facility',
+                  text: 'edit_facility'.tr,
                   prefixIcon: const Icon(Icons.edit_outlined, size: 18, color: Colors.white),
                   onTap: controller.goToEdit,
                   height: 44,
@@ -610,7 +610,7 @@ class DepotDetailsView extends GetView<DepotDetailsController> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             icon: const Icon(Icons.delete_outline_rounded, size: 18),
-            label: const Text('Delete Depot Facility', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+            label: Text('delete_depot_btn'.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
           ),
         ],
       );

@@ -95,12 +95,12 @@ export const useAdvertiserRole = () => {
   const resetActiveCampaign = useCallback(() => dispatch(clearActiveCampaign()), [dispatch]);
 
   // Permission helpers
-  const canCreateCampaign = hasPermission('campaigns.create');
-  const canEditCampaign = hasPermission('campaigns.update');
-  const canDeleteCampaign = hasPermission('campaigns.delete');
-  const canSubmitCampaign = hasPermission('campaigns.submit');
-  const canVerifyCampaign = hasPermission('campaigns.verify') || hasPermission('campaigns.approve');
-  const canPayCampaign = hasPermission('campaigns.pay');
+  const canCreateCampaign = hasPermission('advertiser.campaigns.create');
+  const canEditCampaign = hasPermission('advertiser.campaigns.update');
+  const canDeleteCampaign = hasPermission('advertiser.campaigns.delete');
+  const canSubmitCampaign = hasPermission('advertiser.campaigns.submit');
+  const canVerifyCampaign = false;
+  const canPayCampaign = hasPermission('advertiser.campaigns.pay');
 
   return {
     user,

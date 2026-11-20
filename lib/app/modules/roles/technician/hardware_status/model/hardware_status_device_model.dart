@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 enum DeviceOnlineState { online, offline }
 
@@ -9,7 +10,7 @@ enum DisplaySubStatus { normal, dim, noOutput }
 enum HardwareSubStatus { healthy, issue }
 
 extension DeviceOnlineStateX on DeviceOnlineState {
-  String get label => this == DeviceOnlineState.online ? 'Online' : 'Offline';
+  String get label => this == DeviceOnlineState.online ? 'online'.tr : 'offline'.tr;
   Color get color => this == DeviceOnlineState.online ? const Color(0xFF2ECC71) : const Color(0xFFFF4D4D);
 }
 
@@ -17,11 +18,11 @@ extension GpsSubStatusX on GpsSubStatus {
   String get label {
     switch (this) {
       case GpsSubStatus.active:
-        return 'Active';
+        return 'common.active'.tr.isNotEmpty ? 'common.active'.tr : 'Active';
       case GpsSubStatus.weakSignal:
-        return 'Weak Signal';
+        return 'weak_signal'.tr;
       case GpsSubStatus.noSignal:
-        return 'No Signal';
+        return 'gps_no_fix_badge'.tr.isNotEmpty ? 'gps_no_fix_badge'.tr : 'No Signal';
     }
   }
 
@@ -43,11 +44,11 @@ extension DisplaySubStatusX on DisplaySubStatus {
   String get label {
     switch (this) {
       case DisplaySubStatus.normal:
-        return 'Normal';
+        return 'normal'.tr;
       case DisplaySubStatus.dim:
-        return 'Dim';
+        return 'dim'.tr.isNotEmpty ? 'dim'.tr : 'Dim';
       case DisplaySubStatus.noOutput:
-        return 'No Output';
+        return 'no_display_label'.tr;
     }
   }
 
@@ -66,7 +67,7 @@ extension DisplaySubStatusX on DisplaySubStatus {
 }
 
 extension HardwareSubStatusX on HardwareSubStatus {
-  String get label => this == HardwareSubStatus.healthy ? 'Healthy' : 'Issue';
+  String get label => this == HardwareSubStatus.healthy ? 'filter_healthy'.tr : 'issue_singular'.tr.isNotEmpty ? 'issue_singular'.tr : 'Issue';
   Color get color => this == HardwareSubStatus.healthy ? const Color(0xFF2ECC71) : const Color(0xFFFFA726);
   IconData get icon => this == HardwareSubStatus.healthy ? Icons.shield_outlined : Icons.warning_amber_rounded;
 }

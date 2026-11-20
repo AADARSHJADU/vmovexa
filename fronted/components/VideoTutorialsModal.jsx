@@ -1,8 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef, useId } from 'react';
 import { useTranslation } from '../hooks/useTranslation';
 import { createPortal } from 'react-dom';
 import { extractYouTubeId, isValidWebUrl } from '../utils/mediaUtils';
 import { getSkillLevelBadgeClass, getCategoryBadgeClass } from '../constants/videoConstants';
+import { resolveFileUrl } from '../api/services/upload.service';
+import { FleetIcons } from './FleetIcons';
 
 export const VideoTutorialsModal = ({ isOpen, onClose, academyData = null }) => {
   const { t } = useTranslation();
@@ -20,7 +22,7 @@ export const VideoTutorialsModal = ({ isOpen, onClose, academyData = null }) => 
         level: v.level || 'Beginner',
         category: v.category || 'Getting Started',
         desc: v.desc || v.description || '',
-        url: v.url || v.video_url || '',
+        url: resolveFileUrl(v.url || v.video_url || ''),
         chapters: Array.isArray(v.chapters)
           ? v.chapters.filter(Boolean)
           : typeof v.chapters === 'string' && v.chapters.trim()
@@ -33,6 +35,36 @@ export const VideoTutorialsModal = ({ isOpen, onClose, academyData = null }) => 
   const [selectedVideoId, setSelectedVideoId] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [failedVideoUrl, setFailedVideoUrl] = useState(null);
+  const dialogRef = useRef(null);
+  const titleId = useId();
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    dialogRef.current?.focus();
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') onClose();
+      if (event.key !== 'Tab') return;
+      const elements = dialogRef.current?.querySelectorAll('button, a[href], input, iframe, video[controls]');
+      if (!elements?.length) return;
+      const first = elements[0];
+      const last = elements[elements.length - 1];
+      if (event.shiftKey && (document.activeElement === first || document.activeElement === dialogRef.current)) {
+        event.preventDefault(); last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault(); first.focus();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', onKeyDown);
+      previousFocus?.focus();
+    };
+  }, [isOpen, onClose]);
 
   // Selected video derived directly to prevent cascading renders
   const selectedVideo = useMemo(() => {
@@ -65,8 +97,9 @@ export const VideoTutorialsModal = ({ isOpen, onClose, academyData = null }) => 
   const ytVideoId = selectedVideo?.url ? extractYouTubeId(selectedVideo.url) : null;
   const isDirectVideoUrl =
     Boolean(selectedVideo?.url &&
-    isValidWebUrl(selectedVideo.url) &&
-    /\.(mp4|webm|ogg|mov)$/i.test(selectedVideo.url));
+    !ytVideoId &&
+    (selectedVideo.url.startsWith('blob:') ||
+      (isValidWebUrl(selectedVideo.url) && /\.(mp4|webm|ogg|ogv|mov|avi|mkv)(?:[?#]|$)/i.test(selectedVideo.url))));
   const isGenericWebUrl =
     Boolean(selectedVideo?.url &&
     isValidWebUrl(selectedVideo.url) &&
@@ -77,27 +110,32 @@ export const VideoTutorialsModal = ({ isOpen, onClose, academyData = null }) => 
 
   const modalContent = (
     <div
-      className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-5 md:p-6 md:pl-64 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-5 md:p-6 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-4xl lg:max-w-5xl max-h-[88vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
+        className="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-4xl lg:max-w-5xl max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-2.5rem)] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Header Bar */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
-          <div className="flex items-center gap-3">
+        <div className="px-4 sm:px-6 py-4 border-b border-slate-100 flex shrink-0 items-start justify-between gap-3 bg-slate-50/70">
+          <div className="flex min-w-0 items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20 text-xl shrink-0">
-              🎥
+              <FleetIcons.Video className="w-5 h-5" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-blue-100 text-blue-700">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="max-w-full break-words px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-blue-100 text-blue-700">
                   {activeAcademy.badge}
                 </span>
                 <span className="text-[11px] font-bold text-slate-400">{t('ag.shared.videotutorialsmodal.interactive_walkthroughs', 'Interactive Walkthroughs')}</span>
               </div>
-              <h2 className="text-base sm:text-lg font-black text-slate-900 leading-tight">
+              <h2 id={titleId} className="break-words text-base sm:text-lg font-black text-slate-900 leading-tight">
                 {activeAcademy.title}
               </h2>
             </div>
@@ -106,7 +144,8 @@ export const VideoTutorialsModal = ({ isOpen, onClose, academyData = null }) => 
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors shadow-sm cursor-pointer"
+            aria-label="Close video tutorials"
+            className="shrink-0 w-10 h-10 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors shadow-sm cursor-pointer"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -119,7 +158,7 @@ export const VideoTutorialsModal = ({ isOpen, onClose, academyData = null }) => 
           /* Empty state when no dynamic videos are configured */
           <div className="flex-1 flex flex-col items-center justify-center p-12 sm:p-16 text-center space-y-4">
             <div className="w-16 h-16 rounded-3xl bg-blue-50 border border-blue-100 flex items-center justify-center text-3xl shadow-xs text-blue-600">
-              🎥
+              <FleetIcons.Video className="w-5 h-5" />
             </div>
             <div className="max-w-md space-y-1.5">
               <h3 className="text-base font-black text-slate-900">
@@ -139,11 +178,17 @@ export const VideoTutorialsModal = ({ isOpen, onClose, academyData = null }) => 
           </div>
         ) : (
           /* Dual Column Layout with Dynamic Videos */
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Main Video Screen (7 Columns) */}
-            <div className="lg:col-span-7 space-y-4">
+            <div className="lg:col-span-7 min-w-0 space-y-4">
               {/* Real Player vs Pure Structural Frame (Zero Dummy Data) */}
-              {ytVideoId ? (
+              {failedVideoUrl === selectedVideo?.url ? (
+                <div role="alert" className="aspect-video rounded-2xl bg-slate-950 p-6 flex flex-col items-center justify-center text-center gap-3 text-white">
+                  <FleetIcons.Video className="w-8 h-8" />
+                  <p className="text-sm">This video could not be played. Check the file or try MP4 / WebM format.</p>
+                  <a href={selectedVideo.url} target="_blank" rel="noopener noreferrer" className="text-sm underline">Open video file</a>
+                </div>
+              ) : ytVideoId ? (
                 /* 1. Real YouTube Player */
                 <div className="relative aspect-video rounded-2xl bg-slate-950 overflow-hidden border border-slate-800 shadow-xl">
                   <iframe
@@ -161,6 +206,8 @@ export const VideoTutorialsModal = ({ isOpen, onClose, academyData = null }) => 
                     key={selectedVideo.url}
                     src={selectedVideo.url}
                     controls
+                    preload="metadata"
+                    onError={() => setFailedVideoUrl(selectedVideo.url)}
                     autoPlay
                     playsInline
                     className="w-full h-full object-contain"
@@ -170,7 +217,7 @@ export const VideoTutorialsModal = ({ isOpen, onClose, academyData = null }) => 
                 /* 3. Real External Video Stream Link */
                 <div className="relative aspect-video rounded-2xl bg-slate-900 overflow-hidden border border-slate-800 shadow-xl flex flex-col items-center justify-center p-6 text-center">
                   <div className="w-14 h-14 rounded-2xl bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center text-2xl mb-3 shadow-inner">
-                    🔗
+                    <FleetIcons.Link className="w-5 h-5" />
                   </div>
                   <h4 className="text-white text-base font-bold line-clamp-1 max-w-md">
                     {selectedVideo?.title}
@@ -195,8 +242,8 @@ export const VideoTutorialsModal = ({ isOpen, onClose, academyData = null }) => 
                   <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] opacity-40 pointer-events-none" />
 
                   {/* Top Bar inside structural frame */}
-                  <div className="relative z-10 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div className="relative z-10 flex flex-wrap gap-2 items-center justify-between">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-slate-500" />
                       <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold">
                         {t('ag.shared.videotutorialsmodal.media_frame', 'Media Frame')}
@@ -210,7 +257,7 @@ export const VideoTutorialsModal = ({ isOpen, onClose, academyData = null }) => 
                   {/* Center Structure Icon & Clean Notice */}
                   <div className="relative z-10 flex flex-col items-center justify-center text-center my-auto py-2">
                     <div className="w-14 h-14 rounded-2xl bg-slate-900 border border-slate-800 text-slate-400 flex items-center justify-center text-2xl shadow-inner mb-3">
-                      🎥
+                      <FleetIcons.Video className="w-5 h-5" />
                     </div>
                     <h3 className="text-white text-base font-black px-4 line-clamp-1 max-w-md">
                       {selectedVideo?.title || 'Tutorial Overview'}
@@ -221,7 +268,7 @@ export const VideoTutorialsModal = ({ isOpen, onClose, academyData = null }) => 
                   </div>
 
                   {/* Bottom Structural Bar: Category, Skill Level & Duration */}
-                  <div className="relative z-10 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                  <div className="relative z-10 pt-3 border-t border-slate-800/80 flex flex-wrap gap-2 items-center justify-between text-xs">
                     <div className="flex items-center gap-2">
                       <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${getCategoryBadgeClass(selectedVideo?.category)}`}>
                         {selectedVideo?.category || 'Getting Started'}
@@ -247,10 +294,10 @@ export const VideoTutorialsModal = ({ isOpen, onClose, academyData = null }) => 
               {selectedVideo && (
                 <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h3 className="text-base font-extrabold text-slate-900">
+                    <h3 className="min-w-0 break-words text-base font-extrabold text-slate-900">
                       {selectedVideo.title}
                     </h3>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap min-w-0 items-center gap-2">
                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getCategoryBadgeClass(selectedVideo.category)}`}>
                         {selectedVideo.category}
                       </span>
@@ -259,7 +306,7 @@ export const VideoTutorialsModal = ({ isOpen, onClose, academyData = null }) => 
                       </span>
                       {selectedVideo.duration && (
                         <span className="text-[11px] font-mono font-medium text-slate-600 bg-white border border-slate-200 px-2.5 py-0.5 rounded-md">
-                          ⏱ {selectedVideo.duration}
+                          {selectedVideo.duration}
                         </span>
                       )}
                     </div>
@@ -294,7 +341,7 @@ export const VideoTutorialsModal = ({ isOpen, onClose, academyData = null }) => 
             </div>
 
             {/* Right Playlist & Search (5 Columns) */}
-            <div className="lg:col-span-5 flex flex-col space-y-3">
+            <div className="lg:col-span-5 min-w-0 flex flex-col space-y-3">
               {/* Search Input */}
               <div className="relative">
                 <svg
@@ -333,22 +380,24 @@ export const VideoTutorialsModal = ({ isOpen, onClose, academyData = null }) => 
               </div>
 
               {/* Playlist Header */}
-              <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider pt-1">
+              <div className="flex flex-wrap gap-2 items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider pt-1">
                 <span>{t('ag.shared.videotutorialsmodal.tutorial_playlist', 'Tutorial Playlist (')}{filteredVideos.length})</span>
                 <span>{t('ag.shared.videotutorialsmodal.select_lesson', 'Select Lesson')}</span>
               </div>
 
               {/* Playlist Items */}
-              <div className="space-y-2 overflow-y-auto max-h-[420px] pr-1">
+              <div className="space-y-2 lg:overflow-y-auto lg:max-h-[420px] p-1">
                 {filteredVideos.map((vid) => {
                   const isCurrent = selectedVideo?.id === vid.id;
                   const vidYtId = vid.url ? extractYouTubeId(vid.url) : null;
 
                   return (
-                    <div
+                    <button
+                      type="button"
+                      aria-pressed={isCurrent}
                       key={vid.id}
                       onClick={() => setSelectedVideoId(vid.id)}
-                      className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex gap-3 group ${
+                      className={`w-full text-left p-3 sm:p-3.5 rounded-2xl border transition-all cursor-pointer flex gap-3 group ${
                         isCurrent
                           ? 'bg-blue-50/70 border-blue-400 shadow-sm ring-1 ring-blue-400'
                           : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50'
@@ -364,7 +413,7 @@ export const VideoTutorialsModal = ({ isOpen, onClose, academyData = null }) => 
                             loading="lazy"
                           />
                         ) : (
-                          <span className="text-sm">🎥</span>
+                          <span className="text-sm"><FleetIcons.Video className="w-5 h-5" /></span>
                         )}
                         {vid.duration && (
                           <span className="absolute bottom-0.5 right-0.5 text-[8px] font-mono bg-black/80 px-1 rounded text-white">
@@ -375,8 +424,8 @@ export const VideoTutorialsModal = ({ isOpen, onClose, academyData = null }) => 
 
                       {/* Text Details with Unified Category & Skill Level Badges */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-1">
-                          <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${getCategoryBadgeClass(vid.category)}`}>
+                        <div className="flex flex-wrap items-center justify-between gap-1">
+                          <span className={`max-w-full break-words text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${getCategoryBadgeClass(vid.category)}`}>
                             {vid.category}
                           </span>
                           <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${getSkillLevelBadgeClass(vid.level)}`}>
@@ -396,13 +445,13 @@ export const VideoTutorialsModal = ({ isOpen, onClose, academyData = null }) => 
                           </p>
                         )}
                       </div>
-                    </div>
+                    </button>
                   );
                 })}
 
                 {filteredVideos.length === 0 && (
                   <div className="p-8 text-center bg-slate-50 rounded-2xl border border-slate-200">
-                    <span className="text-2xl">🔍</span>
+                    <span className="text-2xl"><FleetIcons.Search className="w-6 h-6 mx-auto" /></span>
                     <p className="text-xs font-bold text-slate-700 mt-2">{t('ag.shared.videotutorialsmodal.no_tutorials_match_your_search', 'No tutorials match your search')}</p>
                     <p className="text-[11px] text-slate-400 mt-1">{t('ag.shared.videotutorialsmodal.try_clearing_filters_or_search_query', 'Try clearing filters or search query')}</p>
                   </div>

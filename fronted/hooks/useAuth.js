@@ -10,6 +10,7 @@ import {
   selectAuthStatus, selectAuthError, selectBootstrapped,
 } from '../store/slices/authSlice';
 import { storage } from '../utils/storage';
+import { WILDCARD_PERMISSION, toPortalKeys } from '../constants/roles';
 import { impersonationService } from '../api/services/superadmin/impersonation.service';
 
 export function useAuth() {
@@ -44,32 +45,19 @@ export function useAuth() {
   const completeOrganizationProfile = useCallback((payload) => dispatch(completeOrganizationProfileThunk(payload)).unwrap(), [dispatch]);
   const clearError = useCallback(() => dispatch(clearAuthError()), [dispatch]);
 
+  // Exact-match RBAC: only Super Admin ('*') bypasses. No role-name guessing.
+  // perm: a full key ('fleet.vehicles.view') or an array (any-of).
   const hasPermission = useCallback(
     (perm) => {
-      const roleCode = typeof user?.role === 'string' ? user.role : (user?.role?.code || '');
-      const normalizedRole = roleCode.toLowerCase().replace(/[_\s]/g, '-');
-      if (
-        roleCode === 'ROLE-SUPER-ADMIN' ||
-        roleCode === 'ROLE-TENANT-ADMIN' ||
-        roleCode === 'TROLE-ADMIN' ||
-        roleCode === 'ROLE-ADMIN' ||
-        normalizedRole.includes('super') ||
-        normalizedRole === 'superadmin' ||
-        normalizedRole === 'super-admin' ||
-        normalizedRole === 'admin' ||
-        user?.clearance === 'ROOT'
-      ) {
-        return true;
-      }
       const userPerms = Array.isArray(permissions) ? permissions : [];
-      if (Array.isArray(perm)) {
-        return perm.some((p) => userPerms.includes(p) || userPerms.includes('*'));
-      }
-      return userPerms.includes(perm) || userPerms.includes('*');
+      if (userPerms.includes(WILDCARD_PERMISSION)) return true;
+      if (Array.isArray(perm)) return perm.some((p) => userPerms.includes(p));
+      return userPerms.includes(perm);
     },
-    [user, permissions]
+    [permissions]
   );
-
+  // Portal-relative check: can('vehicles.view') -> <my portal>.vehicles.view (admin: devices->edge_devices).
+  const can = useCallback((rel) => hasPermission(toPortalKeys(typeof user?.role === 'string' ? user.role : user?.role?.code, rel)), [hasPermission, user]);
   const impersonateTenant = useCallback(async (orgId, reason) => {
     const res = await impersonationService.impersonateTenant(orgId, reason);
     storage.startImpersonation(res.impersonationToken, {
@@ -120,10 +108,11 @@ export function useAuth() {
 
   return {
     user, role, permissions, isAuthenticated, status, error, bootstrapped,
+    isSuperAdmin: Array.isArray(permissions) && permissions.includes(WILDCARD_PERMISSION),
     isLoading: status === 'loading',
     isImpersonating: storage.isImpersonating(),
     impersonationTarget: storage.getImpersonationTarget(),
-    login, verifyLoginOtp, loginWithGoogle, register, registerWithGoogle, loginWithZoho, loginWithApple, loginWithFirebaseApple, registerWithApple, resubmitRegistration, requestSignupOtp, verifySignupOtp, forgotPassword, resetPassword, loadSession, fetchMe: loadSession, logout, updateProfile, completeOrganizationProfile, clearError, hasPermission,
+    login, verifyLoginOtp, loginWithGoogle, register, registerWithGoogle, loginWithZoho, loginWithApple, loginWithFirebaseApple, registerWithApple, resubmitRegistration, requestSignupOtp, verifySignupOtp, forgotPassword, resetPassword, loadSession, fetchMe: loadSession, logout, updateProfile, completeOrganizationProfile, clearError, hasPermission, can,
     impersonateTenant, impersonateAdvertiser, impersonateUser, stopImpersonation,
   };
 }

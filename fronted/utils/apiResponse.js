@@ -23,9 +23,11 @@ export function unwrap(responseBody) {
 
 export function unwrapPaginated(responseBody) {
   if (responseBody && typeof responseBody === 'object' && 'data' in responseBody) {
-    let meta = responseBody.meta?.pagination || responseBody.meta || null;
-    if (meta && responseBody.meta?.stats) {
-      meta = { ...meta, stats: responseBody.meta.stats };
+    let meta = responseBody.meta?.pagination ? { ...responseBody.meta.pagination } : (responseBody.meta ? { ...responseBody.meta } : null);
+    if (meta && responseBody.meta) {
+      if (responseBody.meta.stats) meta.stats = responseBody.meta.stats;
+      if (responseBody.meta.counts) meta.counts = responseBody.meta.counts;
+      if (responseBody.meta.summary) meta.summary = responseBody.meta.summary;
     }
     const rows = Array.isArray(responseBody.data) ? responseBody.data : (responseBody.data?.rows || []);
     return { rows, meta };

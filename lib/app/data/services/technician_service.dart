@@ -8,12 +8,42 @@ import '../models/connectivity_test_model.dart';
 import '../models/device_config_model.dart';
 import '../models/gps_device_model.dart';
 import '../models/fleet_models.dart';
+import '../models/notification_model.dart';
+import '../../modules/roles/technician/profile/help_support/model/tech_help_support_models.dart';
+import '../../modules/roles/technician/home/model/home_models.dart';
 import 'http_client_service.dart';
 
 class TechnicianService extends GetxService {
   static TechnicianService get to => Get.find<TechnicianService>();
 
   HttpClientService get _http => HttpClientService.to;
+
+  /// GET /api/v1/notifications
+  Future<ApiResponseModel<List<AppNotificationModel>>> getNotifications({
+    int page = 1,
+    int limit = 50,
+  }) async {
+    return _http.get<List<AppNotificationModel>>(
+      ApiConstants.notifications,
+      queryParams: {'page': page, 'limit': limit},
+      requiresAuth: true,
+      create: (data) {
+        if (data is List) {
+          return data
+              .whereType<Map>()
+              .map((item) => AppNotificationModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        } else if (data is Map && (data['rows'] is List || data['items'] is List || data['notifications'] is List)) {
+          final list = (data['rows'] ?? data['items'] ?? data['notifications']) as List;
+          return list
+              .whereType<Map>()
+              .map((item) => AppNotificationModel.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        }
+        return <AppNotificationModel>[];
+      },
+    );
+  }
 
   // ==========================================================
   // SECTION 1: Technician Self-Service (Work Orders)
@@ -216,9 +246,9 @@ class TechnicianService extends GetxService {
   }) async {
     final body = <String, dynamic>{
       'status': status ?? 'success',
-      if (latency != null) 'latency': latency,
-      if (packetLoss != null) 'packetLoss': packetLoss,
-      if (rssi != null) 'rssi': rssi,
+      'latency': ?latency,
+      'packetLoss': ?packetLoss,
+      'rssi': ?rssi,
       'test_type': testType,
     };
     return _http.post<ConnectivityTestModel>(
@@ -333,8 +363,57 @@ class TechnicianService extends GetxService {
   }
 
   // ==========================================================
-  // SECTION 5: Auxiliary Lookups (Vehicles & Depots)
+  // SECTION 5: Auxiliary Lookups (Organizations, Fleets, Vehicles & Depots)
   // ==========================================================
+
+  /// GET /organizations
+  Future<ApiResponseModel<List<OrganizationItemModel>>> getOrganizations({
+    int page = 1,
+    int limit = 100,
+  }) async {
+    return _http.get<List<OrganizationItemModel>>(
+      ApiConstants.organizations,
+      queryParams: {'page': page, 'limit': limit},
+      requiresAuth: true,
+      create: (data) {
+        if (data is List) {
+          return data.map((item) => OrganizationItemModel.fromJson(Map<String, dynamic>.from(item))).toList();
+        } else if (data is Map && data['rows'] is List) {
+          return (data['rows'] as List).map((item) => OrganizationItemModel.fromJson(Map<String, dynamic>.from(item))).toList();
+        }
+        return <OrganizationItemModel>[];
+      },
+    );
+  }
+
+  /// GET /fleets
+  Future<ApiResponseModel<List<FleetItemModel>>> getFleets({
+    int page = 1,
+    int limit = 200,
+    String search = '',
+  }) async {
+    final queryParams = <String, dynamic>{
+      'page': page,
+      'limit': limit,
+      if (search.isNotEmpty) 'search': search,
+    };
+
+    return _http.get<List<FleetItemModel>>(
+      ApiConstants.fleets,
+      queryParams: queryParams,
+      requiresAuth: true,
+      create: (data) {
+        if (data is List) {
+          return data.map((item) => FleetItemModel.fromJson(Map<String, dynamic>.from(item))).toList();
+        } else if (data is Map && data['rows'] is List) {
+          return (data['rows'] as List).map((item) => FleetItemModel.fromJson(Map<String, dynamic>.from(item))).toList();
+        } else if (data is Map && data['items'] is List) {
+          return (data['items'] as List).map((item) => FleetItemModel.fromJson(Map<String, dynamic>.from(item))).toList();
+        }
+        return <FleetItemModel>[];
+      },
+    );
+  }
 
   /// GET /vehicles
   Future<ApiResponseModel<List<VehicleItemModel>>> getVehicles({
@@ -395,10 +474,19 @@ class TechnicianService extends GetxService {
   // ==========================================================
 
   /// GET /me/technician/stats
-  Future<ApiResponseModel<dynamic>> getTechnicianStats() async {
-    return _http.get(
+  Future<ApiResponseModel<TechnicianStatsModel>> getTechnicianStats() async {
+    return _http.get<TechnicianStatsModel>(
       ApiConstants.techStats,
       requiresAuth: true,
+      create: (data) {
+        if (data is Map) {
+          final map = data.containsKey('stats') && data['stats'] is Map
+              ? Map<String, dynamic>.from(data['stats'])
+              : Map<String, dynamic>.from(data);
+          return TechnicianStatsModel.fromJson(map);
+        }
+        return TechnicianStatsModel.defaultMock();
+      },
     );
   }
 
@@ -619,6 +707,153 @@ class TechnicianService extends GetxService {
       ApiConstants.workOrdersDispatch,
       body: data,
       requiresAuth: true,
+    );
+  }
+
+  // ==========================================================
+  // SECTION 8: Technician Help & Support & Ticketing
+  // ==========================================================
+
+  /// GET /content/help?role=ROLE-CENTRAL-TECH — Technician hardware guides, FAQs & academy
+  Future<ApiResponseModel<TechHelpContentModel>> getTechnicianHelpContent() async {
+    return _http.get<TechHelpContentModel>(
+      ApiConstants.contentHelpRole('ROLE-CENTRAL-TECH'),
+      requiresAuth: true,
+      create: (data) {
+        if (data is Map) {
+          return TechHelpContentModel.fromJson(Map<String, dynamic>.from(data));
+        }
+        return TechHelpContentModel.defaultTechnicianHelp();
+      },
+    );
+  }
+
+  /// GET /me/support/tickets — Technician submitted support tickets
+  Future<ApiResponseModel<List<TechSupportTicketModel>>> getMySupportTickets({
+    int page = 1,
+    int limit = 50,
+  }) async {
+    return _http.get<List<TechSupportTicketModel>>(
+      '${ApiConstants.supportTickets}?page=$page&limit=$limit',
+      requiresAuth: true,
+      create: (data) {
+        List items = [];
+        if (data is Map) {
+          if (data['tickets'] is List) {
+            items = data['tickets'] as List;
+          } else if (data['items'] is List) {
+            items = data['items'] as List;
+          } else if (data['data'] is List) {
+            items = data['data'] as List;
+          } else if (data['rows'] is List) {
+            items = data['rows'] as List;
+          }
+        } else if (data is List) {
+          items = data;
+        }
+
+        return items
+            .whereType<Map>()
+            .map((item) => TechSupportTicketModel.fromJson(Map<String, dynamic>.from(item)))
+            .toList();
+      },
+    );
+  }
+
+  /// GET /support/tickets/:id — Single support ticket details with message thread
+  Future<ApiResponseModel<TechSupportTicketModel>> getSupportTicketDetails(String id) async {
+    return _http.get<TechSupportTicketModel>(
+      ApiConstants.supportTicketOne(id),
+      requiresAuth: true,
+      create: (data) {
+        if (data is Map) {
+          final map = data.containsKey('ticket') && data['ticket'] is Map
+              ? Map<String, dynamic>.from(data['ticket'])
+              : Map<String, dynamic>.from(data);
+          return TechSupportTicketModel.fromJson(map);
+        }
+        return TechSupportTicketModel(
+          id: id,
+          code: '#TKT-$id',
+          subject: 'Hardware Support Ticket',
+          category: 'Hardware',
+          description: '',
+        );
+      },
+    );
+  }
+
+  /// POST /support/tickets — Raise new support ticket
+  Future<ApiResponseModel<TechSupportTicketModel>> createSupportTicket({
+    required String subject,
+    required String category,
+    required String priority,
+    required String description,
+    List<Map<String, dynamic>>? attachments,
+  }) async {
+    final body = <String, dynamic>{
+      'subject': subject,
+      'title': subject,
+      'category': category,
+      'priority': priority.toLowerCase(),
+      'description': description,
+      'message': description,
+      if (attachments != null && attachments.isNotEmpty) 'attachments': attachments,
+    };
+
+    return _http.post<TechSupportTicketModel>(
+      ApiConstants.createSupportTicket,
+      body: body,
+      requiresAuth: true,
+      create: (data) {
+        if (data is Map) {
+          final map = data.containsKey('ticket') && data['ticket'] is Map
+              ? Map<String, dynamic>.from(data['ticket'])
+              : Map<String, dynamic>.from(data);
+          return TechSupportTicketModel.fromJson(map);
+        }
+        return TechSupportTicketModel(
+          id: 'new',
+          code: '#TKT-NEW',
+          subject: subject,
+          category: category,
+          priority: priority,
+          description: description,
+        );
+      },
+    );
+  }
+
+  /// POST /support/tickets/:id/messages — Reply to ticket conversation thread
+  Future<ApiResponseModel<TechTicketMessageModel>> sendSupportTicketReply(
+    String id, {
+    required String body,
+    List<Map<String, dynamic>>? attachments,
+  }) async {
+    final payload = <String, dynamic>{
+      'body': body,
+      'message': body,
+      if (attachments != null && attachments.isNotEmpty) 'attachments': attachments,
+    };
+
+    return _http.post<TechTicketMessageModel>(
+      ApiConstants.supportTicketMessages(id),
+      body: payload,
+      requiresAuth: true,
+      create: (data) {
+        if (data is Map) {
+          final map = data.containsKey('message') && data['message'] is Map
+              ? Map<String, dynamic>.from(data['message'])
+              : Map<String, dynamic>.from(data);
+          return TechTicketMessageModel.fromJson(map);
+        }
+        return TechTicketMessageModel(
+          id: 'new-msg',
+          sender: 'technician',
+          message: body,
+          createdAt: DateTime.now().toIso8601String(),
+        );
+      },
     );
   }
 }

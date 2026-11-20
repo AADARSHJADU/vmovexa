@@ -23,9 +23,8 @@ class AdvertiserProfileView extends GetView<AdvertiserProfileController> {
                 children: [
                   const CustomBackButton(),
                   const SizedBox(width: 8),
-                  const Expanded(
-                    child: Text(
-                      'Brand Profile',
+                  Expanded(
+                    child: Text('brand_profile'.tr,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -36,12 +35,12 @@ class AdvertiserProfileView extends GetView<AdvertiserProfileController> {
                   IconButton(
                     icon: const Icon(Icons.edit_note_rounded, color: Color(0xFF8B5CF6), size: 24),
                     onPressed: () => Get.toNamed(Routes.ADVERTISER_EDIT_PROFILE),
-                    tooltip: 'Edit Profile',
+                    tooltip: 'edit_profile'.tr,
                   ),
                   IconButton(
                     icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 22),
                     onPressed: () => controller.loadProfileData(),
-                    tooltip: 'Refresh Profile',
+                    tooltip: 'refresh_profile_tooltip'.tr,
                   ),
                 ],
               ),
@@ -124,16 +123,14 @@ class AdvertiserProfileContent extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.cardBorder, width: 1.2),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Profile & Account',
+          Text('profile_and_account'.tr,
             style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 4),
-          Text(
-            'Manage your advertiser account credentials, brand profiles, and security preferences.',
+          Text('manage_profile_account_desc'.tr,
             style: TextStyle(color: AppColors.textMuted, fontSize: 11, height: 1.35),
           ),
         ],
@@ -246,7 +243,7 @@ class AdvertiserProfileContent extends StatelessWidget {
                         )),
                     const SizedBox(height: 2),
                     Obx(() => Text(
-                          'Advertiser ID: ${controller.advId.value}',
+                          '${'advertiser_id_label'.tr}: ${controller.advId.value}',
                           style: const TextStyle(color: Color(0xFF64748B), fontSize: 10, fontFamily: 'monospace'),
                         )),
                   ],
@@ -264,7 +261,7 @@ class AdvertiserProfileContent extends StatelessWidget {
               // Pill 1: Campaigns
               Expanded(
                 child: Obx(() => _buildStatPill(
-                      label: 'CAMPAIGNS',
+                      label: 'campaigns_caps'.tr,
                       val: '${controller.campaignCount.value}',
                       valColor: Colors.white,
                     )),
@@ -274,7 +271,7 @@ class AdvertiserProfileContent extends StatelessWidget {
               // Pill 2: Active
               Expanded(
                 child: Obx(() => _buildStatPill(
-                      label: 'ACTIVE',
+                      label: 'active_upper'.tr,
                       val: '${controller.activeCampaigns.value}',
                       valColor: const Color(0xFF10B981),
                     )),
@@ -284,7 +281,7 @@ class AdvertiserProfileContent extends StatelessWidget {
               // Pill 3: Wallet Balance
               Expanded(
                 child: Obx(() => _buildStatPill(
-                      label: 'WALLET BALANCE',
+                      label: 'wallet_balance_caps'.tr,
                       val: controller.walletBalance.value,
                       valColor: const Color(0xFF60A5FA),
                     )),
@@ -356,8 +353,7 @@ class AdvertiserProfileContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'ACCOUNT & SECURITY',
+          Text('account_and_security_caps'.tr,
             style: TextStyle(
               color: Colors.white,
               fontSize: 11,
@@ -370,8 +366,8 @@ class AdvertiserProfileContent extends StatelessWidget {
           // 1. Account Settings (Edit Profile)
           _buildActionItem(
             icon: Icons.person_outline_rounded,
-            title: 'Account Settings',
-            subtitle: 'Update personal contact details and brand information',
+            title: 'account_settings'.tr,
+            subtitle: 'update_profile_info_sub'.tr,
             iconColor: const Color(0xFF3B82F6),
             onTap: () => Get.toNamed(Routes.ADVERTISER_EDIT_PROFILE),
           ),
@@ -380,8 +376,8 @@ class AdvertiserProfileContent extends StatelessWidget {
           // 2. Security & Password
           _buildActionItem(
             icon: Icons.key_rounded,
-            title: 'Security & Password',
-            subtitle: 'Change your access credentials and protect your account',
+            title: 'security_password'.tr,
+            subtitle: 'change_credentials_sub'.tr,
             iconColor: const Color(0xFFF59E0B),
             onTap: () => Get.toNamed(Routes.ADVERTISER_CHANGE_PASSWORD),
           ),
@@ -390,8 +386,8 @@ class AdvertiserProfileContent extends StatelessWidget {
           // 3. Notification Settings
           _buildActionItem(
             icon: Icons.notifications_none_rounded,
-            title: 'Notification Settings',
-            subtitle: 'Choose how and when you receive campaign & system alerts',
+            title: 'notification_settings'.tr,
+            subtitle: 'choose_alert_preferences_sub'.tr,
             iconColor: const Color(0xFF8B5CF6),
             onTap: () => Get.toNamed(Routes.ADVERTISER_NOTIFICATION_SETTINGS),
           ),
@@ -414,9 +410,9 @@ class AdvertiserProfileContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'HELPDESK & LEGAL',
-            style: TextStyle(
+          Text(
+            'helpdesk_legal'.tr,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 11,
               fontWeight: FontWeight.bold,
@@ -428,8 +424,8 @@ class AdvertiserProfileContent extends StatelessWidget {
           // 1. Help & Support
           _buildActionItem(
             icon: Icons.headset_mic_outlined,
-            title: 'Help & Support',
-            subtitle: 'Reach our support desk for campaign, slot, or billing issues',
+            title: 'help_support'.tr,
+            subtitle: 'reach_support_desk_sub'.tr,
             iconColor: const Color(0xFF06B6D4),
             onTap: () => Get.toNamed(Routes.ADVERTISER_HELP_SUPPORT),
           ),
@@ -438,8 +434,8 @@ class AdvertiserProfileContent extends StatelessWidget {
           // 2. Privacy Policy
           _buildActionItem(
             icon: Icons.shield_outlined,
-            title: 'Privacy Policy',
-            subtitle: 'Review how VMOVEXA processes and protects your data',
+            title: 'privacy_policy'.tr,
+            subtitle: 'review_privacy_policy_sub'.tr,
             iconColor: const Color(0xFF10B981),
             onTap: () => Get.toNamed(Routes.PRIVACY_POLICY, arguments: {'role': 'ROLE-ADVERTISER'}),
           ),
@@ -448,8 +444,8 @@ class AdvertiserProfileContent extends StatelessWidget {
           // 3. Terms & Conditions
           _buildActionItem(
             icon: Icons.description_outlined,
-            title: 'Terms & Conditions',
-            subtitle: 'Read platform usage terms, media flight guidelines, and SLA',
+            title: 'terms_conditions'.tr,
+            subtitle: 'read_terms_guidelines_sub'.tr,
             iconColor: const Color(0xFF8B5CF6),
             onTap: () => Get.toNamed(Routes.TERMS_CONDITIONS, arguments: {'role': 'ROLE-ADVERTISER'}),
           ),
@@ -542,8 +538,7 @@ class AdvertiserProfileContent extends StatelessWidget {
                   child: const Icon(Icons.logout_rounded, color: Color(0xFFEF4444), size: 18),
                 ),
                 const SizedBox(width: 10),
-                const Text(
-                  'Log Out of Account',
+                Text('log_out_of_account'.tr,
                   style: TextStyle(
                     color: Color(0xFFEF4444),
                     fontSize: 13.5,

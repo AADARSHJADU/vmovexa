@@ -9,19 +9,19 @@ import { useTranslation } from '../hooks/useTranslation.js';
 /**
  * Format timestamp into human-readable relative time (e.g. "Just now", "5m ago", "2h ago", "1d ago")
  */
-function formatRelativeTime(dateStr) {
+function formatRelativeTime(dateStr, t) {
   if (!dateStr) return '';
   const date = new Date(dateStr);
   if (Number.isNaN(date.getTime())) return '';
   const diffInSeconds = Math.floor((new Date() - date) / 1000);
 
-  if (diffInSeconds < 60) return 'Just now';
+  if (diffInSeconds < 60) return t('common.just_now', 'Just now');
   const diffInMinutes = Math.floor(diffInSeconds / 60);
-  if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+  if (diffInMinutes < 60) return t('notifications.minutes_ago', '{{count}}m ago', { count: diffInMinutes });
   const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) return `${diffInHours}h ago`;
+  if (diffInHours < 24) return t('notifications.hours_ago', '{{count}}h ago', { count: diffInHours });
   const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 7) return `${diffInDays}d ago`;
+  if (diffInDays < 7) return t('notifications.days_ago', '{{count}}d ago', { count: diffInDays });
   return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
@@ -141,7 +141,7 @@ export const NotificationDropdown = ({ roleTitle = 'Super Admin', className = ''
     try {
       await markRead(id);
     } catch {
-      toast.error('Failed to mark notification as read');
+      toast.error(t('notifications.mark_read_failed', 'Failed to mark notification as read'));
     }
   };
 
@@ -152,7 +152,7 @@ export const NotificationDropdown = ({ roleTitle = 'Super Admin', className = ''
       await markAllRead();
       toast.success(t('notifications.all_marked_read', 'All notifications marked as read'));
     } catch {
-      toast.error('Failed to mark all as read');
+      toast.error(t('notifications.mark_all_failed', 'Failed to mark all as read'));
     } finally {
       setIsProcessing(false);
     }
@@ -162,21 +162,21 @@ export const NotificationDropdown = ({ roleTitle = 'Super Admin', className = ''
     if (e) e.stopPropagation();
     try {
       await deleteNotification(id);
-      toast.success('Notification removed');
+      toast.success(t('notifications.removed', 'Notification removed'));
     } catch {
-      toast.error('Failed to delete notification');
+      toast.error(t('notifications.delete_failed', 'Failed to delete notification'));
     }
   };
 
   const handleClearAll = async () => {
     if (notifications.length === 0 || isProcessing) return;
-    if (!window.confirm('Are you sure you want to clear all notifications?')) return;
+    if (!window.confirm(t('notifications.confirm_clear_all', 'Are you sure you want to clear all notifications?'))) return;
     setIsProcessing(true);
     try {
       await clearAll();
-      toast.success('All notifications cleared');
+      toast.success(t('notifications.cleared', 'All notifications cleared'));
     } catch {
-      toast.error('Failed to clear notifications');
+      toast.error(t('notifications.clear_failed', 'Failed to clear notifications'));
     } finally {
       setIsProcessing(false);
     }
@@ -365,8 +365,8 @@ export const NotificationDropdown = ({ roleTitle = 'Super Admin', className = ''
                 </h4>
                 <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 max-w-[260px]">
                   {filterTab === 'unread'
-                    ? 'All notifications have been read. Check the "All" tab for past alerts.'
-                    : 'System alerts, platform updates, and emergency broadcasts will appear here.'}
+                    ? t('notifications.all_read_empty', 'All notifications have been read. Check the "All" tab for past alerts.')
+                    : t('notifications.empty_hint', 'System alerts, platform updates, and emergency broadcasts will appear here.')}
                 </p>
               </div>
             ) : (
@@ -405,7 +405,7 @@ export const NotificationDropdown = ({ roleTitle = 'Super Admin', className = ''
                       )}
 
                       <div className="flex items-center gap-2 mt-1.5 text-[10px] text-slate-400 dark:text-zinc-500 font-medium">
-                        <span>{formatRelativeTime(item.created_at)}</span>
+                        <span>{formatRelativeTime(item.created_at, t)}</span>
                         {item.channel && item.channel !== 'in_app' && (
                           <>
                             <span>•</span>

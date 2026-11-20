@@ -24,6 +24,7 @@ export const financeService = {
   getPayment: (id) => call(apiClient.get(ENDPOINTS.FINANCE.PAYMENT(id))),
   sendPaymentReminder: (id, data) => call(apiClient.post(ENDPOINTS.FINANCE.PAYMENT_REMINDER(id), data)),
   getCampaignPayments: (params) => callPaginated(apiClient.get(ENDPOINTS.FINANCE.CAMPAIGN_PAYMENTS, { params })),
+  getCampaignPayment: (id) => call(apiClient.get(ENDPOINTS.FINANCE.CAMPAIGN_PAYMENT_ONE(id))),
   shareCampaignPaymentLink: (id, data) => call(apiClient.post(ENDPOINTS.FINANCE.CAMPAIGN_PAYMENT_SHARE(id), data)),
   recordManualCampaignPayment: (id, data) => call(apiClient.post(ENDPOINTS.FINANCE.CAMPAIGN_PAYMENT_MANUAL(id), data)),
   getReconciliationSummary: () => call(apiClient.get(ENDPOINTS.FINANCE.RECONCILIATION_SUMMARY)),

@@ -12,6 +12,7 @@ class LocationAutocompleteField extends StatefulWidget {
   final TextEditingController? addressController;
   final TextEditingController? cityController;
   final TextEditingController? stateController;
+  final TextEditingController? pincodeController;
   final Function(GooglePlaceItemModel place)? onPlaceSelected;
   final VoidCallback? onCleared;
   final Color accentColor;
@@ -27,6 +28,7 @@ class LocationAutocompleteField extends StatefulWidget {
     this.addressController,
     this.cityController,
     this.stateController,
+    this.pincodeController,
     this.onPlaceSelected,
     this.onCleared,
     this.accentColor = const Color(0xFF6366F1),
@@ -101,6 +103,18 @@ class _LocationAutocompleteFieldState extends State<LocationAutocompleteField> {
     }
     if (widget.stateController != null && place.state != null && place.state!.isNotEmpty) {
       widget.stateController!.text = place.state!;
+    }
+    if (widget.pincodeController != null) {
+      String? pin = place.pincode;
+      if (pin == null || pin.isEmpty) {
+        final match = RegExp(r'\b[1-9][0-9]{5}\b').firstMatch(place.formattedAddress);
+        if (match != null) {
+          pin = match.group(0);
+        }
+      }
+      if (pin != null && pin.isNotEmpty) {
+        widget.pincodeController!.text = pin;
+      }
     }
 
     setState(() {
@@ -211,6 +225,9 @@ class _LocationAutocompleteFieldState extends State<LocationAutocompleteField> {
                               onPressed: () {
                                 widget.controller.clear();
                                 if (widget.addressController != null) widget.addressController!.clear();
+                                if (widget.cityController != null) widget.cityController!.clear();
+                                if (widget.stateController != null) widget.stateController!.clear();
+                                if (widget.pincodeController != null) widget.pincodeController!.clear();
                                 if (widget.latController != null) widget.latController!.clear();
                                 if (widget.lngController != null) widget.lngController!.clear();
                                 setState(() {

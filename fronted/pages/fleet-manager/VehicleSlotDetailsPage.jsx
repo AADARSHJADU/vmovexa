@@ -22,7 +22,7 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { hasPermission } = useAuth();
+  const { can } = useAuth();
   const { t } = useTranslation();
 
   const isFleetPortal = forcedPortal ? forcedPortal === 'fleet' : location.pathname.startsWith('/fleet-operator');
@@ -35,8 +35,8 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
   const routeBasePath = isFleetPortal ? '/fleet-operator/routes' : '/admin/routes';
   const depotBasePath = isFleetPortal ? '/fleet-operator/depots' : '/admin/depots';
 
-  const canUpdate = !isFleetPortal || hasPermission(['fleet.slots.update', 'fleet.vehicles.update']);
-  const canDelete = !isFleetPortal || hasPermission(['fleet.slots.delete', 'fleet.vehicles.delete']);
+  const canUpdate = can('slots.update');
+  const canDelete = can('slots.delete');
 
   const { getSlotById, updateSlot, deleteSlot } = useVehicleSlot();
 
@@ -66,7 +66,8 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
   }, [fetchSlotDetails]);
 
   const copySlotCode = () => {
-    const code = slot?.slot_code || `SLOT-${id}`;
+    const code = slot?.slot_code;
+    if (!code) return;
     navigator.clipboard.writeText(code);
     setCopied(true);
     toast.success(t('ag.fleet.vehicleslotdetailspage.slot_code_copied_to_clipboard', 'Slot code copied to clipboard!'));
@@ -114,17 +115,6 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
     }
   };
 
-  const calculateDuration = () => {
-    if (!slot?.start_time || !slot?.end_time) return null;
-    const [sh, sm] = String(slot.start_time).substring(0, 5).split(':').map(Number);
-    const [eh, em] = String(slot.end_time).substring(0, 5).split(':').map(Number);
-    let diff = (eh * 60 + em) - (sh * 60 + sm);
-    if (diff <= 0) return null;
-    const hours = Math.floor(diff / 60);
-    const mins = diff % 60;
-    return `${hours}h ${mins > 0 ? `${mins}m` : '00m'}`;
-  };
-
   const formatTime = (timeStr) => {
     if (!timeStr) return '—';
     const clean = String(timeStr).substring(0, 5);
@@ -159,18 +149,18 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
       };
     }
     return {
-      label: t('ag.fleet.vehicleslotdetailspage.regular_day_shift', 'Regular Day Shift'),
+      label: s === 'regular_day' ? t('ag.fleet.vehicleslotdetailspage.regular_day_shift', 'Regular Day Shift') : shift,
       cls: 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/60',
       dot: 'bg-blue-500',
     };
   };
 
   const getStatusBadge = (status) => {
-    const st = String(status || 'active').toLowerCase();
+    const st = String(status || '').toLowerCase();
     switch (st) {
       case 'active':
         return {
-          label: t('ag.fleet.vehicleslotdetailspage.active_service', 'Active Service'),
+          label: t('common.active', 'Active'),
           cls: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
           dot: 'bg-emerald-500',
         };
@@ -182,7 +172,7 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
         };
       case 'in_transit':
         return {
-          label: t('ag.fleet.vehicleslotdetailspage.in_transit_live', 'In Transit (Live)'),
+          label: t('admin.slots.in_transit', 'In Transit'),
           cls: 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800',
           dot: 'bg-blue-500 animate-pulse',
         };
@@ -194,7 +184,7 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
         };
       default:
         return {
-          label: t('ag.fleet.vehicleslotdetailspage.inactive_draft', 'Inactive / Draft'),
+          label: st === 'inactive' ? t('common.inactive', 'Inactive') : status,
           cls: 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800',
           dot: 'bg-rose-500',
         };
@@ -202,7 +192,8 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
   };
 
   const isDayActive = (dayKey) => {
-    if (!slot?.operating_days || slot.operating_days === 'ALL') return true;
+    if (!slot?.operating_days) return false;
+    if (slot.operating_days === 'ALL') return true;
     const daysArr = slot.operating_days.split(',').map((d) => d.trim().toLowerCase());
     return daysArr.includes(dayKey.toLowerCase());
   };
@@ -259,17 +250,19 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
   const shiftBadge = getShiftBadge(slot.shift_type);
   const statusBadge = getStatusBadge(slot.status);
   const isPaused = (slot.status || '').toLowerCase() === 'paused';
-  const duration = calculateDuration();
-
   const vehicle = slot.vehicle || {};
   const route = slot.route || {};
-  const driver = slot.driver || vehicle.driver || {};
+  const driver = slot.driver || {};
   const depot = slot.depot || vehicle.depot || {};
   const fleet = vehicle.fleet || {};
-  const organization = slot.organization || {};
 
-  const busNumber = vehicle.bus_number || vehicle.plate || `Bus #${slot.vehicle_id}`;
-  const routeName = route.name || `Route #${slot.route_id}`;
+  const busNumber = vehicle.bus_number || vehicle.plate || null;
+  const routeName = route.name || null;
+  const hasDriverDetails = Boolean(driver.name || driver.phone || driver.emp_id || driver.status);
+  const hasDepotDetails = Boolean(depot.name || depot.code || depot.city || depot.address);
+  const hasFleetDetails = Boolean(fleet.name || fleet.code);
+  const hasVehicleDetails = Boolean(busNumber || vehicle.model || vehicle.vehicle_type || vehicle.capacity != null || vehicle.status);
+  const hasRouteDetails = Boolean(routeName || route.code || route.start_point || route.end_point || route.distance_km != null);
 
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-200 pb-16">
@@ -288,8 +281,8 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
         <div className="space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700 flex items-center gap-1.5">
-              <span>{slot.slot_code || `SLOT-${slot.id}`}</span>
-              <button
+              <span>{slot.slot_code || `Slot #${slot.id}`}</span>
+              {slot.slot_code && <button
                 type="button"
                 onClick={copySlotCode}
                 title={t('admin.slots.copy_slot_code')}
@@ -300,26 +293,30 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
                 ) : (
                   <FleetIcons.Terms className="w-3.5 h-3.5" />
                 )}
-              </button>
+              </button>}
             </span>
 
-            <span className={`text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 ${statusBadge.cls}`}>
+            {slot.status && <span className={`text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 ${statusBadge.cls}`}>
               <span className={`w-2 h-2 rounded-full ${statusBadge.dot}`} />
               <span>{statusBadge.label}</span>
-            </span>
+            </span>}
 
-            <span className={`text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 ${shiftBadge.cls}`}>
+            {slot.shift_type && <span className={`text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 ${shiftBadge.cls}`}>
               <span className={`w-2 h-2 rounded-full ${shiftBadge.dot}`} />
               <span>{shiftBadge.label}</span>
-            </span>
+            </span>}
           </div>
 
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
-            {slot.slot_name || `${routeName} (${String(slot.start_time).substring(0, 5)} - ${String(slot.end_time).substring(0, 5)})`}
+            {slot.slot_name || slot.slot_code}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium">
-            {t('ag.fleet.vehicleslotdetailspage.scheduled_transit_shift_for', 'Scheduled transit shift for')} <span className="font-bold text-slate-700 dark:text-zinc-200">{busNumber}</span> {t('admin.slots.along')} <span className="font-bold text-slate-700 dark:text-zinc-200">{routeName}</span>
-          </p>
+          {(busNumber || routeName) && (
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium">
+              {busNumber && <span className="font-bold text-slate-700 dark:text-zinc-200">{busNumber}</span>}
+              {busNumber && routeName && <span> {t('admin.slots.along')} </span>}
+              {routeName && <span className="font-bold text-slate-700 dark:text-zinc-200">{routeName}</span>}
+            </p>
+          )}
         </div>
 
         {/* Action Buttons */}
@@ -381,8 +378,8 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
         </div>
       </div>
 
-      {/* 3. Hero Quick Telemetry Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {/* 3. Quick facts backed by stored/API values */}
+      {(slot.start_time || slot.end_time) && <div className="grid grid-cols-1 gap-3">
         <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-4 shadow-sm space-y-1">
           <div className="text-[11px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
             <FleetIcons.Clock className="w-3.5 h-3.5 text-blue-500" />
@@ -391,56 +388,15 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
           <div className="text-base sm:text-lg font-black text-slate-900 dark:text-white font-mono">
             {formatTime(slot.start_time)} – {formatTime(slot.end_time)}
           </div>
-          <div className="text-[11px] text-slate-500 dark:text-zinc-400">
-            {duration ? `Duration: ${duration}` : t('ag.fleet.vehicleslotdetailspage.flexible_timetable', 'Flexible timetable')}
-          </div>
         </div>
 
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-4 shadow-sm space-y-1">
-          <div className="text-[11px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
-            <FleetIcons.Speed className="w-3.5 h-3.5 text-indigo-500" />
-            <span>{t('admin.slots.frequency_headway')}</span>
-          </div>
-          <div className="text-base sm:text-lg font-black text-slate-900 dark:text-white font-mono">
-            {t('ag.fleet.vehicleslotdetailspage.every', 'Every')} {slot.headway_minutes || 15} {t('ag.fleet.vehicleslotdetailspage.mins', 'Mins')}
-          </div>
-          <div className="text-[11px] text-slate-500 dark:text-zinc-400">
-            {t('ag.fleet.vehicleslotdetailspage.bus_corridor_repeat_interval', 'Bus corridor repeat interval')}
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-4 shadow-sm space-y-1">
-          <div className="text-[11px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
-            <FleetIcons.Trips className="w-3.5 h-3.5 text-emerald-500" />
-            <span>{t('admin.slots.route_distance')}</span>
-          </div>
-          <div className="text-base sm:text-lg font-black text-slate-900 dark:text-white font-mono">
-            {route.distance_km ? `${route.distance_km} KM` : '—'}
-          </div>
-          <div className="text-[11px] text-slate-500 dark:text-zinc-400 truncate">
-            {route.code ? `Code: ${route.code}` : routeName}
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-4 shadow-sm space-y-1">
-          <div className="text-[11px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
-            <FleetIcons.Profile className="w-3.5 h-3.5 text-purple-500" />
-            <span>{t('admin.slots.assigned_driver')}</span>
-          </div>
-          <div className="text-base sm:text-lg font-black text-slate-900 dark:text-white truncate">
-            {driver.name || 'Unassigned'}
-          </div>
-          <div className="text-[11px] text-slate-500 dark:text-zinc-400 font-mono">
-            {driver.phone || (driver.emp_id ? `EMP #${driver.emp_id}` : t('ag.fleet.vehicleslotdetailspage.crew_pending', 'Crew pending'))}
-          </div>
-        </div>
-      </div>
+      </div>}
 
       {/* 4. Main 2-Column Detail Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        {/* CARD A: Vehicle & Displays Telemetry */}
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-4">
+        {/* CARD A: Vehicle details */}
+        {hasVehicleDetails && <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900 flex items-center justify-center">
@@ -450,9 +406,6 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
                 <h2 className="text-sm font-bold text-slate-900 dark:text-white">
                   {t('ag.fleet.vehicleslotdetailspage.vehicle_bus_details', 'Vehicle / Bus Details')}
                 </h2>
-                <p className="text-[11px] text-slate-500 dark:text-zinc-400">
-                  {t('ag.fleet.vehicleslotdetailspage.assigned_transit_bus_unit_and_edge_hardware', 'Assigned transit bus unit and edge hardware')}
-                </p>
               </div>
             </div>
 
@@ -468,67 +421,40 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
           </div>
 
           <div className="grid grid-cols-2 gap-4 text-xs">
-            <div>
+            {busNumber && <div>
               <span className="text-slate-400 dark:text-zinc-500 block text-[11px]">{t('admin.slots.bus_number_plate')}</span>
               <span className="font-mono font-black text-slate-900 dark:text-white text-sm">
                 {busNumber}
               </span>
-            </div>
+            </div>}
 
-            <div>
+            {vehicle.model && <div>
               <span className="text-slate-400 dark:text-zinc-500 block text-[11px]">{t('admin.slots.bus_model_make')}</span>
-              <span className="font-bold text-slate-800 dark:text-zinc-200">
-                {vehicle.model || 'Standard City Transit'}
-              </span>
-            </div>
+              <span className="font-bold text-slate-800 dark:text-zinc-200">{vehicle.model}</span>
+            </div>}
 
-            <div>
+            {vehicle.vehicle_type && <div>
               <span className="text-slate-400 dark:text-zinc-500 block text-[11px]">{t('admin.slots.vehicle_type')}</span>
-              <span className="font-bold text-slate-800 dark:text-zinc-200">
-                {vehicle.vehicle_type || 'Commercial Passenger Bus'}
-              </span>
-            </div>
+              <span className="font-bold text-slate-800 dark:text-zinc-200">{vehicle.vehicle_type}</span>
+            </div>}
 
-            <div>
+            {vehicle.capacity != null && <div>
               <span className="text-slate-400 dark:text-zinc-500 block text-[11px]">{t('admin.slots.passenger_capacity')}</span>
-              <span className="font-bold text-slate-800 dark:text-zinc-200">
-                {vehicle.capacity ? `${vehicle.capacity} Seats` : t('ag.fleet.vehicleslotdetailspage.standard_54_seats', 'Standard 54 Seats')}
-              </span>
-            </div>
+              <span className="font-bold text-slate-800 dark:text-zinc-200">{vehicle.capacity} Seats</span>
+            </div>}
 
-            <div>
-              <span className="text-slate-400 dark:text-zinc-500 block text-[11px]">{t('admin.slots.vehicle_live_status')}</span>
+            {vehicle.status && <div>
+              <span className="text-slate-400 dark:text-zinc-500 block text-[11px]">{t('admin.slots.th_status')}</span>
               <span className="font-bold px-2 py-0.5 rounded-md text-[10px] uppercase border bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border-slate-200 dark:border-zinc-700">
-                {vehicle.status || 'in_depot'}
+                {vehicle.status}
               </span>
-            </div>
+            </div>}
 
-            <div>
-              <span className="text-slate-400 dark:text-zinc-500 block text-[11px]">{t('admin.slots.display_screens')}</span>
-              <span className="font-bold text-slate-800 dark:text-zinc-200">
-                {vehicle.displays_count ? `${vehicle.displays_count} Active Screens` : t('ag.fleet.vehicleslotdetailspage.dual_advertising_screens', 'Dual Advertising Screens')}
-              </span>
-            </div>
-
-            <div>
-              <span className="text-slate-400 dark:text-zinc-500 block text-[11px]">{t('admin.slots.fuel_powertrain')}</span>
-              <span className="font-bold text-slate-800 dark:text-zinc-200">
-                {vehicle.fuel_type || 'Electric / Clean EV'}
-              </span>
-            </div>
-
-            <div>
-              <span className="text-slate-400 dark:text-zinc-500 block text-[11px]">{t('admin.slots.telematics_tracking')}</span>
-              <span className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>{t('admin.slots.gps_live_signal')}</span>
-              </span>
-            </div>
           </div>
-        </div>
+        </div>}
 
         {/* CARD B: Transit Route Corridor */}
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-4">
+        {hasRouteDetails && <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-900 flex items-center justify-center">
@@ -538,9 +464,6 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
                 <h2 className="text-sm font-bold text-slate-900 dark:text-white">
                   {t('ag.fleet.vehicleslotdetailspage.transit_route_corridor', 'Transit Route Corridor')}
                 </h2>
-                <p className="text-[11px] text-slate-500 dark:text-zinc-400">
-                  {t('ag.fleet.vehicleslotdetailspage.assigned_transit_corridor_and_passenger_itin', 'Assigned transit corridor and passenger itinerary')}
-                </p>
               </div>
             </div>
 
@@ -556,59 +479,44 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
           </div>
 
           <div className="space-y-3 text-xs">
-            <div>
+            {(routeName || route.code) && <div>
               <span className="text-slate-400 dark:text-zinc-500 block text-[11px]">{t('admin.slots.corridor_name')}</span>
               <span className="font-bold text-slate-900 dark:text-white text-sm">
                 {routeName} {route.code ? `(${route.code})` : ''}
               </span>
-            </div>
+            </div>}
 
-            <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700/80 space-y-2">
-              <div className="flex items-center justify-between">
+            {(route.start_point || route.end_point) && (
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700/80 space-y-2">
+              {route.start_point && <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                  <span className="font-bold text-slate-800 dark:text-zinc-200">
-                    {route.start_point || 'Primary Origin Depot'}
-                  </span>
+                  <span className="font-bold text-slate-800 dark:text-zinc-200">{route.start_point}</span>
                 </div>
                 <span className="text-[11px] text-slate-400 font-mono">{t('admin.slots.departure')}</span>
-              </div>
+              </div>}
 
-              <div className="pl-1 border-l-2 border-dashed border-slate-300 dark:border-zinc-600 ml-1 py-1 text-[11px] text-slate-400 font-mono">
-                ↓ {route.distance_km ? `${route.distance_km} KM Corridor` : t('ag.fleet.vehicleslotdetailspage.direct_transit_run', 'Direct Transit Run')}
-              </div>
-
-              <div className="flex items-center justify-between">
+              {route.end_point && <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
-                  <span className="font-bold text-slate-800 dark:text-zinc-200">
-                    {route.end_point || 'Terminal Station'}
-                  </span>
+                  <span className="font-bold text-slate-800 dark:text-zinc-200">{route.end_point}</span>
                 </div>
                 <span className="text-[11px] text-slate-400 font-mono">{t('admin.slots.arrival')}</span>
+              </div>}
               </div>
-            </div>
+            )}
 
-            <div className="grid grid-cols-2 gap-4 pt-1">
+            {route.distance_km != null && <div className="pt-1">
               <div>
                 <span className="text-slate-400 dark:text-zinc-500 block text-[11px]">{t('admin.slots.total_corridor_distance')}</span>
-                <span className="font-bold text-slate-800 dark:text-zinc-200">
-                  {route.distance_km ? `${route.distance_km} Kilometers` : t('ag.fleet.vehicleslotdetailspage.standard_city_loop', 'Standard City Loop')}
-                </span>
+                <span className="font-bold text-slate-800 dark:text-zinc-200">{route.distance_km} Kilometers</span>
               </div>
-
-              <div>
-                <span className="text-slate-400 dark:text-zinc-500 block text-[11px]">{t('admin.slots.est_travel_time')}</span>
-                <span className="font-bold text-slate-800 dark:text-zinc-200">
-                  {duration || '45 - 60 Minutes'}
-                </span>
-              </div>
-            </div>
+            </div>}
           </div>
-        </div>
+        </div>}
 
         {/* CARD C: Assigned Driver & Staff */}
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-4">
+        {hasDriverDetails && <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900 flex items-center justify-center">
@@ -618,9 +526,6 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
                 <h2 className="text-sm font-bold text-slate-900 dark:text-white">
                   {t('ag.fleet.vehicleslotdetailspage.assigned_driver_and_staff', 'Assigned Driver & Staff')}
                 </h2>
-                <p className="text-[11px] text-slate-500 dark:text-zinc-400">
-                  {t('ag.fleet.vehicleslotdetailspage.driver_roster_and_commercial_license_details', 'Driver roster and commercial license details')}
-                </p>
               </div>
             </div>
 
@@ -636,45 +541,32 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
           </div>
 
           <div className="grid grid-cols-2 gap-4 text-xs">
-            <div>
+            {driver.name && <div>
               <span className="text-slate-400 dark:text-zinc-500 block text-[11px]">{t('admin.slots.full_name')}</span>
-              <span className="font-bold text-slate-900 dark:text-white text-sm">
-                {driver.name || 'Unassigned Crew'}
-              </span>
-            </div>
+              <span className="font-bold text-slate-900 dark:text-white text-sm">{driver.name}</span>
+            </div>}
 
-            <div>
+            {driver.emp_id && <div>
               <span className="text-slate-400 dark:text-zinc-500 block text-[11px]">{t('admin.slots.employee_id')}</span>
-              <span className="font-mono font-bold text-slate-800 dark:text-zinc-200">
-                {driver.emp_id ? `EMP-${driver.emp_id}` : (driver.id ? `DRV-${driver.id}` : '—')}
-              </span>
-            </div>
+              <span className="font-mono font-bold text-slate-800 dark:text-zinc-200">{driver.emp_id}</span>
+            </div>}
 
-            <div>
+            {driver.phone && <div>
               <span className="text-slate-400 dark:text-zinc-500 block text-[11px]">{t('admin.slots.phone_contact')}</span>
-              {driver.phone ? (
-                <a
-                  href={`tel:${driver.phone}`}
-                  className="font-mono font-bold text-blue-600 dark:text-blue-400 hover:underline"
-                >
-                  {driver.phone}
-                </a>
-              ) : (
-                <span className="text-slate-400">{t('common.not_recorded')}</span>
-              )}
-            </div>
+              <a href={`tel:${driver.phone}`} className="font-mono font-bold text-blue-600 dark:text-blue-400 hover:underline">{driver.phone}</a>
+            </div>}
 
-            <div>
+            {driver.status && <div>
               <span className="text-slate-400 dark:text-zinc-500 block text-[11px]">{t('admin.slots.duty_status')}</span>
               <span className="font-bold px-2 py-0.5 rounded-md text-[10px] uppercase border bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800">
-                {driver.status || 'Active On Duty'}
+                {driver.status}
               </span>
-            </div>
+            </div>}
           </div>
-        </div>
+        </div>}
 
         {/* CARD D: Fleet Operator & Depot Base */}
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-4">
+        {(hasFleetDetails || hasDepotDetails) && <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900 flex items-center justify-center">
@@ -684,9 +576,6 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
                 <h2 className="text-sm font-bold text-slate-900 dark:text-white">
                   {t('ag.fleet.vehicleslotdetailspage.fleet_and_bus_depot_base', 'Fleet & Bus Depot Base')}
                 </h2>
-                <p className="text-[11px] text-slate-500 dark:text-zinc-400">
-                  {t('ag.fleet.vehicleslotdetailspage.operating_carrier_fleet_and_home_garage', 'Operating carrier fleet and home garage')}
-                </p>
               </div>
             </div>
 
@@ -702,65 +591,53 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
           </div>
 
           <div className="grid grid-cols-2 gap-4 text-xs">
-            <div>
+            {hasFleetDetails && <div>
               <span className="text-slate-400 dark:text-zinc-500 block text-[11px]">{t('admin.slots.fleet_operator')}</span>
               <span className="font-bold text-slate-900 dark:text-white">
-                {fleet.name || organization.name || '—'}
+                {fleet.name}
               </span>
               {fleet.code && (
                 <span className="block text-[10px] font-mono text-slate-400">
                   {t('ag.fleet.vehicleslotdetailspage.code', 'Code:')} {fleet.code}
                 </span>
               )}
-            </div>
+            </div>}
 
-            <div>
+            {(depot.name || depot.code) && <div>
               <span className="text-slate-400 dark:text-zinc-500 block text-[11px]">{t('admin.slots.depot_base')}</span>
-              <span className="font-bold text-slate-900 dark:text-white">
-                {depot.name || 'Central Terminal Depot'}
-              </span>
+              {depot.name && <span className="font-bold text-slate-900 dark:text-white">{depot.name}</span>}
               {depot.code && (
                 <span className="block text-[10px] font-mono text-slate-400">
                   {t('ag.fleet.vehicleslotdetailspage.depot_code', 'Depot Code:')} {depot.code}
                 </span>
               )}
-            </div>
+            </div>}
 
-            <div>
+            {(depot.city || depot.address) && <div>
               <span className="text-slate-400 dark:text-zinc-500 block text-[11px]">{t('admin.slots.depot_location')}</span>
               <span className="text-slate-700 dark:text-zinc-300">
-                {depot.city ? `${depot.city}, ` : ''}{depot.address || 'Main Transit Terminal Yard'}
+                {[depot.city, depot.address].filter(Boolean).join(', ')}
               </span>
-            </div>
-
-            <div>
-              <span className="text-slate-400 dark:text-zinc-500 block text-[11px]">{t('admin.slots.depot_departure_gate')}</span>
-              <span className="font-mono font-bold text-slate-800 dark:text-zinc-200">
-                {t('ag.fleet.vehicleslotdetailspage.gate_3b_bay_12', 'Gate 3B · Bay 12')}
-              </span>
-            </div>
+            </div>}
           </div>
-        </div>
+        </div>}
       </div>
 
       {/* 5. Operating Days & Recurrence Schedule */}
-      <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3">
+      {(slot.operating_days || slot.effective_from || slot.effective_until) && <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-zinc-800 pb-3">
           <div>
             <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
-              {t('ag.fleet.vehicleslotdetailspage.weekly_operating_days_and_recurrence_matrix', 'Weekly Operating Days & Recurrence Matrix')}
+              {t('admin.slots.th_operating_days')}
             </h2>
-            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
-              {t('ag.fleet.vehicleslotdetailspage.active_operating_days_when_this_slot_timetab', 'Active operating days when this slot timetable automatically runs')}
-            </p>
           </div>
-          <span className="text-xs font-mono font-bold px-3 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-            {slot.operating_days === 'ALL' ? t('ag.fleet.vehicleslotdetailspage.active_all_7_days', 'Active All 7 Days') : slot.operating_days}
-          </span>
+          {slot.operating_days && <span className="text-xs font-mono font-bold px-3 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+            {slot.operating_days === 'ALL' ? t('ag.fleet.vehicleslotspage.all_7_days', 'All 7 Days') : slot.operating_days}
+          </span>}
         </div>
 
-        <div className="grid grid-cols-7 gap-2">
+        {slot.operating_days && <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
           {WEEK_DAYS.map((day) => {
             const active = isDayActive(day.key);
             return (
@@ -777,50 +654,48 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
               </div>
             );
           })}
-        </div>
+        </div>}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 text-xs text-slate-600 dark:text-zinc-400">
-          <div>
+        {(slot.effective_from || slot.effective_until) && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 text-xs text-slate-600 dark:text-zinc-400">
+          {slot.effective_from && <div>
             <span className="text-slate-400 block text-[11px]">{t('admin.slots.effective_from')}</span>
-            <span className="font-bold text-slate-800 dark:text-zinc-200">
-              {slot.effective_from || 'Always in active rotation'}
-            </span>
-          </div>
-          <div>
+            <span className="font-bold text-slate-800 dark:text-zinc-200">{slot.effective_from}</span>
+          </div>}
+          {slot.effective_until && <div>
             <span className="text-slate-400 block text-[11px]">{t('admin.slots.effective_until')}</span>
-            <span className="font-bold text-slate-800 dark:text-zinc-200">
-              {slot.effective_until || 'Permanent timetable schedule'}
-            </span>
+            <span className="font-bold text-slate-800 dark:text-zinc-200">{slot.effective_until}</span>
+          </div>}
           </div>
-        </div>
-      </div>
+        )}
+      </div>}
 
       {/* 6. Dispatch Notes & Audit Footprint */}
-      <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-4">
+      {(slot.notes || slot.createdAt || slot.updatedAt) && <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-4">
         <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
-          {t('ag.fleet.vehicleslotdetailspage.dispatch_notes_and_record_audit', 'Dispatch Notes & Record Audit')}
+          {slot.notes
+            ? t('ag.fleet.vehicleslotdetailspage.dispatch_notes_and_record_audit', 'Dispatch Notes & Record Audit')
+            : t('ag.fleet.vehicleslotdetailspage.record_audit', 'Record Audit')}
         </h2>
 
-        <div className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-800 text-xs text-slate-700 dark:text-zinc-300">
-          {slot.notes ? (
+        {slot.notes && (
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-800 text-xs text-slate-700 dark:text-zinc-300">
             <p className="whitespace-pre-wrap leading-relaxed">{slot.notes}</p>
-          ) : (
-            <p className="text-slate-400 italic">{t('admin.slots.no_special_instructions')}</p>
-          )}
-        </div>
+          </div>
+        )}
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[11px] text-slate-400 dark:text-zinc-500 pt-2 border-t border-slate-100 dark:border-zinc-800">
-          <div>
-            {t('ag.fleet.vehicleslotdetailspage.created', 'Created:')} <span className="font-mono text-slate-600 dark:text-zinc-400">{slot.createdAt ? new Date(slot.createdAt).toLocaleString() : '—'}</span>
+        {(slot.createdAt || slot.updatedAt) && <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[11px] text-slate-400 dark:text-zinc-500 pt-2 border-t border-slate-100 dark:border-zinc-800">
+          {slot.createdAt && <div>
+            {t('ag.fleet.vehicleslotdetailspage.created', 'Created:')} <span className="font-mono text-slate-600 dark:text-zinc-400">{new Date(slot.createdAt).toLocaleString()}</span>
             {slot.creator?.name && ` by ${slot.creator.name}`}
-          </div>
-          <div>
-            {t('ag.fleet.vehicleslotdetailspage.last_modified', 'Last Modified:')} <span className="font-mono text-slate-600 dark:text-zinc-400">{slot.updatedAt ? new Date(slot.updatedAt).toLocaleString() : '—'}</span>
+          </div>}
+          {slot.updatedAt && <div>
+            {t('ag.fleet.vehicleslotdetailspage.last_modified', 'Last Modified:')} <span className="font-mono text-slate-600 dark:text-zinc-400">{new Date(slot.updatedAt).toLocaleString()}</span>
             {slot.updater?.name && ` by ${slot.updater.name}`}
-          </div>
-        </div>
-      </div>
+          </div>}
+        </div>}
+      </div>}
     </div>
   );
 };

@@ -33,31 +33,31 @@ function getRoleBadgeConfig(roleCode) {
   const r = String(roleCode || '').toUpperCase();
   if (r.includes('SUPER')) {
     return {
-      label: t('ag.admin.admintechrequestdetailspage.super_admin', 'Super Admin'),
+      label: 'Super Admin',
       color: 'bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border-purple-300 dark:border-purple-800',
     };
   }
   if (r.includes('TECH') || r.includes('CENTRAL')) {
     return {
-      label: t('ag.admin.admintechrequestdetailspage.technician', 'Technician'),
+      label: 'Technician',
       color: 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800',
     };
   }
   if (r.includes('TENANT') || r.includes('ADMIN')) {
     return {
-      label: t('ag.admin.admintechrequestdetailspage.tenant_admin', 'Tenant Admin'),
+      label: 'Tenant Admin',
       color: 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-800',
     };
   }
   if (r.includes('FLEET') || r.includes('OPERATOR')) {
     return {
-      label: t('ag.admin.admintechrequestdetailspage.fleet_operator', 'Fleet Operator'),
+      label: 'Fleet Operator',
       color: 'bg-indigo-100 dark:bg-indigo-950/60 text-indigo-800 dark:text-indigo-300 border-indigo-300 dark:border-indigo-800',
     };
   }
   if (r.includes('DRIVER')) {
     return {
-      label: t('ag.admin.admintechrequestdetailspage.driver', 'Driver'),
+      label: 'Driver',
       color: 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800',
     };
   }
@@ -73,41 +73,41 @@ function getEventBadgeConfig(event, description = '') {
 
   if (ev === 'created' || desc.includes('created') || desc.includes('filed')) {
     return {
-      label: t('ag.admin.admintechrequestdetailspage.request_created', 'Request Created'),
+      label: 'Request Created',
       badgeClass: 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
       dotClass: 'bg-emerald-500 ring-4 ring-emerald-100 dark:ring-emerald-950/60',
     };
   }
   if (desc.includes('dispatched') || desc.includes('assigned') || ev === 'assigned' || ev === 'dispatched') {
     return {
-      label: t('ag.admin.admintechrequestdetailspage.technician_assigned', 'Technician Assigned'),
+      label: 'Technician Assigned',
       badgeClass: 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800',
       dotClass: 'bg-blue-500 ring-4 ring-blue-100 dark:ring-blue-950/60',
     };
   }
   if (desc.includes('on_site') || desc.includes('on site') || desc.includes('arrival')) {
     return {
-      label: t('ag.admin.admintechrequestdetailspage.on_site_arrival', 'On-Site Arrival'),
+      label: 'On-Site Arrival',
       badgeClass: 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800',
       dotClass: 'bg-amber-500 ring-4 ring-amber-100 dark:ring-amber-950/60 animate-pulse',
     };
   }
   if (desc.includes('resolved') || ev === 'resolved') {
     return {
-      label: t('ag.admin.admintechrequestdetailspage.resolved', 'Resolved'),
+      label: 'Resolved',
       badgeClass: 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-200 border-emerald-300 dark:border-emerald-700 font-bold',
       dotClass: 'bg-emerald-600 ring-4 ring-emerald-200 dark:ring-emerald-900',
     };
   }
   if (desc.includes('rejected') || desc.includes('cancelled') || ev === 'rejected') {
     return {
-      label: t('ag.admin.admintechrequestdetailspage.rejected', 'Rejected'),
+      label: 'Rejected',
       badgeClass: 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800',
       dotClass: 'bg-rose-500 ring-4 ring-rose-100 dark:ring-rose-950/60',
     };
   }
   return {
-    label: t('ag.admin.admintechrequestdetailspage.activity_log', 'Activity Log'),
+    label: 'Activity Log',
     badgeClass: 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800',
     dotClass: 'bg-indigo-500 ring-4 ring-indigo-100 dark:ring-indigo-950/60',
   };
@@ -158,6 +158,32 @@ function extractAuditProperties(rawProps) {
   return entries;
 }
 
+function ExpandableText({ value, fallback = 'Not provided', className = '', clampLines = 'line-clamp-4' }) {
+  const [expanded, setExpanded] = useState(false);
+  const text = formatDisplayValue(value, fallback);
+  const canToggle = text.length > 220;
+
+  return (
+    <div className="w-full max-w-full min-w-0 overflow-hidden">
+      <p
+        className={`${className} ${canToggle && !expanded ? clampLines : ''} w-full max-w-full whitespace-normal [overflow-wrap:anywhere]`}
+        title={canToggle && !expanded ? text : undefined}
+      >
+        {text}
+      </p>
+      {canToggle && (
+        <button
+          type="button"
+          onClick={() => setExpanded((current) => !current)}
+          className="mt-2 inline-flex max-w-full items-center rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-bold text-blue-600 transition-colors hover:bg-blue-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-blue-400 dark:hover:bg-blue-950/30"
+        >
+          {expanded ? 'Show less' : 'Show more'}
+        </button>
+      )}
+    </div>
+  );
+}
+
 export const AdminTechRequestDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -169,9 +195,9 @@ export const AdminTechRequestDetailsPage = () => {
     : isFleetPortal
       ? '/fleet-operator/technician-requests'
       : '/admin/technician-requests';
-  const { hasPermission } = useAuth();
+  const { can } = useAuth();
   const { t } = useTranslation();
-  const canView = isDriverPortal || hasPermission('work_orders.view') || hasPermission('drivers.portal.view') || hasPermission('drivers.work_orders.view');
+  const canView = can('work_orders.view');
 
   const { loadWorkOrderDetail } = useAdminTechnicianRequest();
   const [request, setRequest] = useState(null);
@@ -257,7 +283,7 @@ export const AdminTechRequestDetailsPage = () => {
         <Breadcrumb
           items={[
             {
-              label: isDriverPortal ? t('ag.admin.admintechrequestdetailspage.driver', 'Driver') : isFleetPortal ? t('ag.admin.admintechrequestdetailspage.fleet_operator', 'Fleet Operator') : t('ag.admin.admintechrequestdetailspage.tenant_admin', 'Tenant Admin'),
+              label: isDriverPortal ? 'Driver' : isFleetPortal ? 'Fleet Operator' : 'Tenant Admin',
               path: isDriverPortal ? '/driver/dashboard' : isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard',
             },
             {
@@ -269,21 +295,21 @@ export const AdminTechRequestDetailsPage = () => {
           className="mb-3"
         />
 
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mt-3 pt-3 border-t border-slate-100 dark:border-zinc-800">
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+        <div className="flex min-w-0 flex-col lg:flex-row lg:items-center justify-between gap-4 mt-3 pt-3 border-t border-slate-100 dark:border-zinc-800">
+          <div className="min-w-0 flex-1">
+            <div className="flex min-w-0 items-center gap-2 flex-wrap">
+              <h1 className="max-w-full whitespace-normal [overflow-wrap:anywhere] text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                 {reqNo}
               </h1>
-              <span className={`text-[10px] sm:text-xs font-bold px-2.5 py-0.5 rounded-md border ${urgencyCfg.color}`}>
+              <span className={`inline-flex max-w-full whitespace-normal [overflow-wrap:anywhere] text-center text-[10px] sm:text-xs font-bold px-2.5 py-0.5 rounded-md border ${urgencyCfg.color}`}>
                 {urgencyCfg.badge} {t('ag.admin.admintechrequestdetailspage.priority', 'Priority')}
               </span>
-              <span className={`inline-flex items-center gap-1.5 text-[10px] sm:text-xs font-bold px-2.5 py-0.5 rounded-full border ${statusCfg.color}`}>
+              <span className={`inline-flex max-w-full items-center gap-1.5 whitespace-normal [overflow-wrap:anywhere] text-center text-[10px] sm:text-xs font-bold px-2.5 py-0.5 rounded-full border ${statusCfg.color}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`}></span>
                 <span>{statusCfg.label}</span>
               </span>
               {slaCountdown && (
-                <span className={`text-[10px] sm:text-xs font-mono px-2 py-0.5 rounded-md border ${slaCountdown.color}`}>
+                <span className={`max-w-full whitespace-normal [overflow-wrap:anywhere] text-[10px] sm:text-xs font-mono px-2 py-0.5 rounded-md border ${slaCountdown.color}`}>
                   {slaCountdown.text}
                 </span>
               )}
@@ -293,11 +319,11 @@ export const AdminTechRequestDetailsPage = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 w-full sm:w-auto flex-wrap">
+          <div className="flex min-w-0 items-center gap-2.5 w-full lg:w-auto flex-wrap">
             {canEdit && (
               <Link
                 to={`${basePath}/edit/${request.id}`}
-                className="px-4 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 w-full sm:w-auto cursor-pointer text-center"
+                className="max-w-full px-4 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 w-full sm:w-auto cursor-pointer text-center whitespace-normal"
               >
                 <FleetIcons.Edit className="w-3.5 h-3.5 text-white" />
                 <span>{t('admin.tech_requests.edit_details_btn', 'Edit Request')}</span>
@@ -307,7 +333,7 @@ export const AdminTechRequestDetailsPage = () => {
             {canRate && !request.rating && (
               <Link
                 to={`${basePath}/${request.id}/rate`}
-                className="px-4 py-2.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:opacity-95 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 w-full sm:w-auto cursor-pointer text-center active:scale-95"
+                className="max-w-full px-4 py-2.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:opacity-95 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 w-full sm:w-auto cursor-pointer text-center whitespace-normal active:scale-95"
               >
                 <FleetIcons.Star className="w-4 h-4 text-white" filled />
                 <span>{t('admin.tech_requests.rate_technician_btn', 'Rate Technician')}</span>
@@ -316,7 +342,7 @@ export const AdminTechRequestDetailsPage = () => {
 
             {Boolean(request.rating) && (
               <div
-                className="px-3.5 py-2 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 w-full sm:w-auto select-none"
+                className="max-w-full px-3.5 py-2 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 w-full sm:w-auto select-none text-center whitespace-normal [overflow-wrap:anywhere]"
               >
                 <FleetIcons.Check className="w-3.5 h-3.5 text-emerald-500" />
                 <span>{t('ag.admin.admintechrequestdetailspage.verified_rating', 'Verified Rating (')}{request.rating}{t('ag.admin.admintechrequestdetailspage.final', '★ Final)')}</span>
@@ -327,12 +353,12 @@ export const AdminTechRequestDetailsPage = () => {
       </div>
 
       {/* 2. 4-Stat Overview Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
-        <div className="p-3.5 sm:p-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl space-y-1 shadow-sm">
+      <div className="grid min-w-0 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+        <div className="min-w-0 overflow-hidden p-3.5 sm:p-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl space-y-1 shadow-sm">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500 block">
             {t('admin.tech_requests.target_depot', 'Target Depot')}
           </span>
-          <div className="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate">
+          <div className="line-clamp-2 whitespace-normal [overflow-wrap:anywhere] text-sm sm:text-base font-bold text-slate-900 dark:text-white" title={depot}>
             {depot}
           </div>
           <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-zinc-400 truncate">
@@ -340,11 +366,11 @@ export const AdminTechRequestDetailsPage = () => {
           </p>
         </div>
 
-        <div className="p-3.5 sm:p-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl space-y-1 shadow-sm">
+        <div className="min-w-0 overflow-hidden p-3.5 sm:p-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl space-y-1 shadow-sm">
           <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 block">
             {t('admin.tech_requests.target_bus', 'Target Vehicle')}
           </span>
-          <div className="text-sm sm:text-base font-mono font-bold text-blue-600 dark:text-blue-400 truncate">
+          <div className="line-clamp-2 whitespace-normal [overflow-wrap:anywhere] text-sm sm:text-base font-mono font-bold text-blue-600 dark:text-blue-400" title={vehicle}>
             {vehicle}
           </div>
           <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-zinc-400 truncate">
@@ -352,19 +378,19 @@ export const AdminTechRequestDetailsPage = () => {
           </p>
         </div>
 
-        <div className="p-3.5 sm:p-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl space-y-1 shadow-sm">
+        <div className="min-w-0 overflow-hidden p-3.5 sm:p-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl space-y-1 shadow-sm">
           <span className="text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 block">
             {t('admin.tech_requests.th_technician', 'Assigned Technician')}
           </span>
-          <div className="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate">
+          <div className="line-clamp-2 whitespace-normal [overflow-wrap:anywhere] text-sm sm:text-base font-bold text-slate-900 dark:text-white" title={tech ? formatDisplayValue(tech.name) : undefined}>
             {tech ? formatDisplayValue(tech.name) : t('ag.admin.admintechrequestdetailspage.pending_assignment', 'Pending assignment')}
           </div>
-          <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-zinc-400 font-mono truncate">
+          <p className="line-clamp-2 whitespace-normal [overflow-wrap:anywhere] text-[10px] sm:text-[11px] text-slate-500 dark:text-zinc-400 font-mono">
             {tech ? formatDisplayValue(tech.phone || tech.email) : t('ag.admin.admintechrequestdetailspage.central_pool', 'Central pool')}
           </p>
         </div>
 
-        <div className="p-3.5 sm:p-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl space-y-1 shadow-sm">
+        <div className="min-w-0 overflow-hidden p-3.5 sm:p-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl space-y-1 shadow-sm">
           <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 block">
             {t('admin.tech_requests.resolution_sla', 'Resolution SLA')}
           </span>
@@ -391,9 +417,10 @@ export const AdminTechRequestDetailsPage = () => {
             <FleetIcons.Document className="w-3.5 h-3.5 text-blue-600 shrink-0" />
             <span>{t('admin.tech_requests.initial_issue_desc', 'Initial Request Description')}</span>
           </h3>
-          <p className="text-xs text-slate-700 dark:text-zinc-300 font-medium leading-relaxed break-words [overflow-wrap:anywhere] break-all">
-            {formatDisplayValue(request.description, 'Not provided')}
-          </p>
+          <ExpandableText
+            value={request.description}
+            className="text-xs text-slate-700 dark:text-zinc-300 font-medium leading-relaxed"
+          />
         </div>
 
         {/* Central Dispatch Instructions */}
@@ -402,9 +429,10 @@ export const AdminTechRequestDetailsPage = () => {
             <FleetIcons.Wrench className="w-3.5 h-3.5 text-blue-600 shrink-0" />
             <span>{t('admin.tech_requests.dispatch_instructions', 'Central Dispatch Instructions')}</span>
           </h3>
-          <p className="text-xs text-slate-700 dark:text-zinc-300 font-medium leading-relaxed break-words [overflow-wrap:anywhere] break-all">
-            {formatDisplayValue(request.instructions, 'Not provided')}
-          </p>
+          <ExpandableText
+            value={request.instructions}
+            className="text-xs text-slate-700 dark:text-zinc-300 font-medium leading-relaxed"
+          />
           {request.assignedByUser && (
             <div className="text-[10px] text-slate-400 dark:text-zinc-500 pt-1 font-mono break-words [overflow-wrap:anywhere] break-all">
               {t('ag.admin.admintechrequestdetailspage.dispatched_by', 'Dispatched by:')} {formatDisplayValue(request.assignedByUser.name)} ({formatDisplayValue(request.assignedByUser.email)})
@@ -427,9 +455,10 @@ export const AdminTechRequestDetailsPage = () => {
               </span>
             )}
           </div>
-          <p className="text-xs text-slate-800 dark:text-zinc-200 leading-relaxed font-medium break-words [overflow-wrap:anywhere] break-all">
-            {request.resolution_notes}
-          </p>
+          <ExpandableText
+            value={request.resolution_notes}
+            className="text-xs text-slate-800 dark:text-zinc-200 leading-relaxed font-medium"
+          />
           {request.resolvedByUser && (
             <div className="text-[10px] text-slate-400 font-mono pt-1 break-words [overflow-wrap:anywhere] break-all">
               {t('ag.admin.admintechrequestdetailspage.verified_and_closed_by', 'Verified & closed by:')} {formatDisplayValue(request.resolvedByUser.name)}
@@ -440,33 +469,33 @@ export const AdminTechRequestDetailsPage = () => {
 
       {/* 4.5 Technician Performance Rating */}
       {request.rating ? (
-        <div className="bg-white dark:bg-zinc-900 border border-amber-200 dark:border-amber-900/60 rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm bg-gradient-to-br from-amber-50/20 via-white to-transparent dark:from-amber-950/10 dark:via-zinc-900">
+        <div className="min-w-0 overflow-hidden bg-white dark:bg-zinc-900 border border-amber-200 dark:border-amber-900/60 rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm bg-gradient-to-br from-amber-50/20 via-white to-transparent dark:from-amber-950/10 dark:via-zinc-900">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-amber-100 dark:border-amber-900/50 pb-3">
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-200 dark:border-amber-800">
                 <FleetIcons.Star className="w-5 h-5 text-amber-500" filled />
               </div>
-              <div>
-                <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                  <span>{t('admin.tech_requests.client_rating', 'Client Service Rating')}</span>
+              <div className="min-w-0">
+                <h3 className="flex min-w-0 flex-wrap items-center gap-2 text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                  <span className="min-w-0 whitespace-normal [overflow-wrap:anywhere]">{t('admin.tech_requests.client_rating', 'Client Service Rating')}</span>
                   <span className="text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800">
                     {request.rating}.0 / 5.0
                   </span>
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 font-medium">
-                  {t('ag.admin.admintechrequestdetailspage.verified_rating_for_technician', 'Verified rating for technician')} {tech?.name ? formatDisplayValue(tech.name) : t('ag.admin.admintechrequestdetailspage.technician', 'Technician')}
+                <p className="whitespace-normal [overflow-wrap:anywhere] text-xs text-slate-500 dark:text-zinc-400 mt-0.5 font-medium">
+                  {t('ag.admin.admintechrequestdetailspage.verified_rating_for_technician', 'Verified rating for technician')} {tech?.name ? formatDisplayValue(tech.name) : 'Technician'}
                 </p>
               </div>
             </div>
 
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 text-xs font-bold self-start sm:self-auto select-none">
+            <div className="inline-flex max-w-full items-center gap-1.5 whitespace-normal [overflow-wrap:anywhere] px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 text-xs font-bold self-start sm:self-auto select-none">
               <FleetIcons.Check className="w-3.5 h-3.5 text-emerald-500" />
               <span>{t('admin.tech_requests.verified_rating_locked', 'Verified Rating Locked')}</span>
             </div>
           </div>
 
           <div className="space-y-3">
-            <div className="flex items-center gap-1.5">
+            <div className="flex min-w-0 flex-wrap items-center gap-1.5">
               {[1, 2, 3, 4, 5].map((s) => (
                 <FleetIcons.Star
                   key={s}
@@ -478,7 +507,7 @@ export const AdminTechRequestDetailsPage = () => {
                   filled={s <= request.rating}
                 />
               ))}
-              <span className="text-xs font-bold text-slate-700 dark:text-zinc-300 ml-2">
+              <span className="min-w-0 whitespace-normal [overflow-wrap:anywhere] text-xs font-bold text-slate-700 dark:text-zinc-300 ml-2">
                 {request.rating === 5 ? t('ag.admin.admintechrequestdetailspage.exceptional_5_service', 'Exceptional 5★ Service') : request.rating >= 4 ? t('ag.admin.admintechrequestdetailspage.very_good_service', 'Very Good Service') : t('ag.admin.admintechrequestdetailspage.satisfactory_service', 'Satisfactory Service')}
               </span>
             </div>
@@ -491,16 +520,17 @@ export const AdminTechRequestDetailsPage = () => {
                     className="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/80 shadow-2xs flex items-center gap-1"
                   >
                     <FleetIcons.Check className="w-3.5 h-3.5 text-amber-800 dark:text-amber-300 inline" />
-                    <span>{tag}</span>
+                    <span className="max-w-full whitespace-normal [overflow-wrap:anywhere]">{tag}</span>
                   </span>
                 ))}
               </div>
             )}
 
             {request.rating_comment && (
-              <p className="text-xs text-slate-700 dark:text-zinc-200 bg-white/70 dark:bg-zinc-800/50 p-3 rounded-xl border border-slate-100 dark:border-zinc-800 leading-relaxed font-medium break-words">
-                "{request.rating_comment}"
-              </p>
+              <ExpandableText
+                value={`"${request.rating_comment}"`}
+                className="text-xs text-slate-700 dark:text-zinc-200 bg-white/70 dark:bg-zinc-800/50 p-3 rounded-xl border border-slate-100 dark:border-zinc-800 leading-relaxed font-medium"
+              />
             )}
 
             <div className="text-[11px] text-slate-400 dark:text-zinc-500 font-mono pt-1">
@@ -589,13 +619,13 @@ export const AdminTechRequestDetailsPage = () => {
                       </div>
 
                       {/* Time Details */}
-                      <div className="flex sm:flex-col items-start sm:items-end justify-between sm:justify-center gap-1 shrink-0 bg-white/70 dark:bg-zinc-800/50 p-2 sm:p-0 rounded-xl sm:bg-transparent border border-slate-100 sm:border-0 dark:border-zinc-800">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-black bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/80 shadow-xs">
+                      <div className="flex min-w-0 flex-col xs:flex-row sm:flex-col items-start sm:items-end justify-between sm:justify-center gap-1 bg-white/70 dark:bg-zinc-800/50 p-2 sm:p-0 rounded-xl sm:bg-transparent border border-slate-100 sm:border-0 dark:border-zinc-800">
+                        <span className="inline-flex max-w-full items-center gap-1.5 whitespace-normal [overflow-wrap:anywhere] px-2.5 py-1 rounded-lg text-xs font-black bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/80 shadow-xs">
                           <FleetIcons.Clock className="w-3.5 h-3.5" />
                           <span>{relativeTime || 'Just now'}</span>
                         </span>
 
-                        <span className="text-[11px] font-mono font-medium text-slate-600 dark:text-zinc-300 flex items-center gap-1.5 mt-0.5">
+                        <span className="flex max-w-full min-w-0 items-center gap-1.5 whitespace-normal [overflow-wrap:anywhere] text-[11px] font-mono font-medium text-slate-600 dark:text-zinc-300 mt-0.5">
                           <FleetIcons.Clock className="w-3 h-3 text-slate-400" />
                           <span>{exactTime}</span>
                         </span>
@@ -605,7 +635,7 @@ export const AdminTechRequestDetailsPage = () => {
                     {/* Row 2: Event Type Badge & Description */}
                     <div className="space-y-2 min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold border ${eventCfg.badgeClass}`}>
+                        <span className={`inline-flex max-w-full items-center gap-1.5 whitespace-normal [overflow-wrap:anywhere] px-2.5 py-1 rounded-lg text-xs font-bold border ${eventCfg.badgeClass}`}>
                           <span>{eventCfg.label}</span>
                         </span>
 
@@ -616,9 +646,12 @@ export const AdminTechRequestDetailsPage = () => {
                         )}
                       </div>
 
-                      <p className="text-xs text-slate-800 dark:text-zinc-200 font-medium leading-relaxed break-words [overflow-wrap:anywhere] break-all">
-                        {log.description || 'Work order event recorded.'}
-                      </p>
+                      <ExpandableText
+                        value={log.description}
+                        fallback="Work order event recorded."
+                        clampLines="line-clamp-3"
+                        className="text-xs text-slate-800 dark:text-zinc-200 font-medium leading-relaxed"
+                      />
                     </div>
 
                     {/* Row 3: Audit Parameters & Properties */}
@@ -633,7 +666,7 @@ export const AdminTechRequestDetailsPage = () => {
                               key={item.key}
                               className="inline-flex max-w-full items-baseline gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-zinc-800/80 text-[11px] text-slate-700 dark:text-zinc-300 font-mono border border-slate-200 dark:border-zinc-700 min-w-0 break-words [overflow-wrap:anywhere]"
                             >
-                              <span className="font-semibold text-slate-500 dark:text-zinc-400 shrink-0">{item.label}:</span>
+                              <span className="min-w-0 whitespace-normal [overflow-wrap:anywhere] font-semibold text-slate-500 dark:text-zinc-400">{item.label}:</span>
                               <strong className="text-slate-900 dark:text-white font-bold break-all [overflow-wrap:anywhere]">{item.value}</strong>
                             </span>
                           ))}
@@ -649,10 +682,10 @@ export const AdminTechRequestDetailsPage = () => {
       </div>
 
       {/* 6. Bottom Navigation Controls */}
-      <div className="flex items-center justify-between gap-3 pt-2">
+      <div className="flex min-w-0 flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
         <Link
           to={basePath}
-          className="px-4 py-2.5 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-bold rounded-xl transition-all shadow-2xs inline-flex items-center gap-1.5 cursor-pointer"
+          className="inline-flex w-full max-w-full items-center justify-center gap-1.5 whitespace-normal [overflow-wrap:anywhere] px-4 py-2.5 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-center text-xs font-bold rounded-xl transition-all shadow-2xs cursor-pointer sm:w-auto"
         >
           <FleetIcons.ArrowLeft className="w-3.5 h-3.5" />
           <span>{t('admin.tech_requests.back_to_requests', 'Back to Technician Requests')}</span>
@@ -661,7 +694,7 @@ export const AdminTechRequestDetailsPage = () => {
         {canEdit && (
           <Link
             to={`${basePath}/edit/${request.id}`}
-            className="px-4 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white text-xs font-bold rounded-xl shadow-md transition-all inline-flex items-center gap-2 cursor-pointer"
+            className="inline-flex w-full max-w-full items-center justify-center gap-2 whitespace-normal [overflow-wrap:anywhere] px-4 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white text-center text-xs font-bold rounded-xl shadow-md transition-all cursor-pointer sm:w-auto"
           >
             <FleetIcons.Edit className="w-3.5 h-3.5 text-white" />
             <span>{t('admin.tech_requests.edit_request', 'Edit Request')}</span>

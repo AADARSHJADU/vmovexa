@@ -21,11 +21,11 @@ const ToggleSwitch = ({ checked, onChange, disabled = false, id, label }) => (
     onClick={() => !disabled && onChange(!checked)}
     className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 dark:focus:ring-offset-zinc-900 ${
       checked ? 'bg-blue-600' : 'bg-slate-300 dark:bg-zinc-700'
-    } ${disabled ? t('ag.superadmin.supernotificationsettingspage.opacity_40_cursor_not_allowed', 'opacity-40 cursor-not-allowed') : ''}`}
+    } ${disabled ? 'opacity-40 cursor-not-allowed' : ''}`}
   >
     <span
       className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
-        checked ? t('ag.superadmin.supernotificationsettingspage.translate_x_5', 'translate-x-5') : t('ag.superadmin.supernotificationsettingspage.translate_x_0', 'translate-x-0')
+        checked ? 'translate-x-5' : 'translate-x-0'
       }`}
     />
   </button>

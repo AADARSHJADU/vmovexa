@@ -164,9 +164,8 @@ class AdvertiserNotificationsController extends GetxController {
     try {
       final res = await _service.markAllNotificationsRead();
       if (res.success) {
-        Get.snackbar(
-          'Updated',
-          'All notifications marked as read',
+        Get.snackbar('updated_title'.tr,
+          'all_notifications_marked_read'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
@@ -189,9 +188,8 @@ class AdvertiserNotificationsController extends GetxController {
 
     try {
       await _service.deleteNotification(item.id);
-      Get.snackbar(
-        'Dismissed',
-        'Notification removed',
+      Get.snackbar('dismissed_title'.tr,
+        'notification_removed_msg'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF334155),
         colorText: Colors.white,

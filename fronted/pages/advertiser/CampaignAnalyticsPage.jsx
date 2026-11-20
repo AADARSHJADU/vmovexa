@@ -1,3 +1,4 @@
+import { translateCampaignLabel } from '../../utils/campaignTranslations';
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -10,7 +11,7 @@ import Breadcrumb from '../../components/ui/Breadcrumb';
 import { Pagination } from '../../components/ui/Pagination';
 
 export const CampaignAnalyticsPage = ({ ownerType = 'advertiser' }) => {
-  const { t } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -133,7 +134,7 @@ export const CampaignAnalyticsPage = ({ ownerType = 'advertiser' }) => {
       : null;
   }, [campaignAnalytics, currentCampaign, isOverview, selectedFilter]);
 
-  const title = isOverview ? 'All Campaigns Overview' : (analyticsData?.title || currentCampaign?.title || 'Campaign Analytics');
+  const title = isOverview ? t("campaign_extra.all_campaigns_overview", "All Campaigns Overview") : (analyticsData?.title || currentCampaign?.title || t("ag.advertiser.campaignanalyticspage.campaign_analytics", "Campaign Analytics"));
   const code = isOverview ? 'ALL-CAMPAIGNS' : (analyticsData?.code || currentCampaign?.code || null);
   const status = analyticsData?.status || currentCampaign?.status || null;
   const metric = (value) => (value === null || value === undefined || !Number.isFinite(Number(value)) ? null : Number(value));
@@ -180,7 +181,7 @@ export const CampaignAnalyticsPage = ({ ownerType = 'advertiser' }) => {
   const dailyTelemetry = useMemo(() => {
     const raw = (analyticsData?.daily && analyticsData.daily.length > 0)
       ? analyticsData.daily.map((d) => ({
-          date: d.date ? new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : (d.date || '—'),
+          date: d.date ? new Date(d.date).toLocaleDateString(currentLanguage, { month: 'short', day: 'numeric' }) : (d.date || '—'),
           rawDate: d.date,
           impressions: metric(d.impressions),
           playbacks: metric(d.screens_played ?? d.playbacks),
@@ -191,7 +192,7 @@ export const CampaignAnalyticsPage = ({ ownerType = 'advertiser' }) => {
     if (period === '7d') return sorted.slice(-7);
     if (period === '30d') return sorted.slice(-30);
     return sorted;
-  }, [analyticsData, period]);
+  }, [analyticsData, period, currentLanguage]);
 
   const totalTelemetryPages = Math.max(1, Math.ceil(dailyTelemetry.length / telemetryPageSize));
   const paginatedTelemetry = useMemo(() => {
@@ -202,24 +203,24 @@ export const CampaignAnalyticsPage = ({ ownerType = 'advertiser' }) => {
   // Export Analytics to CSV
   const handleExportCsv = () => {
     if (!analyticsData) {
-      toast.error('Analytics data is not available for this selection.');
+      toast.error(t("campaign_extra.analytics_data_is_not_available_for_this_selection", "Analytics data is not available for this selection."));
       return;
     }
     setIsExporting(true);
     try {
       const rows = [
-        ['Campaign Analytics Performance Report', ''],
-        ['Generated Date', new Date().toISOString()],
-        ['Campaign Title', title],
-        ['Campaign Code', code || ''],
-        ['Status', status || ''],
-        ['Total Budget (INR)', budget],
-        ['Amount Spent (INR)', spent],
-        ['Impressions Delivered', impressions],
-        ['Screen Playbacks', playbacks],
-        ['Smart QR Scans', scans],
+        [t("campaign_extra.campaign_analytics_performance_report", "Campaign Analytics Performance Report"), ''],
+        [t("finance.reports.generated_date", "Generated Date"), new Date().toISOString()],
+        [t("campaign_create.campaign_title", "Campaign Title"), title],
+        [t("public_pay.campaign_code", "Campaign Code"), code || ''],
+        [t("admin.billing.th_status", "Status"), status ? translateCampaignLabel(t, status) : ''],
+        [t("campaign_extra.total_budget_inr", "Total Budget (INR)"), budget],
+        [t("campaign_extra.amount_spent_inr", "Amount Spent (INR)"), spent],
+        [t("advertiser.analytics.th_impressions", "Impressions Delivered"), impressions],
+        [t("advertiser.analytics.th_playbacks", "Screen Playbacks"), playbacks],
+        [t("campaign_extra.smart_qr_scans", "Smart QR Scans"), scans],
         ['', ''],
-        ['Date', 'Impressions', 'Playbacks'],
+        [t("admin.activity.date_label", "Date"), t("ag.government.governmentdashboardpage.impressions", "Impressions"), t("campaign_extra.playbacks", "Playbacks")],
         ...dailyTelemetry.map(d => [d.date, d.impressions, d.playbacks]),
       ];
 
@@ -231,9 +232,9 @@ export const CampaignAnalyticsPage = ({ ownerType = 'advertiser' }) => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      toast.success('Analytics CSV report downloaded!');
+      toast.success(t("campaign_extra.analytics_csv_report_downloaded", "Analytics CSV report downloaded!"));
     } catch {
-      toast.error('Failed to export CSV report.');
+      toast.error(t("campaign_extra.failed_to_export_csv_report", "Failed to export CSV report."));
     } finally {
       setIsExporting(false);
     }
@@ -284,7 +285,7 @@ export const CampaignAnalyticsPage = ({ ownerType = 'advertiser' }) => {
             className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-zinc-800 hover:bg-slate-800 dark:hover:bg-zinc-700 text-white text-xs font-bold transition-all shadow-xs border border-transparent dark:border-zinc-700 inline-flex items-center justify-center gap-2 cursor-pointer active:scale-95"
           >
             <FleetIcons.Document className="w-4 h-4 shrink-0" />
-            <span>{isExporting ? 'Exporting...' : 'Export CSV'}</span>
+            <span>{isExporting ? t("ag.fleet.reportsanalyticspage.exporting", "Exporting...") : t("admin.activity.export_csv", "Export CSV")}</span>
           </button>
           <Link
             to={`${basePath}/reports`}
@@ -327,7 +328,7 @@ export const CampaignAnalyticsPage = ({ ownerType = 'advertiser' }) => {
               <option value="all">{t('advertiser.analytics.all_overview')}</option>
               {campaigns.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.title || c.name || '—'} — [{c.code || c.id}{t('ag.advertiser.campaignanalyticspage.status', '] — Status:')} {c.status ? c.status.toUpperCase() : 'UNAVAILABLE'}{c.budget != null ? ` — Budget: ₹${Number(c.budget).toLocaleString('en-IN')}` : ''}
+                  {c.title || c.name || '—'} — [{c.code || c.id}{t('ag.advertiser.campaignanalyticspage.status', '] — Status:')} {c.status ? translateCampaignLabel(t, c.status) : t('campaign_extra.unavailable', 'Unavailable')}{c.budget != null ? t('campaign_extra.budget_amount', ' — Budget: ₹{{amount}}', { amount: Number(c.budget).toLocaleString('en-IN') }) : ''}
                 </option>
               ))}
             </select>
@@ -422,7 +423,7 @@ export const CampaignAnalyticsPage = ({ ownerType = 'advertiser' }) => {
             </div>
             {/* Period filter */}
             <div className="flex items-center gap-1.5 self-start sm:self-auto">
-              {[{ k: '7d', l: '7 Days' }, { k: '30d', l: '30 Days' }, { k: 'all', l: 'All' }].map((p) => (
+              {[{ k: '7d', l: t("campaign_extra.7_days", "7 Days") }, { k: '30d', l: t("campaign_extra.30_days", "30 Days") }, { k: 'all', l: 'All' }].map((p) => (
                 <button
                   key={p.k}
                   type="button"
@@ -433,7 +434,7 @@ export const CampaignAnalyticsPage = ({ ownerType = 'advertiser' }) => {
                       : 'bg-white dark:bg-zinc-900 text-slate-600 dark:text-zinc-400 border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800'
                   }`}
                 >
-                  {p.l}
+                  {translateCampaignLabel(t, p.l)}
                 </button>
               ))}
             </div>
@@ -542,7 +543,7 @@ export const CampaignAnalyticsPage = ({ ownerType = 'advertiser' }) => {
               <FleetIcons.Bus className="w-10 h-10 text-slate-300 dark:text-zinc-600 mx-auto mb-2" />
               <p className="text-sm font-black text-slate-900 dark:text-zinc-100">{t('advertiser.analytics.no_targeted_routes')}</p>
               <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 max-w-sm mx-auto">
-                {isOverview ? 'Select a specific campaign to view its targeted transit corridors.' : 'This campaign has no route targets configured yet.'}
+                {isOverview ? t("campaign_extra.select_a_specific_campaign_to_view_its_targeted_transit_corridors", "Select a specific campaign to view its targeted transit corridors.") : t("campaign_extra.this_campaign_has_no_route_targets_configured_yet", "This campaign has no route targets configured yet.")}
               </p>
             </div>
           ) : (
@@ -552,7 +553,7 @@ export const CampaignAnalyticsPage = ({ ownerType = 'advertiser' }) => {
                   <div key={idx} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/60 dark:hover:bg-zinc-800/40 rounded-xl px-2 transition-colors">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-black text-slate-900 dark:text-zinc-100">{route.name || 'Route name unavailable'}</span>
+                        <span className="text-xs font-black text-slate-900 dark:text-zinc-100">{route.name || t("campaign_extra.route_name_unavailable", "Route name unavailable")}</span>
                         {route.code && (
                           <span className="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-[10px] font-mono font-bold border border-blue-100 dark:border-blue-800">
                             {route.code}
@@ -560,9 +561,9 @@ export const CampaignAnalyticsPage = ({ ownerType = 'advertiser' }) => {
                         )}
                       </div>
                       <p className="text-[11px] text-slate-500 dark:text-zinc-400">
-                        {t('ag.advertiser.campaignanalyticspage.city', 'City:')} <span className="font-semibold text-slate-700 dark:text-zinc-300">{route.city || 'Unavailable'}</span>
+                        {t('ag.advertiser.campaignanalyticspage.city', 'City:')} <span className="font-semibold text-slate-700 dark:text-zinc-300">{route.city || t("campaign_extra.unavailable", "Unavailable")}</span>
                         {route.fleetName ? ` · Fleet: ${route.fleetName}` : ''}
-                        {route.startPoint && route.endPoint ? ` · From ${route.startPoint} → ${route.endPoint}` : ''}
+                        {route.startPoint && route.endPoint ? t("campaign_extra.from_v0_v1", " · From {{v0}} → {{v1}}", { v0: route.startPoint, v1: route.endPoint }) : ''}
                       </p>
                     </div>
 
@@ -578,7 +579,7 @@ export const CampaignAnalyticsPage = ({ ownerType = 'advertiser' }) => {
                       {!isOverview && status && (
                         <div className="text-right">
                           <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${status === 'live' ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' : 'bg-slate-50 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 border-slate-200 dark:border-zinc-700'}`}>
-                            {status === 'live' ? 'Broadcasting' : status.toUpperCase()}
+                            {status === 'live' ? t("ag.shared.panindiafleetradarmap.broadcasting", "Broadcasting") : translateCampaignLabel(t, status)}
                           </span>
                         </div>
                       )}
@@ -643,7 +644,7 @@ export const CampaignAnalyticsPage = ({ ownerType = 'advertiser' }) => {
                 <div className="p-4 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950/60 space-y-2">
                   <span className="text-xs font-bold text-slate-700 dark:text-zinc-300">{t('advertiser.analytics.target_redirect_url')}</span>
                   <p className="text-xs font-mono font-medium text-slate-600 dark:text-zinc-300 bg-white dark:bg-zinc-900 p-2.5 rounded-lg border border-slate-200 dark:border-zinc-700 break-all">
-                    {currentCampaign?.qr_redirect_url || 'Destination URL not configured'}
+                    {currentCampaign?.qr_redirect_url || t("campaign_extra.destination_url_not_configured", "Destination URL not configured")}
                   </p>
                 </div>
               </div>
@@ -665,9 +666,9 @@ export const CampaignAnalyticsPage = ({ ownerType = 'advertiser' }) => {
             <>
               <div className="grid grid-cols-3 gap-4 mb-4">
                 {[
-                  { label: 'Driver', val: selectedReviews.averages?.driver },
-                  { label: 'Bus', val: selectedReviews.averages?.bus },
-                  { label: 'Service', val: selectedReviews.averages?.service },
+                  { label: t("admin.slots.th_driver", "Driver"), val: selectedReviews.averages?.driver },
+                  { label: t("ag.fleet.fleetspage.bus", "Bus"), val: selectedReviews.averages?.bus },
+                  { label: t("qr.aspect_service", "Service"), val: selectedReviews.averages?.service },
                 ].map((a) => (
                   <div key={a.label} className="p-4 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-900/60 text-center">
                     <span className="text-[11px] font-bold text-slate-500 dark:text-zinc-400 uppercase">{a.label}</span>

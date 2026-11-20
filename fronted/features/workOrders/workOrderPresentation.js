@@ -120,11 +120,11 @@ export function formatDisplayValue(val, fallback = '—') {
   return String(val);
 }
 
-export function formatExactDateTime(dateInput) {
+export function formatExactDateTime(dateInput, locale = 'en-IN') {
   if (!dateInput) return '—';
   const date = new Date(dateInput);
   if (isNaN(date.getTime())) return '—';
-  return date.toLocaleString('en-IN', {
+  return date.toLocaleString(locale, {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
@@ -134,11 +134,11 @@ export function formatExactDateTime(dateInput) {
   });
 }
 
-export function formatSlaCountdown(slaDueAt, status) {
+export function formatSlaCountdown(slaDueAt, status, t = (_key, fallback, params = {}) => fallback.replace(/{{(\w+)}}/g, (_, key) => params[key] ?? '')) {
   const st = (status || '').toLowerCase();
   if (['resolved', 'closed', 'rejected'].includes(st)) {
     return {
-      text: 'Resolved',
+      text: t("admin.tech_requests.status_resolved", "Resolved"),
       color: 'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800',
     };
   }
@@ -151,18 +151,18 @@ export function formatSlaCountdown(slaDueAt, status) {
     const overdueMins = Math.abs(Math.round(diff / (60 * 1000)));
     const h = Math.floor(overdueMins / 60);
     const m = overdueMins % 60;
-    const timeStr = h > 0 ? `${h}h ${m}m` : `${m}m`;
+    const timeStr = h > 0 ? t("superadmin.assignment_finance.hours_h_minutes_m", "{{hours}}h {{minutes}}m", { hours: h, minutes: m }) : t("superadmin.assignment_finance.minutes_m", "{{minutes}}m", { minutes: m });
     return {
-      text: `Overdue ${timeStr}`,
+      text: t("superadmin.assignment_finance.overdue_time", "Overdue {{time}}", { time: timeStr }),
       color: 'text-red-700 dark:text-red-400 bg-red-100 dark:bg-red-950/60 border-red-300 dark:border-red-800 font-bold animate-pulse',
     };
   }
   const remMins = Math.round(diff / (60 * 1000));
   const h = Math.floor(remMins / 60);
   const m = remMins % 60;
-  const timeStr = h > 0 ? `${h}h ${m}m` : `${m}m`;
+  const timeStr = h > 0 ? t("superadmin.assignment_finance.hours_h_minutes_m", "{{hours}}h {{minutes}}m", { hours: h, minutes: m }) : t("superadmin.assignment_finance.minutes_m", "{{minutes}}m", { minutes: m });
   return {
-    text: `${timeStr} left`,
+    text: t("superadmin.assignment_finance.time_left", "{{time}} left", { time: timeStr }),
     color: diff < 3600 * 1000
       ? 'text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-950/60 border-amber-300 dark:border-amber-800 font-bold'
       : 'text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800',

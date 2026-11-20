@@ -100,7 +100,7 @@ class FleetOpProfileController extends GetxController {
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: Colors.redAccent.withOpacity(0.15),
+                  color: Colors.redAccent.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: const Center(
@@ -108,19 +108,19 @@ class FleetOpProfileController extends GetxController {
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Logout Account',
-                style: TextStyle(
+              Text(
+                'logout'.tr,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Are you sure you want to end your session and log out of the Fleet Console?',
+              Text(
+                'logout_confirmation'.tr,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+                style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
               ),
               const SizedBox(height: 24),
               Row(
@@ -135,7 +135,7 @@ class FleetOpProfileController extends GetxController {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text('Cancel', style: TextStyle(color: Colors.white)),
+                      child: Text('cancel'.tr, style: const TextStyle(color: Colors.white)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -152,9 +152,9 @@ class FleetOpProfileController extends GetxController {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text(
-                        'Logout',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      child: Text(
+                        'logout'.tr,
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),

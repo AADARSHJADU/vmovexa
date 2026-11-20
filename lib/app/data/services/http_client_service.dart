@@ -365,7 +365,10 @@ class HttpClientService extends GetxService {
         message: 'Request timed out. Please check your connection and retry.',
         error: 'TIMEOUT_ERROR',
       );
-    } catch (e) {
+    } catch (e, st) {
+      if (kDebugMode) {
+        debugPrint('❌ [HttpClientService._sendRequest] Unexpected error: $e\n$st');
+      }
       return ApiResponseModel.failure(
         message: 'Unexpected error occurred: ${e.toString()}',
         error: 'UNKNOWN_ERROR',

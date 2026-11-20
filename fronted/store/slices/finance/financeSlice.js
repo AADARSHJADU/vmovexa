@@ -10,6 +10,7 @@ import {
   fetchFinancePaymentByIdThunk,
   sendFinancePaymentReminderThunk,
   fetchFinanceCampaignPaymentsThunk,
+  fetchFinanceCampaignPaymentByIdThunk,
   shareFinanceCampaignPaymentLinkThunk,
   recordFinanceManualPaymentThunk,
   fetchFinanceReconciliationSummaryThunk,
@@ -34,6 +35,7 @@ export {
   fetchFinancePaymentByIdThunk,
   sendFinancePaymentReminderThunk,
   fetchFinanceCampaignPaymentsThunk,
+  fetchFinanceCampaignPaymentByIdThunk,
   shareFinanceCampaignPaymentLinkThunk,
   recordFinanceManualPaymentThunk,
   fetchFinanceReconciliationSummaryThunk,
@@ -59,6 +61,9 @@ const initialState = {
   currentPayment: null,
   campaignPayments: [],
   campaignPaymentsPagination: { page: 1, limit: 10, total: 0, totalPages: 1 },
+  campaignPaymentsCounts: null,
+  campaignPaymentsSummary: null,
+  currentCampaignPayment: null,
   reconciliationSummary: null,
   reconciliationTransactions: [],
   gstSummary: null,
@@ -79,6 +84,7 @@ const financeRoleSlice = createSlice({
   reducers: {
     clearCurrentInvoice: (state) => { state.currentInvoice = null; },
     clearCurrentPayment: (state) => { state.currentPayment = null; },
+    clearCurrentCampaignPayment: (state) => { state.currentCampaignPayment = null; },
   },
   extraReducers: (builder) => {
     builder
@@ -110,7 +116,18 @@ const financeRoleSlice = createSlice({
       })
       .addCase(fetchFinanceCampaignPaymentsThunk.fulfilled, (state, action) => {
         state.campaignPayments = Array.isArray(action.payload) ? action.payload : (action.payload?.rows || []);
-        if (action.payload?.meta) state.campaignPaymentsPagination = action.payload.meta;
+        if (action.payload?.meta) {
+          state.campaignPaymentsPagination = action.payload.meta;
+          if (action.payload.meta.counts) {
+            state.campaignPaymentsCounts = action.payload.meta.counts;
+          }
+          if (action.payload.meta.summary) {
+            state.campaignPaymentsSummary = action.payload.meta.summary;
+          }
+        }
+      })
+      .addCase(fetchFinanceCampaignPaymentByIdThunk.fulfilled, (state, action) => {
+        state.currentCampaignPayment = action.payload;
       })
       .addCase(recordFinanceManualPaymentThunk.fulfilled, (state, action) => {
         if (action.payload?.invoice) {
@@ -141,7 +158,7 @@ const financeRoleSlice = createSlice({
   },
 });
 
-export const { clearCurrentInvoice, clearCurrentPayment } = financeRoleSlice.actions;
+export const { clearCurrentInvoice, clearCurrentPayment, clearCurrentCampaignPayment } = financeRoleSlice.actions;
 export default financeRoleSlice.reducer;
 
 export const selectFinanceKpis = (state) => state.financeRole.kpis;
@@ -155,6 +172,9 @@ export const selectFinancePaymentsPagination = (state) => state.financeRole.paym
 export const selectFinanceCurrentPayment = (state) => state.financeRole.currentPayment;
 export const selectFinanceCampaignPayments = (state) => state.financeRole.campaignPayments;
 export const selectFinanceCampaignPaymentsPagination = (state) => state.financeRole.campaignPaymentsPagination;
+export const selectFinanceCampaignPaymentsCounts = (state) => state.financeRole.campaignPaymentsCounts;
+export const selectFinanceCampaignPaymentsSummary = (state) => state.financeRole.campaignPaymentsSummary;
+export const selectFinanceCurrentCampaignPayment = (state) => state.financeRole.currentCampaignPayment;
 export const selectFinanceReconciliationSummary = (state) => state.financeRole.reconciliationSummary;
 export const selectFinanceReconciliationTransactions = (state) => state.financeRole.reconciliationTransactions;
 export const selectFinanceGstSummary = (state) => state.financeRole.gstSummary;

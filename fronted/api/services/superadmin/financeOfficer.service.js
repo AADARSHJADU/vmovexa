@@ -35,8 +35,10 @@ export const superFinanceOfficerService = {
     call(apiClient.delete(ENDPOINTS.USERS.ONE(id))),
   getUserPermissions: (id) =>
     call(apiClient.get(ENDPOINTS.USERS.USER_PERMISSIONS(id))),
-  updateUserPermissions: (id, permissions) =>
-    call(apiClient.put(ENDPOINTS.USERS.USER_PERMISSIONS(id), { permissions })),
+  updateUserPermissions: (id, denied) =>
+    call(apiClient.put(ENDPOINTS.USERS.USER_PERMISSIONS(id), { denied })),
+  resetUserPermissions: (id) =>
+    call(apiClient.delete(ENDPOINTS.USERS.USER_PERMISSIONS(id))),
   uploadPhoto: (file) => {
     const fd = new FormData();
     fd.append('file', file);

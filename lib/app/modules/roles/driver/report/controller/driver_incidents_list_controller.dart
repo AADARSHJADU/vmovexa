@@ -2,28 +2,51 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../routes/app_routes.dart';
 import 'package:vmovexa/app/data/models/driver_models.dart';
-import 'package:vmovexa/app/data/models/work_order_model.dart';
 import 'package:vmovexa/app/data/services/driver_service.dart';
 
 class DriverIncidentsListController extends GetxController {
   DriverService get _driverService => DriverService.to;
 
   final RxBool isLoading = false.obs;
-  final RxInt selectedViewTab = 0.obs; // 0 = Incidents (SOS), 1 = Defect Work Orders
   final RxList<DriverIncidentItem> allIncidents = <DriverIncidentItem>[].obs;
-  final RxList<WorkOrderModel> allWorkOrders = <WorkOrderModel>[].obs;
 
   // Search & Filter state
   final RxString searchQuery = ''.obs;
-  final RxString selectedSeverity = 'ALL'.obs; // ALL, critical, high, medium, low
-  final RxString selectedStatus = 'ALL'.obs; // ALL, open, in_progress, resolved
+  final RxString selectedCategory = 'ALL'.obs; // ALL, Accident, Breakdown, Road Condition, Traffic Issue, Safety Concern
+  final RxString selectedSeverity = 'ALL'.obs; // ALL, CRITICAL, HIGH, MEDIUM, LOW
+  final RxString selectedStatus = 'ALL'.obs; // ALL, OPEN, IN_PROGRESS, RESOLVED, CLOSED
 
   final TextEditingController searchController = TextEditingController();
+
+  static const List<String> categories = [
+    'ALL',
+    'Accident',
+    'Breakdown',
+    'Road Condition',
+    'Traffic Issue',
+    'Safety Concern',
+  ];
+
+  static const List<String> severities = [
+    'ALL',
+    'CRITICAL',
+    'HIGH',
+    'MEDIUM',
+    'LOW',
+  ];
+
+  static const List<String> statuses = [
+    'ALL',
+    'OPEN',
+    'IN_PROGRESS',
+    'RESOLVED',
+    'CLOSED',
+  ];
 
   @override
   void onInit() {
     super.onInit();
-    fetchAllData();
+    fetchIncidents();
   }
 
   @override
@@ -32,41 +55,27 @@ class DriverIncidentsListController extends GetxController {
     super.onClose();
   }
 
-  Future<void> fetchAllData() async {
+  Future<void> fetchIncidents() async {
     isLoading.value = true;
     try {
-      await Future.wait([
-        fetchIncidents(),
-        fetchWorkOrders(),
-      ]);
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  Future<void> fetchIncidents() async {
-    try {
-      final res = await _driverService.getIncidents(page: 1, limit: 50);
+      debugPrint('🚀 [DriverIncidentsListController] fetchIncidents() requested');
+      final res = await _driverService.getIncidents();
+      debugPrint('📥 [DriverIncidentsListController] API result: success=${res.success}, statusCode=${res.statusCode}, dataCount=${res.data?.length}');
       if (res.success && res.data != null) {
         allIncidents.assignAll(res.data!);
+        debugPrint('✅ [DriverIncidentsListController] Assigned ${allIncidents.length} incidents to allIncidents');
+        for (var inc in allIncidents) {
+          debugPrint('   👉 Incident #${inc.id} | Type: ${inc.incidentType} | Sev: ${inc.severity} | Status: ${inc.status} | Loc: ${inc.locationName ?? inc.location?.address}');
+        }
       } else {
         allIncidents.clear();
+        debugPrint('⚠️ [DriverIncidentsListController] API failure or null data: ${res.message ?? res.error}');
       }
-    } catch (e) {
-      debugPrint('DriverIncidentsListController fetchIncidents error: ');
-    }
-  }
-
-  Future<void> fetchWorkOrders() async {
-    try {
-      final res = await _driverService.getDriverWorkOrders(page: 1, limit: 50);
-      if (res.success && res.data != null) {
-        allWorkOrders.assignAll(res.data!);
-      } else {
-        allWorkOrders.clear();
-      }
-    } catch (e) {
-      debugPrint('DriverIncidentsListController fetchWorkOrders error: ');
+    } catch (e, st) {
+      debugPrint('❌ [DriverIncidentsListController] fetchIncidents error: $e\n$st');
+    } finally {
+      isLoading.value = false;
+      debugPrint('🏁 [DriverIncidentsListController] Done. Active items after filtering: ${filteredIncidents.length}');
     }
   }
 
@@ -74,26 +83,65 @@ class DriverIncidentsListController extends GetxController {
     return allIncidents.where((inc) {
       final q = searchQuery.value.trim().toLowerCase();
       if (q.isNotEmpty) {
-        final title = (inc.title ?? '').toLowerCase();
-        final desc = (inc.description ?? '').toLowerCase();
         final id = (inc.id ?? '').toLowerCase();
+        final type = (inc.incidentType ?? inc.title ?? '').toLowerCase();
+        final desc = (inc.description ?? '').toLowerCase();
+        final loc = (inc.locationName ?? inc.location?.address ?? '').toLowerCase();
+        final landmark = (inc.landmark ?? '').toLowerCase();
+        final hospital = (inc.hospitalName ?? '').toLowerCase();
+        final police = (inc.policeStationName ?? '').toLowerCase();
         final ticket = (inc.ticketNumber ?? '').toLowerCase();
-        if (!title.contains(q) && !desc.contains(q) && !id.contains(q) && !ticket.contains(q)) {
+
+        final matches = id.contains(q) ||
+            type.contains(q) ||
+            desc.contains(q) ||
+            loc.contains(q) ||
+            landmark.contains(q) ||
+            hospital.contains(q) ||
+            police.contains(q) ||
+            ticket.contains(q);
+
+        if (!matches) return false;
+      }
+
+      // Category / Type filter
+      final activeCat = selectedCategory.value.trim();
+      if (activeCat.toUpperCase() != 'ALL') {
+        final type = (inc.incidentType ?? inc.title ?? '').toLowerCase();
+        final filterCat = activeCat.toLowerCase();
+        if (!type.contains(filterCat)) {
           return false;
         }
       }
 
-      if (selectedSeverity.value != 'ALL') {
+      // Severity filter
+      final activeSev = selectedSeverity.value.trim();
+      if (activeSev.toUpperCase() != 'ALL') {
         final sev = (inc.severity ?? 'low').toLowerCase();
-        if (sev != selectedSeverity.value.toLowerCase()) {
+        if (sev != activeSev.toLowerCase()) {
           return false;
         }
       }
 
-      if (selectedStatus.value != 'ALL') {
+      // Status filter
+      final activeSt = selectedStatus.value.trim();
+      if (activeSt.toUpperCase() != 'ALL') {
         final st = (inc.status ?? 'open').toLowerCase();
-        if (st != selectedStatus.value.toLowerCase()) {
-          return false;
+        final filterSt = activeSt.toLowerCase();
+        if (filterSt == 'open') {
+          if (st != 'open' && st != 'review' && st != 'pending' && st != 'reported') {
+            return false;
+          }
+        } else if (filterSt == 'in_progress') {
+          if (st != 'in_progress' && st != 'investigating' && st != 'active') {
+            return false;
+          }
+        } else if (filterSt == 'resolved') {
+          if (st != 'resolved') return false;
+        } else if (filterSt == 'closed') {
+          if (st != 'closed') return false;
+        } else {
+          if (st != filterSt) return false;
         }
       }
 
@@ -101,39 +149,14 @@ class DriverIncidentsListController extends GetxController {
     }).toList();
   }
 
-  List<WorkOrderModel> get filteredWorkOrders {
-    return allWorkOrders.where((wo) {
-      final q = searchQuery.value.trim().toLowerCase();
-      if (q.isNotEmpty) {
-        final code = (wo.code).toLowerCase();
-        final desc = (wo.description).toLowerCase();
-        final cat = (wo.issueCategory).toLowerCase();
-        if (!code.contains(q) && !desc.contains(q) && !cat.contains(q)) {
-          return false;
-        }
-      }
+  bool get isFilterActive =>
+      searchQuery.value.trim().isNotEmpty ||
+      selectedCategory.value.toUpperCase() != 'ALL' ||
+      selectedSeverity.value.toUpperCase() != 'ALL' ||
+      selectedStatus.value.toUpperCase() != 'ALL';
 
-      if (selectedSeverity.value != 'ALL') {
-        final urg = (wo.urgency).toLowerCase();
-        if (urg != selectedSeverity.value.toLowerCase()) {
-          return false;
-        }
-      }
-
-      if (selectedStatus.value != 'ALL') {
-        final st = (wo.status).toLowerCase();
-        final filterSt = selectedStatus.value.toLowerCase();
-        if (filterSt == 'open' && (st != 'submitted' && st != 'pending' && st != 'open')) return false;
-        if (filterSt == 'in_progress' && (st != 'dispatched' && st != 'on_site' && st != 'in_progress')) return false;
-        if (filterSt == 'resolved' && (st != 'resolved' && st != 'closed')) return false;
-      }
-
-      return true;
-    }).toList();
-  }
-
-  void switchTab(int index) {
-    selectedViewTab.value = index;
+  void setCategory(String cat) {
+    selectedCategory.value = cat;
   }
 
   void setSeverity(String sev) {
@@ -153,6 +176,14 @@ class DriverIncidentsListController extends GetxController {
     searchQuery.value = '';
   }
 
+  void resetFilters() {
+    searchController.clear();
+    searchQuery.value = '';
+    selectedCategory.value = 'ALL';
+    selectedSeverity.value = 'ALL';
+    selectedStatus.value = 'ALL';
+  }
+
   void onIncidentTap(DriverIncidentItem incident) {
     Get.toNamed(
       Routes.DRIVER_INCIDENT_DETAILS,
@@ -160,93 +191,13 @@ class DriverIncidentsListController extends GetxController {
     );
   }
 
-  final RxBool isSubmittingWorkOrder = false.obs;
-
-  Future<bool> createDefectWorkOrder({
-    required String issueCategory,
-    required String urgency,
-    required String description,
-  }) async {
-    isSubmittingWorkOrder.value = true;
-    try {
-      final res = await _driverService.reportDriverWorkOrder(
-        issueCategory: issueCategory,
-        priority: urgency.toLowerCase(),
-        description: description,
-      );
-      if (res.success) {
-        Get.snackbar(
-          'Defect Reported',
-          'Work order dispatched to NOC & technical maintenance team.',
-          backgroundColor: const Color(0xFF15151F),
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM,
-        );
-        await fetchWorkOrders();
-        return true;
-      } else {
-        Get.snackbar(
-          'Submission Error',
-          res.message ?? 'Could not submit defect report.',
-          backgroundColor: const Color(0xFF15151F),
-          colorText: Colors.redAccent,
-          snackPosition: SnackPosition.BOTTOM,
-        );
-        return false;
-      }
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to report defect: $e',
-        backgroundColor: const Color(0xFF15151F),
-        colorText: Colors.redAccent,
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      return false;
-    } finally {
-      isSubmittingWorkOrder.value = false;
-    }
-  }
-
-  Future<void> rateWorkOrder(String workOrderId, int rating, String feedback) async {
-    try {
-      final res = await _driverService.rateDriverWorkOrder(workOrderId, rating: rating, feedback: feedback);
-      if (res.success) {
-        Get.snackbar(
-          'Rating Submitted',
-          'Thank you for rating technician repair quality.',
-          backgroundColor: const Color(0xFF15151F),
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM,
-        );
-        await fetchWorkOrders();
-      } else {
-        Get.snackbar(
-          'Rating Error',
-          res.message ?? 'Could not submit rating.',
-          backgroundColor: const Color(0xFF15151F),
-          colorText: Colors.redAccent,
-          snackPosition: SnackPosition.BOTTOM,
-        );
-      }
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to rate: ',
-        backgroundColor: const Color(0xFF15151F),
-        colorText: Colors.redAccent,
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    }
-  }
-
   void onReportNewIncident() {
     Get.toNamed(Routes.DRIVER_REPORT_INCIDENT)?.then((_) {
-      fetchAllData();
+      fetchIncidents();
     });
   }
 
   Future<void> onRefresh() async {
-    await fetchAllData();
+    await fetchIncidents();
   }
 }

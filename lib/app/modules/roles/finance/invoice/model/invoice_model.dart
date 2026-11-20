@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 /// Status of an invoice, drives badge color + summary counts.
 enum InvoiceStatus { paid, pending, overdue }
@@ -7,11 +8,11 @@ extension InvoiceStatusX on InvoiceStatus {
   String get label {
     switch (this) {
       case InvoiceStatus.paid:
-        return 'Paid';
+        return 'paid'.tr;
       case InvoiceStatus.pending:
-        return 'Pending';
+        return 'pending'.tr;
       case InvoiceStatus.overdue:
-        return 'Overdue';
+        return 'overdue'.tr;
     }
   }
 

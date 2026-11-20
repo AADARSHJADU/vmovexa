@@ -1351,7 +1351,56 @@ export const CampaignDetailsPage = ({ ownerType = 'advertiser' }) => {
                     <span className="text-[10px] uppercase font-bold text-slate-400 block">{t('advertiser.campaigns.settled_on')}</span>
                     <span className="font-semibold text-slate-800 dark:text-zinc-200">{formatDateTime(campaign.payment?.paid_at || campaign.payment?.collected_at)}</span>
                   </div>
+                  {campaign.payment?.amount != null && (
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block">Amount</span>
+                      <span className="font-semibold text-slate-800 dark:text-zinc-200">₹{Number(campaign.payment.amount).toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+                  {campaign.payment?.transaction_id && (
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block">Transaction ID</span>
+                      <span className="font-semibold text-slate-800 dark:text-zinc-200 break-all">{campaign.payment.transaction_id}</span>
+                    </div>
+                  )}
+                  {campaign.payment?.verified_by_name && (
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block">Verified By</span>
+                      <span className="font-semibold text-slate-800 dark:text-zinc-200">{campaign.payment.verified_by_name}</span>
+                    </div>
+                  )}
                 </div>
+                {campaign.payment?.remarks && (
+                  <p className="text-[11px] text-slate-600 dark:text-zinc-400 pt-1">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 mr-1">Remarks:</span>{campaign.payment.remarks}
+                  </p>
+                )}
+                {campaign.payment?.proof_url ? (
+                  <div className="pt-2 border-t border-amber-200/60 dark:border-amber-900/40 space-y-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] uppercase font-bold text-slate-400">Payment Proof Document</span>
+                      <a
+                        href={resolveFileUrl(campaign.payment.proof_url)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[11px] font-bold text-blue-700 dark:text-blue-400 hover:underline"
+                      >
+                        Open / Download
+                      </a>
+                    </div>
+                    {/\.(png|jpe?g|webp|gif)(\?|$)/i.test(campaign.payment.proof_url) && (
+                      <a href={resolveFileUrl(campaign.payment.proof_url)} target="_blank" rel="noopener noreferrer">
+                        <img
+                          src={resolveFileUrl(campaign.payment.proof_url)}
+                          alt="Offline payment proof"
+                          className="max-h-48 rounded-lg border border-amber-200 dark:border-amber-900/50 object-contain bg-white"
+                        />
+                      </a>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-slate-400 pt-1">No payment proof document was uploaded.</p>
+                )}
               </div>
             )}
           </div>
@@ -1560,25 +1609,6 @@ export const CampaignDetailsPage = ({ ownerType = 'advertiser' }) => {
                 {getQrTrackingUrl(campaign.qrCode)}
               </p>
             </div>
-
-            {campaign.qrRedirectUrl && (
-              <div>
-                <span className="text-slate-400 dark:text-zinc-500 font-medium">{t('advertiser.campaigns.destination_link')}</span>
-                <div className="flex items-center gap-2 mt-0.5 flex-wrap justify-center sm:justify-start">
-                  <span className="font-mono text-emerald-700 dark:text-emerald-400 font-semibold break-all bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
-                    {campaign.qrRedirectUrl}
-                  </span>
-                  <a
-                    href={campaign.qrRedirectUrl.startsWith('http') ? campaign.qrRedirectUrl : `https://${campaign.qrRedirectUrl}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline inline-flex items-center gap-1"
-                  >
-                    {t('ag.advertiser.campaigndetailspage.test_link', 'Test Link ↗')}
-                  </a>
-                </div>
-              </div>
-            )}
 
             <div className="flex items-center justify-center sm:justify-start gap-3 pt-1">
               <div className="p-2 px-3 bg-white dark:bg-zinc-800 rounded-lg border border-slate-200 dark:border-zinc-700 text-center">

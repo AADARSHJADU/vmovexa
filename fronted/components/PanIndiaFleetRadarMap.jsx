@@ -327,17 +327,12 @@ export const PanIndiaFleetRadarMap = () => {
           <span className="text-[11px] font-bold text-white">{t('ag.shared.panindiafleetradarmap.google_maps_live_telemetry', 'Google Maps Live Telemetry')}</span>
         </div>
 
-        {/* Empty state overlay when no GPS vehicles */}
-        {!loading && gpsVehicles.length === 0 && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-            <div className="bg-slate-900/95 border border-slate-700 rounded-2xl px-6 py-5 text-center max-w-xs">
-              <div className="text-3xl mb-2">🛰️</div>
-              <h3 className="text-sm font-bold text-white">{t('ag.shared.panindiafleetradarmap.no_live_gps_positions', 'No live GPS positions')}</h3>
-              <p className="text-[11px] text-slate-400 mt-1">
-                {vehicles.length > 0
-                  ? 'Vehicles are registered but not reporting GPS right now.'
-                  : 'No vehicles found for the selected route.'}
-              </p>
+        {/* Single-line bottom status indicator when no GPS vehicles */}
+        {!loading && gpsVehicles.length === 0 && !activeVehicle && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
+            <div className="bg-slate-900/90 backdrop-blur-md border border-slate-700/80 px-3.5 py-1.5 rounded-full shadow-lg flex items-center gap-2 text-xs font-semibold text-slate-300 whitespace-nowrap">
+              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+              <span>{t('ag.shared.panindiafleetradarmap.no_gps_live', 'No live GPS')}</span>
             </div>
           </div>
         )}

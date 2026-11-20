@@ -58,11 +58,13 @@ class AddDriverController extends GetxController {
   final dobController = TextEditingController();
   final RxBool obscurePassword = true.obs;
 
-  // Address
+  // Address & Geolocation
   final addressController = TextEditingController();
   final cityController = TextEditingController();
   final stateController = TextEditingController();
   final pincodeController = TextEditingController();
+  final RxnDouble latitude = RxnDouble();
+  final RxnDouble longitude = RxnDouble();
 
   // Commercial License
   final licenseNoController = TextEditingController();
@@ -194,6 +196,8 @@ class AddDriverController extends GetxController {
     cityController.text = d.city;
     stateController.text = d.state;
     pincodeController.text = d.pincode;
+    latitude.value = d.latitude;
+    longitude.value = d.longitude;
 
     licenseNoController.text = d.licenseNumber != 'N/A' ? d.licenseNumber : '';
     selectedLicenseType.value = licenseTypes.contains(d.licenseType) ? d.licenseType : 'Commercial Heavy (HMV)';
@@ -305,6 +309,36 @@ class AddDriverController extends GetxController {
       return p.durationLabel;
     }
     return '${shiftStartTime.value} - ${shiftEndTime.value} (Custom)';
+  }
+
+  void onResidentialPlaceSelected(GooglePlaceItemModel place) {
+    if (place.formattedAddress.isNotEmpty) {
+      addressController.text = place.formattedAddress;
+    } else if (place.name.isNotEmpty) {
+      addressController.text = place.name;
+    }
+    if (place.city != null && place.city!.isNotEmpty) {
+      cityController.text = place.city!;
+    }
+    if (place.state != null && place.state!.isNotEmpty) {
+      stateController.text = place.state!;
+    }
+    String? pin = place.pincode;
+    if (pin == null || pin.isEmpty) {
+      final match = RegExp(r'\b[1-9][0-9]{5}\b').firstMatch(place.formattedAddress);
+      if (match != null) {
+        pin = match.group(0);
+      }
+    }
+    if (pin != null && pin.isNotEmpty) {
+      pincodeController.text = pin;
+    }
+    if (place.latitude != null) {
+      latitude.value = place.latitude;
+    }
+    if (place.longitude != null) {
+      longitude.value = place.longitude;
+    }
   }
 
   void selectDate(BuildContext context, TextEditingController controller) async {
@@ -521,72 +555,83 @@ class AddDriverController extends GetxController {
     // 1. Full name validation
     final name = nameController.text.trim();
     if (name.isEmpty) {
-      _showError('Driver Full Name is required.');
+      _showError('driver_name_required'.tr);
       return;
     }
     if (name.length < 3) {
-      _showError('Driver Full Name must be at least 3 characters.');
+      _showError('driver_name_min3'.tr);
       return;
     }
 
     // 2. Phone validation (10-digit Indian number)
     final cleanPhone = phoneController.text.trim().replaceAll(RegExp(r'\D'), '').replaceFirst(RegExp(r'^91'), '');
     if (cleanPhone.isEmpty) {
-      _showError('Driver mobile phone number is required.');
+      _showError('driver_phone_required'.tr);
       return;
     }
     if (cleanPhone.length != 10) {
-      _showError('Please enter a valid 10-digit mobile number.');
+      _showError('driver_phone_valid'.tr);
       return;
     }
 
-    // 3. Commercial DL Number validation
+    // 3. Email validation (Mandatory)
+    final email = emailController.text.trim();
+    if (email.isEmpty) {
+      _showError('email_required'.tr);
+      return;
+    }
+    if (!GetUtils.isEmail(email)) {
+      _showError('enter_valid_email'.tr);
+      return;
+    }
+
+    // 4. Commercial DL Number validation
     final cleanDL = licenseNoController.text.trim();
     if (cleanDL.isEmpty) {
-      _showError('Commercial Driving License (DL) number is required.');
+      _showError('driver_dl_required'.tr);
       return;
     }
     if (cleanDL.length < 6) {
-      _showError('Commercial DL number must be at least 6 characters.');
+      _showError('driver_dl_min6'.tr);
       return;
     }
 
     // 4. DL Expiry Date validation
     final dlExp = expiryDateController.text.trim();
     if (dlExp.isEmpty) {
-      _showError('DL Expiry Date is required.');
+      _showError('dl_expiry_required'.tr);
       return;
     }
 
     // 5. RTO Authority
     final rtoAuth = authorityController.text.trim();
     if (rtoAuth.isEmpty) {
-      _showError('RTO Issuing Authority is required (e.g. RTO Indore).');
+      _showError('rto_required'.tr);
       return;
     }
 
     // 6. Address & Pincode
     final addr = addressController.text.trim();
     if (addr.isEmpty) {
-      _showError('Driver residential address is required.');
+      _showError('address_required'.tr);
       return;
     }
     final pincode = pincodeController.text.trim().replaceAll(RegExp(r'\D'), '');
     if (pincode.isNotEmpty && pincode.length != 6) {
-      _showError('PIN Code must be a 6-digit Indian postal code.');
+      _showError('pin_code_indian'.tr);
       return;
     }
 
     // 7. Emergency Contact
     final emgPhone = emergencyContactPhoneController.text.trim().replaceAll(RegExp(r'\D'), '').replaceFirst(RegExp(r'^91'), '');
     if (emgPhone.isNotEmpty && emgPhone == cleanPhone) {
-      _showError('Emergency contact phone cannot be the same as driver mobile phone.');
+      _showError('emergency_phone_diff'.tr);
       return;
     }
 
     // 8. Home Depot
     if (selectedDepotId.value == null || selectedDepotId.value!.isEmpty) {
-      _showError('Please assign a Home Depot to this driver.');
+      _showError('assign_home_depot_msg'.tr);
       return;
     }
 
@@ -598,7 +643,7 @@ class AddDriverController extends GetxController {
         if (empIdController.text.trim().isNotEmpty) 'emp_id': empIdController.text.trim(),
         if (badgeIdController.text.trim().isNotEmpty) 'badge_id': badgeIdController.text.trim(),
         if (badgeIdController.text.trim().isNotEmpty) 'badgeId': badgeIdController.text.trim(),
-        if (emailController.text.trim().isNotEmpty) 'email': emailController.text.trim(),
+        'email': email,
         if (!isEditMode.value && passwordController.text.isNotEmpty) 'password': passwordController.text,
         if (dobController.text.trim().isNotEmpty) 'dob': dobController.text.trim(),
         'gender': selectedGender.value,
@@ -607,6 +652,8 @@ class AddDriverController extends GetxController {
         if (cityController.text.trim().isNotEmpty) 'city': cityController.text.trim(),
         if (stateController.text.trim().isNotEmpty) 'state': stateController.text.trim(),
         if (pincode.isNotEmpty) 'pincode': pincode,
+        if (latitude.value != null) 'latitude': latitude.value,
+        if (longitude.value != null) 'longitude': longitude.value,
         'license_number': cleanDL,
         'dl_number': cleanDL,
         'license_type': selectedLicenseType.value,
@@ -638,28 +685,28 @@ class AddDriverController extends GetxController {
         if (res.success) {
           Get.back(result: true);
           Get.snackbar(
-            'Success',
-            'Driver $name updated successfully!',
+            'success'.tr,
+            'update_driver_profile'.tr,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM,
           );
         } else {
-          _showError(res.message ?? 'Failed to update driver');
+          _showError(res.message ?? 'failed_update_driver'.tr);
         }
       } else {
         final res = await FleetService.to.addDriver(payload);
         if (res.success) {
           Get.back(result: true);
           Get.snackbar(
-            'Success',
-            'Driver $name onboarded successfully!',
+            'success'.tr,
+            'complete_driver_reg'.tr,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM,
           );
         } else {
-          _showError(res.message ?? 'Failed to onboard driver');
+          _showError(res.message ?? 'failed_onboard_driver'.tr);
         }
       }
     } catch (e) {
@@ -671,7 +718,7 @@ class AddDriverController extends GetxController {
 
   void _showError(String msg) {
     Get.snackbar(
-      'Validation Error',
+      'validation_error'.tr,
       msg,
       backgroundColor: Colors.redAccent,
       colorText: Colors.white,

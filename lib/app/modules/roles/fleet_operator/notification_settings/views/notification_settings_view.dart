@@ -28,11 +28,11 @@ class NotificationSettingsView extends StatelessWidget {
               child: Row(
                 children: [
                   const CustomBackButton(),
-                  const Expanded(
+                  Expanded(
                     child: Center(
                       child: Text(
-                        'Notification Settings',
-                        style: TextStyle(
+                        'notification_settings'.tr,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -43,7 +43,7 @@ class NotificationSettingsView extends StatelessWidget {
                   IconButton(
                     icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 20),
                     onPressed: controller.loadSettings,
-                    tooltip: 'Refresh Settings',
+                    tooltip: 'refresh_settings'.tr,
                   ),
                 ],
               ),
@@ -60,9 +60,9 @@ class NotificationSettingsView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Choose what alerts you want to receive and how you want to be notified. Changes save instantly.',
-                        style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                      Text(
+                        'notification_settings_sub'.tr,
+                        style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
                       ),
                       const SizedBox(height: 20),
 
@@ -74,9 +74,9 @@ class NotificationSettingsView extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Delivery Channels',
-                            style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                          Text(
+                            'delivery_channels'.tr,
+                            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -85,9 +85,9 @@ class NotificationSettingsView extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(color: const Color(0x4D3B82F6)),
                             ),
-                            child: const Text(
-                              '5 Channels',
-                              style: TextStyle(color: Color(0xFF60A5FA), fontSize: 10, fontWeight: FontWeight.bold),
+                            child: Text(
+                              'five_channels'.tr,
+                              style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 10, fontWeight: FontWeight.bold),
                             ),
                           ),
                         ],
@@ -97,9 +97,9 @@ class NotificationSettingsView extends StatelessWidget {
                       const SizedBox(height: 24),
 
                       // Alert Preferences Section
-                      const Text(
-                        'Alert Preferences',
-                        style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                      Text(
+                        'alert_preferences'.tr,
+                        style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 12),
                       _buildAlertPreferencesCard(controller),
@@ -138,9 +138,9 @@ class NotificationSettingsView extends StatelessWidget {
                                         height: 18,
                                       ),
                                       const SizedBox(width: 8),
-                                      const Text(
-                                        'Save All Preferences',
-                                        style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                                      Text(
+                                        'save_all_preferences'.tr,
+                                        style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                                       ),
                                     ],
                                   ),
@@ -174,15 +174,15 @@ class NotificationSettingsView extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  'Push Notifications',
-                  style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                  'push_notifications'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  'Receive instant alerts on your mobile device',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                  'receive_instant_alerts_desc'.tr,
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
                 ),
               ],
             ),
@@ -221,8 +221,8 @@ class NotificationSettingsView extends StatelessWidget {
       child: Column(
         children: [
           _buildChannelToggleRow(
-            title: 'In-App Notifications',
-            subtitle: 'Dashboard badges and in-app alert banners',
+            title: 'in_app_notifications'.tr,
+            subtitle: 'in_app_notifications_desc'.tr,
             state: controller.inAppNotifications,
             statusLabel: controller.inAppChannelStatus,
             fieldKey: 'channel_in_app',
@@ -231,8 +231,8 @@ class NotificationSettingsView extends StatelessWidget {
           ),
           const Divider(color: AppColors.cardBorder, height: 20),
           _buildChannelToggleRow(
-            title: 'Push Notifications',
-            subtitle: 'Real-time OS notifications sent to your device',
+            title: 'push_notifications'.tr,
+            subtitle: 'push_notifications_desc'.tr,
             state: controller.pushNotifications,
             statusLabel: controller.pushChannelStatus,
             fieldKey: 'channel_push',
@@ -241,8 +241,8 @@ class NotificationSettingsView extends StatelessWidget {
           ),
           const Divider(color: AppColors.cardBorder, height: 20),
           _buildChannelToggleRow(
-            title: 'Email Notifications',
-            subtitle: 'Critical summaries and dispatch reports via email',
+            title: 'email_notifications'.tr,
+            subtitle: 'email_notifications_desc'.tr,
             state: controller.emailNotifications,
             statusLabel: controller.emailChannelStatus,
             fieldKey: 'channel_email',
@@ -251,8 +251,8 @@ class NotificationSettingsView extends StatelessWidget {
           ),
           const Divider(color: AppColors.cardBorder, height: 20),
           _buildChannelToggleRow(
-            title: 'SMS Notifications',
-            subtitle: 'Direct SMS alerts on your registered phone number',
+            title: 'sms_notifications'.tr,
+            subtitle: 'sms_notifications_desc'.tr,
             state: controller.smsNotifications,
             statusLabel: controller.smsChannelStatus,
             fieldKey: 'channel_sms',
@@ -261,8 +261,8 @@ class NotificationSettingsView extends StatelessWidget {
           ),
           const Divider(color: AppColors.cardBorder, height: 20),
           _buildChannelToggleRow(
-            title: 'WhatsApp Notifications',
-            subtitle: 'Instant WhatsApp dispatch and fleet alerts',
+            title: 'whatsapp_notifications'.tr,
+            subtitle: 'whatsapp_notifications_desc'.tr,
             state: controller.whatsappNotifications,
             statusLabel: controller.whatsappChannelStatus,
             fieldKey: 'channel_whatsapp',
@@ -297,7 +297,7 @@ class NotificationSettingsView extends StatelessWidget {
                   const SizedBox(width: 6),
                   Obx(
                     () => Text(
-                      '(${statusLabel.value})',
+                      '(${state.value ? 'status_enabled'.tr : 'status_disabled'.tr})',
                       style: TextStyle(
                         color: state.value ? const Color(0xFF10B981) : AppColors.textMuted,
                         fontSize: 10,
@@ -348,8 +348,8 @@ class NotificationSettingsView extends StatelessWidget {
         child: Column(
           children: [
             _buildSwitchRow(
-              'Campaign Updates',
-              'Approval status, campaign publication and live state alerts',
+              'campaign_updates'.tr,
+              'campaign_updates_desc'.tr,
               controller.vehicleAlerts,
               'alert_vehicle',
               controller,
@@ -357,8 +357,8 @@ class NotificationSettingsView extends StatelessWidget {
             ),
             const Divider(color: AppColors.cardBorder, height: 20),
             _buildSwitchRow(
-              'Payment Notifications',
-              'Budget warnings, invoice receipts, and transaction status alerts',
+              'payment_notifications'.tr,
+              'payment_notifications_desc'.tr,
               controller.tripUpdates,
               'alert_trips',
               controller,
@@ -366,8 +366,8 @@ class NotificationSettingsView extends StatelessWidget {
             ),
             const Divider(color: AppColors.cardBorder, height: 20),
             _buildSwitchRow(
-              'System Updates',
-              'New feature announcements, reports readiness alerts, and performance metrics updates',
+              'system_updates'.tr,
+              'system_updates_desc'.tr,
               controller.maintenanceReminders,
               'alert_maintenance',
               controller,
@@ -375,8 +375,8 @@ class NotificationSettingsView extends StatelessWidget {
             ),
             const Divider(color: AppColors.cardBorder, height: 20),
             _buildSwitchRow(
-              'Security Alerts',
-              'Unauthorized access, password changes, and login attempts',
+              'security_alerts'.tr,
+              'security_alerts_adv_desc'.tr,
               controller.securityAlerts,
               'alert_security',
               controller,
@@ -397,8 +397,8 @@ class NotificationSettingsView extends StatelessWidget {
       child: Column(
         children: [
           _buildSwitchRow(
-            'Vehicle Alerts',
-            'Ignition, geofence, overspeed and other vehicle events',
+            'vehicle_alerts'.tr,
+            'vehicle_alerts_desc'.tr,
             controller.vehicleAlerts,
             'alert_vehicle',
             controller,
@@ -406,8 +406,8 @@ class NotificationSettingsView extends StatelessWidget {
           ),
           const Divider(color: AppColors.cardBorder, height: 20),
           _buildSwitchRow(
-            'Trip Updates',
-            'Trip start, stop, delays and route changes',
+            'trip_updates'.tr,
+            'trip_updates_desc'.tr,
             controller.tripUpdates,
             'alert_trips',
             controller,
@@ -415,8 +415,8 @@ class NotificationSettingsView extends StatelessWidget {
           ),
           const Divider(color: AppColors.cardBorder, height: 20),
           _buildSwitchRow(
-            'Maintenance Reminders',
-            'Service due, overdue and maintenance updates',
+            'maintenance_reminders'.tr,
+            'maintenance_reminders_desc'.tr,
             controller.maintenanceReminders,
             'alert_maintenance',
             controller,
@@ -424,8 +424,8 @@ class NotificationSettingsView extends StatelessWidget {
           ),
           const Divider(color: AppColors.cardBorder, height: 20),
           _buildSwitchRow(
-            'System Notifications',
-            'App updates, new features and system messages',
+            'system_notifications'.tr,
+            'system_notifications_desc'.tr,
             controller.systemNotifications,
             'alert_system',
             controller,
@@ -433,8 +433,8 @@ class NotificationSettingsView extends StatelessWidget {
           ),
           const Divider(color: AppColors.cardBorder, height: 20),
           _buildSwitchRow(
-            'Security Alerts',
-            'Unauthorized access and suspicious activity',
+            'security_alerts'.tr,
+            'security_alerts_desc'.tr,
             controller.securityAlerts,
             'alert_security',
             controller,

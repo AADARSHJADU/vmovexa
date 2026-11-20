@@ -132,7 +132,7 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
           IconButton(
             icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 22),
             onPressed: controller.fetchDeviceDetails,
-            tooltip: 'Refresh',
+            tooltip: 'refresh'.tr,
           ),
         ],
       ),
@@ -149,7 +149,7 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
         ElevatedButton.icon(
           onPressed: controller.goToEdit,
           icon: const Icon(Icons.edit_rounded, size: 14),
-          label: const Text('Edit Config'),
+          label: Text('edit_config'.tr),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF1E293B),
             foregroundColor: Colors.white,
@@ -163,7 +163,7 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
         ElevatedButton.icon(
           onPressed: controller.goToAssign,
           icon: const Icon(Icons.directions_bus_rounded, size: 14),
-          label: Text(d.isAssigned ? 'Reassign Vehicle' : 'Assign Vehicle'),
+          label: Text(d.isAssigned ? 'reassign_vehicle'.tr : 'assign_vehicle'.tr),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF3B82F6).withValues(alpha: 0.15),
             foregroundColor: const Color(0xFF60A5FA),
@@ -178,7 +178,7 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
           ElevatedButton.icon(
             onPressed: controller.handleUnassign,
             icon: const Icon(Icons.link_off_rounded, size: 14),
-            label: const Text('Unassign'),
+            label: Text('unassign'.tr),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.amber.withValues(alpha: 0.12),
               foregroundColor: Colors.amberAccent,
@@ -193,7 +193,7 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
           ElevatedButton.icon(
             onPressed: controller.handleApprove,
             icon: const Icon(Icons.check_circle_rounded, size: 14),
-            label: const Text('Approve'),
+            label: Text('approve_btn'.tr),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
               foregroundColor: const Color(0xFF34D399),
@@ -208,7 +208,7 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
           ElevatedButton.icon(
             onPressed: controller.showRejectDialog,
             icon: const Icon(Icons.cancel_rounded, size: 14),
-            label: const Text('Reject'),
+            label: Text('reject_btn'.tr),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.redAccent.withValues(alpha: 0.15),
               foregroundColor: Colors.redAccent,
@@ -223,7 +223,7 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
           OutlinedButton.icon(
             onPressed: controller.handleDelete,
             icon: const Icon(Icons.delete_outline_rounded, size: 14, color: Colors.redAccent),
-            label: const Text('Delete', style: TextStyle(color: Colors.redAccent)),
+            label: Text('delete'.tr, style: const TextStyle(color: Colors.redAccent)),
             style: OutlinedButton.styleFrom(
               side: BorderSide(color: Colors.redAccent.withValues(alpha: 0.5)),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -248,7 +248,7 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
         _buildGaugeTile(
           icon: Icons.memory_rounded,
           iconColor: const Color(0xFF3B82F6),
-          title: 'HARDWARE SPEC',
+          title: 'hardware_spec_caps'.tr,
           mainText: '${d.vendor} ${d.model}'.trim(),
           subText: 'Firmware: ${d.firmware.isNotEmpty ? d.firmware : 'v3.2.14'}',
         ),
@@ -257,11 +257,11 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
         _buildGaugeTile(
           icon: Icons.directions_bus_rounded,
           iconColor: d.isAssigned ? const Color(0xFF10B981) : Colors.amberAccent,
-          title: 'BOUND VEHICLE',
+          title: 'bound_vehicle_caps'.tr,
           mainText: d.vehicle?.busNumber.isNotEmpty == true
               ? d.vehicle!.busNumber
-              : (d.vehicleId != null ? 'Bus #${d.vehicleId}' : 'Unassigned'),
-          subText: d.isAssigned ? 'Active Telematics' : 'Ready for Binding',
+              : (d.vehicleId != null ? 'Bus #${d.vehicleId}' : 'unassigned'.tr),
+          subText: d.isAssigned ? 'active'.tr : 'unassigned'.tr,
           highlight: d.isAssigned,
         ),
 
@@ -269,8 +269,8 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
         _buildGaugeTile(
           icon: Icons.sim_card_outlined,
           iconColor: const Color(0xFFA855F7),
-          title: 'SIM MOBILE LINE',
-          mainText: d.sim.isNotEmpty ? d.sim : 'Unassigned',
+          title: 'sim_mobile_line_caps'.tr,
+          mainText: d.sim.isNotEmpty ? d.sim : 'unassigned'.tr,
           subText: '${d.networkType} (${d.simProvider})',
         ),
 
@@ -278,7 +278,7 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
         _buildGaugeTile(
           icon: Icons.battery_charging_full_rounded,
           iconColor: const Color(0xFF14B8A6),
-          title: 'BACKUP BATTERY',
+          title: 'backup_battery_caps'.tr,
           mainText: d.batteryCapacity.isNotEmpty ? d.batteryCapacity : '1200 mAh',
           subText: '12V/24V Connected',
         ),
@@ -374,13 +374,13 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.memory_rounded, color: Colors.amberAccent, size: 18),
-                  SizedBox(width: 8),
+                  const Icon(Icons.memory_rounded, color: Colors.amberAccent, size: 18),
+                  const SizedBox(width: 8),
                   Text(
-                    'Telematics Specifications',
-                    style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                    'telematics_specs_title'.tr,
+                    style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -409,23 +409,23 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
                 height: 160,
                 width: double.infinity,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                errorBuilder: (_, _, _) => const SizedBox.shrink(),
               ),
             ),
             const SizedBox(height: 14),
           ],
 
           // Key/Value Grid
-          _buildDetailRow('Hardware Vendor', d.vendor.isNotEmpty ? d.vendor : 'Teltonika'),
-          _buildDetailRow('Hardware Model', d.model.isNotEmpty ? d.model : 'Teltonika FMB920'),
-          _buildDetailRow('IMEI Code', d.imei.isNotEmpty ? d.imei : '—', isMono: true),
-          _buildDetailRow('Serial Number', d.serialNumber.isNotEmpty ? d.serialNumber : 'N/A', isMono: true),
-          _buildDetailRow('SIM Mobile Line', d.sim.isNotEmpty ? d.sim : 'Unassigned', isMono: true),
-          _buildDetailRow('Carrier Provider', d.simProvider.isNotEmpty ? d.simProvider : 'Jio 4G IoT'),
-          _buildDetailRow('Network Tech', '${d.networkType} (${d.network})'),
-          _buildDetailRow('Firmware Release', d.firmware.isNotEmpty ? d.firmware : 'v3.2.14-PROD', isMono: true),
+          _buildDetailRow('hardware_vendor_label'.tr, d.vendor.isNotEmpty ? d.vendor : 'Teltonika'),
+          _buildDetailRow('hardware_model_label'.tr, d.model.isNotEmpty ? d.model : 'Teltonika FMB920'),
+          _buildDetailRow('imei_code_label'.tr, d.imei.isNotEmpty ? d.imei : '—', isMono: true),
+          _buildDetailRow('serial_number_label'.tr, d.serialNumber.isNotEmpty ? d.serialNumber : 'N/A', isMono: true),
+          _buildDetailRow('sim_mobile_line_caps'.tr, d.sim.isNotEmpty ? d.sim : 'unassigned'.tr, isMono: true),
+          _buildDetailRow('carrier_provider_label'.tr, d.simProvider.isNotEmpty ? d.simProvider : 'Jio 4G IoT'),
+          _buildDetailRow('network_tech_label'.tr, '${d.networkType} (${d.network})'),
+          _buildDetailRow('firmware_release_label'.tr, d.firmware.isNotEmpty ? d.firmware : 'v3.2.14-PROD', isMono: true),
           _buildDetailRow(
-            'Installation Date',
+            'installation_date_label'.tr,
             d.installedAt != null && d.installedAt!.isNotEmpty
                 ? d.installedAt!
                 : 'Not Installed / Stock Inventory',
@@ -451,13 +451,13 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.directions_bus_rounded, color: Color(0xFF60A5FA), size: 18),
-                  SizedBox(width: 8),
+                  const Icon(Icons.directions_bus_rounded, color: Color(0xFF60A5FA), size: 18),
+                  const SizedBox(width: 8),
                   Text(
-                    'Vehicle Binding Status',
-                    style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                    'vehicle_binding_status'.tr,
+                    style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -483,9 +483,9 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'ASSIGNED FLEET BUS',
-                            style: TextStyle(color: Color(0xFF60A5FA), fontSize: 10, fontWeight: FontWeight.bold),
+                          Text(
+                            'assigned_fleet_bus_caps'.tr,
+                            style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 10, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 2),
                           Text(
@@ -520,10 +520,10 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
                   const Divider(height: 1, color: Color(0xFF1E293B)),
                   const SizedBox(height: 10),
 
-                  _buildDetailRow('Vehicle ID', '#${d.vehicle?.id ?? d.vehicleId}', isMono: true),
-                  _buildDetailRow('VIN / Chassis', d.vehicle?.vin.isNotEmpty == true ? d.vehicle!.vin : 'N/A', isMono: true),
-                  _buildDetailRow('Mounting Location', d.mountingPosition.isNotEmpty ? d.mountingPosition : 'Behind Driver Dashboard'),
-                  _buildDetailRow('Power Wiring', d.powerWire.isNotEmpty ? d.powerWire : 'Direct Battery Constant (+12V/24V)', isLast: true),
+                  _buildDetailRow('vehicle_id'.tr, '#${d.vehicle?.id ?? d.vehicleId}', isMono: true),
+                  _buildDetailRow('chassis_vin_label'.tr, d.vehicle?.vin.isNotEmpty == true ? d.vehicle!.vin : 'N/A', isMono: true),
+                  _buildDetailRow('mounting_location_label'.tr, d.mountingPosition.isNotEmpty ? d.mountingPosition : 'Behind Driver Dashboard'),
+                  _buildDetailRow('power_wiring_label'.tr, d.powerWire.isNotEmpty ? d.powerWire : 'Direct Battery Constant (+12V/24V)', isLast: true),
                 ],
               ),
             ),
@@ -531,7 +531,7 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
 
             // Button to View Bus Details
             CustomButton(
-              text: 'View Bus Details & Telematics',
+              text: 'view_bus_telematics_btn'.tr,
               prefixIcon: const Icon(Icons.arrow_forward_rounded, size: 16, color: Colors.white),
               onTap: controller.goToVehicleDetails,
               height: 46,
@@ -549,19 +549,19 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
                 children: [
                   const Icon(Icons.link_off_rounded, color: Colors.amberAccent, size: 36),
                   const SizedBox(height: 8),
-                  const Text(
-                    'No Vehicle Bound Yet',
-                    style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                  Text(
+                    'no_vehicle_bound_title'.tr,
+                    style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'This GPS unit is in warehouse stock inventory ready to be assigned to a transit vehicle.',
-                    style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+                  Text(
+                    'no_vehicle_bound_desc'.tr,
+                    style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 14),
                   CustomButton(
-                    text: 'Pair to Vehicle Now',
+                    text: 'pair_vehicle_now'.tr,
                     prefixIcon: const Icon(Icons.add_link_rounded, size: 16, color: Colors.white),
                     onTap: controller.goToAssign,
                     width: 200,
@@ -588,24 +588,24 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.bolt_rounded, color: Colors.amberAccent, size: 18),
-              SizedBox(width: 8),
+              const Icon(Icons.bolt_rounded, color: Colors.amberAccent, size: 18),
+              const SizedBox(width: 8),
               Text(
-                'Power & Diagnostics Telematics',
-                style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                'power_diagnostics_telematics'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
               ),
             ],
           ),
           const SizedBox(height: 14),
 
-          _buildDetailRow('Backup Battery Capacity', d.batteryCapacity.isNotEmpty ? d.batteryCapacity : '1200 mAh'),
-          _buildDetailRow('Input Voltage Range', '10V - 30V DC (Vehicle Power)'),
-          _buildDetailRow('Power Protection', 'Overvoltage & Surge Protected'),
-          _buildDetailRow('GNSS / GPS Receiver', 'GPS, GLONASS, GALILEO'),
-          _buildDetailRow('Tracking Sensitivity', '-165 dBm High Accuracy'),
-          _buildDetailRow('Ping Frequency', 'Every 5 Seconds', isLast: true),
+          _buildDetailRow('backup_battery_capacity'.tr, d.batteryCapacity.isNotEmpty ? d.batteryCapacity : '1200 mAh'),
+          _buildDetailRow('input_voltage_range'.tr, '10V - 30V DC (Vehicle Power)'),
+          _buildDetailRow('power_protection'.tr, 'Overvoltage & Surge Protected'),
+          _buildDetailRow('gnss_gps_receiver'.tr, 'GPS, GLONASS, GALILEO'),
+          _buildDetailRow('tracking_sensitivity'.tr, '-165 dBm High Accuracy'),
+          _buildDetailRow('ping_frequency'.tr, 'Every 5 Seconds', isLast: true),
         ],
       ),
     );
@@ -623,13 +623,13 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.notes_rounded, color: Color(0xFF818CF8), size: 18),
-              SizedBox(width: 8),
+              const Icon(Icons.notes_rounded, color: Color(0xFF818CF8), size: 18),
+              const SizedBox(width: 8),
               Text(
-                'Installation / Wiring Notes',
-                style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                'installation_wiring_notes'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -682,22 +682,22 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
       bg = const Color(0xFF10B981).withValues(alpha: 0.15);
       fg = const Color(0xFF34D399);
       border = const Color(0xFF10B981).withValues(alpha: 0.4);
-      label = 'AVAILABLE';
+      label = 'available'.tr.toUpperCase();
     } else if (s == 'assigned') {
       bg = const Color(0xFF3B82F6).withValues(alpha: 0.15);
       fg = const Color(0xFF60A5FA);
       border = const Color(0xFF3B82F6).withValues(alpha: 0.4);
-      label = 'ASSIGNED';
+      label = 'assigned'.tr.toUpperCase();
     } else if (s == 'pending_approval') {
       bg = Colors.amber.withValues(alpha: 0.15);
       fg = Colors.amberAccent;
       border = Colors.amber.withValues(alpha: 0.4);
-      label = 'PENDING';
+      label = 'pending'.tr.toUpperCase();
     } else if (s == 'rejected') {
       bg = Colors.redAccent.withValues(alpha: 0.15);
       fg = Colors.redAccent;
       border = Colors.redAccent.withValues(alpha: 0.4);
-      label = 'REJECTED';
+      label = 'rejected'.tr.toUpperCase();
     }
 
     return Container(
@@ -723,19 +723,19 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
           children: [
             const Icon(Icons.error_outline_rounded, color: Colors.amberAccent, size: 48),
             const SizedBox(height: 12),
-            const Text(
-              'GPS Device Not Found',
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            Text(
+              'device_not_found'.tr,
+              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 6),
-            const Text(
-              'Could not load hardware details for this device ID.',
-              style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+            Text(
+              'device_not_found_desc'.tr,
+              style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             CustomButton(
-              text: 'Go Back',
+              text: 'go_back'.tr,
               onTap: () => Get.back(),
               width: 140,
               height: 42,

@@ -86,21 +86,21 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Financial Reports',
-                  style: TextStyle(
+                  'financial_reports'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
                     letterSpacing: -0.3,
                   ),
                 ),
-                SizedBox(height: 2),
-                Text(
+                const SizedBox(height: 2),
+                const Text(
                   'Audited statements for campaigns, SaaS & GST',
                   style: TextStyle(color: Colors.white54, fontSize: 11),
                   maxLines: 1,

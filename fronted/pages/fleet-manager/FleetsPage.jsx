@@ -32,15 +32,15 @@ export const FleetsPage = () => {
     rejectFleet,
   } = useFleetManager();
 
-  const { user, hasPermission } = useAuth();
+  const { user, can } = useAuth();
   const isPlatformAdmin = Boolean(
     user && (user.role === 'ROLE-SUPER-ADMIN' || user.role === 'ROLE-ADMIN' || user.clearance === 'ROOT')
   );
 
   // RBAC Permission checks
-  const canCreate = hasPermission('fleet.fleets.create');
-  const canUpdate = hasPermission('fleet.fleets.update');
-  const canDelete = hasPermission('fleet.fleets.delete');
+  const canCreate = can('fleets.create');
+  const canUpdate = can('fleets.update');
+  const canDelete = can('fleets.delete');
 
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');

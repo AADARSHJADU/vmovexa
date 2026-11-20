@@ -53,7 +53,7 @@ const StatusBadge = ({ status }) => {
     cls = 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border-slate-200 dark:border-zinc-700';
     label = t('admin.drivers.status_off_duty') || 'Off Duty';
     dot = 'bg-slate-400';
-  } else if (s === 'pending_approval') {
+  } else if (s === 'pending_approval' || s === 'pending') {
     cls = 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/60';
     label = t('admin.drivers.status_pending') || 'Pending';
     dot = 'bg-amber-500';
@@ -121,15 +121,15 @@ export const AdminDriversPage = () => {
   const basePath = isFleetPortal ? '/fleet-operator/drivers' : '/admin/drivers';
 
   const { drivers, pagination, loading, loadDrivers, verifyDriverDocuments, updateDriver, updateDriverStatus, deleteDriver, approveDriver, rejectDriver } = useAdminDriver();
-  const { hasPermission } = useAuth();
+  const { can } = useAuth();
 
   // RBAC permission gates (always true for Admin portal)
-  const canCreate  = !isFleetPortal || hasPermission('fleet.drivers.create');
-  const canUpdate  = !isFleetPortal || hasPermission('fleet.drivers.update');
-  const canDelete  = !isFleetPortal || hasPermission('fleet.drivers.delete');
-  const canView    = !isFleetPortal || hasPermission('fleet.drivers.view');
+  const canCreate  = can('drivers.create');
+  const canUpdate  = can('drivers.update');
+  const canDelete  = can('drivers.delete');
+  const canView    = can('drivers.view');
   const canApprove = !isFleetPortal;
-  const canAssign  = !isFleetPortal || hasPermission('fleet.drivers.assign');
+  const canAssign  = can('drivers.assign');
 
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -227,6 +227,10 @@ export const AdminDriversPage = () => {
 
   // Approve driver (Admin only — sets status: available)
   const handleApproveDriver = (driver, closeDropdown) => {
+    if (!driver.documents_verified) {
+      toast.error('Driver documents must be verified before approval.');
+      return;
+    }
     setApprovingId(driver.id);
     if (closeDropdown) closeDropdown();
     toast.promise(
@@ -276,6 +280,11 @@ export const AdminDriversPage = () => {
   // Toggle duty status (Active/Available <-> Off Duty)
   const handleToggleDutyStatus = (driver, newStatus, closeDropdown) => {
     if (closeDropdown) closeDropdown();
+    const dStatus = (driver.status || '').toLowerCase();
+    if (['pending_approval', 'pending', 'rejected'].includes(dStatus)) {
+      toast.error('Driver is pending approval and cannot be placed on duty until approved by Admin.');
+      return;
+    }
     setTogglingStatusId(driver.id);
     const statusLabel = {
       available: 'Available',
@@ -487,7 +496,7 @@ export const AdminDriversPage = () => {
             const shift = d.active_shift || d.activeShift || 'General Shift';
             const bus = formatBusNumber(d);
             const isVerified = Boolean(d.aadhaar_verified || d.verified);
-            const isPending = (d.status || '').toLowerCase() === 'pending_approval';
+            const isPending = ['pending_approval', 'pending'].includes((d.status || '').toLowerCase());
 
             return (
               <div key={d.id} className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm space-y-3 hover:shadow-md transition-shadow">
@@ -544,10 +553,12 @@ export const AdminDriversPage = () => {
                   <ActionDropdown buttonTitle={`${t('ag.admin.admindriverspage.actions_for', 'Actions for') + ' '}${d.name}`}>
                     {({ close }) => {
                       const dStatus = (d.status || '').toLowerCase();
-                      const isKycRejected = Boolean(d.kyc_rejected || d.kycRejected || (d.rejection_reason && !d.documents_verified));
+                      const isPending = ['pending_approval', 'pending'].includes(dStatus);
+                      const isKycRejected = Boolean(d.kyc_rejected || d.kycRejected || (d.rejection_reason && !d.documents_verified) || dStatus === 'rejected');
                       const isDocVerified = Boolean(d.documents_verified);
-                      const canSetActive = dStatus !== 'available' && dStatus !== 'on_duty';
-                      const canSetOffDuty = dStatus === 'available' || dStatus === 'on_duty';
+                      const isApproved = !isPending && !isKycRejected && dStatus !== 'compliance_blocked';
+                      const canSetActive = isApproved && dStatus !== 'available' && dStatus !== 'on_duty';
+                      const canSetOffDuty = isApproved && (dStatus === 'available' || dStatus === 'on_duty');
                       return (
                         <>
                           <Link
@@ -595,7 +606,7 @@ export const AdminDriversPage = () => {
                               <span>{verifyingId === d.id ? t('ag.admin.admindriverspage.verifying', 'Verifying...') : t('ag.admin.admindriverspage.verify_documents', 'Verify Documents')}</span>
                             </button>
                           )}
-                          {canApprove && (isPending || isKycRejected) && (
+                          {canApprove && isDocVerified && (isPending || isKycRejected) && (
                             <button
                               type="button"
                               disabled={approvingId === d.id}
@@ -603,10 +614,10 @@ export const AdminDriversPage = () => {
                               className="w-full text-left px-3.5 py-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 flex items-center gap-2 cursor-pointer disabled:opacity-50"
                             >
                               <FleetIcons.CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                              <span>{approvingId === d.id ? t('ag.admin.admindriverspage.approving', 'Approving...') : t('ag.admin.admindriverspage.approve', 'Approve')}</span>
+                              <span>{approvingId === d.id ? t('ag.admin.admindriverspage.approving', 'Approving...') : t('ag.admin.admindriverspage.approve', 'Approve Driver')}</span>
                             </button>
                           )}
-                          {canApprove && !isKycRejected && (
+                          {canApprove && (isPending || !isDocVerified) && !isKycRejected && (
                             <button
                               type="button"
                               disabled={rejectingId === d.id}
@@ -676,7 +687,7 @@ export const AdminDriversPage = () => {
                   const shift = d.active_shift || d.activeShift || 'General Shift';
                   const bus = formatBusNumber(d);
                   const isVerified = Boolean(d.aadhaar_verified || d.verified);
-                  const isPending = (d.status || '').toLowerCase() === 'pending_approval';
+                  const isPending = ['pending_approval', 'pending'].includes((d.status || '').toLowerCase());
 
                   return (
                     <tr key={d.id} className="hover:bg-slate-50/60 dark:hover:bg-zinc-800/40 transition-colors">
@@ -736,10 +747,12 @@ export const AdminDriversPage = () => {
                           <ActionDropdown buttonTitle={`${t('ag.admin.admindriverspage.actions_for', 'Actions for') + ' '}${d.name}`}>
                             {({ close }) => {
                               const dStatus = (d.status || '').toLowerCase();
-                              const isKycRejected = Boolean(d.kyc_rejected || d.kycRejected || (d.rejection_reason && !d.documents_verified));
+                              const isPending = ['pending_approval', 'pending'].includes(dStatus);
+                              const isKycRejected = Boolean(d.kyc_rejected || d.kycRejected || (d.rejection_reason && !d.documents_verified) || dStatus === 'rejected');
                               const isDocVerified = Boolean(d.documents_verified);
-                              const canSetActive = dStatus !== 'available' && dStatus !== 'on_duty';
-                              const canSetOffDuty = dStatus === 'available' || dStatus === 'on_duty';
+                              const isApproved = !isPending && !isKycRejected && dStatus !== 'compliance_blocked';
+                              const canSetActive = isApproved && dStatus !== 'available' && dStatus !== 'on_duty';
+                              const canSetOffDuty = isApproved && (dStatus === 'available' || dStatus === 'on_duty');
                               return (
                                 <>
                                   <Link
@@ -787,7 +800,7 @@ export const AdminDriversPage = () => {
                                       <span>{verifyingId === d.id ? t('ag.admin.admindriverspage.verifying', 'Verifying...') : t('ag.admin.admindriverspage.verify_documents', 'Verify Documents')}</span>
                                     </button>
                                   )}
-                                  {canApprove && (isPending || isKycRejected) && (
+                                  {canApprove && isDocVerified && (isPending || isKycRejected) && (
                                     <button
                                       type="button"
                                       disabled={approvingId === d.id}
@@ -795,10 +808,10 @@ export const AdminDriversPage = () => {
                                       className="w-full text-left px-3.5 py-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 flex items-center gap-2 cursor-pointer disabled:opacity-50"
                                     >
                                       <FleetIcons.CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                                      <span>{approvingId === d.id ? t('ag.admin.admindriverspage.approving', 'Approving...') : t('ag.admin.admindriverspage.approve', 'Approve')}</span>
+                                      <span>{approvingId === d.id ? t('ag.admin.admindriverspage.approving', 'Approving...') : t('ag.admin.admindriverspage.approve', 'Approve Driver')}</span>
                                     </button>
                                   )}
-                                  {canApprove && !isKycRejected && (
+                                  {canApprove && (isPending || !isDocVerified) && !isKycRejected && (
                                     <button
                                       type="button"
                                       disabled={rejectingId === d.id}
@@ -948,7 +961,7 @@ export const AdminDriversPage = () => {
 
             <div className="pt-2 flex items-center justify-between gap-3 border-t border-slate-100 dark:border-zinc-800">
               {/* Verify button */}
-              {canApprove && !(selectedDriver.aadhaar_verified || selectedDriver.verified) ? (
+              {canApprove && !(selectedDriver.documents_verified || selectedDriver.aadhaar_verified || selectedDriver.verified) ? (
                 <button
                   type="button"
                   disabled={verifyingId === selectedDriver.id}
@@ -958,7 +971,7 @@ export const AdminDriversPage = () => {
                   {verifyingId === selectedDriver.id && <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />}
                   <span>{t('admin.drivers.btn_verify_docs') || 'Verify Documents'}</span>
                 </button>
-              ) : (selectedDriver.aadhaar_verified || selectedDriver.verified) ? (
+              ) : (selectedDriver.documents_verified || selectedDriver.aadhaar_verified || selectedDriver.verified) ? (
                 <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
                   <FleetIcons.Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <span>{t('admin.drivers.docs_verified') || 'Documents Verified'}</span>

@@ -35,12 +35,12 @@ class AddDepotView extends GetView<AddDepotController> {
                       _buildSectionCard(
                         icon: Icons.warehouse_rounded,
                         iconColor: const Color(0xFF10B981),
-                        title: 'Facility Identification & Type',
-                        subtitle: 'Official depot name, identifier code, and primary operating classification.',
+                        title: 'facility_id_type'.tr,
+                        subtitle: 'facility_id_type_desc'.tr,
                         children: [
-                          _buildLabel('Facility Name *'),
+                          _buildLabel('facility_name_req'.tr),
                           CustomTextField(
-                            hintText: 'e.g. North Depot - Vijay Nagar',
+                            hintText: 'facility_name_hint'.tr,
                             prefixSvg: 'assets/icons/building.svg',
                             controller: controller.nameController,
                           ),
@@ -52,7 +52,7 @@ class AddDepotView extends GetView<AddDepotController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('Depot Code'),
+                                    _buildLabel('depot_code'.tr),
                                     CustomTextField(
                                       hintText: 'DEP-VN-01',
                                       prefixAsset: 'assets/icons/fleet_operator_icons/id.png',
@@ -69,10 +69,10 @@ class AddDepotView extends GetView<AddDepotController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('Operating Status'),
+                                    _buildLabel('operating_status'.tr),
                                     Obx(
                                       () => CustomTextField(
-                                        hintText: 'Select status',
+                                        hintText: 'select_status'.tr,
                                         prefixSvg: 'assets/icons/shield.svg',
                                         isDropdown: true,
                                         dropdownValue: controller.selectedStatus.value,
@@ -90,7 +90,7 @@ class AddDepotView extends GetView<AddDepotController> {
                           const SizedBox(height: 14),
 
                           // Depot Type Dropdown
-                          _buildLabel('Facility Classification *'),
+                          _buildLabel('facility_classification_req'.tr),
                           Obx(
                             () => Container(
                               height: 52,
@@ -110,7 +110,7 @@ class AddDepotView extends GetView<AddDepotController> {
                                     return DropdownMenuItem<String>(
                                       value: item['value'],
                                       child: Text(
-                                        item['label'] ?? '',
+                                        _getDepotTypeLabel(item['value'] ?? ''),
                                         style: const TextStyle(color: Colors.white, fontSize: 13),
                                       ),
                                     );
@@ -130,8 +130,8 @@ class AddDepotView extends GetView<AddDepotController> {
                       _buildSectionCard(
                         icon: Icons.local_parking_rounded,
                         iconColor: const Color(0xFF38BDF8),
-                        title: 'Capacity & Bay Infrastructure',
-                        subtitle: 'Bus parking bays, EV fast chargers, and maintenance pit slots.',
+                        title: 'capacity_bay_infra'.tr,
+                        subtitle: 'capacity_bay_infra_desc'.tr,
                         children: [
                           Row(
                             children: [
@@ -139,7 +139,7 @@ class AddDepotView extends GetView<AddDepotController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('Total Parking Bays *'),
+                                    _buildLabel('total_parking_bays_req'.tr),
                                     CustomTextField(
                                       hintText: '35',
                                       prefixSvg: 'assets/icons/bus.svg',
@@ -154,7 +154,7 @@ class AddDepotView extends GetView<AddDepotController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('EV Fast Chargers'),
+                                    _buildLabel('ev_fast_chargers'.tr),
                                     CustomTextField(
                                       hintText: '6',
                                       prefixSvg: 'assets/icons/droplet.svg',
@@ -174,7 +174,7 @@ class AddDepotView extends GetView<AddDepotController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('Maintenance Pits / Bays'),
+                                    _buildLabel('maintenance_pits_bays'.tr),
                                     CustomTextField(
                                       hintText: '2',
                                       prefixSvg: 'assets/icons/license.svg',
@@ -189,7 +189,7 @@ class AddDepotView extends GetView<AddDepotController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('Automated Wash Bays'),
+                                    _buildLabel('automated_wash_bays'.tr),
                                     CustomTextField(
                                       hintText: '1',
                                       prefixSvg: 'assets/icons/calendar.svg',
@@ -209,10 +209,10 @@ class AddDepotView extends GetView<AddDepotController> {
                       _buildSectionCard(
                         icon: Icons.electric_bolt_rounded,
                         iconColor: const Color(0xFFFBBF24),
-                        title: 'Energy & On-Site Amenities',
-                        subtitle: 'Supported vehicle power types and terminal yard amenities.',
+                        title: 'energy_onsite_amenities'.tr,
+                        subtitle: 'energy_onsite_amenities_desc'.tr,
                         children: [
-                          _buildLabel('Supported Fuel & Energy Types'),
+                          _buildLabel('supported_fuel_energy'.tr),
                           Obx(
                             () => Wrap(
                               spacing: 8,
@@ -220,7 +220,7 @@ class AddDepotView extends GetView<AddDepotController> {
                               children: controller.availableFuelTypes.map((fuel) {
                                 final isSelected = controller.selectedFuelTypes.contains(fuel);
                                 return FilterChip(
-                                  label: Text(fuel),
+                                  label: Text(_getFuelTypeLabel(fuel)),
                                   selected: isSelected,
                                   onSelected: (_) => controller.toggleFuelType(fuel),
                                   backgroundColor: AppColors.inputBg,
@@ -243,7 +243,7 @@ class AddDepotView extends GetView<AddDepotController> {
                           ),
                           const SizedBox(height: 16),
 
-                          _buildLabel('On-Site Yard Amenities'),
+                          _buildLabel('onsite_yard_amenities'.tr),
                           Obx(
                             () => Wrap(
                               spacing: 8,
@@ -251,7 +251,7 @@ class AddDepotView extends GetView<AddDepotController> {
                               children: controller.availableAmenities.map((amenity) {
                                 final isSelected = controller.selectedAmenities.contains(amenity);
                                 return FilterChip(
-                                  label: Text(amenity),
+                                  label: Text(_getAmenityLabel(amenity)),
                                   selected: isSelected,
                                   onSelected: (_) => controller.toggleAmenity(amenity),
                                   backgroundColor: AppColors.inputBg,
@@ -280,12 +280,12 @@ class AddDepotView extends GetView<AddDepotController> {
                       _buildSectionCard(
                         icon: Icons.location_on_outlined,
                         iconColor: const Color(0xFFA855F7),
-                        title: 'Geospatial Location & Geofence',
-                        subtitle: 'Physical address, GPS coordinates, and arrival boundary radius.',
+                        title: 'geospatial_loc_geofence'.tr,
+                        subtitle: 'geospatial_loc_geofence_desc'.tr,
                         children: [
-                          _buildLabel('Full Street Address *'),
+                          _buildLabel('full_street_address_req'.tr),
                           CustomTextField(
-                            hintText: 'e.g. Scheme 54, Near Vijay Nagar Square',
+                            hintText: 'street_address_hint'.tr,
                             prefixSvg: 'assets/icons/location.svg',
                             controller: controller.addressController,
                           ),
@@ -297,7 +297,7 @@ class AddDepotView extends GetView<AddDepotController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('City / District'),
+                                    _buildLabel('city_district'.tr),
                                     CustomTextField(
                                       hintText: 'Indore',
                                       prefixSvg: 'assets/icons/building.svg',
@@ -311,7 +311,7 @@ class AddDepotView extends GetView<AddDepotController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('State'),
+                                    _buildLabel('state_label'.tr),
                                     CustomTextField(
                                       hintText: 'Madhya Pradesh',
                                       prefixSvg: 'assets/icons/building.svg',
@@ -330,7 +330,7 @@ class AddDepotView extends GetView<AddDepotController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('Postal PIN Code (6 Digits)'),
+                                    _buildLabel('postal_pin_code_req'.tr),
                                     CustomTextField(
                                       hintText: '452010',
                                       prefixSvg: 'assets/icons/location.svg',
@@ -345,7 +345,7 @@ class AddDepotView extends GetView<AddDepotController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('Geofence Radius (Meters)'),
+                                    _buildLabel('geofence_radius_meters'.tr),
                                     CustomTextField(
                                       hintText: '300',
                                       prefixSvg: 'assets/icons/shield.svg',
@@ -366,7 +366,7 @@ class AddDepotView extends GetView<AddDepotController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('Latitude'),
+                                    _buildLabel('latitude_label'.tr),
                                     CustomTextField(
                                       hintText: '22.7533',
                                       prefixSvg: 'assets/icons/location.svg',
@@ -381,7 +381,7 @@ class AddDepotView extends GetView<AddDepotController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('Longitude'),
+                                    _buildLabel('longitude_label'.tr),
                                     CustomTextField(
                                       hintText: '75.8937',
                                       prefixSvg: 'assets/icons/location.svg',
@@ -401,12 +401,12 @@ class AddDepotView extends GetView<AddDepotController> {
                       _buildSectionCard(
                         icon: Icons.contact_phone_outlined,
                         iconColor: const Color(0xFFEC4899),
-                        title: 'Personnel & Operating Helplines',
-                        subtitle: 'Primary in-charge person and 24x7 control desk helpline numbers.',
+                        title: 'personnel_operating_helplines'.tr,
+                        subtitle: 'personnel_helplines_desc'.tr,
                         children: [
-                          _buildLabel('Facility In-Charge / Supervisor'),
+                          _buildLabel('facility_incharge_supervisor'.tr),
                           CustomTextField(
-                            hintText: 'e.g. Ramesh Patel',
+                            hintText: 'incharge_supervisor_hint'.tr,
                             prefixSvg: 'assets/icons/profile.svg',
                             prefixHeight: 18,
                             prefixWidth: 18,
@@ -420,7 +420,7 @@ class AddDepotView extends GetView<AddDepotController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('Helpline Phone (10 Digits)'),
+                                    _buildLabel('helpline_phone_digits'.tr),
                                     CustomTextField(
                                       hintText: '9827011223',
                                       prefixAsset: 'assets/icons/phone.png',
@@ -438,7 +438,7 @@ class AddDepotView extends GetView<AddDepotController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('Emergency Desk Phone'),
+                                    _buildLabel('emergency_desk_phone'.tr),
                                     CustomTextField(
                                       hintText: '9827099887',
                                       prefixAsset: 'assets/icons/phone.png',
@@ -461,7 +461,7 @@ class AddDepotView extends GetView<AddDepotController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('Facility Email'),
+                                    _buildLabel('facility_email'.tr),
                                     CustomTextField(
                                       hintText: 'depot.north@transit.in',
                                       prefixSvg: 'assets/icons/gmail.svg',
@@ -478,7 +478,7 @@ class AddDepotView extends GetView<AddDepotController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildLabel('Operating Hours'),
+                                    _buildLabel('operating_hours'.tr),
                                     CustomTextField(
                                       hintText: '24x7',
                                       prefixSvg: 'assets/icons/calendar.svg',
@@ -497,10 +497,10 @@ class AddDepotView extends GetView<AddDepotController> {
                       Obx(
                         () => CustomButton(
                           text: controller.isSubmitting.value
-                              ? 'Saving Depot Facility...'
+                              ? 'saving_depot_facility'.tr
                               : (controller.isEditMode.value
-                                  ? 'Update Depot Facility'
-                                  : 'Register Depot Facility'),
+                                  ? 'update_depot_facility'.tr
+                                  : 'register_depot_facility'.tr),
                           isLoading: controller.isSubmitting.value,
                           prefixIcon: const Icon(Icons.check_rounded, color: Colors.white, size: 20),
                           onTap: () {
@@ -512,7 +512,7 @@ class AddDepotView extends GetView<AddDepotController> {
                       ),
                       const SizedBox(height: 12),
                       CustomButton(
-                        text: 'Cancel',
+                        text: 'cancel'.tr,
                         isOutlined: true,
                         onTap: () => Get.back(),
                       ),
@@ -542,7 +542,7 @@ class AddDepotView extends GetView<AddDepotController> {
           const CustomBackButton(),
           Obx(
             () => Text(
-              controller.isEditMode.value ? 'Edit Depot Facility' : 'Add New Depot Facility',
+              controller.isEditMode.value ? 'edit_depot_title'.tr : 'add_depot_title'.tr,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -582,14 +582,14 @@ class AddDepotView extends GetView<AddDepotController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    isEdit ? 'Depot Facility Modification' : 'Transit Depot Facility Registration',
+                    isEdit ? 'depot_mod_title'.tr : 'depot_reg_title'.tr,
                     style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     isEdit
-                        ? 'Update facility bays, energy chargers, and operating contact numbers.'
-                        : 'Register an operating terminal base, vehicle parking capacity, and EV fast chargers.',
+                        ? 'depot_mod_desc'.tr
+                        : 'depot_reg_desc'.tr,
                     style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                   ),
                 ],
@@ -642,5 +642,56 @@ class AddDepotView extends GetView<AddDepotController> {
         style: const TextStyle(color: AppColors.textPrimary, fontSize: 12, fontWeight: FontWeight.w600),
       ),
     );
+  }
+
+  String _getDepotTypeLabel(String value) {
+    switch (value) {
+      case 'main_terminal':
+        return 'main_operating_terminal'.tr;
+      case 'sub_depot':
+        return 'sub_depot_outstation'.tr;
+      case 'maintenance_yard':
+        return 'heavy_maintenance_yard'.tr;
+      case 'parking_lot':
+        return 'night_stabling_lot'.tr;
+      default:
+        return value;
+    }
+  }
+
+  String _getFuelTypeLabel(String fuel) {
+    switch (fuel) {
+      case 'EV Charging (DC Fast)':
+        return 'ev_charging_dc_fast'.tr;
+      case 'Diesel':
+        return 'diesel_label'.tr;
+      case 'CNG (Compressed Natural Gas)':
+        return 'cng_compressed_natural_gas'.tr;
+      case 'Hydrogen / LNG':
+        return 'hydrogen_lng'.tr;
+      default:
+        return fuel;
+    }
+  }
+
+  String _getAmenityLabel(String amenity) {
+    switch (amenity) {
+      case 'Driver Rest Lounge':
+        return 'driver_rest_lounge'.tr;
+      case '24/7 CCTV & Security Gate':
+        return 'cctv_security_gate'.tr;
+      case 'Canteen / Cafeteria':
+        return 'canteen_cafeteria'.tr;
+      case 'Spare Parts & Tool Store':
+        return 'spare_parts_store'.tr;
+      case 'First Aid / Medical Desk':
+        return 'first_aid_medical_desk'.tr;
+      case 'Automated Washing Station':
+        return 'automated_washing_station'.tr;
+      case 'Solar PV Rooftop Generation':
+        return 'solar_pv_rooftop'.tr;
+      default:
+        return amenity;
+    }
   }
 }

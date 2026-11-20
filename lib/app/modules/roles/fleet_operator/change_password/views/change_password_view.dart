@@ -24,13 +24,13 @@ class ChangePasswordView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(
-                children: const [
-                  CustomBackButton(),
+                children: [
+                  const CustomBackButton(),
                   Expanded(
                     child: Center(
                       child: Text(
-                        'Change Password',
-                        style: TextStyle(
+                        'change_password'.tr,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -38,7 +38,7 @@ class ChangePasswordView extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(width: 48), // Spacer to balance back button
+                  const SizedBox(width: 48), // Spacer to balance back button
                 ],
               ),
             ),
@@ -94,9 +94,9 @@ class ChangePasswordView extends StatelessWidget {
                                       colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                                     ),
                                     const SizedBox(width: 8),
-                                    const Text(
-                                      'Update Password',
-                                      style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                                    Text(
+                                      'update_password'.tr,
+                                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                                     ),
                                   ],
                                 ),
@@ -113,8 +113,8 @@ class ChangePasswordView extends StatelessWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         backgroundColor: Colors.transparent,
                       ),
-                      icon:   SvgPicture.asset("assets/icons/fleet_operator_icons/cancelA.svg",color:Color(0xFF3B82F6),width: 18,height: 18,),
-                      label: const Text('Cancel', style: TextStyle(color: Color(0xFF3B82F6), fontSize: 13, fontWeight: FontWeight.bold)),
+                      icon: SvgPicture.asset("assets/icons/fleet_operator_icons/cancelA.svg", colorFilter: const ColorFilter.mode(Color(0xFF3B82F6), BlendMode.srcIn), width: 18, height: 18),
+                      label: Text('cancel'.tr, style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 13, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(height: 20),
                   ],
@@ -138,20 +138,20 @@ class ChangePasswordView extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SvgPicture.asset("assets/icons/fleet_operator_icons/accountSecureA.svg",width: 45,height: 45,),
+          SvgPicture.asset("assets/icons/fleet_operator_icons/accountSecureA.svg", width: 45, height: 45),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  'Keep Your Account Secure',
-                  style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                  'keep_account_secure'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 6),
+                const SizedBox(height: 6),
                 Text(
-                  'Use a strong password to protect your account and fleet data from unauthorized access.',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 11, height: 1.4),
+                  'keep_account_secure_desc'.tr,
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 11, height: 1.4),
                 ),
               ],
             ),
@@ -173,27 +173,27 @@ class ChangePasswordView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Current password field
-          const Text('Current Password', style: TextStyle(color: AppColors.textSecondary, fontSize: 12, fontWeight: FontWeight.bold)),
+          Text('current_password_label'.tr, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Obx(
             () => _buildPasswordField(
               controller: controller.currentPasswordController,
               obscure: controller.currentObscure.value,
               onToggle: () => controller.currentObscure.value = !controller.currentObscure.value,
-              hint: 'Enter current password',
+              hint: 'enter_current_password_hint'.tr,
             ),
           ),
           const SizedBox(height: 20),
 
           // New password field
-          const Text('New Password', style: TextStyle(color: AppColors.textSecondary, fontSize: 12, fontWeight: FontWeight.bold)),
+          Text('new_password'.tr, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Obx(
             () => _buildPasswordField(
               controller: controller.newPasswordController,
               obscure: controller.newObscure.value,
               onToggle: () => controller.newObscure.value = !controller.newObscure.value,
-              hint: 'Enter new password',
+              hint: 'enter_new_password_hint'.tr,
             ),
           ),
           const SizedBox(height: 12),
@@ -203,14 +203,14 @@ class ChangePasswordView extends StatelessWidget {
           const SizedBox(height: 20),
 
           // Confirm password field
-          const Text('Confirm New Password', style: TextStyle(color: AppColors.textSecondary, fontSize: 12, fontWeight: FontWeight.bold)),
+          Text('confirm_new_password'.tr, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Obx(
             () => _buildPasswordField(
               controller: controller.confirmPasswordController,
               obscure: controller.confirmObscure.value,
               onToggle: () => controller.confirmObscure.value = !controller.confirmObscure.value,
-              hint: 'Confirm new password',
+              hint: 'confirm_new_password_hint'.tr,
             ),
           ),
         ],
@@ -267,9 +267,9 @@ class ChangePasswordView extends StatelessWidget {
 
         return Row(
           children: [
-            const Text(
-              'Password Strength:',
-              style: TextStyle(color: AppColors.textMuted, fontSize: 10),
+            Text(
+              'password_strength_label'.tr,
+              style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
             ),
             const SizedBox(width: 6),
             Text(
@@ -315,20 +315,20 @@ class ChangePasswordView extends StatelessWidget {
             children: [
               SvgPicture.asset("assets/icons/fleet_operator_icons/securityA.svg", width: 18, height: 18),
               const SizedBox(width: 8),
-              const Text(
-                'Password Requirements',
-                style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+              Text(
+                'password_requirements_title'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          Obx(() => _buildRequirementItem('Minimum 8 characters', controller.hasMinLength.value)),
+          Obx(() => _buildRequirementItem('req_min_8_chars'.tr, controller.hasMinLength.value)),
           const SizedBox(height: 10),
-          Obx(() => _buildRequirementItem('One uppercase letter (A-Z)', controller.hasUppercase.value)),
+          Obx(() => _buildRequirementItem('req_one_uppercase'.tr, controller.hasUppercase.value)),
           const SizedBox(height: 10),
-          Obx(() => _buildRequirementItem('One number (0-9)', controller.hasNumber.value)),
+          Obx(() => _buildRequirementItem('req_one_number'.tr, controller.hasNumber.value)),
           const SizedBox(height: 10),
-          Obx(() => _buildRequirementItem('One special character (!@#\$%^&*)', controller.hasSpecialChar.value)),
+          Obx(() => _buildRequirementItem('req_one_special'.tr, controller.hasSpecialChar.value)),
         ],
       ),
     );

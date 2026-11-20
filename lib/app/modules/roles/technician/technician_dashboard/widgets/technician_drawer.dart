@@ -3,8 +3,10 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/routes/app_routes.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import 'package:vmovexa/app/data/constants/api_constants.dart';
 import 'package:vmovexa/app/data/services/storage_service.dart';
+import 'package:vmovexa/app/widgets/language_selector_sheet.dart';
 import '../controller/technician_dashboard_controller.dart';
 
 class TechnicianDrawer extends StatelessWidget {
@@ -22,14 +24,15 @@ class TechnicianDrawer extends StatelessWidget {
             // Header with Live Profile Avatar & Details
             _buildDrawerHeader(dashboardCtrl),
 
-            // Navigation List Items
+            // Navigation List Items (1:1 Match with Admin Panel technicianNavLinks)
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 children: [
-                  _buildSectionHeader('PRIMARY NAVIGATION'),
+                  // 1. Overview
+                  _buildSectionHeader('overview'.tr.toUpperCase()),
                   _buildDrawerItem(
-                    title: 'Overview Dashboard',
+                    title: 'overview_dashboard'.tr,
                     icon: 'assets/icons/home.svg',
                     isSelected: dashboardCtrl.selectedNavIndex.value == 0,
                     onTap: () {
@@ -37,8 +40,12 @@ class TechnicianDrawer extends StatelessWidget {
                       dashboardCtrl.onNavItemTapped(0);
                     },
                   ),
+
+                  const SizedBox(height: 12),
+                  // 2. Work Orders & Field Tasks
+                  _buildSectionHeader('work_orders_field_tasks'.tr.toUpperCase()),
                   _buildDrawerItem(
-                    title: 'Field Work Orders',
+                    title: 'field_work_orders'.tr,
                     icon: 'assets/icons/fleet_operator_icons/fleetsManagedA2.svg',
                     isSelected: dashboardCtrl.selectedNavIndex.value == 1,
                     onTap: () {
@@ -46,9 +53,21 @@ class TechnicianDrawer extends StatelessWidget {
                       dashboardCtrl.onNavItemTapped(1);
                     },
                   ),
+
+                  const SizedBox(height: 12),
+                  // 3. Device Operations
+                  _buildSectionHeader('device_operations'.tr.toUpperCase()),
                   _buildDrawerItem(
-                    title: 'Edge Devices & Displays',
+                    title: 'edge_setup'.tr,
                     icon: 'assets/icons/tv.svg',
+                    onTap: () {
+                      Get.back();
+                      Get.toNamed(Routes.TECH_EDGE_SETUP);
+                    },
+                  ),
+                  _buildDrawerItem(
+                    title: 'edge_devices'.tr,
+                    icon: 'assets/icons/allDisplay.svg',
                     isSelected: dashboardCtrl.selectedNavIndex.value == 2,
                     onTap: () {
                       Get.back();
@@ -56,54 +75,27 @@ class TechnicianDrawer extends StatelessWidget {
                     },
                   ),
                   _buildDrawerItem(
-                    title: 'Hardware Configuration',
-                    icon: 'assets/icons/fleet_operator_icons/profileHeaderSettingA.svg',
-                    isSelected: dashboardCtrl.selectedNavIndex.value == 3,
-                    onTap: () {
-                      Get.back();
-                      dashboardCtrl.onNavItemTapped(3);
-                    },
-                  ),
-
-                  const SizedBox(height: 12),
-                  _buildSectionHeader('HARDWARE & DIAGNOSTICS'),
-                  _buildDrawerItem(
-                    title: 'GPS Installation',
-                    icon: 'assets/icons/location.svg',
-                    onTap: () {
-                      Get.back();
-                      Get.toNamed(Routes.GPS_INSTALLATION);
-                    },
-                  ),
-                  _buildDrawerItem(
-                    title: 'Diagnostics Self-Test',
-                    icon: 'assets/icons/doctor.svg',
-                    onTap: () {
-                      Get.back();
-                      Get.toNamed(Routes.DEVICE_DIAGNOSTICS);
-                    },
-                  ),
-                  _buildDrawerItem(
-                    title: 'Connectivity Matrix',
-                    icon: 'assets/icons/hotspot.svg',
-                    onTap: () {
-                      Get.back();
-                      Get.toNamed(Routes.CONNECTIVITY_TROUBLESHOOTING);
-                    },
-                  ),
-                  _buildDrawerItem(
-                    title: 'Hardware Status & Health',
+                    title: 'hardware_status'.tr,
                     icon: 'assets/icons/monitor_heart.svg',
                     onTap: () {
                       Get.back();
                       Get.toNamed(Routes.HARDWARE_STATUS);
                     },
                   ),
+                  _buildDrawerItem(
+                    title: 'diagnostics_tests'.tr,
+                    icon: 'assets/icons/doctor.svg',
+                    onTap: () {
+                      Get.back();
+                      Get.toNamed(Routes.DEVICE_DIAGNOSTICS);
+                    },
+                  ),
 
                   const SizedBox(height: 12),
-                  _buildSectionHeader('ACCOUNT & SETTINGS'),
+                  // 4. Alerts & Account
+                  _buildSectionHeader('alerts_account'.tr.toUpperCase()),
                   _buildDrawerItem(
-                    title: 'Alerts & Notifications',
+                    title: 'alerts_events'.tr,
                     icon: 'assets/icons/notification.svg',
                     onTap: () {
                       Get.back();
@@ -111,12 +103,52 @@ class TechnicianDrawer extends StatelessWidget {
                     },
                   ),
                   _buildDrawerItem(
-                    title: 'Technician Profile',
+                    title: 'technician_profile'.tr,
                     icon: 'assets/icons/profile.svg',
                     isSelected: dashboardCtrl.selectedNavIndex.value == 4,
                     onTap: () {
                       Get.back();
                       dashboardCtrl.onNavItemTapped(4);
+                    },
+                  ),
+                  _buildDrawerItem(
+                    title: 'account_settings'.tr,
+                    icon: 'assets/icons/fleet_operator_icons/profileHeaderSettingA.svg',
+                    onTap: () {
+                      Get.back();
+                      Get.toNamed(Routes.ACCOUNT_SETTINGS);
+                    },
+                  ),
+                  _buildDrawerItem(
+                    title: 'help_documentation'.tr,
+                    icon: 'assets/icons/fleet_operator_icons/helpSupportA.svg',
+                    onTap: () {
+                      Get.back();
+                      Get.toNamed(Routes.TECHNICIAN_HELP_SUPPORT);
+                    },
+                  ),
+                  _buildDrawerItem(
+                    title: 'privacy_policy'.tr,
+                    icon: 'assets/icons/fleet_operator_icons/privacyPolicyA.svg',
+                    onTap: () {
+                      Get.back();
+                      Get.toNamed(Routes.PRIVACY_POLICY);
+                    },
+                  ),
+                  _buildDrawerItem(
+                    title: 'terms_sla'.tr,
+                    icon: 'assets/icons/advertiser_ic/termConditionHeaderA.svg',
+                    onTap: () {
+                      Get.back();
+                      Get.toNamed(Routes.TERMS_CONDITIONS);
+                    },
+                  ),
+                  _buildDrawerItem(
+                    title: 'change_language'.tr,
+                    icon: 'assets/icons/fleet_operator_icons/languageA.svg',
+                    onTap: () {
+                      Get.back();
+                      LanguageSelectorSheet.show(context);
                     },
                   ),
                 ],
@@ -132,9 +164,9 @@ class TechnicianDrawer extends StatelessWidget {
               child: ListTile(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 leading: const Icon(Icons.logout_rounded, color: Color(0xFFFF4D4D), size: 20),
-                title: const Text(
-                  'Logout Portal',
-                  style: TextStyle(
+                title: Text(
+                  'log_out'.tr,
+                  style: const TextStyle(
                     color: Color(0xFFFF4D4D),
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -142,7 +174,7 @@ class TechnicianDrawer extends StatelessWidget {
                 ),
                 onTap: () {
                   Get.back();
-                  dashboardCtrl.logout();
+                  dashboardCtrl.confirmLogout();
                 },
               ),
             ),
@@ -283,10 +315,17 @@ class TechnicianDrawer extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 3),
       decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFF6366F1).withValues(alpha: 0.12) : Colors.transparent,
+        gradient: isSelected ? AppTheme.primaryGradient : null,
+        color: isSelected ? null : Colors.transparent,
         borderRadius: BorderRadius.circular(10),
-        border: isSelected
-            ? Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.35))
+        boxShadow: isSelected
+            ? [
+                BoxShadow(
+                  color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ]
             : null,
       ),
       child: ListTile(
@@ -298,7 +337,7 @@ class TechnicianDrawer extends StatelessWidget {
           width: 18,
           height: 18,
           colorFilter: ColorFilter.mode(
-            isSelected ? const Color(0xFF818CF8) : AppColors.textMuted,
+            isSelected ? Colors.white : AppColors.textMuted,
             BlendMode.srcIn,
           ),
         ),
@@ -316,7 +355,7 @@ class TechnicianDrawer extends StatelessWidget {
                 height: 6,
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color(0xFF6366F1),
+                  color: Colors.white,
                 ),
               )
             : null,

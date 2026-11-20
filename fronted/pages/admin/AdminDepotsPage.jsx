@@ -27,12 +27,12 @@ export const AdminDepotsPage = () => {
     deleteDepot,
     updateDepotStatus,
   } = useAdminDepot();
-  const { hasPermission } = useAuth();
+  const { can } = useAuth();
 
-  const canView = hasPermission('fleet.depots.view');
-  const canCreate = hasPermission('fleet.depots.create');
-  const canUpdate = hasPermission('fleet.depots.update');
-  const canDelete = hasPermission('fleet.depots.delete');
+  const canView = can('depots.view');
+  const canCreate = can('depots.create');
+  const canUpdate = can('depots.update');
+  const canDelete = can('depots.delete');
 
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');

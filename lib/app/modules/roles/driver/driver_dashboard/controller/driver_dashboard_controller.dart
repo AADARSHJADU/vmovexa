@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/data/services/auth_service.dart';
 import 'package:vmovexa/app/routes/app_routes.dart';
+import '../../report/controller/driver_incidents_list_controller.dart';
 
 class DriverDashboardController extends GetxController {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
@@ -33,10 +34,16 @@ class DriverDashboardController extends GetxController {
       scaffoldKey.currentState?.closeDrawer();
     }
     selectedNavIndex.value = index;
+    if (index == 3 && Get.isRegistered<DriverIncidentsListController>()) {
+      Get.find<DriverIncidentsListController>().fetchIncidents();
+    }
   }
 
   void onNavItemTapped(int index) {
     selectedNavIndex.value = index;
+    if (index == 3 && Get.isRegistered<DriverIncidentsListController>()) {
+      Get.find<DriverIncidentsListController>().fetchIncidents();
+    }
   }
 
   void goToFleetList() {

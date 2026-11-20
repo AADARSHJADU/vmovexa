@@ -3,12 +3,8 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { resolveFileUrl } from '../../api/services/upload.service';
 
 export const DEFAULT_INVOICE_DESIGN = {
-  template: 'standard',
-  primaryColor: '#0f172a',
-  accentColor: '#2563eb',
   invoiceTitle: 'TAX INVOICE',
   invoiceCopy: 'ORIGINAL FOR RECIPIENT',
-  invoicePrefix: 'INV-',
   footerNote: 'This is a computer-generated tax invoice under GST rules and requires no physical signature.',
 };
 
@@ -164,14 +160,36 @@ export const InvoiceSheet = ({ invoice, settings, design: propDesign }) => {
   const subtotalNum = Number(inv.subtotal) || 0;
   const taxAmountNum = isTaxExempt ? 0 : (inv.tax_amount !== null && inv.tax_amount !== undefined ? Number(inv.tax_amount) : +(subtotalNum * 0.18).toFixed(2));
   const totalNum = Number(inv.total) || +(subtotalNum + taxAmountNum).toFixed(2);
-  const halfTax = +(taxAmountNum / 2).toFixed(2);
-  const cgstVal = isTaxExempt ? 0 : (isIntra ? halfTax : 0);
-  const sgstVal = isTaxExempt ? 0 : (isIntra ? +(taxAmountNum - halfTax).toFixed(2) : 0);
-  const igstVal = isTaxExempt ? 0 : (!isIntra ? taxAmountNum : 0);
-
-  const rawItems = Array.isArray(inv.items) && inv.items.length > 0
+  // Prefer the tax split saved on the invoice (offline/custom breakdowns); only
+  // fall back to a 9/9 or 18 split when no per-head amounts were stored.
+  const storedCgst = Number(inv.cgst_amount ?? inv.gst?.cgst ?? 0) || 0;
+  const storedSgst = Number(inv.sgst_amount ?? inv.gst?.sgst ?? 0) || 0;
+  const storedIgst = Number(inv.igst_amount ?? inv.gst?.igst ?? 0) || 0;
+  // Tax lines saved as invoice items must not appear as taxable service rows.
+  const isTaxItem = (it) => /\b(cgst|sgst|igst|utgst|cess|gst)\b|central gst|state gst|integrated gst/i.test(String(it?.description || ''));
+  const allItems = Array.isArray(inv.items) && inv.items.length > 0
     ? inv.items
     : (Array.isArray(inv.InvoiceItems) && inv.InvoiceItems.length > 0 ? inv.InvoiceItems : null);
+  const serviceItems = allItems ? allItems.filter((it) => !isTaxItem(it)) : null;
+  const rawItems = serviceItems && serviceItems.length > 0 ? serviceItems : allItems;
+
+  // Tax rows come ONLY from the saved breakdown keys/labels. No percentage is
+  // calculated here; whatever label the user saved (incl. any % in it) is shown.
+  // Campaign invoices suffix item text with ": <campaign> (<code>)" — drop that.
+  const cleanTaxLabel = (text) => String(text || '').split(': ')[0].trim();
+  const savedTaxRows = isTaxExempt || !allItems
+    ? []
+    : allItems
+        .filter(isTaxItem)
+        .map((it) => ({ label: cleanTaxLabel(it.description), amount: Number(it.amount ?? it.rate ?? 0) || 0 }))
+        .filter((row) => row.amount !== 0);
+  const fallbackTaxRows = [
+    { label: 'CGST', amount: storedCgst },
+    { label: 'SGST', amount: storedSgst },
+    { label: 'IGST', amount: storedIgst },
+  ].filter((row) => row.amount > 0);
+  const taxRows = isTaxExempt ? [] : (savedTaxRows.length > 0 ? savedTaxRows : fallbackTaxRows);
+  const hasTaxRows = taxRows.length > 0;
 
   const lineItems = rawItems || [{
     description: inv.po_reference ? `VMOVEXA SaaS Subscription — ${inv.po_reference}` : 'VMOVEXA SaaS Telematics & Edge Fleet Subscription',
@@ -352,7 +370,7 @@ export const InvoiceSheet = ({ invoice, settings, design: propDesign }) => {
               {amountInWords(totalNum)}
             </p>
             <p className="text-[10.5px] text-slate-500 dark:text-zinc-400 mt-2 mb-0">
-              {t('ag.finance.invoicesheet.tax_classification', 'Tax Classification:')} <strong className="text-slate-700 dark:text-zinc-300 font-semibold">{isTaxExempt ? 'Plan Price Breakdown (Inclusive / Flat)' : (isIntra ? 'Intra-State Supply (CGST 9% + SGST 9%)' : 'Inter-State Supply (IGST 18%)')}</strong>
+              {t('ag.finance.invoicesheet.tax_classification', 'Tax Classification:')} <strong className="text-slate-700 dark:text-zinc-300 font-semibold">{isTaxExempt ? 'Plan Price Breakdown (Inclusive / Flat)' : (hasTaxRows ? 'As per saved price breakdown' : (isIntra ? 'Intra-State Supply' : 'Inter-State Supply'))}</strong>
             </p>
           </div>
 
@@ -366,30 +384,14 @@ export const InvoiceSheet = ({ invoice, settings, design: propDesign }) => {
                   ₹{subtotalNum.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </td>
               </tr>
-              {!isTaxExempt && isIntra && (
-                <>
-                  <tr>
-                    <td className="py-1.5 px-2 font-semibold text-slate-500 dark:text-zinc-400">{t('ag.finance.invoicesheet.cgst_9', 'CGST (9%)')}</td>
-                    <td className="py-1.5 px-2 text-right font-mono font-bold text-slate-800 dark:text-zinc-200">
-                      ₹{cgstVal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="py-1.5 px-2 font-semibold text-slate-500 dark:text-zinc-400">{t('ag.finance.invoicesheet.sgst_9', 'SGST (9%)')}</td>
-                    <td className="py-1.5 px-2 text-right font-mono font-bold text-slate-800 dark:text-zinc-200">
-                      ₹{sgstVal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </td>
-                  </tr>
-                </>
-              )}
-              {!isTaxExempt && !isIntra && (
-                <tr>
-                  <td className="py-1.5 px-2 font-semibold text-slate-500 dark:text-zinc-400">{t('ag.finance.invoicesheet.igst_18', 'IGST (18%)')}</td>
+              {taxRows.map((row, idx) => (
+                <tr key={`${row.label}-${idx}`}>
+                  <td className="py-1.5 px-2 font-semibold text-slate-500 dark:text-zinc-400">{row.label}</td>
                   <td className="py-1.5 px-2 text-right font-mono font-bold text-slate-800 dark:text-zinc-200">
-                    ₹{igstVal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    ₹{row.amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
                 </tr>
-              )}
+              ))}
               <tr className="border-t-2 border-slate-900 dark:border-white">
                 <td className="pt-2.5 pb-1 px-2 text-sm font-black text-slate-900 dark:text-white">
                   {t('ag.finance.invoicesheet.total_amount_inr', 'Total Amount (INR)')}

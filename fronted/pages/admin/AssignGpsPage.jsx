@@ -12,12 +12,12 @@ export const AssignGpsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { hasPermission } = useAuth();
+  const { can } = useAuth();
   const { t } = useTranslation();
 
   const isFleetPortal = location.pathname.startsWith('/fleet-operator');
   const basePath = isFleetPortal ? '/fleet-operator/edge-devices' : '/admin/edge-devices';
-  const canAssign = hasPermission(['fleet.devices.assign', 'fleet.devices.update', 'devices.gps.manage']);
+  const canAssign = can(['devices.assign', 'devices.update']);
 
   const { loadDevice, assignVehicle, selectedDevice } = useFleetGps();
   const { vehicles, loadVehicles } = useFleetVehicle();

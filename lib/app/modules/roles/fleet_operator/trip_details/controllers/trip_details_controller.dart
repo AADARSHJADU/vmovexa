@@ -16,7 +16,7 @@ class TripDetailsController extends GetxController {
 
   void callDriver() {
     Get.snackbar(
-      'Calling Driver',
+      'driver'.tr,
       'Dialing $driverName...',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: const Color(0xFF6366F1),
@@ -26,7 +26,7 @@ class TripDetailsController extends GetxController {
 
   void navigate() {
     Get.snackbar(
-      'Navigation Launcher',
+      'navigation'.tr,
       'Opening navigation maps path for $vehicleName...',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: const Color(0xFF6366F1),
@@ -36,7 +36,7 @@ class TripDetailsController extends GetxController {
 
   void sendAlert() {
     Get.snackbar(
-      'Alert Dispatched',
+      'alert'.tr,
       'Alert notification has been successfully pushed to the vehicle.',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.orangeAccent,
@@ -46,7 +46,7 @@ class TripDetailsController extends GetxController {
 
   void downloadReport() {
     Get.snackbar(
-      'Downloading Report',
+      'export_pdf_btn'.tr,
       'Exporting trip sheet and telemetry logs for $tripId...',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: const Color(0xFF10B981),
@@ -57,7 +57,7 @@ class TripDetailsController extends GetxController {
   void completeTrip() {
     Get.back();
     Get.snackbar(
-      'Trip Completed',
+      'completed'.tr,
       'Trip $tripId has been marked as completed successfully.',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: const Color(0xFF10B981),

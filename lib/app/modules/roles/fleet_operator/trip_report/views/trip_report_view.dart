@@ -22,9 +22,9 @@ class TripReportView extends GetView<TripReportController> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const CustomBackButton(),
-                  const Text(
-                    'Trip Report',
-                    style: TextStyle(
+                  Text(
+                    'trip_report_title'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -57,37 +57,37 @@ class TripReportView extends GetView<TripReportController> {
                     const SizedBox(height: 20),
 
                     // Route Overview
-                    _buildSectionTitle(Icons.navigation_outlined, 'Route Overview'),
+                    _buildSectionTitle(Icons.navigation_outlined, 'route_overview'.tr),
                     const SizedBox(height: 12),
                     _buildRouteOverviewCard(),
                     const SizedBox(height: 24),
 
                     // Trip Analytics
-                    _buildSectionTitle(Icons.analytics_outlined, 'Trip Analytics'),
+                    _buildSectionTitle(Icons.analytics_outlined, 'trip_analytics'.tr),
                     const SizedBox(height: 12),
                     _buildTripAnalyticsRow(),
                     const SizedBox(height: 24),
 
                     // Trip Timeline
-                    _buildSectionTitle(Icons.history_toggle_off_rounded, 'Trip Timeline'),
+                    _buildSectionTitle(Icons.history_toggle_off_rounded, 'trip_details_title'.tr),
                     const SizedBox(height: 12),
                     _buildTimelineCard(),
                     const SizedBox(height: 24),
 
                     // Driver Information
-                    _buildSectionTitle(Icons.person_outline_rounded, 'Driver Information'),
+                    _buildSectionTitle(Icons.person_outline_rounded, 'driver_information'.tr),
                     const SizedBox(height: 12),
                     _buildDriverInfoCard(),
                     const SizedBox(height: 32),
 
                     // Bottom Buttons
                     CustomButton(
-                      text: 'Export PDF',
+                      text: 'export_pdf_btn'.tr,
                       onTap: controller.exportPdf,
                     ),
                     const SizedBox(height: 12),
                     CustomButton(
-                      text: 'Share Report',
+                      text: 'share_report_btn'.tr,
                       isOutlined: true,
                       onTap: controller.shareReport,
                     ),
@@ -131,7 +131,7 @@ class TripReportView extends GetView<TripReportController> {
             width: 100,
             height: 90,
             decoration: BoxDecoration(
-              color: const Color(0xFF3B82F6).withOpacity(0.08),
+              color: const Color(0xFF3B82F6).withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
@@ -173,15 +173,15 @@ class TripReportView extends GetView<TripReportController> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildCardSpec('Vehicle', controller.vehicleName, Icons.directions_bus_outlined, const Color(0xFF3B82F6)),
-                    _buildCardSpec('Driver', controller.driverName, Icons.person_outline_rounded, const Color(0xFF8B5CF6)),
+                    _buildCardSpec('vehicle'.tr, controller.vehicleName, Icons.directions_bus_outlined, const Color(0xFF3B82F6)),
+                    _buildCardSpec('driver'.tr, controller.driverName, Icons.person_outline_rounded, const Color(0xFF8B5CF6)),
                   ],
                 ),
                 const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildCardSpec('Date', controller.date, Icons.calendar_today_outlined, const Color(0xFF10B981)),
+                    _buildCardSpec('date'.tr, controller.date, Icons.calendar_today_outlined, const Color(0xFF10B981)),
                     Row(
                       children: [
                         Container(
@@ -190,9 +190,9 @@ class TripReportView extends GetView<TripReportController> {
                           decoration: const BoxDecoration(color: Color(0xFF8B5CF6), shape: BoxShape.circle),
                         ),
                         const SizedBox(width: 6),
-                        const Text(
-                          'Completed',
-                          style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 10, fontWeight: FontWeight.bold),
+                        Text(
+                          'completed'.tr,
+                          style: const TextStyle(color: Color(0xFF8B5CF6), fontSize: 10, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -240,9 +240,9 @@ class TripReportView extends GetView<TripReportController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildRouteStep('Start', 'MG Road', 'Indiranagar, Bengaluru', const Color(0xFF8B5CF6)),
+                    _buildRouteStep('origin_station_name'.tr, 'MG Road', 'Indiranagar, Bengaluru', const Color(0xFF8B5CF6)),
                     const SizedBox(height: 20),
-                    _buildRouteStep('Destination', 'Kempegowda Bus Station', 'Bengaluru', Colors.redAccent, isPin: true),
+                    _buildRouteStep('dest_terminal_req'.tr.replaceAll('*', '').trim(), 'Kempegowda Bus Station', 'Bengaluru', Colors.redAccent, isPin: true),
                   ],
                 ),
               ),
@@ -277,9 +277,9 @@ class TripReportView extends GetView<TripReportController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildOverviewStat('18.6 km', 'Distance Covered', Icons.swap_calls_rounded),
-              _buildOverviewStat('1h 15m', 'Total Duration', Icons.access_time_rounded),
-              _buildOverviewStat('38 km/h', 'Average Speed', Icons.speed_rounded),
+              _buildOverviewStat('18.6 km', 'total_distance'.tr, Icons.swap_calls_rounded),
+              _buildOverviewStat('1h 15m', 'total_duration'.tr, Icons.access_time_rounded),
+              _buildOverviewStat('38 km/h', 'average_speed'.tr, Icons.speed_rounded),
             ],
           ),
         ],
@@ -336,13 +336,13 @@ class TripReportView extends GetView<TripReportController> {
   Widget _buildTripAnalyticsRow() {
     return Row(
       children: [
-        Expanded(child: _buildAnalyticCard('18.6 km', 'Distance Travelled', Icons.timeline_rounded)),
+        Expanded(child: _buildAnalyticCard('18.6 km', 'total_distance'.tr, Icons.timeline_rounded)),
         const SizedBox(width: 8),
-        Expanded(child: _buildAnalyticCard('1h 02m', 'Driving Time', Icons.drive_eta_rounded)),
+        Expanded(child: _buildAnalyticCard('1h 02m', 'duration'.tr, Icons.drive_eta_rounded)),
         const SizedBox(width: 8),
-        Expanded(child: _buildAnalyticCard('13m', 'Idle Time', Icons.hourglass_empty_rounded)),
+        Expanded(child: _buildAnalyticCard('13m', 'time'.tr, Icons.hourglass_empty_rounded)),
         const SizedBox(width: 8),
-        Expanded(child: _buildAnalyticCard('68 km/h', 'Max Speed', Icons.speed_rounded)),
+        Expanded(child: _buildAnalyticCard('68 km/h', 'speed'.tr, Icons.speed_rounded)),
       ],
     );
   }

@@ -8,6 +8,7 @@ import { RefreshButton } from '../../components/ui/RefreshButton';
 import { ViewModeToggle } from '../../components/ui/ViewModeToggle';
 import { ActionDropdown } from '../../components/ui/ActionDropdown';
 import { useVehicleSlot } from '../../hooks/fleet/useVehicleSlot';
+import { slotOverlapsHour } from '../../utils/slotDisplay';
 import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from '../../hooks/useTranslation';
 
@@ -88,14 +89,14 @@ const ShiftBadge = ({ shift }) => {
 
   return (
     <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700">
-      {shift || 'Custom'}
+      {shift || '\u2014'}
     </span>
   );
 };
 
 export const VehicleSlotsPage = ({ forcedPortal = null }) => {
   const location = useLocation();
-  const { hasPermission } = useAuth();
+  const { can } = useAuth();
   const { t } = useTranslation();
 
   const isFleetPortal = forcedPortal ? forcedPortal === 'fleet' : location.pathname.startsWith('/fleet-operator');
@@ -103,16 +104,15 @@ export const VehicleSlotsPage = ({ forcedPortal = null }) => {
   const dashboardLink = isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard';
   const portalLabel = isFleetPortal ? 'Fleet Operator' : 'Admin';
 
-  const canCreate = !isFleetPortal || hasPermission(['fleet.slots.create', 'fleet.vehicles.create']);
-  const canUpdate = !isFleetPortal || hasPermission(['fleet.slots.update', 'fleet.vehicles.update']);
-  const canDelete = !isFleetPortal || hasPermission(['fleet.slots.delete', 'fleet.vehicles.delete']);
+  const canCreate = can('slots.create');
+  const canUpdate = can('slots.update');
+  const canDelete = can('slots.delete');
 
   const {
     slots = [],
     pagination = {},
     loading,
     loadSlots,
-    loadTimetable,
     deleteSlot,
     updateSlot,
   } = useVehicleSlot();
@@ -154,10 +154,7 @@ export const VehicleSlotsPage = ({ forcedPortal = null }) => {
     else if (activeTab === 'Night Shuttle') params.shift_type = 'night_shuttle';
 
     loadSlots(params).catch(() => {});
-    if (viewMode === 'timetable') {
-      loadTimetable(params).catch(() => {});
-    }
-  }, [currentPage, pageSize, debouncedSearch, activeTab, viewMode, loadSlots, loadTimetable]);
+  }, [currentPage, pageSize, debouncedSearch, activeTab, loadSlots]);
 
   useEffect(() => {
     refreshSlots();
@@ -177,6 +174,8 @@ export const VehicleSlotsPage = ({ forcedPortal = null }) => {
   ];
 
   const filteredSlots = slotsList;
+  const showDriverColumn = filteredSlots.some((slot) => slot.driver?.name || slot.driver?.phone);
+  const showOperatingDaysColumn = filteredSlots.some((slot) => slot.operating_days);
 
   const handleToggleStatus = (slot, closeDropdown) => {
     if (closeDropdown) closeDropdown();
@@ -215,7 +214,7 @@ export const VehicleSlotsPage = ({ forcedPortal = null }) => {
   };
 
   const totalPages = pagination?.totalPages || Math.ceil((pagination?.total || filteredSlots.length) / pageSize) || 1;
-  const totalItems = pagination?.total || filteredSlots.length;
+  const totalItems = pagination?.total ?? filteredSlots.length;
 
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-200">
@@ -255,40 +254,6 @@ export const VehicleSlotsPage = ({ forcedPortal = null }) => {
         </div>
       </div>
 
-      {/* 4 Stat Strip */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-3.5 shadow-sm">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">
-            {t('admin.slots.total_slots')}
-          </span>
-          <div className="text-xl font-black text-slate-900 dark:text-white mt-1">{pagination?.total ?? slotsList.length}</div>
-        </div>
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-3.5 shadow-sm">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-            {t('admin.slots.active_runs')}
-          </span>
-          <div className="text-xl font-black text-emerald-700 dark:text-emerald-400 mt-1">
-            {slotsList.filter((s) => (s.status || '').toLowerCase() === 'active').length}
-          </div>
-        </div>
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-3.5 shadow-sm">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
-            {t('ag.fleet.vehicleslotspage.morning_peak', 'Morning Peak')}
-          </span>
-          <div className="text-xl font-black text-amber-700 dark:text-amber-400 mt-1">
-            {slotsList.filter((s) => s.shift_type === 'morning_peak').length}
-          </div>
-        </div>
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-3.5 shadow-sm">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-            {t('ag.fleet.vehicleslotspage.evening_peak', 'Evening Peak')}
-          </span>
-          <div className="text-xl font-black text-blue-700 dark:text-blue-400 mt-1">
-            {slotsList.filter((s) => s.shift_type === 'evening_peak').length}
-          </div>
-        </div>
-      </div>
-
       {/* Filter Tabs & Search Row */}
       <div className="space-y-4">
         <div className="flex items-center gap-2 border-b border-slate-200 dark:border-zinc-800 pb-2 overflow-x-auto no-scrollbar">
@@ -325,7 +290,7 @@ export const VehicleSlotsPage = ({ forcedPortal = null }) => {
           {/* View Toggle Buttons */}
           <div className="flex items-center gap-1.5 self-end sm:self-auto">
             <ViewModeToggle
-              viewMode={viewMode === 'timetable' ? t('ag.fleet.vehicleslotspage.card', 'card') : viewMode}
+              viewMode={viewMode}
               onViewModeChange={(m) => toggleViewMode(m)}
               tableValue="table"
               cardValue="grid"
@@ -377,20 +342,20 @@ export const VehicleSlotsPage = ({ forcedPortal = null }) => {
                   <th className="py-3 px-4">{t('admin.slots.th_vehicle_slot')}</th>
                   <th className="py-3 px-4">{t('admin.slots.th_transit_route')}</th>
                   <th className="py-3 px-4">{t('admin.slots.th_shift_timings')}</th>
-                  <th className="py-3 px-4">{t('admin.slots.th_operating_days')}</th>
-                  <th className="py-3 px-4">{t('admin.slots.th_driver')}</th>
+                  {showOperatingDaysColumn && <th className="py-3 px-4">{t('admin.slots.th_operating_days')}</th>}
+                  {showDriverColumn && <th className="py-3 px-4">{t('admin.slots.th_driver')}</th>}
                   <th className="py-3 px-4">{t('admin.slots.th_status')}</th>
                   <th className="py-3 px-4 text-right">{t('admin.slots.th_actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-zinc-800 font-medium">
                 {filteredSlots.map((slot) => {
-                  const busNumber = slot.vehicle?.bus_number || slot.vehicle?.plate || `Bus #${slot.vehicle_id}`;
-                  const routeName = slot.route?.name || `Route #${slot.route_id}`;
+                  const busNumber = slot.vehicle?.bus_number || slot.vehicle?.plate || '\u2014';
+                  const routeName = slot.route?.name || '\u2014';
                   const routeCode = slot.route?.code || '';
-                  const driverName = slot.driver?.name || 'Unassigned';
-                  const sTime = String(slot.start_time || '').substring(0, 5);
-                  const eTime = String(slot.end_time || '').substring(0, 5);
+                  const driverName = slot.driver?.name || '\u2014';
+                  const sTime = slot.start_time ? String(slot.start_time).substring(0, 5) : '\u2014';
+                  const eTime = slot.end_time ? String(slot.end_time).substring(0, 5) : '\u2014';
                   const isPaused = (slot.status || '').toLowerCase() === 'paused';
 
                   return (
@@ -419,7 +384,7 @@ export const VehicleSlotsPage = ({ forcedPortal = null }) => {
                               to={`${basePath}/${slot.id}`}
                               className="text-[10px] text-slate-400 dark:text-zinc-500 font-mono hover:underline hover:text-blue-600 dark:hover:text-blue-400"
                             >
-                              {slot.slot_code || `SLOT-${slot.id}`}
+                              {slot.slot_code || `Slot #${slot.id}`}
                             </Link>
                           </div>
                         </div>
@@ -435,11 +400,11 @@ export const VehicleSlotsPage = ({ forcedPortal = null }) => {
                             </span>
                           )}
                         </div>
-                        <div className="text-[10px] text-slate-500 dark:text-zinc-400 flex items-center gap-1 mt-0.5">
-                          <span>{slot.route?.start_point || 'Start'}</span>
+                        {(slot.route?.start_point || slot.route?.end_point) && <div className="text-[10px] text-slate-500 dark:text-zinc-400 flex items-center gap-1 mt-0.5">
+                          <span>{slot.route?.start_point || '\u2014'}</span>
                           <FleetIcons.ArrowRight className="w-3 h-3 text-slate-400 shrink-0 inline mx-0.5" />
-                          <span>{slot.route?.end_point || 'Terminal'}</span>
-                        </div>
+                          <span>{slot.route?.end_point || '\u2014'}</span>
+                        </div>}
                       </td>
 
                       {/* Shift & Timings */}
@@ -450,15 +415,10 @@ export const VehicleSlotsPage = ({ forcedPortal = null }) => {
                             {sTime} - {eTime}
                           </span>
                         </div>
-                        {slot.headway_minutes && (
-                          <div className="text-[10px] text-slate-400 dark:text-zinc-500 mt-0.5">
-                            {slot.headway_minutes} {t('ag.fleet.vehicleslotspage.min_headway_frequency', 'min headway frequency')}
-                          </div>
-                        )}
                       </td>
 
                       {/* Operating Days */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
+                      {showOperatingDaysColumn && <td className="py-3.5 px-4 whitespace-nowrap">
                         {slot.operating_days === 'ALL' ? (
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60">
                             {t('ag.fleet.vehicleslotspage.all_7_days', 'All 7 Days')}
@@ -475,10 +435,10 @@ export const VehicleSlotsPage = ({ forcedPortal = null }) => {
                             ))}
                           </div>
                         )}
-                      </td>
+                      </td>}
 
                       {/* Assigned Driver */}
-                      <td className="py-3.5 px-4">
+                      {showDriverColumn && <td className="py-3.5 px-4">
                         <div className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                           <FleetIcons.Profile className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                           <span>{driverName}</span>
@@ -488,7 +448,7 @@ export const VehicleSlotsPage = ({ forcedPortal = null }) => {
                             {slot.driver.phone}
                           </div>
                         )}
-                      </td>
+                      </td>}
 
                       {/* Status */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
@@ -569,10 +529,10 @@ export const VehicleSlotsPage = ({ forcedPortal = null }) => {
         /* GRID / CARD VIEW — Matches Drivers page card layout */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredSlots.map((slot) => {
-            const busNumber = slot.vehicle?.bus_number || slot.vehicle?.plate || `Bus #${slot.vehicle_id}`;
-            const routeName = slot.route?.name || `Route #${slot.route_id}`;
-            const sTime = String(slot.start_time || '').substring(0, 5);
-            const eTime = String(slot.end_time || '').substring(0, 5);
+            const busNumber = slot.vehicle?.bus_number || slot.vehicle?.plate || '\u2014';
+            const routeName = slot.route?.name || '\u2014';
+            const sTime = slot.start_time ? String(slot.start_time).substring(0, 5) : '\u2014';
+            const eTime = slot.end_time ? String(slot.end_time).substring(0, 5) : '\u2014';
             const isPaused = (slot.status || '').toLowerCase() === 'paused';
 
             return (
@@ -599,7 +559,7 @@ export const VehicleSlotsPage = ({ forcedPortal = null }) => {
                         to={`${basePath}/${slot.id}`}
                         className="text-[11px] text-slate-400 dark:text-zinc-500 font-mono hover:underline hover:text-blue-600 dark:hover:text-blue-400"
                       >
-                        {slot.slot_code || `SLOT-${slot.id}`}
+                        {slot.slot_code || `Slot #${slot.id}`}
                       </Link>
                     </div>
                   </div>
@@ -672,10 +632,10 @@ export const VehicleSlotsPage = ({ forcedPortal = null }) => {
 
                 {/* Days & Status Footer */}
                 <div className="pt-2 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px]">
-                  <div className="flex items-center gap-1.5 text-slate-600 dark:text-zinc-400">
+                  {slot.driver?.name && <div className="flex items-center gap-1.5 text-slate-600 dark:text-zinc-400">
                     <FleetIcons.Profile className="w-3.5 h-3.5 text-slate-400" />
-                    <span className="truncate max-w-[120px]">{slot.driver?.name || 'Unassigned'}</span>
-                  </div>
+                    <span className="truncate max-w-[120px]">{slot.driver?.name || '\u2014'}</span>
+                  </div>}
                   <SlotStatusBadge status={slot.status} />
                 </div>
               </div>
@@ -688,50 +648,46 @@ export const VehicleSlotsPage = ({ forcedPortal = null }) => {
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3">
             <div>
               <h2 className="text-sm font-bold text-slate-900 dark:text-white">
-                {t('ag.fleet.vehicleslotspage.hourly_transit_timeline_06_00_23_00', 'Hourly Transit Timeline (06:00 — 23:00)')}
+                {t('admin.slots.timetable_view')} (00:00–24:00)
               </h2>
               <p className="text-xs text-slate-500 dark:text-zinc-400">
-                {t('ag.fleet.vehicleslotspage.visual_operating_status_of_scheduled_corrido', 'Visual operating status of scheduled corridor runs across daytime shifts')}
+                {t('admin.slots.th_shift_timings')}
               </p>
             </div>
             <span className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400">
-              {filteredSlots.length} {t('admin.slots.active_timetable_slots')}
+              {filteredSlots.length} {t('admin.slots.slots_title')}
             </span>
           </div>
 
           <div className="overflow-x-auto pb-2">
-            <div className="min-w-[800px] space-y-2">
+            <div className="min-w-[1200px] space-y-2">
               {/* Timeline Header Hours */}
-              <div className="grid grid-cols-18 text-[10px] font-mono font-bold text-slate-400 dark:text-zinc-500 border-b border-slate-100 dark:border-zinc-800 pb-1.5">
-                <div className="col-span-3 text-left">{t('admin.slots.vehicle_corridor')}</div>
-                {['06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'].map((h) => (
+              <div className="grid grid-cols-[180px_repeat(24,minmax(0,1fr))] text-[10px] font-mono font-bold text-slate-400 dark:text-zinc-500 border-b border-slate-100 dark:border-zinc-800 pb-1.5">
+                <div className="text-left">{t('admin.slots.vehicle_corridor')}</div>
+                {Array.from({ length: 24 }, (_, hour) => String(hour).padStart(2, '0')).map((h) => (
                   <div key={h} className="text-center">{h}:00</div>
                 ))}
               </div>
 
               {/* Rows */}
               {filteredSlots.map((slot) => {
-                const sHour = parseInt(String(slot.start_time || '08').split(':')[0], 10);
-                const eHour = parseInt(String(slot.end_time || '12').split(':')[0], 10);
 
                 return (
-                  <div key={slot.id} className="grid grid-cols-18 items-center py-2 hover:bg-slate-50/60 dark:hover:bg-zinc-800/40 rounded-xl px-1 text-xs">
-                    <div className="col-span-3 pr-2">
+                  <div key={slot.id} className="grid grid-cols-[180px_repeat(24,minmax(0,1fr))] items-center py-2 hover:bg-slate-50/60 dark:hover:bg-zinc-800/40 rounded-xl px-1 text-xs">
+                    <div className="pr-2">
                       <Link
                         to={`${basePath}/${slot.id}`}
                         className="font-mono font-bold text-slate-900 dark:text-white truncate hover:text-blue-600 dark:hover:text-blue-400 block"
                       >
-                        {slot.vehicle?.bus_number || `Bus #${slot.vehicle_id}`}
+                        {slot.vehicle?.bus_number || '\u2014'}
                       </Link>
                       <div className="text-[10px] text-slate-400 dark:text-zinc-500 truncate">
-                        {slot.route?.name || 'Corridor'}
+                        {slot.route?.name || '\u2014'}
                       </div>
                     </div>
 
-                    {[6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map((hour) => {
-                      const isAfterStart = hour >= sHour;
-                      const isBeforeEnd = hour <= eHour;
-                      const isActiveHour = isAfterStart && isBeforeEnd;
+                    {Array.from({ length: 24 }, (_, hour) => hour).map((hour) => {
+                      const isActiveHour = slotOverlapsHour(slot.start_time, slot.end_time, hour);
                       return (
                         <div key={hour} className="px-0.5">
                           {isActiveHour ? (
@@ -757,7 +713,7 @@ export const VehicleSlotsPage = ({ forcedPortal = null }) => {
       )}
 
       {/* Pagination Footer */}
-      {viewMode !== 'timetable' && filteredSlots.length > 0 && (
+      {filteredSlots.length > 0 && (
         <div className="pt-2">
           <Pagination
             currentPage={currentPage}

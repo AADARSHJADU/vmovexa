@@ -127,8 +127,8 @@ class AssignDriverController extends GetxController {
   Future<void> confirmAssignment() async {
     if (selectedDriver.value == null) {
       Get.snackbar(
-        'Selection Required',
-        'Please select a driver by clicking "Assign" on their card, or click "Skip for Now".',
+        'selection_required'.tr,
+        'select_driver_required_msg'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.redAccent.withValues(alpha: 0.8),
         colorText: Colors.white,

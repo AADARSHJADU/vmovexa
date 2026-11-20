@@ -8,6 +8,7 @@ import {
   inviteUserThunk,
   fetchUserPermissionsThunk,
   updateUserPermissionsThunk,
+  resetUserPermissionsThunk,
 } from '../../thunks/superadmin/user.thunks.js';
 
 export {
@@ -19,6 +20,7 @@ export {
   inviteUserThunk,
   fetchUserPermissionsThunk,
   updateUserPermissionsThunk,
+  resetUserPermissionsThunk,
 };
 
 const initialState = {

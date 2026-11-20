@@ -2,6 +2,7 @@ import 'package:vmovexa/app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../theme/app_colors.dart';
+import '../../../../../theme/app_theme.dart';
 import '../../../../../widgets/custom_back_button.dart';
 import '../controllers/create_technician_request_controller.dart';
 
@@ -59,8 +60,8 @@ class CreateTechnicianRequestView extends GetView<CreateTechnicianRequestControl
           const CustomBackButton(),
           Obx(() => Text(
                 controller.isEditMode.value
-                    ? 'Edit Work Order'
-                    : 'Submit Request',
+                    ? 'edit_work_order'.tr
+                    : 'submit_request'.tr,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -86,8 +87,8 @@ class CreateTechnicianRequestView extends GetView<CreateTechnicianRequestControl
         children: [
           Obx(() => Text(
                 controller.isEditMode.value
-                    ? 'Edit Technician Work Order'
-                    : 'Submit Central Technician Request',
+                    ? 'edit_tech_work_order'.tr
+                    : 'submit_central_tech_req'.tr,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 17,
@@ -98,8 +99,8 @@ class CreateTechnicianRequestView extends GetView<CreateTechnicianRequestControl
           const SizedBox(height: 4),
           Obx(() => Text(
                 controller.isEditMode.value
-                    ? 'Update vehicle telemetry problem scope and depot gate notes.'
-                    : 'Request a certified Level 1-3 engineer from VMOVEXA Central Pool for depot hardware troubleshooting.',
+                    ? 'edit_tech_work_order_desc'.tr
+                    : 'submit_central_tech_desc'.tr,
                 style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 11,
@@ -123,9 +124,9 @@ class CreateTechnicianRequestView extends GetView<CreateTechnicianRequestControl
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Section Sub-header
-          const Text(
-            'VEHICLE & HARDWARE PROBLEM SCOPE',
-            style: TextStyle(
+          Text(
+            'vehicle_hardware_scope'.tr,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 11.5,
               fontWeight: FontWeight.bold,
@@ -133,34 +134,34 @@ class CreateTechnicianRequestView extends GetView<CreateTechnicianRequestControl
             ),
           ),
           const SizedBox(height: 2),
-          const Text(
-            'Select target vehicle, depot gate, and describe hardware/telematics symptoms.',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 10.5),
+          Text(
+            'vehicle_hardware_scope_desc'.tr,
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 10.5),
           ),
           const SizedBox(height: 16),
 
           // Field 1: Target Bus Number *
-          _buildFieldLabel('Target Bus Number *'),
+          _buildFieldLabel('target_bus_number_req'.tr),
           Obx(() => _buildBusDropdown()),
           const SizedBox(height: 14),
 
           // Field 2: Depot Location *
-          _buildFieldLabel('Depot Location *'),
+          _buildFieldLabel('depot_location_req'.tr),
           Obx(() => _buildDepotDropdown()),
           const SizedBox(height: 14),
 
           // Field 3: Issue Classification *
-          _buildFieldLabel('Issue Classification *'),
+          _buildFieldLabel('issue_classification_req'.tr),
           Obx(() => _buildIssueDropdown()),
           const SizedBox(height: 14),
 
           // Field 4: Urgency Level *
-          _buildFieldLabel('Urgency Level *'),
+          _buildFieldLabel('urgency_level_req'.tr),
           Obx(() => _buildUrgencyDropdown()),
           const SizedBox(height: 14),
 
           // Field 5: Detailed Symptoms & Depot Gate Notes *
-          _buildFieldLabel('Detailed Symptoms & Depot Gate Notes *'),
+          _buildFieldLabel('symptoms_gate_notes_req'.tr),
           Container(
             decoration: BoxDecoration(
               color: AppColors.inputBg,
@@ -171,19 +172,18 @@ class CreateTechnicianRequestView extends GetView<CreateTechnicianRequestControl
               controller: controller.descriptionController,
               maxLines: 3,
               style: const TextStyle(color: Colors.white, fontSize: 12),
-              decoration: const InputDecoration(
-                hintText:
-                    'e.g. Display backlight flickers when bus accelerates. Depot bay 4 access available from 08:00 AM.',
-                hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 11),
+              decoration: InputDecoration(
+                hintText: 'symptoms_gate_hint'.tr,
+                hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.all(12),
+                contentPadding: const EdgeInsets.all(12),
               ),
             ),
           ),
           const SizedBox(height: 14),
 
           // Field 6: Special Dispatch / Technician Instructions
-          _buildFieldLabel('Special Dispatch / Technician Instructions'),
+          _buildFieldLabel('special_dispatch_instructions'.tr),
           Container(
             decoration: BoxDecoration(
               color: AppColors.inputBg,
@@ -194,12 +194,11 @@ class CreateTechnicianRequestView extends GetView<CreateTechnicianRequestControl
               controller: controller.instructionsController,
               maxLines: 2,
               style: const TextStyle(color: Colors.white, fontSize: 12),
-              decoration: const InputDecoration(
-                hintText:
-                    'e.g. Carry spare HDMI splitter and 12V harness. Report to Depot Master on arrival.',
-                hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 11),
+              decoration: InputDecoration(
+                hintText: 'special_dispatch_hint'.tr,
+                hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.all(12),
+                contentPadding: const EdgeInsets.all(12),
               ),
             ),
           ),
@@ -218,26 +217,86 @@ class CreateTechnicianRequestView extends GetView<CreateTechnicianRequestControl
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                  child: Text('cancel'.tr, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 flex: 4,
-                child: Obx(() => CustomButton(
-                      text: controller.isSubmitting.value
-                          ? 'Submitting...'
-                          : (controller.isEditMode.value
-                              ? 'Update Work Order'
-                              : 'Submit Ticket to Super Admin Pool'),
-                      prefixIcon: controller.isSubmitting.value
-                          ? null
-                          : const Icon(Icons.send_rounded, size: 15, color: Colors.white),
-                      onTap: controller.isSubmitting.value ? () {} : controller.submitRequest,
-                      isLoading: controller.isSubmitting.value,
-                      height: 44,
-                    )),
+                child: Obx(() {
+                  final isLoading = controller.isSubmitting.value;
+
+                  return SizedBox(
+                    height: 44,
+                    width: double.infinity,
+                    child: Material(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(10),
+                      child: Ink(
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.primaryGradient,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(10),
+                          onTap: isLoading ? null : controller.submitRequest,
+                          child: Center(
+                            child: isLoading
+                                ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                                : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                // const Icon(
+                                //   Icons.send_rounded,
+                                //   size: 15,
+                                //   color: Colors.white,
+                                // ),
+                                // const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    textAlign: TextAlign.center,
+                                    controller.isEditMode.value
+                                        ? 'update_work_order'.tr
+                                        : 'submit_ticket_super_admin'.tr,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
               ),
+              // Expanded(
+              //   flex: 4,
+              //   child: Obx(() => CustomButton(
+              //         text: controller.isSubmitting.value
+              //             ? 'submitting_label'.tr
+              //             : (controller.isEditMode.value
+              //                 ? 'update_work_order'.tr
+              //                 : 'submit_ticket_super_admin'.tr),
+              //         prefixIcon: controller.isSubmitting.value
+              //             ? null
+              //             : const Icon(Icons.send_rounded, size: 15, color: Colors.white),
+              //         onTap: controller.isSubmitting.value ? () {} : controller.submitRequest,
+              //         isLoading: controller.isSubmitting.value,
+              //         height: 44,
+              //       )),
+              // ),
             ],
           ),
         ],
@@ -275,7 +334,7 @@ class CreateTechnicianRequestView extends GetView<CreateTechnicianRequestControl
           isExpanded: true,
           dropdownColor: const Color(0xFF141824),
           icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textMuted),
-          hint: const Text('Select a bus', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+          hint: Text('select_a_bus'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
           items: controller.vehiclesList.map((v) {
             return DropdownMenuItem<String>(
               value: v.registrationNumber,
@@ -309,7 +368,7 @@ class CreateTechnicianRequestView extends GetView<CreateTechnicianRequestControl
           isExpanded: true,
           dropdownColor: const Color(0xFF141824),
           icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textMuted),
-          hint: const Text('Select a depot', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+          hint: Text('select_a_depot'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
           items: controller.depotsList.map((d) {
             return DropdownMenuItem<String>(
               value: d.name,
@@ -345,7 +404,7 @@ class CreateTechnicianRequestView extends GetView<CreateTechnicianRequestControl
             return DropdownMenuItem<String>(
               value: cat,
               child: Text(
-                cat,
+                _getIssueLabel(cat),
                 style: const TextStyle(color: Colors.white, fontSize: 11),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -377,7 +436,7 @@ class CreateTechnicianRequestView extends GetView<CreateTechnicianRequestControl
             return DropdownMenuItem<String>(
               value: opt['value'],
               child: Text(
-                opt['label']!,
+                _getUrgencyLabel(opt['value'] ?? ''),
                 style: const TextStyle(color: Colors.white, fontSize: 11),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -389,5 +448,41 @@ class CreateTechnicianRequestView extends GetView<CreateTechnicianRequestControl
         ),
       ),
     );
+  }
+
+  String _getIssueLabel(String cat) {
+    switch (cat) {
+      case 'Display Screen Glitch / HDMI Telemetry Sync':
+        return 'issue_screen_glitch'.tr;
+      case 'GPS Tracker Recalibration':
+        return 'issue_gps_recalib'.tr;
+      case 'RK3588 Edge Box Power Cut / No Boot':
+        return 'issue_edge_power'.tr;
+      case 'Multi-Display Sync Failure':
+        return 'issue_multidisplay_fail'.tr;
+      case 'CAN-bus Diagnostic Harness Calibration':
+        return 'issue_canbus_calib'.tr;
+      case 'Audio PA & Mic Amplifier Circuitry':
+        return 'issue_audio_amp'.tr;
+      case 'Emergency SOS Panic Trigger Fault':
+        return 'issue_sos_fault'.tr;
+      default:
+        return cat;
+    }
+  }
+
+  String _getUrgencyLabel(String value) {
+    switch (value) {
+      case 'critical':
+        return 'urgency_critical_sla'.tr;
+      case 'high':
+        return 'urgency_high_sla'.tr;
+      case 'normal':
+        return 'urgency_normal_sla'.tr;
+      case 'low':
+        return 'urgency_low_sla'.tr;
+      default:
+        return value;
+    }
   }
 }

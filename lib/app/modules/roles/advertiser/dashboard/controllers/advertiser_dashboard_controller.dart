@@ -632,7 +632,7 @@
 //   Future<void> startCampaign(String id) async {
 //     final res = await _service.startCampaign(id);
 //     if (res.success) {
-//       Get.snackbar('Success', 'Campaign started successfully',
+//       Get.snackbar('success'.tr, 'Campaign started successfully',
 //           backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
 //       fetchCampaigns();
 //     } else {
@@ -644,7 +644,7 @@
 //   Future<void> pauseCampaign(String id) async {
 //     final res = await _service.pauseCampaign(id);
 //     if (res.success) {
-//       Get.snackbar('Success', 'Campaign paused successfully',
+//       Get.snackbar('success'.tr, 'campaign_paused_msg'.tr,
 //           backgroundColor: const Color(0xFFF97316), colorText: Colors.white);
 //       fetchCampaigns();
 //     } else {
@@ -656,7 +656,7 @@
 //   Future<void> endCampaign(String id) async {
 //     final res = await _service.endCampaign(id);
 //     if (res.success) {
-//       Get.snackbar('Success', 'Campaign completed successfully',
+//       Get.snackbar('success'.tr, 'Campaign completed successfully',
 //           backgroundColor: const Color(0xFF3B82F6), colorText: Colors.white);
 //       fetchCampaigns();
 //     } else {
@@ -689,7 +689,7 @@
 //   Future<void> deleteCampaign(String id) async {
 //     final res = await _service.deleteCampaign(id);
 //     if (res.success) {
-//       Get.snackbar('Success', 'Campaign deleted',
+//       Get.snackbar('success'.tr, 'campaign_deleted_msg'.tr,
 //           backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
 //       fetchCampaigns();
 //     } else {
@@ -770,6 +770,7 @@ class AdvertiserDashboardController extends GetxController {
   final RxBool isBillingLoading = false.obs;
 
   // Real data state
+  final RxInt unreadNotificationCount = 0.obs;
   final RxList<CampaignModel> allCampaigns = <CampaignModel>[].obs;
   final RxList<CampaignModel> filteredCampaigns = <CampaignModel>[].obs;
   final RxMap<String, dynamic> overviewStats = <String, dynamic>{}.obs;
@@ -782,18 +783,59 @@ class AdvertiserDashboardController extends GetxController {
   // Active status category filter pill selection inside Campaigns Tab
   final RxString activeFilter = 'All'.obs;
   final RxString searchQuery = ''.obs;
+  final TextEditingController searchController = TextEditingController();
   final RxString selectedSort = 'Recent'.obs;
   final List<String> statusTabs = [
     'All',
-    'Under Review',
     'Approved',
     'Running',
     'Scheduled',
-    'Draft',
     'Completed',
     'Paused',
   ];
   final List<String> sortOptions = ['Recent', 'Name', 'Budget-High', 'Budget-Low', 'Screens'];
+
+  String getSortLabel(String sort) {
+    switch (sort) {
+      case 'Recent':
+        return 'sort_recent_first'.tr;
+      case 'Name':
+        return 'sort_name_az'.tr;
+      case 'Budget-High':
+        return 'sort_budget_high_low'.tr;
+      case 'Budget-Low':
+        return 'sort_budget_low_high'.tr;
+      case 'Screens':
+        return 'sort_most_screens'.tr;
+      default:
+        return 'sort_recent_first'.tr;
+    }
+  }
+
+  String getTabLabel(String tab) {
+    switch (tab) {
+      case 'All':
+        return 'tab_all'.tr;
+      case 'Approved':
+        return 'tab_approved'.tr;
+      case 'Running':
+        return 'tab_running'.tr;
+      case 'Scheduled':
+        return 'tab_scheduled'.tr;
+      case 'Completed':
+        return 'tab_completed'.tr;
+      case 'Paused':
+        return 'tab_paused'.tr;
+      default:
+        return tab;
+    }
+  }
+
+  void clearFilters() {
+    searchController.clear();
+    searchQuery.value = '';
+    activeFilter.value = 'All';
+  }
 
   // Lifecycle & Flow (Tab 2) state
   final RxString activeLifecycleTab = 'pipeline'.obs; // 'pipeline' | 'roles' | 'matrix'
@@ -830,12 +872,27 @@ class AdvertiserDashboardController extends GetxController {
         fetchOverviewAnalytics(),
         fetchMqttStatus(),
         fetchBillingData(),
+        fetchUnreadNotificationCount(),
       ]);
     } catch (e) {
       debugPrint('Error loading advertiser dashboard data: $e');
     } finally {
       isLoading.value = false;
       isRefreshing.value = false;
+    }
+  }
+
+  /// Fetch unread notifications count from GET /api/v1/notifications
+  Future<void> fetchUnreadNotificationCount() async {
+    try {
+      final res = await _service.getNotifications(page: 1, limit: 50);
+      if (res.success && res.data != null) {
+        final count = res.data!.where((n) => !n.isRead.value).length;
+        unreadNotificationCount.value = count;
+        debugPrint('🔔 [AdvertiserDashboard] Unread notifications: $count');
+      }
+    } catch (e) {
+      debugPrint('❌ [AdvertiserDashboard] Error fetching unread notifications: $e');
     }
   }
 
@@ -1116,8 +1173,7 @@ class AdvertiserDashboardController extends GetxController {
     try {
       final res = await _service.sharePaymentLink(c.id, {'channel': channel});
       if (res.success) {
-        Get.snackbar(
-          'Success',
+        Get.snackbar('success'.tr,
           'Payment link dispatched to the customer via $channel.',
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
@@ -1165,8 +1221,7 @@ class AdvertiserDashboardController extends GetxController {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Send Payment Link',
+                Text('send_payment_link'.tr,
                   style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 IconButton(
@@ -1181,15 +1236,15 @@ class AdvertiserDashboardController extends GetxController {
               style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Select Dispatch Channel:',
-              style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold),
+            Text(
+              'select_dispatch_channel'.tr,
+              style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             _buildShareOptionTile(
               icon: Icons.all_inclusive_rounded,
-              title: 'All Channels (Recommended)',
-              subtitle: 'Dispatches via SMS, Email and WhatsApp simultaneously',
+              title: 'all_channels_rec'.tr,
+              subtitle: 'dispatches_sms_email_wa'.tr,
               color: const Color(0xFF6366F1),
               onTap: () {
                 Get.back();
@@ -1198,7 +1253,7 @@ class AdvertiserDashboardController extends GetxController {
             ),
             _buildShareOptionTile(
               icon: Icons.sms_outlined,
-              title: 'SMS Message',
+              title: 'sms_message'.tr,
               subtitle: 'Sends direct checkout SMS to ${c.clientPhone ?? 'client phone'}',
               color: const Color(0xFF0EA5E9),
               onTap: () {
@@ -1208,7 +1263,7 @@ class AdvertiserDashboardController extends GetxController {
             ),
             _buildShareOptionTile(
               icon: Icons.email_outlined,
-              title: 'Email Invoice',
+              title: 'email_invoice'.tr,
               subtitle: 'Delivers full tax invoice link to ${c.clientEmail ?? 'client email'}',
               color: const Color(0xFFF59E0B),
               onTap: () {
@@ -1218,8 +1273,8 @@ class AdvertiserDashboardController extends GetxController {
             ),
             _buildShareOptionTile(
               icon: Icons.chat_bubble_outline_rounded,
-              title: 'WhatsApp Message',
-              subtitle: 'Sends interactive WhatsApp pay button to client',
+              title: 'whatsapp_message'.tr,
+              subtitle: 'sends_interactive_wa'.tr,
               color: const Color(0xFF10B981),
               onTap: () {
                 Get.back();
@@ -1319,13 +1374,11 @@ class AdvertiserDashboardController extends GetxController {
     final t = tab.toLowerCase();
     return allCampaigns.where((c) {
       final s = c.status.toLowerCase();
-      if (t == 'running') return s == 'live' || s == 'running' || s == 'active';
       if (t == 'approved') return s == 'approved';
+      if (t == 'running') return s == 'live' || s == 'running' || s == 'active';
       if (t == 'scheduled') return s == 'scheduled';
-      if (t == 'draft') return s == 'draft';
       if (t == 'completed') return s == 'completed';
       if (t == 'paused') return s == 'paused';
-      if (t == 'under review' || t == 'pending') return s == 'pending_approval' || s == 'pending' || s == 'under review';
       return s == t;
     }).length;
   }
@@ -1339,20 +1392,16 @@ class AdvertiserDashboardController extends GetxController {
     if (filter != 'all') {
       results = results.where((c) {
         final s = c.status.toLowerCase();
-        if (filter == 'running' || filter == 'live') {
-          return s == 'live' || s == 'running' || s == 'active';
-        } else if (filter == 'approved') {
+        if (filter == 'approved') {
           return s == 'approved';
+        } else if (filter == 'running' || filter == 'live') {
+          return s == 'live' || s == 'running' || s == 'active';
         } else if (filter == 'scheduled') {
           return s == 'scheduled';
-        } else if (filter == 'pending' || filter == 'under review') {
-          return s == 'pending' || s == 'pending_approval' || s == 'under review';
         } else if (filter == 'completed') {
           return s == 'completed';
         } else if (filter == 'paused') {
           return s == 'paused';
-        } else if (filter == 'draft') {
-          return s == 'draft';
         }
         return s == filter;
       }).toList();
@@ -1385,6 +1434,13 @@ class AdvertiserDashboardController extends GetxController {
       results.sort((a, b) => (a.rawBudget ?? 0).compareTo(b.rawBudget ?? 0));
     } else if (selectedSort.value == 'Screens') {
       results.sort((a, b) => b.screensCount.compareTo(a.screensCount));
+    } else {
+      // 'Recent' (Default) - Recent First (Newest created/start date first)
+      results.sort((a, b) {
+        final bDate = DateTime.tryParse(b.createdAt ?? '') ?? DateTime.tryParse(b.startDate ?? '') ?? DateTime(1970);
+        final aDate = DateTime.tryParse(a.createdAt ?? '') ?? DateTime.tryParse(a.startDate ?? '') ?? DateTime(1970);
+        return bDate.compareTo(aDate);
+      });
     }
 
     filteredCampaigns.assignAll(results);
@@ -1398,7 +1454,7 @@ class AdvertiserDashboardController extends GetxController {
   Future<void> startCampaign(String id) async {
     final res = await _service.startCampaign(id);
     if (res.success) {
-      Get.snackbar('Success', 'Campaign started successfully',
+      Get.snackbar('success'.tr, 'Campaign started successfully',
           backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
       fetchCampaigns();
     } else {
@@ -1410,7 +1466,7 @@ class AdvertiserDashboardController extends GetxController {
   Future<void> pauseCampaign(String id) async {
     final res = await _service.pauseCampaign(id);
     if (res.success) {
-      Get.snackbar('Success', 'Campaign paused successfully',
+      Get.snackbar('success'.tr, 'campaign_paused_msg'.tr,
           backgroundColor: const Color(0xFFF97316), colorText: Colors.white);
       fetchCampaigns();
     } else {
@@ -1422,7 +1478,7 @@ class AdvertiserDashboardController extends GetxController {
   Future<void> endCampaign(String id) async {
     final res = await _service.endCampaign(id);
     if (res.success) {
-      Get.snackbar('Success', 'Campaign completed successfully',
+      Get.snackbar('success'.tr, 'Campaign completed successfully',
           backgroundColor: const Color(0xFF3B82F6), colorText: Colors.white);
       fetchCampaigns();
     } else {
@@ -1435,14 +1491,14 @@ class AdvertiserDashboardController extends GetxController {
     final confirmed = await Get.dialog<bool>(
       AlertDialog(
         backgroundColor: const Color(0xFF1E293B),
-        title: const Text('End Campaign', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        content: Text('Are you sure you want to end "${c.displayTitle}"? Broadcast will be permanently stopped.',
+        title: Text('end_campaign'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        content: Text('${c.displayTitle}: ${'end_campaign_confirm_desc'.tr}',
             style: const TextStyle(color: Color(0xFF94A3B8))),
         actions: [
-          TextButton(onPressed: () => Get.back(result: false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(result: false), child: Text('cancel'.tr)),
           TextButton(
             onPressed: () => Get.back(result: true),
-            child: const Text('End Broadcast', style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.bold)),
+            child: Text('end_broadcast'.tr, style: const TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -1455,7 +1511,7 @@ class AdvertiserDashboardController extends GetxController {
   Future<void> deleteCampaign(String id) async {
     final res = await _service.deleteCampaign(id);
     if (res.success) {
-      Get.snackbar('Success', 'Campaign deleted',
+      Get.snackbar('success'.tr, 'campaign_deleted_msg'.tr,
           backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
       fetchCampaigns();
     } else {
@@ -1468,14 +1524,14 @@ class AdvertiserDashboardController extends GetxController {
     final confirmed = await Get.dialog<bool>(
       AlertDialog(
         backgroundColor: const Color(0xFF1E293B),
-        title: const Text('Delete Campaign', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        content: Text('Are you sure you want to delete campaign "${c.displayTitle}"? This action cannot be undone.',
+        title: Text('delete_campaign'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        content: Text('delete_campaign_confirm_desc'.tr,
             style: const TextStyle(color: Color(0xFF94A3B8))),
         actions: [
-          TextButton(onPressed: () => Get.back(result: false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(result: false), child: Text('cancel'.tr)),
           TextButton(
             onPressed: () => Get.back(result: true),
-            child: const Text('Delete', style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.bold)),
+            child: Text('delete'.tr, style: const TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.bold)),
           ),
         ],
       ),

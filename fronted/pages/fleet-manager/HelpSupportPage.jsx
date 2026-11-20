@@ -5,6 +5,7 @@ export const HelpSupportPage = () => {
     <RoleHelpPage
       roleCode="ROLE-FLEET-OPERATOR"
       defaultHistoryPath="/fleet-operator/help/history"
+      showContactCta={false}
     />
   );
 };

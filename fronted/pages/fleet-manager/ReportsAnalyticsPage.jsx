@@ -22,13 +22,13 @@ const formatName = (v, fallback = '—') => {
 export const ReportsAnalyticsPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { hasPermission } = useAuth();
-  const canView = hasPermission('fleet.reports.view');
-  const canGenerate = hasPermission(['reports.generate', 'reports.export']);
-  const canViewVehicles = hasPermission('fleet.vehicles.view');
-  const canViewDrivers = hasPermission('fleet.drivers.view');
-  const canViewFleets = hasPermission('fleet.fleets.view');
-  const canViewTrips = hasPermission('fleet.trips.view');
+  const { can } = useAuth();
+  const canView = can('reports.view');
+  const canGenerate = can('reports.export');
+  const canViewVehicles = can('vehicles.view');
+  const canViewDrivers = can('drivers.view');
+  const canViewFleets = can('fleets.view');
+  const canViewTrips = can('trips.view');
 
   // Redux & API Hooks
   const { vehicles, loadVehicles, loading: vehiclesLoading } = useFleetVehicle();

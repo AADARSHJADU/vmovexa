@@ -97,8 +97,7 @@ class AdvertiserNotificationsView extends GetView<AdvertiserNotificationsControl
               children: [
                 Row(
                   children: [
-                    const Text(
-                      'Notifications & Alerts',
+                    Text('notifications_alerts_title'.tr,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 17,
@@ -129,8 +128,7 @@ class AdvertiserNotificationsView extends GetView<AdvertiserNotificationsControl
                   ],
                 ),
                 const SizedBox(height: 2),
-                const Text(
-                  'Campaign approvals, live telemetry & billing',
+                Text('notifications_alerts_sub'.tr,
                   style: TextStyle(
                     color: Color(0xFF94A3B8),
                     fontSize: 11,
@@ -152,7 +150,7 @@ class AdvertiserNotificationsView extends GetView<AdvertiserNotificationsControl
                 if (controller.unreadCount == 0) return const SizedBox.shrink();
                 return IconButton(
                   icon: const Icon(Icons.done_all_rounded, color: Color(0xFF60A5FA), size: 20),
-                  tooltip: 'Mark All Read',
+                  tooltip: 'mark_all_read'.tr,
                   onPressed: controller.markAllAsRead,
                 );
               }),
@@ -268,12 +266,12 @@ class AdvertiserNotificationsView extends GetView<AdvertiserNotificationsControl
                   child: TextField(
                     onChanged: controller.onSearchChanged,
                     style: const TextStyle(color: Colors.white, fontSize: 12),
-                    decoration: const InputDecoration(
-                      hintText: 'Search campaign, invoice, or playback alerts...',
-                      hintStyle: TextStyle(color: Color(0xFF475569), fontSize: 11.5),
+                    decoration: InputDecoration(
+                      hintText: 'search_campaign_alerts_hint'.tr,
+                      hintStyle: const TextStyle(color: Color(0xFF475569), fontSize: 11.5),
                       border: InputBorder.none,
                       isDense: true,
-                      contentPadding: EdgeInsets.symmetric(vertical: 10),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 10),
                     ),
                   ),
                 ),
@@ -406,13 +404,13 @@ class AdvertiserNotificationsView extends GetView<AdvertiserNotificationsControl
                                   InkWell(
                                     onTap: () => controller.markAsRead(item),
                                     borderRadius: BorderRadius.circular(6),
-                                    child: const Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                       child: Row(
                                         children: [
-                                          Icon(Icons.check_rounded, color: Color(0xFF10B981), size: 14),
-                                          SizedBox(width: 2),
-                                          Text('Read', style: TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.bold)),
+                                          const Icon(Icons.check_rounded, color: Color(0xFF10B981), size: 14),
+                                          const SizedBox(width: 2),
+                                          Text('read_status_badge'.tr, style: const TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.bold)),
                                         ],
                                       ),
                                     ),
@@ -520,8 +518,7 @@ class AdvertiserNotificationsView extends GetView<AdvertiserNotificationsControl
             child: const Icon(Icons.notifications_none_rounded, color: Color(0xFF64748B), size: 28),
           ),
           const SizedBox(height: 14),
-          const Text(
-            'No notifications yet',
+          Text('no_notifications_yet'.tr,
             style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 6),

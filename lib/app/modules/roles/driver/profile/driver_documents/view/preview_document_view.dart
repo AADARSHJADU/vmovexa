@@ -48,14 +48,14 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isExisting ? 'Document Details & Verification' : 'Preview Document',
+                          isExisting ? 'doc_details_verification'.tr : 'preview_document'.tr,
                           style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700),
                         ),
                         const SizedBox(height: 3),
                         Text(
                           isExisting
-                              ? 'Review attached document status and compliance clearance.'
-                              : 'Please verify your document before submitting for approval.',
+                              ? 'review_doc_clearance_sub'.tr
+                              : 'verify_doc_before_submit_sub'.tr,
                           style: const TextStyle(color: Colors.white54, fontSize: 11.5),
                         ),
                       ],
@@ -64,7 +64,7 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
                   const SizedBox(height: 14),
                   _buildPreviewCard(context),
                   const SizedBox(height: 18),
-                  const Text('File Information', style: TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w700)),
+                  Text('file_information'.tr, style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 10),
                   _buildFileInfoCard(),
                   const SizedBox(height: 16),
@@ -94,7 +94,7 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
           child: Obx(() {
             final isExisting = controller.remoteUrl.value.isNotEmpty && controller.filePath.value.isEmpty;
             return Text(
-              isExisting ? 'Document Details' : 'Upload Document',
+              isExisting ? 'document_details'.tr : 'upload_document'.tr,
               style: const TextStyle(color: Colors.white, fontSize: 17.5, fontWeight: FontWeight.w700),
             );
           }),
@@ -150,15 +150,15 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
                       final s = stat.toLowerCase();
                       if (controller.isReadOnly || s.contains('verified')) {
                         badgeColor = const Color(0xFF10B981);
-                        badgeText = 'VERIFIED';
+                        badgeText = 'verified'.tr.toUpperCase();
                         badgeIcon = Icons.verified;
                       } else if (s.contains('rejected')) {
                         badgeColor = const Color(0xFFEF4444);
-                        badgeText = 'REJECTED';
+                        badgeText = 'rejected'.tr.toUpperCase();
                         badgeIcon = Icons.cancel;
                       } else {
                         badgeColor = const Color(0xFFF59E0B);
-                        badgeText = 'UNDER REVIEW';
+                        badgeText = 'under_review'.tr.toUpperCase();
                         badgeIcon = Icons.access_time;
                       }
                     }
@@ -226,7 +226,7 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
                                   Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 20),
                                     child: Text(
-                                      controller.fileName.value.isNotEmpty ? controller.fileName.value : 'PDF Document Attached',
+                                      controller.fileName.value.isNotEmpty ? controller.fileName.value : 'attached_file'.tr,
                                       style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                                       textAlign: TextAlign.center,
                                       maxLines: 2,
@@ -255,7 +255,7 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
                                         const Icon(Icons.insert_drive_file_outlined, color: Colors.white38, size: 38),
                                         const SizedBox(height: 6),
                                         Text(
-                                          controller.fileName.value.isNotEmpty ? controller.fileName.value : 'Document Attached',
+                                          controller.fileName.value.isNotEmpty ? controller.fileName.value : 'attached_file'.tr,
                                           style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold),
                                         ),
                                         const SizedBox(height: 2),
@@ -271,12 +271,12 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
                                   },
                                 ),
                               ))
-                        : const Column(
+                        : Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.image_outlined, color: Colors.white24, size: 38),
-                              SizedBox(height: 6),
-                              Text('No document image selected', style: TextStyle(color: Colors.white38, fontSize: 11)),
+                              const Icon(Icons.image_outlined, color: Colors.white24, size: 38),
+                              const SizedBox(height: 6),
+                              Text('no_doc_image_selected'.tr, style: const TextStyle(color: Colors.white38, fontSize: 11)),
                             ],
                           ),
               );
@@ -293,12 +293,12 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
                   border: Border.all(color: Colors.white24),
                 ),
                 alignment: Alignment.center,
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.fullscreen, color: Colors.white70, size: 16),
-                    SizedBox(width: 6),
-                    Text('View Fullscreen', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600)),
+                    const Icon(Icons.fullscreen, color: Colors.white70, size: 16),
+                    const SizedBox(width: 6),
+                    Text('view_fullscreen'.tr, style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -360,20 +360,20 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
           final isUploadedOnServer = controller.remoteUrl.value.isNotEmpty;
           return Column(
             children: [
-              _infoRow(Icons.description_outlined, 'File Name', controller.fileName.value.isNotEmpty ? controller.fileName.value : '—'),
+              _infoRow(Icons.description_outlined, 'file_name'.tr, controller.fileName.value.isNotEmpty ? controller.fileName.value : '—'),
               _divider(),
-              _infoRow(Icons.sd_storage_outlined, 'File Size', controller.fileSizeText.value.isNotEmpty ? controller.fileSizeText.value : '—'),
+              _infoRow(Icons.sd_storage_outlined, 'file_size'.tr, controller.fileSizeText.value.isNotEmpty ? controller.fileSizeText.value : '—'),
               _divider(),
-              _infoRow(Icons.insert_drive_file_outlined, 'File Type', controller.fileType.value.isNotEmpty ? controller.fileType.value : 'IMAGE'),
+              _infoRow(Icons.insert_drive_file_outlined, 'file_type'.tr, controller.fileType.value.isNotEmpty ? controller.fileType.value : 'IMAGE'),
               _divider(),
               _infoRow(
                 Icons.verified_outlined,
-                'Status',
-                isUploadedOnServer ? controller.documentStatus.value : 'Ready to Submit',
+                'document_status'.tr,
+                isUploadedOnServer ? controller.documentStatus.value : 'ready_to_submit'.tr,
                 highlightStatus: true,
               ),
               _divider(),
-              _infoRow(Icons.access_time, 'Uploaded On', controller.uploadedOnText, isLast: true),
+              _infoRow(Icons.access_time, 'uploaded_on'.tr, controller.uploadedOnText, isLast: true),
             ],
           );
         },
@@ -427,22 +427,22 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: kPurple.withValues(alpha: 0.25)),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: kPurple, size: 16),
-          SizedBox(width: 10),
+          const Icon(Icons.info_outline, color: kPurple, size: 16),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Tips', style: TextStyle(color: kPurple, fontSize: 12.5, fontWeight: FontWeight.w700)),
-                SizedBox(height: 6),
-                Text('• Ensure all details are clearly visible.', style: TextStyle(color: Colors.white54, fontSize: 11)),
-                SizedBox(height: 3),
-                Text('• Document should be original and valid.', style: TextStyle(color: Colors.white54, fontSize: 11)),
-                SizedBox(height: 3),
-                Text('• Avoid glare and blurry images.', style: TextStyle(color: Colors.white54, fontSize: 11)),
+                Text('tips'.tr, style: const TextStyle(color: kPurple, fontSize: 12.5, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 6),
+                Text('• ${'tip_details_visible'.tr}', style: const TextStyle(color: Colors.white54, fontSize: 11)),
+                const SizedBox(height: 3),
+                Text('• ${'tip_original_valid'.tr}', style: const TextStyle(color: Colors.white54, fontSize: 11)),
+                const SizedBox(height: 3),
+                Text('• ${'tip_avoid_glare'.tr}', style: const TextStyle(color: Colors.white54, fontSize: 11)),
               ],
             ),
           ),
@@ -472,12 +472,12 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
                 border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
               ),
               alignment: Alignment.center,
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.lock_outline, color: Color(0xFF10B981), size: 16),
-                  SizedBox(width: 6),
-                  Text('Document Verified & Locked', style: TextStyle(color: Color(0xFF10B981), fontSize: 13, fontWeight: FontWeight.w700)),
+                  const Icon(Icons.lock_outline, color: Color(0xFF10B981), size: 16),
+                  const SizedBox(width: 6),
+                  Text('doc_verified_locked'.tr, style: const TextStyle(color: Color(0xFF10B981), fontSize: 13, fontWeight: FontWeight.w700)),
                 ],
               ),
             ),
@@ -503,12 +503,12 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
                       border: Border.all(color: kPurple.withValues(alpha: 0.5)),
                     ),
                     alignment: Alignment.center,
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.edit_outlined, color: kPurple, size: 15),
-                        SizedBox(width: 6),
-                        Text('Replace Document', style: TextStyle(color: kPurple, fontSize: 12.5, fontWeight: FontWeight.w700)),
+                        const Icon(Icons.edit_outlined, color: kPurple, size: 15),
+                        const SizedBox(width: 6),
+                        Text('replace_document'.tr, style: const TextStyle(color: kPurple, fontSize: 12.5, fontWeight: FontWeight.w700)),
                       ],
                     ),
                   ),
@@ -527,12 +527,12 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
                         border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.4)),
                       ),
                       alignment: Alignment.center,
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 15),
-                          SizedBox(width: 6),
-                          Text('Remove', style: TextStyle(color: Color(0xFFEF4444), fontSize: 13, fontWeight: FontWeight.w700)),
+                          const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 15),
+                          const SizedBox(width: 6),
+                          Text('remove_action'.tr, style: const TextStyle(color: Color(0xFFEF4444), fontSize: 13, fontWeight: FontWeight.w700)),
                         ],
                       ),
                     ),
@@ -562,12 +562,12 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
                     border: Border.all(color: kPurple.withValues(alpha: 0.5)),
                   ),
                   alignment: Alignment.center,
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.edit_outlined, color: kPurple, size: 15),
-                      SizedBox(width: 6),
-                      Text('Retake / Replace', style: TextStyle(color: kPurple, fontSize: 12.5, fontWeight: FontWeight.w700)),
+                      const Icon(Icons.edit_outlined, color: kPurple, size: 15),
+                      const SizedBox(width: 6),
+                      Text('retake_replace'.tr, style: const TextStyle(color: kPurple, fontSize: 12.5, fontWeight: FontWeight.w700)),
                     ],
                   ),
                 ),
@@ -586,12 +586,12 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
                   alignment: Alignment.center,
                   child: controller.isSubmitting.value
                       ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.4))
-                      : const Row(
+                      : Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('Submit Document', style: TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w700)),
-                            SizedBox(width: 6),
-                            Icon(Icons.check_circle_outline, color: Colors.white, size: 16),
+                            Text('submit_document'.tr, style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w700)),
+                            const SizedBox(width: 6),
+                            const Icon(Icons.check_circle_outline, color: Colors.white, size: 16),
                           ],
                         ),
                 ),

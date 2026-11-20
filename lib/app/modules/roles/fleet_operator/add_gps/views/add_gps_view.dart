@@ -131,7 +131,7 @@ class AddGpsView extends GetView<AddGpsController> {
                         height: 14,
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                       )
-                    : Text(isEdit ? 'Update' : 'Save', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                    : Text(isEdit ? 'update'.tr : 'save'.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
               ),
             );
           }),
@@ -187,7 +187,7 @@ class AddGpsView extends GetView<AddGpsController> {
                   height: 140,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => _buildUploadPlaceholder(),
+                  errorBuilder: (context, error, stackTrace) => _buildUploadPlaceholder(),
                 ),
               )
             else
@@ -199,7 +199,7 @@ class AddGpsView extends GetView<AddGpsController> {
                 OutlinedButton.icon(
                   onPressed: () => controller.pickImage(ImageSource.camera),
                   icon: const Icon(Icons.camera_alt_rounded, size: 14, color: Color(0xFF818CF8)),
-                  label: const Text('Camera', style: TextStyle(color: Color(0xFF818CF8), fontSize: 12)),
+                  label: Text('camera'.tr, style: const TextStyle(color: Color(0xFF818CF8), fontSize: 12)),
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Color(0xFF4F46E5)),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -209,7 +209,7 @@ class AddGpsView extends GetView<AddGpsController> {
                 OutlinedButton.icon(
                   onPressed: () => controller.pickImage(ImageSource.gallery),
                   icon: const Icon(Icons.photo_library_rounded, size: 14, color: Colors.white70),
-                  label: const Text('Gallery', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  label: Text('gallery'.tr, style: const TextStyle(color: Colors.white70, fontSize: 12)),
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: AppColors.cardBorder),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -258,7 +258,7 @@ class AddGpsView extends GetView<AddGpsController> {
       child: Column(
         children: [
           _buildTextField(
-            label: 'Hardware Code / Unit ID *',
+            label: 'hardware_code_req'.tr,
             controller: controller.codeController,
             hint: 'e.g. GPS-TRK-10492',
           ),
@@ -362,14 +362,14 @@ class AddGpsView extends GetView<AddGpsController> {
           const SizedBox(height: 12),
 
           _buildTextField(
-            label: 'Hardware Serial Number (S/N)',
+            label: 'hardware_serial_sn'.tr,
             controller: controller.serialNoController,
             hint: 'e.g. SN-8829104',
           ),
           const SizedBox(height: 12),
 
           _buildTextField(
-            label: 'Alias / Friendly Unit Label',
+            label: 'alias_unit_label'.tr,
             controller: controller.aliasController,
             hint: 'e.g. Express Route Bus 104 Tracker',
           ),
@@ -390,7 +390,7 @@ class AddGpsView extends GetView<AddGpsController> {
       child: Column(
         children: [
           _buildTextField(
-            label: 'SIM Card Phone / MSISDN',
+            label: 'sim_card_phone_msisdn'.tr,
             controller: controller.simNoController,
             hint: 'e.g. +91 98765 43210',
             keyboardType: TextInputType.phone,
@@ -402,7 +402,7 @@ class AddGpsView extends GetView<AddGpsController> {
               Expanded(
                 child: Obx(() {
                   return _buildDropdown(
-                    label: 'SIM Provider',
+                    label: 'sim_provider'.tr,
                     value: controller.selectedProvider.value,
                     items: controller.providers,
                     onChanged: (val) {
@@ -415,7 +415,7 @@ class AddGpsView extends GetView<AddGpsController> {
               Expanded(
                 child: Obx(() {
                   return _buildDropdown(
-                    label: 'Network Type',
+                    label: 'network_type'.tr,
                     value: controller.selectedNetworkType.value,
                     items: controller.networkTypes,
                     onChanged: (val) {
@@ -432,7 +432,7 @@ class AddGpsView extends GetView<AddGpsController> {
             children: [
               Expanded(
                 child: _buildTextField(
-                  label: 'Battery Capacity',
+                  label: 'battery_capacity'.tr,
                   controller: controller.batteryController,
                   hint: '1200 mAh',
                 ),
@@ -440,7 +440,7 @@ class AddGpsView extends GetView<AddGpsController> {
               const SizedBox(width: 10),
               Expanded(
                 child: _buildTextField(
-                  label: 'Firmware Version',
+                  label: 'firmware_version'.tr,
                   controller: controller.firmwareController,
                   hint: 'v3.2.14-PROD',
                 ),
@@ -471,8 +471,8 @@ class AddGpsView extends GetView<AddGpsController> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Assign to Fleet Vehicle',
+                Text(
+                  'assign_to_fleet_vehicle'.tr,
                   style: TextStyle(color: AppColors.textSecondary, fontSize: 12, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 6),
@@ -495,9 +495,9 @@ class AddGpsView extends GetView<AddGpsController> {
                         style: TextStyle(color: AppColors.textMuted, fontSize: 12),
                       ),
                       items: [
-                        const DropdownMenuItem<String?>(
+                        DropdownMenuItem<String?>(
                           value: null,
-                          child: Text('Unassigned (In Stock Inventory)', style: TextStyle(color: AppColors.textMuted)),
+                          child: Text('unassigned_in_stock'.tr, style: const TextStyle(color: AppColors.textMuted)),
                         ),
                         ...vehicles.map((v) {
                           return DropdownMenuItem<String?>(
@@ -524,7 +524,7 @@ class AddGpsView extends GetView<AddGpsController> {
           // Mounting Position Dropdown
           Obx(() {
             return _buildDropdown(
-              label: 'Mounting Position',
+              label: 'mounting_position'.tr,
               value: controller.selectedMountingPosition.value,
               items: controller.mountingPositions,
               onChanged: (val) {
@@ -537,7 +537,7 @@ class AddGpsView extends GetView<AddGpsController> {
           // Power Wire Dropdown
           Obx(() {
             return _buildDropdown(
-              label: 'Power Wiring Source',
+              label: 'power_wiring_source'.tr,
               value: controller.selectedPowerWire.value,
               items: controller.powerWires,
               onChanged: (val) {
@@ -552,7 +552,7 @@ class AddGpsView extends GetView<AddGpsController> {
             onTap: () => controller.selectDate(context),
             child: AbsorbPointer(
               child: _buildTextField(
-                label: 'Installation Date',
+                label: 'installation_date'.tr,
                 controller: controller.dateController,
                 hint: 'YYYY-MM-DD',
                 suffixIcon: Icons.calendar_today_rounded,
@@ -592,9 +592,9 @@ class AddGpsView extends GetView<AddGpsController> {
               controller: controller.notesController,
               maxLines: 3,
               style: const TextStyle(color: Colors.white, fontSize: 13),
-              decoration: const InputDecoration(
-                hintText: 'Enter wiring remarks, technician notes, or vehicle mounting details...',
-                hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 12),
+              decoration: InputDecoration(
+                hintText: 'wiring_remarks_hint'.tr,
+                hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
                 border: InputBorder.none,
               ),
             ),
@@ -642,7 +642,7 @@ class AddGpsView extends GetView<AddGpsController> {
                     Icon(isEdit ? Icons.check_circle_rounded : Icons.add_circle_outline_rounded, color: Colors.white, size: 18),
                     const SizedBox(width: 8),
                     Text(
-                      isEdit ? 'Update GPS Unit Configuration' : 'Register & Save GPS Unit',
+                      isEdit ? 'edit_gps_unit'.tr : 'add_gps_unit'.tr,
                       style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                   ],

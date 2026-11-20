@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import 'package:vmovexa/app/data/constants/api_constants.dart';
 import '../controller/profile_controller.dart';
 
@@ -36,7 +37,7 @@ class ProfileView extends GetView<ProfileController> {
               // Account Section
               _buildSectionHeader(
                 svgPath: 'assets/icons/profile.svg',
-                title: 'Account',
+                title: 'account'.tr,
               ),
               const SizedBox(height: 10),
               _buildAccountCard(),
@@ -45,7 +46,7 @@ class ProfileView extends GetView<ProfileController> {
               // Preferences Section
               _buildSectionHeader(
                 svgPath: 'assets/icons/fleet_operator_icons/appPreferenceA.svg',
-                title: 'Preferences',
+                title: 'preferences'.tr,
               ),
               const SizedBox(height: 10),
               _buildPreferencesCard(),
@@ -54,20 +55,20 @@ class ProfileView extends GetView<ProfileController> {
               // Security Section
               _buildSectionHeader(
                 svgPath: 'assets/icons/fleet_operator_icons/securityA.svg',
-                title: 'Security',
+                title: 'security'.tr,
               ),
               const SizedBox(height: 10),
               _buildSecurityCard(),
               const SizedBox(height: 24),
 
-              // // App Section
-              // _buildSectionHeader(
-              //   svgPath: 'assets/icons/fleet_operator_icons/AboutA.svg',
-              //   title: 'App',
-              // ),
-              // const SizedBox(height: 10),
-              // _buildAppCard(),
-              // const SizedBox(height: 28),
+              // Help & Support Section
+              _buildSectionHeader(
+                icon: Icons.support_agent_outlined,
+                title: 'help_support'.tr,
+              ),
+              const SizedBox(height: 10),
+              _buildHelpSupportCard(),
+              const SizedBox(height: 28),
 
               // Log Out Button
               _buildLogOutButton(),
@@ -91,22 +92,22 @@ class ProfileView extends GetView<ProfileController> {
           ),
         ),
         const SizedBox(width: 8),
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Technician Profile',
-                style: TextStyle(
+                'technician_profile'.tr,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              SizedBox(height: 2),
+              const SizedBox(height: 2),
               Text(
-                'View and manage your profile information.',
-                style: TextStyle(
+                'manage_profile_info'.tr,
+                style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 12,
                 ),
@@ -158,8 +159,8 @@ class ProfileView extends GetView<ProfileController> {
                     height: 68,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: kPurple.withOpacity(0.12),
-                      border: Border.all(color: kPurple.withOpacity(0.35), width: 1.5),
+                      color: kPurple.withValues(alpha: 0.12),
+                      border: Border.all(color: kPurple.withValues(alpha: 0.35), width: 1.5),
                     ),
                     child: ClipOval(
                       child: controller.isUploadingPhoto.value
@@ -248,7 +249,7 @@ class ProfileView extends GetView<ProfileController> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Tech ID: ${data.techId}',
+                    '${'tech_id'.tr}: ${data.techId}',
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 10.5,
@@ -256,7 +257,7 @@ class ProfileView extends GetView<ProfileController> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Employee ID: ${data.employeeId}',
+                    '${'employee_id'.tr}: ${data.employeeId}',
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 10.5,
@@ -267,30 +268,35 @@ class ProfileView extends GetView<ProfileController> {
             ),
             const SizedBox(width: 8),
 
-            // Edit Profile Button
-            OutlinedButton.icon(
-              onPressed: controller.editProfile,
-              icon: SvgPicture.asset(
-                'assets/icons/fleet_operator_icons/editA.svg',
-                width: 12,
-                height: 12,
-              ),
-              label: const Text(
-                'Edit Profile',
-                style: TextStyle(
-                  color: kPurple,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: kPurple, width: 1.2),
-                shape: RoundedRectangleBorder(
+            // Edit Profile Button with AppTheme.primaryGradient
+            GestureDetector(
+              onTap: controller.editProfile,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  gradient: AppTheme.primaryGradient,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/icons/fleet_operator_icons/editA.svg',
+                      width: 12,
+                      height: 12,
+                      colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'edit_profile'.tr,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -336,15 +342,15 @@ class ProfileView extends GetView<ProfileController> {
         children: [
           _buildSettingsRow(
             svgPath: 'assets/icons/profile.svg',
-            title: 'Personal Information',
-            subtitle: 'Update your personal details',
+            title: 'personal_information'.tr,
+            subtitle: 'update_personal_details'.tr,
             onTap: controller.editProfile,
           ),
           _buildDivider(),
           _buildSettingsRow(
             svgPath: 'assets/icons/fleet_operator_icons/changePasswordA.svg',
-            title: 'Change Password',
-            subtitle: 'Update your account password',
+            title: 'change_password'.tr,
+            subtitle: 'update_account_password'.tr,
             onTap: controller.changePassword,
           ),
         ],
@@ -364,8 +370,8 @@ class ProfileView extends GetView<ProfileController> {
         children: [
           _buildSettingsRow(
             svgPath: 'assets/icons/fleet_operator_icons/notificationSettingA.svg',
-            title: 'Notification Settings',
-            subtitle: 'Manage your notification preferences',
+            title: 'notification_settings'.tr,
+            subtitle: 'manage_notification_pref'.tr,
             onTap: controller.goToNotificationSettings,
           ),
           // _buildDivider(),
@@ -424,15 +430,15 @@ class ProfileView extends GetView<ProfileController> {
         children: [
           _buildSettingsRow(
             svgPath: 'assets/icons/fleet_operator_icons/privacyPolicyA.svg',
-            title: 'Privacy Policy',
-            subtitle: 'View our privacy policy',
+            title: 'privacy_policy'.tr,
+            subtitle: 'view_privacy_policy'.tr,
             onTap: controller.goToPrivacyPolicy,
           ),
           _buildDivider(),
           _buildSettingsRow(
             svgPath: 'assets/icons/advertiser_ic/termConditionHeaderA.svg',
-            title: 'Terms & Conditions',
-            subtitle: 'View terms and conditions',
+            title: 'terms_conditions'.tr,
+            subtitle: 'view_terms_conditions'.tr,
             onTap: controller.goToTermsConditions,
           ),
           // _buildDivider(),
@@ -447,26 +453,23 @@ class ProfileView extends GetView<ProfileController> {
     );
   }
 
-  // ---------------- App Options Card ----------------
-  Widget _buildAppCard() {
+  // ---------------- Help & Support Card ----------------
+  Widget _buildHelpSupportCard() {
     return Container(
       decoration: BoxDecoration(
         color: kCardBg,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: kBorder, width: 1.2),
       ),
-      child: _buildSettingsRow(
-        svgPath: 'assets/icons/fleet_operator_icons/AboutA.svg',
-        title: 'App Version',
-        subtitle: 'You are using the latest version',
-        trailing: const Text(
-          'v1.0.0',
-          style: TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
+      child: Column(
+        children: [
+          _buildSettingsRow(
+            icon: Icons.support_agent_outlined,
+            title: 'help_support'.tr,
+            subtitle: 'support_sub'.tr,
+            onTap: controller.goToHelpSupport,
           ),
-        ),
+        ],
       ),
     );
   }
@@ -474,7 +477,7 @@ class ProfileView extends GetView<ProfileController> {
   // ---------------- Log Out Button ----------------
   Widget _buildLogOutButton() {
     return GestureDetector(
-      onTap: controller.logout,
+      onTap: controller.confirmLogout,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 14),
@@ -482,7 +485,7 @@ class ProfileView extends GetView<ProfileController> {
           color: kCardBg,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: Colors.redAccent.withOpacity(0.2),
+            color: Colors.redAccent.withValues(alpha: 0.25),
             width: 1.2,
           ),
         ),
@@ -499,9 +502,9 @@ class ProfileView extends GetView<ProfileController> {
               ),
             ),
             const SizedBox(width: 8),
-            const Text(
-              'Log Out',
-              style: TextStyle(
+            Text(
+              'log_out'.tr,
+              style: const TextStyle(
                 color: Colors.redAccent,
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -527,7 +530,7 @@ class ProfileView extends GetView<ProfileController> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: kPurple.withOpacity(0.08),
+            color: kPurple.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(10),
           ),
           child: svgPath != null
@@ -589,7 +592,7 @@ class ProfileView extends GetView<ProfileController> {
   // Divider
   Widget _buildDivider() {
     return Divider(
-      color: Colors.white.withOpacity(0.06),
+      color: Colors.white.withValues(alpha: 0.06),
       height: 1,
       indent: 14,
       endIndent: 14,

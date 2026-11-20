@@ -28,10 +28,10 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                 children: [
                   const Icon(Icons.person_off_outlined, color: Colors.white24, size: 64),
                   const SizedBox(height: 16),
-                  const Text('Driver profile not found', style: TextStyle(color: Colors.white70, fontSize: 16)),
+                  Text('driver_not_found'.tr, style: const TextStyle(color: Colors.white70, fontSize: 16)),
                   const SizedBox(height: 20),
                   CustomButton(
-                    text: 'Back to Drivers',
+                    text: 'back_to_drivers'.tr,
                     onTap: () => Get.back(),
                     width: 160,
                     height: 42,
@@ -126,7 +126,7 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                     style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    'Badge ID: ${d.displayBadgeId}',
+                    '${'badge_id_prefix'.tr}${d.displayBadgeId}',
                     style: const TextStyle(color: AppColors.textMuted, fontSize: 11, fontFamily: 'monospace'),
                   ),
                 ],
@@ -137,7 +137,7 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
             children: [
               IconButton(
                 icon: const Icon(Icons.edit_outlined, color: Colors.white, size: 22),
-                tooltip: 'Edit Driver',
+                tooltip: 'edit_driver'.tr,
                 onPressed: controller.goToEditDriver,
               ),
               PopupMenuButton<String>(
@@ -158,57 +158,57 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                   }
                 },
                 itemBuilder: (context) => [
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'edit',
                     child: Row(
                       children: [
-                        Icon(Icons.edit_note_rounded, color: Color(0xFF38BDF8), size: 18),
-                        SizedBox(width: 10),
-                        Text('Edit Driver Details', style: TextStyle(color: Colors.white, fontSize: 13)),
+                        const Icon(Icons.edit_note_rounded, color: Color(0xFF38BDF8), size: 18),
+                        const SizedBox(width: 10),
+                        Text('edit_driver_details'.tr, style: const TextStyle(color: Colors.white, fontSize: 13)),
                       ],
                     ),
                   ),
                   if (!d.isAvailable)
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'active',
                       child: Row(
                         children: [
-                          Icon(Icons.check_circle_outline_rounded, color: Color(0xFF10B981), size: 18),
-                          SizedBox(width: 10),
-                          Text('Set Active (Available)', style: TextStyle(color: Color(0xFF10B981), fontSize: 13)),
+                          const Icon(Icons.check_circle_outline_rounded, color: Color(0xFF10B981), size: 18),
+                          const SizedBox(width: 10),
+                          Text('set_available_btn'.tr, style: const TextStyle(color: Color(0xFF10B981), fontSize: 13)),
                         ],
                       ),
                     ),
                   if (d.isAvailable || d.isOnDuty)
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'off_duty',
                       child: Row(
                         children: [
-                          Icon(Icons.pause_circle_outline_rounded, color: Color(0xFF94A3B8), size: 18),
-                          SizedBox(width: 10),
-                          Text('Set Off Duty (Deactivate)', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                          const Icon(Icons.pause_circle_outline_rounded, color: Color(0xFF94A3B8), size: 18),
+                          const SizedBox(width: 10),
+                          Text('set_off_duty_btn'.tr, style: const TextStyle(color: Colors.white70, fontSize: 13)),
                         ],
                       ),
                     ),
                   if (!d.isVerified)
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'verify',
                       child: Row(
                         children: [
-                          Icon(Icons.verified_outlined, color: Color(0xFF14B8A6), size: 18),
-                          SizedBox(width: 10),
-                          Text('Verify KYC Documents', style: TextStyle(color: Color(0xFF14B8A6), fontSize: 13)),
+                          const Icon(Icons.verified_outlined, color: Color(0xFF14B8A6), size: 18),
+                          const SizedBox(width: 10),
+                          Text('verify_kyc_docs'.tr, style: const TextStyle(color: Color(0xFF14B8A6), fontSize: 13)),
                         ],
                       ),
                     ),
                   const PopupMenuDivider(height: 8),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'delete',
                     child: Row(
                       children: [
-                        Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 18),
-                        SizedBox(width: 10),
-                        Text('Delete Driver', style: TextStyle(color: Color(0xFFEF4444), fontSize: 13)),
+                        const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 18),
+                        const SizedBox(width: 10),
+                        Text('delete_driver'.tr, style: const TextStyle(color: Color(0xFFEF4444), fontSize: 13)),
                       ],
                     ),
                   ),
@@ -226,16 +226,16 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
     String dutyLabel = d.status.toUpperCase();
     if (d.isOnDuty) {
       dutyColor = const Color(0xFF3B82F6);
-      dutyLabel = 'ON DUTY';
+      dutyLabel = 'on_duty_caps'.tr;
     } else if (d.isAvailable) {
       dutyColor = const Color(0xFF10B981);
-      dutyLabel = 'AVAILABLE';
+      dutyLabel = 'available_caps'.tr;
     } else if (d.isPendingApproval) {
       dutyColor = const Color(0xFFF59E0B);
-      dutyLabel = 'PENDING APPROVAL';
+      dutyLabel = 'pending_approval_caps'.tr;
     } else if (d.isComplianceBlocked) {
       dutyColor = const Color(0xFFEF4444);
-      dutyLabel = 'COMPLIANCE BLOCKED';
+      dutyLabel = 'compliance_blocked_caps'.tr;
     }
 
     final avatarUrl = ApiConstants.resolveFileUrl(d.avatarUrl);
@@ -328,7 +328,7 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                               border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.4)),
                             ),
                             child: Text(
-                              'Blood: ${d.bloodGroup}',
+                              '${'blood_prefix'.tr}${d.bloodGroup}',
                               style: const TextStyle(
                                 color: Color(0xFFF87171),
                                 fontSize: 10,
@@ -344,7 +344,7 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                       children: [
                         const Icon(Icons.phone_rounded, size: 14, color: AppColors.textMuted),
                         const SizedBox(width: 4),
-                        Text(d.phone.isNotEmpty ? d.phone : 'No phone', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                        Text(d.phone.isNotEmpty ? d.phone : 'no_phone'.tr, style: const TextStyle(color: Colors.white70, fontSize: 12)),
                       ],
                     ),
                     if (d.email.isNotEmpty) ...[
@@ -401,11 +401,11 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.4)),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.cancel_rounded, size: 12, color: Color(0xFFEF4444)),
-                      SizedBox(width: 4),
-                      Text('KYC REJECTED', style: TextStyle(color: Color(0xFFEF4444), fontSize: 10, fontWeight: FontWeight.bold)),
+                      const Icon(Icons.cancel_rounded, size: 12, color: Color(0xFFEF4444)),
+                      const SizedBox(width: 4),
+                      Text('kyc_rejected_caps'.tr, style: const TextStyle(color: Color(0xFFEF4444), fontSize: 10, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 )
@@ -417,11 +417,11 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.verified_rounded, size: 12, color: Color(0xFF10B981)),
-                      SizedBox(width: 4),
-                      Text('DOCS VERIFIED', style: TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.bold)),
+                      const Icon(Icons.verified_rounded, size: 12, color: Color(0xFF10B981)),
+                      const SizedBox(width: 4),
+                      Text('docs_verified_caps'.tr, style: const TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 )
@@ -433,11 +433,11 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.4)),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.schedule_rounded, size: 12, color: Color(0xFFF59E0B)),
-                      SizedBox(width: 4),
-                      Text('DOCS PENDING', style: TextStyle(color: Color(0xFFF59E0B), fontSize: 10, fontWeight: FontWeight.bold)),
+                      const Icon(Icons.schedule_rounded, size: 12, color: Color(0xFFF59E0B)),
+                      const SizedBox(width: 4),
+                      Text('docs_pending_caps'.tr, style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 10, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
@@ -461,15 +461,15 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
     return Row(
       children: [
         Expanded(
-          child: _buildStatItem('RATING', '${d.rating.toStringAsFixed(1)} ★', const Color(0xFFFBBF24)),
+          child: _buildStatItem('rating_caps'.tr, '${d.rating.toStringAsFixed(1)} ★', const Color(0xFFFBBF24)),
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: _buildStatItem('EXPERIENCE', d.experienceYears.isNotEmpty ? d.experienceYears : '5 Yrs', const Color(0xFF60A5FA)),
+          child: _buildStatItem('experience_caps'.tr, d.experienceYears.isNotEmpty ? d.experienceYears : '5 Yrs', const Color(0xFF60A5FA)),
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: _buildStatItem('TRANSIT BUS', d.displayBus, const Color(0xFF34D399)),
+          child: _buildStatItem('transit_bus_caps'.tr, d.displayBus, const Color(0xFF34D399)),
         ),
       ],
     );
@@ -511,35 +511,35 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.badge_outlined, color: Color(0xFF10B981), size: 18),
-              SizedBox(width: 8),
+              const Icon(Icons.badge_outlined, color: Color(0xFF10B981), size: 18),
+              const SizedBox(width: 8),
               Text(
-                'Commercial Driving License & KYC',
-                style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                'commercial_dl_kyc_title'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
               ),
             ],
           ),
           const Divider(color: AppColors.cardBorder, height: 20),
 
-          _buildDetailRow('DL Number', d.licenseNumber.isNotEmpty ? d.licenseNumber : '—', isHighlight: true),
-          _buildDetailRow('License Type', d.licenseType),
+          _buildDetailRow('dl_number_label'.tr, d.licenseNumber.isNotEmpty ? d.licenseNumber : '—', isHighlight: true),
+          _buildDetailRow('license_type_label'.tr, d.licenseType),
           _buildDetailRow(
-            'DL Expiry Date',
+            'dl_expiry_label'.tr,
             d.dlExpiry.isNotEmpty ? d.dlExpiry : '—',
             customValueColor: dlValid ? const Color(0xFF10B981) : const Color(0xFFEF4444),
           ),
           if (d.issueDate.isNotEmpty)
-            _buildDetailRow('Issue Date', d.issueDate),
-          _buildDetailRow('RTO Issuing Authority', d.issuingAuthority.isNotEmpty ? d.issuingAuthority : '—'),
+            _buildDetailRow('issue_date_label'.tr, d.issueDate),
+          _buildDetailRow('rto_authority_label'.tr, d.issuingAuthority.isNotEmpty ? d.issuingAuthority : '—'),
           _buildDetailRow(
-            'Medical Certificate Validity',
+            'medical_validity_label'.tr,
             d.medicalFitnessValidUntil.isNotEmpty ? d.medicalFitnessValidUntil : '—',
           ),
           _buildDetailRow(
-            'Aadhaar KYC',
-            d.aadhaarVerified ? 'Verified' : 'Pending',
+            'aadhaar_kyc_label'.tr,
+            d.aadhaarVerified ? 'verified_label'.tr : 'pending_label'.tr,
             customValueColor: d.aadhaarVerified ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
           ),
         ],
@@ -558,24 +558,24 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.schedule_rounded, color: Color(0xFF38BDF8), size: 18),
-              SizedBox(width: 8),
+              const Icon(Icons.schedule_rounded, color: Color(0xFF38BDF8), size: 18),
+              const SizedBox(width: 8),
               Text(
-                'Operations & Shift Schedule',
-                style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                'operations_shift_title'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
               ),
             ],
           ),
           const Divider(color: AppColors.cardBorder, height: 20),
 
-          _buildDetailRow('Home Depot', d.displayDepot),
-          _buildDetailRow('Designated Transit Bus', d.displayBus),
-          _buildDetailRow('Active Shift Roster', d.displayShift, isHighlight: true),
+          _buildDetailRow('home_depot_label'.tr, d.displayDepot),
+          _buildDetailRow('designated_bus_label'.tr, d.displayBus),
+          _buildDetailRow('active_shift_roster_label'.tr, d.displayShift, isHighlight: true),
           if (d.joiningDate.isNotEmpty)
-            _buildDetailRow('Date of Joining', d.joiningDate),
-          _buildDetailRow('Driving Experience', d.experienceYears),
+            _buildDetailRow('date_of_joining_label'.tr, d.joiningDate),
+          _buildDetailRow('driving_experience_label'.tr, d.experienceYears),
         ],
       ),
     );
@@ -599,28 +599,28 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.home_work_outlined, color: Color(0xFFA855F7), size: 18),
-              SizedBox(width: 8),
+              const Icon(Icons.home_work_outlined, color: Color(0xFFA855F7), size: 18),
+              const SizedBox(width: 8),
               Text(
-                'Residential & Emergency Contact',
-                style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                'residential_emergency_title'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
               ),
             ],
           ),
           const Divider(color: AppColors.cardBorder, height: 20),
 
-          _buildDetailRow('Residential Address', fullAddress.isNotEmpty ? fullAddress : '—'),
+          _buildDetailRow('residential_address_label'.tr, fullAddress.isNotEmpty ? fullAddress : '—'),
           if (d.dob.isNotEmpty)
-            _buildDetailRow('Date of Birth', d.dob),
-          _buildDetailRow('Gender', d.gender),
+            _buildDetailRow('dob_label'.tr, d.dob),
+          _buildDetailRow('gender_label'.tr, d.gender),
           const Divider(color: AppColors.cardBorder, height: 16),
-          const Text('Emergency Contact Details', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
+          Text('emergency_contact_details_title'.tr, style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          _buildDetailRow('Contact Person', d.emergencyContactName.isNotEmpty ? d.emergencyContactName : '—'),
-          _buildDetailRow('Relationship', d.emergencyContactRelation),
-          _buildDetailRow('Emergency Phone', d.emergencyContact.isNotEmpty ? d.emergencyContact : '—', isHighlight: true),
+          _buildDetailRow('contact_person_label'.tr, d.emergencyContactName.isNotEmpty ? d.emergencyContactName : '—'),
+          _buildDetailRow('relationship_label'.tr, d.emergencyContactRelation),
+          _buildDetailRow('emergency_phone_label'.tr, d.emergencyContact.isNotEmpty ? d.emergencyContact : '—', isHighlight: true),
         ],
       ),
     );
@@ -642,18 +642,18 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.folder_shared_outlined, color: Color(0xFF10B981), size: 18),
-                  SizedBox(width: 8),
+                  const Icon(Icons.folder_shared_outlined, color: Color(0xFF10B981), size: 18),
+                  const SizedBox(width: 8),
                   Text(
-                    'KYC & Compliance Documents',
+                    'kyc_compliance_title'.tr,
                     style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
               Text(
-                '${docs.length} Attached',
+                '${docs.length} ${'attached_suffix'.tr}',
                 style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
               ),
             ],
@@ -668,7 +668,7 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                   const Icon(Icons.info_outline_rounded, color: AppColors.textMuted, size: 16),
                   const SizedBox(width: 8),
                   Text(
-                    'No documents uploaded yet.',
+                    'no_docs_uploaded'.tr,
                     style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12),
                   ),
                 ],
@@ -717,7 +717,7 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                           color: const Color(0xFF10B981).withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: const Text('VERIFIED', style: TextStyle(color: Color(0xFF10B981), fontSize: 9, fontWeight: FontWeight.bold)),
+                        child: Text('verified_caps'.tr, style: const TextStyle(color: Color(0xFF10B981), fontSize: 9, fontWeight: FontWeight.bold)),
                       ),
                     ],
                   ),
@@ -739,11 +739,11 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.sticky_note_2_outlined, color: Color(0xFFFBBF24), size: 18),
-              SizedBox(width: 8),
-              Text('Notes & Special Instructions', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+              const Icon(Icons.sticky_note_2_outlined, color: Color(0xFFFBBF24), size: 18),
+              const SizedBox(width: 8),
+              Text('notes_instructions_title'.tr, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
             ],
           ),
           const Divider(color: AppColors.cardBorder, height: 20),
@@ -800,7 +800,7 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               icon: const Icon(Icons.edit_outlined, size: 16, color: Color(0xFF38BDF8)),
-              label: const Text('Edit Driver', style: TextStyle(color: Color(0xFF38BDF8), fontWeight: FontWeight.bold, fontSize: 13)),
+              label: Text('edit_driver'.tr, style: const TextStyle(color: Color(0xFF38BDF8), fontWeight: FontWeight.bold, fontSize: 13)),
             ),
           ),
           const SizedBox(width: 12),
@@ -817,7 +817,7 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
               ),
               icon: Icon(d.isAvailable ? Icons.pause_circle_outline_rounded : Icons.play_circle_outline_rounded, size: 16, color: Colors.white),
               label: Text(
-                d.isAvailable ? 'Set Off Duty' : 'Set Available',
+                d.isAvailable ? 'set_off_duty_btn'.tr : 'set_available_btn'.tr,
                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
               ),
             ),

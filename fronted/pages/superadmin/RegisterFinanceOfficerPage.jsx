@@ -10,6 +10,29 @@ import { uploadFile } from '../../api/services/upload.service';
 import { getMediaUrl } from '../../utils/media';
 import toast from 'react-hot-toast';
 
+const FINANCE_OPTION_KEYS = {
+  "Senior Financial Controller": "superadmin.assignment_finance.senior_financial_controller",
+  "Chief Financial Officer (CFO)": "superadmin.assignment_finance.chief_financial_officer_cfo",
+  "Lead Accounts Auditor": "superadmin.assignment_finance.lead_accounts_auditor",
+  "Billing & Invoicing Specialist": "superadmin.assignment_finance.billing_invoicing_specialist",
+  "GST & Statutory Tax Compliance Officer": "superadmin.assignment_finance.gst_statutory_tax_compliance_officer",
+  "Treasury & Settlement Officer": "superadmin.assignment_finance.treasury_settlement_officer",
+  "Corporate Treasury & Capital": "superadmin.assignment_finance.corporate_treasury_capital",
+  "Invoicing, Billing & Subscriptions": "superadmin.assignment_finance.invoicing_billing_subscriptions",
+  "Taxation & Statutory Audit": "superadmin.assignment_finance.taxation_statutory_audit",
+  "Transit Fleet Revenue Share": "superadmin.assignment_finance.transit_fleet_revenue_share",
+  "Financial Operations & Payouts": "superadmin.assignment_finance.financial_operations_payouts",
+  "Official Appointment Letter": "superadmin.assignment_finance.official_appointment_letter",
+  "Chartered Accountant (CA) / ICWAI Certificate": "superadmin.assignment_finance.chartered_accountant_ca_icwai_certificate",
+  "Identity Proof (Aadhaar / Passport)": "superadmin.assignment_finance.identity_proof_aadhaar_passport",
+  "PAN Card Copy": "superadmin.assignment_finance.pan_card_copy",
+  "Statutory Financial Clearance": "superadmin.assignment_finance.statutory_financial_clearance",
+  "Bank Background Verification": "superadmin.assignment_finance.bank_background_verification",
+  "Educational Degree / MBA Finance": "superadmin.assignment_finance.educational_degree_mba_finance",
+  "Address Proof": "superadmin.assignment_finance.address_proof",
+  "Other Financial Credential": "superadmin.assignment_finance.other_financial_credential"
+};
+
 const CLEARANCE_LEVELS = [
   'Senior Financial Controller',
   'Chief Financial Officer (CFO)',
@@ -97,11 +120,11 @@ export const RegisterFinanceOfficerPage = () => {
         const normalizedDocs = Array.isArray(rawDocs)
           ? rawDocs.map((d) => ({
               id: d.id || d.url || Date.now() + Math.random(),
-              name: d.file_name || d.name || d.fileName || d.storage_key?.split('/')?.pop() || d.purpose || 'Attached Credential',
+              name: d.file_name || d.name || d.fileName || d.storage_key?.split('/')?.pop() || d.purpose || t("superadmin.assignment_finance.attached_credential", "Attached Credential"),
               category: d.purpose || d.category || 'Official Appointment Letter',
               url: d.url || d.filePath || (typeof d === 'string' ? d : ''),
               size: d.size ? Number(d.size) : null,
-              formattedSize: d.size ? `${(Number(d.size) / 1024).toFixed(1)} KB` : 'Attached File',
+              formattedSize: d.size ? `${(Number(d.size) / 1024).toFixed(1)} KB` : t("superadmin.assignment_finance.attached_file", "Attached File"),
               type: d.mime || d.type || 'application/pdf',
               uploadedAt: d.created_at || d.createdAt || new Date().toISOString(),
               verified: true,
@@ -132,7 +155,7 @@ export const RegisterFinanceOfficerPage = () => {
         });
       })
       .catch((err) => {
-        toast.error(err?.message || 'Failed to load finance officer details.');
+        toast.error(err?.message || t("superadmin.assignment_finance.failed_to_load_finance_officer_details", "Failed to load finance officer details."));
         navigate('/superadmin/finance');
       })
       .finally(() => {
@@ -172,7 +195,7 @@ export const RegisterFinanceOfficerPage = () => {
         return next;
       });
     }
-    toast.success(`Generated secure officer password: ${generated}`);
+    toast.success(t("superadmin.assignment_finance.generated_secure_officer_password_password", "Generated secure officer password: {{password}}", { password: generated }));
   };
 
   // Local Avatar Selection (Uploads only on submit)
@@ -248,18 +271,18 @@ export const RegisterFinanceOfficerPage = () => {
 
     // 1. Full Name
     if (!formData.name || !formData.name.trim()) {
-      errors.name = 'Finance officer full name is required.';
+      errors.name = t("superadmin.assignment_finance.finance_officer_full_name_is_required", "Finance officer full name is required.");
     } else if (formData.name.trim().length < 3) {
-      errors.name = 'Full name must be at least 3 characters.';
+      errors.name = t("superadmin.assignment_finance.full_name_must_be_at_least_3_characters", "Full name must be at least 3 characters.");
     } else if (!/^[a-zA-Z\s.'-]+$/.test(formData.name.trim())) {
-      errors.name = 'Full name can only contain letters, spaces, dots, and hyphens.';
+      errors.name = t("superadmin.assignment_finance.full_name_can_only_contain_letters_spaces_dots_and_hyphens", "Full name can only contain letters, spaces, dots, and hyphens.");
     }
 
     // 2. Email Address
     if (!formData.email || !formData.email.trim()) {
-      errors.email = 'Corporate email address is required.';
+      errors.email = t("superadmin.assignment_finance.corporate_email_address_is_required", "Corporate email address is required.");
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
-      errors.email = 'Please enter a valid email address.';
+      errors.email = t("superadmin.assignment_finance.please_enter_a_valid_email_address", "Please enter a valid email address.");
     }
 
     // 3. Mobile Phone (Sanitize leading +91 / 91 / 0)
@@ -271,24 +294,24 @@ export const RegisterFinanceOfficerPage = () => {
     }
 
     if (!formData.phone || !formData.phone.trim()) {
-      errors.phone = 'Phone number is required.';
+      errors.phone = t("superadmin.assignment_finance.phone_number_is_required", "Phone number is required.");
     } else if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
-      errors.phone = 'Please enter a valid 10-digit Indian mobile number (e.g. 9876543210).';
+      errors.phone = t("superadmin.assignment_finance.please_enter_a_valid_10_digit_indian_mobile_number_e_g_9876543210", "Please enter a valid 10-digit Indian mobile number (e.g. 9876543210).");
     }
 
     // Helper for backend password policy: min 8, 1 uppercase, 1 digit, 1 special char
     const checkPasswordPolicy = (pwd) => {
-      if (!pwd || pwd.length < 8) return 'Password must be at least 8 characters long.';
-      if (!/[A-Z]/.test(pwd)) return 'Password must contain at least one uppercase letter (A-Z).';
-      if (!/[0-9]/.test(pwd)) return 'Password must contain at least one number (0-9).';
-      if (!/[^A-Za-z0-9]/.test(pwd)) return 'Password must contain at least one special character (!@#$%^&*).';
+      if (!pwd || pwd.length < 8) return t("superadmin.assignment_finance.password_must_be_at_least_8_characters_long", "Password must be at least 8 characters long.");
+      if (!/[A-Z]/.test(pwd)) return t("superadmin.assignment_finance.password_must_contain_at_least_one_uppercase_letter_a_z", "Password must contain at least one uppercase letter (A-Z).");
+      if (!/[0-9]/.test(pwd)) return t("superadmin.assignment_finance.password_must_contain_at_least_one_number_0_9", "Password must contain at least one number (0-9).");
+      if (!/[^A-Za-z0-9]/.test(pwd)) return t("superadmin.assignment_finance.password_must_contain_at_least_one_special_character", "Password must contain at least one special character (!@#$%^&*).");
       return null;
     };
 
     // 4. Password validation
     if (!isEdit) {
       if (!formData.password || !formData.password.trim()) {
-        errors.password = 'Password is required. You can also click "⚡ Generate Key".';
+        errors.password = t("superadmin.assignment_finance.password_is_required_you_can_also_click_generate_key", "Password is required. You can also click \"⚡ Generate Key\".");
       } else {
         const policyErr = checkPasswordPolicy(formData.password.trim());
         if (policyErr) errors.password = policyErr;
@@ -302,7 +325,7 @@ export const RegisterFinanceOfficerPage = () => {
     if (formData.pincode && formData.pincode.trim()) {
       const cleanPin = formData.pincode.trim();
       if (!/^[1-9][0-9]{5}$/.test(cleanPin)) {
-        errors.pincode = 'Please enter a valid 6-digit Indian PIN code (e.g. 400051).';
+        errors.pincode = t("superadmin.assignment_finance.please_enter_a_valid_6_digit_indian_pin_code_e_g_400051", "Please enter a valid 6-digit Indian PIN code (e.g. 400051).");
       }
     }
 
@@ -322,7 +345,7 @@ export const RegisterFinanceOfficerPage = () => {
     if (!isValid) {
       setFieldErrors(errors);
       const firstError = Object.values(errors)[0];
-      toast.error(firstError || 'Please fix all highlighted validation errors.');
+      toast.error(firstError || t("superadmin.assignment_finance.please_fix_all_highlighted_validation_errors", "Please fix all highlighted validation errors."));
       return;
     }
 
@@ -344,7 +367,7 @@ export const RegisterFinanceOfficerPage = () => {
           setFormData((prev) => ({ ...prev, avatarUrl: finalAvatarUrl, avatar_url: finalAvatarUrl }));
         } catch (uploadErr) {
           toast.dismiss(photoToastId);
-          toast.error(uploadErr?.message || 'Failed to upload profile photo.');
+          toast.error(uploadErr?.message || t("superadmin.assignment_finance.failed_to_upload_profile_photo", "Failed to upload profile photo."));
           setSubmitting(false);
           isSubmittingRef.current = false;
           return;
@@ -355,7 +378,7 @@ export const RegisterFinanceOfficerPage = () => {
       const pendingDocs = (formData.documents || []).filter((d) => d.isPendingUpload && d.file);
       let docToastId = null;
       if (pendingDocs.length > 0) {
-        docToastId = toast.loading(`Uploading ${pendingDocs.length} attached credential document(s)...`);
+        docToastId = toast.loading(t("superadmin.assignment_finance.uploading_count_attached_credential_document_s", "Uploading {{count}} attached credential document(s)...", { count: pendingDocs.length }));
       }
 
       const submitDocuments = [];
@@ -382,7 +405,7 @@ export const RegisterFinanceOfficerPage = () => {
             });
           } catch (docErr) {
             if (docToastId) toast.dismiss(docToastId);
-            toast.error(`Failed to upload document: ${doc.name}`);
+            toast.error(t("superadmin.assignment_finance.failed_to_upload_document_name", "Failed to upload document: {{name}}", { name: doc.name }));
             setSubmitting(false);
             isSubmittingRef.current = false;
             return;
@@ -451,9 +474,9 @@ export const RegisterFinanceOfficerPage = () => {
         await toast.promise(
           updateFinanceOfficer(id, updatePayload),
           {
-            loading: 'Updating finance officer credentials & location...',
-            success: 'Finance Officer updated successfully!',
-            error: (err) => err?.message || 'Failed to update finance officer.',
+            loading: t("superadmin.assignment_finance.updating_finance_officer_credentials_location", "Updating finance officer credentials & location..."),
+            success: t("superadmin.assignment_finance.finance_officer_updated_successfully", "Finance Officer updated successfully!"),
+            error: (err) => err?.message || t("superadmin.assignment_finance.failed_to_update_finance_officer", "Failed to update finance officer."),
           }
         );
       } else {
@@ -476,9 +499,9 @@ export const RegisterFinanceOfficerPage = () => {
         await toast.promise(
           registerFinanceOfficer(createPayload),
           {
-            loading: 'Enrolling finance officer & dispatching credentials...',
-            success: 'Finance Officer enrolled successfully! Credentials dispatched to background cron queue.',
-            error: (err) => err?.message || 'Failed to register finance officer.',
+            loading: t("superadmin.assignment_finance.enrolling_finance_officer_dispatching_credentials", "Enrolling finance officer & dispatching credentials..."),
+            success: t("superadmin.assignment_finance.finance_officer_enrolled_successfully_credentials_dispatched_to_background_cron_queue", "Finance Officer enrolled successfully! Credentials dispatched to background cron queue."),
+            error: (err) => err?.message || t("superadmin.assignment_finance.failed_to_register_finance_officer", "Failed to register finance officer."),
           }
         );
       }
@@ -736,7 +759,7 @@ export const RegisterFinanceOfficerPage = () => {
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
               >
                 {DEPARTMENTS.map((dept) => (
-                  <option key={dept} value={dept}>{dept}</option>
+                  <option key={dept} value={dept}>{t(FINANCE_OPTION_KEYS[dept], dept)}</option>
                 ))}
               </select>
             </div>
@@ -752,7 +775,7 @@ export const RegisterFinanceOfficerPage = () => {
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
               >
                 {CLEARANCE_LEVELS.map((lvl) => (
-                  <option key={lvl} value={lvl}>{lvl}</option>
+                  <option key={lvl} value={lvl}>{t(FINANCE_OPTION_KEYS[lvl], lvl)}</option>
                 ))}
               </select>
             </div>
@@ -839,7 +862,7 @@ export const RegisterFinanceOfficerPage = () => {
 
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                {formData.city || 'India HQ'}
+                {formData.city || t("superadmin.assignment_finance.india_hq", "India HQ")}
               </span>
             </div>
           </div>
@@ -858,14 +881,14 @@ export const RegisterFinanceOfficerPage = () => {
             onChange={handleAddressChange}
             fieldErrors={fieldErrors}
             disabled={submitting}
-            searchLabel="Search Corporate Office / Finance Tower / Zonal Branch"
+            searchLabel={t("superadmin.assignment_finance.search_corporate_office_finance_tower_zonal_branch", "Search Corporate Office / Finance Tower / Zonal Branch")}
             searchPlaceholder={t('ag.superadmin.registerfinanceofficerpage.search_finance_hub_corporate_tower_s', 'Search finance hub, corporate tower, street, or city in India...')}
-            searchHint="Search any financial landmark, corporate park, or commercial hub in India — or drag the pin on the map to set exact coordinates."
+            searchHint={t("superadmin.assignment_finance.search_any_financial_landmark_corporate_park_or_commercial_hub_in_india_or_drag_the_pin_on_the_map_to_set_exact_coordinates", "Search any financial landmark, corporate park, or commercial hub in India — or drag the pin on the map to set exact coordinates.")}
             pinEmoji=""
             pinColor="#2563eb"
             pinLabel={t('ag.superadmin.registerfinanceofficerpage.finance_office_pin', 'Finance Office Pin')}
-            addressLabel="Office Street Address / Corporate Suite *"
-            addressPlaceholder="Tower name, floor/suite, business park, street address"
+            addressLabel={t("superadmin.assignment_finance.office_street_address_corporate_suite", "Office Street Address / Corporate Suite *")}
+            addressPlaceholder={t("superadmin.assignment_finance.tower_name_floor_suite_business_park_street_address", "Tower name, floor/suite, business park, street address")}
           />
         </div>
 
@@ -887,6 +910,7 @@ export const RegisterFinanceOfficerPage = () => {
             title={t('superadmin.finance_officer.sec4_title', '4. Statutory Documents & Professional Credentials')}
             purpose="finance_document"
             categories={FINANCE_DOCUMENT_CATEGORIES}
+            categoryLabels={Object.fromEntries(FINANCE_DOCUMENT_CATEGORIES.map(value => [value, t(FINANCE_OPTION_KEYS[value], value)]))}
           />
           {fieldErrors.documents && (
             <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs font-bold text-rose-700 flex items-center gap-2 mt-2">

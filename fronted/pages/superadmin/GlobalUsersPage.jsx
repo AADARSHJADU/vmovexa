@@ -36,10 +36,10 @@ export const formatRoleName = (role) => {
 export const GlobalUsersPage = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { hasPermission } = useAuth();
-  const canDeleteUser = hasPermission('users.delete');
-  const { users, pagination, loading, loadUsers, createUser, inviteUser, updateStatus, deleteUser, getUserPermissions, updateUserPermissions } = useSuperUser();
-  const { roles, loadRoles } = useSuperRole();
+  const { isSuperAdmin } = useAuth();
+  const canDeleteUser = isSuperAdmin;
+  const { users, pagination, loading, loadUsers, createUser, inviteUser, updateStatus, deleteUser, getUserPermissions, updateUserPermissions, resetUserPermissions } = useSuperUser();
+  const { roles, loadRoles, loadRegistry } = useSuperRole();
   const { organizations, loadOrganizations } = useOrganization();
   const [permissionUser, setPermissionUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -250,10 +250,10 @@ export const GlobalUsersPage = () => {
         userId={permissionUser.id}
         userName={permissionUser.name}
         userEmail={permissionUser.email}
-        userRole={permissionUser.role?.code || permissionUser.role?.name}
         fetchPermissionsFn={getUserPermissions}
         updatePermissionsFn={updateUserPermissions}
-        isTenantAdmin={false}
+        resetPermissionsFn={resetUserPermissions}
+        loadRegistryFn={loadRegistry}
         onBack={() => setPermissionUser(null)}
       />
     );
@@ -422,7 +422,7 @@ export const GlobalUsersPage = () => {
           className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 border flex items-center gap-1.5 cursor-pointer ${
             roleFilter === 'ROLE-GOVT-AGENCY'
               ? 'bg-teal-600 text-white border-teal-600 shadow-sm'
-              : 'bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-100 dark:bg-teal-950/60 dark:text-teal-300 dark:border-teal-800'
+              : 'bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950/60 dark:text-teal-300 dark:border-teal-800'
           }`}
         >
           <span className="flex items-center gap-1.5"><FleetIcons.Landmark className="w-3.5 h-3.5" /> {t('superadmin.users.chip_government', 'Government')}</span>
@@ -433,7 +433,7 @@ export const GlobalUsersPage = () => {
           className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 border flex items-center gap-1.5 cursor-pointer ${
             roleFilter === 'ROLE-FINANCE-OFFICER'
               ? 'bg-cyan-600 text-white border-cyan-600 shadow-sm'
-              : 'bg-cyan-50 text-cyan-700 border-cyan-200 hover:bg-cyan-100 dark:bg-cyan-950/60 dark:text-cyan-300 dark:border-cyan-800'
+              : 'bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-950/60 dark:text-cyan-300 dark:border-cyan-800'
           }`}
         >
           <span className="flex items-center gap-1.5"><FleetIcons.CreditCard className="w-3.5 h-3.5" /> {t('superadmin.users.chip_finance', 'Finance')}</span>
@@ -553,7 +553,7 @@ export const GlobalUsersPage = () => {
                 onClick={handleResetFilters}
                 className="px-3.5 py-1.5 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-xs font-bold hover:bg-rose-100 transition-colors whitespace-nowrap flex items-center gap-1 cursor-pointer"
               >
-                <span>{t('superadmin.users.btn_clear_filters', 'Clear All Filters ({count})', { count: activeFilterCount })}</span>
+                <span>{t('superadmin.users.btn_clear_filters', 'Clear All Filters')}</span>
               </button>
             )}
           </div>
@@ -602,7 +602,7 @@ export const GlobalUsersPage = () => {
             </div>
 
             <span className="text-slate-500 dark:text-zinc-400 font-bold text-xs">
-              {t('superadmin.users.showing_users_count', 'Showing {filtered} of {total} Users', { filtered: filteredUsers.length, total: pagination?.total ?? userList.length })}
+              {t('superadmin.users.showing_users_count', 'Showing {{filtered}} of {{total}} Users', { filtered: filteredUsers.length, total: pagination?.total ?? userList.length })}
             </span>
           </div>
         )}
@@ -653,6 +653,11 @@ export const GlobalUsersPage = () => {
                       <span className="font-bold text-slate-900 dark:text-zinc-100 block">{roleName}</span>
                       {roleCode && (
                         <span className="text-[10px] font-mono text-blue-600 dark:text-blue-400">{roleCode}</span>
+                      )}
+                      {u.deniedCount > 0 && (
+                        <span className="ml-2 rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-bold text-red-600">
+                          {u.deniedCount} {t('rbac.user.revoked_badge', 'revoked')}
+                        </span>
                       )}
                     </td>
                     <td className="py-3.5 px-4">
@@ -864,6 +869,17 @@ export const GlobalUsersPage = () => {
                       <option key={r.id} value={r.id}>{formatRoleName(r)}</option>
                     ))}
                   </select>
+                  {(() => {
+                    const sel = roleList.find((r) => String(r.id) === String(newUser.roleId)) || roleList[0];
+                    if (!sel) return null;
+                    return (
+                      <p className="mt-1.5 text-[11px] text-slate-500 dark:text-zinc-400">
+                        {sel.wildcard
+                          ? t('rbac.create.full_access', 'Gets full access to everything.')
+                          : `${t('rbac.create.auto_prefix', 'Automatically gets all')} ${sel.permissionCount} ${t('rbac.create.auto_suffix', 'permissions of this role. You can revoke some later.')}`}
+                      </p>
+                    );
+                  })()}
                 </div>
 
                 <div>

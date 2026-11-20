@@ -571,6 +571,15 @@ class AdvertiserService extends GetxService {
     );
   }
 
+  /// POST /api/v1/uploads (for support attachments)
+  Future<ApiResponseModel<Map<String, dynamic>>> uploadSupportFile(String filePath) async {
+    return _http.uploadFile(
+      filePath: filePath,
+      purpose: 'support',
+      requiresAuth: true,
+    );
+  }
+
   /// POST /api/v1/support/tickets
   Future<ApiResponseModel<dynamic>> createTicket(Map<String, dynamic> data) async {
     return _http.post(

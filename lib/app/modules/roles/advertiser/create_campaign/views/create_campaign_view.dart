@@ -25,6 +25,9 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
               // Top Bar
               _buildTopBar(),
 
+              // Saved Draft Notice Banner (matching Admin Panel)
+              _buildSavedDraftBanner(),
+
               // Stepper Progress Bar (6 Steps)
               _buildStepperProgress(),
               const SizedBox(height: 8),
@@ -66,37 +69,266 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
             icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
             onPressed: controller.previousStep,
           ),
-          Column(
-            children: [
-              Obx(() => Text(
-                controller.isEditMode.value ? 'Edit Campaign' : 'Create Campaign',
-                style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-              )),
-              Obx(() => Text(
-                    'Step ${controller.currentStep.value} of ${controller.totalSteps}: ${controller.stepLabels[controller.currentStep.value - 1]}',
+          Expanded(
+            child: Column(
+              children: [
+                Obx(() => Text(
+                  controller.isEditMode.value ? 'edit_campaign_title'.tr : 'create_campaign'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  overflow: TextOverflow.ellipsis,
+                )),
+                Obx(() {
+                  final current = controller.currentStep.value;
+                  final label = controller.stepLabels[current - 1];
+                  return Text(
+                    '${'step_x_of_y'.tr} $current / ${controller.totalSteps}: $label',
                     style: const TextStyle(color: AppColors.textMuted, fontSize: 10.5),
-                  )),
-            ],
-          ),
-          TextButton(
-            onPressed: controller.saveDraft,
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Icon(Icons.save_as_outlined, color: Color(0xFF8B5CF6), size: 16),
-                SizedBox(width: 4),
-                Text('Draft', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 11, fontWeight: FontWeight.bold)),
+                    overflow: TextOverflow.ellipsis,
+                  );
+                }),
               ],
             ),
           ),
+          Obx(() {
+            final hasDraft = controller.hasSavedDraft.value && !controller.isEditMode.value;
+            final isSaved = controller.draftSavedAt.value.isNotEmpty;
+
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (hasDraft) ...[
+                  InkWell(
+                    onTap: controller.restoreDraft,
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF3B82F6).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.4)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.refresh_rounded, color: Color(0xFF60A5FA), size: 13),
+                          const SizedBox(width: 3),
+                          Text(
+                            'restore_draft_btn'.tr,
+                            style: const TextStyle(
+                              color: Color(0xFF60A5FA),
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                ],
+                InkWell(
+                  onTap: controller.saveDraft,
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: isSaved
+                          ? const Color(0xFF10B981).withValues(alpha: 0.15)
+                          : const Color(0xFF8B5CF6).withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: isSaved
+                            ? const Color(0xFF10B981).withValues(alpha: 0.6)
+                            : const Color(0xFF8B5CF6).withValues(alpha: 0.4),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          isSaved ? Icons.check_circle_rounded : Icons.save_as_outlined,
+                          color: isSaved ? const Color(0xFF10B981) : const Color(0xFF8B5CF6),
+                          size: 13,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          isSaved
+                              ? '${'saved_badge'.tr} (${controller.draftSavedAt.value})'
+                              : 'save_draft_btn'.tr,
+                          style: TextStyle(
+                            color: isSaved ? const Color(0xFF10B981) : const Color(0xFF8B5CF6),
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }),
         ],
       ),
     );
+  }
+
+  // ==========================================================
+  // SAVED DRAFT BANNER (Persistent Banner matching Admin Panel)
+  // ==========================================================
+  Widget _buildSavedDraftBanner() {
+    return Obx(() {
+      if (!controller.hasSavedDraft.value || controller.isEditMode.value || controller.draftInfo.value == null) {
+        return const SizedBox.shrink();
+      }
+      final info = controller.draftInfo.value!;
+      final campaignName = info['name']?.toString() ?? 'step_campaign_info'.tr;
+      final savedTime = info['savedTime']?.toString() ?? '';
+      final step = info['step'] ?? 1;
+
+      return Container(
+        margin: const EdgeInsets.only(left: 16, right: 16, bottom: 10),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E293B).withValues(alpha: 0.9),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.35)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(Icons.bookmark_added_rounded, color: Colors.white, size: 18),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RichText(
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        text: TextSpan(
+                          text: '${'saved_draft_avail'.tr}: ',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: campaignName,
+                              style: const TextStyle(
+                                color: Color(0xFF60A5FA),
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${'last_saved_at'.tr} $savedTime · ${'ready_resume_step'.tr} $step',
+                        style: const TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                // Discard Button
+                OutlinedButton.icon(
+                  onPressed: controller.discardDraft,
+                  icon: const Icon(Icons.delete_outline_rounded, size: 13, color: AppColors.textMuted),
+                  label: Text(
+                    'discard_btn'.tr,
+                    style: const TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.w600),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: Colors.white.withValues(alpha: 0.15)),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Restore Button with primaryGradient
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+                        blurRadius: 4,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(10),
+                      onTap: controller.restoreDraft,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.refresh_rounded, size: 14, color: Colors.white),
+                            const SizedBox(width: 4),
+                            Text(
+                              'restore_draft_btn'.tr,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   // ==========================================================
@@ -143,13 +375,13 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                             child: isCompleted
                                 ? const Icon(Icons.check, color: Colors.white, size: 13)
                                 : Text(
-                                    '$stepNum',
-                                    style: TextStyle(
-                                      color: isCurrent ? Colors.white : AppColors.textMuted,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                              '$stepNum',
+                              style: TextStyle(
+                                color: isCurrent ? Colors.white : AppColors.textMuted,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -221,31 +453,31 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader(
-          'Campaign Information',
-          'Provide essential metadata and classification for your transit ad campaign.',
+          'campaign_info_title'.tr,
+          'campaign_info_sub'.tr,
         ),
         const SizedBox(height: 14),
 
         // Campaign Name
         _buildInputField(
-          label: 'Campaign Name *',
+          label: 'campaign_name_label'.tr,
           controller: controller.nameController,
-          hint: 'e.g. Summer Special Promotion 2026',
+          hint: 'campaign_name_hint'.tr,
         ),
         const SizedBox(height: 12),
 
         // Brand Name
         _buildInputField(
-          label: 'Brand / Company Name *',
+          label: 'brand_name_label'.tr,
           controller: controller.brandNameController,
-          hint: 'e.g. Acme Corp / Your Brand Name',
+          hint: 'brand_name_hint'.tr,
         ),
         const SizedBox(height: 14),
 
         // Campaign Type Tiles
-        const Text(
-          'Campaign Type',
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold),
+        Text(
+          'campaign_type_label'.tr,
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Obx(() {
@@ -289,9 +521,9 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
 
         // Description
         _buildInputField(
-          label: 'Campaign Description',
+          label: 'campaign_desc_label'.tr,
           controller: controller.descriptionController,
-          hint: 'Describe your target commuters, key messaging, and campaign objectives...',
+          hint: 'campaign_desc_hint'.tr,
           maxLines: 3,
         ),
         const SizedBox(height: 12),
@@ -303,26 +535,26 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Objective *', style: TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold)),
+                  Text('objective_label'.tr, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 6),
                   Obx(() => Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0F172A),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppColors.cardBorder),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: controller.selectedObjective.value,
-                            isExpanded: true,
-                            dropdownColor: const Color(0xFF1E293B),
-                            style: const TextStyle(color: Colors.white, fontSize: 11),
-                            items: controller.objectives.map((o) => DropdownMenuItem(value: o, child: Text(o, maxLines: 1, overflow: TextOverflow.ellipsis))).toList(),
-                            onChanged: (v) => controller.selectedObjective.value = v ?? 'Increase Brand Awareness',
-                          ),
-                        ),
-                      )),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0F172A),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppColors.cardBorder),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: controller.selectedObjective.value,
+                        isExpanded: true,
+                        dropdownColor: const Color(0xFF1E293B),
+                        style: const TextStyle(color: Colors.white, fontSize: 11),
+                        items: controller.objectives.map((o) => DropdownMenuItem(value: o, child: Text(o, maxLines: 1, overflow: TextOverflow.ellipsis))).toList(),
+                        onChanged: (v) => controller.selectedObjective.value = v ?? 'Increase Brand Awareness',
+                      ),
+                    ),
+                  )),
                 ],
               ),
             ),
@@ -331,26 +563,26 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Category *', style: TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold)),
+                  Text('campaign_category_label'.tr, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 6),
                   Obx(() => Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0F172A),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppColors.cardBorder),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: controller.selectedCategory.value,
-                            isExpanded: true,
-                            dropdownColor: const Color(0xFF1E293B),
-                            style: const TextStyle(color: Colors.white, fontSize: 11),
-                            items: controller.categories.map((c) => DropdownMenuItem(value: c, child: Text(c, maxLines: 1, overflow: TextOverflow.ellipsis))).toList(),
-                            onChanged: (v) => controller.selectedCategory.value = v ?? 'Retail',
-                          ),
-                        ),
-                      )),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0F172A),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppColors.cardBorder),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: controller.selectedCategory.value,
+                        isExpanded: true,
+                        dropdownColor: const Color(0xFF1E293B),
+                        style: const TextStyle(color: Colors.white, fontSize: 11),
+                        items: controller.categories.map((c) => DropdownMenuItem(value: c, child: Text(c, maxLines: 1, overflow: TextOverflow.ellipsis))).toList(),
+                        onChanged: (v) => controller.selectedCategory.value = v ?? 'Retail',
+                      ),
+                    ),
+                  )),
                 ],
               ),
             ),
@@ -386,15 +618,15 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
-                          'Customer / Client Details',
-                          style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                          'customer_client_details_title'.tr,
+                          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
-                          'SMS & Email link and official invoice recipient',
-                          style: TextStyle(color: Color(0xFF93C5FD), fontSize: 10),
+                          'customer_client_details_sub'.tr,
+                          style: const TextStyle(color: Color(0xFF93C5FD), fontSize: 10),
                         ),
                       ],
                     ),
@@ -404,31 +636,31 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
               const SizedBox(height: 14),
 
               _buildInputField(
-                label: 'Customer Contact Name *',
+                label: 'customer_contact_name_label'.tr,
                 controller: controller.clientNameController,
-                hint: 'e.g. Rajesh Sharma / Business Owner',
+                hint: 'customer_contact_name_hint'.tr,
               ),
               const SizedBox(height: 10),
 
               _buildInputField(
-                label: 'Customer Company / Brand Name',
+                label: 'customer_company_label'.tr,
                 controller: controller.clientCompanyController,
-                hint: 'e.g. Sharma Traders Pvt Ltd',
+                hint: 'customer_company_hint'.tr,
               ),
               const SizedBox(height: 10),
 
               _buildInputField(
-                label: 'Customer Mobile Number * (SMS Payment Link)',
+                label: 'customer_mobile_label'.tr,
                 controller: controller.clientPhoneController,
-                hint: 'e.g. +91 98765 43210',
+                hint: 'customer_mobile_hint'.tr,
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 10),
 
               _buildInputField(
-                label: 'Customer Email Address * (GST Invoice Link)',
+                label: 'customer_email_label'.tr,
                 controller: controller.clientEmailController,
-                hint: 'e.g. rajesh@sharmatraders.in',
+                hint: 'customer_email_hint'.tr,
                 keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 14),
@@ -461,18 +693,18 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader(
-          'Upload Creative Assets or Video URL',
-          'Attach images, videos, or provide online streaming YouTube links.',
+          'creative_assets_title'.tr,
+          'creative_assets_sub'.tr,
         ),
         const SizedBox(height: 14),
 
         // Creative Type Selector Pills
         Obx(() {
           final types = [
-            {'type': 'All', 'label': 'All Creatives', 'icon': Icons.folder_open_rounded},
-            {'type': 'Image', 'label': 'Image', 'icon': Icons.image_rounded},
-            {'type': 'Video', 'label': 'Video', 'icon': Icons.videocam_rounded},
-            {'type': 'URL', 'label': 'YouTube / URL', 'icon': Icons.link_rounded},
+            {'type': 'All', 'label': 'all_creatives_tab'.tr, 'icon': Icons.folder_open_rounded},
+            {'type': 'Image', 'label': 'image_tab'.tr, 'icon': Icons.image_rounded},
+            {'type': 'Video', 'label': 'video_tab'.tr, 'icon': Icons.videocam_rounded},
+            {'type': 'URL', 'label': 'url_youtube_tab'.tr, 'icon': Icons.link_rounded},
           ];
 
           return SingleChildScrollView(
@@ -532,7 +764,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                         child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 16),
                       ),
                       const SizedBox(width: 8),
-                      const Text('YouTube / Web Video URL', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                      Text('youtube_video_url_title'.tr, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                       const Spacer(),
                       if (controller.detectedYtId.value.isNotEmpty)
                         Container(
@@ -571,7 +803,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                   ],
                   const SizedBox(height: 12),
                   CustomButton(
-                    text: '+ Add to Creatives List',
+                    text: 'add_to_creatives_btn'.tr,
                     height: 42,
                     isGradient: true,
                     onTap: controller.addVideoUrlToCreatives,
@@ -593,14 +825,14 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
               children: [
                 const Icon(Icons.cloud_upload_outlined, color: Color(0xFF8B5CF6), size: 40),
                 const SizedBox(height: 10),
-                const Text(
-                  'Browse Creative Media from Device',
-                  style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                Text(
+                  'browse_creative_from_device'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Supports MP4, MOV, JPG, PNG (Max 100MB)',
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 10.5),
+                Text(
+                  'media_supported_specs'.tr,
+                  style: const TextStyle(color: AppColors.textMuted, fontSize: 10.5),
                 ),
                 const SizedBox(height: 16),
                 Row(
@@ -609,7 +841,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                     ElevatedButton.icon(
                       onPressed: () => controller.pickMedia('Video'),
                       icon: const Icon(Icons.videocam_rounded, size: 16),
-                      label: const Text('Pick Video', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                      label: Text('pick_video_btn'.tr, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF8B5CF6),
                         foregroundColor: Colors.white,
@@ -621,7 +853,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                     OutlinedButton.icon(
                       onPressed: () => controller.pickMedia('Image'),
                       icon: const Icon(Icons.image_rounded, size: 16),
-                      label: const Text('Pick Image', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                      label: Text('pick_image_btn'.tr, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.white,
                         side: const BorderSide(color: AppColors.cardBorder),
@@ -638,9 +870,9 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
         const SizedBox(height: 20),
 
         // Attached Creatives List
-        const Text(
-          'Attached Creative Assets',
-          style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+        Text(
+          'attached_creatives_title'.tr,
+          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Obx(() {
@@ -653,8 +885,8 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                 border: Border.all(color: AppColors.cardBorder),
               ),
               alignment: Alignment.center,
-              child: const Text('No creatives attached yet. Please upload media or add a video URL.',
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 11), textAlign: TextAlign.center),
+              child: Text('no_creatives_attached_msg'.tr,
+                  style: const TextStyle(color: AppColors.textMuted, fontSize: 11), textAlign: TextAlign.center),
             );
           }
 
@@ -720,12 +952,12 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader(
-          'Select Transit Routes & Screens',
-          'Search a route, view assigned buses and onboard digital screens.',
+          'select_routes_screens_title'.tr,
+          'select_routes_screens_sub'.tr,
         ),
         const SizedBox(height: 12),
 
-        // Live Selected Metrics Banner
+        // Live Selected Metrics Banner with AppTheme.primaryGradient
         Obx(() {
           return Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -737,11 +969,11 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${controller.selectedTargets.length} Routes Selected',
+                  '${controller.selectedTargets.length} ${'routes_selected_badge'.tr}',
                   style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  '${controller.totalSelectedVehicles} Buses • ${controller.totalSelectedScreens} Screens',
+                  '${controller.totalSelectedVehicles} ${'buses_label'.tr} • ${controller.totalSelectedScreens} ${'screens_label'.tr}',
                   style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                 ),
               ],
@@ -759,7 +991,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                 onChanged: (v) => controller.routeSearchQuery.value = v,
                 style: const TextStyle(color: Colors.white, fontSize: 11),
                 decoration: InputDecoration(
-                  hintText: 'Search route, corridor, city...',
+                  hintText: 'search_route_bus_operator_hint'.tr,
                   hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 10.5),
                   prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 16),
                   filled: true,
@@ -800,12 +1032,12 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
           children: [
             TextButton(
               onPressed: controller.selectAllRoutes,
-              child: const Text('Select All', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 11, fontWeight: FontWeight.bold)),
+              child: Text('select_all_btn'.tr, style: const TextStyle(color: Color(0xFF8B5CF6), fontSize: 11, fontWeight: FontWeight.bold)),
             ),
             const SizedBox(width: 8),
             TextButton(
               onPressed: controller.clearAllRoutes,
-              child: const Text('Clear All', style: TextStyle(color: Color(0xFFEF4444), fontSize: 11, fontWeight: FontWeight.bold)),
+              child: Text('clear_all_btn'.tr, style: const TextStyle(color: Color(0xFFEF4444), fontSize: 11, fontWeight: FontWeight.bold)),
             ),
           ],
         ),
@@ -820,7 +1052,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
             return Container(
               padding: const EdgeInsets.all(30),
               alignment: Alignment.center,
-              child: const Text('No transit routes found matching your search.', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+              child: Text('no_transit_routes_found'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
             );
           }
 
@@ -871,11 +1103,11 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   Text(
-                                    '${target?.vehicleCount ?? route.vehicleCount} buses',
+                                    '${target?.vehicleCount ?? route.vehicleCount} ${'buses_label'.tr}',
                                     style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                                   ),
                                   Text(
-                                    '${target?.totalScreens ?? route.totalScreens} screens',
+                                    '${target?.totalScreens ?? route.totalScreens} ${'screens_label'.tr}',
                                     style: const TextStyle(color: Color(0xFF8B5CF6), fontSize: 10, fontWeight: FontWeight.bold),
                                   ),
                                 ],
@@ -894,70 +1126,70 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                             padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                             child: route.vehicles.isEmpty
                                 ? Container(
-                                    padding: const EdgeInsets.all(10),
-                                    alignment: Alignment.centerLeft,
-                                    child: const Text('No individual buses registered on this route; targets complete route.', style: TextStyle(color: AppColors.textMuted, fontSize: 10)),
-                                  )
+                              padding: const EdgeInsets.all(10),
+                              alignment: Alignment.centerLeft,
+                              child: Text('no_active_buses_assigned'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
+                            )
                                 : Column(
-                                    children: route.vehicles.map((vehicle) {
-                                      final isBusSel = target?.vehicleIds.contains(vehicle.id) ?? false;
-                                      final busKey = '${route.id}-${vehicle.id}';
-                                      final isBusExp = controller.expandedBuses[busKey] ?? false;
+                              children: route.vehicles.map((vehicle) {
+                                final isBusSel = target?.vehicleIds.contains(vehicle.id) ?? false;
+                                final busKey = '${route.id}-${vehicle.id}';
+                                final isBusExp = controller.expandedBuses[busKey] ?? false;
 
-                                      return Container(
-                                        margin: const EdgeInsets.only(top: 6),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF0F172A),
-                                          borderRadius: BorderRadius.circular(8),
-                                          border: Border.all(color: AppColors.cardBorder),
+                                return Container(
+                                  margin: const EdgeInsets.only(top: 6),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF0F172A),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: AppColors.cardBorder),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      ListTile(
+                                        dense: true,
+                                        visualDensity: VisualDensity.compact,
+                                        onTap: () => controller.toggleBus(route, vehicle),
+                                        leading: Checkbox(
+                                          value: isBusSel,
+                                          activeColor: const Color(0xFF8B5CF6),
+                                          onChanged: (_) => controller.toggleBus(route, vehicle),
                                         ),
-                                        child: Column(
+                                        title: Text(vehicle.busNumber, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                                        trailing: Row(
+                                          mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            ListTile(
-                                              dense: true,
-                                              visualDensity: VisualDensity.compact,
-                                              onTap: () => controller.toggleBus(route, vehicle),
-                                              leading: Checkbox(
-                                                value: isBusSel,
-                                                activeColor: const Color(0xFF8B5CF6),
-                                                onChanged: (_) => controller.toggleBus(route, vehicle),
-                                              ),
-                                              title: Text(vehicle.busNumber, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                                              trailing: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Text('${vehicle.screens.isNotEmpty ? vehicle.screens.length : vehicle.displaysCount} screens', style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 10)),
-                                                  if (vehicle.screens.isNotEmpty)
-                                                    IconButton(
-                                                      icon: Icon(isBusExp ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, color: AppColors.textMuted, size: 16),
-                                                      onPressed: () => controller.toggleBusExpanded(busKey),
-                                                    ),
-                                                ],
-                                              ),
-                                            ),
-                                            if (isBusExp && vehicle.screens.isNotEmpty)
-                                              Padding(
-                                                padding: const EdgeInsets.fromLTRB(20, 0, 10, 8),
-                                                child: Wrap(
-                                                  spacing: 6,
-                                                  runSpacing: 6,
-                                                  children: vehicle.screens.map((screen) {
-                                                    final isScrSel = target?.screenIds.contains(screen.id) ?? false;
-                                                    return FilterChip(
-                                                      label: Text(screen.code, style: TextStyle(color: isScrSel ? Colors.white : AppColors.textSecondary, fontSize: 9.5)),
-                                                      selected: isScrSel,
-                                                      selectedColor: const Color(0xFF8B5CF6),
-                                                      backgroundColor: const Color(0xFF1E293B),
-                                                      onSelected: (_) => controller.toggleScreen(route, vehicle, screen),
-                                                    );
-                                                  }).toList(),
-                                                ),
+                                            Text('${vehicle.screens.isNotEmpty ? vehicle.screens.length : vehicle.displaysCount} ${'screens_label'.tr}', style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 10)),
+                                            if (vehicle.screens.isNotEmpty)
+                                              IconButton(
+                                                icon: Icon(isBusExp ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, color: AppColors.textMuted, size: 16),
+                                                onPressed: () => controller.toggleBusExpanded(busKey),
                                               ),
                                           ],
                                         ),
-                                      );
-                                    }).toList(),
+                                      ),
+                                      if (isBusExp && vehicle.screens.isNotEmpty)
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(20, 0, 10, 8),
+                                          child: Wrap(
+                                            spacing: 6,
+                                            runSpacing: 6,
+                                            children: vehicle.screens.map((screen) {
+                                              final isScrSel = target?.screenIds.contains(screen.id) ?? false;
+                                              return FilterChip(
+                                                label: Text(screen.code, style: TextStyle(color: isScrSel ? Colors.white : AppColors.textSecondary, fontSize: 9.5)),
+                                                selected: isScrSel,
+                                                selectedColor: const Color(0xFF8B5CF6),
+                                                backgroundColor: const Color(0xFF1E293B),
+                                                onSelected: (_) => controller.toggleScreen(route, vehicle, screen),
+                                              );
+                                            }).toList(),
+                                          ),
+                                        ),
+                                    ],
                                   ),
+                                );
+                              }).toList(),
+                            ),
                           ),
                       ],
                     ),
@@ -979,27 +1211,27 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader(
-          'Campaign Schedule & Broadcast Airtime',
-          'Configure campaign flight calendar dates, repeat frequency, and active hours.',
+          'campaign_schedule_title'.tr,
+          'campaign_schedule_sub'.tr,
         ),
         const SizedBox(height: 14),
 
         // Quick Duration Presets (7, 14, 30, 60, 90)
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
-            Text('Quick Duration Presets', style: TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold)),
-            Text('Click to set flight window', style: TextStyle(color: AppColors.textMuted, fontSize: 10)),
+          children: [
+            Text('quick_duration_presets_title'.tr, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold)),
+            Text('click_to_set_flight'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
           ],
         ),
         const SizedBox(height: 8),
         Obx(() {
           final presets = [
-            {'days': 7, 'label': '7 Days', 'sub': '1 Week'},
-            {'days': 14, 'label': '14 Days', 'sub': '2 Weeks'},
-            {'days': 30, 'label': '30 Days', 'sub': '1 Month'},
-            {'days': 60, 'label': '60 Days', 'sub': '2 Months'},
-            {'days': 90, 'label': '90 Days', 'sub': 'Quarterly'},
+            {'days': 7, 'label': '7 Days'},
+            {'days': 14, 'label': '14 Days'},
+            {'days': 30, 'label': '30 Days'},
+            {'days': 60, 'label': '60 Days'},
+            {'days': 90, 'label': '90 Days'},
           ];
 
           return Row(
@@ -1037,14 +1269,18 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
         }),
         const SizedBox(height: 14),
 
-        // Start Date & End Date Row
+        // Start Date & Time + End Date & Time Row (Matching Admin Panel)
         Row(
           children: [
             Expanded(
-              child: _buildDateCard(
-                title: 'Start Date',
+              child: _buildDateTimeCard(
+                title: 'start_date_label'.tr,
+                badge: 'Launch Date',
+                badgeColor: const Color(0xFF3B82F6),
+                headerIcon: Icons.rocket_launch_rounded,
                 date: controller.startDate,
-                onTap: () async {
+                time: controller.startTime,
+                onDateTap: () async {
                   final picked = await showDatePicker(
                     context: Get.context!,
                     initialDate: controller.startDate.value,
@@ -1053,14 +1289,19 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                   );
                   if (picked != null) controller.setStartDate(picked);
                 },
+                onTimeTap: () => controller.selectStartTime(Get.context!),
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: _buildDateCard(
-                title: 'End Date',
+              child: _buildDateTimeCard(
+                title: 'end_date_label'.tr,
+                badge: 'Expiry Date',
+                badgeColor: const Color(0xFF6366F1),
+                headerIcon: Icons.flag_rounded,
                 date: controller.endDate,
-                onTap: () async {
+                time: controller.endTime,
+                onDateTap: () async {
                   final picked = await showDatePicker(
                     context: Get.context!,
                     initialDate: controller.endDate.value,
@@ -1069,6 +1310,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                   );
                   if (picked != null) controller.setEndDate(picked);
                 },
+                onTimeTap: () => controller.selectEndTime(Get.context!),
               ),
             ),
           ],
@@ -1076,7 +1318,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
         const SizedBox(height: 14),
 
         // Repeat Frequency (Daily, Weekdays, Weekends, Custom)
-        const Text('Repeat Frequency', style: TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold)),
+        Text('repeat_freq_title'.tr, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Obx(() {
           final options = ['Daily', 'Weekdays', 'Weekends', 'Custom'];
@@ -1109,7 +1351,13 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
         const SizedBox(height: 14),
 
         // Day of Week Selector Chips
-        const Text('Active Broadcast Days', style: TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold)),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('active_broadcast_days_title'.tr, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold)),
+            Obx(() => Text('${controller.activeBroadcastDaysCount} ${'active_days_of_7_count'.tr}', style: const TextStyle(color: Color(0xFF8B5CF6), fontSize: 10.5, fontWeight: FontWeight.bold))),
+          ],
+        ),
         const SizedBox(height: 8),
         Obx(() {
           final days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -1138,43 +1386,492 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
             }).toList(),
           );
         }),
-        const SizedBox(height: 14),
+        const SizedBox(height: 16),
 
-        // Daily Operating Hours Presets
-        const Text('Daily Operating Hours', style: TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
+        // Daily Operating Hours Presets (Matching Admin Panel)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.access_time_filled_rounded, color: Color(0xFF3B82F6), size: 15),
+                const SizedBox(width: 6),
+                Text('daily_operating_hours_title'.tr, style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
+              ],
+            ),
+            Obx(() => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: const Color(0xFF3B82F6).withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.schedule_rounded, color: Color(0xFF38BDF8), size: 12),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${controller.formattedDailyOperatingHours} Hours / Day Active',
+                    style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 10, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            )),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text('daily_broadcast_window_desc'.tr,
+          style: TextStyle(color: AppColors.textMuted, fontSize: 10),
+        ),
+        const SizedBox(height: 10),
+
+        // 4 Presets Matching Admin Panel
         Obx(() {
-          final slots = [
-            {'label': 'Full Day (06:00 - 23:00)', 'preset': 'Full Day'},
-            {'label': 'Morning Rush (07:00 - 12:00)', 'preset': 'Morning Rush'},
-            {'label': 'Evening Prime (17:00 - 22:00)', 'preset': 'Evening Prime'},
+          final selectedPreset = controller.selectedTimeSlotPreset.value;
+
+          final presets = [
+            {
+              'title': 'Prime Transit',
+              'time': '08:00 – 22:00',
+              'sub': '08:00 – 22:00 (14h)',
+              'presetKey': 'Prime Transit (08:00 - 22:00)',
+              'isRec': true,
+            },
+            {
+              'title': 'Full Day',
+              'time': '06:00 – 23:00',
+              'sub': '06:00 – 23:00 (17h)',
+              'presetKey': 'Full Day (06:00 - 23:00)',
+              'isRec': false,
+            },
+            {
+              'title': 'Morning Rush',
+              'time': '07:00 – 12:00',
+              'sub': '07:00 – 12:00 (5h)',
+              'presetKey': 'Morning Rush (07:00 - 12:00)',
+              'isRec': false,
+            },
+            {
+              'title': 'Evening Rush',
+              'time': '16:00 – 22:00',
+              'sub': '16:00 – 22:00 (6h)',
+              'presetKey': 'Evening Rush (16:00 - 22:00)',
+              'isRec': false,
+            },
           ];
 
-          return Column(
-            children: slots.map((s) {
-              final isSel = controller.selectedTimeSlotPreset.value == s['preset'];
+          return GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: presets.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+              childAspectRatio: 2.3,
+            ),
+            itemBuilder: (context, index) {
+              final p = presets[index];
+              final presetKey = p['presetKey'] as String;
+              final isSel = selectedPreset.startsWith(p['title'] as String);
+              final isRec = p['isRec'] as bool;
+
               return GestureDetector(
-                onTap: () => controller.setTimeSlotPreset(s['preset']!),
+                onTap: () => controller.setTimeSlotPreset(presetKey),
                 child: Container(
-                  margin: const EdgeInsets.only(bottom: 6),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   decoration: BoxDecoration(
-                    color: isSel ? const Color(0xFF1E293B) : AppColors.cardBg,
+                    gradient: isSel ? AppTheme.primaryGradient : null,
+                    color: isSel ? null : AppColors.cardBg,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: isSel ? const Color(0xFF8B5CF6) : AppColors.cardBorder),
+                    border: Border.all(
+                      color: isSel ? Colors.transparent : AppColors.cardBorder,
+                    ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(s['label']!, style: TextStyle(color: isSel ? Colors.white : AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold)),
-                      if (isSel) const Icon(Icons.check_circle_rounded, color: Color(0xFF8B5CF6), size: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            p['title'] as String,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          if (isRec)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                                vertical: 1,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF59E0B),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text('best_badge'.tr,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 8.5,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        p['sub'] as String,
+                        style: TextStyle(
+                          color: isSel ? Colors.white70 : AppColors.textMuted,
+                          fontSize: 9.5,
+                        ),
+                      ),
                     ],
                   ),
                 ),
               );
-            }).toList(),
+            },
           );
         }),
+       /* Obx(() {
+          final presets = [
+            {
+              'title': 'Prime Transit',
+              'time': '08:00 – 22:00',
+              'sub': '08:00 – 22:00 (14h)',
+              'presetKey': 'Prime Transit (08:00 - 22:00)',
+              'isRec': true,
+            },
+            {
+              'title': 'Full Day',
+              'time': '06:00 – 23:00',
+              'sub': '06:00 – 23:00 (17h)',
+              'presetKey': 'Full Day (06:00 - 23:00)',
+              'isRec': false,
+            },
+            {
+              'title': 'Morning Rush',
+              'time': '07:00 – 12:00',
+              'sub': '07:00 – 12:00 (5h)',
+              'presetKey': 'Morning Rush (07:00 - 12:00)',
+              'isRec': false,
+            },
+            {
+              'title': 'Evening Rush',
+              'time': '16:00 – 22:00',
+              'sub': '16:00 – 22:00 (6h)',
+              'presetKey': 'Evening Rush (16:00 - 22:00)',
+              'isRec': false,
+            },
+          ];
+
+          return GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: presets.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+              childAspectRatio: 2.3,
+            ),
+            itemBuilder: (context, index) {
+              final p = presets[index];
+              final presetKey = p['presetKey'] as String;
+              final isSel = controller.selectedTimeSlotPreset.value.startsWith(p['title'] as String);
+              final isRec = p['isRec'] as bool;
+
+              return GestureDetector(
+                onTap: () => controller.setTimeSlotPreset(presetKey),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  decoration: BoxDecoration(
+                    gradient: isSel ? AppTheme.primaryGradient : null,
+                    color: isSel ? null : AppColors.cardBg,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: isSel ? Colors.transparent : AppColors.cardBorder),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            p['title'] as String,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          if (isRec)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF59E0B),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text('best_badge'.tr, style: const TextStyle(color: Colors.black, fontSize: 8.5, fontWeight: FontWeight.w900)),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        p['sub'] as String,
+                        style: TextStyle(
+                          color: isSel ? Colors.white70 : AppColors.textMuted,
+                          fontSize: 9.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        }),*/
+        const SizedBox(height: 12),
+
+        // Custom Time Slot Inputs (Airtime Start Time & Airtime End Time)
+        Row(
+          children: [
+            // Custom Airtime Start Time
+            Expanded(
+              child: GestureDetector(
+                onTap: () => controller.selectStartTime(Get.context!),
+                child: Obx(() {
+                  final isCustom = controller.selectedTimeSlotPreset.value == 'Custom Time';
+                  return Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.cardBg,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isCustom ? const Color(0xFF8B5CF6) : AppColors.cardBorder,
+                        width: isCustom ? 1.5 : 1.0,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.wb_sunny_rounded, color: Color(0xFFF59E0B), size: 14),
+                                const SizedBox(width: 4),
+                                Text('start_time_label'.tr, style: const TextStyle(color: AppColors.textSecondary, fontSize: 10.5, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                            const Icon(Icons.edit_rounded, color: Color(0xFF8B5CF6), size: 12),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0F172A),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppColors.cardBorder),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                controller.dailySlotStart.value,
+                                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                              ),
+                              const Icon(Icons.access_time_rounded, color: Color(0xFFF59E0B), size: 14),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text('auto_synced_start'.tr,
+                          style: TextStyle(color: AppColors.textMuted, fontSize: 8.5),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ),
+            ),
+            const SizedBox(width: 10),
+            // Custom Airtime End Time
+            Expanded(
+              child: GestureDetector(
+                onTap: () => controller.selectEndTime(Get.context!),
+                child: Obx(() {
+                  final isCustom = controller.selectedTimeSlotPreset.value == 'Custom Time';
+                  return Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.cardBg,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isCustom ? const Color(0xFF8B5CF6) : AppColors.cardBorder,
+                        width: isCustom ? 1.5 : 1.0,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.nightlight_round, color: Color(0xFF6366F1), size: 14),
+                                const SizedBox(width: 4),
+                                Text('end_time_label'.tr, style: const TextStyle(color: AppColors.textSecondary, fontSize: 10.5, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                            const Icon(Icons.edit_rounded, color: Color(0xFF8B5CF6), size: 12),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0F172A),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppColors.cardBorder),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                controller.dailySlotEnd.value,
+                                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                              ),
+                              const Icon(Icons.access_time_rounded, color: Color(0xFF6366F1), size: 14),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text('auto_synced_end'.tr,
+                          style: TextStyle(color: AppColors.textMuted, fontSize: 8.5),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+
+        /*// Visual 24-Hour Airtime Bar
+        Obx(() {
+          final sParts = controller.dailySlotStart.value.split(':').map((e) => int.tryParse(e) ?? 0).toList();
+          final startFraction = ((sParts[0] + (sParts.length > 1 ? sParts[1] / 60.0 : 0.0)) / 24.0).clamp(0.0, 1.0);
+          final hours = controller.dailyOperatingHours;
+          final widthFraction = (hours / 24.0).clamp(0.0, (1.0 - startFraction).clamp(0.0, 1.0));
+
+          return Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.cardBg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.cardBorder),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('time_night_label'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
+                    Text(
+                      'Active Airtime: ${controller.dailySlotStart.value} – ${controller.dailySlotEnd.value} (${controller.formattedDailyOperatingHours}h)',
+                      style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 10, fontWeight: FontWeight.bold),
+                    ),
+                    Text('time_midnight_label'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  height: 10,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F172A),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: LayoutBuilder(
+                    builder: (ctx, constraints) {
+                      final totalW = constraints.maxWidth;
+                      return Stack(
+                        children: [
+                          Positioned(
+                            left: totalW * startFraction,
+                            width: (totalW * widthFraction).clamp(0.0, totalW),
+                            top: 0,
+                            bottom: 0,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: AppTheme.primaryGradient,
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+        const SizedBox(height: 16),*/
+
+        // Slot Availability Check Banner
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: const Color(0xFF10B981).withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.check_circle_outline_rounded, color: Color(0xFF10B981), size: 20),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('slot_availability_title'.tr, style: const TextStyle(color: Color(0xFF10B981), fontSize: 11.5, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 2),
+                    Text('slot_available_success'.tr, style: const TextStyle(color: AppColors.textSecondary, fontSize: 10)),
+                  ],
+                ),
+              ),
+              Obx(() => TextButton(
+                onPressed: controller.isCheckingSlot.value ? null : controller.checkSlotAvailability,
+                child: controller.isCheckingSlot.value
+                    ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF8B5CF6)))
+                    : Text('recheck_slot_btn'.tr, style: const TextStyle(color: Color(0xFF8B5CF6), fontSize: 10, fontWeight: FontWeight.bold)),
+              )),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -1187,8 +1884,8 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader(
-          'Budget & Dynamic Payment Breakdown',
-          'Configure base airtime fee, taxes, custom line items, and QR attribution.',
+          'budget_payment_breakdown_title'.tr,
+          'budget_payment_breakdown_sub'.tr,
         ),
         const SizedBox(height: 14),
 
@@ -1203,8 +1900,8 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Base Airtime Broadcast Fee (₹) *', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 6),
+              Text('base_airtime_fee_label'.tr, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               TextField(
                 controller: controller.baseAmountController,
                 keyboardType: TextInputType.number,
@@ -1220,6 +1917,33 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                 ),
                 onChanged: (_) => controller.breakdownItems.refresh(),
               ),
+              const SizedBox(height: 10),
+              // Quick Tax Calculation Buttons
+              Row(
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: controller.applyAutoCgst,
+                    icon: const Icon(Icons.percent_rounded, size: 14, color: Color(0xFF8B5CF6)),
+                    label: Text('auto_cgst_9_btn'.tr, style: const TextStyle(color: Color(0xFF8B5CF6), fontSize: 11, fontWeight: FontWeight.bold)),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFF8B5CF6)),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  OutlinedButton.icon(
+                    onPressed: controller.applyAutoIgst,
+                    icon: const Icon(Icons.percent_rounded, size: 14, color: Color(0xFF38BDF8)),
+                    label: Text('auto_igst_18_btn'.tr, style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 11, fontWeight: FontWeight.bold)),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFF38BDF8)),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -1229,11 +1953,11 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Itemized Line Items (Taxes / Fees)', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+            Text('itemized_line_items_title'.tr, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
             TextButton.icon(
               onPressed: controller.addBreakdownItem,
               icon: const Icon(Icons.add_rounded, size: 16, color: Color(0xFF8B5CF6)),
-              label: const Text('Add Line Item', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 11, fontWeight: FontWeight.bold)),
+              label: Text('add_line_item_btn'.tr, style: const TextStyle(color: Color(0xFF8B5CF6), fontSize: 11, fontWeight: FontWeight.bold)),
             ),
           ],
         ),
@@ -1249,8 +1973,8 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                 border: Border.all(color: AppColors.cardBorder),
               ),
               alignment: Alignment.center,
-              child: const Text('No custom line items added yet. Click "+ Add Line Item" above to add taxes (GST), fees, or discounts.',
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 10.5), textAlign: TextAlign.center),
+              child: Text('no_line_items_msg'.tr,
+                  style: const TextStyle(color: AppColors.textMuted, fontSize: 10.5), textAlign: TextAlign.center),
             );
           }
 
@@ -1258,104 +1982,263 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: controller.breakdownItems.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 8),
+            separatorBuilder: (_, _) => const SizedBox(height: 10),
             itemBuilder: (context, index) {
               final item = controller.breakdownItems[index];
+              final isTax = item.type == 'tax' || item.key.startsWith('GST_');
 
               return Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: AppColors.cardBg,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: AppColors.cardBorder),
                 ),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Top Tier: Item (Dropdown with grouped options) + Type (Dropdown with Charge/Discount/Tax) + Delete
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        // Preset selector
+                        // Item Selection Dropdown
                         Expanded(
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: item.key,
-                              dropdownColor: const Color(0xFF1E293B),
-                              style: const TextStyle(color: Colors.white, fontSize: 11),
-                              items: const [
-                                DropdownMenuItem(value: 'GST_CGST', child: Text('CGST (9%)')),
-                                DropdownMenuItem(value: 'GST_SGST', child: Text('SGST (9%)')),
-                                DropdownMenuItem(value: 'GST_IGST', child: Text('IGST (18%)')),
-                                DropdownMenuItem(value: 'FEE_AIRTIME_BROADCAST', child: Text('Airtime Fee (10%)')),
-                                DropdownMenuItem(value: 'FEE_HARDWARE_RENTAL', child: Text('Hardware Rental')),
-                                DropdownMenuItem(value: 'FEE_CREATIVE_DESIGN', child: Text('Creative Review')),
-                                DropdownMenuItem(value: 'DISCOUNT_VOLUME', child: Text('Volume Discount (5%)')),
-                                DropdownMenuItem(value: 'DISCOUNT_PROMO', child: Text('Promo Discount')),
-                                DropdownMenuItem(value: 'CUSTOM', child: Text('Custom Item')),
-                              ],
-                              onChanged: (v) {
-                                if (v != null) controller.selectBreakdownPreset(item.id, v);
-                              },
-                            ),
-                          ),
-                        ),
-                        // Type pill
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: item.type == 'discount' ? const Color(0xFFEF4444).withValues(alpha: 0.15) : const Color(0xFF10B981).withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            item.type.toUpperCase(),
-                            style: TextStyle(
-                              color: item.type == 'discount' ? const Color(0xFFEF4444) : const Color(0xFF10B981),
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 16),
-                          onPressed: () => controller.removeBreakdownItem(item.id),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: TextField(
-                            controller: TextEditingController(text: item.label),
-                            onChanged: (v) => item.label = v,
-                            style: const TextStyle(color: Colors.white, fontSize: 11),
-                            decoration: InputDecoration(
-                              hintText: 'Description',
-                              hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 10),
-                              filled: true,
-                              fillColor: const Color(0xFF0F172A),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: const BorderSide(color: AppColors.cardBorder)),
-                            ),
+                          flex: 3,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'item_label'.tr,
+                                style: const TextStyle(color: AppColors.textSecondary, fontSize: 10.5, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF0F172A),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: AppColors.cardBorder),
+                                ),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    value: item.key,
+                                    isExpanded: true,
+                                    dropdownColor: const Color(0xFF1E293B),
+                                    style: const TextStyle(color: Colors.white, fontSize: 11),
+                                    items: [
+                                      DropdownMenuItem(value: 'GST_CGST', child: Text('cgst_rate'.tr)),
+                                      DropdownMenuItem(value: 'GST_SGST', child: Text('sgst_rate'.tr)),
+                                      DropdownMenuItem(value: 'GST_IGST', child: Text('igst_rate'.tr)),
+                                      DropdownMenuItem(value: 'GST_CESS', child: Text('gst_cess_rate'.tr)),
+                                      DropdownMenuItem(value: 'FEE_AIRTIME_BROADCAST', child: Text('fee_airtime_playback'.tr)),
+                                      DropdownMenuItem(value: 'FEE_HARDWARE_RENTAL', child: Text('fee_hardware_rental'.tr)),
+                                      DropdownMenuItem(value: 'FEE_CREATIVE_DESIGN', child: Text('fee_creative_review'.tr)),
+                                      DropdownMenuItem(value: 'FEE_ONBOARDING_SETUP', child: Text('fee_setup_deployment'.tr)),
+                                      DropdownMenuItem(value: 'DISCOUNT_VOLUME', child: Text('discount_volume_fleet'.tr)),
+                                      DropdownMenuItem(value: 'DISCOUNT_PROMO', child: Text('discount_promotional'.tr)),
+                                      DropdownMenuItem(value: 'CUSTOM', child: Text('fee_custom_line_item'.tr)),
+                                    ],
+                                    onChanged: (v) {
+                                      if (v != null) controller.selectBreakdownPreset(item.id, v);
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(width: 8),
+
+                        // Type Selection Dropdown (Charge (+), Discount (-), Tax (+))
                         Expanded(
-                          flex: 1,
-                          child: TextField(
-                            controller: TextEditingController(text: item.amount > 0 ? item.amount.toStringAsFixed(0) : ''),
-                            keyboardType: TextInputType.number,
-                            onChanged: (v) {
-                              item.amount = double.tryParse(v) ?? 0.0;
-                              controller.breakdownItems.refresh();
-                            },
-                            style: const TextStyle(color: Colors.white, fontSize: 11),
-                            decoration: InputDecoration(
-                              prefixText: '₹ ',
-                              hintText: '0',
-                              filled: true,
-                              fillColor: const Color(0xFF0F172A),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: const BorderSide(color: AppColors.cardBorder)),
-                            ),
+                          flex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'type_label'.tr,
+                                style: const TextStyle(color: AppColors.textSecondary, fontSize: 10.5, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF0F172A),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: AppColors.cardBorder),
+                                ),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    value: item.type,
+                                    isExpanded: true,
+                                    dropdownColor: const Color(0xFF1E293B),
+                                    style: TextStyle(
+                                      color: item.type == 'discount'
+                                          ? const Color(0xFF34D399)
+                                          : (item.type == 'tax' ? const Color(0xFFFBBF24) : const Color(0xFF60A5FA)),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    items: [
+                                      DropdownMenuItem(value: 'charge', child: Text('charge_type_opt'.tr)),
+                                      DropdownMenuItem(value: 'discount', child: Text('discount_type_opt'.tr)),
+                                      DropdownMenuItem(value: 'tax', child: Text('tax_type_opt'.tr)),
+                                    ],
+                                    onChanged: (v) {
+                                      if (v != null) controller.updateBreakdownItemType(item.id, v);
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+
+                        // Delete Action Button
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 20),
+                          onPressed: () => controller.removeBreakdownItem(item.id),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(minWidth: 32, minHeight: 36),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+
+                    // Bottom Tier: Description Input + Amount Input & Inline Tax Rate Shortcuts (9%, 18%)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        // Description Input
+                        Expanded(
+                          flex: 3,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('description'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
+                              const SizedBox(height: 4),
+                              TextField(
+                                controller: TextEditingController(text: item.label),
+                                onChanged: (v) => controller.updateBreakdownItemLabel(item.id, v),
+                                style: const TextStyle(color: Colors.white, fontSize: 11),
+                                decoration: InputDecoration(
+                                  hintText: 'description'.tr,
+                                  hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+                                  filled: true,
+                                  fillColor: const Color(0xFF0F172A),
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.cardBorder)),
+                                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.cardBorder)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+
+                        // Amount (₹) Input with inline 9% and 18% tax shortcut buttons
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('amount_inr'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
+                                  if (isTax)
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () => controller.applyTaxPercentToItem(item.id, 9),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFF8B5CF6).withValues(alpha: 0.2),
+                                              borderRadius: BorderRadius.circular(4),
+                                              border: Border.all(color: const Color(0xFF8B5CF6).withValues(alpha: 0.4)),
+                                            ),
+                                            child: const Text('9%', style: TextStyle(color: Color(0xFFC084FC), fontSize: 9, fontWeight: FontWeight.bold)),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        GestureDetector(
+                                          onTap: () => controller.applyTaxPercentToItem(item.id, 18),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFF8B5CF6).withValues(alpha: 0.2),
+                                              borderRadius: BorderRadius.circular(4),
+                                              border: Border.all(color: const Color(0xFF8B5CF6).withValues(alpha: 0.4)),
+                                            ),
+                                            child: const Text('18%', style: TextStyle(color: Color(0xFFC084FC), fontSize: 9, fontWeight: FontWeight.bold)),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              TextField(
+                                controller: controller.getAmountController(item),
+                                keyboardType: const TextInputType.numberWithOptions(
+                                  decimal: true,
+                                ),
+                                onChanged: (v) {
+                                  final val = double.tryParse(v) ?? 0.0;
+                                  controller.updateBreakdownItemAmount(item.id, val);
+                                },
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                decoration: InputDecoration(
+                                  prefixText: '₹ ',
+                                  prefixStyle: const TextStyle(
+                                    color: Color(0xFF8B5CF6),
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  hintText: '0',
+                                  filled: true,
+                                  fillColor: const Color(0xFF0F172A),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 10,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: const BorderSide(color: AppColors.cardBorder),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: const BorderSide(color: AppColors.cardBorder),
+                                  ),
+                                ),
+                              ),
+                              /*TextField(
+                                controller: TextEditingController(text: item.amount > 0 ? item.amount.toStringAsFixed(0) : ''),
+                                keyboardType: TextInputType.number,
+                                onChanged: (v) {
+                                  final val = double.tryParse(v) ?? 0.0;
+                                  controller.updateBreakdownItemAmount(item.id, val);
+                                },
+                                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                                decoration: InputDecoration(
+                                  prefixText: '₹ ',
+                                  prefixStyle: const TextStyle(color: Color(0xFF8B5CF6), fontSize: 11, fontWeight: FontWeight.bold),
+                                  hintText: '0',
+                                  filled: true,
+                                  fillColor: const Color(0xFF0F172A),
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.cardBorder)),
+                                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.cardBorder)),
+                                ),
+                              ),*/
+                            ],
                           ),
                         ),
                       ],
@@ -1366,36 +2249,134 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
             },
           );
         }),
-        const SizedBox(height: 14),
+        const SizedBox(height: 16),
 
-        // Live Breakdown Summary Card
+        // ==========================================================
+        // FINAL INVOICE SUMMARY CARD (Matching Admin Panel)
+        // ==========================================================
         Obx(() {
           return Container(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: const Color(0xFF1E293B),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(color: const Color(0xFF8B5CF6).withValues(alpha: 0.4)),
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildSummaryLine('Base Airtime Fee', '₹ ${NumberFormat('#,##,###').format(controller.baseAmountNum)}'),
-                if (controller.totalCharges > 0)
-                  _buildSummaryLine('Charges & Surcharges', '+ ₹ ${NumberFormat('#,##,###').format(controller.totalCharges)}', color: const Color(0xFF38BDF8)),
-                if (controller.totalTaxes > 0)
-                  _buildSummaryLine('Taxes (GST)', '+ ₹ ${NumberFormat('#,##,###').format(controller.totalTaxes)}', color: const Color(0xFFF59E0B)),
-                if (controller.totalDiscounts > 0)
-                  _buildSummaryLine('Discounts Applied', '- ₹ ${NumberFormat('#,##,###').format(controller.totalDiscounts)}', color: const Color(0xFF10B981)),
-                const Divider(color: Color(0xFF334155), height: 16),
+                // Header with Live Calculation Badge
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Total Campaign Investment', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                     Text(
-                      '₹ ${NumberFormat('#,##,###').format(controller.finalTotalAmount)}',
-                      style: const TextStyle(color: Color(0xFF8B5CF6), fontSize: 16, fontWeight: FontWeight.bold),
+                      'final_invoice_summary_title'.tr,
+                      style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.bold, letterSpacing: 0.3),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.fiber_manual_record, color: Color(0xFF10B981), size: 8),
+                          const SizedBox(width: 4),
+                          Text(
+                            'live_calculation_badge'.tr,
+                            style: const TextStyle(color: Color(0xFF34D399), fontSize: 9.5, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 12),
+
+                // Base Airtime Broadcast Fee Line
+                _buildSummaryLine(
+                  'base_airtime_fee_label'.tr.replaceAll('*', '').trim(),
+                  '₹ ${NumberFormat('#,##,###').format(controller.baseAmountNum)}',
+                ),
+
+                // Dynamic Line Items Listing (Each individual item from breakdownItems)
+                ...controller.breakdownItems.map((item) {
+                  final isDiscount = item.type == 'discount';
+                  final isTax = item.type == 'tax';
+                  final color = isDiscount
+                      ? const Color(0xFF34D399)
+                      : (isTax ? const Color(0xFFFBBF24) : const Color(0xFF60A5FA));
+                  final prefix = isDiscount ? '- ' : '+ ';
+
+                  return _buildSummaryLine(
+                    item.label.isNotEmpty ? item.label : 'Line Item',
+                    '$prefix₹ ${NumberFormat('#,##,###').format(item.amount)}',
+                    color: color,
+                  );
+                }),
+
+                const Divider(color: Color(0xFF334155), height: 16),
+
+                // Subtotal Net
+                _buildSummaryLine(
+                  'subtotal_net_label'.tr,
+                  '₹ ${NumberFormat('#,##,###').format(controller.subtotalNet)}',
+                  color: Colors.white,
+                ),
+
+                const Divider(color: Color(0xFF475569), height: 18, thickness: 1.5),
+
+                // Highlighted Final Total Amount
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'total_payable_amount_label'.tr,
+                          style: const TextStyle(color: Color(0xFF10B981), fontSize: 12.5, fontWeight: FontWeight.bold, letterSpacing: 0.4),
+                        ),
+                        const SizedBox(height: 2),
+                        // Text(
+                        //   'total_payable_amount_desc'.tr,
+                        //   style: const TextStyle(
+                        //       color: AppColors.textMuted, fontSize: 9.5),
+                        // ),
+                      ],
+                    ),
+                    Text(
+                      '₹ ${NumberFormat('#,##,###').format(controller.finalTotalAmount)}',
+                      style: const TextStyle(color: Color(0xFF10B981), fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // Notice Box
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F172A),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFF334155)),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.bolt_rounded, color: Color(0xFFF59E0B), size: 16),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          '${'invoice_notice_text'.tr} (₹ ${NumberFormat('#,##,###').format(controller.finalTotalAmount)})',
+                          style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5, height: 1.3),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -1404,11 +2385,11 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
         const SizedBox(height: 20),
 
         // ==========================================================
-        // QR IDENTITY & LEAD GENERATION SECTION
+        // DYNAMIC QR CODE IDENTITY SECTION (Matching Admin Panel)
         // ==========================================================
         _buildSectionHeader(
-          'QR Code Lead Attribution',
-          'Track direct customer scan conversions and landing page visits.',
+          'dynamic_qr_identity_title'.tr,
+          'qr_auto_generated_desc'.tr,
         ),
         const SizedBox(height: 10),
 
@@ -1422,77 +2403,202 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // QR Code ID Row
+              // QR Code ID Row + Active Badge
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Unique QR Code ID', style: TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold)),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.fiber_manual_record, color: Color(0xFF10B981), size: 10),
+                        const SizedBox(width: 4),
+                        Text('active_dynamic_qr_badge'.tr, style: const TextStyle(color: Color(0xFF10B981), fontSize: 9.5, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
                   Obx(() => Text(controller.qrCodeId.value, style: const TextStyle(color: Color(0xFF8B5CF6), fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'monospace'))),
                 ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 14),
 
-              // QR Redirect URL
-              _buildInputField(
-                label: 'QR Scan Redirect URL',
-                controller: controller.qrRedirectUrlController,
-                hint: 'https://yourbrand.com/special-offer',
-                keyboardType: TextInputType.url,
-              ),
-              const SizedBox(height: 10),
-
-              // Screen Placement
-              const Text('Screen Placement', style: TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 6),
-              Obx(() {
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+              // QR Code Visual Box
+              Center(
+                child: Container(
+                  width: 140,
+                  height: 140,
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0F172A),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.cardBorder),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: controller.selectedQrPlacement.value,
-                      isExpanded: true,
-                      dropdownColor: const Color(0xFF1E293B),
-                      style: const TextStyle(color: Colors.white, fontSize: 11),
-                      items: controller.qrPlacements.map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
-                      onChanged: (v) => controller.selectedQrPlacement.value = v ?? 'Rear Screen',
-                    ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.qr_code_2_rounded, size: 88, color: Color(0xFF0F172A)),
+                      const SizedBox(height: 4),
+                      Text(
+                        'scan_camera_track_lead'.tr,
+                        style: const TextStyle(color: Color(0xFF64748B), fontSize: 8, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
-                );
-              }),
-              const SizedBox(height: 10),
+                ),
+              ),
+              const SizedBox(height: 14),
 
-              // Promo Code Row
+              // Tracking Gateway Box (Showing live link matching Admin Panel)
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0F172A),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.cardBorder),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'tracking_gateway_url_label'.tr,
+                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 10.5, fontWeight: FontWeight.bold),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.copy_rounded, color: Color(0xFF8B5CF6), size: 15),
+                          onPressed: controller.copyTrackingGatewayUrl,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+                          tooltip: 'copy_link_tooltip'.tr,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Obx(() => Text(
+                      controller.trackingGatewayUrl,
+                      style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 11, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                    )),
+                    ValueListenableBuilder<TextEditingValue>(
+                      valueListenable: controller.qrRedirectUrlController,
+                      builder: (context, value, child) {
+                        final landing = value.text.trim();
+
+                        if (landing.isNotEmpty) {
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Divider(
+                                  color: Color(0xFF1E293B),
+                                  height: 10,
+                                ),
+                                Text(
+                                  'landing_target_preview_label'.tr,
+                                  style: const TextStyle(
+                                    color: AppColors.textMuted,
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 1),
+                                Text(
+                                  landing,
+                                  style: const TextStyle(
+                                    color: Color(0xFF34D399),
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'monospace',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  /*  Obx(() {
+                      final landing = controller.qrRedirectUrlController.text.trim();
+                      if (landing.isNotEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Divider(color: Color(0xFF1E293B), height: 10),
+                              Text(
+                                'landing_target_preview_label'.tr,
+                                style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 1),
+                              Text(
+                                landing,
+                                style: const TextStyle(color: Color(0xFF34D399), fontSize: 10.5, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    }),*/
+                  ],
+                ),
+              ),
+              // const SizedBox(height: 12),
+
+              // // Destination Landing Target URL Input
+              // _buildInputField(
+              //   label: 'landing_target_url_label'.tr,
+              //   controller: controller.qrRedirectUrlController,
+              //   hint: 'landing_target_hint'.tr,
+              //   keyboardType: TextInputType.url,
+              // ),
+              const SizedBox(height: 14),
+
+              // QR Action Buttons (Share & Download)
               Row(
                 children: [
                   Expanded(
-                    child: TextField(
-                      controller: controller.promoCodeController,
-                      style: const TextStyle(color: Colors.white, fontSize: 11),
-                      decoration: InputDecoration(
-                        hintText: 'Enter Promo Code (e.g. VMX50)',
-                        hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 10),
-                        filled: true,
-                        fillColor: const Color(0xFF0F172A),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.cardBorder)),
+                    child: OutlinedButton.icon(
+                      onPressed: controller.shareQrCode,
+                      icon: const Icon(Icons.share_rounded, size: 14, color: Colors.white),
+                      label: Text('share_qr_btn'.tr, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppColors.cardBorder),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: controller.applyPromoCode,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF8B5CF6),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: controller.downloadQrCode,
+                      icon: const Icon(Icons.file_download_outlined, size: 14, color: Color(0xFF8B5CF6)),
+                      label: Text('download_qr_btn'.tr, style: const TextStyle(color: Color(0xFF8B5CF6), fontSize: 11, fontWeight: FontWeight.bold)),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Color(0xFF8B5CF6)),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
                     ),
-                    child: const Text('Apply', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -1511,21 +2617,21 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader(
-          'Review & Submit Campaign',
-          'Review all parameters before final submission for SuperAdmin verification.',
+          'review_submit_title'.tr,
+          'review_submit_sub'.tr,
         ),
         const SizedBox(height: 14),
 
         // Section 1: Campaign Metadata
         _buildReviewSection(
           stepIndex: 1,
-          title: 'Campaign Overview & Metadata',
+          title: 'campaign_overview_section'.tr,
           items: [
-            {'label': 'Campaign Name', 'value': controller.nameController.text},
-            {'label': 'Brand Name', 'value': controller.brandNameController.text},
-            {'label': 'Type', 'value': controller.selectedCampaignType.value},
-            {'label': 'Objective', 'value': controller.selectedObjective.value},
-            {'label': 'Category', 'value': controller.selectedCategory.value},
+            {'label': 'campaign_name_label'.tr, 'value': controller.nameController.text},
+            {'label': 'brand_name_label'.tr, 'value': controller.brandNameController.text},
+            {'label': 'campaign_type_label'.tr, 'value': controller.selectedCampaignType.value},
+            {'label': 'objective_label'.tr, 'value': controller.selectedObjective.value},
+            {'label': 'campaign_category_label'.tr, 'value': controller.selectedCategory.value},
           ],
         ),
         const SizedBox(height: 10),
@@ -1533,12 +2639,12 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
         // Section 2: Customer / Client Details
         _buildReviewSection(
           stepIndex: 1,
-          title: 'Customer / Client Information',
+          title: 'customer_billing_section'.tr,
           items: [
-            {'label': 'Contact Person', 'value': controller.clientNameController.text},
-            {'label': 'Company', 'value': controller.clientCompanyController.text},
-            {'label': 'Mobile Number', 'value': controller.clientPhoneController.text},
-            {'label': 'Email Address', 'value': controller.clientEmailController.text},
+            {'label': 'customer_contact_name_label'.tr, 'value': controller.clientNameController.text},
+            {'label': 'customer_company_label'.tr, 'value': controller.clientCompanyController.text},
+            {'label': 'customer_mobile_label'.tr, 'value': controller.clientPhoneController.text},
+            {'label': 'customer_email_label'.tr, 'value': controller.clientEmailController.text},
             {'label': 'Location / City', 'value': '${controller.clientCityController.text}, ${controller.clientStateController.text}'},
           ],
         ),
@@ -1547,7 +2653,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
         // Section 3: Creative Assets Summary
         _buildReviewSection(
           stepIndex: 2,
-          title: 'Creative Assets',
+          title: 'creative_assets_section'.tr,
           items: [
             {'label': 'Total Assets Attached', 'value': '${controller.creativeItems.length} file(s)'},
             {'label': 'Asset Types', 'value': controller.creativeItems.map((c) => c.type).toSet().join(', ')},
@@ -1558,7 +2664,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
         // Section 4: Targeted Transit Inventory
         _buildReviewSection(
           stepIndex: 3,
-          title: 'Transit Routes & Screens',
+          title: 'targeted_inventory_section'.tr,
           items: [
             {'label': 'Routes Targeted', 'value': '${controller.selectedTargets.length} corridors'},
             {'label': 'Buses Targeted', 'value': '${controller.totalSelectedVehicles} buses'},
@@ -1570,7 +2676,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
         // Section 5: Schedule
         _buildReviewSection(
           stepIndex: 4,
-          title: 'Schedule & Airtime',
+          title: 'flight_calendar_section'.tr,
           items: [
             {'label': 'Flight Dates', 'value': '${DateFormat('dd MMM yyyy').format(controller.startDate.value)} – ${DateFormat('dd MMM yyyy').format(controller.endDate.value)}'},
             {'label': 'Duration', 'value': '${controller.durationDaysNumber} days flight'},
@@ -1583,11 +2689,11 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
         // Section 6: Budget & Payment Breakdown
         _buildReviewSection(
           stepIndex: 5,
-          title: 'Budget & Payment Breakdown',
+          title: 'financial_ledger_section'.tr,
           items: [
-            {'label': 'Base Airtime Fee', 'value': '₹ ${NumberFormat('#,##,###').format(controller.baseAmountNum)}'},
+            {'label': 'base_airtime_fee_label'.tr, 'value': '₹ ${NumberFormat('#,##,###').format(controller.baseAmountNum)}'},
             {'label': 'Total Line Items', 'value': '${controller.breakdownItems.length} items'},
-            {'label': 'Final Investment', 'value': '₹ ${NumberFormat('#,##,###').format(controller.finalTotalAmount)}'},
+            {'label': 'total_payable_amount_label'.tr, 'value': '₹ ${NumberFormat('#,##,###').format(controller.finalTotalAmount)}'},
           ],
         ),
         const SizedBox(height: 10),
@@ -1595,11 +2701,12 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
         // Section 7: QR Identity Setup
         _buildReviewSection(
           stepIndex: 5,
-          title: 'QR Code Attribution',
+          title: 'qr_identity_section'.tr,
           items: [
             {'label': 'QR Code ID', 'value': controller.qrCodeId.value},
-            {'label': 'Redirect URL', 'value': controller.qrRedirectUrlController.text.isNotEmpty ? controller.qrRedirectUrlController.text : 'Not configured'},
-            {'label': 'Screen Placement', 'value': controller.selectedQrPlacement.value},
+            {'label': 'tracking_gateway_url_label'.tr, 'value': controller.trackingGatewayUrl},
+            if (controller.qrRedirectUrlController.text.trim().isNotEmpty)
+              {'label': 'landing_target_preview_label'.tr, 'value': controller.qrRedirectUrlController.text.trim()},
           ],
         ),
       ],
@@ -1633,14 +2740,14 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
-                  child: const Text('← Back', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                  child: Text('back_step_btn'.tr, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                 ),
               ),
             if (current > 1) const SizedBox(width: 10),
             Expanded(
               flex: 2,
               child: CustomButton(
-                text: isLast ? (controller.isEditMode.value ? 'Update Campaign' : 'Publish Campaign') : 'Continue ›',
+                text: isLast ? (controller.isEditMode.value ? 'update_campaign_btn'.tr : 'publish_campaign_btn'.tr) : 'continue_step_btn'.tr,
                 isGradient: true,
                 isLoading: isSubmitting,
                 onTap: controller.nextStep,
@@ -1674,15 +2781,15 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                 child: const Icon(Icons.check_rounded, color: Colors.white, size: 44),
               ),
               const SizedBox(height: 20),
-              const Text(
-                'Campaign Created Successfully!',
-                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              Text(
+                'campaign_submitted_title'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 6),
-              const Text(
-                'Your transit broadcast campaign has been submitted for SuperAdmin verification and scheduled.',
-                style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+              Text(
+                'campaign_submitted_desc'.tr,
+                style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
@@ -1697,18 +2804,18 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                 ),
                 child: Column(
                   children: [
-                    _buildSummaryLine('Campaign Name', controller.nameController.text),
-                    _buildSummaryLine('Client Name', controller.clientNameController.text),
-                    _buildSummaryLine('Total Budget', '₹ ${NumberFormat('#,##,###').format(controller.finalTotalAmount)}'),
+                    _buildSummaryLine('campaign_name_label'.tr, controller.nameController.text),
+                    _buildSummaryLine('customer_contact_name_label'.tr, controller.clientNameController.text),
+                    _buildSummaryLine('total_payable_amount_label'.tr, '₹ ${NumberFormat('#,##,###').format(controller.finalTotalAmount)}'),
                     _buildSummaryLine('Duration', '${controller.durationDaysNumber} Days'),
-                    _buildSummaryLine('Total Screens', '${controller.totalSelectedScreens} Screens'),
+                    _buildSummaryLine('screens_label'.tr, '${controller.totalSelectedScreens} Screens'),
                   ],
                 ),
               ),
               const SizedBox(height: 30),
 
               CustomButton(
-                text: 'View in Campaigns Hub',
+                text: 'view_in_campaigns_hub_btn'.tr,
                 isGradient: true,
                 onTap: () {
                   Get.back();
@@ -1722,7 +2829,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
                   side: const BorderSide(color: AppColors.cardBorder),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
-                child: const Text('Create Another Campaign', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                child: Text('create_another_campaign_btn'.tr, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -1777,37 +2884,126 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
     );
   }
 
-  Widget _buildDateCard({
+  Widget _buildDateTimeCard({
     required String title,
+    required String badge,
+    required Color badgeColor,
+    required IconData headerIcon,
     required Rx<DateTime> date,
-    required VoidCallback onTap,
+    required Rx<TimeOfDay> time,
+    required VoidCallback onDateTap,
+    required VoidCallback onTimeTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.cardBorder),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: const TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                const Icon(Icons.calendar_today_rounded, color: Color(0xFF8B5CF6), size: 14),
-                const SizedBox(width: 6),
-                Obx(() => Text(
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(headerIcon, color: badgeColor, size: 14),
+                  const SizedBox(width: 5),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              Text(
+                badge,
+                style: TextStyle(
+                  color: badgeColor,
+                  fontSize: 8,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          GestureDetector(
+            onTap: onDateTap,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0F172A),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.cardBorder),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.calendar_today_rounded, color: Color(0xFF8B5CF6), size: 13),
+                  const SizedBox(width: 5),
+                  Expanded(
+                    child: Obx(() => Text(
                       DateFormat('dd MMM yyyy').format(date.value),
-                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     )),
-              ],
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 6),
+          // Custom Time Box
+          GestureDetector(
+            onTap: onTimeTap,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0F172A),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFF8B5CF6).withValues(alpha: 0.5)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.access_time_rounded, color: Color(0xFF38BDF8), size: 13),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Obx(() {
+                      final h = time.value.hour.toString().padLeft(2, '0');
+                      final m = time.value.minute.toString().padLeft(2, '0');
+                      return Text(
+                        '$h:$m',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      );
+                    }),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Obx(() {
+            final h = time.value.hour.toString().padLeft(2, '0');
+            final m = time.value.minute.toString().padLeft(2, '0');
+            return Text(
+              '${DateFormat('dd MMM yyyy').format(date.value)} · $h:$m',
+              style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5),
+            );
+          }),
+        ],
       ),
     );
   }
@@ -1833,7 +3029,7 @@ class CreateCampaignView extends GetView<CreateCampaignController> {
               Text(title, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
               GestureDetector(
                 onTap: () => controller.goToStep(stepIndex),
-                child: const Text('Edit', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 11, fontWeight: FontWeight.bold)),
+                child: Text('edit'.tr, style: const TextStyle(color: Color(0xFF8B5CF6), fontSize: 11, fontWeight: FontWeight.bold)),
               ),
             ],
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 enum ScheduleStatus { upcoming, pending, completed, inProgress }
 
@@ -6,13 +7,13 @@ extension ScheduleStatusX on ScheduleStatus {
   String get label {
     switch (this) {
       case ScheduleStatus.upcoming:
-        return 'Upcoming';
+        return 'upcoming'.tr;
       case ScheduleStatus.pending:
-        return 'Pending';
+        return 'pending'.tr;
       case ScheduleStatus.completed:
-        return 'Completed';
+        return 'completed'.tr;
       case ScheduleStatus.inProgress:
-        return 'In Progress';
+        return 'in_progress'.tr;
     }
   }
 
@@ -64,16 +65,22 @@ class OperationalNotification {
 
 class DriverQuickAction {
   final String title;
+  final String? subtitle;
   final String icon;
   final Color color;
-  final String route;
+  final String? route;
+  final int? tabIndex;
+  final bool requiresVerification;
   final int? badgeCount;
 
   DriverQuickAction({
     required this.title,
+    this.subtitle,
     required this.icon,
     required this.color,
-    required this.route,
+    this.route,
+    this.tabIndex,
+    this.requiresVerification = false,
     this.badgeCount,
   });
 }

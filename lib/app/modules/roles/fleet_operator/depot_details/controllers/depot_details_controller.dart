@@ -62,7 +62,7 @@ class DepotDetailsController extends GetxController {
       final res = await FleetService.to.updateDepotStatus(current.id.toString(), newStatus);
       if (res.success) {
         Get.snackbar(
-          'Status Updated',
+          'status_updated'.tr,
           'Facility is now ${newStatus.toUpperCase()}',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
@@ -71,7 +71,7 @@ class DepotDetailsController extends GetxController {
         loadDepotDetails();
       } else {
         Get.snackbar(
-          'Error',
+          'error'.tr,
           res.message ?? 'Failed to update depot status',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent,
@@ -80,7 +80,7 @@ class DepotDetailsController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         e.toString(),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.redAccent,
@@ -110,10 +110,10 @@ class DepotDetailsController extends GetxController {
               child: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 22),
             ),
             const SizedBox(width: 10),
-            const Expanded(
+            Expanded(
               child: Text(
-                'Delete Depot Facility',
-                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                'delete_depot_title'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -126,7 +126,7 @@ class DepotDetailsController extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white60)),
+            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white60)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -137,7 +137,7 @@ class DepotDetailsController extends GetxController {
               Get.back();
               _deleteDepot();
             },
-            child: const Text('Delete Facility', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: Text('delete_facility_action'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -153,7 +153,7 @@ class DepotDetailsController extends GetxController {
       if (res.success) {
         Get.back(result: true);
         Get.snackbar(
-          'Depot Deleted',
+          'status_updated'.tr,
           'Facility ${current.name} was removed.',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
@@ -161,7 +161,7 @@ class DepotDetailsController extends GetxController {
         );
       } else {
         Get.snackbar(
-          'Delete Failed',
+          'error'.tr,
           res.message ?? 'Unable to delete depot facility.',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent,
@@ -170,7 +170,7 @@ class DepotDetailsController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         e.toString(),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.redAccent,

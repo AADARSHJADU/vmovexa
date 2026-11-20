@@ -192,9 +192,16 @@ class AddVehicleController extends GetxController {
 
   Future<void> _loadRoutes() async {
     try {
-      final res = await FleetService.to.getRoutes(limit: 100);
+      final res = await FleetService.to.getRoutes(limit: 100, status: 'active');
       if (res.success && res.data != null) {
-        routesList.assignAll(res.data!);
+        final approvedRoutes = res.data!.where((r) {
+          final s = r.status.toLowerCase().trim();
+          if (s == 'pending_approval') return false;
+          return s == 'active' ||
+              s == 'approved' ||
+              (isEditMode.value && selectedRouteId.value != null && r.id.toString() == selectedRouteId.value);
+        }).toList();
+        routesList.assignAll(approvedRoutes);
       }
     } catch (_) {}
   }
@@ -254,19 +261,30 @@ class AddVehicleController extends GetxController {
 
     for (final doc in v.documents) {
       final cat = doc.category.toLowerCase();
-      if (cat.contains('rc')) {
+      final purp = doc.purpose.toLowerCase();
+      if (cat.contains('rc') || purp.contains('rc')) {
         documentsMap['rc'] = doc;
-      } else if (cat.contains('fitness')) {
+      } else if (cat.contains('fitness') || purp.contains('fitness')) {
         documentsMap['fitness'] = doc;
-      } else if (cat.contains('transport') || cat.contains('license')) {
+      } else if (cat.contains('transport') || cat.contains('license') || purp.contains('transport') || purp.contains('license')) {
         documentsMap['transport_license'] = doc;
-      } else if (cat.contains('insurance')) {
+      } else if (cat.contains('insurance') || purp.contains('insurance')) {
         documentsMap['insurance'] = doc;
       }
     }
 
-    if (v.photos.isNotEmpty) {
-      busPhotos.assignAll(v.photos);
+    final Set<String> uniquePhotos = {};
+    for (final p in v.photos) {
+      if (p.isNotEmpty) uniquePhotos.add(p);
+    }
+    for (final doc in v.documents) {
+      final cat = doc.category.toLowerCase();
+      if (cat == 'bus_photo' || cat.contains('bus_photo') || cat.contains('photo')) {
+        if (doc.url.isNotEmpty) uniquePhotos.add(doc.url);
+      }
+    }
+    if (uniquePhotos.isNotEmpty) {
+      busPhotos.assignAll(uniquePhotos);
     }
   }
 
@@ -338,7 +356,7 @@ class AddVehicleController extends GetxController {
       for (final docRaw in (data['documents'] as List)) {
         if (docRaw is Map) {
           final doc = FleetDocumentModel.fromJson(Map<String, dynamic>.from(docRaw));
-          final docType = (docRaw['doc_type'] ?? doc.category).toString().toLowerCase();
+          final docType = (docRaw['doc_type'] ?? docRaw['purpose'] ?? doc.category).toString().toLowerCase();
           if (docType.contains('rc')) {
             documentsMap['rc'] = doc;
           } else if (docType.contains('fitness')) {
@@ -353,10 +371,36 @@ class AddVehicleController extends GetxController {
     }
 
     // Bus Photos
-    if (data['photos'] is List) {
-      busPhotos.assignAll((data['photos'] as List).map((p) => p.toString()));
-    } else if (data['bus_images'] is List) {
-      busPhotos.assignAll((data['bus_images'] as List).map((p) => p.toString()));
+    final Set<String> uniquePhotos = {};
+    final rawPhotos = data['photos'] ??
+        data['bus_images'] ??
+        data['bus_photos'] ??
+        data['vehicle_photos'] ??
+        data['vehicle_images'] ??
+        data['images'];
+    if (rawPhotos is List) {
+      for (final p in rawPhotos) {
+        if (p is Map) {
+          final u = (p['url'] ?? p['file_url'] ?? p['filePath'] ?? p['path'] ?? '').toString();
+          if (u.isNotEmpty) uniquePhotos.add(u);
+        } else if (p != null && p.toString().isNotEmpty) {
+          uniquePhotos.add(p.toString());
+        }
+      }
+    }
+    if (data['documents'] is List) {
+      for (final docRaw in (data['documents'] as List)) {
+        if (docRaw is Map) {
+          final docType = (docRaw['doc_type'] ?? docRaw['category'] ?? docRaw['purpose'] ?? '').toString().toLowerCase();
+          if (docType == 'bus_photo' || docType.contains('bus_photo') || docType.contains('photo')) {
+            final u = (docRaw['file_url'] ?? docRaw['url'] ?? docRaw['filePath'] ?? '').toString();
+            if (u.isNotEmpty) uniquePhotos.add(u);
+          }
+        }
+      }
+    }
+    if (uniquePhotos.isNotEmpty) {
+      busPhotos.assignAll(uniquePhotos);
     }
   }
 
@@ -381,8 +425,8 @@ class AddVehicleController extends GetxController {
 
       isUploadingDoc.value = true;
       Get.snackbar(
-        'Uploading',
-        'Uploading $docType document...',
+        'uploading_label'.tr,
+        'uploading_doc_msg'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF1E2235),
         colorText: Colors.white,
@@ -406,23 +450,23 @@ class AddVehicleController extends GetxController {
 
         documentsMap[docType] = doc;
         Get.snackbar(
-          'Uploaded',
-          '${_formatDocTypeTitle(docType)} uploaded successfully!',
+          'uploaded'.tr,
+          'doc_uploaded_success'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
         );
       } else {
         Get.snackbar(
-          'Upload Failed',
-          res.message ?? 'Failed to upload document',
+          'upload_failed'.tr,
+          res.message ?? 'failed_upload_doc'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent,
           colorText: Colors.white,
         );
       }
     } catch (e) {
-      Get.snackbar('Error', 'Upload error: $e', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+      Get.snackbar('error'.tr, '${'upload_failed'.tr}: $e', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
     } finally {
       isUploadingDoc.value = false;
     }
@@ -447,17 +491,17 @@ class AddVehicleController extends GetxController {
         final uploadedUrl = res.data?['url'] ?? res.data?['file_url'] ?? res.data?['filePath'] ?? '';
         busPhotos.add(uploadedUrl.toString());
         Get.snackbar(
-          'Photo Added',
-          'Bus photo attached successfully!',
+          'photo_added'.tr,
+          'bus_photo_success'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
         );
       } else {
-        Get.snackbar('Upload Failed', res.message ?? 'Failed to upload bus photo', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+        Get.snackbar('upload_failed'.tr, res.message ?? 'failed_upload_bus_photo'.tr, snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Error uploading photo: $e', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+      Get.snackbar('error'.tr, '${'failed_upload_bus_photo'.tr}: $e', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
     } finally {
       isUploadingPhoto.value = false;
     }
@@ -490,44 +534,44 @@ class AddVehicleController extends GetxController {
 
     final plate = regNoController.text.trim();
     if (plate.isEmpty) {
-      fieldErrors['plate'] = 'Registration Plate Number is required';
+      fieldErrors['plate'] = 'plate_required'.tr;
     } else if (plate.length < 5) {
-      fieldErrors['plate'] = 'Registration plate must be at least 5 characters (e.g. MP09-CV-9821)';
+      fieldErrors['plate'] = 'plate_min5'.tr;
     }
 
     final vin = chassisNoController.text.trim();
     if (vin.isEmpty) {
-      fieldErrors['vin'] = 'Chassis / VIN number is required';
+      fieldErrors['vin'] = 'vin_required'.tr;
     } else if (vin.length < 6) {
-      fieldErrors['vin'] = 'Chassis / VIN number must be at least 6 characters';
+      fieldErrors['vin'] = 'vin_min6'.tr;
     }
 
     final model = modelNoController.text.trim();
     if (model.isEmpty) {
-      fieldErrors['model'] = 'Vehicle Model is required (e.g. Starbus Ultra EV)';
+      fieldErrors['model'] = 'model_required'.tr;
     }
 
     final capacity = int.tryParse(capacityController.text.trim());
     if (capacity == null || capacity < 1 || capacity > 150) {
-      fieldErrors['capacity'] = 'Capacity must be a valid number of seats (1 - 150)';
+      fieldErrors['capacity'] = 'capacity_valid_range'.tr;
     }
 
     if (selectedDepotId.value == null && depotsList.isNotEmpty) {
-      fieldErrors['depotId'] = 'Please select an assigned home depot';
+      fieldErrors['depotId'] = 'depot_select_required'.tr;
     }
 
     if (sourceController.text.trim().isEmpty) {
-      fieldErrors['source'] = 'Source station is required';
+      fieldErrors['source'] = 'source_required'.tr;
     }
 
     if (destController.text.trim().isEmpty) {
-      fieldErrors['destination'] = 'Destination terminal is required';
+      fieldErrors['destination'] = 'dest_required'.tr;
     }
 
     if (fieldErrors.isNotEmpty) {
       Get.snackbar(
-        'Validation Required',
-        'Please complete the highlighted mandatory fields before proceeding.',
+        'validation_required'.tr,
+        'validation_required_desc'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.redAccent.withValues(alpha: 0.9),
         colorText: Colors.white,
@@ -553,6 +597,16 @@ class AddVehicleController extends GetxController {
           'approval_status': 'pending',
         };
       }).toList();
+
+      for (final photoUrl in busPhotos) {
+        docsPayload.add({
+          'doc_type': 'bus_photo',
+          'category': 'bus_photo',
+          'file_url': photoUrl,
+          'name': 'Bus Photo',
+          'approval_status': 'approved',
+        });
+      }
 
       final matchedRoute = routesList.firstWhereOrNull((r) => r.id.toString() == selectedRouteId.value?.toString());
 
@@ -619,16 +673,16 @@ class AddVehicleController extends GetxController {
 
           Get.back(result: true);
           Get.snackbar(
-            'Vehicle Updated',
-            'Vehicle ${regNoController.text.trim()} updated successfully!',
+            'vehicle_updated'.tr,
+            'vehicle_updated_success'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
           );
         } else {
           Get.snackbar(
-            'Update Failed',
-            res.message ?? 'Failed to update vehicle',
+            'update_failed'.tr,
+            res.message ?? 'failed_update_vehicle'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.redAccent,
             colorText: Colors.white,
@@ -653,16 +707,16 @@ class AddVehicleController extends GetxController {
 
           Get.back(result: true);
           Get.snackbar(
-            'Vehicle Registered',
-            'Vehicle ${regNoController.text.trim()} successfully registered!',
+            'vehicle_registered'.tr,
+            'vehicle_registered_success'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
           );
         } else {
           Get.snackbar(
-            'Registration Failed',
-            res.message ?? 'Failed to add vehicle',
+            'registration_failed'.tr,
+            res.message ?? 'failed_add_vehicle'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.redAccent,
             colorText: Colors.white,
@@ -671,7 +725,7 @@ class AddVehicleController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         'An unexpected error occurred: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.redAccent,

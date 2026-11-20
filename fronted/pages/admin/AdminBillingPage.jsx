@@ -170,8 +170,9 @@ export const AdminBillingPage = () => {
             </div>
           </div>
           <button
-            onClick={() => setUpgradeModalOpen(true)}
-            className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm shrink-0"
+            type="button"
+            onClick={() => navigate('/admin/billing/upgrade')}
+            className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm shrink-0 cursor-pointer"
           >
             {t('admin.billing.renew_now')}
           </button>
@@ -192,8 +193,9 @@ export const AdminBillingPage = () => {
             </div>
           </div>
           <button
-            onClick={() => setUpgradeModalOpen(true)}
-            className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm shrink-0"
+            type="button"
+            onClick={() => navigate('/admin/billing/upgrade')}
+            className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm shrink-0 cursor-pointer"
           >
             {t('admin.billing.reactivate_sub')}
           </button>
@@ -213,10 +215,11 @@ export const AdminBillingPage = () => {
             </p>
           </div>
           <button
-            onClick={() => setUpgradeModalOpen(true)}
-            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all inline-flex items-center gap-2"
+            type="button"
+            onClick={() => navigate('/admin/billing/upgrade')}
+            className="px-5 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:via-indigo-500 hover:to-purple-500 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-500/25 hover:shadow-lg hover:shadow-indigo-500/35 transition-all inline-flex items-center gap-2 cursor-pointer active:scale-95"
           >
-            <FleetIcons.Plus className="w-4 h-4" />
+            <FleetIcons.Plus className="w-4 h-4 text-white" />
             <span>{t('admin.billing.choose_fleet_plan')}</span>
           </button>
         </div>
@@ -269,10 +272,12 @@ export const AdminBillingPage = () => {
 
               <div className="flex items-center gap-3">
                 <button
+                  type="button"
                   onClick={() => navigate('/admin/billing/upgrade')}
-                  className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-zinc-100 dark:hover:bg-white dark:text-zinc-900 text-white text-xs font-bold rounded-xl shadow-sm transition-all"
+                  className="px-5 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:via-indigo-500 hover:to-purple-500 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-500/25 hover:shadow-lg hover:shadow-indigo-500/35 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
                 >
-                  {t('admin.billing.change_tier')}
+                  <FleetIcons.Sparkles className="w-3.5 h-3.5 text-white" />
+                  <span>{t('admin.billing.change_tier')}</span>
                 </button>
               </div>
             </div>

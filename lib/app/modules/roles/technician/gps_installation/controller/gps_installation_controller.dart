@@ -166,13 +166,13 @@ class GpsInstallationController extends GetxController {
       AlertDialog(
         backgroundColor: const Color(0xFF15151F),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.qr_code_scanner, color: Color(0xFF6366F1), size: 20),
-            SizedBox(width: 8),
+            const Icon(Icons.qr_code_scanner, color: Color(0xFF6366F1), size: 20),
+            const SizedBox(width: 8),
             Text(
-              'Scan / Enter GPS Serial',
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+              'scan_qr_dialog_title'.tr,
+              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -180,9 +180,9 @@ class GpsInstallationController extends GetxController {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Scan or type the GPS unit serial / QR code printed on the hardware label:',
-              style: TextStyle(color: Colors.white70, fontSize: 12.5),
+            Text(
+              'scan_qr_dialog_desc'.tr,
+              style: const TextStyle(color: Colors.white70, fontSize: 12.5),
             ),
             const SizedBox(height: 14),
             TextField(
@@ -190,7 +190,7 @@ class GpsInstallationController extends GetxController {
               autofocus: true,
               style: const TextStyle(color: Colors.white, fontFamily: 'monospace', fontWeight: FontWeight.w700),
               decoration: InputDecoration(
-                hintText: 'e.g. GPS-MX-00123',
+                hintText: 'gps_device_id_hint'.tr,
                 hintStyle: const TextStyle(color: Colors.white30, fontSize: 13),
                 filled: true,
                 fillColor: const Color(0xFF1B1B27),
@@ -215,7 +215,7 @@ class GpsInstallationController extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white54)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -224,7 +224,7 @@ class GpsInstallationController extends GetxController {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () => Get.back(result: textCtrl.text.trim()),
-            child: const Text('Apply Code'),
+            child: Text('apply_code_btn'.tr),
           ),
         ],
       ),
@@ -243,14 +243,14 @@ class GpsInstallationController extends GetxController {
     bool isValid = true;
 
     if (selectedVehicle.value == null) {
-      vehicleError.value = 'Select a vehicle first';
+      vehicleError.value = 'select_vehicle_required'.tr;
       isValid = false;
     } else {
       vehicleError.value = null;
     }
 
     if (gpsDeviceIdCtrl.text.trim().isEmpty) {
-      gpsDeviceIdError.value = 'Please enter or scan a GPS device ID';
+      gpsDeviceIdError.value = 'select_veh_and_gps_msg'.tr;
       isValid = false;
     } else {
       gpsDeviceIdError.value = null;
@@ -262,8 +262,8 @@ class GpsInstallationController extends GetxController {
   Future<void> onInstallAssignPressed() async {
     if (!_validate()) {
       Get.snackbar(
-        'Missing Information',
-        'Please select a vehicle and enter a GPS device ID',
+        'missing_info_title'.tr,
+        'select_veh_and_gps_msg'.tr,
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
@@ -315,7 +315,7 @@ class GpsInstallationController extends GetxController {
       assignedOnDateTime.value = DateTime.now();
 
       Get.snackbar(
-        'GPS Unit Registered',
+        'gps_unit_registered_title'.tr,
         'GPS device $gpsDeviceId has been assigned to ${veh.registrationNumber}.',
         backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
         colorText: Colors.white,
@@ -327,7 +327,7 @@ class GpsInstallationController extends GetxController {
     } catch (e) {
       debugPrint('GPS install error: $e');
       Get.snackbar(
-        'Installation Error',
+        'installation_error'.tr,
         e.toString(),
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
         colorText: Colors.white,

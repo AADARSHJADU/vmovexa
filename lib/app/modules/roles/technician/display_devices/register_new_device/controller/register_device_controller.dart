@@ -1,537 +1,526 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:vmovexa/app/data/models/fleet_models.dart' show VehicleItemModel;
+import 'package:vmovexa/app/theme/app_theme.dart';
+import 'package:vmovexa/app/data/models/api_response_model.dart';
+import 'package:vmovexa/app/data/models/edge_device_model.dart';
+import 'package:vmovexa/app/data/models/fleet_models.dart';
 import 'package:vmovexa/app/data/services/technician_service.dart';
 import '../../controller/display_devices_controller.dart';
 import '../../../technician_dashboard/controller/technician_dashboard_controller.dart';
-import '../model/vehicle_details_model.dart';
-import '../view/configuration_view.dart';
 import '../view/register_device_view.dart';
 import '../view/registration_success_view.dart';
-import '../view/review_and_save_view.dart';
-import '../view/vehicle_assignment_view.dart';
 
 class RegisterDeviceController extends GetxController {
-  // ---------------- Stepper ----------------
-  final RxInt currentStep = 1.obs; // 1 = Device Details, 2 = Vehicle Assignment, 3 = Configuration, 4 = Review & Save
-  final List<String> stepLabels = const [
-    'Device Details',
-    'Vehicle Assignment',
-    'Configuration',
-    'Review & Save',
-  ];
+  // ---------------- Mode Variables ----------------
+  final RxBool isEditMode = false.obs;
+  final Rxn<dynamic> editingDeviceId = Rxn<dynamic>();
 
-  // ---------------- Text controllers (Step 1: Device Information) ----------------
-  final deviceIdCtrl = TextEditingController();
-  final deviceNameCtrl = TextEditingController();
-  final hardwareModelCtrl = TextEditingController();
-  final notesCtrl = TextEditingController();
+  // ---------------- Form Controllers ----------------
+  final boxIdCtrl = TextEditingController();
+  final macCtrl = TextEditingController();
+  final agentVersionCtrl = TextEditingController(text: 'v2.4.1');
+  final simNetworkCtrl = TextEditingController(text: 'Airtel 4G IoT');
 
-  static const int deviceIdMaxLen = 50;
-  static const int deviceNameMaxLen = 50;
-  static const int notesMaxLen = 200;
-
-  final RxInt deviceIdLen = 0.obs;
-  final RxInt deviceNameLen = 0.obs;
-  final RxInt notesLen = 0.obs;
-
-  // ---------------- Dropdown selections ----------------
-  final RxString deviceType = ''.obs;
-  final List<String> deviceTypeOptions = const [
-    'Passenger Display',
-    'LED Display',
-    'LCD Display',
-    'Digital Signage Board',
-    'GPS-Integrated Display',
-  ];
-
-  final RxString screenSize = ''.obs;
-  final List<String> screenSizeOptions = const ['15"', '19"', '22"', '32"', '43"'];
-
-  final RxString resolution = ''.obs;
-  final List<String> resolutionOptions = const ['1280x720', '1920x1080', '2560x1440', '3840x2160'];
-
-  final RxString orientation = ''.obs;
-  final List<String> orientationOptions = const ['Landscape', 'Portrait'];
-
-  final RxString locationDepot = ''.obs;
-  final List<String> locationDepotOptions = const [
-    'Mumbai Central Depot',
-    'Andheri Depot',
-    'Thane Depot',
-    'Borivali Depot',
-    'Kurla Depot',
-    'Navi Mumbai Depot',
-  ];
-
-  // ---------------- Validation errors ----------------
-  final RxnString deviceIdError = RxnString();
-  final RxnString deviceNameError = RxnString();
-  final RxnString deviceTypeError = RxnString();
-  final RxnString locationDepotError = RxnString();
-
+  // ---------------- State Variables ----------------
+  final RxBool isActive = true.obs;
   final RxBool isSaving = false.obs;
+  final RxBool isLoadingLookups = false.obs;
+  final RxnString boxIdError = RxnString();
+  final RxnString orgError = RxnString();
+
+  // ---------------- Reference Datasets (Admin Parity) ----------------
+  final RxList<OrganizationItemModel> organizations = <OrganizationItemModel>[].obs;
+  final RxList<FleetItemModel> fleets = <FleetItemModel>[].obs;
+  final RxList<VehicleItemModel> vehicles = <VehicleItemModel>[].obs;
+  final RxList<DepotItemModel> depots = <DepotItemModel>[].obs;
+
+  // ---------------- Cascading Selection States ----------------
+  // 1. Organization -> 2. Fleet -> 3. Vehicle -> Auto Depot
+  final Rxn<dynamic> selectedOrganizationId = Rxn<dynamic>();
+  final Rxn<dynamic> selectedFleetId = Rxn<dynamic>();
+  final Rxn<dynamic> selectedVehicleId = Rxn<dynamic>();
+  final Rxn<dynamic> selectedDepotId = Rxn<dynamic>();
+
+  // ---------------- Success Information ----------------
+  final Rxn<DateTime> registeredOnDateTime = Rxn<DateTime>();
+  final RxString registeredDeviceBoxId = ''.obs;
 
   @override
   void onInit() {
     super.onInit();
-    if (deviceIdCtrl.text.isEmpty) {
-      deviceIdCtrl.text = 'VMX-BOX-${(DateTime.now().millisecondsSinceEpoch % 10000).toString().padLeft(4, '0')}';
-    }
-    if (hardwareModelCtrl.text.isEmpty) {
-      hardwareModelCtrl.text = 'RK3588 UltraHD Box X2';
-    }
-    if (deviceNameCtrl.text.isEmpty) {
-      deviceNameCtrl.text = 'Passenger Display Bulkhead';
-    }
-    if (deviceType.value.isEmpty) {
-      deviceType.value = 'Passenger Display';
-    }
-    if (screenSize.value.isEmpty) {
-      screenSize.value = '22"';
-    }
-    if (resolution.value.isEmpty) {
-      resolution.value = '1920x1080';
-    }
-    if (locationDepot.value.isEmpty) {
-      locationDepot.value = 'Mumbai Central Depot';
-    }
-    if (organization.value.isEmpty) {
-      organization.value = 'VMOVEXA City Bus Service';
-    }
-
-    deviceIdCtrl.addListener(() => deviceIdLen.value = deviceIdCtrl.text.length);
-    deviceNameCtrl.addListener(() => deviceNameLen.value = deviceNameCtrl.text.length);
-    notesCtrl.addListener(() => notesLen.value = notesCtrl.text.length);
-    vehicleNotesCtrl.addListener(() => vehicleNotesLen.value = vehicleNotesCtrl.text.length);
-    configNotesCtrl.addListener(() => configNotesLen.value = configNotesCtrl.text.length);
-
-    loadVehicles();
+    _checkEditMode();
+    boxIdCtrl.addListener(() {
+      if (boxIdCtrl.text.trim().isNotEmpty && boxIdError.value != null) {
+        boxIdError.value = null;
+      }
+    });
+    loadReferenceData();
   }
 
   @override
   void onClose() {
-    deviceIdCtrl.dispose();
-    deviceNameCtrl.dispose();
-    hardwareModelCtrl.dispose();
-    notesCtrl.dispose();
-    vehicleNotesCtrl.dispose();
-    wifiSsidCtrl.dispose();
-    wifiPasswordCtrl.dispose();
-    configNotesCtrl.dispose();
+    boxIdCtrl.dispose();
+    macCtrl.dispose();
+    agentVersionCtrl.dispose();
+    simNetworkCtrl.dispose();
     super.onClose();
   }
 
-  // ==========================================================
-  // STEP 2 — Vehicle Assignment
-  // ==========================================================
+  // ---------------- Detect Edit Mode from Arguments ----------------
+  void _checkEditMode() {
+    final args = Get.arguments;
+    if (args == null) return;
 
-  // Device summary shown at top of step 2 (pulled from step 1 entries)
-  String get registeredDeviceId =>
-      deviceIdCtrl.text.trim().isEmpty ? 'VMX-DP-1001' : deviceIdCtrl.text.trim();
-  String get registeredDeviceName =>
-      deviceNameCtrl.text.trim().isEmpty ? 'Display Device' : deviceNameCtrl.text.trim();
-  String get registeredSerialNo => 'Serial No: VMXDP1001A2345';
-  final RxBool isDeviceOnline = true.obs;
+    if (args is EdgeDeviceModel) {
+      _populateFromDevice(args);
+    } else if (args is Map) {
+      _populateFromMap(Map<String, dynamic>.from(args));
+    }
+  }
 
-  final RxString organization = ''.obs;
-  final List<String> organizationOptions = const [
-    'VMOVEXA City Bus Service',
-    'VMOVEXA Metro Feeder',
-    'VMOVEXA Intercity',
-  ];
+  void _populateFromDevice(EdgeDeviceModel d) {
+    isEditMode.value = true;
+    editingDeviceId.value = d.id;
+    boxIdCtrl.text = d.boxId;
+    macCtrl.text = d.mac;
+    agentVersionCtrl.text = d.agentVersion.isNotEmpty ? d.agentVersion : 'v2.4.1';
+    simNetworkCtrl.text = d.simNetwork.isNotEmpty ? d.simNetwork : 'Airtel 4G IoT';
+    isActive.value = d.isActive;
 
-  final RxList<VehicleItemModel> availableVehicles = <VehicleItemModel>[].obs;
-  final Rxn<VehicleItemModel> selectedVehicleModel = Rxn<VehicleItemModel>();
-  final RxString selectedVehicle = ''.obs;
-  final RxList<String> vehicleOptions = <String>[
-    'Bus MH12 AB 1234',
-    'Bus MH12 AB 5678',
-    'Bus MH12 AB 9101',
-  ].obs;
+    if (d.vehicleId != null) {
+      selectedVehicleId.value = d.vehicleId;
+    }
+    if (d.depotId != null) {
+      selectedDepotId.value = d.depotId;
+    }
+  }
 
-  // Vehicle detail lookup keyed by vehicle number
-  final Map<String, VehicleDetails> _vehicleDetailsMap = {
-    'Bus MH12 AB 1234': VehicleDetails(
-      name: 'Bus MH12 AB 1234',
-      status: 'Active',
-      vehicleType: 'Bus',
-      depotLocation: 'Mumbai Central Depot',
-      capacity: '52 Seats',
-      driver: 'Ramesh Patil',
-      route: 'Route 101 (Andheri ↔ CST)',
-      imageAsset: '',
-    ),
-    'Bus MH12 AB 5678': VehicleDetails(
-      name: 'Bus MH12 AB 5678',
-      status: 'Active',
-      vehicleType: 'Bus',
-      depotLocation: 'Andheri Depot',
-      capacity: '45 Seats',
-      driver: 'Suresh Yadav',
-      route: 'Route 212 (Borivali ↔ Bandra)',
-      imageAsset: '',
-    ),
-    'Bus MH12 AB 9101': VehicleDetails(
-      name: 'Bus MH12 AB 9101',
-      status: 'In Maintenance',
-      vehicleType: 'Bus',
-      depotLocation: 'Thane Depot',
-      capacity: '52 Seats',
-      driver: 'Unassigned',
-      route: 'Route 305 (Thane ↔ Kalyan)',
-      imageAsset: '',
-    ),
-  };
+  void _populateFromMap(Map<String, dynamic> map) {
+    isEditMode.value = true;
+    editingDeviceId.value = map['id'];
+    boxIdCtrl.text = map['boxId']?.toString() ?? map['box_id']?.toString() ?? '';
+    macCtrl.text = map['mac']?.toString() ?? '';
+    agentVersionCtrl.text = map['agentVersion']?.toString() ?? map['agent_version']?.toString() ?? 'v2.4.1';
+    simNetworkCtrl.text = map['simNetwork']?.toString() ?? map['sim_network']?.toString() ?? 'Airtel 4G IoT';
+    if (map['isActive'] != null) {
+      isActive.value = map['isActive'] == true;
+    } else if (map['is_active'] != null) {
+      isActive.value = map['is_active'] == true;
+    }
+    if (map['organizationId'] != null || map['organization_id'] != null) {
+      selectedOrganizationId.value = map['organizationId'] ?? map['organization_id'];
+    }
+    if (map['fleetId'] != null || map['fleet_id'] != null) {
+      selectedFleetId.value = map['fleetId'] ?? map['fleet_id'];
+    }
+    if (map['vehicleId'] != null || map['vehicle_id'] != null) {
+      selectedVehicleId.value = map['vehicleId'] ?? map['vehicle_id'];
+    }
+    if (map['depotId'] != null || map['depot_id'] != null) {
+      selectedDepotId.value = map['depotId'] ?? map['depot_id'];
+    }
+  }
 
-  Future<void> loadVehicles() async {
+  // ---------------- Load Reference Datasets ----------------
+  Future<void> loadReferenceData() async {
+    isLoadingLookups.value = true;
     try {
-      final res = await TechnicianService.to.getVehicles(page: 1, limit: 100);
-      if (res.success && res.data != null && res.data!.isNotEmpty) {
-        availableVehicles.assignAll(res.data!);
-        final names = res.data!
-            .map((v) => v.registrationNumber.isNotEmpty ? 'Bus ${v.registrationNumber}' : 'Bus #${v.id}')
-            .toList();
-        vehicleOptions.assignAll(names);
-        for (final v in res.data!) {
-          final label = v.registrationNumber.isNotEmpty ? 'Bus ${v.registrationNumber}' : 'Bus #${v.id}';
-          _vehicleDetailsMap[label] = VehicleDetails(
-            name: label,
-            status: v.status.isNotEmpty ? v.status : 'Active',
-            vehicleType: v.vehicleType.isNotEmpty ? v.vehicleType : 'Bus',
-            depotLocation: v.depotName != null && v.depotName!.isNotEmpty ? v.depotName! : 'Central Depot',
-            capacity: '${v.capacity} Seats',
-            driver: v.assignedDriverName ?? 'Unassigned',
-            route: v.assignedRoute ?? 'City Transit Route',
-            imageAsset: '',
-          );
+      final results = await Future.wait([
+        TechnicianService.to.getOrganizations(limit: 100),
+        TechnicianService.to.getFleets(limit: 200),
+        TechnicianService.to.getVehicles(limit: 200),
+        TechnicianService.to.getDepots(limit: 200),
+      ]);
+
+      final orgRes = results[0] as ApiResponseModel<List<OrganizationItemModel>>;
+      if (orgRes.success && orgRes.data != null) {
+        organizations.assignAll(orgRes.data!);
+      }
+
+      final fleetRes = results[1] as ApiResponseModel<List<FleetItemModel>>;
+      if (fleetRes.success && fleetRes.data != null) {
+        fleets.assignAll(fleetRes.data!);
+      }
+
+      final vehRes = results[2] as ApiResponseModel<List<VehicleItemModel>>;
+      if (vehRes.success && vehRes.data != null) {
+        vehicles.assignAll(vehRes.data!);
+      }
+
+      final depRes = results[3] as ApiResponseModel<List<DepotItemModel>>;
+      if (depRes.success && depRes.data != null) {
+        depots.assignAll(depRes.data!);
+      }
+
+      // If in edit mode, auto-resolve cascading parent selections
+      if (isEditMode.value) {
+        _syncEditModeSelections();
+      }
+    } catch (_) {
+      // Handled silently
+    } finally {
+      isLoadingLookups.value = false;
+    }
+  }
+
+  void _syncEditModeSelections() {
+    if (selectedVehicleId.value != null) {
+      final v = vehicles.firstWhereOrNull((item) => item.id.toString() == selectedVehicleId.value.toString());
+      if (v != null) {
+        if (selectedOrganizationId.value == null && v.organizationId != null) {
+          selectedOrganizationId.value = v.organizationId;
         }
-        if (selectedVehicle.value.isEmpty && vehicleOptions.isNotEmpty) {
-          setSelectedVehicle(vehicleOptions.first);
+        if (selectedFleetId.value == null && v.fleetId != null) {
+          selectedFleetId.value = v.fleetId;
+        }
+        if (selectedDepotId.value == null && v.depotId != null) {
+          selectedDepotId.value = v.depotId;
         }
       }
-    } catch (_) {}
-  }
+    }
 
-  final Rxn<VehicleDetails> selectedVehicleDetails = Rxn<VehicleDetails>();
-
-  final RxString installationPosition = ''.obs;
-  final List<String> installationPositionOptions = const [
-    'Front Section - Left Side',
-    'Front Section - Right Side',
-    'Middle Section',
-    'Rear Section',
-  ];
-
-  final RxString powerSource = ''.obs;
-  final List<String> powerSourceOptions = const [
-    'Vehicle Battery',
-    'External Power Bank',
-    'Solar Panel',
-  ];
-
-  final vehicleNotesCtrl = TextEditingController();
-  final RxInt vehicleNotesLen = 0.obs;
-
-  final RxnString organizationError = RxnString();
-  final RxnString vehicleError = RxnString();
-
-  void setOrganization(String? value) {
-    organization.value = value ?? '';
-    if (value != null) organizationError.value = null;
-  }
-
-  void setSelectedVehicle(String? value) {
-    selectedVehicle.value = value ?? '';
-    if (value != null && value.isNotEmpty) {
-      vehicleError.value = null;
-      final match = availableVehicles.firstWhereOrNull(
-        (v) => 'Bus ${v.registrationNumber}' == value || v.registrationNumber == value || 'Bus #${v.id}' == value,
-      );
-      if (match != null) {
-        selectedVehicleModel.value = match;
+    if (selectedFleetId.value != null && selectedOrganizationId.value == null) {
+      final f = fleets.firstWhereOrNull((item) => item.id.toString() == selectedFleetId.value.toString());
+      if (f != null && f.organizationId != null) {
+        selectedOrganizationId.value = f.organizationId;
       }
-      selectedVehicleDetails.value = _vehicleDetailsMap[value];
-    } else {
-      selectedVehicleDetails.value = null;
-      selectedVehicleModel.value = null;
+      if (selectedDepotId.value == null && f?.depotId != null) {
+        selectedDepotId.value = f!.depotId;
+      }
     }
   }
 
-  void setInstallationPosition(String? value) => installationPosition.value = value ?? '';
-  void setPowerSource(String? value) => powerSource.value = value ?? '';
+  // ---------------- Cascading Filtering (Matches Web Admin) ----------------
 
-  bool _validateStep2() {
-    bool isValid = true;
-
-    if (organization.value.isEmpty) {
-      organizationError.value = 'Please select an organization / fleet';
-      isValid = false;
-    } else {
-      organizationError.value = null;
-    }
-
-    if (selectedVehicle.value.isEmpty) {
-      vehicleError.value = 'Please select a vehicle';
-      isValid = false;
-    } else {
-      vehicleError.value = null;
-    }
-
-    return isValid;
+  /// Fleets strictly filtered by selected Organization
+  List<FleetItemModel> get availableFleets {
+    final orgId = selectedOrganizationId.value;
+    if (orgId == null || orgId.toString().isEmpty) return [];
+    return fleets.where((f) {
+      if (f.organizationId == null) return true;
+      return f.organizationId.toString() == orgId.toString();
+    }).toList();
   }
 
-  void onStep2BackPressed() {
-    currentStep.value = 1;
-    Get.back();
+  /// Vehicles strictly filtered by selected Organization AND selected Fleet
+  List<VehicleItemModel> get availableVehicles {
+    final orgId = selectedOrganizationId.value;
+    if (orgId == null || orgId.toString().isEmpty) return [];
+
+    final flId = selectedFleetId.value;
+    return vehicles.where((v) {
+      final matchOrg = v.organizationId == null || v.organizationId.toString() == orgId.toString();
+      if (flId == null || flId.toString().isEmpty) return matchOrg;
+      return matchOrg && (v.fleetId != null && v.fleetId.toString() == flId.toString());
+    }).toList();
   }
 
-  Future<void> onStep2NextPressed() async {
-    if (!_validateStep2()) {
+  // Selected Entities
+  OrganizationItemModel? get selectedOrganization {
+    final id = selectedOrganizationId.value;
+    if (id == null) return null;
+    return organizations.firstWhereOrNull((o) => o.id.toString() == id.toString());
+  }
+
+  FleetItemModel? get selectedFleet {
+    final id = selectedFleetId.value;
+    if (id == null) return null;
+    return fleets.firstWhereOrNull((f) => f.id.toString() == id.toString());
+  }
+
+  VehicleItemModel? get selectedVehicleModel {
+    final id = selectedVehicleId.value;
+    if (id == null) return null;
+    return vehicles.firstWhereOrNull((v) => v.id.toString() == id.toString());
+  }
+
+  // Derived assigned depot from vehicle or fleet (Auto-resolved like Web)
+  String? get assignedDepotName {
+    final veh = selectedVehicleModel;
+    if (veh != null && veh.depotName != null && veh.depotName!.isNotEmpty) {
+      return veh.depotName;
+    }
+
+    final fl = selectedFleet;
+    if (fl != null && fl.depotName != null && fl.depotName!.isNotEmpty) {
+      return fl.depotName;
+    }
+
+    final depId = selectedDepotId.value;
+    if (depId != null) {
+      final d = depots.firstWhereOrNull((dep) => dep.id.toString() == depId.toString());
+      if (d != null) return d.name;
+    }
+    return null;
+  }
+
+  // ---------------- Cascading Change Handlers ----------------
+
+  /// Step 1: Organization Change -> Resets Fleet, Vehicle & Depot
+  void onOrganizationChanged(dynamic newOrgId) {
+    if (newOrgId == null || newOrgId == '') {
+      selectedOrganizationId.value = null;
+      selectedFleetId.value = null;
+      selectedVehicleId.value = null;
+      selectedDepotId.value = null;
+      return;
+    }
+
+    selectedOrganizationId.value = newOrgId;
+    selectedFleetId.value = null;
+    selectedVehicleId.value = null;
+    selectedDepotId.value = null;
+    orgError.value = null;
+  }
+
+  /// Step 2: Fleet Change -> Resets Vehicle, Auto-syncs Depot
+  void onFleetChanged(dynamic newFleetId) {
+    if (newFleetId == null || newFleetId == '') {
+      selectedFleetId.value = null;
+      selectedVehicleId.value = null;
+      selectedDepotId.value = null;
+      return;
+    }
+
+    selectedFleetId.value = newFleetId;
+    selectedVehicleId.value = null;
+
+    final fl = fleets.firstWhereOrNull((f) => f.id.toString() == newFleetId.toString());
+    if (fl != null && fl.depotId != null) {
+      selectedDepotId.value = fl.depotId;
+    } else {
+      selectedDepotId.value = null;
+    }
+  }
+
+  /// Step 3: Vehicle Change -> Syncs Depot & vehicle binding
+  void onVehicleChanged(dynamic newVehicleId) {
+    if (newVehicleId == null || newVehicleId == '') {
+      selectedVehicleId.value = null;
+      return;
+    }
+
+    selectedVehicleId.value = newVehicleId;
+    final veh = vehicles.firstWhereOrNull((v) => v.id.toString() == newVehicleId.toString());
+    if (veh != null && veh.depotId != null) {
+      selectedDepotId.value = veh.depotId;
+    }
+  }
+
+  // ---------------- Helper Getters for Success View ----------------
+  String get registeredDeviceId =>
+      registeredDeviceBoxId.value.isNotEmpty
+          ? registeredDeviceBoxId.value
+          : (boxIdCtrl.text.trim().isNotEmpty ? boxIdCtrl.text.trim() : '—');
+
+  String get registeredDeviceTypeLabel => 'RK3588 Edge Box';
+
+  RxString get selectedVehicle {
+    final v = selectedVehicleModel;
+    if (v != null) {
+      final label = v.registrationNumber.isNotEmpty ? 'Bus ${v.registrationNumber}' : 'Bus #${v.id}';
+      return label.obs;
+    }
+    return 'common.unassigned'.tr.obs;
+  }
+
+  String get registeredVehicleDepot => assignedDepotName ?? '—';
+
+  static const List<String> _monthNames = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  ];
+
+  String get registeredOnText {
+    final dt = registeredOnDateTime.value ?? DateTime.now();
+    final month = _monthNames[dt.month - 1];
+    final hour12 = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+    final minute = dt.minute.toString().padLeft(2, '0');
+    final period = dt.hour >= 12 ? 'PM' : 'AM';
+    return '$month ${dt.day}, ${dt.year}, ${hour12.toString().padLeft(2, '0')}:$minute $period';
+  }
+
+  // ---------------- QR Scan / Dialog ----------------
+  void onScanQr() {
+    if (isEditMode.value) return; // Box ID locked in edit mode
+
+    Get.defaultDialog(
+      title: 'scan_qr_barcode_title'.tr,
+      titleStyle: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+      backgroundColor: const Color(0xFF15151F),
+      radius: 14,
+      content: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        child: Column(
+          children: [
+            const Icon(Icons.qr_code_scanner_rounded, color: Color(0xFFB042FF), size: 54),
+            const SizedBox(height: 12),
+            Text(
+              'align_rk3588_serial_desc'.tr,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.white70, fontSize: 12),
+            ),
+            const SizedBox(height: 14),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                OutlinedButton(
+                  onPressed: () => Get.back(),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFF334155)),
+                  ),
+                  child: Text('cancel'.tr, style: const TextStyle(color: Colors.white70)),
+                ),
+                const SizedBox(width: 10),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      final simulatedSerial = 'APC3588Q${(DateTime.now().millisecondsSinceEpoch % 100000000).toString().padLeft(8, '0')}';
+                      boxIdCtrl.text = simulatedSerial;
+                      Get.back();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                    ),
+                    child: Text('autofill_serial_btn'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void onBackPressed() => Get.back();
+
+  // ---------------- Submit Registration or Update ----------------
+  Future<void> onRegisterDevice() async {
+    final boxId = boxIdCtrl.text.trim();
+    if (boxId.isEmpty) {
+      boxIdError.value = 'box_id_required'.tr;
       Get.snackbar(
-        'Missing Information',
-        'Please fill all required fields marked with *',
-        backgroundColor: const Color(0xFF15151F),
+        'missing_information'.tr,
+        'box_id_required'.tr,
+        backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(12),
       );
       return;
     }
-    currentStep.value = 3;
-    Get.to(() => const ConfigurationView());
-  }
 
-  // ==========================================================
-  // STEP 3 — Configuration
-  // ==========================================================
-
-  // ---- Display Settings ----
-  final RxDouble screenBrightness = 70.0.obs;
-  final RxDouble volumeLevel = 60.0.obs;
-
-  final RxString displayOrientation = 'Landscape'.obs;
-  final List<String> displayOrientationOptions = const ['Landscape', 'Portrait'];
-
-  final RxString screenTimeout = '5 Minutes'.obs;
-  final List<String> screenTimeoutOptions = const [
-    '1 Minute',
-    '5 Minutes',
-    '10 Minutes',
-    '30 Minutes',
-    'Never',
-  ];
-
-  // ---- Connectivity Settings ----
-  final RxString networkType = 'Wi-Fi'.obs;
-  final List<String> networkTypeOptions = const ['Wi-Fi', 'Ethernet', '4G / LTE'];
-
-  final wifiSsidCtrl = TextEditingController(text: 'VMOVEXA_Network');
-  final wifiPasswordCtrl = TextEditingController();
-  final RxBool isWifiPasswordVisible = false.obs;
-
-  // ---- Content & Playback Settings ----
-  final RxBool autoPlayOnBoot = true.obs;
-  final RxBool loopContent = true.obs;
-
-  final RxString defaultContentSource = 'VMOVEXA CMS'.obs;
-  final List<String> defaultContentSourceOptions = const [
-    'VMOVEXA CMS',
-    'Local Storage',
-    'Custom URL',
-  ];
-
-  final RxString contentUpdateFrequency = 'Every 6 Hours'.obs;
-  final List<String> contentUpdateFrequencyOptions = const [
-    'Every 1 Hour',
-    'Every 6 Hours',
-    'Every 12 Hours',
-    'Daily',
-  ];
-
-  final RxBool syncTimeWithServer = true.obs;
-
-  // ---- System & Maintenance ----
-  final RxBool remoteMonitoring = true.obs;
-  final RxBool enableAlerts = true.obs;
-
-  final RxString rebootSchedule = 'Daily at 03:00 AM'.obs;
-  final List<String> rebootScheduleOptions = const [
-    'Never',
-    'Daily at 03:00 AM',
-    'Weekly (Sunday 03:00 AM)',
-  ];
-
-  final RxString timeZone = '(GMT +05:30) Asia/Kolkata'.obs;
-  final List<String> timeZoneOptions = const [
-    '(GMT +05:30) Asia/Kolkata',
-    '(GMT +00:00) UTC',
-    '(GMT -05:00) America/New_York',
-  ];
-
-  final configNotesCtrl = TextEditingController();
-  final RxInt configNotesLen = 0.obs;
-
-  final RxnString ssidError = RxnString();
-  final RxnString wifiPasswordError = RxnString();
-
-  void setScreenBrightness(double value) => screenBrightness.value = value;
-  void setVolumeLevel(double value) => volumeLevel.value = value;
-  void setDisplayOrientation(String? value) => displayOrientation.value = value ?? '';
-  void setScreenTimeout(String? value) => screenTimeout.value = value ?? '';
-
-  void setNetworkType(String? value) {
-    networkType.value = value ?? '';
-    ssidError.value = null;
-    wifiPasswordError.value = null;
-  }
-
-  void toggleWifiPasswordVisibility() =>
-      isWifiPasswordVisible.value = !isWifiPasswordVisible.value;
-
-  void toggleAutoPlayOnBoot(bool value) => autoPlayOnBoot.value = value;
-  void toggleLoopContent(bool value) => loopContent.value = value;
-  void setDefaultContentSource(String? value) => defaultContentSource.value = value ?? '';
-  void setContentUpdateFrequency(String? value) => contentUpdateFrequency.value = value ?? '';
-  void toggleSyncTimeWithServer(bool value) => syncTimeWithServer.value = value;
-
-  void toggleRemoteMonitoring(bool value) => remoteMonitoring.value = value;
-  void toggleEnableAlerts(bool value) => enableAlerts.value = value;
-  void setRebootSchedule(String? value) => rebootSchedule.value = value ?? '';
-  void setTimeZone(String? value) => timeZone.value = value ?? '';
-
-  bool _validateStep3() {
-    bool isValid = true;
-
-    if (networkType.value == 'Wi-Fi') {
-      if (wifiSsidCtrl.text.trim().isEmpty) {
-        ssidError.value = 'Wi-Fi network name is required';
-        isValid = false;
-      } else {
-        ssidError.value = null;
-      }
-
-      if (wifiPasswordCtrl.text.trim().isEmpty) {
-        wifiPasswordError.value = 'Wi-Fi password is required';
-        isValid = false;
-      } else {
-        wifiPasswordError.value = null;
-      }
-    }
-
-    return isValid;
-  }
-
-  void onStep3BackPressed() {
-    currentStep.value = 2;
-    Get.back();
-  }
-
-  Future<void> onStep3NextPressed() async {
-    if (!_validateStep3()) {
+    if (selectedOrganizationId.value == null || selectedOrganizationId.value.toString().isEmpty) {
+      orgError.value = 'select_org_first'.tr;
       Get.snackbar(
-        'Missing Information',
-        'Please fill all required fields marked with *',
-        backgroundColor: const Color(0xFF15151F),
+        'missing_information'.tr,
+        'select_org_first'.tr,
+        backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(12),
       );
       return;
     }
-    currentStep.value = 4;
-    Get.to(() => const ReviewAndSaveView());
-  }
 
-  // ==========================================================
-  // STEP 4 — Review & Save
-  // ==========================================================
-
-  String get reviewNotesText =>
-      notesCtrl.text.trim().isEmpty ? 'No notes added' : notesCtrl.text.trim();
-
-  /// Wizard nav stack from here: Step1 (base) -> Step2 -> Step3 -> Step4 (this screen).
-  /// So popping N times lands back on the target step's view.
-  void editDeviceDetails() {
-    currentStep.value = 1;
-    Get.close(3);
-  }
-
-  void editVehicleAssignment() {
-    currentStep.value = 2;
-    Get.close(2);
-  }
-
-  void editConfiguration() {
-    currentStep.value = 3;
-    Get.close(1);
-  }
-
-  void onStep4BackPressed() {
-    currentStep.value = 3;
-    Get.back();
-  }
-
-  Future<void> onSaveDevicePressed() async {
     isSaving.value = true;
     try {
-      final boxId = deviceIdCtrl.text.trim().isNotEmpty
-          ? deviceIdCtrl.text.trim()
-          : 'VMX-BOX-${(DateTime.now().millisecondsSinceEpoch % 10000).toString().padLeft(4, '0')}';
-
-      final selectedVeh = selectedVehicleModel.value;
-
       final payload = <String, dynamic>{
         'boxId': boxId,
         'box_id': boxId,
-        'mac': notesCtrl.text.contains('MAC:') ? '' : null,
-        if (selectedVeh != null) 'vehicleId': selectedVeh.id,
-        if (selectedVeh != null) 'vehicle_id': selectedVeh.id,
-        if (selectedVeh?.depotId != null) 'depotId': selectedVeh!.depotId,
-        if (selectedVeh?.depotId != null) 'depot_id': selectedVeh!.depotId,
-        'model': hardwareModelCtrl.text.trim().isNotEmpty ? hardwareModelCtrl.text.trim() : 'RK3588 UltraHD Box X2',
-        'deviceType': deviceType.value.isNotEmpty ? deviceType.value : 'Passenger Display',
-        'screenSize': screenSize.value.isNotEmpty ? screenSize.value : '22"',
-        'resolution': resolution.value.isNotEmpty ? resolution.value : '1920x1080',
-        'orientation': displayOrientation.value,
-        'brightness': screenBrightness.value.toInt(),
-        'simNetwork': networkType.value,
-        'sim_network': networkType.value,
-        'agentVersion': 'v2.4.1',
-        'agent_version': 'v2.4.1',
-        'is_active': true,
-        'isActive': true,
-        if (notesCtrl.text.trim().isNotEmpty) 'notes': notesCtrl.text.trim(),
+        'mac': macCtrl.text.trim().isNotEmpty ? macCtrl.text.trim() : null,
+        'organizationId': _toNumber(selectedOrganizationId.value),
+        if (selectedFleetId.value != null && selectedFleetId.value.toString().isNotEmpty)
+          'fleetId': _toNumber(selectedFleetId.value),
+        'vehicleId': selectedVehicleId.value != null && selectedVehicleId.value.toString().isNotEmpty
+            ? _toNumber(selectedVehicleId.value)
+            : null,
+        'vehicle_id': selectedVehicleId.value != null && selectedVehicleId.value.toString().isNotEmpty
+            ? _toNumber(selectedVehicleId.value)
+            : null,
+        'depotId': selectedDepotId.value != null && selectedDepotId.value.toString().isNotEmpty
+            ? _toNumber(selectedDepotId.value)
+            : null,
+        'depot_id': selectedDepotId.value != null && selectedDepotId.value.toString().isNotEmpty
+            ? _toNumber(selectedDepotId.value)
+            : null,
+        'agentVersion': agentVersionCtrl.text.trim().isNotEmpty ? agentVersionCtrl.text.trim() : 'v2.4.1',
+        'agent_version': agentVersionCtrl.text.trim().isNotEmpty ? agentVersionCtrl.text.trim() : 'v2.4.1',
+        'simNetwork': simNetworkCtrl.text.trim().isNotEmpty ? simNetworkCtrl.text.trim() : 'Airtel 4G IoT',
+        'sim_network': simNetworkCtrl.text.trim().isNotEmpty ? simNetworkCtrl.text.trim() : 'Airtel 4G IoT',
+        'isActive': isActive.value,
+        'is_active': isActive.value,
       };
 
-      final res = await TechnicianService.to.registerEdgeDevice(payload);
-      if (res.success) {
-        registeredOnDateTime.value = DateTime.now();
-        Get.snackbar(
-          'Device Registered',
-          '$boxId has been provisioned successfully.',
-          backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM,
-          margin: const EdgeInsets.all(12),
-        );
+      if (isEditMode.value && editingDeviceId.value != null) {
+        // Edit Mode: Update Device (PATCH /edge-devices/:id)
+        final res = await TechnicianService.to.updateEdgeDevice(editingDeviceId.value, payload);
+        if (res.success) {
+          Get.snackbar(
+            'edit_edge_device'.tr,
+            'device_updated_success'.tr,
+            backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+            margin: const EdgeInsets.all(12),
+          );
 
-        if (Get.isRegistered<DisplayDevicesController>()) {
-          Get.find<DisplayDevicesController>().fetchDevices();
+          if (Get.isRegistered<DisplayDevicesController>()) {
+            Get.find<DisplayDevicesController>().fetchDevices();
+          }
+
+          Get.back();
+        } else {
+          Get.snackbar(
+            'update_failed'.tr,
+            res.displayErrorMessage,
+            backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+            margin: const EdgeInsets.all(12),
+          );
         }
-
-        Get.off(() => const RegistrationSuccessView());
       } else {
-        Get.snackbar(
-          'Registration Failed',
-          res.displayErrorMessage,
-          backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM,
-          margin: const EdgeInsets.all(12),
-        );
+        // Add Mode: Register Device (POST /edge-devices)
+        final res = await TechnicianService.to.registerEdgeDevice(payload);
+        if (res.success) {
+          registeredOnDateTime.value = DateTime.now();
+          registeredDeviceBoxId.value = boxId;
+
+          Get.snackbar(
+            'device_registered'.tr,
+            'device_registered_success'.tr,
+            backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+            margin: const EdgeInsets.all(12),
+          );
+
+          if (Get.isRegistered<DisplayDevicesController>()) {
+            Get.find<DisplayDevicesController>().fetchDevices();
+          }
+
+          Get.off(() => const RegistrationSuccessView());
+        } else {
+          Get.snackbar(
+            'registration_failed'.tr,
+            res.displayErrorMessage,
+            backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+            margin: const EdgeInsets.all(12),
+          );
+        }
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         e.toString(),
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
         colorText: Colors.white,
@@ -543,33 +532,7 @@ class RegisterDeviceController extends GetxController {
     }
   }
 
-  // ==========================================================
-  // Registration Success screen
-  // ==========================================================
-
-  final Rxn<DateTime> registeredOnDateTime = Rxn<DateTime>();
-
-  static const List<String> _monthNames = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-  ];
-
-  String get registeredOnText {
-    final dt = registeredOnDateTime.value;
-    if (dt == null) return '—';
-    final month = _monthNames[dt.month - 1];
-    final hour12 = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
-    final minute = dt.minute.toString().padLeft(2, '0');
-    final period = dt.hour >= 12 ? 'PM' : 'AM';
-    return '$month ${dt.day}, ${dt.year}, ${hour12.toString().padLeft(2, '0')}:$minute $period';
-  }
-
-  /// Friendly label for the device type shown on the success card.
-  String get registeredDeviceTypeLabel =>
-      deviceType.value.isEmpty ? 'Passenger Display' : deviceType.value;
-
-  String get registeredVehicleDepot => selectedVehicleDetails.value?.depotLocation ?? '';
-
+  // ---------------- Navigation Handlers ----------------
   void onGoToDisplayDevices() {
     Get.until((route) => route.isFirst);
     if (Get.isRegistered<TechnicianDashboardController>()) {
@@ -578,141 +541,30 @@ class RegisterDeviceController extends GetxController {
   }
 
   void onRegisterAnotherDevice() {
-    resetWizard();
+    resetForm();
     Get.off(() => const RegisterDeviceView());
   }
 
-  /// Clears every field so the wizard is fresh, then restarts at Step 1.
-  void resetWizard() {
-    currentStep.value = 1;
-
-    deviceIdCtrl.clear();
-    deviceNameCtrl.clear();
-    hardwareModelCtrl.clear();
-    notesCtrl.clear();
-    deviceType.value = '';
-    screenSize.value = '';
-    resolution.value = '';
-    orientation.value = '';
-    locationDepot.value = '';
-    deviceIdError.value = null;
-    deviceNameError.value = null;
-    deviceTypeError.value = null;
-    locationDepotError.value = null;
-
-    organization.value = '';
-    selectedVehicle.value = '';
-    selectedVehicleDetails.value = null;
-    installationPosition.value = '';
-    powerSource.value = '';
-    vehicleNotesCtrl.clear();
-    organizationError.value = null;
-    vehicleError.value = null;
-
-    screenBrightness.value = 70.0;
-    volumeLevel.value = 60.0;
-    displayOrientation.value = 'Landscape';
-    screenTimeout.value = '5 Minutes';
-    networkType.value = 'Wi-Fi';
-    wifiSsidCtrl.text = 'VMOVEXA_Network';
-    wifiPasswordCtrl.clear();
-    isWifiPasswordVisible.value = false;
-    autoPlayOnBoot.value = true;
-    loopContent.value = true;
-    defaultContentSource.value = 'VMOVEXA CMS';
-    contentUpdateFrequency.value = 'Every 6 Hours';
-    syncTimeWithServer.value = true;
-    remoteMonitoring.value = true;
-    enableAlerts.value = true;
-    rebootSchedule.value = 'Daily at 03:00 AM';
-    timeZone.value = '(GMT +05:30) Asia/Kolkata';
-    configNotesCtrl.clear();
-    ssidError.value = null;
-    wifiPasswordError.value = null;
-
+  void resetForm() {
+    isEditMode.value = false;
+    editingDeviceId.value = null;
+    boxIdCtrl.clear();
+    macCtrl.clear();
+    agentVersionCtrl.text = 'v2.4.1';
+    simNetworkCtrl.text = 'Airtel 4G IoT';
+    isActive.value = true;
+    boxIdError.value = null;
+    orgError.value = null;
+    selectedOrganizationId.value = null;
+    selectedFleetId.value = null;
+    selectedVehicleId.value = null;
+    selectedDepotId.value = null;
     registeredOnDateTime.value = null;
+    registeredDeviceBoxId.value = '';
   }
 
-  // ---------------- Dropdown setters ----------------
-  void setDeviceType(String? value) {
-    deviceType.value = value ?? '';
-    if (value != null) deviceTypeError.value = null;
-  }
-
-  void setScreenSize(String? value) => screenSize.value = value ?? '';
-  void setResolution(String? value) => resolution.value = value ?? '';
-  void setOrientation(String? value) => orientation.value = value ?? '';
-
-  void setLocationDepot(String? value) {
-    locationDepot.value = value ?? '';
-    if (value != null) locationDepotError.value = null;
-  }
-
-  // ---------------- Validation ----------------
-  bool _validateStep1() {
-    bool isValid = true;
-
-    if (deviceIdCtrl.text.trim().isEmpty) {
-      deviceIdError.value = 'Device ID is required';
-      isValid = false;
-    } else {
-      deviceIdError.value = null;
-    }
-
-    if (deviceNameCtrl.text.trim().isEmpty) {
-      deviceNameError.value = 'Device name is required';
-      isValid = false;
-    } else {
-      deviceNameError.value = null;
-    }
-
-    if (deviceType.value.isEmpty) {
-      deviceTypeError.value = 'Please select a device type';
-      isValid = false;
-    } else {
-      deviceTypeError.value = null;
-    }
-
-    if (locationDepot.value.isEmpty) {
-      locationDepotError.value = 'Please select a location/depot';
-      isValid = false;
-    } else {
-      locationDepotError.value = null;
-    }
-
-    return isValid;
-  }
-
-  // ---------------- Actions ----------------
-  void onScanQr() {
-    // TODO: integrate QR scanner (mobile_scanner / qr_code_scanner) and
-    // auto-fill deviceIdCtrl.text with the scanned value.
-  }
-
-  void onBackPressed() => Get.back();
-
-  Future<void> onNextPressed() async {
-    if (currentStep.value == 1) {
-      if (!_validateStep1()) {
-        Get.snackbar(
-          'Missing Information',
-          'Please fill all required fields marked with *',
-          backgroundColor: const Color(0xFF15151F),
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM,
-        );
-        return;
-      }
-      currentStep.value = 2;
-      Get.to(() => const VehicleAssignmentView());
-      return;
-    }
-    // handle further steps similarly...
-  }
-
-  void goToStep(int step) {
-    if (step < currentStep.value) {
-      currentStep.value = step; // allow going back to a previously completed step
-    }
+  dynamic _toNumber(dynamic v) {
+    if (v == null) return null;
+    return int.tryParse(v.toString()) ?? v;
   }
 }

@@ -51,7 +51,7 @@ export const ENDPOINTS = {
     ROLE: (id) => `/roles/${id}`,
     ROLE_PERMISSIONS: (id) => `/roles/${id}/permissions`,
     PERMISSIONS: '/permissions',
-    PERMISSION_MODULES: '/permissions/modules',
+    REGISTRY: '/permissions/registry',
   },
 
   INVITATIONS: {
@@ -236,6 +236,7 @@ export const ENDPOINTS = {
     PAYMENT: (id) => `/finance/payments/${id}`,
     PAYMENT_REMINDER: (id) => `/finance/payments/${id}/send-reminder`,
     CAMPAIGN_PAYMENTS: '/finance/campaign-payments',
+    CAMPAIGN_PAYMENT_ONE: (id) => `/finance/campaign-payments/${id}`,
     CAMPAIGN_PAYMENT_SHARE: (id) => `/finance/campaign-payments/${id}/share-link`,
     CAMPAIGN_PAYMENT_MANUAL: (id) => `/finance/campaign-payments/${id}/manual-pay`,
     RECONCILIATION_SUMMARY: '/finance/reconciliation/summary',

@@ -50,36 +50,36 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
           child: const Icon(Icons.arrow_back, color: Colors.white),
         ),
         const SizedBox(width: 10),
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Invoice Preview',
-                style: TextStyle(
+                'invoice_preview'.tr,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              SizedBox(height: 2),
+              const SizedBox(height: 2),
               Text(
-                'Review your invoice before final download',
-                style: TextStyle(color: Colors.white, fontSize: 11.5),
+                'review_invoice_sub'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 11.5),
               ),
             ],
           ),
         ),
         GestureDetector(
           onTap: controller.onEditInvoice,
-          child: const Row(
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.edit_outlined, color: kPurple, size: 14),
-              SizedBox(width: 4),
+              const Icon(Icons.edit_outlined, color: kPurple, size: 14),
+              const SizedBox(width: 4),
               Text(
-                'Edit',
-                style: TextStyle(
+                'edit_invoice'.tr,
+                style: const TextStyle(
                   color: kPurple,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -555,14 +555,14 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
                 border: Border.all(color: kPurple.withValues(alpha: 0.5)),
               ),
               alignment: Alignment.center,
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.edit_outlined, color: kPurple, size: 16),
-                  SizedBox(width: 8),
+                  const Icon(Icons.edit_outlined, color: kPurple, size: 16),
+                  const SizedBox(width: 8),
                   Text(
-                    'Edit Invoice',
-                    style: TextStyle(
+                    'edit_invoice'.tr,
+                    style: const TextStyle(
                       color: kPurple,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,

@@ -64,12 +64,16 @@ class AuthService extends GetxService {
 
   /// 1.3 POST /auth/verify-otp
   Future<ApiResponseModel<AuthResponseModel>> verifyOtp({
-    required String phone,
+    String? phone,
+    String? identifier,
     required String otp,
     String? mfaToken,
   }) async {
+    final id = (identifier ?? phone ?? '').trim();
     final body = <String, dynamic>{
-      'phone': phone.trim(),
+      'identifier': id,
+      'code': otp.trim(),
+      'phone': id,
       'otp': otp.trim(),
     };
     if (mfaToken != null && mfaToken.isNotEmpty) {
@@ -220,8 +224,8 @@ class AuthService extends GetxService {
     return _http.post(
       ApiConstants.changePassword,
       body: {
-        'current_password': currentPassword,
-        'new_password': newPassword,
+        'currentPassword': currentPassword,
+        'newPassword': newPassword,
       },
       requiresAuth: true,
     );
@@ -238,15 +242,32 @@ class AuthService extends GetxService {
 
   /// POST /auth/reset-password
   Future<ApiResponseModel<dynamic>> resetPassword({
-    required String token,
-    required String password,
+    String? email,
+    String? code,
+    String? newPassword,
+    String? token,
+    String? password,
   }) async {
+    final body = <String, dynamic>{};
+    if (email != null && email.isNotEmpty) body['email'] = email.trim().toLowerCase();
+    if (code != null && code.isNotEmpty) body['code'] = code.trim();
+    if (newPassword != null && newPassword.isNotEmpty) {
+      body['newPassword'] = newPassword;
+    } else if (password != null && password.isNotEmpty) {
+      body['newPassword'] = password;
+    }
+
+    // Fallbacks if token passed instead
+    if (token != null && token.isNotEmpty && !body.containsKey('code')) {
+      body['token'] = token.trim();
+    }
+    if (password != null && password.isNotEmpty && !body.containsKey('newPassword')) {
+      body['password'] = password;
+    }
+
     return _http.post(
       ApiConstants.resetPassword,
-      body: {
-        'token': token.trim(),
-        'password': password,
-      },
+      body: body,
       requiresAuth: false,
     );
   }
@@ -323,7 +344,7 @@ class AuthService extends GetxService {
       body: {
         'code': code,
         'mode': mode,
-        if (redirectUri != null) 'redirectUri': redirectUri,
+        'redirectUri': ?redirectUri,
       },
       requiresAuth: false,
       create: (data) => AuthResponseModel.fromJson(

@@ -81,8 +81,8 @@ class VehicleAnalyticsController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Notice',
-        'Using cached analytics: ${e.toString()}',
+        'notice'.tr,
+        'using_cached_analytics'.trParams({'err': e.toString()}),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF1E1F2E),
         colorText: Colors.white,
@@ -345,12 +345,12 @@ class VehicleAnalyticsController extends GetxController {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
-                    children: const [
-                      Icon(Icons.file_download_done_rounded, color: Color(0xFF10B981), size: 22),
-                      SizedBox(width: 8),
+                    children: [
+                      const Icon(Icons.file_download_done_rounded, color: Color(0xFF10B981), size: 22),
+                      const SizedBox(width: 8),
                       Text(
-                        'Report Ready for Export',
-                        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                        'report_ready_for_export'.tr,
+                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -395,13 +395,13 @@ class VehicleAnalyticsController extends GetxController {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       icon: const Icon(Icons.copy_rounded, color: Color(0xFF6366F1), size: 16),
-                      label: const Text('Copy to Clipboard', style: TextStyle(color: Color(0xFF6366F1), fontSize: 12, fontWeight: FontWeight.bold)),
+                      label: Text('copy_to_clipboard'.tr, style: const TextStyle(color: Color(0xFF6366F1), fontSize: 12, fontWeight: FontWeight.bold)),
                       onPressed: () {
                         Clipboard.setData(ClipboardData(text: csvText));
                         Get.back();
                         Get.snackbar(
-                          'Copied to Clipboard',
-                          'CSV text copied to clipboard successfully.',
+                          'copied_to_clipboard'.tr,
+                          'csv_copied_clipboard_msg'.tr,
                           snackPosition: SnackPosition.BOTTOM,
                           backgroundColor: const Color(0xFF10B981),
                           colorText: Colors.white,
@@ -418,7 +418,7 @@ class VehicleAnalyticsController extends GetxController {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       icon: const Icon(Icons.download_rounded, color: Colors.white, size: 16),
-                      label: const Text('Save CSV File', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                      label: Text('save_csv_file'.tr, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                       onPressed: () async {
                         try {
                           final dir = Directory.systemTemp;
@@ -426,8 +426,8 @@ class VehicleAnalyticsController extends GetxController {
                           await file.writeAsString(csvText);
                           Get.back();
                           Get.snackbar(
-                            'Report Exported',
-                            'Saved to ${file.path}',
+                            'report_exported'.tr,
+                            'saved_to_path'.trParams({'path': file.path}),
                             snackPosition: SnackPosition.BOTTOM,
                             backgroundColor: const Color(0xFF10B981),
                             colorText: Colors.white,
@@ -437,8 +437,8 @@ class VehicleAnalyticsController extends GetxController {
                           Clipboard.setData(ClipboardData(text: csvText));
                           Get.back();
                           Get.snackbar(
-                            'CSV Generated',
-                            'Exported data copied to clipboard.',
+                            'csv_generated'.tr,
+                            'exported_data_clipboard'.tr,
                             snackPosition: SnackPosition.BOTTOM,
                             backgroundColor: const Color(0xFF10B981),
                             colorText: Colors.white,

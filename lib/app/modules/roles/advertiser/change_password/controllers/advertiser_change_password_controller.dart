@@ -61,9 +61,8 @@ class AdvertiserChangePasswordController extends GetxController {
     final confirmPass = confirmPasswordController.text.trim();
 
     if (currentPass.isEmpty) {
-      Get.snackbar(
-        'Required Field',
-        'Please enter your current account password.',
+      Get.snackbar('required_field'.tr,
+        'enter_current_password_msg'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orangeAccent,
         colorText: Colors.white,
@@ -74,9 +73,8 @@ class AdvertiserChangePasswordController extends GetxController {
     }
 
     if (newPass.isEmpty) {
-      Get.snackbar(
-        'Required Field',
-        'Please enter a new secure password.',
+      Get.snackbar('required_field'.tr,
+        'enter_new_secure_pwd_msg'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orangeAccent,
         colorText: Colors.white,
@@ -87,9 +85,8 @@ class AdvertiserChangePasswordController extends GetxController {
     }
 
     if (newPass != confirmPass) {
-      Get.snackbar(
-        'Password Mismatch',
-        'New password and confirmation password do not match.',
+      Get.snackbar('password_mismatch'.tr,
+        'password_mismatch_msg'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),
         colorText: Colors.white,
@@ -100,9 +97,8 @@ class AdvertiserChangePasswordController extends GetxController {
     }
 
     if (!hasMinLength.value || !hasUppercase.value || !hasNumber.value || !hasSpecial.value) {
-      Get.snackbar(
-        'Security Criteria Required',
-        'Password must contain min 8 chars, 1 uppercase letter, 1 number, and 1 special symbol.',
+      Get.snackbar('security_criteria_required'.tr,
+        'password_criteria_msg'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFF59E0B),
         colorText: Colors.white,

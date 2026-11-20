@@ -68,9 +68,9 @@ class TripsListView extends GetView<TripsListController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const CustomBackButton(),
-          const Text(
-            'Trips & Daily Schedules',
-            style: TextStyle(
+          Text(
+            'trips_daily_schedules'.tr,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -79,7 +79,7 @@ class TripsListView extends GetView<TripsListController> {
           IconButton(
             icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 22),
             onPressed: () => controller.fetchTrips(),
-            tooltip: 'Refresh Trips',
+            tooltip: 'refresh'.tr,
           ),
         ],
       ),
@@ -103,9 +103,9 @@ class TripsListView extends GetView<TripsListController> {
               Expanded(
                 child: Row(
                   children: [
-                    const Text(
-                      'Trips & Voyages Dispatch',
-                      style: TextStyle(
+                    Text(
+                      'trips_voyages_dispatch'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
@@ -116,12 +116,12 @@ class TripsListView extends GetView<TripsListController> {
                     Obx(() => Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF1E3A8A).withOpacity(0.35),
+                            color: const Color(0xFF1E3A8A).withValues(alpha: 0.35),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.4)),
+                            border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.4)),
                           ),
                           child: Text(
-                            '${controller.totalItems.value} Recorded',
+                            '${controller.totalItems.value} ${'recorded'.tr}',
                             style: const TextStyle(
                               color: Color(0xFF60A5FA),
                               fontSize: 10,
@@ -135,9 +135,9 @@ class TripsListView extends GetView<TripsListController> {
             ],
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Live voyage telematics, origin-to-destination corridors, stops completed, and speed logs.',
-            style: TextStyle(
+          Text(
+            'trips_dispatch_sub'.tr,
+            style: const TextStyle(
               color: AppColors.textSecondary,
               fontSize: 11,
               height: 1.3,
@@ -157,9 +157,9 @@ class TripsListView extends GetView<TripsListController> {
                       shape: BoxShape.circle,
                     ),
                   ),
-                  label: const Text(
-                    'Live Tracking Radar',
-                    style: TextStyle(
+                  label: Text(
+                    'live_tracking_radar'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -193,33 +193,33 @@ class TripsListView extends GetView<TripsListController> {
         childAspectRatio: 1.7,
         children: [
           _buildKpiCard(
-            title: 'TOTAL ACTIVE RECORDS',
+            title: 'total_active_records'.tr,
             value: '${controller.totalRecordedCount} Trips',
-            subtitle: 'Assigned & tracked',
+            subtitle: 'assigned_tracked'.tr,
             icon: Icons.directions_bus_rounded,
             iconColor: const Color(0xFF3B82F6),
             valColor: Colors.white,
           ),
           _buildKpiCard(
-            title: 'IN PROGRESS',
+            title: 'in_progress'.tr,
             value: '${controller.inProgressCount} Moving',
-            subtitle: 'Live GNSS streaming',
+            subtitle: 'live_gnss_streaming'.tr,
             icon: Icons.speed_rounded,
             iconColor: const Color(0xFF10B981),
             valColor: const Color(0xFF10B981),
           ),
           _buildKpiCard(
-            title: 'COMPLETED',
+            title: 'completed'.tr,
             value: '${controller.completedCount} Logged',
-            subtitle: '100% verified log',
+            subtitle: 'verified_log'.tr,
             icon: Icons.check_circle_outline_rounded,
             iconColor: const Color(0xFF3B82F6),
             valColor: const Color(0xFF3B82F6),
           ),
           _buildKpiCard(
-            title: 'SCHEDULED',
+            title: 'scheduled_tab'.tr,
             value: '${controller.scheduledCount} Upcoming',
-            subtitle: 'Queued dispatch',
+            subtitle: 'queued_dispatch'.tr,
             icon: Icons.access_time_rounded,
             iconColor: const Color(0xFFF59E0B),
             valColor: const Color(0xFFF59E0B),
@@ -250,9 +250,9 @@ class TripsListView extends GetView<TripsListController> {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.12),
+              color: iconColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: iconColor.withOpacity(0.2)),
+              border: Border.all(color: iconColor.withValues(alpha: 0.2)),
             ),
             child: Icon(icon, color: iconColor, size: 20),
           ),
@@ -323,7 +323,7 @@ class TripsListView extends GetView<TripsListController> {
               controller: controller.searchController,
               style: const TextStyle(color: Colors.white, fontSize: 12),
               decoration: InputDecoration(
-                hintText: 'Search Trip, Origin, Destination...',
+                hintText: 'search_trips_hint'.tr,
                 hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                 prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 18),
                 suffixIcon: Obx(() => controller.searchQuery.value.isNotEmpty
@@ -346,13 +346,13 @@ class TripsListView extends GetView<TripsListController> {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                _buildFilterTab('All', 'All Trips'),
+                _buildFilterTab('All', 'all_trips'.tr),
                 const SizedBox(width: 8),
-                _buildFilterTab('in_progress', 'In Progress'),
+                _buildFilterTab('in_progress', 'in_progress'.tr),
                 const SizedBox(width: 8),
-                _buildFilterTab('completed', 'Completed'),
+                _buildFilterTab('completed', 'completed'.tr),
                 const SizedBox(width: 8),
-                _buildFilterTab('scheduled', 'Scheduled'),
+                _buildFilterTab('scheduled', 'scheduled_tab'.tr),
               ],
             ),
           ),
@@ -432,14 +432,19 @@ class TripsListView extends GetView<TripsListController> {
             children: [
               const Icon(Icons.directions_bus_outlined, size: 44, color: AppColors.textMuted),
               const SizedBox(height: 10),
-              const Text(
-                'No Trips Dispatched',
-                style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+              Text(
+                'no_trips_dispatched'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
-              const Text(
-                'No trip records found matching your active filter.',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
+              Text(
+                'no_trips_recorded'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'no_trips_sub'.tr,
+                style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 14),
@@ -452,7 +457,7 @@ class TripsListView extends GetView<TripsListController> {
                   side: const BorderSide(color: Color(0xFF3B82F6)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
-                child: const Text('Reset Filter', style: TextStyle(color: Color(0xFF3B82F6), fontSize: 11)),
+                child: Text('clear'.tr, style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 11)),
               ),
             ],
           ),
@@ -780,24 +785,24 @@ class TripsListView extends GetView<TripsListController> {
 
     switch (status) {
       case 'in_progress':
-        bg = const Color(0xFF064E3B).withOpacity(0.3);
+        bg = const Color(0xFF064E3B).withValues(alpha: 0.3);
         border = const Color(0xFF059669);
         text = const Color(0xFF34D399);
-        label = 'In Progress';
+        label = 'in_progress'.tr;
         showPulse = true;
         break;
       case 'completed':
-        bg = const Color(0xFF1E3A8A).withOpacity(0.3);
+        bg = const Color(0xFF1E3A8A).withValues(alpha: 0.3);
         border = const Color(0xFF2563EB);
         text = const Color(0xFF60A5FA);
-        label = 'Completed';
+        label = 'completed'.tr;
         break;
       case 'scheduled':
       default:
-        bg = const Color(0xFF78350F).withOpacity(0.3);
+        bg = const Color(0xFF78350F).withValues(alpha: 0.3);
         border = const Color(0xFFD97706);
         text = const Color(0xFFFBBF24);
-        label = 'Scheduled';
+        label = 'scheduled'.tr;
         break;
     }
 
@@ -806,7 +811,7 @@ class TripsListView extends GetView<TripsListController> {
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: border.withOpacity(0.6)),
+        border: Border.all(color: border.withValues(alpha: 0.6)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

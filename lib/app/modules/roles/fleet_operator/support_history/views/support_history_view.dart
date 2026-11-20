@@ -20,13 +20,13 @@ class SupportHistoryView extends GetView<SupportHistoryController> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(
-                children: const [
-                  CustomBackButton(),
+                children: [
+                  const CustomBackButton(),
                   Expanded(
                     child: Center(
                       child: Text(
-                        'Your Support History',
-                        style: TextStyle(
+                        'your_support_history'.tr,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -34,7 +34,7 @@ class SupportHistoryView extends GetView<SupportHistoryController> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 48), // Spacer to balance back button
+                  const SizedBox(width: 48), // Spacer to balance back button
                 ],
               ),
             ),
@@ -54,12 +54,12 @@ class SupportHistoryView extends GetView<SupportHistoryController> {
                       child: TextField(
                         controller: controller.searchController,
                         style: const TextStyle(color: Colors.white, fontSize: 13),
-                        decoration: const InputDecoration(
-                          hintText: 'Search by issue or ticket ID...',
-                          hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                        decoration: InputDecoration(
+                          hintText: 'search_support_tickets_hint'.tr,
+                          hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                          prefixIcon: Icon(Icons.search_rounded, color: AppColors.textMuted, size: 20),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 20),
                         ),
                       ),
                     ),
@@ -73,7 +73,7 @@ class SupportHistoryView extends GetView<SupportHistoryController> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     icon: const Icon(Icons.filter_list_rounded, color: Color(0xFF3B82F6), size: 16),
-                    label: const Text('Filter', style: TextStyle(color: Color(0xFF3B82F6), fontSize: 12, fontWeight: FontWeight.bold)),
+                    label: Text('filter'.tr, style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 12, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -101,8 +101,8 @@ class SupportHistoryView extends GetView<SupportHistoryController> {
               child: Obx(
                 () {
                   if (controller.filteredTickets.isEmpty) {
-                    return const Center(
-                      child: Text('No support tickets found', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                    return Center(
+                      child: Text('no_support_tickets_found'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
                     );
                   }
                   return ListView(
@@ -119,12 +119,12 @@ class SupportHistoryView extends GetView<SupportHistoryController> {
                       // Secure Footer text line
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.lock_outline_rounded, color: AppColors.textMuted, size: 12),
-                          SizedBox(width: 6),
+                        children: [
+                          const Icon(Icons.lock_outline_rounded, color: AppColors.textMuted, size: 12),
+                          const SizedBox(width: 6),
                           Text(
-                            'All conversations are secure and confidential.',
-                            style: TextStyle(color: AppColors.textMuted, fontSize: 9),
+                            'conversations_secure_confidential'.tr,
+                            style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
                           ),
                         ],
                       ),
@@ -142,6 +142,23 @@ class SupportHistoryView extends GetView<SupportHistoryController> {
 
   Widget _buildTabItem(String label) {
     bool isSelected = controller.activeFilter.value == label;
+    String displayLabel;
+    switch (label) {
+      case 'All':
+        displayLabel = 'all'.tr;
+        break;
+      case 'Open':
+        displayLabel = 'ticket_open'.tr;
+        break;
+      case 'Resolved':
+        displayLabel = 'ticket_resolved'.tr;
+        break;
+      case 'Closed':
+        displayLabel = 'ticket_closed'.tr;
+        break;
+      default:
+        displayLabel = label;
+    }
     return Expanded(
       child: GestureDetector(
         onTap: () => controller.filterTicketsByStatus(label),
@@ -162,7 +179,7 @@ class SupportHistoryView extends GetView<SupportHistoryController> {
                 : null,
           ),
           child: Text(
-            label,
+            displayLabel,
             style: TextStyle(
               color: isSelected ? Colors.white : AppColors.textSecondary,
               fontSize: 12,
@@ -177,18 +194,27 @@ class SupportHistoryView extends GetView<SupportHistoryController> {
   Widget _buildTicketCard(SupportTicket t) {
     Color badgeColor;
     Color badgeTextColor;
+    String statusDisplay;
     switch (t.status) {
       case 'Open':
-        badgeColor = const Color(0xFF3B82F6).withOpacity(0.12);
+        badgeColor = const Color(0xFF3B82F6).withValues(alpha: 0.12);
         badgeTextColor = const Color(0xFF3B82F6);
+        statusDisplay = 'ticket_open'.tr;
         break;
       case 'Resolved':
-        badgeColor = const Color(0xFF10B981).withOpacity(0.12);
+        badgeColor = const Color(0xFF10B981).withValues(alpha: 0.12);
         badgeTextColor = const Color(0xFF10B981);
+        statusDisplay = 'ticket_resolved'.tr;
+        break;
+      case 'Closed':
+        badgeColor = AppColors.cardBorder;
+        badgeTextColor = AppColors.textMuted;
+        statusDisplay = 'ticket_closed'.tr;
         break;
       default:
         badgeColor = AppColors.cardBorder;
         badgeTextColor = AppColors.textMuted;
+        statusDisplay = t.status;
     }
 
     return Container(
@@ -202,15 +228,6 @@ class SupportHistoryView extends GetView<SupportHistoryController> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Icon box
-          // Container(
-          //   padding: const EdgeInsets.all(10),
-          //   decoration: BoxDecoration(
-          //     color: const Color(0xFF6366F1).withOpacity(0.08),
-          //     borderRadius: BorderRadius.circular(10),
-          //   ),
-          //   child: Icon(t.icon, color: const Color(0xFF6366F1), size: 20),
-          // ),
           SvgPicture.asset(t.icon),
           const SizedBox(width: 14),
 
@@ -233,7 +250,7 @@ class SupportHistoryView extends GetView<SupportHistoryController> {
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        t.status,
+                        statusDisplay,
                         style: TextStyle(color: badgeTextColor, fontSize: 8, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -241,7 +258,7 @@ class SupportHistoryView extends GetView<SupportHistoryController> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  t.title,
+                  t.title.tr,
                   style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
@@ -285,15 +302,15 @@ class SupportHistoryView extends GetView<SupportHistoryController> {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  'Still need help?',
-                  style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  'still_need_help'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  "Can't find your answer? Our support team is here to help.",
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 10),
+                  'cant_find_answer_desc'.tr,
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
                 ),
               ],
             ),

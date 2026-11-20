@@ -43,8 +43,17 @@ export const fetchUserPermissionsThunk = createAsyncThunk(
 
 export const updateUserPermissionsThunk = createAsyncThunk(
   'admin/user/updatePermissions',
-  async ({ id, permissions }, { rejectWithValue }) => {
-    try { return await adminUserService.updateUserPermissions(id, permissions); }
+  async ({ id, permissions: denied }, { rejectWithValue }) => {
+    try { return await adminUserService.updateUserPermissions(id, denied); }
+    catch (err) { return rejectWithValue(err); }
+  }
+);
+
+// Back to the role's default permissions (removes every revoke).
+export const resetUserPermissionsThunk = createAsyncThunk(
+  'admin/user/resetPermissions',
+  async (id, { rejectWithValue }) => {
+    try { return await adminUserService.resetUserPermissions(id); }
     catch (err) { return rejectWithValue(err); }
   }
 );

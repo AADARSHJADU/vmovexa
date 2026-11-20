@@ -90,7 +90,7 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedVehicleId == null || _selectedRouteId == null) {
-      Get.snackbar('Required', 'Please select a vehicle and route',
+      Get.snackbar('required_label'.tr, 'select_vehicle_and_route_err'.tr,
           backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
@@ -162,15 +162,15 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
                     child: const Icon(Icons.calendar_month_rounded, color: Color(0xFF818CF8), size: 20),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Schedule Vehicle Slot',
-                          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                          'schedule_vehicle_slot'.tr,
+                          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                        Text(
+                        const Text(
                           'POST /api/v1/vehicle-slots (Collision-Protected)',
                           style: TextStyle(color: AppColors.textMuted, fontSize: 11, fontFamily: 'monospace'),
                         ),
@@ -196,17 +196,17 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
                 return Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   color: const Color(0xFF6366F1).withValues(alpha: 0.1),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      SizedBox(
+                      const SizedBox(
                         width: 14,
                         height: 14,
                         child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF818CF8)),
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       Text(
-                        'Checking timetable for overlapping shifts & collisions...',
-                        style: TextStyle(color: Color(0xFF818CF8), fontSize: 11, fontStyle: FontStyle.italic),
+                        'checking_timetable_collisions'.tr,
+                        style: const TextStyle(color: Color(0xFF818CF8), fontSize: 11, fontStyle: FontStyle.italic),
                       ),
                     ],
                   ),
@@ -228,7 +228,7 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          conflict.message ?? 'Vehicle double-booking detected during selected time window!',
+                          conflict.message ?? 'vehicle_double_booking_detected'.tr,
                           style: const TextStyle(color: Color(0xFFFCA5A5), fontSize: 11.5, fontWeight: FontWeight.w600),
                         ),
                       ),
@@ -248,16 +248,16 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
                   children: [
                     // Slot Name
                     _buildTextField(
-                      label: 'Slot Label / Name *',
+                      label: 'slot_label_name_req'.tr,
                       controller: _slotNameCtrl,
-                      hint: 'e.g. Morning Peak Red Line',
-                      validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                      hint: 'slot_label_hint'.tr,
+                      validator: (v) => (v == null || v.isEmpty) ? 'required_label'.tr : null,
                     ),
                     const SizedBox(height: 14),
 
                     // Vehicle & Route Dropdowns
                     _buildDropdown(
-                      label: 'Assigned Vehicle *',
+                      label: 'assigned_vehicle_req'.tr,
                       value: _selectedVehicleId,
                       items: ctrl.vehicles,
                       onChanged: (val) {
@@ -268,7 +268,7 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
                     const SizedBox(height: 14),
 
                     _buildDropdown(
-                      label: 'Transit Corridor / Route *',
+                      label: 'transit_corridor_route_req'.tr,
                       value: _selectedRouteId,
                       items: ctrl.routes,
                       onChanged: (val) => setState(() => _selectedRouteId = val),
@@ -276,7 +276,7 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
                     const SizedBox(height: 14),
 
                     _buildDropdown(
-                      label: 'Primary Driver (Optional)',
+                      label: 'primary_driver_opt'.tr,
                       value: _selectedDriverId,
                       items: ctrl.drivers,
                       onChanged: (val) => setState(() => _selectedDriverId = val),
@@ -292,7 +292,7 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
                       children: [
                         Expanded(
                           child: _buildTextField(
-                            label: 'Start Time *',
+                            label: 'start_time_req'.tr,
                             controller: _startTimeCtrl,
                             hint: '08:00',
                             onChanged: (_) => _triggerConflictCheck(),
@@ -301,7 +301,7 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: _buildTextField(
-                            label: 'End Time *',
+                            label: 'end_time_req'.tr,
                             controller: _endTimeCtrl,
                             hint: '11:30',
                             onChanged: (_) => _triggerConflictCheck(),
@@ -310,7 +310,7 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: _buildTextField(
-                            label: 'Headway (Mins)',
+                            label: 'headway_mins'.tr,
                             controller: _headwayCtrl,
                             hint: '15',
                             keyboardType: TextInputType.number,
@@ -326,9 +326,9 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
 
                     // Notes
                     _buildTextField(
-                      label: 'Operational Notes',
+                      label: 'operational_notes'.tr,
                       controller: _notesCtrl,
-                      hint: 'Special instructions, driver changeovers...',
+                      hint: 'slot_operational_notes_hint'.tr,
                       maxLines: 2,
                     ),
                     const SizedBox(height: 20),
@@ -370,14 +370,14 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
                                 height: 22,
                                 child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
                               )
-                            : const Row(
+                            : Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.check_circle_outline_rounded, color: Colors.white, size: 18),
-                                  SizedBox(width: 8),
+                                  const Icon(Icons.check_circle_outline_rounded, color: Colors.white, size: 18),
+                                  const SizedBox(width: 8),
                                   Text(
-                                    'Register Slot Schedule',
-                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                                    'register_slot_schedule'.tr,
+                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                                   ),
                                 ],
                               ),
@@ -491,9 +491,9 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Operating Shift Type *',
-          style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w600),
+        Text(
+          'operating_shift_type_req'.tr,
+          style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 6),
         Wrap(
@@ -514,7 +514,7 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
                   ),
                 ),
                 child: Text(
-                  s['label']!,
+                  _getShiftLabel(s['id'] ?? ''),
                   style: TextStyle(
                     color: isSelected ? const Color(0xFF818CF8) : const Color(0xFF94A3B8),
                     fontSize: 11,
@@ -533,9 +533,9 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Operating Days',
-          style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w600),
+        Text(
+          'operating_days'.tr,
+          style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 6),
         Row(
@@ -579,6 +579,21 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
         ),
       ],
     );
+  }
+
+  String _getShiftLabel(String id) {
+    switch (id) {
+      case 'morning_peak':
+        return 'shift_morning_peak'.tr;
+      case 'regular_day':
+        return 'shift_regular_day'.tr;
+      case 'evening_peak':
+        return 'shift_evening_peak'.tr;
+      case 'night_shuttle':
+        return 'shift_night_shuttle'.tr;
+      default:
+        return id;
+    }
   }
 }
 

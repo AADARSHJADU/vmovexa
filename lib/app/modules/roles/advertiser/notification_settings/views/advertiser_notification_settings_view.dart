@@ -21,12 +21,11 @@ class AdvertiserNotificationSettingsView extends GetView<AdvertiserNotificationS
                 children: [
                   const CustomBackButton(),
                   const SizedBox(width: 8),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Notification Settings',
+                        Text('notification_settings'.tr,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 17,
@@ -34,8 +33,7 @@ class AdvertiserNotificationSettingsView extends GetView<AdvertiserNotificationS
                           ),
                         ),
                         SizedBox(height: 2),
-                        Text(
-                          'Manage your delivery channels',
+                        Text('manage_delivery_channels_sub'.tr,
                           style: TextStyle(
                             color: Color(0xFF94A3B8),
                             fontSize: 11,
@@ -46,7 +44,7 @@ class AdvertiserNotificationSettingsView extends GetView<AdvertiserNotificationS
                   ),
                   TextButton(
                     onPressed: () => Get.back(),
-                    child: const Text('Done', style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.bold)),
+                    child: Text('done_btn'.tr, style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -80,11 +78,10 @@ class AdvertiserNotificationSettingsView extends GetView<AdvertiserNotificationS
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Column(
+                                Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      'DELIVERY CHANNELS',
+                                    Text('delivery_channels'.tr,
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 12,
@@ -93,8 +90,7 @@ class AdvertiserNotificationSettingsView extends GetView<AdvertiserNotificationS
                                       ),
                                     ),
                                     SizedBox(height: 2),
-                                    Text(
-                                      'Instant toggle across alert endpoints',
+                                    Text('instant_toggle_sub'.tr,
                                       style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
                                     ),
                                   ],
@@ -109,8 +105,7 @@ class AdvertiserNotificationSettingsView extends GetView<AdvertiserNotificationS
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.3)),
                               ),
-                              child: const Text(
-                                'Master + 5 Channels',
+                              child: Text('master_plus_5_channels'.tr,
                                 style: TextStyle(
                                   color: Color(0xFF60A5FA),
                                   fontSize: 10,
@@ -125,7 +120,7 @@ class AdvertiserNotificationSettingsView extends GetView<AdvertiserNotificationS
 
                             // 1. Master Channel: All Notifications
                             _buildChannelTile(
-                              title: 'All Notifications',
+                              title: 'all_notifications'.tr,
                               description: 'Master switch for every notification delivery channel',
                               icon: Icons.notifications_active_rounded,
                               iconColor: const Color(0xFF3B82F6),
@@ -138,7 +133,7 @@ class AdvertiserNotificationSettingsView extends GetView<AdvertiserNotificationS
 
                             // 2. Web Notifications (channel_in_app)
                             _buildChannelTile(
-                              title: 'Web Notifications',
+                              title: 'web_notifications_title'.tr,
                               description: 'Real-time browser popups and in-app dashboard notifications',
                               icon: Icons.language_rounded,
                               iconColor: const Color(0xFF06B6D4),
@@ -150,7 +145,7 @@ class AdvertiserNotificationSettingsView extends GetView<AdvertiserNotificationS
 
                             // 3. Push Notifications (channel_push)
                             _buildChannelTile(
-                              title: 'Push Notifications',
+                              title: 'push_notifications'.tr,
                               description: 'Mobile device push notifications and alerts',
                               icon: Icons.smartphone_rounded,
                               iconColor: const Color(0xFF8B5CF6),
@@ -162,7 +157,7 @@ class AdvertiserNotificationSettingsView extends GetView<AdvertiserNotificationS
 
                             // 4. SMS Notifications (channel_sms)
                             _buildChannelTile(
-                              title: 'SMS Notifications',
+                              title: 'sms_notifications'.tr,
                               description: 'Direct SMS text alerts on your registered mobile number',
                               icon: Icons.chat_bubble_outline_rounded,
                               iconColor: const Color(0xFFF59E0B),
@@ -174,7 +169,7 @@ class AdvertiserNotificationSettingsView extends GetView<AdvertiserNotificationS
 
                             // 5. Mail Notifications (channel_email)
                             _buildChannelTile(
-                              title: 'Mail Notifications',
+                              title: 'mail_notifications_title'.tr,
                               description: 'Email summaries, reports, and critical system notices',
                               icon: Icons.email_outlined,
                               iconColor: const Color(0xFFEF4444),
@@ -186,7 +181,7 @@ class AdvertiserNotificationSettingsView extends GetView<AdvertiserNotificationS
 
                             // 6. WhatsApp Notifications (channel_whatsapp)
                             _buildChannelTile(
-                              title: 'WhatsApp Notifications',
+                              title: 'whatsapp_notifications'.tr,
                               description: 'Instant WhatsApp message alerts and dispatch updates',
                               icon: Icons.phone_android_rounded,
                               iconColor: const Color(0xFF10B981),
@@ -206,14 +201,13 @@ class AdvertiserNotificationSettingsView extends GetView<AdvertiserNotificationS
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: const Color(0xFF334155)),
                         ),
-                        child: const Row(
+                        child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Icons.info_outline_rounded, color: Color(0xFF64748B), size: 18),
-                            SizedBox(width: 10),
+                            const Icon(Icons.info_outline_rounded, color: Color(0xFF64748B), size: 18),
+                            const SizedBox(width: 10),
                             Expanded(
-                              child: Text(
-                                'Toggling preferences takes effect immediately. Critical regulatory billing invoices and OTP verifications are always dispatched regardless of channel settings.',
+                              child: Text('toggle_pref_note'.tr,
                                 style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11, height: 1.4),
                               ),
                             ),

@@ -3,10 +3,11 @@ import 'package:get/get.dart';
 import 'package:vmovexa/app/data/constants/api_constants.dart';
 import 'package:vmovexa/app/data/models/work_order_model.dart';
 import 'package:vmovexa/app/data/models/edge_device_model.dart';
+import 'package:vmovexa/app/data/services/auth_service.dart';
 import 'package:vmovexa/app/data/services/storage_service.dart';
 import 'package:vmovexa/app/data/services/technician_service.dart';
+import 'package:vmovexa/app/modules/roles/technician/home/model/home_models.dart';
 import 'package:vmovexa/app/modules/roles/technician/technician_dashboard/controller/technician_dashboard_controller.dart';
-import 'package:vmovexa/app/modules/roles/technician/work_orders/views/work_order_resolution_sheet.dart';
 import '../../../../../routes/app_routes.dart';
 
 class HomeController extends GetxController {
@@ -25,11 +26,22 @@ class HomeController extends GetxController {
   final RxString badgeId = 'TECH-001'.obs;
   final RxString avatarUrl = ''.obs;
 
+  // ---------------- Rating & Performance Stats (matching Admin Panel) ----------------
+  final Rx<TechnicianStatsModel> stats = TechnicianStatsModel.defaultMock().obs;
+
+  double? get averageRating => stats.value.averageRating;
+  String get formattedRating => stats.value.formattedRating;
+  int get totalRatingsCount => stats.value.totalRatingsCount;
+  String get certLevel => stats.value.certLevel ?? 'Master Level 3';
+  List<TechRatingBreakdownItem> get ratingBreakdown => stats.value.ratingBreakdown;
+  List<TechnicianReviewItem> get recentRatings => stats.value.recentRatings;
+
   // ---------------- Live KPIs (matching admin panel metrics) ----------------
   final RxInt onlineDevicesCount = 0.obs;
   final RxInt offlineDevicesCount = 0.obs;
   final RxInt issuesDevicesCount = 0.obs;
   final RxInt totalDevicesCount = 0.obs;
+  final RxInt unreadNotificationCount = 0.obs;
 
   // ---------------- Today's Tasks / Field Work Orders ----------------
   final RxList<WorkOrderModel> todaysWorkOrders = <WorkOrderModel>[].obs;
@@ -41,30 +53,52 @@ class HomeController extends GetxController {
     fetchDashboardData();
   }
 
-  void _loadUserProfile() {
+  Future<void> _loadUserProfile() async {
+    // 1. Cached user
     if (Get.isRegistered<StorageService>()) {
       final user = StorageService.to.getUser();
       if (user != null) {
-        technicianName.value = (user.name != null && user.name!.isNotEmpty) ? user.name! : 'Technician';
-        technicianEmail.value = user.email ?? '';
-        final rawRole = user.role;
-        technicianRole.value = (rawRole != null && rawRole.isNotEmpty)
-            ? rawRole.replaceAll('ROLE-', '').replaceAll('-', ' ')
-            : 'Central Field Technician';
-        depotName.value = user.organizationName ?? 'Central Depot';
-        badgeId.value = user.code ?? user.enrollmentNo ?? (user.id != null ? 'TECH-${user.id}' : 'TECH-001');
-        avatarUrl.value = ApiConstants.resolveFileUrl(user.avatarUrl);
+        _applyUserData(user);
       }
+    }
+
+    // 2. Fresh user data from GET /auth/me
+    try {
+      if (Get.isRegistered<AuthService>()) {
+        final res = await AuthService.to.getMe();
+        if (res.success && res.data != null) {
+          _applyUserData(res.data!);
+        }
+      }
+    } catch (_) {}
+  }
+
+  void _applyUserData(dynamic user) {
+    technicianName.value = (user.name != null && user.name.toString().isNotEmpty)
+        ? user.name.toString()
+        : 'Technician';
+    technicianEmail.value = user.email?.toString() ?? '';
+    final rawRole = user.role?.toString();
+    technicianRole.value = (rawRole != null && rawRole.isNotEmpty)
+        ? rawRole.replaceAll('ROLE-', '').replaceAll('-', ' ')
+        : 'Central Field Technician';
+    depotName.value = user.organizationName?.toString() ?? 'Central Depot';
+    badgeId.value = user.code?.toString() ??
+        user.enrollmentNo?.toString() ??
+        (user.id != null ? 'TECH-${user.id}' : 'TECH-001');
+    if (user.avatarUrl != null) {
+      avatarUrl.value = ApiConstants.resolveFileUrl(user.avatarUrl.toString());
     }
   }
 
   Future<void> fetchDashboardData() async {
     isLoading.value = true;
     try {
-      _loadUserProfile();
+      await _loadUserProfile();
       await Future.wait([
-        _fetchDeviceKpis(),
+        _fetchStatsAndKpis(),
         _fetchTodaysWorkOrders(),
+        fetchUnreadNotificationCount(),
       ]);
       _refreshSyncStatus();
     } catch (_) {
@@ -73,27 +107,36 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<void> _fetchDeviceKpis() async {
+  Future<void> fetchUnreadNotificationCount() async {
+    try {
+      final res = await TechnicianService.to.getNotifications(limit: 50);
+      if (res.success && res.data != null) {
+        unreadNotificationCount.value = res.data!.where((n) => !n.isRead.value).length;
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _fetchStatsAndKpis() async {
     try {
       final statsRes = await TechnicianService.to.getTechnicianStats();
-      if (statsRes.success && statsRes.data != null && statsRes.data is Map) {
-        final map = Map<String, dynamic>.from(statsRes.data as Map);
-        final tot = int.tryParse(map['totalDevices']?.toString() ?? map['total_devices']?.toString() ?? '0') ?? 0;
-        if (tot > 0) {
-          totalDevicesCount.value = tot;
-          onlineDevicesCount.value = int.tryParse(map['onlineDevices']?.toString() ?? map['online_devices']?.toString() ?? '0') ?? 0;
-          offlineDevicesCount.value = int.tryParse(map['offlineDevices']?.toString() ?? map['offline_devices']?.toString() ?? '0') ?? 0;
-          issuesDevicesCount.value = int.tryParse(map['issuesDevices']?.toString() ?? map['issues_devices']?.toString() ?? '0') ?? 0;
+      if (statsRes.success && statsRes.data != null) {
+        stats.value = statsRes.data!;
+        if (stats.value.totalDevices > 0) {
+          totalDevicesCount.value = stats.value.totalDevices;
+          onlineDevicesCount.value = stats.value.onlineDevices;
+          offlineDevicesCount.value = stats.value.offlineDevices;
+          issuesDevicesCount.value = stats.value.issuesDevices;
           return;
         }
       }
 
+      // Fallback: Query edge devices directly if totalDevices wasn't provided in stats
       final res = await TechnicianService.to.getEdgeDevices(page: 1, limit: 100);
       if (res.success && res.data != null) {
         final List<EdgeDeviceModel> list = res.data!;
         totalDevicesCount.value = list.length;
-        onlineDevicesCount.value = list.where((d) => d.status == 'online').length;
-        offlineDevicesCount.value = list.where((d) => d.status == 'offline').length;
+        onlineDevicesCount.value = list.where((d) => d.status.toLowerCase() == 'online').length;
+        offlineDevicesCount.value = list.where((d) => d.status.toLowerCase() == 'offline').length;
         issuesDevicesCount.value = list.where((d) => d.hasIssues).length;
       }
     } catch (_) {}
@@ -121,8 +164,9 @@ class HomeController extends GetxController {
     }
   }
 
-  void goToNotifications() {
-    Get.toNamed(Routes.ALERT_NOTIFICATION);
+  Future<void> goToNotifications() async {
+    await Get.toNamed(Routes.ALERT_NOTIFICATION);
+    fetchUnreadNotificationCount();
   }
 
   void onViewAllTasks() {
@@ -138,9 +182,7 @@ class HomeController extends GetxController {
   }
 
   void goToHardwareConfigTab() {
-    if (Get.isRegistered<TechnicianDashboardController>()) {
-      Get.find<TechnicianDashboardController>().onNavItemTapped(3); // Hardware Config tab
-    }
+    Get.toNamed(Routes.HARDWARE_CONFIGURATION);
   }
 
   void goToGpsInstallation() {
@@ -160,11 +202,7 @@ class HomeController extends GetxController {
   }
 
   void onTaskTap(BuildContext context, WorkOrderModel order) {
-    WorkOrderResolutionSheet.show(
-      context,
-      order,
-      onResolved: fetchDashboardData,
-    );
+    Get.toNamed(Routes.TECHNICIAN_WORK_ORDER_DETAILS, arguments: order)?.then((_) => fetchDashboardData());
   }
 
   Future<void> onRefresh() async {

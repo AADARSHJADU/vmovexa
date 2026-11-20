@@ -50,8 +50,7 @@ class CampaignLifecycleFlowWidget extends StatelessWidget {
                               borderRadius: BorderRadius.circular(6),
                               border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.4)),
                             ),
-                            child: const Text(
-                              'VMOVEXA DOOH ENGINE',
+                            child: Text('vmovexa_dooh_engine'.tr,
                               style: TextStyle(
                                 color: Color(0xFF818CF8),
                                 fontSize: 9,
@@ -61,16 +60,16 @@ class CampaignLifecycleFlowWidget extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 6),
-                          const Text(
-                            'End-to-End\nCampaign Flow',
-                            style: TextStyle(color: AppColors.textMuted, fontSize: 10),
+                          Text(
+                            'end_to_end_campaign_flow'.tr,
+                            style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
                           ),
                         ],
                       ),
                       const SizedBox(height: 4),
-                      const Text(
-                        'Campaign Approval\nBroadcast Lifecycle',
-                        style: TextStyle(
+                      Text(
+                        'campaign_approval_lifecycle'.tr,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -503,8 +502,7 @@ class CampaignLifecycleFlowWidget extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 // Highlights Checklist
-                const Text(
-                  'SYSTEM WORKFLOW HIGHLIGHTS:',
+                Text('system_workflow_highlights'.tr,
                   style: TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 9.5,
@@ -541,7 +539,7 @@ class CampaignLifecycleFlowWidget extends StatelessWidget {
                 // Triggered API Endpoint
                 Row(
                   children: [
-                    const Text('⚡ API Trigger: ', style: TextStyle(color: AppColors.textMuted, fontSize: 10)),
+                    Text('api_trigger_label'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
                     Expanded(
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -592,7 +590,7 @@ class CampaignLifecycleFlowWidget extends StatelessWidget {
     return Column(
       children: [
         _buildRoleCard(
-          title: 'Commercial Advertiser',
+          title: 'commercial_advertiser'.tr,
           badge: 'Primary Creator & Manager',
           badgeColor: const Color(0xFF3B82F6),
           icon: Icons.campaign_rounded,
@@ -608,7 +606,7 @@ class CampaignLifecycleFlowWidget extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         _buildRoleCard(
-          title: 'Platform Super Admin',
+          title: 'platform_super_admin'.tr,
           badge: 'Compliance Authority',
           badgeColor: const Color(0xFF8B5CF6),
           icon: Icons.shield_outlined,
@@ -623,7 +621,7 @@ class CampaignLifecycleFlowWidget extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         _buildRoleCard(
-          title: 'Transit Screen & IoT Node',
+          title: 'transit_screen_iot_node'.tr,
           badge: 'Edge Display Player',
           badgeColor: const Color(0xFF10B981),
           icon: Icons.directions_bus_rounded,
@@ -823,7 +821,7 @@ class CampaignLifecycleFlowWidget extends StatelessWidget {
               const SizedBox(height: 6),
               Row(
                 children: [
-                  const Text('Payment: ', style: TextStyle(color: AppColors.textMuted, fontSize: 10)),
+                  Text('${'payment_prefix'.tr} ', style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
                   Text(
                     (r['payment'] as String).toUpperCase(),
                     style: TextStyle(color: r['paymentColor'] as Color, fontSize: 10, fontWeight: FontWeight.bold),

@@ -36,7 +36,7 @@ export const SuperContentManagerPage = () => {
   const [activeType, setActiveType] = useState('terms');
   const [activeRole, setActiveRole] = useState('GLOBAL');
   const [currentId, setCurrentId] = useState(null);
-  const [status, setStatus] = useState('published');
+  const [, setStatus] = useState('published');
   const [version, setVersion] = useState(1);
   const [saving, setSaving] = useState(false);
 
@@ -83,6 +83,28 @@ export const SuperContentManagerPage = () => {
   // Per-video upload state: { [idx]: { progress: 0-100, uploading: bool, mode: 'url'|'upload' } }
   const [videoUploadStates, setVideoUploadStates] = useState({});
   const videoFileInputRefs = useRef({});
+  const [videoPendingFiles, setVideoPendingFiles] = useState({});
+  const videoPreviewUrls = useRef(new Set());
+  const publishInProgress = useRef(false);
+
+  useEffect(() => {
+    const urls = videoPreviewUrls.current;
+    return () => urls.forEach((url) => URL.revokeObjectURL(url));
+  }, []);
+
+  const clearPendingVideo = (idx) => {
+    const pending = videoPendingFiles[idx];
+    if (pending) {
+      URL.revokeObjectURL(pending.previewUrl);
+      videoPreviewUrls.current.delete(pending.previewUrl);
+    }
+    setVideoPendingFiles((prev) => {
+      const next = { ...prev };
+      delete next[idx];
+      return next;
+    });
+    if (videoFileInputRefs.current[idx]) videoFileInputRefs.current[idx].value = '';
+  };
 
   // Per-guide PDF upload state: { [idx]: { uploading: bool, progress: 0-100 } }
   const [guideUploadStates, setGuideUploadStates] = useState({});
@@ -91,31 +113,32 @@ export const SuperContentManagerPage = () => {
   // Upload only happens when user clicks "Save & Publish Live"
   const [guidePendingFiles, setGuidePendingFiles] = useState({});
 
-  const getVideoState = (idx) => videoUploadStates[idx] || { progress: 0, uploading: false, mode: 'url' };
-
-  const setVideoState = (idx, patch) => {
-    setVideoUploadStates((prev) => ({ ...prev, [idx]: { ...getVideoState(idx), ...patch } }));
+  const getVideoState = (idx) => videoUploadStates[idx] || {
+    progress: 0,
+    uploading: false,
+    mode: helpVideoAcademy.videos[idx]?.fileName && !/youtube|youtu\.be/i.test(helpVideoAcademy.videos[idx]?.url || '') ? 'upload' : 'url',
   };
 
-  // Handle server-side video file upload for a lesson slot
-  const handleVideoFileUpload = async (idx, file) => {
+  const setVideoState = (idx, patch) => {
+    setVideoUploadStates((prev) => ({ ...prev, [idx]: { progress: 0, uploading: false, mode: 'url', ...prev[idx], ...patch } }));
+  };
+
+  // Keep selected videos local until Save & Publish is submitted.
+  const handleVideoFileSelect = (idx, file) => {
     if (!file) return;
-    const MAX = 500 * 1024 * 1024;
-    if (file.size > MAX) {
-      toast.error(t('ag.superadmin.supercontentmanagerpage.video_file_too_large_maximum_allowed', 'Video file too large. Maximum allowed size is 500 MB.'));
+    if (file.size > 500 * 1024 * 1024) {
+      toast.error('Video file too large. Maximum allowed size is 500 MB.');
       return;
     }
-    setVideoState(idx, { uploading: true, progress: 0 });
-    try {
-      const result = await uploadVideo(file, (pct) => setVideoState(idx, { progress: pct }));
-      handleUpdateVideo(idx, 'url', result.url);
-      handleUpdateVideo(idx, 'fileName', result.fileName);
-      toast.success(`Video "${result.fileName}" uploaded successfully!`);
-      setVideoState(idx, { uploading: false, progress: 100, mode: 'upload' });
-    } catch (err) {
-      toast.error(err?.message || 'Video upload failed. Please try again.');
-      setVideoState(idx, { uploading: false, progress: 0 });
+    if (!/\.(mp4|webm|ogg|ogv|mov|avi|mkv)$/i.test(file.name)) {
+      toast.error('Select a video file. MP4 or WebM is recommended for browser playback.');
+      return;
     }
+    clearPendingVideo(idx);
+    const previewUrl = URL.createObjectURL(file);
+    videoPreviewUrls.current.add(previewUrl);
+    setVideoPendingFiles((prev) => ({ ...prev, [idx]: { file, previewUrl } }));
+    setVideoState(idx, { mode: 'upload', progress: 0, uploading: false });
   };
 
   // Handle PDF file selection — store File object locally, DO NOT upload yet
@@ -247,24 +270,33 @@ export const SuperContentManagerPage = () => {
     }
   }, [activeType, activeRole, loadList]);
 
-  useEffect(() => {
+  const resetPendingFiles = () => {
     // Clear pending file selections when switching role or content type
     setGuidePendingFiles({});
     setGuideUploadStates({});
+    videoPreviewUrls.current.forEach((url) => URL.revokeObjectURL(url));
+    videoPreviewUrls.current.clear();
+    setVideoPendingFiles({});
+    setVideoUploadStates({});
+  };
+
+  useEffect(() => {
+    // Content state is populated after the awaited API request completes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadActiveContent();
   }, [loadActiveContent]);
 
   // Construct current payload based on activeType
   // guidesOverride: pass updated guides array directly when PDFs have just been uploaded
   // (React setState is async so helpGuides might still be stale at call time)
-  const constructPayload = (guidesOverride = null) => {
+  const constructPayload = (guidesOverride = null, academyOverride = null) => {
     const guidesToUse = guidesOverride || helpGuides;
     const payloadSections = activeType === 'help'
       ? {
           contact: helpContact,
           guides: guidesToUse,
           faqs: helpFaqs.filter((f) => f.q.trim() || f.a.trim()),
-          videoAcademy: helpVideoAcademy,
+          videoAcademy: academyOverride || helpVideoAcademy,
         }
       : sections.filter((s) => s.title.trim() || s.content.trim());
 
@@ -278,12 +310,33 @@ export const SuperContentManagerPage = () => {
   };
 
   // Single Action: Save & Publish Live
-  // Step 1: Upload any pending guide PDF files first
+  // Step 1: Upload pending videos and guide PDFs
   // Step 2: Save page content to DB
   // Step 3: Publish live
   const handlePublish = async () => {
+    if (publishInProgress.current) return;
+    publishInProgress.current = true;
     setSaving(true);
     try {
+      const updatedAcademy = { ...helpVideoAcademy, videos: [...helpVideoAcademy.videos] };
+      if (activeType === 'help') {
+        for (const [idxStr, pending] of Object.entries(videoPendingFiles)) {
+          const idx = Number(idxStr);
+          setVideoState(idx, { uploading: true, progress: 0 });
+          try {
+            const result = await uploadVideo(pending.file, (progress) => setVideoState(idx, { progress }));
+            const url = result.url || result.path || result.fileUrl;
+            if (!url) throw new Error('Video upload did not return a file URL.');
+            const uploaded = { url, fileName: result.fileName || pending.file.name };
+            updatedAcademy.videos[idx] = { ...updatedAcademy.videos[idx], ...uploaded };
+            // Keep successful uploads available if a later upload or publish fails.
+            setHelpVideoAcademy((prev) => ({ ...prev, videos: prev.videos.map((video, i) => i === idx ? { ...video, ...uploaded } : video) }));
+            clearPendingVideo(idx);
+          } finally {
+            setVideoState(idx, { uploading: false });
+          }
+        }
+      }
       // ── Step 1: Upload pending PDF files ──────────────────────────────────────
       const pendingEntries = Object.entries(guidePendingFiles);
       let updatedGuides = [...helpGuides]; // hoisted: updated in-place if PDFs are pending
@@ -322,7 +375,7 @@ export const SuperContentManagerPage = () => {
       let pageIdToPublish = currentId;
       // IMPORTANT: pass updatedGuides directly — React setState is async so
       // helpGuides state may still be stale with empty docUrls at this point
-      const payload = constructPayload(pendingEntries.length > 0 ? updatedGuides : null);
+      const payload = constructPayload(pendingEntries.length > 0 ? updatedGuides : null, updatedAcademy);
 
 
       if (currentId) {
@@ -344,9 +397,10 @@ export const SuperContentManagerPage = () => {
       });
 
       await loadActiveContent();
-    } catch {
-      // toast handled
+    } catch (error) {
+      toast.error(error?.message || 'Unable to save content. Please try again.');
     } finally {
+      publishInProgress.current = false;
       setSaving(false);
     }
   };
@@ -418,14 +472,27 @@ export const SuperContentManagerPage = () => {
   };
 
   const handleUpdateVideo = (idx, field, value) => {
-    const updatedVids = [...helpVideoAcademy.videos];
-    updatedVids[idx] = { ...updatedVids[idx], [field]: value };
-    setHelpVideoAcademy({ ...helpVideoAcademy, videos: updatedVids });
+    setHelpVideoAcademy((prev) => ({
+      ...prev,
+      videos: prev.videos.map((video, i) => i === idx ? { ...video, [field]: value } : video),
+    }));
   };
 
   const handleRemoveVideo = (idx) => {
-    const updatedVids = helpVideoAcademy.videos.filter((_, i) => i !== idx);
-    setHelpVideoAcademy({ ...helpVideoAcademy, videos: updatedVids });
+    clearPendingVideo(idx);
+    const reindex = (entries) => Object.fromEntries(Object.entries(entries)
+      .filter(([key]) => Number(key) !== idx)
+      .map(([key, value]) => [Number(key) > idx ? Number(key) - 1 : key, value]));
+    setVideoPendingFiles((prev) => reindex(prev));
+    setVideoUploadStates((prev) => reindex(prev));
+    setHelpVideoAcademy((prev) => ({ ...prev, videos: prev.videos.filter((_, i) => i !== idx) }));
+  };
+
+  const previewAcademy = {
+    ...helpVideoAcademy,
+    videos: helpVideoAcademy.videos.map((video, idx) => videoPendingFiles[idx]
+      ? { ...video, url: videoPendingFiles[idx].previewUrl }
+      : video),
   };
 
   // Live preview filter for FAQs / Clauses
@@ -444,7 +511,7 @@ export const SuperContentManagerPage = () => {
   const activeRoleName = ROLES.find((r) => r.code === activeRole)?.label;
 
   return (
-    <div className="w-full space-y-6 animate-in fade-in duration-200">
+    <fieldset disabled={saving} className="w-full min-w-0 space-y-6 animate-in fade-in duration-200">
       {/* Standard Reusable Breadcrumb */}
       <Breadcrumb
         items={[
@@ -503,7 +570,7 @@ export const SuperContentManagerPage = () => {
           {DOCUMENT_TYPES.map((item) => (
             <button
               key={item.key}
-              onClick={() => setActiveType(item.key)}
+              onClick={() => { if (item.key !== activeType) resetPendingFiles(); setActiveType(item.key); }}
               className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
                 activeType === item.key
                   ? 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-xs'
@@ -528,7 +595,7 @@ export const SuperContentManagerPage = () => {
           </label>
           <select
             value={activeRole}
-            onChange={(e) => setActiveRole(e.target.value)}
+            onChange={(e) => { resetPendingFiles(); setActiveRole(e.target.value); }}
             className="px-3 py-2 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-blue-500"
           >
             {ROLES.map((r) => (
@@ -1090,7 +1157,7 @@ export const SuperContentManagerPage = () => {
                                 <button
                                   key={m.key}
                                   type="button"
-                                  onClick={() => setVideoState(idx, { mode: m.key })}
+                                  onClick={() => { if (m.key === 'url') clearPendingVideo(idx); setVideoState(idx, { mode: m.key }); }}
                                   className={`px-2.5 py-1 text-[10px] font-semibold rounded-md transition-all cursor-pointer ${
                                     getVideoState(idx).mode === m.key
                                       ? 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-xs'
@@ -1104,7 +1171,7 @@ export const SuperContentManagerPage = () => {
 
                             {getVideoState(idx).mode === 'upload' ? (
                               <div className="space-y-2">
-                                {vid.url && /^http/.test(vid.url) && !/youtube|youtu\.be/.test(vid.url) && (
+                                {!videoPendingFiles[idx] && vid.url && !/youtube|youtu\.be/.test(vid.url) && (
                                   <div className="flex items-center gap-2 px-2.5 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/50 rounded-lg">
                                     <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400"><FleetIcons.Check className="w-3 h-3 inline text-emerald-500 mr-1" />{t('superadmin.content_manager.video_linked', 'Video linked:')}</span>
                                     <span className="text-[10px] font-mono text-emerald-900 dark:text-emerald-200 truncate max-w-[180px]">{vid.fileName || vid.url}</span>
@@ -1113,6 +1180,12 @@ export const SuperContentManagerPage = () => {
                                       onClick={() => { handleUpdateVideo(idx, 'url', ''); handleUpdateVideo(idx, 'fileName', ''); }}
                                       className="text-rose-500 hover:text-rose-600 text-xs ml-auto cursor-pointer"
                                     ><FleetIcons.Close className="w-3 h-3" /></button>
+                                  </div>
+                                )}
+                                {videoPendingFiles[idx] && (
+                                  <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-2 text-xs text-amber-800">
+                                    <span className="min-w-0 flex-1 break-all">{videoPendingFiles[idx].file.name} — Pending save. Upload starts on Save & Publish Live.</span>
+                                    <button type="button" aria-label="Remove selected video" onClick={() => clearPendingVideo(idx)} className="shrink-0 p-2"><FleetIcons.Close className="h-4 w-4" /></button>
                                   </div>
                                 )}
                                 {getVideoState(idx).uploading && (
@@ -1133,7 +1206,8 @@ export const SuperContentManagerPage = () => {
                                   accept="video/mp4,video/webm,video/ogg,video/quicktime,video/x-msvideo,video/x-matroska"
                                   className="hidden"
                                   ref={(el) => { videoFileInputRefs.current[idx] = el; }}
-                                  onChange={(e) => handleVideoFileUpload(idx, e.target.files?.[0])}
+                                  aria-label={`Choose video file for lesson ${idx + 1}`}
+                                  onChange={(e) => handleVideoFileSelect(idx, e.target.files?.[0])}
                                 />
                                 <button
                                   type="button"
@@ -1520,9 +1594,9 @@ export const SuperContentManagerPage = () => {
         isOpen={showPreviewVideoModal}
         onClose={() => setShowPreviewVideoModal(false)}
         role={activeRole}
-        academyData={helpVideoAcademy}
+        academyData={previewAcademy}
       />
-    </div>
+    </fieldset>
   );
 };
 

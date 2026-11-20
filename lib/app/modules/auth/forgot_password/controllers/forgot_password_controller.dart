@@ -11,10 +11,10 @@ class ForgotPasswordController extends GetxController {
     final email = emailController.text.trim();
     if (email.isEmpty || !GetUtils.isEmail(email)) {
       Get.snackbar(
-        'Invalid Email',
-        'Please enter a valid registered email address.',
+        'invalid_credentials'.tr,
+        'enter_valid_email'.tr,
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent.withOpacity(0.85),
+        backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
         colorText: Colors.white,
       );
       return;
@@ -26,31 +26,40 @@ class ForgotPasswordController extends GetxController {
       final response = await AuthService.to.forgotPassword(email);
 
       if (response.success) {
+        String? devCode;
+        if (response.data is Map) {
+          final data = response.data as Map;
+          devCode = (data['devCode'] ?? data['code'] ?? data['otp'])?.toString();
+        }
+
         Get.snackbar(
-          'Reset Link Sent',
-          response.message ?? 'A password reset instructions email has been sent to $email.',
+          'otp_sent'.tr,
+          response.message ?? 'otp_sent_to_email'.trParams({'email': email}),
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
         );
 
-        // Navigate to Reset Password Screen passing email
-        Get.toNamed(Routes.RESET_PASSWORD, arguments: email);
+        // Navigate to Reset Password Screen passing email & devCode
+        Get.toNamed(Routes.RESET_PASSWORD, arguments: {
+          'email': email,
+          'dev_code': devCode,
+        });
       } else {
         Get.snackbar(
-          'Request Failed',
+          'request_failed'.tr,
           response.displayErrorMessage,
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent.withOpacity(0.85),
+          backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
           colorText: Colors.white,
         );
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'Could not send reset link: ${e.toString()}',
+        'error'.tr,
+        e.toString(),
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent.withOpacity(0.85),
+        backgroundColor: Colors.redAccent.withValues(alpha: 0.85),
         colorText: Colors.white,
       );
     } finally {

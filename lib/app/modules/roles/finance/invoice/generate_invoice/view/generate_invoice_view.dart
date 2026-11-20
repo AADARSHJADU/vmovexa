@@ -86,7 +86,7 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                   border: Border.all(color: kPrimaryBlue.withValues(alpha: 0.3)),
                 ),
                 child: Text(
-                  'Step ${controller.currentStep.value} of 4',
+                  '${'step_x_of_y'.tr} ${controller.currentStep.value} ${'of'.tr} 4',
                   style: const TextStyle(
                     color: Color(0xFF93C5FD),
                     fontSize: 11,
@@ -98,9 +98,9 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
           ],
         ),
         const SizedBox(height: 6),
-        const Text(
-          'Generate Tax Invoice',
-          style: TextStyle(
+        Text(
+          'generate_tax_invoice'.tr,
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.w800,
@@ -108,9 +108,9 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
           ),
         ),
         const SizedBox(height: 2),
-        const Text(
-          'Create GST compliant corporate tax billing with automated tax calculations',
-          style: TextStyle(color: Colors.white54, fontSize: 11.5),
+        Text(
+          'issue_gst_invoice_sub'.tr,
+          style: const TextStyle(color: Colors.white54, fontSize: 11.5),
         ),
       ],
     );
@@ -119,10 +119,10 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
   // ---------------- Horizontal Stepper Bar (Mirroring GenerateInvoicePage.jsx) ----------------
   Widget _buildStepperBar() {
     final steps = [
-      {'step': 1, 'title': 'Customer Details', 'desc': 'Party Info'},
-      {'step': 2, 'title': 'Billed Line Items', 'desc': 'Itemization'},
-      {'step': 3, 'title': 'Taxes & Terms', 'desc': 'GST & Due Date'},
-      {'step': 4, 'title': 'Review & Issue', 'desc': 'Dispatch'},
+      {'step': 1, 'title': 'customer_details'.tr, 'desc': 'Party Info'},
+      {'step': 2, 'title': 'line_items'.tr, 'desc': 'Itemization'},
+      {'step': 3, 'title': 'taxes_terms_step'.tr, 'desc': 'GST & Due Date'},
+      {'step': 4, 'title': 'review_issue_step'.tr, 'desc': 'Dispatch'},
     ];
 
     return Obx(
@@ -334,14 +334,14 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                           ),
                         ],
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.add, size: 14, color: Colors.white),
-                          SizedBox(width: 4),
+                          const Icon(Icons.add, size: 14, color: Colors.white),
+                          const SizedBox(width: 4),
                           Text(
-                            'Add Item',
-                            style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
+                            'add_item'.tr,
+                            style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -382,11 +382,11 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                               if (controller.items.length > 1)
                                 InkWell(
                                   onTap: () => controller.removeItem(it.id),
-                                  child: const Row(
+                                  child: Row(
                                     children: [
-                                      Icon(Icons.delete_outline, size: 14, color: Colors.redAccent),
-                                      SizedBox(width: 2),
-                                      Text('Remove', style: TextStyle(color: Colors.redAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+                                      const Icon(Icons.delete_outline, size: 14, color: Colors.redAccent),
+                                      const SizedBox(width: 2),
+                                      Text('remove'.tr, style: const TextStyle(color: Colors.redAccent, fontSize: 11, fontWeight: FontWeight.bold)),
                                     ],
                                   ),
                                 ),

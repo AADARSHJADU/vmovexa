@@ -8,15 +8,13 @@ import { useContent } from '../../hooks/shared/useContent';
 import { ROLE_HELP_DEFAULTS } from '../../constants/roleHelpConstants';
 import { resolveFileUrl } from '../../api/services/upload.service.js';
 import { Breadcrumb } from '../ui/Breadcrumb';
-import { CreateTicketModal } from '../ui/CreateTicketModal';
 
 export const RoleHelpPage = ({ roleCode, defaultHistoryPath, showContactCta = true }) => {
-  const { t } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
   const { loadPage, getPage } = useContent();
   const [searchQuery, setSearchQuery] = useState('');
   const [openFaq, setOpenFaq] = useState(null);
   const [showVideoModal, setShowVideoModal] = useState(false);
-  const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
 
   // Normalize role code
   const normalizedKey = useMemo(() => {
@@ -63,6 +61,7 @@ export const RoleHelpPage = ({ roleCode, defaultHistoryPath, showContactCta = tr
     const isTech = roleCode === 'ROLE-CENTRAL-TECH';
     const isFinance = roleCode === 'ROLE-FINANCE-OFFICER';
     const isGov = roleCode === 'ROLE-GOVT-AGENCY';
+    const preferTranslatedFinanceDefaults = isFinance && currentLanguage !== 'en';
 
     const defaultTitle = isTech
       ? t('technician.help.title', roleDefault.title)
@@ -135,21 +134,21 @@ export const RoleHelpPage = ({ roleCode, defaultHistoryPath, showContactCta = tr
     ] : roleDefault.faqs;
 
     return {
-      title: current?.title || defaultTitle,
-      summary: current?.summary || defaultSummary,
-      contact: parsedSections?.contact || defaultContact,
-      guides: (parsedSections?.guides && parsedSections.guides.length > 0)
+      title: preferTranslatedFinanceDefaults ? defaultTitle : (current?.title || defaultTitle),
+      summary: preferTranslatedFinanceDefaults ? defaultSummary : (current?.summary || defaultSummary),
+      contact: preferTranslatedFinanceDefaults ? defaultContact : (parsedSections?.contact || defaultContact),
+      guides: (!preferTranslatedFinanceDefaults && parsedSections?.guides && parsedSections.guides.length > 0)
         ? parsedSections.guides
         : defaultGuides,
-      faqs: (parsedSections?.faqs && parsedSections.faqs.length > 0)
+      faqs: (!preferTranslatedFinanceDefaults && parsedSections?.faqs && parsedSections.faqs.length > 0)
         ? parsedSections.faqs
-        : (Array.isArray(parsedSections) && parsedSections.length > 0)
+        : (!preferTranslatedFinanceDefaults && Array.isArray(parsedSections) && parsedSections.length > 0)
           ? parsedSections.map((s) => ({ q: s.title || s.q, a: s.content || s.a }))
           : defaultFaqs,
       videoAcademy: parsedSections?.videoAcademy || null,
       historyPath: defaultHistoryPath || roleDefault.historyPath,
     };
-  }, [current, roleDefault, defaultHistoryPath]);
+  }, [current, roleDefault, defaultHistoryPath, roleCode, currentLanguage, t]);
 
   // Filter FAQs with live search
   const filteredFaqs = useMemo(() => {
@@ -283,7 +282,7 @@ export const RoleHelpPage = ({ roleCode, defaultHistoryPath, showContactCta = tr
             </div>
           </div>
 
-          {showContactCta && pageData.contact?.ctaText && pageData.contact.ctaText.trim() && pageData.contact.ctaText !== 'Access NOC Bridge' && normalizedKey !== 'ROLE-SUPER-ADMIN' ? (
+          {showContactCta && pageData.contact?.ctaText && pageData.contact.ctaText.trim() && pageData.contact.ctaText !== 'Access NOC Bridge' && normalizedKey !== 'ROLE-SUPER-ADMIN' && normalizedKey !== 'ROLE-FLEET-OPERATOR' ? (
             <button
               type="button"
               onClick={() => alert(pageData.contact.actionAlert || 'Connecting to support desk...')}
@@ -408,7 +407,11 @@ export const RoleHelpPage = ({ roleCode, defaultHistoryPath, showContactCta = tr
               if (docUrl) {
                 window.open(docUrl, '_blank', 'noopener,noreferrer');
               } else {
-                toast.error(`No PDF document attached for "${guide.title}". Please contact your administrator.`);
+                toast.error(t(
+                  'ag.shared.rolehelppage.no_pdf_document_attached',
+                  'No PDF document is attached for "{{title}}". Please contact your administrator.',
+                  { title: guide.title }
+                ));
               }
             };
 

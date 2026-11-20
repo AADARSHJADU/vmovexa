@@ -13,6 +13,17 @@ import {
   formatDisplayValue,
 } from '../../features/workOrders/workOrderPresentation';
 
+const PRESET_KEYS = {
+  "2 Hours (Emergency Grounded Bus)": "superadmin.assignment_finance.2_hours_emergency_grounded_bus",
+  "4 Hours (Critical / Rapid Response)": "superadmin.assignment_finance.4_hours_critical_rapid_response",
+  "24 Hours (Standard Maintenance)": "superadmin.assignment_finance.24_hours_standard_maintenance",
+  "48 Hours (Scheduled Maintenance)": "superadmin.assignment_finance.48_hours_scheduled_maintenance",
+  "Within 1 Hour": "superadmin.assignment_finance.within_1_hour",
+  "Within 2 Hours": "superadmin.assignment_finance.within_2_hours",
+  "Today by 5:00 PM": "superadmin.assignment_finance.today_by_5_00_pm",
+  "Tomorrow 10:00 AM": "superadmin.assignment_finance.tomorrow_10_00_am"
+};
+
 const SLA_PRESETS = [
   { hours: 2, label: '2 Hours (Emergency Grounded Bus)' },
   { hours: 4, label: '4 Hours (Critical / Rapid Response)' },
@@ -98,7 +109,7 @@ export const AssignTechnicianPage = () => {
 
   // Initial Load: Organizations and Available Central Technicians
   useEffect(() => {
-    loadOrganizations({ limit: 100 }).catch(() => {});
+    loadOrganizations({ limit: 100, exclude_status: 'pending_approval,pending,awaiting_subscription,rejected' }).catch(() => {});
     loadCentralTechnicians({ limit: 100, status: 'active', profileStatus: 'available' }).catch(() => {});
   }, [loadOrganizations, loadCentralTechnicians]);
 
@@ -214,7 +225,20 @@ export const AssignTechnicianPage = () => {
     selectedVehicle?.depot_name
   );
 
-  const orgsList = Array.isArray(organizations) ? organizations : (organizations?.rows || []);
+  const orgsList = useMemo(() => {
+    const rawList = Array.isArray(organizations) ? organizations : (organizations?.rows || []);
+    return rawList.filter((org) => {
+      const status = String(org?.status || '').toLowerCase().trim();
+      const isPending =
+        status === 'pending_approval' ||
+        status === 'pending' ||
+        status === 'payment_pending' ||
+        status === 'awaiting_subscription' ||
+        status.includes('pending') ||
+        status === 'rejected';
+      return !isPending;
+    });
+  }, [organizations]);
   const techsList = useMemo(
     () => (Array.isArray(centralTechnicians) ? centralTechnicians : []),
     [centralTechnicians]
@@ -239,7 +263,7 @@ export const AssignTechnicianPage = () => {
           base_city: profile.base_city,
           state: profile.state || technician.state,
           pincode: profile.pincode || technician.pincode,
-        }),
+        }, t('superadmin.assignment_finance.address_not_saved', 'Address not saved')),
       };
     })
     .sort((a, b) => {
@@ -247,7 +271,7 @@ export const AssignTechnicianPage = () => {
       if (a.distanceKm == null) return 1;
       if (b.distanceKm == null) return -1;
       return a.distanceKm - b.distanceKm;
-    }), [techsList, targetLocation]);
+    }), [techsList, targetLocation, t]);
 
   // Use inexpensive straight-line distance to rank everyone, then ask Google
   // Routes for traffic-aware road distance/ETA only for the nearest three.
@@ -327,9 +351,9 @@ export const AssignTechnicianPage = () => {
             instructions: instructions.trim() || undefined,
           }),
           {
-            loading: 'Assigning technician to work order...',
-            success: 'Technician successfully assigned!',
-            error: (err) => err?.message || 'Assignment failed. Please try again.',
+            loading: t("superadmin.assignment_finance.assigning_technician_to_work_order", "Assigning technician to work order..."),
+            success: t("superadmin.assignment_finance.technician_successfully_assigned", "Technician successfully assigned!"),
+            error: (err) => err?.message || t("superadmin.assignment_finance.assignment_failed_please_try_again", "Assignment failed. Please try again."),
           }
         );
       } else {
@@ -350,9 +374,9 @@ export const AssignTechnicianPage = () => {
         await toast.promise(
           dispatchWorkOrder(payload),
           {
-            loading: 'Creating and atomically dispatching work order...',
-            success: 'Work order successfully dispatched!',
-            error: (err) => err?.message || 'Dispatch failed. Please check entity availability.',
+            loading: t("superadmin.assignment_finance.creating_and_atomically_dispatching_work_order", "Creating and atomically dispatching work order..."),
+            success: t("superadmin.assignment_finance.work_order_successfully_dispatched", "Work order successfully dispatched!"),
+            error: (err) => err?.message || t("superadmin.assignment_finance.dispatch_failed_please_check_entity_availability", "Dispatch failed. Please check entity availability."),
           }
         );
       }
@@ -555,7 +579,7 @@ export const AssignTechnicianPage = () => {
                 const city = profile.city || profile.base_city || tech.city;
                 return (
                   <option key={tech.id} value={tech.id}>
-                    {tech.name} ({st.toUpperCase()}) — {city || 'Central Pool'} {t('ag.superadmin.assigntechnicianpage.id', '(ID: #')}{tech.id})
+                    {tech.name} ({({ available: t("admin.drivers.status_available", "Available"), assigned: t("ag.admin.gpsdevicedetailspage.assigned", "Assigned"), off_duty: t("admin.drivers.status_off_duty", "Off Duty") })[st] || st}) — {city || t("superadmin.assignment_finance.central_pool", "Central Pool")} {t('ag.superadmin.assigntechnicianpage.id', '(ID: #')}{tech.id})
                   </option>
                 );
               })}
@@ -609,7 +633,7 @@ export const AssignTechnicianPage = () => {
                               {isRecommended && <span className="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 text-[9px] font-black uppercase">{t('ag.superadmin.assigntechnicianpage.nearest_suggestion', 'Nearest suggestion')}</span>}
                             </div>
                             <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-1 line-clamp-2">{item.address}</p>
-                            <p className="text-[10px] text-slate-400 dark:text-zinc-500 mt-1">{item.profile.cert_level || 'Central Technician'}</p>
+                            <p className="text-[10px] text-slate-400 dark:text-zinc-500 mt-1">{item.profile.cert_level || t("roles.central_tech", "Central Technician")}</p>
                           </div>
                           <div className="text-right shrink-0">
                             {road ? (
@@ -710,7 +734,7 @@ export const AssignTechnicianPage = () => {
                 >
                   {SLA_PRESETS.map((p) => (
                     <option key={p.hours} value={p.hours}>
-                      {p.label}
+                      {t(PRESET_KEYS[p.label], p.label)}
                     </option>
                   ))}
                 </select>
@@ -725,14 +749,14 @@ export const AssignTechnicianPage = () => {
               <input
                 type="text"
                 list="etaList"
-                value={eta}
-                onChange={(e) => setEta(e.target.value)}
+                value={PRESET_KEYS[eta] ? t(PRESET_KEYS[eta], eta) : eta}
+                onChange={(e) => setEta(ETA_PRESETS.find(value => t(PRESET_KEYS[value], value) === e.target.value) || e.target.value)}
                 placeholder={t('ag.superadmin.assigntechnicianpage.e_g_within_2_hours', 'e.g. Within 2 Hours')}
                 className="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
               <datalist id="etaList">
                 {ETA_PRESETS.map((p, idx) => (
-                  <option key={idx} value={p} />
+                  <option key={idx} value={t(PRESET_KEYS[p], p)} />
                 ))}
               </datalist>
             </div>

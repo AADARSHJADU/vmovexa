@@ -23,10 +23,10 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
                 children: [
                   const CustomBackButton(),
                   const SizedBox(width: 8),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Billing & Revenue',
-                      style: TextStyle(
+                      'billing_and_revenue'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -42,7 +42,7 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
                               )
                             : const Icon(Icons.refresh_rounded, color: Colors.white, size: 22),
                         onPressed: controller.refreshing.value ? null : () => controller.handleRefresh(),
-                        tooltip: 'Refresh Billing',
+                        tooltip: 'refresh_list'.tr,
                       )),
                 ],
               ),
@@ -107,10 +107,10 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
         children: [
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Campaign Billing & Invoices',
-                  style: TextStyle(
+                  'campaign_billing_invoices'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
@@ -124,9 +124,9 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.4)),
                 ),
-                child: const Text(
-                  'Approved Campaigns Only',
-                  style: TextStyle(
+                child: Text(
+                  'approved_campaigns_only'.tr,
+                  style: const TextStyle(
                     color: Color(0xFF93C5FD),
                     fontSize: 9.5,
                     fontWeight: FontWeight.bold,
@@ -136,9 +136,9 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
             ],
           ),
           const SizedBox(height: 6),
-          const Text(
-            'Official GST tax billing for campaigns approved by VMOVEXA Admin. Invoices are cleared via secured payment gateway.',
-            style: TextStyle(
+          Text(
+            'campaign_billing_desc'.tr,
+            style: const TextStyle(
               color: AppColors.textMuted,
               fontSize: 11,
               height: 1.4,
@@ -160,9 +160,9 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
             // Card 1: Total Invoices & Bills
             Expanded(
               child: _buildKpiCard(
-                title: 'Total Invoices & Bills',
+                title: 'total_invoices_bills'.tr,
                 value: '${controller.allInvoicesCount}',
-                subtitle: '${controller.invoicePaidCount} Paid · ${controller.invoicePendingCount} Pending',
+                subtitle: '${controller.invoicePaidCount} ${'paid_tab'.tr} · ${controller.invoicePendingCount} ${'tab_pending'.tr}',
                 icon: Icons.check_circle_outline_rounded,
                 iconColor: const Color(0xFF3B82F6),
                 bgColor: const Color(0xFF3B82F6).withValues(alpha: 0.1),
@@ -171,12 +171,12 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
             ),
             const SizedBox(width: 10),
 
-            // Card 2: Payment Pending
+            // Card 2: Payment Pending (Matches BillingPaymentsPage.jsx pendingCampaigns)
             Expanded(
               child: _buildKpiCard(
-                title: 'Payment Pending',
+                title: 'payment_pending_card'.tr,
                 value: controller.formatCurrency(controller.pendingTotal),
-                subtitle: '${controller.invoicePendingCount} Pending Clearance',
+                subtitle: '${controller.pendingCampaigns.length} ${'pending_clearance'.tr}',
                 icon: Icons.credit_card_rounded,
                 iconColor: const Color(0xFFF59E0B),
                 bgColor: const Color(0xFFF59E0B).withValues(alpha: 0.1),
@@ -188,11 +188,11 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
         ),
         const SizedBox(height: 10),
 
-        // Card 3: Paid & Cleared
+        // Card 3: Paid & Live on Screens (Matches BillingPaymentsPage.jsx paidCampaigns)
         _buildKpiCard(
-          title: 'Paid & Cleared',
+          title: 'paid_live_screens'.tr,
           value: controller.formatCurrency(controller.paidTotal),
-          subtitle: '${controller.invoicePaidCount} Settled Invoices',
+          subtitle: '${controller.paidCampaigns.length} ${'settled_invoices'.tr}',
           icon: Icons.tv_rounded,
           iconColor: const Color(0xFF10B981),
           bgColor: const Color(0xFF10B981).withValues(alpha: 0.1),
@@ -294,10 +294,10 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
           // Section Title + Badge
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Invoices & Tax Receipts',
-                  style: TextStyle(
+                  'invoices_tax_receipts'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
@@ -311,9 +311,9 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.4)),
                 ),
-                child: const Text(
-                  'Official GST Receipts',
-                  style: TextStyle(
+                child: Text(
+                  'official_gst_receipts'.tr,
+                  style: const TextStyle(
                     color: Color(0xFF93C5FD),
                     fontSize: 9.5,
                     fontWeight: FontWeight.bold,
@@ -323,13 +323,13 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
             ],
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Download, print, or clear GST tax invoices for approved campaigns and media flights.',
-            style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+          Text(
+            'invoices_tax_desc'.tr,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
           ),
           const SizedBox(height: 14),
 
-          // 3 Filter Tabs (All, Awaiting, Paid)
+          // 3 Filter Tabs (All, Pending, Paid)
           _buildInvoiceTabs(),
           const SizedBox(height: 12),
 
@@ -353,9 +353,9 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
                       controller.invoicePage.value = 1;
                     },
                     style: const TextStyle(color: Colors.white, fontSize: 12),
-                    decoration: const InputDecoration(
-                      hintText: 'Search by invoice ID, campaign, code...',
-                      hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 11),
+                    decoration: InputDecoration(
+                      hintText: 'search_invoices_ph'.tr,
+                      hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                       border: InputBorder.none,
                       isDense: true,
                     ),
@@ -390,14 +390,14 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
                   children: [
                     Icon(Icons.description_outlined, color: Colors.white.withValues(alpha: 0.3), size: 36),
                     const SizedBox(height: 10),
-                    const Text(
-                      'No Matching Invoices Found',
-                      style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.bold),
+                    Text(
+                      'no_matching_invoices_found'.tr,
+                      style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      'Official GST tax invoices will appear here once campaigns are approved by VMOVEXA Admin.',
-                      style: TextStyle(color: AppColors.textMuted, fontSize: 10.5),
+                    Text(
+                      'no_invoices_desc'.tr,
+                      style: const TextStyle(color: AppColors.textMuted, fontSize: 10.5),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -419,7 +419,7 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
     );
   }
 
-  // The 3 Tabs: All, Awaiting, Paid
+  // The 3 Tabs: All, Pending, Paid (Matches BillingPaymentsPage.jsx)
   Widget _buildInvoiceTabs() {
     return Container(
       padding: const EdgeInsets.all(3),
@@ -432,18 +432,18 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
         return Row(
           children: [
             _buildTabButton(
-              label: 'All (${controller.allInvoicesCount})',
+              label: '${'tab_all'.tr} (${controller.allInvoicesCount})',
               isActive: current == 'all',
               onTap: () => controller.setInvoiceTab('all'),
             ),
             _buildTabButton(
-              label: 'Awaiting (${controller.invoicePendingCount})',
-              isActive: current == 'awaiting',
+              label: '${'tab_pending'.tr} (${controller.invoicePendingCount})',
+              isActive: current == 'pending' || current == 'awaiting',
               activeColor: const Color(0xFFF59E0B),
-              onTap: () => controller.setInvoiceTab('awaiting'),
+              onTap: () => controller.setInvoiceTab('pending'),
             ),
             _buildTabButton(
-              label: 'Paid (${controller.invoicePaidCount})',
+              label: '${'tab_paid'.tr} (${controller.invoicePaidCount})',
               isActive: current == 'paid',
               activeColor: const Color(0xFF10B981),
               onTap: () => controller.setInvoiceTab('paid'),
@@ -542,7 +542,7 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      inv.isPaid ? 'Paid & Cleared' : 'Awaiting Payment',
+                      inv.isPaid ? 'status_paid_cleared'.tr : 'status_awaiting_payment'.tr,
                       style: TextStyle(
                         color: inv.isPaid ? const Color(0xFF34D399) : const Color(0xFFFBBF24),
                         fontSize: 9.5,
@@ -606,19 +606,19 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Issue Date', style: TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
+                  Text('issue_date_label'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
                   const SizedBox(height: 2),
                   Text(inv.date, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w500)),
                   if (inv.dueDate != null) ...[
                     const SizedBox(height: 2),
-                    Text('Due: ${inv.dueDate}', style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 9.5)),
+                    Text('${'due_prefix'.tr} ${inv.dueDate}', style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 9.5)),
                   ],
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  const Text('Total Amount', style: TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
+                  Text('total_amount'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
                   const SizedBox(height: 2),
                   Text(
                     inv.formattedAmount,
@@ -648,12 +648,12 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.visibility_rounded, size: 13, color: Color(0xFF8B5CF6)),
-                      SizedBox(width: 4),
-                      Text('Details', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
+                      const Icon(Icons.visibility_rounded, size: 13, color: Color(0xFF8B5CF6)),
+                      const SizedBox(width: 4),
+                      Text('details'.tr, style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
@@ -670,12 +670,12 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.receipt_long_rounded, size: 13, color: Color(0xFF3B82F6)),
-                      SizedBox(width: 4),
-                      Text('Tax Invoice', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
+                      const Icon(Icons.receipt_long_rounded, size: 13, color: Color(0xFF3B82F6)),
+                      const SizedBox(width: 4),
+                      Text('tax_invoice_btn'.tr, style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
@@ -698,12 +698,12 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
                       padding: EdgeInsets.zero,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.download_rounded, size: 13, color: Colors.white),
-                        SizedBox(width: 4),
-                        Text('PDF', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
+                        const Icon(Icons.download_rounded, size: 13, color: Colors.white),
+                        const SizedBox(width: 4),
+                        Text('pdf_btn'.tr, style: const TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
@@ -727,7 +727,7 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'Showing $count invoice${count == 1 ? '' : 's'}',
+            '${'showing_prefix'.tr} $count ${'invoices_count_suffix'.tr}',
             style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
           ),
           Row(
@@ -740,7 +740,7 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
                 constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
               ),
               Text(
-                'Page $current of $total',
+                '${'page_prefix'.tr} $current ${'of_divider'.tr} $total',
                 style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600),
               ),
               IconButton(
@@ -772,18 +772,18 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Title + Subtitle
-          const Text(
-            'Transaction History',
-            style: TextStyle(
+          Text(
+            'transaction_history_title'.tr,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 15,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Live ad spend debits, gateway settlements, and payment clearing logs.',
-            style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+          Text(
+            'transaction_history_desc'.tr,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
           ),
           const SizedBox(height: 14),
 
@@ -810,9 +810,9 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
                             controller.txPage.value = 1;
                           },
                           style: const TextStyle(color: Colors.white, fontSize: 11),
-                          decoration: const InputDecoration(
-                            hintText: 'Search transactions...',
-                            hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 11),
+                          decoration: InputDecoration(
+                            hintText: 'search_tx_ph'.tr,
+                            hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                             border: InputBorder.none,
                             isDense: true,
                           ),
@@ -882,9 +882,9 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
                   children: [
                     Icon(Icons.credit_card_off_rounded, color: Colors.white.withValues(alpha: 0.3), size: 32),
                     const SizedBox(height: 8),
-                    const Text('No Transaction Records', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text('no_tx_found'.tr, style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
-                    const Text('Campaign billing debits and payment receipts will be recorded here.', style: TextStyle(color: AppColors.textMuted, fontSize: 10), textAlign: TextAlign.center),
+                    Text('no_tx_desc'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 10), textAlign: TextAlign.center),
                   ],
                 ),
               );
@@ -984,7 +984,7 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'Showing $count transaction${count == 1 ? '' : 's'}',
+            '${'showing_prefix'.tr} $count ${'transactions_count_suffix'.tr}',
             style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
           ),
           Row(
@@ -997,7 +997,7 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
                 constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
               ),
               Text(
-                'Page $current of $total',
+                '${'page_prefix'.tr} $current ${'of_divider'.tr} $total',
                 style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600),
               ),
               IconButton(
@@ -1048,9 +1048,9 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Official GST Tax Invoice',
-                            style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                          Text(
+                            'official_gst_tax_invoice'.tr,
+                            style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
                           ),
                           Text(
                             inv.id,
@@ -1079,13 +1079,13 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('BILLED TO', style: TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                    Text('billed_to_label'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
                     Text(inv.clientBrand, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        const Text('Campaign: ', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                        Text('${'campaign_prefix'.tr} ', style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
                         Expanded(
                           child: Text(
                             '${inv.campaign} (${inv.campaignCode})',
@@ -1097,14 +1097,14 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Text('Date of Issue: ${inv.date}', style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                    Text('${'date_of_issue_prefix'.tr} ${inv.date}', style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
                   ],
                 ),
               ),
               const SizedBox(height: 16),
 
               // Item Breakdown
-              const Text('CHARGES BREAKDOWN', style: TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.bold)),
+              Text('charges_breakdown_label'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
 
               Container(
@@ -1116,15 +1116,15 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
                 ),
                 child: Column(
                   children: [
-                    _buildBreakdownRow('Media Space & Broadcast Base', inv.formattedBaseAmount),
+                    _buildBreakdownRow('media_broadcast_base'.tr, inv.formattedBaseAmount),
                     const SizedBox(height: 8),
-                    _buildBreakdownRow('CGST (9.0%)', '₹${(inv.gstAmount / 2).toStringAsFixed(0)}'),
+                    _buildBreakdownRow('cgst_rate_label'.tr, '₹${(inv.gstAmount / 2).toStringAsFixed(0)}'),
                     const SizedBox(height: 8),
-                    _buildBreakdownRow('SGST (9.0%)', '₹${(inv.gstAmount / 2).toStringAsFixed(0)}'),
+                    _buildBreakdownRow('sgst_rate_label'.tr, '₹${(inv.gstAmount / 2).toStringAsFixed(0)}'),
                     const SizedBox(height: 8),
-                    _buildBreakdownRow('Total GST (18.0%)', inv.formattedGstAmount, color: const Color(0xFFFBBF24)),
+                    _buildBreakdownRow('total_gst_label'.tr, inv.formattedGstAmount, color: const Color(0xFFFBBF24)),
                     const Divider(color: Color(0xFF334155), height: 20),
-                    _buildBreakdownRow('Total Payable Amount', inv.formattedAmount, isBold: true, color: Colors.white, fontSize: 15),
+                    _buildBreakdownRow('total_payable_amount'.tr, inv.formattedAmount, isBold: true, color: Colors.white, fontSize: 15),
                   ],
                 ),
               ),
@@ -1142,7 +1142,7 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      child: const Text('Close'),
+                      child: Text('close'.tr),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -1165,7 +1165,7 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                         icon: const Icon(Icons.download_rounded, color: Colors.white, size: 16),
-                        label: const Text('Download PDF', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        label: Text('download_pdf'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                       ),
                     ),
                   ),

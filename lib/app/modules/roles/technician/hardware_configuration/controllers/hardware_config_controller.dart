@@ -9,7 +9,7 @@ import '../views/configuration_saved_view.dart';
 
 class HardwareConfigController extends GetxController {
   final RxInt signalStrengthPercent = 90.obs;
-  final RxString deviceDateTime = 'May 14, 2025 · 09:35 AM'.obs;
+  final RxString deviceDateTime = ''.obs;
 
   // ==========================================================
   // Device Selection & Active Hardware
@@ -30,9 +30,9 @@ class HardwareConfigController extends GetxController {
   // 0 = Device Settings, 1 = Network Settings, 2 = System & Firmware
   final RxInt selectedTabIndex = 0.obs;
   final List<String> tabLabels = const [
-    'Device Settings',
-    'Network Settings',
-    'System & Firmware',
+    'device_settings',
+    'network_settings',
+    'system_firmware',
   ];
 
   void selectTab(int index) => selectedTabIndex.value = index;
@@ -112,7 +112,7 @@ class HardwareConfigController extends GetxController {
   void setNetworkType(String? v) => networkType.value = v ?? 'Wi-Fi';
 
   final ssidCtrl = TextEditingController();
-  final RxString ipAddress = '192.168.1.120'.obs;
+  final RxString ipAddress = ''.obs;
 
   final RxBool peerProxy = false.obs;
   void togglePeerProxy(bool v) => peerProxy.value = v;
@@ -229,7 +229,7 @@ class HardwareConfigController extends GetxController {
 
     networkType.value = cfg.networkType.isNotEmpty ? cfg.networkType : 'Wi-Fi';
     ssidCtrl.text = cfg.ssid;
-    ipAddress.value = cfg.ipAddress.isNotEmpty ? cfg.ipAddress : '192.168.1.120';
+    ipAddress.value = cfg.ipAddress.isNotEmpty ? cfg.ipAddress : '';
 
     peerProxy.value = cfg.peerProxy;
     proxyType.value = cfg.proxyType.isNotEmpty ? cfg.proxyType : 'HTTP';
@@ -245,8 +245,8 @@ class HardwareConfigController extends GetxController {
     final dev = selectedDevice.value ?? deviceList.firstOrNull;
     if (dev == null) {
       Get.snackbar(
-        'No Device Selected',
-        'Please select a device to configure.',
+        'no_device_selected'.tr,
+        'select_device_to_configure'.tr,
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
@@ -283,7 +283,7 @@ class HardwareConfigController extends GetxController {
       final res = await TechnicianService.to.pushEdgeConfig(devIdStr, configPayload);
       if (res.success) {
         Get.snackbar(
-          'Configuration Pushed',
+          'config_pushed'.tr,
           'Hardware parameters pushed to ${dev.boxId.isNotEmpty ? dev.boxId : devIdStr} successfully.',
           backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
           colorText: Colors.white,
@@ -293,7 +293,7 @@ class HardwareConfigController extends GetxController {
         Get.to(() => const ConfigurationSavedView());
       } else {
         Get.snackbar(
-          'Push Failed',
+          'push_failed'.tr,
           res.displayErrorMessage,
           backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
           colorText: Colors.white,
@@ -304,7 +304,7 @@ class HardwareConfigController extends GetxController {
     } catch (e) {
       debugPrint('Save config error: $e');
       Get.snackbar(
-        'Error',
+        'error'.tr,
         e.toString(),
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
         colorText: Colors.white,
@@ -326,9 +326,9 @@ class HardwareConfigController extends GetxController {
 
     final confirmed = await Get.dialog<bool>(
       _buildConfirmDialog(
-        title: 'Reboot Display Controller',
-        message: 'Send remote reboot command to ${dev.boxId.isNotEmpty ? dev.boxId : devIdStr}? Device will restart and reconnect.',
-        confirmLabel: 'Reboot Controller',
+        title: 'reboot_controller_title'.tr,
+        message: '${'reboot_confirm_msg'.tr} (${dev.boxId.isNotEmpty ? dev.boxId : devIdStr})',
+        confirmLabel: 'reboot_ctrl'.tr,
         confirmColor: const Color(0xFF6366F1),
       ),
     );
@@ -338,7 +338,7 @@ class HardwareConfigController extends GetxController {
     try {
       final res = await TechnicianService.to.rebootEdgeDevice(devIdStr);
       Get.snackbar(
-        'Reboot Signal Dispatched',
+        'reboot_signal_dispatched'.tr,
         res.message != null && res.message!.isNotEmpty ? res.message! : 'Reboot command sent to ${dev.boxId.isNotEmpty ? dev.boxId : devIdStr}.',
         backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
         colorText: Colors.white,
@@ -347,7 +347,7 @@ class HardwareConfigController extends GetxController {
       );
     } catch (e) {
       Get.snackbar(
-        'Reboot Error',
+        'reboot_error'.tr,
         e.toString(),
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
         colorText: Colors.white,
@@ -366,9 +366,9 @@ class HardwareConfigController extends GetxController {
 
     final confirmed = await Get.dialog<bool>(
       _buildConfirmDialog(
-        title: 'Confirm Factory Reset?',
-        message: 'This will wipe local cached campaigns, stored offline logs, and reset network credentials on device ${dev.boxId.isNotEmpty ? dev.boxId : devIdStr}.',
-        confirmLabel: 'Proceed Reset',
+        title: 'confirm_factory_reset'.tr,
+        message: '${'factory_reset_warning'.tr} ${dev.boxId.isNotEmpty ? dev.boxId : devIdStr}.',
+        confirmLabel: 'proceed_reset'.tr,
         confirmColor: const Color(0xFFEF4444),
       ),
     );
@@ -378,7 +378,7 @@ class HardwareConfigController extends GetxController {
     try {
       final res = await TechnicianService.to.factoryResetEdgeDevice(devIdStr);
       Get.snackbar(
-        'Factory Reset Dispatched',
+        'factory_reset_dispatched'.tr,
         res.message != null && res.message!.isNotEmpty ? res.message! : 'Device ${dev.boxId.isNotEmpty ? dev.boxId : devIdStr} has been reset.',
         backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
         colorText: Colors.white,
@@ -388,7 +388,7 @@ class HardwareConfigController extends GetxController {
       await loadEdgeConfig(devIdStr);
     } catch (e) {
       Get.snackbar(
-        'Reset Error',
+        'reset_error'.tr,
         e.toString(),
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
         colorText: Colors.white,
@@ -414,7 +414,7 @@ class HardwareConfigController extends GetxController {
       actions: [
         TextButton(
           onPressed: () => Get.back(result: false),
-          child: const Text('Cancel', style: TextStyle(color: Colors.white54, fontWeight: FontWeight.w600)),
+          child: Text('cancel'.tr, style: const TextStyle(color: Colors.white54, fontWeight: FontWeight.w600)),
         ),
         ElevatedButton(
           onPressed: () => Get.back(result: true),
@@ -445,11 +445,11 @@ class HardwareConfigController extends GetxController {
   // ==========================================================
   RxString get deviceId => (selectedDevice.value?.boxId.isNotEmpty == true
       ? selectedDevice.value!.boxId
-      : (selectedDeviceId.value.isNotEmpty ? selectedDeviceId.value : 'VMX-BOX-8841')).obs;
+      : (selectedDeviceId.value.isNotEmpty ? selectedDeviceId.value : '—')).obs;
 
   RxString get vehicleNumber => (selectedDevice.value?.vehicleReg.isNotEmpty == true
       ? selectedDevice.value!.vehicleReg
-      : 'Bus #${selectedDevice.value?.vehicleId ?? "101"}').obs;
+      : (selectedDevice.value?.vehicleId != null ? 'Vehicle ${selectedDevice.value!.vehicleId}' : '—')).obs;
 
   RxString get depotLocation => (selectedDevice.value?.depotName.isNotEmpty == true
       ? selectedDevice.value!.depotName

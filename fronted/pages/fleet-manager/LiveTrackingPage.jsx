@@ -14,8 +14,8 @@ import 'leaflet/dist/leaflet.css';
 export const LiveTrackingPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { hasPermission } = useAuth();
-  const canView = hasPermission('fleet.tracking.view');
+  const { can } = useAuth();
+  const canView = can('tracking.view');
 
   const { vehicles, telemetry, loadVehicles, loadTelemetry } = useFleetVehicle();
   const vehicleList = useMemo(() => {

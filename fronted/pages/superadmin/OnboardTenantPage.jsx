@@ -88,6 +88,31 @@ export const PRESET_AVATARS = [
   },
 ];
 
+export const getPlanTranslation = (plan, t) => {
+  if (!plan) return t ? t('superadmin.onboard.no_plan', 'No Plan') : 'No Plan';
+  const rawName = typeof plan === 'object' ? (plan.name || plan.code || '') : String(plan);
+  const rawCode = typeof plan === 'object' ? (plan.code || '') : '';
+  const keyFromCode = rawCode ? `plans.name_${rawCode.toLowerCase().replace(/[^a-z0-9]/g, '_')}` : '';
+  const keyFromName = rawName ? `plans.name_${rawName.toLowerCase().replace(/[^a-z0-9]/g, '_')}` : '';
+
+  if (t) {
+    if (keyFromCode) {
+      const translated = t(keyFromCode, '__VMOVEXA_MISSING__');
+      if (translated && translated !== '__VMOVEXA_MISSING__' && translated !== keyFromCode) {
+        return translated;
+      }
+    }
+    if (keyFromName) {
+      const translated = t(keyFromName, '__VMOVEXA_MISSING__');
+      if (translated && translated !== '__VMOVEXA_MISSING__' && translated !== keyFromName) {
+        return translated;
+      }
+    }
+    return rawName || t('superadmin.onboard.no_plan', 'No Plan');
+  }
+  return rawName || 'No Plan';
+};
+
 export const OnboardTenantPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -191,24 +216,24 @@ export const OnboardTenantPage = () => {
   const validateField = (field, value, values = formData) => {
     switch (field) {
       case 'name':
-        if (!value || !String(value).trim()) return 'Company name is required';
-        if (String(value).trim().length < 2) return 'Company name must be at least 2 characters';
+        if (!value || !String(value).trim()) return t('superadmin.onboard.err_company_name_req', 'Company name is required');
+        if (String(value).trim().length < 2) return t('superadmin.onboard.err_company_name_min', 'Company name must be at least 2 characters');
         return '';
 
       case 'city':
-        if (!value || !String(value).trim()) return 'City is required';
-        if (String(value).trim().length < 2) return 'City must be at least 2 characters';
+        if (!value || !String(value).trim()) return t('superadmin.onboard.err_city_req', 'City is required');
+        if (String(value).trim().length < 2) return t('superadmin.onboard.err_city_min', 'City must be at least 2 characters');
         return '';
 
       case 'state':
-        if (!value || !String(value).trim()) return 'Please select a state / UT';
+        if (!value || !String(value).trim()) return t('superadmin.onboard.err_state_req', 'Please select a state / UT');
         return '';
 
       case 'cin':
         if (value && String(value).trim()) {
           const cleanCin = String(value).trim().toUpperCase();
           if (!/^[A-Z0-9]{21}$/.test(cleanCin)) {
-            return 'CIN must be exactly 21 alphanumeric characters (e.g. U60200MH2021PTC109921)';
+            return t('superadmin.onboard.err_cin_invalid', 'CIN must be exactly 21 alphanumeric characters (e.g. U60200MH2021PTC109921)');
           }
         }
         return '';
@@ -217,7 +242,7 @@ export const OnboardTenantPage = () => {
         if (value && String(value).trim()) {
           const cleanGstin = String(value).trim().toUpperCase();
           if (!/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(cleanGstin)) {
-            return 'Invalid GSTIN format (e.g. 27AAACM1234F1Z8)';
+            return t('superadmin.onboard.err_gstin_invalid', 'Invalid GSTIN format (e.g. 27AAACM1234F1Z8)');
           }
         }
         return '';
@@ -226,54 +251,54 @@ export const OnboardTenantPage = () => {
         if (value && String(value).trim()) {
           const cleanPin = String(value).trim();
           if (!/^\d{6}$/.test(cleanPin)) {
-            return 'Pincode must be exactly 6 digits (e.g. 400001)';
+            return t('superadmin.onboard.err_pincode_invalid', 'Pincode must be exactly 6 digits (e.g. 400001)');
           }
         }
         return '';
 
       case 'adminName':
-        if (!value || !String(value).trim()) return 'Admin full name is required';
-        if (String(value).trim().length < 2) return 'Admin name must be at least 2 characters';
+        if (!value || !String(value).trim()) return t('superadmin.onboard.err_admin_name_req', 'Admin full name is required');
+        if (String(value).trim().length < 2) return t('superadmin.onboard.err_admin_name_min', 'Admin name must be at least 2 characters');
         return '';
 
       case 'adminEmail':
-        if (!value || !String(value).trim()) return 'Admin email is required';
+        if (!value || !String(value).trim()) return t('superadmin.onboard.err_admin_email_req', 'Admin email is required');
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim())) {
-          return 'Enter a valid email address (e.g. admin@company.com)';
+          return t('superadmin.onboard.err_admin_email_invalid', 'Enter a valid email address (e.g. admin@company.com)');
         }
         return '';
 
       case 'adminPhone':
-        if (!value || !String(value).trim()) return 'Mobile phone number is required';
+        if (!value || !String(value).trim()) return t('superadmin.onboard.err_admin_phone_req', 'Mobile phone number is required');
         if (!/^[6-9]\d{9}$/.test(String(value).trim())) {
-          return 'Enter a valid 10-digit Indian mobile number (starts with 6-9)';
+          return t('superadmin.onboard.err_admin_phone_invalid', 'Enter a valid 10-digit Indian mobile number (starts with 6-9)');
         }
         return '';
 
       case 'adminPassword':
-        if (!value) return 'Password is required';
-        if (value.length < 8) return 'Password must be at least 8 characters';
-        if (!/[A-Z]/.test(value)) return 'Password must contain at least 1 uppercase letter (A-Z)';
-        if (!/[0-9]/.test(value)) return 'Password must contain at least 1 number (0-9)';
-        if (!/[^A-Za-z0-9]/.test(value)) return 'Password must contain at least 1 special character (!@#$%^&*)';
+        if (!value) return t('superadmin.onboard.err_password_req', 'Password is required');
+        if (value.length < 8) return t('superadmin.onboard.err_password_min', 'Password must be at least 8 characters');
+        if (!/[A-Z]/.test(value)) return t('superadmin.onboard.err_password_upper', 'Password must contain at least 1 uppercase letter (A-Z)');
+        if (!/[0-9]/.test(value)) return t('superadmin.onboard.err_password_number', 'Password must contain at least 1 number (0-9)');
+        if (!/[^A-Za-z0-9]/.test(value)) return t('superadmin.onboard.err_password_special', 'Password must contain at least 1 special character (!@#$%^&*)');
         return '';
 
       case 'bankName':
         if (values.paymentMode === 'offline') {
-          if (!value || !String(value).trim()) return 'Bank name is required for offline settlement';
+          if (!value || !String(value).trim()) return t('superadmin.onboard.err_bank_name_req', 'Bank name is required for offline settlement');
         }
         return '';
 
       case 'bankRef':
         if (values.paymentMode === 'offline') {
-          if (!value || !String(value).trim()) return 'Bank reference / UTR is required';
-          if (String(value).trim().length < 4) return 'UTR / Reference must be at least 4 characters';
+          if (!value || !String(value).trim()) return t('superadmin.onboard.err_bank_ref_req', 'Bank reference / UTR is required');
+          if (String(value).trim().length < 4) return t('superadmin.onboard.err_bank_ref_min', 'UTR / Reference must be at least 4 characters');
         }
         return '';
 
       case 'paymentDate':
         if (values.paymentMode === 'offline') {
-          if (!value) return 'Payment date is required';
+          if (!value) return t('superadmin.onboard.err_payment_date_req', 'Payment date is required');
         }
         return '';
 
@@ -354,12 +379,12 @@ export const OnboardTenantPage = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      toast.error(t('ag.superadmin.onboardtenantpage.please_select_a_valid_image_file_png', 'Please select a valid image file (PNG, JPG, WebP, SVG).'));
+      toast.error(t('superadmin.onboard.err_valid_image', 'Please select a valid image file (PNG, JPG, WebP, SVG).'));
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error(t('ag.superadmin.onboardtenantpage.image_size_exceeds_5mb_limit', 'Image size exceeds 5MB limit.'));
+      toast.error(t('superadmin.onboard.err_image_size', 'Image size exceeds 5MB limit.'));
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
@@ -373,7 +398,7 @@ export const OnboardTenantPage = () => {
     setLogoFile(file);
     setLogoPreview(previewUrl);
     setFormData((prev) => ({ ...prev, logoUrl: '' }));
-    toast.success(t('ag.superadmin.onboardtenantpage.image_selected_it_will_be_uploaded_u', 'Image selected! It will be uploaded upon submitting the form.'));
+    toast.success(t('superadmin.onboard.toast_image_selected', 'Image selected! It will be uploaded upon submitting the form.'));
   };
 
   const handleSelectPresetAvatar = (avatarUrl) => {
@@ -404,7 +429,7 @@ export const OnboardTenantPage = () => {
     setFormData((prev) => ({ ...prev, adminPassword: generated }));
     setErrors((prev) => ({ ...prev, adminPassword: '' }));
     setTouched((prev) => ({ ...prev, adminPassword: true }));
-    toast.success('Generated password: ' + generated);
+    toast.success(t('superadmin.onboard.toast_generated_pw', 'Generated password: ') + generated);
   };
 
   const handleSelectPlan = (p) => {
@@ -456,7 +481,7 @@ export const OnboardTenantPage = () => {
       currentData.adminPassword = generated;
       setFormData(currentData);
       setErrors((prev) => ({ ...prev, adminPassword: '' }));
-      toast.success('Generated password: ' + generated);
+      toast.success(t('superadmin.onboard.toast_generated_pw', 'Generated password: ') + generated);
     }
 
     const stepErrors = validateStep(currentStep, currentData);
@@ -466,7 +491,7 @@ export const OnboardTenantPage = () => {
         ...prev,
         ...Object.keys(stepErrors).reduce((acc, k) => ({ ...acc, [k]: true }), {}),
       }));
-      toast.error(t('ag.superadmin.onboardtenantpage.please_fix_the_highlighted_errors_be', 'Please fix the highlighted errors before proceeding.'));
+      toast.error(t('superadmin.onboard.err_fix_highlighted', 'Please fix the highlighted errors before proceeding.'));
       return;
     }
 
@@ -481,7 +506,7 @@ export const OnboardTenantPage = () => {
 
     // Upload custom image if user selected a file
     if (logoFile) {
-      const uploadToastId = toast.loading(t('ag.superadmin.onboardtenantpage.uploading_company_logo', 'Uploading company logo...'));
+      const uploadToastId = toast.loading(t('superadmin.onboard.uploading_company_logo', 'Uploading company logo...'));
       try {
         setUploadingLogo(true);
         const res = await uploadService.uploadFile(logoFile, 'logos');
@@ -493,7 +518,7 @@ export const OnboardTenantPage = () => {
       } catch (err) {
         toast.dismiss(uploadToastId);
         setUploadingLogo(false);
-        toast.error('Failed to upload logo: ' + (err?.message || 'Upload error'));
+        toast.error(t('superadmin.onboard.toast_upload_logo_fail', 'Failed to upload logo: ') + (err?.message || 'Upload error'));
         return;
       } finally {
         setUploadingLogo(false);
@@ -537,9 +562,11 @@ export const OnboardTenantPage = () => {
       const data = await toast.promise(
         createOrganization(payload),
         {
-          loading: 'Creating tenant account...',
-          success: isFinance ? 'Tenant provisioned & submitted for Super Admin approval!' : 'Tenant added successfully!',
-          error: (err) => err?.message || 'Failed to add tenant.',
+          loading: t('superadmin.onboard.toast_creating_account', 'Creating tenant account...'),
+          success: isFinance
+            ? t('superadmin.onboard.toast_provisioned_success', 'Tenant provisioned & submitted for Super Admin approval!')
+            : t('superadmin.onboard.toast_tenant_added', 'Tenant added successfully!'),
+          error: (err) => err?.message || t('superadmin.onboard.toast_tenant_add_fail', 'Failed to add tenant.'),
         }
       );
 
@@ -565,9 +592,9 @@ export const OnboardTenantPage = () => {
       {/* Standard Reusable Breadcrumb */}
       <Breadcrumb
         items={[
-          { label: t('ag.superadmin.onboardtenantpage.superadmin', 'SuperAdmin'), to: '/superadmin/dashboard' },
-          { label: t('ag.superadmin.onboardtenantpage.tenants', 'Tenants'), to: '/superadmin/tenants' },
-          { label: t('ag.superadmin.onboardtenantpage.add_new_tenant', 'Add New Tenant') },
+          { label: t('common.super_admin', 'Super Admin'), to: '/superadmin/dashboard' },
+          { label: t('superadmin.tenants', 'Tenants'), to: '/superadmin/tenants' },
+          { label: t('superadmin.onboard.add_new_tenant', 'Add New Tenant') },
         ]}
       />
 
@@ -575,10 +602,10 @@ export const OnboardTenantPage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-            {t('ag.superadmin.onboardtenantpage.add_new_tenant', 'Add New Tenant')}
+            {t('superadmin.onboard.add_new_tenant', 'Add New Tenant')}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
-            {t('ag.superadmin.onboardtenantpage.register_a_new_company_set_plan_details_and_', 'Register a new company, set plan details, and assign admin account')}
+            {t('superadmin.onboard.page_subtitle', 'Register a new company, set plan details, and assign admin account')}
           </p>
         </div>
 
@@ -591,10 +618,10 @@ export const OnboardTenantPage = () => {
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {[
-            { step: 1, title: 'Company Info', desc: 'Name, Logo & Address' },
-            { step: 2, title: 'Admin Account', desc: 'Admin User & Password' },
-            { step: 3, title: 'Plan & Billing', desc: 'Select Plan & Payment' },
-            { step: 4, title: 'Review & Save', desc: 'Confirm Details' },
+            { step: 1, title: t('superadmin.onboard.step1_title', 'Company Info'), desc: t('superadmin.onboard.step1_desc', 'Name, Logo & Address') },
+            { step: 2, title: t('superadmin.onboard.step2_title', 'Admin Account'), desc: t('superadmin.onboard.step2_desc', 'Admin User & Password') },
+            { step: 3, title: t('superadmin.onboard.step3_title', 'Plan & Billing'), desc: t('superadmin.onboard.step3_desc', 'Select Plan & Payment') },
+            { step: 4, title: t('superadmin.onboard.step4_title', 'Review & Save'), desc: t('superadmin.onboard.step4_desc', 'Confirm Details') },
           ].map((s) => (
             <button
               key={s.step}
@@ -633,10 +660,10 @@ export const OnboardTenantPage = () => {
         <form onSubmit={handleNext} className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-5 animate-in fade-in duration-200">
           <div className="border-b border-slate-100 dark:border-zinc-800 pb-3">
             <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">
-              {t('ag.superadmin.onboardtenantpage.1_organization_details', '1. Organization Details')}
+              {t('superadmin.onboard.sec1_title', '1. Organization Details')}
             </h2>
             <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium">
-              {t('ag.superadmin.onboardtenantpage.company_profile_logo_location_and_tax_regist', 'Company profile, logo, location, and tax registration numbers')}
+              {t('superadmin.onboard.sec1_subtitle', 'Company profile, logo, location, and tax registration numbers')}
             </p>
           </div>
 
@@ -653,7 +680,7 @@ export const OnboardTenantPage = () => {
                 {displayLogoUrl ? (
                   <img
                     src={displayLogoUrl}
-                    alt={t('ag.superadmin.onboardtenantpage.tenant_logo', 'Tenant Logo')}
+                    alt={t('superadmin.onboard.tenant_logo_alt', 'Tenant Logo')}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       e.target.style.display = 'none';
@@ -687,7 +714,7 @@ export const OnboardTenantPage = () => {
                       onClick={handleRemoveLogo}
                       className="px-2.5 py-1.5 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg font-medium border border-red-200 dark:border-red-800 transition-colors"
                     >
-                      {t('ag.superadmin.onboardtenantpage.remove_logo', 'Remove Logo')}
+                      {t('superadmin.onboard.btn_remove_logo', 'Remove Logo')}
                     </button>
                   )}
                 </div>
@@ -699,7 +726,7 @@ export const OnboardTenantPage = () => {
                       {logoFile.name}
                     </span>
                     <span className="text-[10px] text-slate-400 shrink-0">
-                      ({(logoFile.size / 1024).toFixed(0)} {t('ag.superadmin.onboardtenantpage.kb', 'KB) —')} {t('superadmin.onboard.ready_to_upload', 'Ready to upload on submit')}
+                      ({(logoFile.size / 1024).toFixed(0)} KB) — {t('superadmin.onboard.ready_to_upload', 'Ready to upload on submit')}
                     </span>
                   </div>
                 ) : (
@@ -721,14 +748,14 @@ export const OnboardTenantPage = () => {
                       key={avatar.id}
                       type="button"
                       onClick={() => handleSelectPresetAvatar(avatar.url)}
-                      title={avatar.title}
+                      title={t('superadmin.onboard.avatar_' + avatar.id, avatar.title)}
                       className={`w-9 h-9 rounded-xl border-2 transition-all shrink-0 overflow-hidden flex items-center justify-center ${
                         isSelected
                           ? 'border-blue-600 ring-2 ring-blue-400/50 scale-105 shadow-sm'
                           : 'border-slate-200 dark:border-zinc-700 hover:border-blue-300 opacity-80 hover:opacity-100'
                       }`}
                     >
-                      <img src={avatar.url} alt={avatar.title} className="w-full h-full object-cover" />
+                      <img src={avatar.url} alt={t('superadmin.onboard.avatar_' + avatar.id, avatar.title)} className="w-full h-full object-cover" />
                     </button>
                   );
                 })}
@@ -771,7 +798,7 @@ export const OnboardTenantPage = () => {
                 <span>{t('superadmin.onboard.address_hint', 'Search via Google Maps or enter address manually. Selecting an address auto-fills City, State, and Pincode below.')}</span>
                 {formData.latitude && formData.longitude && (
                   <span className="font-mono text-[10px] font-semibold text-blue-600 dark:text-blue-400">
-                    {t('ag.superadmin.onboardtenantpage.gps', 'GPS:')} {Number(formData.latitude).toFixed(4)}, {Number(formData.longitude).toFixed(4)}
+                    {t('superadmin.onboard.gps', 'GPS:')} {Number(formData.latitude).toFixed(4)}, {Number(formData.longitude).toFixed(4)}
                   </span>
                 )}
               </p>
@@ -914,10 +941,10 @@ export const OnboardTenantPage = () => {
         <form onSubmit={handleNext} className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-5 animate-in fade-in duration-200">
           <div className="border-b border-slate-100 dark:border-zinc-800 pb-3">
             <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">
-              {t('ag.superadmin.onboardtenantpage.2_admin_user_account', '2. Admin User Account')}
+              {t('superadmin.onboard.sec2_title', '2. Admin User Account')}
             </h2>
             <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium">
-              {t('ag.superadmin.onboardtenantpage.create_the_initial_primary_admin_user_who_wi', 'Create the initial primary admin user who will log in to manage this company')}
+              {t('superadmin.onboard.sec2_subtitle', 'Create the initial primary admin user who will log in to manage this company')}
             </p>
           </div>
 
@@ -1025,7 +1052,7 @@ export const OnboardTenantPage = () => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 text-xs font-bold px-1.5 py-0.5 rounded"
                 >
-                  {showPassword ? t('ag.superadmin.onboardtenantpage.hide', 'Hide') : t('ag.superadmin.onboardtenantpage.show', 'Show')}
+                  {showPassword ? t('common.hide', 'Hide') : t('common.show', 'Show')}
                 </button>
               </div>
               {errors.adminPassword && touched.adminPassword ? (
@@ -1063,10 +1090,10 @@ export const OnboardTenantPage = () => {
         <form onSubmit={handleNext} className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-6 animate-in fade-in duration-200">
           <div className="border-b border-slate-100 dark:border-zinc-800 pb-3">
             <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">
-              {t('ag.superadmin.onboardtenantpage.3_subscription_plan_and_payment_details', '3. Subscription Plan & Payment Details')}
+              {t('superadmin.onboard.sec3_title', '3. Subscription Plan & Payment Details')}
             </h2>
             <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium">
-              {t('ag.superadmin.onboardtenantpage.select_plan_tier_and_payment_mode_gst_includ', 'Select plan tier and payment mode (GST included in plan price)')}
+              {t('superadmin.onboard.sec3_subtitle', 'Select plan tier and payment mode (GST included in plan price)')}
             </p>
           </div>
 
@@ -1091,7 +1118,7 @@ export const OnboardTenantPage = () => {
                       }`}
                     >
                       <div className="flex justify-between items-center">
-                        <span className="text-xs font-black text-slate-900 dark:text-white">{p.name}</span>
+                        <span className="text-xs font-black text-slate-900 dark:text-white">{getPlanTranslation(p, t)}</span>
                         <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${isSelected ? 'border-blue-600 bg-blue-600' : 'border-slate-300 dark:border-zinc-600'}`}>
                           {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white"></span>}
                         </span>
@@ -1101,8 +1128,8 @@ export const OnboardTenantPage = () => {
                         <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-normal">{t('superadmin.onboard.gst_included', '(GST Included)')}</span>
                       </div>
                       <div className="text-xs space-y-1 text-slate-600 dark:text-zinc-400 pt-1 border-t border-slate-100 dark:border-zinc-800">
-                        <p><strong className="text-slate-900 dark:text-white">{p.buses_limit ? `${p.buses_limit} Buses` : t('ag.superadmin.onboardtenantpage.unlimited_buses', 'Unlimited Buses')}</strong> {t('superadmin.onboard.quota', 'Quota')}</p>
-                        <p>{f.depots_limit || 2} {t('ag.superadmin.onboardtenantpage.depots', 'Depots')}</p>
+                        <p><strong className="text-slate-900 dark:text-white">{p.buses_limit ? `${p.buses_limit} ${t('superadmin.onboard.buses', 'Buses')}` : t('superadmin.onboard.unlimited_buses', 'Unlimited Buses')}</strong> {t('superadmin.onboard.quota', 'Quota')}</p>
+                        <p>{f.depots_limit || 2} {t('superadmin.onboard.depots', 'Depots')}</p>
                       </div>
                     </div>
                   );
@@ -1116,7 +1143,7 @@ export const OnboardTenantPage = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-zinc-200">
                 <FleetIcons.Shield className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
-                <span>{t('ag.superadmin.onboardtenantpage.plan_tier_quota_specifications_locked_to', 'Plan Tier Quota Specifications (Locked to')} {formData.planName})</span>
+                <span>{t('superadmin.onboard.plan_tier_quota_specs', 'Plan Tier Quota Specifications (Locked to {{plan}})', { plan: getPlanTranslation(formData.planName, t) })}</span>
               </div>
               <span className="text-[10px] font-bold px-2.5 py-1 bg-blue-100 dark:bg-blue-950/50 text-blue-800 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/80 rounded-full flex items-center gap-1.5 shadow-xs">
                 <FleetIcons.Key className="w-3 h-3 text-blue-600 dark:text-blue-400" />
@@ -1128,7 +1155,7 @@ export const OnboardTenantPage = () => {
               <div className="p-3 bg-white dark:bg-zinc-900 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm">
                 <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">{t('superadmin.onboard.buses_quota', 'Buses Quota')}</span>
                 <div className="text-sm sm:text-base font-black text-slate-900 dark:text-white mt-0.5">
-                  {formData.busesCount ? `${formData.busesCount} Buses` : t('ag.superadmin.onboardtenantpage.unlimited', 'Unlimited')}
+                  {formData.busesCount ? `${formData.busesCount} ${t('superadmin.onboard.buses', 'Buses')}` : t('superadmin.onboard.unlimited', 'Unlimited')}
                 </div>
                 <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-medium">{t('superadmin.onboard.buses_quota_desc', 'Included fleet capacity')}</span>
               </div>
@@ -1136,13 +1163,13 @@ export const OnboardTenantPage = () => {
               <div className="p-3 bg-white dark:bg-zinc-900 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm">
                 <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">{t('superadmin.onboard.depots_limit', 'Depots Limit')}</span>
                 <div className="text-sm sm:text-base font-black text-slate-900 dark:text-white mt-0.5">
-                  {formData.depotsCount} {t('ag.superadmin.onboardtenantpage.depots', 'Depots')}
+                  {formData.depotsCount} {t('superadmin.onboard.depots', 'Depots')}
                 </div>
                 <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-medium">{t('superadmin.onboard.depots_limit_desc', 'Included terminal capacity')}</span>
               </div>
             </div>
             <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium italic">
-              {t('ag.superadmin.onboardtenantpage.quota_parameters_are_automatically_bound_to_', '* Quota parameters are automatically bound to the selected plan tier to prevent pricing discrepancies.')}
+              {t('superadmin.onboard.quota_auto_bound_note', '* Quota parameters are automatically bound to the selected plan tier to prevent pricing discrepancies.')}
             </p>
           </div>
 
@@ -1150,10 +1177,10 @@ export const OnboardTenantPage = () => {
           <div className="p-5 bg-slate-50 dark:bg-zinc-800/40 rounded-2xl border border-slate-200 dark:border-zinc-700/80 space-y-4">
             <div>
               <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">
-                {t('ag.superadmin.onboardtenantpage.payment_mode', 'Payment Mode *')}
+                {t('superadmin.onboard.payment_mode', 'Payment Mode *')}
               </h3>
               <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium">
-                {t('ag.superadmin.onboardtenantpage.choose_offline_bank_transfer_or_online_clien', 'Choose offline bank transfer or online client checkout')}
+                {t('superadmin.onboard.payment_mode_desc', 'Choose offline bank transfer or online client checkout')}
               </p>
             </div>
 
@@ -1275,7 +1302,7 @@ export const OnboardTenantPage = () => {
                       className="w-full px-3 py-2 bg-slate-100 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 rounded-lg text-xs font-black text-slate-700 dark:text-zinc-200 cursor-not-allowed focus:outline-none select-none shadow-inner"
                     />
                     <p className="text-[10px] text-slate-500 dark:text-zinc-400 mt-1 font-medium">
-                      {t('ag.superadmin.onboardtenantpage.auto_locked_to_selected', 'Auto-locked to selected')} {formData.planName} {t('ag.superadmin.onboardtenantpage.tier_rate_amount_cannot_be_edited', 'tier rate (amount cannot be edited).')}
+                      {t('superadmin.onboard.auto_locked_note', 'Auto-locked to selected tier rate', { plan: getPlanTranslation(formData.planName, t) })}
                     </p>
                   </div>
 
@@ -1328,10 +1355,10 @@ export const OnboardTenantPage = () => {
         <form onSubmit={handleFinish} className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-6 animate-in fade-in duration-200">
           <div className="border-b border-slate-100 dark:border-zinc-800 pb-3">
             <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">
-              {t('ag.superadmin.onboardtenantpage.4_review_all_details_and_create_tenant', '4. Review All Details & Create Tenant')}
+              {t('superadmin.onboard.sec4_title', '4. Review All Details & Create Tenant')}
             </h2>
             <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium">
-              {t('ag.superadmin.onboardtenantpage.please_review_all_information_from_step_1_st', 'Please review all information from Step 1, Step 2, and Step 3 before finalizing account creation')}
+              {t('superadmin.onboard.sec4_subtitle', 'Please review all information from Step 1, Step 2, and Step 3 before finalizing account creation')}
             </p>
           </div>
 
@@ -1341,7 +1368,7 @@ export const OnboardTenantPage = () => {
               <div className="flex items-center gap-2">
                 <FleetIcons.Building className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
                 <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-white">
-                  {t('ag.superadmin.onboardtenantpage.1_organization_and_identity', '1. Organization & Identity')}
+                  {t('superadmin.onboard.review_sec1_title', '1. Organization & Identity')}
                 </h3>
               </div>
               <button
@@ -1359,7 +1386,7 @@ export const OnboardTenantPage = () => {
               <div className="flex items-center gap-3 pb-2 border-b border-slate-200/60 dark:border-zinc-700/60">
                 <div className="w-11 h-11 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 overflow-hidden shrink-0 flex items-center justify-center shadow-sm">
                   {displayLogoUrl ? (
-                    <img src={displayLogoUrl} alt={t('ag.superadmin.onboardtenantpage.logo', 'Logo')} className="w-full h-full object-cover" />
+                    <img src={displayLogoUrl} alt={t('superadmin.onboard.review_logo_alt', 'Logo')} className="w-full h-full object-cover" />
                   ) : (
                     <span className="font-black text-slate-400 dark:text-zinc-500 text-base">
                       {formData.name ? formData.name.charAt(0).toUpperCase() : <FleetIcons.Building className="w-5 h-5 text-slate-400 dark:text-zinc-500" />}
@@ -1368,14 +1395,14 @@ export const OnboardTenantPage = () => {
                 </div>
                 <div>
                   <span className="font-bold text-slate-900 dark:text-white block">
-                    {displayLogoUrl ? (logoFile ? t('ag.superadmin.onboardtenantpage.custom_logo_upload', 'Custom Logo Upload') : t('ag.superadmin.onboardtenantpage.preset_avatar', 'Preset Avatar')) : t('ag.superadmin.onboardtenantpage.default_monogram', 'Default Monogram')}
+                    {displayLogoUrl ? (logoFile ? t('superadmin.onboard.custom_logo_upload', 'Custom Logo Upload') : t('superadmin.onboard.preset_avatar', 'Preset Avatar')) : t('superadmin.onboard.default_monogram', 'Default Monogram')}
                   </span>
                   <span className="text-[11px] text-slate-500 dark:text-zinc-400">
                     {logoFile
-                      ? `${logoFile.name} (${(logoFile.size / 1024).toFixed(0)} KB) — will upload on creation`
+                      ? `${logoFile.name} (${(logoFile.size / 1024).toFixed(0)} KB) — ${t('superadmin.onboard.will_upload_on_creation', 'will upload on creation')}`
                       : displayLogoUrl
-                      ? t('ag.superadmin.onboardtenantpage.pre_configured_company_graphic_avata', 'Pre-configured company graphic avatar')
-                      : t('ag.superadmin.onboardtenantpage.no_custom_image_attached', 'No custom image attached')}
+                      ? t('superadmin.onboard.pre_configured_avatar', 'Pre-configured company graphic avatar')
+                      : t('superadmin.onboard.no_image_attached', 'No custom image attached')}
                   </span>
                 </div>
               </div>
@@ -1391,15 +1418,15 @@ export const OnboardTenantPage = () => {
                 </div>
                 <div className="flex justify-between py-1 border-b border-slate-200/60 dark:border-zinc-700/60">
                   <span className="text-slate-500 dark:text-zinc-400">{t('superadmin.onboard.lbl_pincode', 'Pincode:')}</span>
-                  <span className="font-mono font-bold text-slate-900 dark:text-white text-right">{formData.pincode || 'Not provided'}</span>
+                  <span className="font-mono font-bold text-slate-900 dark:text-white text-right">{formData.pincode || t('common.not_provided', 'Not provided')}</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-slate-200/60 dark:border-zinc-700/60">
                   <span className="text-slate-500 dark:text-zinc-400">{t('superadmin.onboard.lbl_cin', 'CIN Number:')}</span>
-                  <span className="font-mono font-bold text-slate-800 dark:text-zinc-200 text-right">{formData.cin || 'Not provided'}</span>
+                  <span className="font-mono font-bold text-slate-800 dark:text-zinc-200 text-right">{formData.cin || t('common.not_provided', 'Not provided')}</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-slate-200/60 dark:border-zinc-700/60">
                   <span className="text-slate-500 dark:text-zinc-400">{t('superadmin.onboard.lbl_gstin', 'GSTIN:')}</span>
-                  <span className="font-mono font-bold text-slate-800 dark:text-zinc-200 text-right">{formData.gstin || 'Not provided'}</span>
+                  <span className="font-mono font-bold text-slate-800 dark:text-zinc-200 text-right">{formData.gstin || t('common.not_provided', 'Not provided')}</span>
                 </div>
                 {formData.latitude && formData.longitude && (
                   <div className="flex justify-between py-1 border-b border-slate-200/60 dark:border-zinc-700/60">
@@ -1414,7 +1441,7 @@ export const OnboardTenantPage = () => {
               <div className="flex flex-col sm:flex-row sm:justify-between py-1">
                 <span className="text-slate-500 dark:text-zinc-400 shrink-0">{t('superadmin.onboard.lbl_office_address', 'Office Address:')}</span>
                 <span className="font-medium text-slate-900 dark:text-white sm:text-right mt-0.5 sm:mt-0">
-                  {formData.officeAddress || 'Not provided'}
+                  {formData.officeAddress || t('common.not_provided', 'Not provided')}
                 </span>
               </div>
             </div>
@@ -1426,7 +1453,7 @@ export const OnboardTenantPage = () => {
               <div className="flex items-center gap-2">
                 <FleetIcons.Profile className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
                 <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-white">
-                  {t('ag.superadmin.onboardtenantpage.2_primary_administrator_account', '2. Primary Administrator Account')}
+                  {t('superadmin.onboard.review_sec2_title', '2. Primary Administrator Account')}
                 </h3>
               </div>
               <button
@@ -1463,7 +1490,7 @@ export const OnboardTenantPage = () => {
                     onClick={() => setShowReviewPassword(!showReviewPassword)}
                     className="text-[11px] font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-white"
                   >
-                    {showReviewPassword ? t('ag.superadmin.onboardtenantpage.hide', 'Hide') : t('ag.superadmin.onboardtenantpage.show', 'Show')}
+                    {showReviewPassword ? t('common.hide', 'Hide') : t('common.show', 'Show')}
                   </button>
                 </div>
               </div>
@@ -1476,7 +1503,7 @@ export const OnboardTenantPage = () => {
               <div className="flex items-center gap-2">
                 <FleetIcons.CreditCard className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
                 <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-white">
-                  {t('ag.superadmin.onboardtenantpage.3_subscription_plan_and_billing_settlement', '3. Subscription Plan & Billing Settlement')}
+                  {t('superadmin.onboard.review_sec3_title', '3. Subscription Plan & Billing Settlement')}
                 </h3>
               </div>
               <button
@@ -1492,22 +1519,22 @@ export const OnboardTenantPage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
               <div className="flex justify-between py-1 border-b border-slate-200/60 dark:border-zinc-700/60">
                 <span className="text-slate-500 dark:text-zinc-400">{t('superadmin.onboard.lbl_selected_tier', 'Selected Plan Tier:')}</span>
-                <span className="font-bold text-slate-900 dark:text-white">{formData.planName}</span>
+                <span className="font-bold text-slate-900 dark:text-white">{getPlanTranslation(formData.planName, t)}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-slate-200/60 dark:border-zinc-700/60">
                 <span className="text-slate-500 dark:text-zinc-400">{t('superadmin.onboard.lbl_plan_rate', 'Plan Rate (GST Included):')}</span>
                 <span className="font-black text-slate-900 dark:text-white">
-                  ₹ {formData.amount ? Number(formData.amount).toLocaleString('en-IN') : '0'} {t('ag.superadmin.onboardtenantpage.month', '/ month')}
+                  ₹ {formData.amount ? Number(formData.amount).toLocaleString('en-IN') : '0'} {t('superadmin.onboard.per_month', '/ month')}
                 </span>
               </div>
               <div className="flex justify-between py-1 border-b border-slate-200/60 dark:border-zinc-700/60">
                 <span className="text-slate-500 dark:text-zinc-400">{t('superadmin.onboard.lbl_buses_quota', 'Buses Quota:')}</span>
-                <span className="font-bold text-slate-900 dark:text-white">{formData.busesCount} {t('ag.superadmin.onboardtenantpage.buses_quota', 'Buses Quota')}</span>
+                <span className="font-bold text-slate-900 dark:text-white">{formData.busesCount} {t('superadmin.onboard.buses_quota', 'Buses Quota')}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-slate-200/60 dark:border-zinc-700/60">
                 <span className="text-slate-500 dark:text-zinc-400">{t('superadmin.onboard.lbl_depots_limit', 'Depots Limit:')}</span>
                 <span className="font-bold text-slate-900 dark:text-white">
-                  {formData.depotsCount} {t('ag.superadmin.onboardtenantpage.depots', 'Depots')}
+                  {formData.depotsCount} {t('superadmin.onboard.depots', 'Depots')}
                 </span>
               </div>
               <div className="flex justify-between py-1 border-b border-slate-200/60 dark:border-zinc-700/60">
@@ -1539,7 +1566,7 @@ export const OnboardTenantPage = () => {
                   </div>
                   <div className="flex justify-between py-1 border-b border-slate-200/60 dark:border-zinc-700/60">
                     <span className="text-slate-500 dark:text-zinc-400">{t('superadmin.onboard.lbl_utr_ref', 'UTR / Reference No:')}</span>
-                    <span className="font-mono font-bold text-slate-900 dark:text-white">{formData.bankRef || 'Auto-generated'}</span>
+                    <span className="font-mono font-bold text-slate-900 dark:text-white">{formData.bankRef || t('common.auto_generated', 'Auto-generated')}</span>
                   </div>
                   <div className="flex justify-between py-1 border-b border-slate-200/60 dark:border-zinc-700/60">
                     <span className="text-slate-500 dark:text-zinc-400">{t('superadmin.onboard.lbl_amount_paid', 'Amount Paid:')}</span>
@@ -1575,7 +1602,7 @@ export const OnboardTenantPage = () => {
               onClick={() => setCurrentStep(3)}
               className="px-4 py-2.5 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-bold rounded-xl transition-colors text-center border border-slate-200 dark:border-zinc-700"
             >
-              <FleetIcons.ArrowLeft className="w-3.5 h-3.5 inline mr-1" />{t('common.back', 'Back')} {t('ag.superadmin.onboardtenantpage.to_plan', 'to Plan')}
+              <FleetIcons.ArrowLeft className="w-3.5 h-3.5 inline mr-1" />{t('common.back_to_plan', 'Back to Plan')}
             </button>
             <button
               type="submit"
@@ -1599,20 +1626,20 @@ export const OnboardTenantPage = () => {
               </div>
               <h3 className="text-lg font-black text-slate-900 dark:text-white">
                 {successModalData.org?.status === 'pending_approval'
-                  ? t('ag.superadmin.onboardtenantpage.tenant_provisioned_for_approval', 'Tenant Provisioned for Approval!')
-                  : t('ag.superadmin.onboardtenantpage.tenant_account_created', 'Tenant Account Created!')}
+                  ? t('superadmin.onboard.modal_provisioned_title', 'Tenant Provisioned for Approval!')
+                  : t('superadmin.onboard.modal_created_title', 'Tenant Account Created!')}
               </h3>
               <p className="text-xs text-slate-500 dark:text-zinc-400">
                 {successModalData.org?.status === 'pending_approval'
-                  ? `${formData.name} has been provisioned and submitted to Super Admin for review & approval.`
-                  : `${formData.name} has been successfully added to the platform.`}
+                  ? `${formData.name} ${t('superadmin.onboard.provisioned_review_desc', 'has been provisioned and submitted to Super Admin for review & approval.')}`
+                  : `${formData.name} ${t('superadmin.onboard.tenant_added_desc', 'has been successfully added to the platform.')}`}
               </p>
             </div>
 
             <div className="bg-slate-50 dark:bg-zinc-900/60 p-4 rounded-xl border border-slate-200 dark:border-zinc-800 space-y-2.5 text-xs">
               <div className="flex justify-between items-center py-1 border-b border-slate-200/60 dark:border-zinc-800">
                 <span className="text-slate-500 dark:text-zinc-400">{t('superadmin.onboard.lbl_login_url', 'Login URL:')}</span>
-                <span className="font-mono font-bold text-slate-900 dark:text-white">{window.location.origin}{t('ag.superadmin.onboardtenantpage.login', '/login')}</span>
+                <span className="font-mono font-bold text-slate-900 dark:text-white">{window.location.origin}/login</span>
               </div>
               <div className="flex justify-between items-center py-1 border-b border-slate-200/60 dark:border-zinc-800">
                 <span className="text-slate-500 dark:text-zinc-400">{t('superadmin.onboard.lbl_login_email', 'Admin Email:')}</span>
@@ -1632,10 +1659,10 @@ export const OnboardTenantPage = () => {
                     : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
                 }`}>
                   {successModalData.org?.status === 'pending_approval'
-                    ? t('ag.superadmin.onboardtenantpage.pending_super_admin_approval', 'PENDING SUPER ADMIN APPROVAL')
+                    ? t('superadmin.onboard.status_pending_super_admin', 'PENDING SUPER ADMIN APPROVAL')
                     : successModalData.paymentMode === 'offline'
-                    ? t('ag.superadmin.onboardtenantpage.active_paid', 'ACTIVE & PAID')
-                    : t('ag.superadmin.onboardtenantpage.approved', 'APPROVED')}
+                    ? t('superadmin.onboard.status_active_paid', 'ACTIVE & PAID')
+                    : t('superadmin.onboard.status_approved', 'APPROVED')}
                 </span>
               </div>
             </div>
@@ -1646,7 +1673,7 @@ export const OnboardTenantPage = () => {
                 onClick={() => navigate(basePath)}
                 className="flex-1 py-3 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-bold transition-all text-center cursor-pointer"
               >
-                {t('ag.superadmin.onboardtenantpage.back_to_tenants_list', 'Back to Tenants List')}
+                {t('superadmin.onboard.btn_back_to_tenants', 'Back to Tenants List')}
               </button>
               <button
                 type="button"

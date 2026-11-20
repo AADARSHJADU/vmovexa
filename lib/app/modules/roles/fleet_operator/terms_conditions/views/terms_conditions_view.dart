@@ -36,7 +36,7 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        'Terms & Conditions',
+                        'terms_conditions'.tr,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -75,34 +75,34 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
 
                       // Accordion List of dynamic clauses
                       _buildAccordionList(c),
-                      const SizedBox(height: 24),
-
-                      // Questions Card
-                      _buildQuestionsCard(c),
-                      const SizedBox(height: 24),
-
-                      // Bottom Accept Button
-                      Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          gradient: AppTheme.primaryGradient,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: ElevatedButton(
-                          onPressed: c.agreeTerms,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            minimumSize: const Size(double.infinity, 50),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          ),
-                          child: const Text(
-                            'I Understand & Accept Terms',
-                            style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
+                      // const SizedBox(height: 24),
+                      //
+                      // // Questions Card
+                      // _buildQuestionsCard(c),
+                      // const SizedBox(height: 24),
+                      //
+                      // // Bottom Accept Button
+                      // Container(
+                      //   width: double.infinity,
+                      //   decoration: BoxDecoration(
+                      //     gradient: AppTheme.primaryGradient,
+                      //     borderRadius: BorderRadius.circular(10),
+                      //   ),
+                      //   child: ElevatedButton(
+                      //     onPressed: c.agreeTerms,
+                      //     style: ElevatedButton.styleFrom(
+                      //       backgroundColor: Colors.transparent,
+                      //       shadowColor: Colors.transparent,
+                      //       padding: const EdgeInsets.symmetric(vertical: 14),
+                      //       minimumSize: const Size(double.infinity, 50),
+                      //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      //     ),
+                      //     child: Text(
+                      //       'i_understand_accept_terms'.tr,
+                      //       style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                      //     ),
+                      //   ),
+                      // ),
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -182,7 +182,7 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
         style: const TextStyle(color: Colors.white, fontSize: 12),
         decoration: InputDecoration(
           icon: const Icon(Icons.search_rounded, color: Color(0xFF64748B), size: 18),
-          hintText: 'Search fleet terms, dispatch rules or vehicle SLAs...',
+          hintText: 'search_terms_clauses_hint'.tr,
           hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 12),
@@ -211,10 +211,10 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.cardBorder),
           ),
-          child: const Center(
+          child: Center(
             child: Text(
-              'No terms or clauses match your search query.',
-              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+              'no_terms_clauses_match'.tr,
+              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
             ),
           ),
         );
@@ -233,45 +233,47 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
           separatorBuilder: (context, index) => const Divider(color: AppColors.cardBorder, height: 1),
           itemBuilder: (context, index) {
             final sec = sectionList[index];
-            final isExpanded = c.expandedIndex.value == index;
 
-            return InkWell(
-              onTap: () => c.toggleIndex(index),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            sec.title,
-                            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+            return Obx(() {
+              final isExpanded = sec.isExpanded.value;
+              return InkWell(
+                onTap: () => sec.isExpanded.value = !sec.isExpanded.value,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              sec.title,
+                              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Icon(
+                            isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                            color: AppColors.textMuted,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                      if (isExpanded) ...[
+                        const SizedBox(height: 10),
+                        Text(
+                          sec.content,
+                          style: const TextStyle(
+                            color: Color(0xFFCBD5E1),
+                            fontSize: 11,
+                            height: 1.5,
                           ),
                         ),
-                        Icon(
-                          isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
-                          color: AppColors.textMuted,
-                          size: 20,
-                        ),
                       ],
-                    ),
-                    if (isExpanded) ...[
-                      const SizedBox(height: 10),
-                      Text(
-                        sec.content,
-                        style: const TextStyle(
-                          color: Color(0xFFCBD5E1),
-                          fontSize: 11,
-                          height: 1.5,
-                        ),
-                      ),
                     ],
-                  ],
+                  ),
                 ),
-              ),
-            );
+              );
+            });
           },
         ),
       );
@@ -300,15 +302,15 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  'Questions about operator terms?',
-                  style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  'questions_operator_terms'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 3),
+                const SizedBox(height: 3),
                 Text(
-                  'Contact our legal and regulatory team at legal@vmovexa.com',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 10),
+                  'contact_legal_team_desc'.tr,
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
                 ),
               ],
             ),

@@ -11,13 +11,15 @@ import { governmentService } from '../../api/services/government/government.serv
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-const formatSignal = (signal) => {
+const trackStatus = (t, s) => ({ All: t('common.all', 'All'), Broadcasting: t('gov.tracking.status_broadcasting', 'Broadcasting'), Standby: t('gov.tracking.status_standby', 'Standby'), Offline: t('common.offline', 'Offline') })[s] || s;
+
+const formatSignal = (signal, t) => {
   const s = String(signal || '').toLowerCase();
   if (s === 'no_fix' || s === 'no signal' || !s) {
-    return { label: 'No Fix', color: 'text-slate-400 dark:text-zinc-500' };
+    return { label: t('gov.tracking.signal_no_fix', 'No Fix'), color: 'text-slate-400 dark:text-zinc-500' };
   }
   if (s === 'good' || s === 'gps fix' || s === 'online') {
-    return { label: 'GPS Fix', color: 'text-emerald-600 dark:text-emerald-400' };
+    return { label: t('technician.edge_setup.gps_fix', 'GPS Fix'), color: 'text-emerald-600 dark:text-emerald-400' };
   }
   return { label: String(signal).replace('_', ' '), color: 'text-blue-600 dark:text-blue-400' };
 };
@@ -96,7 +98,7 @@ export const GovLiveTrackingPage = () => {
         setTotalItems(loadedVehicles.length);
       }
     } catch (err) {
-      toast.error(err?.message || 'Failed to load live tracking');
+      toast.error(err?.message || t('gov.tracking.failed_to_load', 'Failed to load live tracking'));
       setVehicles([]);
       setMapPins([]);
     } finally {
@@ -461,7 +463,7 @@ export const GovLiveTrackingPage = () => {
                   </span>
                   <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-md border shrink-0 ${getStatusBadge(activeVehicle.screenStatus)}`}>
                     <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
-                    <span>{activeVehicle.screenStatus}</span>
+                    <span>{trackStatus(t, activeVehicle.screenStatus)}</span>
                   </span>
                 </div>
                 <button
@@ -524,7 +526,7 @@ export const GovLiveTrackingPage = () => {
                 </div>
                 <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-md border shrink-0 ${getStatusBadge(activeVehicle.screenStatus)}`}>
                   <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
-                  <span>{activeVehicle.screenStatus}</span>
+                  <span>{trackStatus(t, activeVehicle.screenStatus)}</span>
                 </span>
               </div>
               <button
@@ -607,7 +609,7 @@ export const GovLiveTrackingPage = () => {
                       : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700'
                   }`}
                 >
-                  {status}
+                  {trackStatus(t, status)}
                 </button>
               ))}
             </div>
@@ -660,7 +662,7 @@ export const GovLiveTrackingPage = () => {
 
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 border ${getStatusBadge(v.screenStatus)}`}>
                         <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
-                        <span>{v.screenStatus}</span>
+                        <span>{trackStatus(t, v.screenStatus)}</span>
                       </span>
                     </div>
 
@@ -758,7 +760,7 @@ export const GovLiveTrackingPage = () => {
                         <td className="py-3.5 px-4">
                           <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 border ${getStatusBadge(v.screenStatus)}`}>
                             <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
-                            <span>{v.screenStatus}</span>
+                            <span>{trackStatus(t, v.screenStatus)}</span>
                           </span>
                         </td>
                       </tr>

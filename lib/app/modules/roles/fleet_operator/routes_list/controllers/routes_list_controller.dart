@@ -133,7 +133,7 @@ class RoutesListController extends GetxController {
   void openRejectDialog(RouteItemModel route) {
     final reasonController = TextEditingController();
     Get.defaultDialog(
-      title: 'Reject Transit Route',
+      title: 'reject_transit_route_title'.tr,
       titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
       backgroundColor: const Color(0xFF1E293B),
       radius: 12,
@@ -143,7 +143,7 @@ class RoutesListController extends GetxController {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Specify reason for rejecting "${route.name}":',
+              '${'specify_rejection_reason_msg'.tr} "${route.name}":',
               style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
             ),
             const SizedBox(height: 12),
@@ -152,7 +152,7 @@ class RoutesListController extends GetxController {
               maxLines: 3,
               style: const TextStyle(color: Colors.white, fontSize: 13),
               decoration: InputDecoration(
-                hintText: 'e.g. Incomplete waypoint coordinates or overlap...',
+                hintText: 'route_reject_reason_hint'.tr,
                 hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 12),
                 filled: true,
                 fillColor: const Color(0xFF0F172A),
@@ -181,7 +181,7 @@ class RoutesListController extends GetxController {
         onPressed: () async {
           final reason = reasonController.text.trim();
           if (reason.isEmpty) {
-            Get.snackbar('Required', 'Please enter a rejection reason',
+            Get.snackbar('required_label'.tr, 'enter_rejection_reason_msg'.tr,
                 snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.amber, colorText: Colors.black);
             return;
           }
@@ -191,7 +191,7 @@ class RoutesListController extends GetxController {
             final res = await FleetService.to.rejectRoute(route.id.toString(), reason);
             if (res.success) {
               Get.snackbar(
-                'Route Rejected',
+                'route_rejected_title'.tr,
                 'Route "${route.name}" has been marked as rejected.',
                 snackPosition: SnackPosition.BOTTOM,
                 backgroundColor: const Color(0xFFF43F5E),
@@ -199,28 +199,28 @@ class RoutesListController extends GetxController {
               );
               fetchRoutes();
             } else {
-              Get.snackbar('Error', res.message ?? 'Failed to reject route',
+              Get.snackbar('error'.tr, res.message ?? 'Failed to reject route',
                   snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
             }
           } catch (e) {
-            Get.snackbar('Error', e.toString(),
+            Get.snackbar('error'.tr, e.toString(),
                 snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
           } finally {
             actionLoading.value = false;
           }
         },
-        child: const Text('Reject Route', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        child: Text('reject_route'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
       cancel: TextButton(
         onPressed: () => Get.back(),
-        child: const Text('Cancel', style: TextStyle(color: Color(0xFF94A3B8))),
+        child: Text('cancel'.tr, style: const TextStyle(color: Color(0xFF94A3B8))),
       ),
     );
   }
 
   void confirmDeleteRoute(RouteItemModel route) {
     Get.defaultDialog(
-      title: 'Delete Transit Route',
+      title: 'delete_transit_route_title'.tr,
       titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
       backgroundColor: const Color(0xFF1E293B),
       radius: 12,
@@ -244,7 +244,7 @@ class RoutesListController extends GetxController {
             final res = await FleetService.to.deleteRoute(route.id.toString());
             if (res.success) {
               Get.snackbar(
-                'Route Deleted',
+                'route_deleted_title'.tr,
                 'Route "${route.name}" was permanently removed.',
                 snackPosition: SnackPosition.BOTTOM,
                 backgroundColor: const Color(0xFF10B981),
@@ -253,7 +253,7 @@ class RoutesListController extends GetxController {
               fetchRoutes();
             } else {
               Get.snackbar(
-                'Delete Failed',
+                'delete_failed'.tr,
                 res.message ?? 'Failed to delete route',
                 snackPosition: SnackPosition.BOTTOM,
                 backgroundColor: Colors.redAccent,
@@ -262,7 +262,7 @@ class RoutesListController extends GetxController {
             }
           } catch (e) {
             Get.snackbar(
-              'Error',
+              'error'.tr,
               e.toString(),
               snackPosition: SnackPosition.BOTTOM,
               backgroundColor: Colors.redAccent,
@@ -272,11 +272,11 @@ class RoutesListController extends GetxController {
             isLoading.value = false;
           }
         },
-        child: const Text('Delete', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        child: Text('delete'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
       cancel: TextButton(
         onPressed: () => Get.back(),
-        child: const Text('Cancel', style: TextStyle(color: Color(0xFF94A3B8))),
+        child: Text('cancel'.tr, style: const TextStyle(color: Color(0xFF94A3B8))),
       ),
     );
   }

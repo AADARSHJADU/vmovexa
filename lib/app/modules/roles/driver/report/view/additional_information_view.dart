@@ -38,23 +38,23 @@ class AdditionalInformationView extends GetView<ReportIncidentController> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 children: [
-                  const Text('Additional Information', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700)),
+                  Text('additional_info'.tr, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 3),
-                  const Text('Provide more details to help us understand the incident better.', style: TextStyle(color: Colors.white54, fontSize: 11.5)),
+                  Text('provide_more_details_sub'.tr, style: const TextStyle(color: Colors.white54, fontSize: 11.5)),
                   const SizedBox(height: 18),
-                  _buildSectionLabel('Incident Severity', required: true),
+                  _buildSectionLabel('incident_severity'.tr, required: true),
                   const SizedBox(height: 10),
                   _buildSeverityGrid(),
                   const SizedBox(height: 20),
-                  _buildSectionLabel('Who was affected? (Select all that apply)', required: false),
+                  _buildSectionLabel('who_affected_select'.tr, required: false),
                   const SizedBox(height: 10),
                   _buildAffectedPartiesGrid(),
                   const SizedBox(height: 20),
-                  _buildSectionLabel('Any immediate action taken?', required: false),
+                  _buildSectionLabel('any_immediate_action_q'.tr, required: false),
                   const SizedBox(height: 10),
                   _buildImmediateActionField(),
                   const SizedBox(height: 20),
-                  _buildSectionLabel('Would you like to be contacted for more details?', required: false),
+                  _buildSectionLabel('contact_preference_q'.tr, required: false),
                   const SizedBox(height: 10),
                   _buildContactPreferenceRow(),
                   Obx(() {
@@ -62,7 +62,7 @@ class AdditionalInformationView extends GetView<ReportIncidentController> {
                     return Column(
                       children: [
                         const SizedBox(height: 14),
-                        _buildSectionLabel('Contact Number (Optional)', required: false),
+                        _buildSectionLabel('contact_number_optional'.tr, required: false),
                         const SizedBox(height: 10),
                         _buildContactNumberField(),
                       ],
@@ -86,13 +86,13 @@ class AdditionalInformationView extends GetView<ReportIncidentController> {
           child: const Icon(Icons.arrow_back, color: Colors.white),
         ),
         const SizedBox(width: 10),
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Report Incident', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700)),
-              SizedBox(height: 2),
-              Text('Help us keep operations safe and smooth.', style: TextStyle(color: Colors.white54, fontSize: 11.5)),
+              Text('report_incident'.tr, style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 2),
+              Text('help_keep_ops_safe'.tr, style: const TextStyle(color: Colors.white54, fontSize: 11.5)),
             ],
           ),
         ),
@@ -231,13 +231,13 @@ class AdditionalInformationView extends GetView<ReportIncidentController> {
               maxLines: 3,
               maxLength: ReportIncidentController.immediateActionMaxLen,
               style: const TextStyle(color: Colors.white, fontSize: 13),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 border: InputBorder.none,
                 counterText: '',
                 isDense: true,
-                contentPadding: EdgeInsets.all(12),
-                hintText: 'Describe any actions you have taken so far...',
-                hintStyle: TextStyle(color: Colors.white30, fontSize: 12.5),
+                contentPadding: const EdgeInsets.all(12),
+                hintText: 'immediate_action_hint'.tr,
+                hintStyle: const TextStyle(color: Colors.white30, fontSize: 12.5),
               ),
             ),
           ),
@@ -262,7 +262,7 @@ class AdditionalInformationView extends GetView<ReportIncidentController> {
           Expanded(
             child: _ContactChoiceButton(
               icon: Icons.call_outlined,
-              label: 'Yes',
+              label: 'yes'.tr,
               isSelected: controller.wantsContact.value == true,
               onTap: () => controller.setWantsContact(true),
             ),
@@ -271,7 +271,7 @@ class AdditionalInformationView extends GetView<ReportIncidentController> {
           Expanded(
             child: _ContactChoiceButton(
               icon: Icons.phone_disabled_outlined,
-              label: 'No',
+              label: 'no'.tr,
               isSelected: controller.wantsContact.value == false,
               onTap: () => controller.setWantsContact(false),
             ),
@@ -293,13 +293,13 @@ class AdditionalInformationView extends GetView<ReportIncidentController> {
         controller: controller.contactNumberCtrl,
         keyboardType: TextInputType.phone,
         style: const TextStyle(color: Colors.white, fontSize: 13),
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           border: InputBorder.none,
           isDense: true,
-          contentPadding: EdgeInsets.symmetric(vertical: 13),
-          hintText: 'Enter contact number',
-          hintStyle: TextStyle(color: Colors.white30, fontSize: 12.5),
-          prefixIcon: Icon(Icons.phone_outlined, color: Colors.white24, size: 17),
+          contentPadding: const EdgeInsets.symmetric(vertical: 13),
+          hintText: 'enter_contact_number'.tr,
+          hintStyle: const TextStyle(color: Colors.white30, fontSize: 12.5),
+          prefixIcon: const Icon(Icons.phone_outlined, color: Colors.white24, size: 17),
         ),
       ),
     );
@@ -319,12 +319,12 @@ class AdditionalInformationView extends GetView<ReportIncidentController> {
                 height: 50,
                 decoration: BoxDecoration(color: kFieldBg, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withOpacity(0.1))),
                 alignment: Alignment.center,
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.arrow_back, color: Colors.white70, size: 16),
-                    SizedBox(width: 6),
-                    Text('Back', style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w700)),
+                    const Icon(Icons.arrow_back, color: Colors.white70, size: 16),
+                    const SizedBox(width: 6),
+                    Text('back'.tr, style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w700)),
                   ],
                 ),
               ),
@@ -340,12 +340,12 @@ class AdditionalInformationView extends GetView<ReportIncidentController> {
                 decoration: BoxDecoration(gradient:AppTheme.primaryGradient,
                     borderRadius: BorderRadius.circular(12)),
                 alignment: Alignment.center,
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Next', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
-                    SizedBox(width: 6),
-                    Icon(Icons.arrow_forward, color: Colors.white, size: 16),
+                    Text('next'.tr, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+                    const SizedBox(width: 6),
+                    const Icon(Icons.arrow_forward, color: Colors.white, size: 16),
                   ],
                 ),
               ),

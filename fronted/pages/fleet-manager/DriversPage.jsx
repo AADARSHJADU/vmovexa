@@ -193,21 +193,31 @@ export const DriversPage = () => {
 
                     {/* 3-Dot Menu */}
                     <ActionDropdown menuWidth="w-48">
-                      {({ close }) => (
-                        <div className="py-1 space-y-0.5 text-xs font-semibold">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              close();
-                              setSelectedDriverForAssign(d);
-                            }}
-                            className="w-full px-3.5 py-2 text-left hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 flex items-center gap-2 transition-colors cursor-pointer"
-                          >
-                            <FleetIcons.Fleets className="w-4 h-4 text-blue-500" />
-                            <span>{isAvailable(d.status) ? t('ag.fleet.driverspage.assign_vehicle', 'Assign Vehicle') : t('ag.fleet.driverspage.reassign_vehicle', 'Reassign Vehicle')}</span>
-                          </button>
-                        </div>
-                      )}
+                      {({ close }) => {
+                        const isPending = ['pending_approval', 'pending'].includes(String(d.status || '').toLowerCase());
+                        if (isPending) {
+                          return (
+                            <div className="py-2 px-3.5 text-[11px] text-amber-600 dark:text-amber-400 font-medium italic">
+                              Pending admin approval
+                            </div>
+                          );
+                        }
+                        return (
+                          <div className="py-1 space-y-0.5 text-xs font-semibold">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                close();
+                                setSelectedDriverForAssign(d);
+                              }}
+                              className="w-full px-3.5 py-2 text-left hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 flex items-center gap-2 transition-colors cursor-pointer"
+                            >
+                              <FleetIcons.Fleets className="w-4 h-4 text-blue-500" />
+                              <span>{isAvailable(d.status) ? t('ag.fleet.driverspage.assign_vehicle', 'Assign Vehicle') : t('ag.fleet.driverspage.reassign_vehicle', 'Reassign Vehicle')}</span>
+                            </button>
+                          </div>
+                        );
+                      }}
                     </ActionDropdown>
                   </div>
                 </div>
@@ -310,21 +320,31 @@ export const DriversPage = () => {
                     {/* 3-Dot Actions */}
                     <td className="py-3.5 px-4 text-right">
                       <ActionDropdown menuWidth="w-48">
-                        {({ close }) => (
-                          <div className="py-1 space-y-0.5 text-xs font-semibold text-left">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                close();
-                                setSelectedDriverForAssign(d);
-                              }}
-                              className="w-full px-3.5 py-2 text-left hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 flex items-center gap-2 transition-colors cursor-pointer"
-                            >
-                              <FleetIcons.Fleets className="w-4 h-4 text-blue-500" />
-                              <span>{isAvailable(d.status) ? t('ag.fleet.driverspage.assign_vehicle', 'Assign Vehicle') : t('ag.fleet.driverspage.reassign_vehicle', 'Reassign Vehicle')}</span>
-                            </button>
-                          </div>
-                        )}
+                        {({ close }) => {
+                          const isPending = ['pending_approval', 'pending'].includes(String(d.status || '').toLowerCase());
+                          if (isPending) {
+                            return (
+                              <div className="py-2 px-3.5 text-[11px] text-amber-600 dark:text-amber-400 font-medium italic">
+                                Pending admin approval
+                              </div>
+                            );
+                          }
+                          return (
+                            <div className="py-1 space-y-0.5 text-xs font-semibold text-left">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  close();
+                                  setSelectedDriverForAssign(d);
+                                }}
+                                className="w-full px-3.5 py-2 text-left hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 flex items-center gap-2 transition-colors cursor-pointer"
+                              >
+                                <FleetIcons.Fleets className="w-4 h-4 text-blue-500" />
+                                <span>{isAvailable(d.status) ? t('ag.fleet.driverspage.assign_vehicle', 'Assign Vehicle') : t('ag.fleet.driverspage.reassign_vehicle', 'Reassign Vehicle')}</span>
+                              </button>
+                            </div>
+                          );
+                        }}
                       </ActionDropdown>
                     </td>
                   </tr>

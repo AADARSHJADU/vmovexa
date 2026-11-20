@@ -73,3 +73,11 @@ export const updateOperatorPermissionsThunk = createAsyncThunk(
   }
 );
 
+
+export const resetOperatorPermissionsThunk = createAsyncThunk(
+  'admin/fleetOperator/resetOperatorPermissions',
+  async (id, { rejectWithValue }) => {
+    try { return await adminFleetOperatorService.resetPermissions(id); }
+    catch (err) { return rejectWithValue(err); }
+  }
+);

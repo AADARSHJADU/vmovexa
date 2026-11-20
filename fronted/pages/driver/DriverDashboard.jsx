@@ -22,7 +22,7 @@ export const DriverDashboard = () => {
 
   const [loading, setLoading] = useState(true);
 
-  const canReportIncident = hasPermission('drivers.incidents.report');
+  const canReportIncident = hasPermission('driver.incidents.create');
 
   useEffect(() => {
     let isMounted = true;
@@ -40,28 +40,24 @@ export const DriverDashboard = () => {
     };
   }, [loadProfile, loadActiveRoute, loadSchedule, loadDocuments, loadIncidents]);
 
-  // Check if driver documents and KYC are officially verified
-  const isDocumentsVerified = useMemo(() => {
-    if (user?.driver) {
-      if (!user.driver.documents_verified) return false;
-      if (
-        user.driver.status === 'pending_approval' ||
-        user.driver.status === 'rejected' ||
-        user.driver.status === 'compliance_blocked'
-      )
-        return false;
-    }
-    if (user?.status === 'pending_approval') return false;
-    if (!profile) return false;
-    // Must be verified and not pending/blocked/rejected
-    const isDocVerified = Boolean(profile.documents_verified || profile.verified);
-    const isStatusValid =
-      profile.status !== 'pending_approval' &&
-      profile.status !== 'compliance_blocked' &&
-      profile.status !== 'rejected';
-    const isKycOk = !profile.kyc_rejected && !profile.kycRejected;
-    return isDocVerified && isStatusValid && isKycOk;
-  }, [profile, user]);
+  // Document review and operational approval are separate admin actions.
+  // The freshly loaded profile is authoritative for document verification.
+  const isDocumentsVerified = Boolean(profile?.documents_verified ?? profile?.verified);
+  const canAccessOperations = Boolean(
+    isDocumentsVerified &&
+    profile &&
+    !['pending_approval', 'compliance_blocked', 'rejected'].includes(profile.status) &&
+    user?.status !== 'pending_approval' &&
+    !profile.kyc_rejected && !profile.kycRejected
+  );
+  const isAccessRestricted = ['compliance_blocked', 'rejected'].includes(profile?.status) ||
+    Boolean(profile?.kyc_rejected || profile?.kycRejected);
+  const approvalMessage = isAccessRestricted
+    ? t('driver.dashboard.documents_verified_access_restricted', 'Your documents are verified, but driver access is restricted. Contact your administrator to review your driver status.')
+    : t('driver.dashboard.documents_verified_approval_pending', 'Your documents have been verified. Driver approval is still pending with the administrator. Routes and schedules will unlock after approval; you do not need to upload your documents again.');
+  const lockedMessage = isDocumentsVerified
+    ? approvalMessage
+    : t('driver.dashboard.documents_and_approval_required', 'Document verification and driver approval are required to unlock routes and schedules.');
 
   const scheduleList = useMemo(() => {
     const raw = schedule;
@@ -164,8 +160,8 @@ export const DriverDashboard = () => {
         </div>
       </div>
 
-      {/* 2. COMPLIANCE & KYC VERIFICATION GATEWAY (Only Shown When Not Verified) */}
-      {!isDocumentsVerified ? (
+      {/* 2. DOCUMENT REVIEW / DRIVER APPROVAL STATUS */}
+      {!canAccessOperations ? (
         <div className="bg-gradient-to-r from-amber-50 via-orange-50/60 to-amber-50 dark:from-amber-950/30 dark:via-zinc-900 dark:to-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-6 shadow-sm space-y-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5">
@@ -174,10 +170,16 @@ export const DriverDashboard = () => {
               </div>
               <div>
                 <h3 className="text-base font-black text-amber-950 dark:text-amber-200">
-                  {t('ag.driver.driverdashboard.compliance_documents_pending_admin_verificat', 'Compliance Documents Pending Admin Verification')}
+                  {isDocumentsVerified
+                    ? isAccessRestricted
+                      ? t('driver.dashboard.documents_verified_access_title', 'Documents Verified - Driver Access Restricted')
+                      : t('driver.dashboard.documents_verified_pending_title', 'Documents Verified - Driver Approval Pending')
+                    : t('ag.driver.driverdashboard.compliance_documents_pending_admin_verificat', 'Compliance Documents Pending Admin Verification')}
                 </h3>
                 <p className="text-xs sm:text-sm text-amber-800/80 dark:text-amber-300/80 font-medium mt-1 max-w-2xl">
-                  {t('ag.driver.driverdashboard.your_commercial_driving_license_aadhaar_iden', 'Your commercial driving license, Aadhaar identity, and medical fitness certificates are currently pending review by fleet operations. Active route dispatch and live trip tracking will be unlocked once your profile is verified.')}
+                  {isDocumentsVerified
+                    ? approvalMessage
+                    : t('ag.driver.driverdashboard.your_commercial_driving_license_aadhaar_iden', 'Your commercial driving license, Aadhaar identity, and medical fitness certificates are currently pending review by fleet operations. Active route dispatch and live trip tracking will be unlocked once your profile is verified.')}
                 </p>
               </div>
             </div>
@@ -187,13 +189,13 @@ export const DriverDashboard = () => {
               className="px-5 py-2.5 bg-gradient-to-r from-[#1C68FD] to-[#DA29F4] hover:opacity-95 text-white text-xs font-bold rounded-xl shadow-md shadow-[#1C68FD]/30 hover:shadow-[#DA29F4]/40 transition-all shrink-0 flex items-center gap-1.5 active:scale-[0.98]"
             >
               <FleetIcons.Document className="w-4 h-4 text-white" />
-              <span>{t('driver.dashboard.upload_docs', 'Upload Documents')}</span>
+              <span>{isDocumentsVerified ? t('driver.dashboard.view_documents', 'View Documents') : t('driver.dashboard.upload_docs', 'Upload Documents')}</span>
               <FleetIcons.ArrowRight className="w-3.5 h-3.5 ml-0.5 text-white" />
             </Link>
           </div>
 
-          {/* Compliance Checklist Pills */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+          {/* Only unverified documents need the compliance checklist. */}
+          {!isDocumentsVerified && <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
             <div className="p-3 bg-white/90 dark:bg-zinc-900/90 border border-amber-200/60 dark:border-amber-800/40 rounded-xl text-xs space-y-1 shadow-sm">
               <div className="font-bold text-slate-800 dark:text-zinc-200 flex items-center gap-1.5">
                 <FleetIcons.Profile className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
@@ -225,10 +227,10 @@ export const DriverDashboard = () => {
                   : t('ag.driver.driverdashboard.certificate_required', 'Certificate required')}
               </div>
             </div>
-          </div>
+          </div>}
         </div>
       ) : (
-        /* 3. ACTIVE ROUTE DISPATCH COCKPIT CARD (Unlocked When Verified) */
+        /* 3. ACTIVE ROUTE DISPATCH COCKPIT CARD (Unlocked After Approval) */
         <>
           {currentActiveRoute ? (
             <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-sm space-y-5">
@@ -318,9 +320,6 @@ export const DriverDashboard = () => {
                   <div className="text-sm font-black text-blue-700 dark:text-blue-400 mt-0.5 truncate font-mono">
                     {currentActiveRoute?.nextStop ?? '—'}
                   </div>
-                  <div className="text-[10px] text-slate-500 dark:text-zinc-400 font-medium mt-0.5 truncate">
-                    {t('ag.driver.driverdashboard.eta', 'ETA:')} {currentActiveRoute?.nextStopEta ?? slot?.formatted_end_time ?? '—'}
-                  </div>
                 </div>
 
                 <div className="p-3.5 bg-slate-50 dark:bg-zinc-800/40 border border-slate-200/60 dark:border-zinc-800 rounded-xl">
@@ -398,7 +397,7 @@ export const DriverDashboard = () => {
           </div>
 
           <div>
-            {isDocumentsVerified ? (
+            {canAccessOperations ? (
               <Link
                 to="/driver/schedule"
                 className="px-3.5 py-1.5 bg-gradient-to-r from-[#1C68FD] to-[#DA29F4] hover:opacity-95 text-white text-xs font-bold rounded-xl shadow-md shadow-[#1C68FD]/25 hover:shadow-[#DA29F4]/35 transition-all inline-flex items-center gap-1.5 active:scale-[0.98]"
@@ -411,10 +410,7 @@ export const DriverDashboard = () => {
                 type="button"
                 onClick={() =>
                   toast.error(
-                    t(
-                      'driver.dashboard.locked_pending_toast',
-                      'Driver approval is pending. Please complete document verification to unlock schedules.'
-                    )
+                    lockedMessage
                   )
                 }
                 className="px-3 py-1.5 bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 text-xs font-bold rounded-xl inline-flex items-center gap-1.5 cursor-not-allowed select-none border border-slate-200 dark:border-zinc-700/60"
@@ -490,7 +486,7 @@ export const DriverDashboard = () => {
                       <span>{trip.status ?? 'Scheduled'}</span>
                     </span>
 
-                    {isDocumentsVerified ? (
+                    {canAccessOperations ? (
                       isCompleted ? (
                         <Link
                           to={tripUrl}
@@ -499,15 +495,15 @@ export const DriverDashboard = () => {
                           <span>{t('ag.driver.driverdashboard.summary', 'Summary')}</span>
                           <FleetIcons.ArrowRight className="w-3 h-3" />
                         </Link>
-                      ) : (
+                      ) : isInTransit ? (
                         <Link
                           to={tripUrl}
                           className="px-3.5 py-1.5 bg-gradient-to-r from-[#1C68FD] to-[#DA29F4] hover:opacity-95 text-white rounded-lg text-xs font-bold shadow-md shadow-[#1C68FD]/25 hover:shadow-[#DA29F4]/35 transition-all inline-flex items-center gap-1 active:scale-[0.98]"
                         >
-                          <span>{isInTransit ? t('ag.driver.driverdashboard.cockpit', 'Cockpit') : t('ag.driver.driverdashboard.dispatch', 'Dispatch')}</span>
+                          <span>{t('ag.driver.driverdashboard.cockpit', 'Cockpit')}</span>
                           <FleetIcons.ArrowRight className="w-3 h-3 text-white" />
                         </Link>
-                      )
+                      ) : null
                     ) : null}
                   </div>
                 </div>
@@ -556,17 +552,14 @@ export const DriverDashboard = () => {
           ]
             .filter((item) => item.allowed !== false)
             .map((item, idx) => {
-              const isLocked = item.requiresVerification && !isDocumentsVerified;
+              const isLocked = item.requiresVerification && !canAccessOperations;
               if (isLocked) {
                 return (
                   <div
                     key={idx}
                     onClick={() =>
                       toast.error(
-                        t(
-                          'driver.dashboard.locked_pending_toast',
-                          'Driver approval is pending. Please complete document verification to unlock routes.'
-                        )
+                        lockedMessage
                       )
                     }
                     className="p-4 sm:p-5 bg-slate-50/70 dark:bg-zinc-900/50 border border-dashed border-slate-200 dark:border-zinc-800 rounded-2xl opacity-60 cursor-not-allowed flex flex-col items-center justify-center text-center group relative select-none transition-all"

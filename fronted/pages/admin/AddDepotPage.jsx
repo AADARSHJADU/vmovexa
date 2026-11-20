@@ -35,11 +35,11 @@ export const AddDepotPage = () => {
   const isEditMode = Boolean(id);
   const isFleetPortal = (location.pathname.startsWith('/fleet-operator') || location.pathname.startsWith('/fleet-operator'));
   const basePath = isFleetPortal ? '/fleet-operator/depots' : '/admin/depots';
-  const { user, hasPermission } = useAuth();
+  const { user, can } = useAuth();
   const currentOrgId = user?.organizationId ?? user?.organization_id;
 
-  const canCreate = hasPermission('fleet.depots.create');
-  const canUpdate = hasPermission('fleet.depots.update');
+  const canCreate = can('depots.create');
+  const canUpdate = can('depots.update');
   const canAccessForm = isEditMode ? canUpdate : canCreate;
 
   const { createDepot, updateDepot } = useAdminDepot();

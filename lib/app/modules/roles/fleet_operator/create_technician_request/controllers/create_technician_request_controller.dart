@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:get/get.dart';
 import '../../../../../data/models/fleet_models.dart';
 import '../../../../../data/models/work_order_model.dart';
 import '../../../../../data/services/fleet_service.dart';
+import '../../../../../routes/app_routes.dart';
 
 class CreateTechnicianRequestController extends GetxController {
   final RxBool isEditMode = false.obs;
@@ -140,8 +144,8 @@ class CreateTechnicianRequestController extends GetxController {
   Future<void> submitRequest() async {
     if (selectedBusNumber.value.isEmpty) {
       Get.snackbar(
-        'Validation Error',
-        'Please select a target bus number',
+        'validation_error'.tr,
+        'please_select_bus_err'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFE11D48),
         colorText: Colors.white,
@@ -151,8 +155,8 @@ class CreateTechnicianRequestController extends GetxController {
 
     if (selectedDepotName.value.isEmpty) {
       Get.snackbar(
-        'Validation Error',
-        'Please select a depot facility',
+        'validation_error'.tr,
+        'please_select_depot_err'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFE11D48),
         colorText: Colors.white,
@@ -162,8 +166,8 @@ class CreateTechnicianRequestController extends GetxController {
 
     if (descriptionController.text.trim().isEmpty) {
       Get.snackbar(
-        'Validation Error',
-        'Please provide detailed symptoms & problem notes',
+        'validation_error'.tr,
+        'please_provide_symptoms_err'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFE11D48),
         colorText: Colors.white,
@@ -188,8 +192,8 @@ class CreateTechnicianRequestController extends GetxController {
       if (isEditMode.value && editOrderId != null) {
         final res = await FleetService.to.updateWorkOrder(editOrderId!, payload);
         Get.snackbar(
-          'Request Updated',
-          res.success ? 'Technician request updated successfully.' : 'Work order details updated.',
+          'request_updated'.tr,
+          res.success ? 'request_updated_desc'.tr : 'request_updated_desc'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
@@ -197,17 +201,20 @@ class CreateTechnicianRequestController extends GetxController {
       } else {
         final res = await FleetService.to.createWorkOrder(payload);
         Get.snackbar(
-          'Request Submitted',
+          'request_submitted'.tr,
           res.success
-              ? 'Central technician ticket submitted successfully.'
-              : 'Work order dispatched to VMOVEXA Central Pool.',
+              ? 'central_ticket_submitted_success'.tr
+              : 'central_ticket_submitted_success'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
         );
       }
-
-      Get.back(result: true);
+      Get.offAllNamed(
+        Routes.FLEET_OP_DASHBOARD,
+        arguments: {'tab': 0},
+      );
+      // Get.back(result: true);
     } catch (e) {
       debugPrint('Error submitting technician request: $e');
       Get.snackbar(
@@ -216,6 +223,10 @@ class CreateTechnicianRequestController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF10B981),
         colorText: Colors.white,
+      );
+      Get.offAllNamed(
+        Routes.FLEET_OP_DASHBOARD,
+        arguments: {'tab': 0},
       );
       Get.back(result: true);
     } finally {

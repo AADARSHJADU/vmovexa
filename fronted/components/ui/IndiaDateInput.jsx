@@ -1,5 +1,6 @@
 import { useRef, useId } from 'react';
 import { FleetIcons } from '../FleetIcons';
+import { useTranslation } from '../../hooks/useTranslation';
 
 /**
  * IndiaDateInput — a date field that ALWAYS displays dd/mm/yyyy (Indian format),
@@ -30,6 +31,7 @@ export const IndiaDateInput = ({
   id,
   placeholder = 'DD/MM/YYYY',
 }) => {
+  const { t } = useTranslation();
   const nativeRef = useRef(null);
   const autoId = useId();
   const inputId = id || `india-date-${autoId}`;
@@ -56,7 +58,7 @@ export const IndiaDateInput = ({
         placeholder={placeholder}
         onClick={openPicker}
         disabled={disabled}
-        aria-label="Date (DD/MM/YYYY)"
+        aria-label={t('common.date_format_label', 'Date (DD/MM/YYYY)')}
         className="w-full px-3 py-2 pr-9 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
       />
 
@@ -66,7 +68,7 @@ export const IndiaDateInput = ({
         onClick={openPicker}
         disabled={disabled}
         tabIndex={-1}
-        aria-label="Open date picker"
+        aria-label={t('common.open_date_picker', 'Open date picker')}
         className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-500 transition-colors cursor-pointer disabled:cursor-not-allowed"
       >
         <FleetIcons.Calendar className="w-4 h-4" />

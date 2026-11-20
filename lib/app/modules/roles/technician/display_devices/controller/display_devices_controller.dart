@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/data/models/edge_device_model.dart';
+import 'package:vmovexa/app/data/models/fleet_models.dart' show VehicleItemModel;
 import 'package:vmovexa/app/data/services/technician_service.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import '../../../../../routes/app_routes.dart';
 
 class DisplayDevicesController extends GetxController {
@@ -17,6 +19,7 @@ class DisplayDevicesController extends GetxController {
 
   // ---------------- Master list (all devices) ----------------
   final RxList<EdgeDeviceModel> allDevices = <EdgeDeviceModel>[].obs;
+  final RxList<VehicleItemModel> availableVehicles = <VehicleItemModel>[].obs;
 
   // ---------------- Pagination ----------------
   final RxInt currentPage = 1.obs;
@@ -86,6 +89,16 @@ class DisplayDevicesController extends GetxController {
   void onInit() {
     super.onInit();
     fetchDevices();
+    loadVehicles();
+  }
+
+  Future<void> loadVehicles() async {
+    try {
+      final res = await TechnicianService.to.getVehicles(page: 1, limit: 100);
+      if (res.success && res.data != null) {
+        availableVehicles.assignAll(res.data!);
+      }
+    } catch (_) {}
   }
 
   Future<void> fetchDevices() async {
@@ -106,7 +119,7 @@ class DisplayDevicesController extends GetxController {
 
   Future<void> onRefresh() async {
     currentPage.value = 1;
-    await fetchDevices();
+    await Future.wait([fetchDevices(), loadVehicles()]);
   }
 
   // ---------------- Search / filter actions ----------------
@@ -129,6 +142,19 @@ class DisplayDevicesController extends GetxController {
   void nextPage() => goToPage(currentPage.value + 1);
   void previousPage() => goToPage(currentPage.value - 1);
 
+  // ---------------- Navigation Actions ----------------
+  void goToEdgeSetup() {
+    Get.toNamed(Routes.TECH_EDGE_SETUP);
+  }
+
+  void configureHardware(EdgeDeviceModel device) {
+    Get.toNamed(Routes.HARDWARE_CONFIGURATION, arguments: {'deviceId': device.boxId});
+  }
+
+  void onRegisterNewDevice() {
+    Get.toNamed(Routes.REGISTER_DISPLAY_DEVICE);
+  }
+
   // ---------------- Device Quick Actions (matching admin panel) ----------------
 
   /// Toggle Active / Inactive state (PATCH /edge-devices/:id/toggle)
@@ -138,7 +164,7 @@ class DisplayDevicesController extends GetxController {
       final res = await TechnicianService.to.toggleEdgeDevice(device.id.toString(), nextStatus);
       if (res.success) {
         Get.snackbar(
-          nextStatus ? 'Device Activated' : 'Device Deactivated',
+          nextStatus ? 'device_activated'.tr : 'device_deactivated'.tr,
           '${device.boxId} is now ${nextStatus ? 'Active' : 'Inactive'}.',
           backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
           colorText: Colors.white,
@@ -148,7 +174,7 @@ class DisplayDevicesController extends GetxController {
         await fetchDevices();
       } else {
         Get.snackbar(
-          'Toggle Failed',
+          'toggle_failed'.tr,
           res.displayErrorMessage,
           backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
           colorText: Colors.white,
@@ -158,7 +184,7 @@ class DisplayDevicesController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         e.toString(),
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
         colorText: Colors.white,
@@ -175,24 +201,33 @@ class DisplayDevicesController extends GetxController {
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF0F172A),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Reboot Edge Device', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+        title: Text(
+          'reboot_edge_device'.tr,
+          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+        ),
         content: Text(
-          'Send remote restart command via MQTT to ${device.boxId}? The device will briefly go offline.',
+          '${'reboot_confirm_msg'.tr} (${device.boxId})',
           style: const TextStyle(color: Colors.white70, fontSize: 13),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white54)),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6366F1),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          InkWell(
+            onTap: () => Navigator.pop(ctx, true),
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                gradient: AppTheme.primaryGradient,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                'reboot_now'.tr,
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+              ),
             ),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Reboot Now'),
           ),
         ],
       ),
@@ -203,8 +238,10 @@ class DisplayDevicesController extends GetxController {
     try {
       final res = await TechnicianService.to.rebootEdgeDevice(device.id.toString());
       Get.snackbar(
-        'Reboot Dispatched',
-        (res.message != null && res.message!.isNotEmpty) ? res.message! : 'Restart command sent via MQTT to ${device.boxId}.',
+        'reboot_dispatched'.tr,
+        (res.message != null && res.message!.isNotEmpty)
+            ? res.message!
+            : 'Restart command sent via MQTT to ${device.boxId}.',
         backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
@@ -213,7 +250,7 @@ class DisplayDevicesController extends GetxController {
       await fetchDevices();
     } catch (e) {
       Get.snackbar(
-        'Reboot Error',
+        'reboot_error'.tr,
         e.toString(),
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
         colorText: Colors.white,
@@ -230,15 +267,18 @@ class DisplayDevicesController extends GetxController {
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF0F172A),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Delete Edge Device', style: TextStyle(color: Color(0xFFEF4444), fontSize: 16, fontWeight: FontWeight.bold)),
+        title: Text(
+          'delete_edge_device'.tr,
+          style: const TextStyle(color: Color(0xFFEF4444), fontSize: 16, fontWeight: FontWeight.bold),
+        ),
         content: Text(
-          'Are you sure you want to delete Edge Device "${device.boxId}"? This action cannot be undone.',
+          '${'delete_device_confirm_msg'.tr} (${device.boxId})',
           style: const TextStyle(color: Colors.white70, fontSize: 13),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white54)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -247,7 +287,7 @@ class DisplayDevicesController extends GetxController {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete'),
+            child: Text('delete'.tr),
           ),
         ],
       ),
@@ -259,7 +299,7 @@ class DisplayDevicesController extends GetxController {
       final res = await TechnicianService.to.deleteEdgeDevice(device.id.toString());
       if (res.success) {
         Get.snackbar(
-          'Device Deleted',
+          'device_deleted'.tr,
           'Edge Device ${device.boxId} has been removed.',
           backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.2),
           colorText: Colors.white,
@@ -269,7 +309,7 @@ class DisplayDevicesController extends GetxController {
         await fetchDevices();
       } else {
         Get.snackbar(
-          'Delete Failed',
+          'delete_failed'.tr,
           res.displayErrorMessage,
           backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
           colorText: Colors.white,
@@ -279,7 +319,7 @@ class DisplayDevicesController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         e.toString(),
         backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
         colorText: Colors.white,
@@ -289,13 +329,8 @@ class DisplayDevicesController extends GetxController {
     }
   }
 
-  /// Configure Hardware Shortcut
-  void configureHardware(EdgeDeviceModel device) {
-    Get.toNamed(Routes.HARDWARE_CONFIGURATION, arguments: {'deviceId': device.boxId});
-  }
-
-  /// Register New Device
-  void onRegisterNewDevice() {
-    Get.toNamed(Routes.REGISTER_DISPLAY_DEVICE);
+  /// Navigate to full-page Edit Device (matches Admin Panel RegisterEdgeDevicePage edit flow)
+  void goToEditDevice(EdgeDeviceModel device) {
+    Get.toNamed(Routes.REGISTER_DISPLAY_DEVICE, arguments: device);
   }
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useLocation } from 'react-router-dom';
 import { FleetIcons } from '../FleetIcons';
@@ -18,7 +18,7 @@ export const RolePolicyPage = ({
   searchPlaceholder = 'Search clauses, regulatory rules or policies...',
   fallbackSections = [],
 }) => {
-  const { t } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const { loadPage, getPage, status } = useContent();
@@ -29,20 +29,25 @@ export const RolePolicyPage = ({
 
   const page = getPage(type, roleCode);
   const isLoading = status === 'loading' && !page;
+  const preferLocalizedFallback = currentLanguage !== 'en' && fallbackSections.length > 0;
+  const displayTitle = preferLocalizedFallback ? titleFallback : (page?.title || titleFallback);
+  const displaySubtitle = preferLocalizedFallback ? subtitleFallback : (page?.summary || subtitleFallback);
 
   // Normalize sections from JSON array or string, with fallback support
   const sections = useMemo(() => {
-    if (page?.sections) {
+    if (!preferLocalizedFallback && page?.sections) {
       if (Array.isArray(page.sections) && page.sections.length > 0) return page.sections;
       if (typeof page.sections === 'string') {
         try {
           const parsed = JSON.parse(page.sections);
           if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-        } catch {}
+        } catch {
+          // Ignore malformed dynamic sections and use the localized fallback.
+        }
       }
     }
     return Array.isArray(fallbackSections) ? fallbackSections : [];
-  }, [page, fallbackSections]);
+  }, [page, fallbackSections, preferLocalizedFallback]);
 
   // Search filter
   const filteredSections = useMemo(() => {
@@ -75,7 +80,7 @@ export const RolePolicyPage = ({
     }
     return [
       portal,
-      { label: page?.title || titleFallback },
+      { label: displayTitle },
     ];
   };
 
@@ -91,7 +96,7 @@ export const RolePolicyPage = ({
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-              {page?.title || titleFallback}
+              {displayTitle}
             </h1>
             {page?.version && (
               <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 rounded-full border border-slate-200 dark:border-zinc-800 print:hidden">
@@ -100,7 +105,7 @@ export const RolePolicyPage = ({
             )}
           </div>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
-            {page?.summary || subtitleFallback}
+            {displaySubtitle}
           </p>
         </div>
       </div>

@@ -27,7 +27,7 @@ class DocumentSubmittedView extends GetView<UploadDocumentController> {
                   children: [
                     _buildHeader(),
                     const SizedBox(height: 18),
-                    const UploadDocStepper(currentStep: 4, stepLabels: ['Upload', 'Preview', 'Submit', 'Done']),
+                    UploadDocStepper(currentStep: 4, stepLabels: controller.stepLabels),
                   ],
                 ),
               ),
@@ -37,16 +37,16 @@ class DocumentSubmittedView extends GetView<UploadDocumentController> {
                   children: [
                     _buildSuccessBadge(),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Document Uploaded Successfully!',
+                    Text(
+                      'doc_uploaded_success'.tr,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800),
+                      style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
-                      'Your document has been received and queued for compliance officer verification.',
+                    Text(
+                      'doc_received_queued'.tr,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white54, fontSize: 12),
+                      style: const TextStyle(color: Colors.white54, fontSize: 12),
                     ),
                     const SizedBox(height: 18),
                     _buildDetailsCard(),
@@ -75,8 +75,8 @@ class DocumentSubmittedView extends GetView<UploadDocumentController> {
           ),
         ),
         const SizedBox(width: 10),
-        const Expanded(
-          child: Text('Document Status', style: TextStyle(color: Colors.white, fontSize: 17.5, fontWeight: FontWeight.w700)),
+        Expanded(
+          child: Text('document_status'.tr, style: const TextStyle(color: Colors.white, fontSize: 17.5, fontWeight: FontWeight.w700)),
         ),
         GestureDetector(
           onTap: controller.onInfoTap,
@@ -178,13 +178,13 @@ class DocumentSubmittedView extends GetView<UploadDocumentController> {
             ),
           ),
           _divider(),
-          Obx(() => _detailRow(Icons.event_available_outlined, 'Submitted On', controller.submittedOnText)),
+          Obx(() => _detailRow(Icons.event_available_outlined, 'submitted_on'.tr, controller.submittedOnText)),
           _divider(),
-          Obx(() => _detailRow(Icons.description_outlined, 'Attached File', controller.fileName.value.isNotEmpty ? controller.fileName.value : 'Document')),
+          Obx(() => _detailRow(Icons.description_outlined, 'attached_file'.tr, controller.fileName.value.isNotEmpty ? controller.fileName.value : 'Document')),
           _divider(),
-          Obx(() => _detailRow(Icons.sd_storage_outlined, 'File Size', controller.fileSizeText.value.isNotEmpty ? controller.fileSizeText.value : 'Attached')),
+          Obx(() => _detailRow(Icons.sd_storage_outlined, 'file_size'.tr, controller.fileSizeText.value.isNotEmpty ? controller.fileSizeText.value : 'Attached')),
           _divider(),
-          Obx(() => _detailRow(Icons.access_time, 'Expected Review Time', controller.expectedReviewTime.value, isLast: true)),
+          Obx(() => _detailRow(Icons.access_time, 'expected_review_time_label'.tr, controller.expectedReviewTime.value, isLast: true)),
         ],
       ),
     );
@@ -225,20 +225,20 @@ class DocumentSubmittedView extends GetView<UploadDocumentController> {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: kBlue.withValues(alpha: 0.3)),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: kBlue, size: 16),
-          SizedBox(width: 10),
+          const Icon(Icons.info_outline, color: kBlue, size: 16),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('What happens next?', style: TextStyle(color: kBlue, fontSize: 12.5, fontWeight: FontWeight.w700)),
-                SizedBox(height: 4),
+                Text('what_happens_next'.tr, style: const TextStyle(color: kBlue, fontSize: 12.5, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 4),
                 Text(
-                  'Our compliance team will verify your document. You will receive an update once the review is completed.',
-                  style: TextStyle(color: Colors.white54, fontSize: 11),
+                  'compliance_verify_next_full'.tr,
+                  style: const TextStyle(color: Colors.white54, fontSize: 11),
                 ),
               ],
             ),
@@ -267,12 +267,12 @@ class DocumentSubmittedView extends GetView<UploadDocumentController> {
                 borderRadius: BorderRadius.circular(12),
               ),
               alignment: Alignment.center,
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.folder_shared_outlined, color: Colors.white, size: 17),
-                  SizedBox(width: 8),
-                  Text('Go to Documents Roster', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+                  const Icon(Icons.folder_shared_outlined, color: Colors.white, size: 17),
+                  const SizedBox(width: 8),
+                  Text('go_to_documents_roster'.tr, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
                 ],
               ),
             ),
@@ -290,12 +290,12 @@ class DocumentSubmittedView extends GetView<UploadDocumentController> {
                 border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
               ),
               alignment: Alignment.center,
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.home_outlined, color: Colors.white70, size: 17),
-                  SizedBox(width: 8),
-                  Text('Go to Dashboard', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+                  const Icon(Icons.home_outlined, color: Colors.white70, size: 17),
+                  const SizedBox(width: 8),
+                  Text('go_to_dashboard'.tr, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
                 ],
               ),
             ),

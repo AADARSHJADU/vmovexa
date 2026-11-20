@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vmovexa/app/routes/app_routes.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
 import '../../../../../../theme/app_theme.dart';
 import '../controller/register_device_controller.dart';
 import 'register_device_view.dart' show RegisterDeviceView;
 
-/// Shown after a device is successfully saved in Step 4.
-/// Reuses `RegisterDeviceController` so it can read back everything that
-/// was just registered (Device ID, type, assigned vehicle, timestamp).
 class RegistrationSuccessView extends GetView<RegisterDeviceController> {
   const RegistrationSuccessView({super.key});
 
@@ -16,7 +14,7 @@ class RegistrationSuccessView extends GetView<RegisterDeviceController> {
   static const Color kPurple = RegisterDeviceView.kPurple;
   static const Color kIndigo = RegisterDeviceView.kIndigo;
   static const Color kBorder = RegisterDeviceView.kBorder;
-  static const Color kGreen = Color(0xFF2ECC71);
+  static const Color kGreen = Color(0xFF10B981);
 
   @override
   Widget build(BuildContext context) {
@@ -30,15 +28,16 @@ class RegistrationSuccessView extends GetView<RegisterDeviceController> {
               const SizedBox(height: 24),
               _buildSuccessBadge(),
               const SizedBox(height: 20),
-              const Text(
-                'Device Registered!',
-                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800),
+              Text(
+                'device_registered_success'.tr,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 6),
-              const Text(
-                'Your display device has been registered successfully.',
+              Text(
+                'register_edge_device_subtitle'.tr,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white54, fontSize: 12.5),
+                style: const TextStyle(color: Colors.white54, fontSize: 12.5),
               ),
               const SizedBox(height: 24),
               _buildDetailsCard(),
@@ -54,7 +53,7 @@ class RegistrationSuccessView extends GetView<RegisterDeviceController> {
     );
   }
 
-  // ---------------- Animated-looking success badge (static rendition) ----------------
+  // ---------------- Animated-looking success badge ----------------
   Widget _buildSuccessBadge() {
     return SizedBox(
       width: 130,
@@ -62,13 +61,13 @@ class RegistrationSuccessView extends GetView<RegisterDeviceController> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // decorative dots around the circle
           ..._buildDots(),
           Container(
             width: 84,
             height: 84,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
+              color: kGreen.withValues(alpha: 0.12),
               border: Border.all(color: kGreen, width: 2.5),
             ),
             child: const Icon(Icons.check, color: kGreen, size: 38),
@@ -111,48 +110,48 @@ class RegistrationSuccessView extends GetView<RegisterDeviceController> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: kBorder),
       ),
-      child: Obx(
-        () => Column(
-          children: [
-            _detailRow(
-              icon: Icons.desktop_windows_outlined,
-              label: 'Device ID',
-              value: controller.registeredDeviceId,
-              trailing: Row(
-                children: const [
-                  Icon(Icons.circle, color: kGreen, size: 7),
-                  SizedBox(width: 5),
-                  Text('Registered', style: TextStyle(color: kGreen, fontSize: 11.5, fontWeight: FontWeight.w600)),
-                ],
-              ),
+      child: Column(
+        children: [
+          _detailRow(
+            icon: Icons.memory_rounded,
+            label: 'box_id_label'.tr,
+            value: controller.registeredDeviceId,
+            trailing: Row(
+              children: [
+                const Icon(Icons.circle, color: kGreen, size: 7),
+                const SizedBox(width: 5),
+                Text('common.active'.tr, style: const TextStyle(color: kGreen, fontSize: 11.5, fontWeight: FontWeight.w600)),
+              ],
             ),
-            _divider(),
-            _detailRow(
-              icon: Icons.monitor_outlined,
-              label: 'Display / Device Type',
-              value: controller.registeredDeviceTypeLabel,
-            ),
-            _divider(),
-            _detailRow(
+          ),
+          _divider(),
+          _detailRow(
+            icon: Icons.router_rounded,
+            label: 'device_info_section'.tr,
+            value: controller.registeredDeviceTypeLabel,
+          ),
+          _divider(),
+          Obx(() {
+            return _detailRow(
               icon: Icons.directions_bus_filled_outlined,
-              label: 'Vehicle Assignment',
+              label: 'select_vehicle_bus'.tr,
               value: controller.selectedVehicle.value.isEmpty ? '—' : controller.selectedVehicle.value,
               subValue: controller.registeredVehicleDepot,
-            ),
-            _divider(),
-            _detailRow(
-              icon: Icons.event_available_outlined,
-              label: 'Registered On',
-              value: controller.registeredOnText,
-              isLast: true,
-            ),
-          ],
-        ),
+            );
+          }),
+          _divider(),
+          _detailRow(
+            icon: Icons.event_available_outlined,
+            label: 'registered_on_label'.tr,
+            value: controller.registeredOnText,
+            isLast: true,
+          ),
+        ],
       ),
     );
   }
 
-  Widget _divider() => Divider(color: Colors.white.withOpacity(0.06), height: 1);
+  Widget _divider() => Divider(color: Colors.white.withValues(alpha: 0.06), height: 1);
 
   Widget _detailRow({
     required IconData icon,
@@ -170,7 +169,7 @@ class RegistrationSuccessView extends GetView<RegisterDeviceController> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: kPurple.withOpacity(0.12),
+              color: kPurple.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(9),
             ),
             child: Icon(icon, color: kPurple, size: 16),
@@ -201,28 +200,64 @@ class RegistrationSuccessView extends GetView<RegisterDeviceController> {
 
   // ---------------- Buttons ----------------
   Widget _buildPrimaryButton() {
-    return GestureDetector(
-      onTap: controller.onGoToDisplayDevices,
-      child: Container(
-        width: double.infinity,
-        height: 52,
-        decoration: BoxDecoration(
-          gradient:AppTheme.primaryGradient,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        alignment: Alignment.center,
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.home_outlined, color: Colors.white, size: 18),
-            SizedBox(width: 8),
-            Text(
-              'Go to Display Devices',
-              style: TextStyle(color: Colors.white, fontSize: 14.5, fontWeight: FontWeight.w700),
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: () => Get.offNamed(Routes.TECH_EDGE_SETUP),
+          child: Container(
+            width: double.infinity,
+            height: 48,
+            decoration: BoxDecoration(
+              gradient: AppTheme.primaryGradient,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-          ],
+            alignment: Alignment.center,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.terminal_rounded, color: Colors.white, size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  'edge_setup'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+                ),
+              ],
+            ),
+          ),
         ),
-      ),
+        const SizedBox(height: 10),
+        GestureDetector(
+          onTap: controller.onGoToDisplayDevices,
+          child: Container(
+            width: double.infinity,
+            height: 48,
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E293B),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF334155)),
+            ),
+            alignment: Alignment.center,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.devices_other_rounded, color: Colors.white70, size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  'edge_devices'.tr,
+                  style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w700),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -231,21 +266,21 @@ class RegistrationSuccessView extends GetView<RegisterDeviceController> {
       onTap: controller.onRegisterAnotherDevice,
       child: Container(
         width: double.infinity,
-        height: 52,
+        height: 50,
         decoration: BoxDecoration(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color:AppColors.accentPurple),
+          border: Border.all(color: AppColors.accentPurple),
         ),
         alignment: Alignment.center,
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add_circle_outline, color: kPurple, size: 18),
-            SizedBox(width: 8),
+            const Icon(Icons.add_circle_outline, color: kPurple, size: 18),
+            const SizedBox(width: 8),
             Text(
-              'Register Another Device',
-              style: TextStyle(color: AppColors.accentPurple, fontSize: 14.5, fontWeight: FontWeight.w700),
+              'register_edge_device'.tr,
+              style: const TextStyle(color: AppColors.accentPurple, fontSize: 14, fontWeight: FontWeight.w700),
             ),
           ],
         ),

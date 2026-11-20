@@ -76,73 +76,68 @@ class HardwareConfigurationView extends GetView<HardwareConfigController> {
   Widget _buildHeader() {
     return Obx(() {
       final dev = controller.selectedDevice.value;
-      final boxId = dev?.boxId.isNotEmpty == true ? dev!.boxId : (controller.selectedDeviceId.value.isNotEmpty ? controller.selectedDeviceId.value : 'VMX-BOX-8841');
+      final boxId = dev?.boxId.isNotEmpty == true
+          ? dev!.boxId
+          : (controller.selectedDeviceId.value.isNotEmpty ? controller.selectedDeviceId.value : '—');
 
-      return Column(
+      return Row(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Text(
-                          'Hardware Configuration',
-                          style: TextStyle(color: Colors.white, fontSize: 16.5, fontWeight: FontWeight.w700),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: kPurple.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: kPurple.withValues(alpha: 0.3)),
-                          ),
-                          child: Text(
-                            boxId,
-                            style: const TextStyle(
-                              color: Color(0xFF818CF8),
-                              fontSize: 9.5,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'monospace',
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-
-                  ],
-                ),
+          GestureDetector(
+            onTap: controller.onBackPressed,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: kCardBg,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: kBorder),
               ),
-
-            ],
+              child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 16),
+            ),
           ),
-          SizedBox(height: 8,),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '${dev?.vehicleReg ?? (dev?.vehicleId != null ? 'Vehicle ${dev!.vehicleId}' : '—')} · ${dev?.depotName ?? 'Central Depot'}',
-                style: const TextStyle(color: Colors.white54, fontSize: 11),
-                overflow: TextOverflow.ellipsis,
-              ),
-              GestureDetector(
-                onTap: controller.isSaving.value ? null : controller.onSaveConfiguration,
-                child: const Column(
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Icon(Icons.save_outlined, color: kPurple, size: 20),
-                    SizedBox(height: 2),
-                    Text(
-                      'Save Config',
-                      style: TextStyle(color: kPurple, fontSize: 10, fontWeight: FontWeight.w600),
+                    Flexible(
+                      child: Text(
+                        'hardware_configuration'.tr,
+                        style: const TextStyle(color: Colors.white, fontSize: 16.5, fontWeight: FontWeight.w700),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: kPurple.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: kPurple.withValues(alpha: 0.3)),
+                      ),
+                      child: Text(
+                        boxId,
+                        style: const TextStyle(
+                          color: Color(0xFF818CF8),
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'monospace',
+                        ),
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 2),
+                Text(
+                  '${dev?.vehicleReg ?? (dev?.vehicleId != null ? 'Vehicle ${dev!.vehicleId}' : '—')} · ${dev?.depotName ?? 'Central Depot'}',
+                  style: const TextStyle(color: Colors.white54, fontSize: 11),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
         ],
       );
@@ -183,7 +178,9 @@ class HardwareConfigurationView extends GetView<HardwareConfigController> {
               child: controller.deviceList.length > 1
                   ? DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
-                        value: controller.selectedDeviceId.value.isNotEmpty ? controller.selectedDeviceId.value : controller.deviceList.first.id.toString(),
+                        value: controller.selectedDeviceId.value.isNotEmpty
+                            ? controller.selectedDeviceId.value
+                            : controller.deviceList.first.id.toString(),
                         isExpanded: true,
                         dropdownColor: const Color(0xFF1E293B),
                         icon: const Icon(Icons.arrow_drop_down, color: Colors.white70),
@@ -211,12 +208,12 @@ class HardwareConfigurationView extends GetView<HardwareConfigController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          dev?.boxId ?? 'VMX-BOX-8841',
+                          dev?.boxId ?? (dev?.id?.toString() ?? '—'),
                           style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w700),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${dev?.vehicleReg ?? "Bus #101"} · ${dev?.depotName ?? "Depot"}',
+                          '${dev?.vehicleReg ?? (dev?.vehicleId != null ? 'Vehicle ${dev!.vehicleId}' : '—')} · ${dev?.depotName ?? 'Central Depot'}',
                           style: const TextStyle(color: Colors.white38, fontSize: 10.5),
                         ),
                       ],
@@ -245,7 +242,7 @@ class HardwareConfigurationView extends GetView<HardwareConfigController> {
                   ),
                   const SizedBox(width: 5),
                   Text(
-                    isOnline ? 'Configurable' : status.toUpperCase(),
+                    isOnline ? 'online_configurable'.tr : status.toUpperCase(),
                     style: TextStyle(
                       color: isOnline ? kGreen : status == 'warning' ? Colors.amber : Colors.redAccent,
                       fontSize: 10,
@@ -280,6 +277,8 @@ class HardwareConfigurationView extends GetView<HardwareConfigController> {
         child: Row(
           children: List.generate(controller.tabLabels.length, (index) {
             final isActive = controller.selectedTabIndex.value == index;
+            final labelKey = controller.tabLabels[index];
+
             return Expanded(
               child: GestureDetector(
                 onTap: () => controller.selectTab(index),
@@ -305,8 +304,10 @@ class HardwareConfigurationView extends GetView<HardwareConfigController> {
                       Icon(icons[index], size: 16, color: isActive ? Colors.white : Colors.white38),
                       const SizedBox(height: 3),
                       Text(
-                        controller.tabLabels[index],
+                        labelKey.tr,
                         textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: isActive ? Colors.white : Colors.white38,
                           fontSize: 9.5,
@@ -346,11 +347,14 @@ class HardwareConfigurationView extends GetView<HardwareConfigController> {
                 border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
               ),
               alignment: Alignment.center,
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.chevron_left, color: Colors.white70, size: 18),
-                  SizedBox(width: 4),
-                  Text('Back', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
+                  // const Icon(Icons.chevron_left, color: Colors.white70, size: 18),
+                  // const SizedBox(width: 4),
+                  Text(
+                    'back_to_devices'.tr,
+                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700),
+                  ),
                 ],
               ),
             ),
@@ -365,6 +369,13 @@ class HardwareConfigurationView extends GetView<HardwareConfigController> {
                   decoration: BoxDecoration(
                     gradient: AppTheme.primaryGradient,
                     borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   alignment: Alignment.center,
                   child: controller.isSaving.value
@@ -373,14 +384,15 @@ class HardwareConfigurationView extends GetView<HardwareConfigController> {
                           height: 20,
                           child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.4),
                         )
-                      : const Row(
+                      : Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
-                            SizedBox(width: 8),
+                            const Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
+                            const SizedBox(width: 8),
                             Text(
-                              'Save Configuration',
-                              style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+                              'save_configuration'.tr,
+                              style: const TextStyle(color: Colors.white, fontSize: 14,
+                                  fontWeight: FontWeight.w700),
                             ),
                           ],
                         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/data/models/fleet_models.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import '../controller/gps_installation_controller.dart';
 
 class GpsInstallationView extends GetView<GpsInstallationController> {
@@ -54,25 +55,31 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        IconButton(
-          onPressed: controller.onBackPressed,
-          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 22),
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
+        GestureDetector(
+          onTap: controller.onBackPressed,
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: kCardBg,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: kBorder),
+            ),
+            child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 16),
+          ),
         ),
         const SizedBox(width: 12),
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'GPS Telematics Installation',
-                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800),
+                'gps_installation'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800),
               ),
-              SizedBox(height: 3),
+              const SizedBox(height: 3),
               Text(
-                'Install, calibrate, and bind a GPS telematics box to a transit fleet vehicle',
-                style: TextStyle(color: Colors.white54, fontSize: 11.5, height: 1.3),
+                'gps_installation_desc'.tr,
+                style: const TextStyle(color: Colors.white54, fontSize: 11.5, height: 1.3),
               ),
             ],
           ),
@@ -86,16 +93,16 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
             decoration: BoxDecoration(
               color: kCardBg,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.sensors, color: kIndigo, size: 14),
-                SizedBox(width: 5),
+                const Icon(Icons.sensors, color: Color(0xFF818CF8), size: 14),
+                const SizedBox(width: 5),
                 Text(
-                  'Telematics Status',
-                  style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
+                  'telematics_status'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -116,13 +123,13 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
           _sectionTitle(
             stepNumber: '1',
             icon: Icons.directions_bus_filled_outlined,
-            title: 'Target Vehicle Selection',
-            subtitle: 'Select the bus receiving the GPS telematics hardware unit',
+            title: 'gps_install_step1_title'.tr,
+            subtitle: 'gps_install_step1_desc'.tr,
           ),
           const SizedBox(height: 14),
-          const Text(
-            'Select Vehicle *',
-            style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w700),
+          Text(
+            'select_vehicle_required'.tr,
+            style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           Obx(() {
@@ -138,7 +145,7 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
                 child: const SizedBox(
                   width: 18,
                   height: 18,
-                  child: CircularProgressIndicator(color: kIndigo, strokeWidth: 2),
+                  child: CircularProgressIndicator(color: Color(0xFF818CF8), strokeWidth: 2),
                 ),
               );
             }
@@ -164,11 +171,11 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
                   dropdownColor: const Color(0xFF1E1E2E),
                   icon: const Icon(Icons.arrow_drop_down, color: Colors.white70),
                   style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
-                  hint: const Text('Select a vehicle', style: TextStyle(color: Colors.white30, fontSize: 12)),
+                  hint: Text('select_a_vehicle'.tr, style: const TextStyle(color: Colors.white30, fontSize: 12)),
                   items: list.map((VehicleItemModel v) {
                     final depotStr = v.depotName != null && v.depotName!.isNotEmpty
                         ? v.depotName!
-                        : (v.depotId != null ? 'Depot ${v.depotId}' : 'Depot —');
+                        : (v.depotId != null ? 'Depot ${v.depotId}' : '—');
                     return DropdownMenuItem<String>(
                       value: v.id,
                       child: Text(
@@ -205,9 +212,9 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
                   border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
                 ),
                 alignment: Alignment.center,
-                child: const Text(
-                  'Select a vehicle to view its details.',
-                  style: TextStyle(color: Colors.white38, fontSize: 12),
+                child: Text(
+                  'gps_select_vehicle_view_details'.tr,
+                  style: const TextStyle(color: Colors.white38, fontSize: 12),
                 ),
               );
             }
@@ -215,8 +222,8 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
             final depot = veh.depotName != null && veh.depotName!.isNotEmpty
                 ? veh.depotName!
                 : (veh.depotId != null ? 'Depot #${veh.depotId}' : '—');
-            final vin = veh.vin.isNotEmpty ? veh.vin : 'VMX-VIN-901';
-            final org = veh.fleetId != null ? 'Org #${veh.fleetId}' : 'Default Fleet';
+            final code = veh.code.isNotEmpty ? veh.code : '—';
+            final org = veh.fleetId != null ? veh.fleetId.toString() : '—';
 
             return Container(
               width: double.infinity,
@@ -249,7 +256,7 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
                           border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
                         ),
                         child: Text(
-                          'Vehicle #${veh.id}',
+                          '${'vehicle_hash_prefix'.tr}${veh.id}',
                           style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600),
                         ),
                       ),
@@ -265,9 +272,9 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
                     spacing: 8,
                     runSpacing: 4,
                     children: [
-                      Text('VIN: $vin', style: const TextStyle(color: Colors.white38, fontSize: 11)),
+                      Text('${'code_colon'.tr} $code', style: const TextStyle(color: Colors.white38, fontSize: 11)),
                       const Text('·', style: TextStyle(color: Colors.white24, fontSize: 11)),
-                      Text(org, style: const TextStyle(color: Colors.white38, fontSize: 11)),
+                      Text('${'org_colon'.tr} $org', style: const TextStyle(color: Colors.white38, fontSize: 11)),
                     ],
                   ),
                 ],
@@ -290,15 +297,15 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
           _sectionTitle(
             stepNumber: '2',
             icon: Icons.memory,
-            title: 'GPS Telematics Box ID',
-            subtitle: 'Enter hardware serial or scan QR code on the telematics unit',
+            title: 'gps_install_step2_title'.tr,
+            subtitle: 'gps_install_step2_desc'.tr,
           ),
           const SizedBox(height: 14),
 
           // GPS Device ID with Scan QR button
-          const Text(
-            'GPS Device ID *',
-            style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w700),
+          Text(
+            'gps_device_id_required'.tr,
+            style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           Row(
@@ -313,7 +320,7 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
                     fontWeight: FontWeight.w700,
                   ),
                   decoration: InputDecoration(
-                    hintText: 'e.g. GPS-MX-00123',
+                    hintText: 'gps_device_id_hint'.tr,
                     hintStyle: const TextStyle(color: Colors.white30, fontSize: 12.5),
                     filled: true,
                     fillColor: kFieldBg,
@@ -328,7 +335,7 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: kIndigo, width: 1.5),
+                      borderSide: const BorderSide(color: Color(0xFF818CF8), width: 1.5),
                     ),
                   ),
                 ),
@@ -345,13 +352,13 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.qr_code_scanner, color: kIndigo, size: 18),
-                      SizedBox(width: 6),
+                      const Icon(Icons.qr_code_scanner, color: Color(0xFF818CF8), size: 18),
+                      const SizedBox(width: 6),
                       Text(
-                        'Scan QR',
-                        style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
+                        'scan_qr_btn'.tr,
+                        style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
                       ),
                     ],
                   ),
@@ -371,21 +378,21 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
 
           // 3 Hardware Dropdowns (Matching Admin Panel)
           _buildDropdownField(
-            label: 'Mounting Position',
+            label: 'gps_mounting_position'.tr,
             valueRx: controller.mountingPosition,
             options: controller.mountingOptions,
           ),
           const SizedBox(height: 12),
 
           _buildDropdownField(
-            label: 'Power Supply Connection',
+            label: 'gps_power_conn'.tr,
             valueRx: controller.powerWire,
             options: controller.powerOptions,
           ),
           const SizedBox(height: 12),
 
           _buildDropdownField(
-            label: 'M2M Cellular SIM',
+            label: 'gps_sim_cellular'.tr,
             valueRx: controller.simCardProvider,
             options: controller.simOptions,
           ),
@@ -449,28 +456,28 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
       decoration: BoxDecoration(
         color: const Color(0xFF1E1E38).withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: kIndigo.withValues(alpha: 0.3)),
+        border: Border.all(color: const Color(0xFF818CF8).withValues(alpha: 0.3)),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
+          const Padding(
             padding: EdgeInsets.only(top: 2),
             child: Icon(Icons.gps_fixed, color: kAmber, size: 18),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Hardware Calibration Protocol',
-                  style: TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w700),
+                  'gps_calibration_protocol'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w700),
                 ),
-                SizedBox(height: 3),
+                const SizedBox(height: 3),
                 Text(
-                  'Once saved, the telematics unit will receive an over-the-air activation ping. Satellite lock will calibrate within 60 seconds after ignition cycle.',
-                  style: TextStyle(color: Colors.white70, fontSize: 11.5, height: 1.35),
+                  'gps_calibration_protocol_desc'.tr,
+                  style: const TextStyle(color: Colors.white70, fontSize: 11.5, height: 1.35),
                 ),
               ],
             ),
@@ -505,9 +512,9 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
                 border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
               ),
               alignment: Alignment.center,
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w700),
+              child: Text(
+                'cancel'.tr,
+                style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w700),
               ),
             ),
           ),
@@ -520,10 +527,15 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
                 child: Container(
                   height: 48,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF6366F1), Color(0xFF4F46E5)],
-                    ),
+                    gradient: AppTheme.primaryGradient,
                     borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   alignment: Alignment.center,
                   child: controller.isInstalling.value
@@ -532,14 +544,14 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
                           height: 20,
                           child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                         )
-                      : const Row(
+                      : Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.check, color: Colors.white, size: 18),
-                            SizedBox(width: 8),
+                            const Icon(Icons.check, color: Colors.white, size: 18),
+                            const SizedBox(width: 8),
                             Text(
-                              'Install / Assign GPS Device',
-                              style: TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w700),
+                              'install_assign_telematics_btn'.tr,
+                              style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w700),
                             ),
                           ],
                         ),
@@ -582,10 +594,10 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
             Container(
               padding: const EdgeInsets.all(7),
               decoration: BoxDecoration(
-                color: kIndigo.withValues(alpha: 0.15),
+                color: const Color(0xFF818CF8).withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(icon, color: kIndigo, size: 16),
+              child: Icon(icon, color: const Color(0xFF818CF8), size: 16),
             ),
             const SizedBox(width: 10),
             Expanded(

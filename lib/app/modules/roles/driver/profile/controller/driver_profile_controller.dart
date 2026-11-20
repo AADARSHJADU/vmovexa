@@ -14,6 +14,8 @@ import 'package:vmovexa/app/data/services/storage_service.dart';
 import 'package:vmovexa/app/modules/roles/driver/home/controller/driver_home_controller.dart';
 import 'package:vmovexa/app/modules/roles/fleet_operator/account_settings/controllers/account_settings_controller.dart';
 
+import '../../../../../theme/app_colors.dart';
+
 class DriverProfileController extends GetxController {
   DriverService get _driverService => DriverService.to;
 
@@ -504,7 +506,29 @@ class DriverProfileController extends GetxController {
   }
 
   void onAboutTap() {
-    Get.toNamed(Routes.TERMS_CONDITIONS);
+    Get.defaultDialog(
+      title: 'about_vmovexa'.tr,
+      titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      backgroundColor: AppColors.cardBg,
+      content: Column(
+        children: [
+          Image.asset('assets/app_logo/newLogo.png', width: 140, height: 40),
+          const SizedBox(height: 12),
+          Text(
+            'about_vmovexa_dialog_desc'.tr,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+          ),
+        ],
+      ),
+      confirm: ElevatedButton(
+        onPressed: () => Get.back(),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF6366F1),
+        ),
+        child: Text('close'.tr, style: const TextStyle(color: Colors.white)),
+      ),
+    );
   }
 
   Future<void> onLogout() async {

@@ -42,7 +42,7 @@ class UploadDocumentView extends GetView<UploadDocumentController> {
                           children: [
                             Text(controller.documentTitle, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700)),
                             const SizedBox(height: 2),
-                            const Text('Take a photo or choose a file to upload.', style: TextStyle(color: Colors.white54, fontSize: 11.5)),
+                            Text('take_photo_sub'.tr, style: const TextStyle(color: Colors.white54, fontSize: 11.5)),
                           ],
                         ),
                       ),
@@ -54,7 +54,7 @@ class UploadDocumentView extends GetView<UploadDocumentController> {
                       Expanded(
                         child: _PickOptionCard(
                           icon: Icons.camera_alt_outlined,
-                          label: 'Take Photo',
+                          label: 'take_photo'.tr,
                           onTap: controller.onPickFromCamera,
                         ),
                       ),
@@ -62,7 +62,7 @@ class UploadDocumentView extends GetView<UploadDocumentController> {
                       Expanded(
                         child: _PickOptionCard(
                           icon: Icons.photo_library_outlined,
-                          label: 'Choose from Gallery',
+                          label: 'choose_from_gallery'.tr,
                           onTap: controller.onPickFromGallery,
                         ),
                       ),
@@ -90,8 +90,8 @@ class UploadDocumentView extends GetView<UploadDocumentController> {
           ),
         ),
         const SizedBox(width: 8),
-        const Expanded(
-          child: Text('Upload Document', style: TextStyle(color: Colors.white, fontSize: 17.5, fontWeight: FontWeight.w700)),
+        Expanded(
+          child: Text('upload_document'.tr, style: const TextStyle(color: Colors.white, fontSize: 17.5, fontWeight: FontWeight.w700)),
         ),
         GestureDetector(
           onTap: controller.onInfoTap,
@@ -117,22 +117,22 @@ class UploadDocumentView extends GetView<UploadDocumentController> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: kPurple.withValues(alpha: 0.25)),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: kPurple, size: 16),
-          SizedBox(width: 10),
+          const Icon(Icons.info_outline, color: kPurple, size: 16),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Tips', style: TextStyle(color: kPurple, fontSize: 12.5, fontWeight: FontWeight.w700)),
-                SizedBox(height: 6),
-                Text('• Ensure all details are clearly visible.', style: TextStyle(color: Colors.white54, fontSize: 11)),
-                SizedBox(height: 3),
-                Text('• Document should be original and valid.', style: TextStyle(color: Colors.white54, fontSize: 11)),
-                SizedBox(height: 3),
-                Text('• Avoid glare and blurry images.', style: TextStyle(color: Colors.white54, fontSize: 11)),
+                Text('tips'.tr, style: const TextStyle(color: kPurple, fontSize: 12.5, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 6),
+                Text('• ${'tip_details_visible'.tr}', style: const TextStyle(color: Colors.white54, fontSize: 11)),
+                const SizedBox(height: 3),
+                Text('• ${'tip_original_valid'.tr}', style: const TextStyle(color: Colors.white54, fontSize: 11)),
+                const SizedBox(height: 3),
+                Text('• ${'tip_avoid_glare'.tr}', style: const TextStyle(color: Colors.white54, fontSize: 11)),
               ],
             ),
           ),

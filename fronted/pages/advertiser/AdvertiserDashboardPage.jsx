@@ -63,14 +63,6 @@ export const AdvertiserDashboardPage = () => {
   const campaignsList = rawList.filter((c) => c.owner_type !== 'government' && c.type !== 'government_psa' && !c.government_agency_id && !c.agency);
   const recentCampaigns = campaignsList.slice(0, 5);
 
-  // Total budget computed across active advertiser campaigns
-  const totalCampaignBudget = useMemo(() => {
-    return campaignsList.reduce((acc, c) => {
-      const b = Number(c.payment_breakdown?.totalAmount ?? c.budget ?? 0);
-      return acc + (Number.isFinite(b) ? b : 0);
-    }, 0);
-  }, [campaignsList]);
-
   // Dashboard KPIs come only from the aggregate analytics API.
   const stats = useMemo(() => {
     const a = campaignAnalytics && campaignAnalytics.isOverview ? campaignAnalytics : null;
@@ -79,17 +71,12 @@ export const AdvertiserDashboardPage = () => {
       available: true,
       active: Number(a.activeCampaigns ?? 0),
       totalCampaigns: Number(a.totalCampaigns ?? 0),
-      totalBudget: Number(a.budget ?? 0),
       totalSpent: Number(a.spent ?? 0),
       impressions: Number(a.impressionsDelivered ?? a.impressions ?? 0),
       playbacks: Number(a.totalPlaybacks ?? 0),
       scans: Number(a.totalScans ?? 0),
     };
   }, [campaignAnalytics]);
-
-  const displayTotalBudget = (stats.available && stats.totalBudget > 0)
-    ? stats.totalBudget
-    : (totalCampaignBudget > 0 ? totalCampaignBudget : 21200);
 
   const displayTotalSpent = (stats.available && stats.totalSpent > 0)
     ? stats.totalSpent
@@ -195,11 +182,11 @@ export const AdvertiserDashboardPage = () => {
             icon: <FleetIcons.QrCode className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />,
           },
           {
-            label: t('advertiser.dashboard.kpi_budget', 'Total Budget'),
-            value: fmtMoney(displayTotalBudget),
+            label: t('advertiser.dashboard.kpi_spend', 'Total Spend'),
+            value: fmtMoney(displayTotalSpent),
             sub: stats.available
-              ? `${fmtMoney(displayTotalSpent)} ${t('advertiser.dashboard.spent_so_far', 'spent so far')}`
-              : `${fmtMoney(displayTotalSpent)} ${t('advertiser.dashboard.allocated_sub', 'allocated across campaigns')}`,
+              ? t('advertiser.dashboard.total_spend_sub', 'Actual spend across all campaigns')
+              : t('advertiser.dashboard.analytics_unavailable', 'Analytics unavailable'),
             badgeBg: 'bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/80 text-amber-600 dark:text-amber-400',
             icon: <FleetIcons.Money className="w-5 h-5 text-amber-600 dark:text-amber-400" />,
           },

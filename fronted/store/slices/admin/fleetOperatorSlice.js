@@ -9,6 +9,7 @@ import {
   fetchOperatorActivityThunk,
   fetchOperatorPermissionsThunk,
   updateOperatorPermissionsThunk,
+  resetOperatorPermissionsThunk,
 } from '../../thunks/admin/fleetOperator.thunks.js';
 
 export {
@@ -21,6 +22,7 @@ export {
   fetchOperatorActivityThunk,
   fetchOperatorPermissionsThunk,
   updateOperatorPermissionsThunk,
+  resetOperatorPermissionsThunk,
 };
 
 const initialState = {
@@ -124,6 +126,9 @@ const adminFleetOperatorSlice = createSlice({
 
       // Permissions
       .addCase(fetchOperatorPermissionsThunk.fulfilled, (state, action) => {
+        state.operatorPermissions = action.payload;
+      })
+      .addCase(resetOperatorPermissionsThunk.fulfilled, (state, action) => {
         state.operatorPermissions = action.payload;
       })
       .addCase(updateOperatorPermissionsThunk.fulfilled, (state, action) => {

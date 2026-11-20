@@ -178,7 +178,7 @@ export const RouteVehicleScreenPicker = ({ fleetOptions = [], value = [], onChan
             onClick={() => setCityFilter(c)}
             className={`px-3 py-1.5 rounded-lg text-[11px] font-bold whitespace-nowrap border transition-all cursor-pointer ${cityFilter === c ? 'bg-slate-900 dark:bg-blue-600 text-white border-slate-900 dark:border-blue-600' : 'bg-white dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-700'}`}
           >
-            {c}
+            {c === 'All' ? t('common.all', 'All') : c}
           </button>
         ))}
       </div>
@@ -203,7 +203,7 @@ export const RouteVehicleScreenPicker = ({ fleetOptions = [], value = [], onChan
                 </label>
                 {route.vehicles.length > 0 && (
                   <button type="button" onClick={() => setExpanded((e) => ({ ...e, [route.routeKey]: !open }))} className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 shrink-0 cursor-pointer">
-                    {open ? 'Hide vehicles' : 'Select vehicles'}
+                    {open ? t('gov.emergency.hide_vehicles', 'Hide vehicles') : t('gov.emergency.select_vehicles', 'Select vehicles')}
                   </button>
                 )}
               </div>
@@ -216,8 +216,8 @@ export const RouteVehicleScreenPicker = ({ fleetOptions = [], value = [], onChan
                       <label key={v.id} className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer text-[11px] font-semibold mt-2 ${vsel ? 'border-blue-400 dark:border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-slate-900 dark:text-white' : 'border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800/60 text-slate-600 dark:text-zinc-300'}`}>
                         <input type="checkbox" checked={vsel} onChange={() => toggleVehicle(route, v.id)} className="accent-blue-600 w-3.5 h-3.5 cursor-pointer" />
                         <span className="truncate">
-                          <FleetIcons.Bus className="w-3.5 h-3.5 inline mr-1 text-blue-600 dark:text-blue-400 shrink-0" /><span className="text-slate-900 dark:text-white font-bold">{v.bus_number || v.busNumber || `Bus ${v.id}`}</span>
-                          <span className="flex items-center gap-1 text-[10px] text-slate-400 dark:text-zinc-500 font-normal mt-0.5"><FleetIcons.Display className="w-3 h-3 text-purple-600 dark:text-purple-400 shrink-0" />{screens} {t('ag.shared.routevehiclescreenpicker.screen', 'screen')}{screens > 1 ? 's' : ''}</span>
+                          <FleetIcons.Bus className="w-3.5 h-3.5 inline mr-1 text-blue-600 dark:text-blue-400 shrink-0" /><span className="text-slate-900 dark:text-white font-bold">{v.bus_number || v.busNumber || t('gov.emergency.bus_id', 'Bus {{id}}', { id: v.id })}</span>
+                          <span className="flex items-center gap-1 text-[10px] text-slate-400 dark:text-zinc-500 font-normal mt-0.5"><FleetIcons.Display className="w-3 h-3 text-purple-600 dark:text-purple-400 shrink-0" />{screens} {screens > 1 ? t('common.screens', 'screens') : t('common.screen', 'screen')}</span>
                         </span>
                       </label>
                     );

@@ -21,7 +21,7 @@ class AccountSettingsController extends GetxController {
   final RxString role = ''.obs;
 
   final RxString companyName = ''.obs;
-  final RxString branch = 'Bengaluru Head Office'.obs;
+  final RxString branch = ''.obs;
   final RxString officeAddress = ''.obs;
 
   final RxString language = 'English (India)'.obs;
@@ -149,7 +149,7 @@ class AccountSettingsController extends GetxController {
               decoration: InputDecoration(
                 filled: true,
                 fillColor: const Color(0xFF0F172A),
-                hintText: 'Enter $title',
+                hintText: 'enter_field_hint'.trParams({'field': title}),
                 hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 border: OutlineInputBorder(
@@ -177,7 +177,7 @@ class AccountSettingsController extends GetxController {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+                    child: Text('cancel'.tr, style: const TextStyle(color: Colors.white70)),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -195,7 +195,7 @@ class AccountSettingsController extends GetxController {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    child: const Text('Apply', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    child: Text('apply'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],
@@ -248,8 +248,8 @@ class AccountSettingsController extends GetxController {
                 ),
                 child: const Icon(Icons.camera_alt_rounded, color: Color(0xFF3B82F6), size: 22),
               ),
-              title: const Text('Take Photo with Camera', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
-              subtitle: const Text('Capture new photo instantly', style: TextStyle(color: Color(0xFF64748B), fontSize: 11)),
+              title: Text('take_photo_camera'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+              subtitle: Text('capture_photo_desc'.tr, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11)),
               trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF64748B), size: 20),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               onTap: () {
@@ -267,8 +267,8 @@ class AccountSettingsController extends GetxController {
                 ),
                 child: const Icon(Icons.photo_library_rounded, color: Color(0xFF10B981), size: 22),
               ),
-              title: const Text('Choose from Gallery', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
-              subtitle: const Text('Pick image from your device photos', style: TextStyle(color: Color(0xFF64748B), fontSize: 11)),
+              title: Text('choose_from_gallery'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+              subtitle: Text('pick_gallery_desc'.tr, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11)),
               trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF64748B), size: 20),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               onTap: () {
@@ -276,25 +276,25 @@ class AccountSettingsController extends GetxController {
                 _pickAndUploadImage(ImageSource.gallery);
               },
             ),
-            const SizedBox(height: 8),
-            ListTile(
-              leading: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: const Color(0x268B5CF6),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Icons.link_rounded, color: Color(0xFF8B5CF6), size: 22),
-              ),
-              title: const Text('Enter Image URL', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
-              subtitle: const Text('Paste external avatar web link', style: TextStyle(color: Color(0xFF64748B), fontSize: 11)),
-              trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF64748B), size: 20),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              onTap: () {
-                Get.back();
-                _openManualUrlDialog();
-              },
-            ),
+            // const SizedBox(height: 8),
+            // ListTile(
+            //   leading: Container(
+            //     padding: const EdgeInsets.all(10),
+            //     decoration: BoxDecoration(
+            //       color: const Color(0x268B5CF6),
+            //       borderRadius: BorderRadius.circular(12),
+            //     ),
+            //     child: const Icon(Icons.link_rounded, color: Color(0xFF8B5CF6), size: 22),
+            //   ),
+            //   title: Text('enter_image_url'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+            //   subtitle: Text('paste_image_url_desc'.tr, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11)),
+            //   trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF64748B), size: 20),
+            //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            //   onTap: () {
+            //     Get.back();
+            //     _openManualUrlDialog();
+            //   },
+            // ),
           ],
         ),
       ),
@@ -475,7 +475,7 @@ class AccountSettingsController extends GetxController {
                         side: const BorderSide(color: Color(0xFF334155)),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      child: const Text('Cancel', style: TextStyle(color: Colors.white)),
+                      child: Text('cancel'.tr, style: const TextStyle(color: Colors.white)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -492,7 +492,7 @@ class AccountSettingsController extends GetxController {
                         backgroundColor: const Color(0xFF6366F1),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      child: const Text('Update', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      child: Text('apply'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -586,7 +586,7 @@ class AccountSettingsController extends GetxController {
           }
 
           Get.snackbar(
-            'Profile Updated',
+            'success'.tr,
             'Your account changes have been saved successfully.',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF10B981),
@@ -597,15 +597,16 @@ class AccountSettingsController extends GetxController {
           );
 
           await Future.delayed(const Duration(milliseconds: 600));
-          if (Navigator.of(Get.context!).canPop()) {
-            Get.back();
-          } else {
-            final targetRoute = currentUser?.dashboardRoute ?? Routes.FLEET_OP_DASHBOARD;
-            Get.offAllNamed(targetRoute);
-          }
+          Get.offAllNamed(Routes.FLEET_OP_DASHBOARD, arguments: {'tab': 3});
+          // if (Navigator.of(Get.context!).canPop()) {
+          //   Get.back();
+          // } else {
+          //   final targetRoute = currentUser?.dashboardRoute ?? Routes.FLEET_OP_DASHBOARD;
+          //   Get.offAllNamed(targetRoute);
+          // }
         } else {
           Get.snackbar(
-            'Update Failed',
+            'error'.tr,
             res.message ?? 'Unable to save profile changes.',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFFEF4444),
@@ -620,7 +621,7 @@ class AccountSettingsController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         'Failed to connect to server: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),

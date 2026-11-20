@@ -12,13 +12,13 @@ import {
 
 export const useSuperBilling = () => {
   const dispatch = useAppDispatch();
-  const { hasPermission } = useAuth();
+  const { hasPermission, isSuperAdmin } = useAuth();
 
-  const canViewPlans = hasPermission('billing.plans.view');
-  const canManagePlans = hasPermission('billing.plans.manage');
-  const canViewSubscriptions = hasPermission('billing.subscriptions.view');
-  const canManageSubscriptions = hasPermission('billing.subscriptions.manage');
-  const canViewTransactions = hasPermission('billing.transactions.view');
+  const canViewPlans = isSuperAdmin;
+  const canManagePlans = isSuperAdmin;
+  const canViewSubscriptions = isSuperAdmin;
+  const canManageSubscriptions = isSuperAdmin;
+  const canViewTransactions = isSuperAdmin;
 
   const revenueSummary = useAppSelector(selectSuperRevenueSummary);
   const settlements = useAppSelector(selectSuperSettlements);

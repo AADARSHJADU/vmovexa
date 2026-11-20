@@ -96,15 +96,20 @@ abstract class Routes {
   static const ADVERTISER_CHANGE_PASSWORD = '/advertiser-change-password';
   static const ADVERTISER_NOTIFICATION_SETTINGS = '/advertiser-notification-settings';
   static const ADVERTISER_HELP_SUPPORT = '/advertiser-help-support';
+  static const ADVERTISER_RAISE_TICKET = '/advertiser-raise-ticket';
+  static const ADVERTISER_SUPPORT_HISTORY = '/advertiser-support-history';
   static const ADVERTISER_NOTIFICATIONS = '/advertiser-notifications';
   static const GOVERNMENT_DASHBOARD = '/government-dashboard';
   static const GOVERNMENT_CREATE_CAMPAIGN = '/government-create-campaign';
   static const GOV_CAMPAIGN_DETAILS = '/gov-campaign-details';
   static const GOV_BILLING = '/government-billing';
+  static const RECORD_OFFLINE_PAYMENT = '/record-offline-payment';
 
   //technician flow routes
   static const TECHNICIAN_DASHBOARD = '/technician-dashboard';
   static const TECHNICIAN_WORK_ORDERS = '/technician-work-orders';
+  static const TECHNICIAN_WORK_ORDER_DETAILS = '/technician-work-order-details';
+  static const TECH_EDGE_SETUP = '/technician-edge-setup';
   static const REGISTER_DISPLAY_DEVICE = '/register-display-device';
   static const HARDWARE_CONFIGURATION = '/hardware-configuration';
   static const GPS_INSTALLATION = '/gps-installation';
@@ -114,6 +119,9 @@ abstract class Routes {
   static const ALERT_NOTIFICATION = '/alerts-notification';
   static const TECHNICIAN_PROFILE = '/technician-profile';
   static const TECHNICIAN_EDIT_PROFILE = '/technician-edit-profile';
+  static const TECHNICIAN_HELP_SUPPORT = '/technician-help-support';
+  static const TECHNICIAN_SUPPORT_HISTORY = '/technician-support-history';
+  static const TECHNICIAN_SUPPORT_TICKET_DETAILS = '/technician-support-ticket-details';
 
   //driver flow routes
   static const DRIVER_DASHBOARD = '/driver-dashboard';
@@ -126,6 +134,11 @@ abstract class Routes {
   static const DRIVER_PROFILE = '/driver-profile';
   static const DRIVER_DOCUMENT = '/driver-documents';
   static const DRIVER_HELP_SUPPORT = '/driver-help-support';
+  static const DRIVER_SUPPORT_HISTORY = '/driver-support-history';
+  static const DRIVER_SUPPORT_TICKET_DETAILS = '/driver-support-ticket-details';
+  static const DRIVER_WORK_ORDERS = '/driver-work-orders';
+  static const DRIVER_CREATE_WORK_ORDER = '/driver-create-work-order';
+  static const DRIVER_WORK_ORDER_DETAILS = '/driver-work-order-details';
 
   //Finance flow routes
   static const FINANCE_DASHBOARD = '/finance-dashboard';

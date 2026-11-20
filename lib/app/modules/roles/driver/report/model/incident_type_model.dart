@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 enum IncidentType {
   accident,
@@ -15,42 +16,42 @@ extension IncidentTypeX on IncidentType {
   String get label {
     switch (this) {
       case IncidentType.accident:
-        return 'Accident';
+        return 'incident_accident'.tr;
       case IncidentType.breakdown:
-        return 'Breakdown';
+        return 'incident_breakdown'.tr;
       case IncidentType.roadCondition:
-        return 'Road Condition';
+        return 'incident_road_condition'.tr;
       case IncidentType.trafficIssue:
-        return 'Traffic Issue';
+        return 'incident_traffic_issue'.tr;
       case IncidentType.passengerIssue:
-        return 'Passenger Issue';
+        return 'incident_passenger_issue'.tr;
       case IncidentType.infrastructure:
-        return 'Infrastructure';
+        return 'incident_infrastructure'.tr;
       case IncidentType.safetyConcern:
-        return 'Safety Concern';
+        return 'incident_safety_concern'.tr;
       case IncidentType.other:
-        return 'Other';
+        return 'incident_other'.tr;
     }
   }
 
   String get description {
     switch (this) {
       case IncidentType.accident:
-        return 'Road accident or collision';
+        return 'desc_accident'.tr;
       case IncidentType.breakdown:
-        return 'Vehicle breakdown or malfunction';
+        return 'desc_breakdown'.tr;
       case IncidentType.roadCondition:
-        return 'Potholes, damaged road, etc.';
+        return 'desc_road_condition'.tr;
       case IncidentType.trafficIssue:
-        return 'Congestion, obstruction, etc.';
+        return 'desc_traffic_issue'.tr;
       case IncidentType.passengerIssue:
-        return 'Passenger complaint or issue';
+        return 'desc_passenger_issue'.tr;
       case IncidentType.infrastructure:
-        return 'Bus stop, sign, light issue, etc.';
+        return 'desc_infrastructure'.tr;
       case IncidentType.safetyConcern:
-        return 'Unsafe situation or hazard';
+        return 'desc_safety_concern'.tr;
       case IncidentType.other:
-        return 'Any other issue';
+        return 'desc_other_issue'.tr;
     }
   }
 
@@ -82,15 +83,15 @@ extension AffectedPartyX on AffectedParty {
   String get label {
     switch (this) {
       case AffectedParty.passengers:
-        return 'Passengers';
+        return 'affected_passengers'.tr;
       case AffectedParty.driver:
-        return 'Driver';
+        return 'affected_driver'.tr;
       case AffectedParty.vehicle:
-        return 'Vehicle';
+        return 'affected_vehicle'.tr;
       case AffectedParty.infrastructure:
-        return 'Infrastructure';
+        return 'affected_infrastructure'.tr;
       case AffectedParty.other:
-        return 'Other';
+        return 'affected_other'.tr;
     }
   }
 
@@ -116,26 +117,26 @@ extension IncidentSeverityX on IncidentSeverity {
   String get label {
     switch (this) {
       case IncidentSeverity.low:
-        return 'Low';
+        return 'sev_low'.tr;
       case IncidentSeverity.medium:
-        return 'Medium';
+        return 'sev_medium'.tr;
       case IncidentSeverity.high:
-        return 'High';
+        return 'sev_high'.tr;
       case IncidentSeverity.critical:
-        return 'Critical';
+        return 'sev_critical'.tr;
     }
   }
 
   String get description {
     switch (this) {
       case IncidentSeverity.low:
-        return 'Minor issue, no disruption';
+        return 'desc_sev_low'.tr;
       case IncidentSeverity.medium:
-        return 'Moderate issue, minor disruption';
+        return 'desc_sev_medium'.tr;
       case IncidentSeverity.high:
-        return 'Major issue, service affected';
+        return 'desc_sev_high'.tr;
       case IncidentSeverity.critical:
-        return 'Severe issue, service halted';
+        return 'desc_sev_critical'.tr;
     }
   }
 

@@ -38,27 +38,27 @@ class IncidentDetailsView extends GetView<ReportIncidentController> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 children: [
-                  _buildSectionLabel('1. Select Incident Type', required: true),
+                  _buildSectionLabel('select_incident_type_num'.tr, required: true),
                   const SizedBox(height: 10),
                   _buildIncidentTypeGrid(),
                   const SizedBox(height: 20),
-                  _buildSectionLabel('2. Incident Description', required: true),
+                  _buildSectionLabel('incident_description_num'.tr, required: true),
                   const SizedBox(height: 10),
                   _buildDescriptionField(),
                   const SizedBox(height: 20),
-                  _buildSectionLabel('3. Incident Location', required: true),
+                  _buildSectionLabel('incident_location_num'.tr, required: true),
                   const SizedBox(height: 10),
                   _buildLocationRow(),
                   const SizedBox(height: 20),
-                  _buildSectionLabel('4. Date & Time', required: true),
+                  _buildSectionLabel('date_time_num'.tr, required: true),
                   const SizedBox(height: 10),
                   _buildDateTimeRow(context),
                   const SizedBox(height: 20),
-                  _buildSectionLabel('5. Add Photos (Optional)', required: false),
+                  _buildSectionLabel('add_photos_optional_num'.tr, required: false),
                   const SizedBox(height: 10),
                   _buildPhotosRow(),
                   const SizedBox(height: 8),
-                  const Text('You can upload up to 5 photos', style: TextStyle(color: Colors.white38, fontSize: 11)),
+                  Text('upload_photos_max5'.tr, style: const TextStyle(color: Colors.white38, fontSize: 11)),
                 ],
               ),
             ),
@@ -78,13 +78,13 @@ class IncidentDetailsView extends GetView<ReportIncidentController> {
           child: const Icon(Icons.arrow_back, color: Colors.white),
         ),
         const SizedBox(width: 10),
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Report Incident', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700)),
-              SizedBox(height: 2),
-              Text('Help us keep operations safe and smooth.', style: TextStyle(color: Colors.white54, fontSize: 11.5)),
+              Text('report_incident'.tr, style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 2),
+              Text('help_keep_ops_safe'.tr, style: const TextStyle(color: Colors.white54, fontSize: 11.5)),
             ],
           ),
         ),
@@ -267,14 +267,14 @@ class IncidentDetailsView extends GetView<ReportIncidentController> {
               maxLines: 3,
               maxLength: ReportIncidentController.descriptionMaxLen,
               style: const TextStyle(color: Colors.white, fontSize: 13),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 border: InputBorder.none,
                 counterText: '',
                 isDense: true,
-                contentPadding: EdgeInsets.all(12),
-                hintText: 'Provide a brief description of the incident...',
-                hintStyle: TextStyle(color: Colors.white30, fontSize: 12.5),
-                prefixIcon: Padding(
+                contentPadding: const EdgeInsets.all(12),
+                hintText: 'brief_desc_hint'.tr,
+                hintStyle: const TextStyle(color: Colors.white30, fontSize: 12.5),
+                prefixIcon: const Padding(
                   padding: EdgeInsets.only(bottom: 40),
                   child: Icon(Icons.description_outlined, color: Colors.white24, size: 16),
                 ),
@@ -311,13 +311,13 @@ class IncidentDetailsView extends GetView<ReportIncidentController> {
       child: TextField(
         controller: controller.locationCtrl,
         style: const TextStyle(color: Colors.white, fontSize: 12.5),
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           border: InputBorder.none,
           isDense: true,
-          contentPadding: EdgeInsets.symmetric(vertical: 13),
-          hintText: 'Enter incident location',
-          hintStyle: TextStyle(color: Colors.white30, fontSize: 12.5),
-          prefixIcon: Icon(Icons.location_on_outlined, color: kPurple, size: 17),
+          contentPadding: const EdgeInsets.symmetric(vertical: 13),
+          hintText: 'enter_location_hint'.tr,
+          hintStyle: const TextStyle(color: Colors.white30, fontSize: 12.5),
+          prefixIcon: const Icon(Icons.location_on_outlined, color: kPurple, size: 17),
         ),
       ),
     );
@@ -398,12 +398,12 @@ class IncidentDetailsView extends GetView<ReportIncidentController> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: kPurple.withOpacity(0.5), style: BorderStyle.solid),
                 ),
-                child: const Column(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.cloud_upload_outlined, color: kPurple, size: 20),
-                    SizedBox(height: 4),
-                    Text('Upload\nPhoto', textAlign: TextAlign.center, style: TextStyle(color: kPurple, fontSize: 9, fontWeight: FontWeight.w600)),
+                    const Icon(Icons.cloud_upload_outlined, color: kPurple, size: 20),
+                    const SizedBox(height: 4),
+                    Text('upload_photo'.tr, textAlign: TextAlign.center, style: const TextStyle(color: kPurple, fontSize: 9, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -469,12 +469,12 @@ class IncidentDetailsView extends GetView<ReportIncidentController> {
                   border: Border.all(color: Colors.white.withOpacity(0.1)),
                 ),
                 alignment: Alignment.center,
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.arrow_back, color: Colors.white70, size: 16),
-                    SizedBox(width: 6),
-                    Text('Cancel', style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w700)),
+                    const Icon(Icons.arrow_back, color: Colors.white70, size: 16),
+                    const SizedBox(width: 6),
+                    Text('cancel'.tr, style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w700)),
                   ],
                 ),
               ),
@@ -492,12 +492,12 @@ class IncidentDetailsView extends GetView<ReportIncidentController> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 alignment: Alignment.center,
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Next', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
-                    SizedBox(width: 6),
-                    Icon(Icons.arrow_forward, color: Colors.white, size: 16),
+                    Text('next'.tr, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+                    const SizedBox(width: 6),
+                    const Icon(Icons.arrow_forward, color: Colors.white, size: 16),
                   ],
                 ),
               ),

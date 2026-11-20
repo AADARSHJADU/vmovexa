@@ -80,9 +80,9 @@ class GSTManagementView extends GetView<GSTManagementController> {
               children: [
                 Row(
                   children: [
-                    const Text(
-                      'GST & Tax Returns',
-                      style: TextStyle(
+                    Text(
+                      'gst_tax_returns'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.w900,
@@ -175,10 +175,10 @@ class GSTManagementView extends GetView<GSTManagementController> {
         unselectedLabelColor: Colors.white60,
         labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
         unselectedLabelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-        tabs: const [
-          Tab(text: 'GST Overview & GSTIN'),
-          Tab(text: 'Amounts & Breakup'),
-          Tab(text: 'Returns & Filings'),
+        tabs: [
+          Tab(text: 'overview_gstin_tab'.tr),
+          Tab(text: 'amounts_breakup_tab'.tr),
+          Tab(text: 'returns_actions_tab'.tr),
         ],
       ),
     );

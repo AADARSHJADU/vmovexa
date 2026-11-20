@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../../routes/app_routes.dart';
+import 'package:vmovexa/app/data/models/driver_models.dart';
 import 'package:vmovexa/app/data/services/auth_service.dart';
 import 'package:vmovexa/app/data/services/driver_service.dart';
 import 'package:vmovexa/app/data/services/storage_service.dart';
@@ -14,6 +15,8 @@ class DriverHomeController extends GetxController {
   // ---------------- Driver identity ----------------
   final RxString driverName = 'Driver'.obs;
   final RxString avatarUrl = ''.obs;
+  final RxString orgName = '—'.obs;
+  final RxString badgeId = '—'.obs;
   final RxBool isOnDuty = false.obs;
   final RxBool isUpdatingDuty = false.obs;
   final RxBool isDocumentsVerified = true.obs;
@@ -21,11 +24,15 @@ class DriverHomeController extends GetxController {
   // ---------------- Notification bell ----------------
   final RxInt notificationCount = 0.obs;
 
-  // ---------------- Today's Route ----------------
+  // ---------------- Active Route / Cockpit ----------------
+  final Rx<DriverActiveRouteData?> activeRouteData = Rx<DriverActiveRouteData?>(null);
   final RxString routeName = 'No Route Assigned'.obs;
   final RxString routeFrom = '--'.obs;
   final RxString routeTo = '--'.obs;
   final RxString busNumber = 'Not Assigned'.obs;
+  final RxString vehicleType = '—'.obs;
+  final RxString shiftTypeLabel = ''.obs;
+  final RxString statusLabel = ''.obs;
 
   final RxString departureTime = '--:--'.obs;
   final RxString departureLocation = '--'.obs;
@@ -36,10 +43,21 @@ class DriverHomeController extends GetxController {
   final RxString endOfRouteTime = '--:--'.obs;
   final RxString endOfRouteLocation = '--'.obs;
 
-  // ---------------- Today's Schedule ----------------
-  final RxList<ScheduleEntry> schedule = <ScheduleEntry>[].obs;
+  bool get hasActiveRoute {
+    final a = activeRouteData.value;
+    if (a != null) {
+      if (a.routeName != null && a.routeName!.isNotEmpty) return true;
+      if (a.routeNumber != null && a.routeNumber!.isNotEmpty) return true;
+      if (a.origin != null && a.origin!.isNotEmpty) return true;
+    }
+    return routeName.value != 'No Route Assigned' && routeName.value.isNotEmpty;
+  }
 
-  // ---------------- Operational Notifications ----------------
+  // ---------------- Shift Schedule & Timetable (Latest shifts) ----------------
+  final RxList<DriverShiftItem> shiftSchedules = <DriverShiftItem>[].obs;
+
+  // ---------------- Legacy schedule & notifications (kept for model compatibility) ----------------
+  final RxList<ScheduleEntry> schedule = <ScheduleEntry>[].obs;
   final RxList<OperationalNotification> notifications = <OperationalNotification>[].obs;
 
   // ---------------- Quick Actions ----------------
@@ -92,6 +110,12 @@ class DriverHomeController extends GetxController {
       if (profile.assignedVehicle != null) {
         busNumber.value = profile.assignedVehicle!.displayName;
       }
+      if (profile.organization != null && profile.organization!.name != null) {
+        orgName.value = profile.organization!.name!;
+      }
+      if (profile.id != null) {
+        badgeId.value = 'DRV-${profile.id}';
+      }
       if (profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty) {
         avatarUrl.value = profile.avatarUrl!;
       }
@@ -116,59 +140,89 @@ class DriverHomeController extends GetxController {
     final response = await _driverService.getTodaySchedule();
     if (response.success && response.data != null) {
       final data = response.data!;
-      if (data.assignedRoute != null) {
-        final r = data.assignedRoute!;
-        routeName.value = r.name ?? (r.routeNumber != null ? 'Route ${r.routeNumber}' : 'Assigned Route');
-        routeFrom.value = r.fromStop ?? '--';
-        routeTo.value = r.toStop ?? '--';
-        departureLocation.value = r.fromStop ?? '--';
-        endOfRouteLocation.value = r.toStop ?? '--';
-      }
 
-      if (data.shift != null) {
-        departureTime.value = data.shift!.startTime ?? '--:--';
-        endOfRouteTime.value = data.shift!.endTime ?? '--:--';
-      }
+      // 1. Map to Shift Schedule strip (latest 5 shifts)
+      if (data.schedules.isNotEmpty) {
+        shiftSchedules.assignAll(data.schedules.take(5));
+      } else if (data.upcomingTrips.isNotEmpty) {
+        final mapped = data.upcomingTrips.map((t) {
+          final isComp = t.status == 'completed';
+          final isTransit = t.status == 'in_progress';
 
-      if (data.upcomingTrips.isNotEmpty) {
-        final entries = data.upcomingTrips.map((trip) {
-          ScheduleStatus status = ScheduleStatus.upcoming;
-          if (trip.status == 'in_progress') status = ScheduleStatus.inProgress;
-          if (trip.status == 'pending') status = ScheduleStatus.pending;
-
-          String timeLabel = trip.scheduledDeparture ?? '--:--';
-          if (timeLabel.contains('T')) {
+          String sTime = t.scheduledDeparture ?? '--:--';
+          if (sTime.contains('T')) {
             try {
-              final parsed = DateTime.parse(timeLabel).toLocal();
+              final parsed = DateTime.parse(sTime).toLocal();
               final hour12 = parsed.hour % 12 == 0 ? 12 : parsed.hour % 12;
               final minute = parsed.minute.toString().padLeft(2, '0');
               final period = parsed.hour >= 12 ? 'PM' : 'AM';
-              timeLabel = '$hour12:$minute $period';
+              sTime = '$hour12:$minute $period';
             } catch (_) {}
           }
 
-          return ScheduleEntry(
-            time: timeLabel,
-            routeName: routeName.value,
-            routeDescription: '${trip.fromStop ?? "Depot"} \u2192 ${trip.toStop ?? "Destination"}',
-            status: status,
+          return DriverShiftItem(
+            id: t.id,
+            routeNumber: routeName.value,
+            busNumber: busNumber.value,
+            shiftTypeLabel: data.shift?.shiftType,
+            startTime: sTime,
+            endTime: data.shift?.endTime ?? '--:--',
+            date: data.date ?? 'Today',
+            startDepot: t.fromStop ?? 'Depot',
+            endDepot: t.toStop ?? 'Terminus',
+            status: t.status ?? 'Scheduled',
+            isCompleted: isComp,
+            isInTransit: isTransit,
           );
         }).toList();
-        schedule.assignAll(entries);
+        shiftSchedules.assignAll(mapped.take(5));
       } else if (data.assignedRoute != null) {
-        schedule.assignAll([
-          ScheduleEntry(
-            time: departureTime.value,
-            routeName: routeName.value,
-            routeDescription: '${routeFrom.value} \u2192 ${routeTo.value}',
-            status: isOnDuty.value ? ScheduleStatus.inProgress : ScheduleStatus.pending,
+        shiftSchedules.assignAll([
+          DriverShiftItem(
+            id: 'today_1',
+            routeNumber: data.assignedRoute?.routeNumber ?? 'ROUTE',
+            routeName: data.assignedRoute?.name,
+            busNumber: busNumber.value,
+            shiftTypeLabel: data.shift?.shiftType,
+            startTime: data.shift?.startTime ?? '--:--',
+            endTime: data.shift?.endTime ?? '--:--',
+            date: data.date ?? 'Today',
+            startDepot: data.assignedRoute?.fromStop ?? 'Depot',
+            endDepot: data.assignedRoute?.toStop ?? 'Terminus',
+            status: isOnDuty.value ? 'In Transit' : 'Scheduled',
+            isCompleted: false,
+            isInTransit: isOnDuty.value,
           ),
         ]);
       } else {
-        schedule.clear();
+        shiftSchedules.clear();
+      }
+
+      // 2. Active route fallbacks if needed
+      if (data.assignedRoute != null) {
+        final r = data.assignedRoute!;
+        if (routeName.value == 'No Route Assigned' || routeName.value.isEmpty) {
+          routeName.value = r.name ?? (r.routeNumber != null ? 'Route ${r.routeNumber}' : 'Assigned Route');
+          routeFrom.value = r.fromStop ?? '--';
+          routeTo.value = r.toStop ?? '--';
+          departureLocation.value = r.fromStop ?? '--';
+          endOfRouteLocation.value = r.toStop ?? '--';
+        }
+      }
+
+      if (data.shift != null) {
+        if (departureTime.value == '--:--') {
+          departureTime.value = data.shift!.startTime ?? '--:--';
+        }
+        if (endOfRouteTime.value == '--:--') {
+          endOfRouteTime.value = data.shift!.endTime ?? '--:--';
+        }
+        if (data.shift!.shiftType != null) {
+          shiftTypeLabel.value = data.shift!.shiftType!;
+        }
       }
     } else {
-      schedule.clear();
+      shiftSchedules.clear();
     }
   }
 
@@ -176,7 +230,8 @@ class DriverHomeController extends GetxController {
     final response = await _driverService.getActiveRoute();
     if (response.success && response.data != null) {
       final active = response.data!;
-      if (active.routeName != null || active.route != null) {
+      activeRouteData.value = active;
+      if (active.routeName != null || active.route != null || active.origin != null) {
         final name = active.routeName ?? active.route?.name ?? 'Assigned Route';
         final num = active.routeNumber ?? active.route?.routeNumber;
         routeName.value = (num != null && !name.contains(num)) ? '$num - $name' : name;
@@ -185,10 +240,11 @@ class DriverHomeController extends GetxController {
         if (active.departureTime != null) departureTime.value = active.departureTime!;
         if (active.endTime != null) endOfRouteTime.value = active.endTime!;
         if (active.busNumber != null) busNumber.value = active.busNumber!;
+        if (active.vehicleType != null) vehicleType.value = active.vehicleType!;
         if (active.nextStop != null) nextStopName.value = active.nextStop!;
-        if (active.nextStopEta != null) nextStopEta.value = 'ETA: ${active.nextStopEta!}';
+        if (active.nextStopEta != null) nextStopEta.value = active.nextStopEta!;
+        if (active.status != null) statusLabel.value = active.status!;
 
-        // Also update isOnDuty if activeTrip indicates in_progress
         if (active.rawStatus == 'in_progress') {
           isOnDuty.value = true;
         }
@@ -241,8 +297,8 @@ class DriverHomeController extends GetxController {
       if (response.success) {
         isOnDuty.value = (nextStatus == 'on_duty');
         Get.snackbar(
-          'Duty Status Updated',
-          'You are now ${isOnDuty.value ? "ON DUTY" : "OFF DUTY"}',
+          'duty_status_updated'.tr,
+          isOnDuty.value ? 'on_duty'.tr : 'off_duty'.tr,
           backgroundColor: const Color(0xFF15151F),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
@@ -250,8 +306,8 @@ class DriverHomeController extends GetxController {
         );
       } else {
         Get.snackbar(
-          'Failed',
-          response.message ?? 'Could not update duty status',
+          'error'.tr,
+          response.message ?? 'update_failed'.tr,
           backgroundColor: const Color(0xFF15151F),
           colorText: Colors.redAccent,
           snackPosition: SnackPosition.BOTTOM,
@@ -259,8 +315,8 @@ class DriverHomeController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'Error updating duty status: $e',
+        'error'.tr,
+        e.toString(),
         backgroundColor: const Color(0xFF15151F),
         colorText: Colors.redAccent,
         snackPosition: SnackPosition.BOTTOM,
@@ -273,29 +329,38 @@ class DriverHomeController extends GetxController {
   void _loadQuickActions() {
     quickActions.assignAll([
       DriverQuickAction(
-        title: 'My Route',
-        icon: "assets/icons/live_location.svg",
-        color: const Color(0xFFB042FF),
+        title: 'my_routes_trips',
+        subtitle: 'live_corridor_cockpit',
+        icon: 'assets/icons/bus.svg',
+        color: const Color(0xFF1C68FD),
+        tabIndex: 1,
         route: Routes.MY_ROUTE,
+        requiresVerification: true,
       ),
       DriverQuickAction(
-        title: 'Schedule',
-        icon: "assets/icons/calendar.svg",
+        title: 'shift_timetables',
+        subtitle: 'seven_day_roster',
+        icon: 'assets/icons/calendar.svg',
         color: const Color(0xFF3F7BF5),
+        tabIndex: 2,
         route: Routes.DRIVER_SCHEDULE,
+        requiresVerification: true,
       ),
       DriverQuickAction(
-        title: 'Notifications',
-        icon: "assets/icons/notification.svg",
+        title: 'kyc_documents',
+        subtitle: 'license_compliance',
+        icon: 'assets/icons/advertiser_ic/layers.svg',
         color: const Color(0xFFB042FF),
-        route: Routes.DRIVER_NOTIFICATION,
-        badgeCount: notificationCount.value,
+        route: Routes.DRIVER_DOCUMENT,
+        requiresVerification: false,
       ),
       DriverQuickAction(
-        title: 'Report Incident',
-        icon: "assets/icons/advertiser_ic/layers.svg",
+        title: 'sos_report',
+        subtitle: 'sos_roadside_log',
+        icon: 'assets/icons/advertiser_ic/speaker.svg',
         color: const Color(0xFFFF4D9E),
         route: Routes.DRIVER_REPORT_INCIDENT,
+        requiresVerification: false,
       ),
     ]);
   }
@@ -311,12 +376,62 @@ class DriverHomeController extends GetxController {
     Get.toNamed(Routes.DRIVER_NOTIFICATION);
   }
 
+  void onReportIncidentTap() {
+    Get.toNamed(Routes.DRIVER_REPORT_INCIDENT);
+  }
+
   void onViewRouteDetails() {
-    Get.toNamed(Routes.MY_ROUTE);
+    if (!isDocumentsVerified.value) {
+      Get.snackbar(
+        'access_restricted'.tr,
+        'locked_pending_approval'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFF2A1C0E),
+        colorText: Colors.amber,
+      );
+      return;
+    }
+    if (Get.isRegistered<DriverDashboardController>()) {
+      Get.find<DriverDashboardController>().setNavIndex(1);
+    } else {
+      Get.toNamed(Routes.MY_ROUTE);
+    }
   }
 
   void onViewFullSchedule() {
-    Get.toNamed(Routes.DRIVER_SCHEDULE);
+    if (!isDocumentsVerified.value) {
+      Get.snackbar(
+        'access_restricted'.tr,
+        'locked_pending_approval'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFF2A1C0E),
+        colorText: Colors.amber,
+      );
+      return;
+    }
+    if (Get.isRegistered<DriverDashboardController>()) {
+      Get.find<DriverDashboardController>().setNavIndex(2);
+    } else {
+      Get.toNamed(Routes.DRIVER_SCHEDULE);
+    }
+  }
+
+  void onShiftItemTap(DriverShiftItem shift) {
+    if (!isDocumentsVerified.value) {
+      Get.snackbar(
+        'access_restricted'.tr,
+        'locked_pending_approval'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFF2A1C0E),
+        colorText: Colors.amber,
+      );
+      return;
+    }
+    if (Get.isRegistered<DriverDashboardController>()) {
+      Get.find<DriverDashboardController>().setNavIndex(1);
+    } else {
+      Get.toNamed(Routes.MY_ROUTE, arguments: {'slotId': shift.slotId});
+    }
   }
 
   void onUploadDocumentsTap() {
@@ -328,7 +443,25 @@ class DriverHomeController extends GetxController {
   }
 
   void onQuickActionTap(DriverQuickAction action) {
-    Get.toNamed(action.route);
+    if (action.requiresVerification && !isDocumentsVerified.value) {
+      Get.snackbar(
+        'access_restricted'.tr,
+        'locked_pending_approval'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFF2A1C0E),
+        colorText: Colors.amber,
+      );
+      return;
+    }
+
+    if (action.tabIndex != null && Get.isRegistered<DriverDashboardController>()) {
+      Get.find<DriverDashboardController>().setNavIndex(action.tabIndex!);
+      return;
+    }
+
+    if (action.route != null) {
+      Get.toNamed(action.route!);
+    }
   }
 
   Future<void> onRefresh() async {

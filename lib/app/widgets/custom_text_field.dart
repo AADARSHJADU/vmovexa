@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../theme/app_colors.dart';
 
@@ -21,6 +22,7 @@ class CustomTextField extends StatelessWidget {
   final bool isObscured;
   final VoidCallback? onToggleObscure;
   final TextInputType keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
   final bool isDropdown;
   final String? dropdownValue;
   final List<String>? dropdownItems;
@@ -54,6 +56,7 @@ class CustomTextField extends StatelessWidget {
     this.isObscured = false,
     this.onToggleObscure,
     this.keyboardType = TextInputType.text,
+    this.inputFormatters,
     this.isDropdown = false,
     this.dropdownValue,
     this.dropdownItems,
@@ -268,6 +271,7 @@ class CustomTextField extends StatelessWidget {
         controller: controller,
         obscureText: isPassword ? isObscured : false,
         keyboardType: keyboardType,
+        inputFormatters: inputFormatters,
         maxLines: maxLines,
         style: const TextStyle(
           color: AppColors.textPrimary,
