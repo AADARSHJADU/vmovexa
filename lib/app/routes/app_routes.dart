@@ -103,6 +103,10 @@ abstract class Routes {
   static const GOVERNMENT_CREATE_CAMPAIGN = '/government-create-campaign';
   static const GOV_CAMPAIGN_DETAILS = '/gov-campaign-details';
   static const GOV_BILLING = '/government-billing';
+  static const GOV_COMPLIANCE_REPORTS = '/government-compliance-reports';
+  static const GOV_HELP_SUPPORT = '/government-help-support';
+  static const GOV_RAISE_TICKET = '/government-raise-ticket';
+  static const GOV_SUPPORT_HISTORY = '/government-support-history';
   static const RECORD_OFFLINE_PAYMENT = '/record-offline-payment';
 
   //technician flow routes

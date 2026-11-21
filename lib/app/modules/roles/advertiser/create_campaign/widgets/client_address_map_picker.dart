@@ -247,7 +247,193 @@ class _ClientAddressMapPickerState extends State<ClientAddressMapPicker> {
           const SizedBox(height: 14),
 
           // Search Box with autocomplete
+          // Search + Map (dropdown map ke upar overlay hoga)
           Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Column(
+                children: [
+                  // Search Box
+                  TextField(
+                    controller: widget.searchController,
+                    onChanged: _onSearchQueryChanged,
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                    decoration: InputDecoration(
+                      hintText: widget.searchHint ?? 'search_client_address_hint'.tr,
+                      hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                      prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 18),
+                      suffixIcon: _isLoadingSearch
+                          ? const Padding(
+                        padding: EdgeInsets.all(12),
+                        child: SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF8B5CF6)),
+                        ),
+                      )
+                          : (widget.searchController.text.isNotEmpty
+                          ? IconButton(
+                        icon: const Icon(Icons.clear, color: AppColors.textMuted, size: 16),
+                        onPressed: () {
+                          widget.searchController.clear();
+                          setState(() {
+                            _predictions.clear();
+                            _showDropdown = false;
+                          });
+                        },
+                      )
+                          : null),
+                      filled: true,
+                      fillColor: const Color(0xFF0F172A),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: AppColors.cardBorder),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: AppColors.cardBorder),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Color(0xFF8B5CF6)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Interactive Map Box
+                  Container(
+                    height: 180,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.cardBorder),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Stack(
+                      children: [
+                        FlutterMap(
+                          mapController: _mapController,
+                          options: MapOptions(
+                            initialCenter: LatLng(_currentLat, _currentLng),
+                            initialZoom: 14.0,
+                            onTap: (tapPosition, point) {
+                              _reverseGeocode(point.latitude, point.longitude);
+                            },
+                          ),
+                          children: [
+                            TileLayer(
+                              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                              userAgentPackageName: 'com.vmovexa.app',
+                            ),
+                            MarkerLayer(
+                              markers: [
+                                Marker(
+                                  point: LatLng(_currentLat, _currentLng),
+                                  width: 44,
+                                  height: 44,
+                                  child: GestureDetector(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(4),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF2563EB),
+                                            shape: BoxShape.circle,
+                                            border: Border.all(color: Colors.white, width: 2),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withValues(alpha: 0.4),
+                                                blurRadius: 6,
+                                              ),
+                                            ],
+                                          ),
+                                          child: const Icon(Icons.business_rounded, color: Colors.white, size: 14),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+
+                        // Pin Hint Overlay
+                        Positioned(
+                          top: 8,
+                          left: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0F172A).withValues(alpha: 0.85),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: AppColors.cardBorder),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.touch_app_rounded, color: Color(0xFF60A5FA), size: 12),
+                                const SizedBox(width: 4),
+                                Text(
+                                  _hasCustomPin
+                                      ? 'Lat: ${_currentLat.toStringAsFixed(4)}, Lng: ${_currentLng.toStringAsFixed(4)}'
+                                      : 'Tap anywhere on map to drop pin',
+                                  style: const TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              // Autocomplete suggestions: LAST child => sabse upar + tap bhi chalega
+              if (_showDropdown && _predictions.isNotEmpty)
+                Positioned(
+                  top: 50,
+                  left: 0,
+                  right: 0,
+                  child: Material(
+                    elevation: 8,
+                    color: const Color(0xFF1E293B),
+                    borderRadius: BorderRadius.circular(10),
+                    clipBehavior: Clip.antiAlias,
+                    child: Container(
+                      constraints: const BoxConstraints(maxHeight: 180),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFF334155)),
+                      ),
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        padding: EdgeInsets.zero,
+                        itemCount: _predictions.length,
+                        separatorBuilder: (_, _) => const Divider(color: Color(0xFF334155), height: 1),
+                        itemBuilder: (context, index) {
+                          final p = _predictions[index];
+                          return ListTile(
+                            dense: true,
+                            visualDensity: VisualDensity.compact,
+                            leading: const Icon(Icons.place_rounded, color: Color(0xFF3B82F6), size: 16),
+                            title: Text(p.name, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                            subtitle: Text(p.formattedAddress, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5), maxLines: 1, overflow: TextOverflow.ellipsis),
+                            onTap: () => _selectPlace(p),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 14),
+        /*  Stack(
             clipBehavior: Clip.none,
             children: [
               TextField(
@@ -337,8 +523,8 @@ class _ClientAddressMapPickerState extends State<ClientAddressMapPicker> {
                   ),
                 ),
             ],
-          ),
-          const SizedBox(height: 12),
+          ),*/
+          /*const SizedBox(height: 30),
 
           // Interactive Map Box
           Container(
@@ -427,8 +613,8 @@ class _ClientAddressMapPickerState extends State<ClientAddressMapPicker> {
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 14),
+          ),*/
+          // const SizedBox(height: 14),
 
           // Structured Address Fields
           Text('street_address_building'.tr,

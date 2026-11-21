@@ -270,6 +270,12 @@ import '../modules/roles/government/campaign_details/bindings/gov_campaign_detai
 import '../modules/roles/government/campaign_details/views/gov_campaign_details_view.dart';
 import '../modules/roles/government/billing_invoices/bindings/gov_billing_invoices_binding.dart';
 import '../modules/roles/government/billing_invoices/views/gov_billing_invoices_view.dart';
+import '../modules/roles/government/compliance_reports/bindings/gov_compliance_reports_binding.dart';
+import '../modules/roles/government/compliance_reports/views/gov_compliance_reports_view.dart';
+import '../modules/roles/government/help_support/bindings/gov_help_support_binding.dart';
+import '../modules/roles/government/help_support/views/gov_help_support_view.dart';
+import '../modules/roles/government/help_support/views/gov_raise_ticket_view.dart';
+import '../modules/roles/government/help_support/views/gov_support_history_view.dart';
 
 class AppPages {
    static const INITIAL = Routes.SPLASH;
@@ -693,6 +699,30 @@ class AppPages {
       name: Routes.GOV_BILLING,
       page: () => const GovBillingInvoicesView(),
       binding: GovBillingInvoicesBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.GOV_COMPLIANCE_REPORTS,
+      page: () => const GovComplianceReportsView(),
+      binding: GovComplianceReportsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.GOV_HELP_SUPPORT,
+      page: () => const GovHelpSupportView(),
+      binding: GovHelpSupportBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.GOV_RAISE_TICKET,
+      page: () => const GovRaiseTicketView(),
+      binding: GovHelpSupportBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.GOV_SUPPORT_HISTORY,
+      page: () => const GovSupportHistoryView(),
+      binding: GovHelpSupportBinding(),
       transition: Transition.rightToLeft,
     ),
 

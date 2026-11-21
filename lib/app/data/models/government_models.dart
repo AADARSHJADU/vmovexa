@@ -168,7 +168,11 @@ class GovCampaignModel {
 
     return GovCampaignModel(
       id: json['id']?.toString(),
-      code: json['code']?.toString() ?? json['id']?.toString(),
+      code: json['code']?.toString() ??
+          json['campaign_code']?.toString() ??
+          json['campaignCode']?.toString() ??
+          json['po_reference']?.toString() ??
+          json['id']?.toString(),
       title: json['title']?.toString() ?? json['name']?.toString(),
       name: json['name']?.toString() ?? json['title']?.toString(),
       description: json['description']?.toString(),
@@ -183,7 +187,13 @@ class GovCampaignModel {
       impressions: int.tryParse(json['impressions_delivered']?.toString() ?? json['impressions']?.toString() ?? '0'),
       reach: int.tryParse(json['reach']?.toString() ?? '0'),
       clicks: int.tryParse(json['clicks']?.toString() ?? '0'),
-      qrScansCount: int.tryParse(json['qr_scans_count']?.toString() ?? json['qr_scans']?.toString() ?? '0'),
+      qrScansCount: int.tryParse(json['qr_scans_count']?.toString() ??
+          json['qr_scans']?.toString() ??
+          json['qrScans']?.toString() ??
+          (json['qrCodes'] is List && (json['qrCodes'] as List).isNotEmpty
+              ? json['qrCodes'][0]['scan_count']?.toString()
+              : null) ??
+          '0'),
       qrUniqueScanners: int.tryParse(json['qr_unique_scanners']?.toString() ?? '0'),
       qrScanRate: json['qr_scan_rate']?.toString(),
       qrCodeId: json['qr_code_id']?.toString() ?? json['qr_code']?.toString(),
@@ -211,6 +221,17 @@ class GovCampaignModel {
   }
 
   String get displayCode => (code != null && code!.isNotEmpty) ? code! : (id != null && id!.isNotEmpty ? 'CMP-$id' : 'CMP');
+
+  bool get isPaid {
+    final ps = (paymentStatus ?? '').toLowerCase().trim();
+    final rawPs = (rawJson?['payment_status'] ?? '').toString().toLowerCase().trim();
+    return ps == 'paid' ||
+        ps.contains('paid') ||
+        ps.contains('cleared') ||
+        rawPs == 'paid' ||
+        rawPs.contains('paid') ||
+        rawPs.contains('cleared');
+  }
 
   String get departmentOrClient {
     if (clientCompany != null && clientCompany!.isNotEmpty) return clientCompany!;
@@ -867,9 +888,14 @@ class GovAnalyticsModel {
   final int emergencyBroadcasts;
   final int totalImpressions;
   final int totalScans;
+  final int uniqueScans;
   final int totalVehicles;
   final int monitoredBuses;
   final int averageReach;
+  final Map<String, dynamic> qrDeviceBreakdown;
+  final List<dynamic> topCampaigns;
+  final List<dynamic> daysTrend;
+  final Map<String, dynamic>? rawJson;
 
   GovAnalyticsModel({
     this.totalCampaigns = 0,
@@ -879,15 +905,23 @@ class GovAnalyticsModel {
     this.emergencyBroadcasts = 0,
     this.totalImpressions = 0,
     this.totalScans = 0,
+    this.uniqueScans = 0,
     this.totalVehicles = 0,
     this.monitoredBuses = 0,
     this.averageReach = 84,
+    this.qrDeviceBreakdown = const {},
+    this.topCampaigns = const [],
+    this.daysTrend = const [],
+    this.rawJson,
   });
 
   factory GovAnalyticsModel.fromJson(Map<String, dynamic>? json) {
     if (json == null) return GovAnalyticsModel();
 
     final kpis = json['kpis'] is Map ? Map<String, dynamic>.from(json['kpis']) : json;
+    final deviceMap = json['qrDeviceBreakdown'] is Map ? Map<String, dynamic>.from(json['qrDeviceBreakdown']) : <String, dynamic>{};
+    final topList = json['topCampaigns'] is List ? List<dynamic>.from(json['topCampaigns']) : <dynamic>[];
+    final trendList = json['daysTrend'] is List ? List<dynamic>.from(json['daysTrend']) : <dynamic>[];
 
     return GovAnalyticsModel(
       totalCampaigns: int.tryParse(kpis['totalCampaigns']?.toString() ?? '0') ?? 0,
@@ -897,9 +931,14 @@ class GovAnalyticsModel {
       emergencyBroadcasts: int.tryParse(kpis['emergencyBroadcasts']?.toString() ?? '0') ?? 0,
       totalImpressions: int.tryParse(kpis['totalImpressions']?.toString() ?? '0') ?? 0,
       totalScans: int.tryParse(kpis['totalScans']?.toString() ?? '0') ?? 0,
+      uniqueScans: int.tryParse(kpis['uniqueScans']?.toString() ?? '0') ?? 0,
       totalVehicles: int.tryParse(kpis['totalVehicles']?.toString() ?? kpis['monitoredBuses']?.toString() ?? '0') ?? 0,
       monitoredBuses: int.tryParse(kpis['monitoredBuses']?.toString() ?? '0') ?? 0,
       averageReach: int.tryParse(kpis['averageReach']?.toString() ?? '84') ?? 84,
+      qrDeviceBreakdown: deviceMap,
+      topCampaigns: topList,
+      daysTrend: trendList,
+      rawJson: json,
     );
   }
 }
@@ -1034,3 +1073,82 @@ class TrackingRouteModel {
     );
   }
 }
+
+/// Represents an attached media asset in Emergency Broadcast
+class EmergencyMediaItem {
+  final String id;
+  String name;
+  String type; // 'Image', 'Video', 'PDF', 'URL'
+  String? localPath;
+  String? url;
+  String? previewUrl;
+  String size;
+  String resolution;
+  int durationSec;
+  int displayDurationSec;
+
+  EmergencyMediaItem({
+    required this.id,
+    required this.name,
+    required this.type,
+    this.localPath,
+    this.url,
+    this.previewUrl,
+    this.size = '1.0 MB',
+    this.resolution = '1920x1080',
+    this.durationSec = 15,
+    this.displayDurationSec = 15,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'mediaType': type.toLowerCase(),
+    'mediaUrl': url ?? previewUrl ?? '',
+    'displayDurationSec': displayDurationSec,
+  };
+}
+
+/// Represents a Transit Route for targeting selection
+class FleetRouteOptionModel {
+  final String routeKey;
+  final String? fleetId;
+  final String? fleetName;
+  final String? organizationId;
+  final String id;
+  final String name;
+  final String code;
+  final String city;
+  final List<FleetVehicleOptionModel> vehicles;
+  final int vehicleCount;
+  final int screensPerVehicle;
+  final int totalScreens;
+
+  FleetRouteOptionModel({
+    required this.routeKey,
+    this.fleetId,
+    this.fleetName,
+    this.organizationId,
+    required this.id,
+    required this.name,
+    required this.code,
+    required this.city,
+    required this.vehicles,
+    required this.vehicleCount,
+    required this.screensPerVehicle,
+    required this.totalScreens,
+  });
+}
+
+/// Represents an individual vehicle in a fleet route
+class FleetVehicleOptionModel {
+  final String id;
+  final String busNumber;
+  final int displaysCount;
+
+  FleetVehicleOptionModel({
+    required this.id,
+    required this.busNumber,
+    required this.displaysCount,
+  });
+}
+

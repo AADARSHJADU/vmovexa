@@ -39,9 +39,17 @@ class GovernmentService extends GetxService {
   }
 
   /// 1. GET /api/v1/government/analytics — Agency Analytics & KPIs
-  Future<ApiResponseModel<GovAnalyticsModel>> getAgencyAnalytics() async {
+  Future<ApiResponseModel<GovAnalyticsModel>> getAgencyAnalytics({
+    String? dateRange,
+    String? category,
+  }) async {
+    final query = <String, dynamic>{};
+    if (dateRange != null && dateRange.isNotEmpty) query['dateRange'] = dateRange;
+    if (category != null && category.isNotEmpty && category != 'all') query['category'] = category;
+
     return _http.get<GovAnalyticsModel>(
       ApiConstants.governmentAnalytics,
+      queryParams: query.isNotEmpty ? query : null,
       requiresAuth: true,
       create: (data) {
         if (data is Map) {
@@ -267,6 +275,7 @@ class GovernmentService extends GetxService {
       if (data['mediaType'] != null) 'mediaType': data['mediaType'],
       if (data['emergencyNumber'] != null) 'emergencyNumber': data['emergencyNumber'],
       if (data['targets'] != null) 'targets': data['targets'],
+      if (data['media'] != null) 'media': data['media'],
     };
 
     return _http.post<EmergencyBroadcastModel>(
@@ -473,6 +482,70 @@ class GovernmentService extends GetxService {
     return _http.get(
       ApiConstants.governmentMetaOptions,
       requiresAuth: true,
+    );
+  }
+
+  /// 28. GET /api/v1/content/:type?role=... — Fetch CMS/Help content
+  Future<ApiResponseModel<dynamic>> getContentPage(String type, {String? role}) async {
+    final Map<String, dynamic> params = {};
+    if (role != null && role.isNotEmpty) {
+      params['role'] = role;
+      params['role_code'] = role;
+    }
+    return _http.get(
+      ApiConstants.contentPage(type),
+      queryParams: params.isNotEmpty ? params : null,
+      requiresAuth: false,
+    );
+  }
+
+  /// 29. POST /api/v1/uploads — Upload support file/attachment
+  Future<ApiResponseModel<Map<String, dynamic>>> uploadSupportFile(String filePath) async {
+    return _http.uploadFile(
+      filePath: filePath,
+      purpose: 'support',
+      requiresAuth: true,
+    );
+  }
+
+  /// 30. POST /api/v1/support/tickets — Create a support ticket
+  Future<ApiResponseModel<dynamic>> createTicket(Map<String, dynamic> data) async {
+    return _http.post(
+      ApiConstants.createSupportTicket,
+      body: data,
+      requiresAuth: true,
+    );
+  }
+
+  /// 31. GET /api/v1/me/support/tickets — Fetch current user's support tickets
+  Future<ApiResponseModel<dynamic>> getMyTickets({int page = 1, int limit = 20}) async {
+    return _http.get(
+      ApiConstants.supportTickets,
+      queryParams: {'page': page, 'limit': limit},
+      requiresAuth: true,
+    );
+  }
+
+  /// 32. GET /api/v1/billing/invoices — Fetch official billing invoices & tax receipts
+  Future<ApiResponseModel<List<Map<String, dynamic>>>> getBillingInvoices() async {
+    return _http.get<List<Map<String, dynamic>>>(
+      ApiConstants.billingInvoices,
+      requiresAuth: true,
+      create: (data) {
+        if (data is List) {
+          return data
+              .whereType<Map>()
+              .map((item) => Map<String, dynamic>.from(item))
+              .toList();
+        } else if (data is Map && (data['rows'] is List || data['items'] is List || data['data'] is List)) {
+          final list = (data['rows'] ?? data['items'] ?? data['data']) as List;
+          return list
+              .whereType<Map>()
+              .map((item) => Map<String, dynamic>.from(item))
+              .toList();
+        }
+        return <Map<String, dynamic>>[];
+      },
     );
   }
 }

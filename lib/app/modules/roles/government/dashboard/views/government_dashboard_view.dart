@@ -30,7 +30,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
               child: Column(
                 children: [
                   // Top Navigation Header
-                  index == 4 || index == 1 || index == 2 ? const SizedBox() : _buildTopHeader(scaffoldContext, index),
+                  index == 4 || index == 3 || index == 1 || index == 2 ? const SizedBox() : _buildTopHeader(scaffoldContext, index),
 
                   // Main Tab Content
                   Expanded(
@@ -40,7 +40,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                         _buildHomeTab(),
                         _buildCampaignsTab(),
                         _buildEmergencyBroadcastTab(),
-                        _buildAnalyticsTab(),
+                        _buildAnalyticsTab(scaffoldContext),
                         GovernmentProfileView(),
                       ],
                     ),
@@ -1520,7 +1520,6 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
               ],
             ),
             const SizedBox(height: 8),
-
             // Bottom Reach, Impressions, Status & Arrow
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1544,6 +1543,13 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                   ),
                 ),
 
+
+              ],
+            ),
+            SizedBox(height: 10,),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
                 // Status Pill
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
@@ -1576,7 +1582,6 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                     ],
                   ),
                 ),
-
                 // Forward Arrow
                 Container(
                   width: 24,
@@ -1591,7 +1596,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
                   ),
                 ),
               ],
-            ),
+            )
           ],
         ),
       ),
@@ -3607,564 +3612,63 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
   }
 
   // ==========================================
-  // TAB 4: ANALYTICS DASHBOARD
   // ==========================================
-  Widget _buildAnalyticsTab() {
+  // TAB 4: TRANSIT ANALYTICS & TELEMATICS
+  // 100% Parity with Admin GovAnalyticsDashboardPage.jsx
+  // ==========================================
+  Widget _buildAnalyticsTab(BuildContext context) {
     return Obx(() {
-      final isQrTab = controller.selectedAnalyticsSubTab.value == 'QR Analytics';
+      final isQrTab = controller.analyticsMainTab.value == 'qr';
 
-      return SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Date Selector and Sub-tabs Header (Image 5 style)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1. Fixed Top Header & Tab Switcher (Does not scroll)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    _buildSubTabHeaderButton('Overview', !isQrTab),
-                    const SizedBox(width: 14),
-                    _buildSubTabHeaderButton('QR Analytics', isQrTab, hasNewBadge: true),
-                  ],
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: AppColors.cardBg,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.cardBorder, width: 1.2),
-                  ),
-                  child: Row(
-                    children: const [
-                      Icon(Icons.calendar_today_rounded, color: Colors.white, size: 11),
-                      SizedBox(width: 6),
-                      Text('Realtime Live Analytics', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
-                      SizedBox(width: 4),
-                      Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white, size: 12),
-                    ],
-                  ),
-                ),
+                _buildAnalyticsHeaderBanner(context),
+                const SizedBox(height: 12),
+                _buildAnalyticsMainTabSwitcher(),
+                const SizedBox(height: 10),
               ],
             ),
-            const SizedBox(height: 14),
+          ),
 
-            // Toggleable Tab Content
-            if (!isQrTab) ...[
-              // Overview Metric Counters Grid
-              // Overview Metric Counters Grid
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 4,
-                mainAxisSpacing: 8,
-                crossAxisSpacing: 8,
-                childAspectRatio: 0.65,
-                children: [
-                  _buildAnalyticsGridCell(
-                    'Total Campaigns',
-                    '${controller.analytics.value.totalCampaigns > 0 ? controller.analytics.value.totalCampaigns : controller.campaigns.length}',
-                    'Realtime',
-                    const Color(0xFF3B82F6),
-                    "assets/icons/advertiser_ic/speaker.svg",
-                  ),
-                  _buildAnalyticsGridCell(
-                    'Total Displays',
-                    '${controller.analytics.value.monitoredBuses > 0 ? controller.analytics.value.monitoredBuses : (controller.liveTracking.value.total * 2)}',
-                    'Online',
-                    const Color(0xFF10B981),
-                    "assets/icons/advertiser_ic/tv.svg",
-                  ),
-                  _buildAnalyticsGridCell(
-                    'Total Vehicles',
-                    '${controller.liveTracking.value.total > 0 ? controller.liveTracking.value.total : (controller.analytics.value.totalVehicles > 0 ? controller.analytics.value.totalVehicles : 248)}',
-                    'Fleet',
-                    const Color(0xFF8B5CF6),
-                    "assets/icons/fleet_operator_icons/car.svg",
-                  ),
-                  _buildAnalyticsGridCell(
-                    'Average Reach',
-                    '${controller.analytics.value.averageReach}%',
-                    'Reach',
-                    const Color(0xFFF59E0B),
-                    "assets/icons/advertiser_ic/eye.svg",
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18),
-
-              // Performance Overview Chart Card
-              _buildPerformanceOverviewChartCard(),
-              const SizedBox(height: 18),
-
-              // Campaign Status Donut Card
-              _buildCampaignStatusDonutCard(),
-              const SizedBox(height: 18),
-
-              // Top Performing Campaigns
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text('Top Performing Campaigns', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                  Text('View All', style: TextStyle(color: Color(0xFF3B82F6), fontSize: 10, fontWeight: FontWeight.bold)),
-                ],
-              ),
-              const SizedBox(height: 10),
-              _buildTopPerformingList(),
-              const SizedBox(height: 20),
-            ] else ...[
-              // QR Analytics Widgets (Image 5)
-
-              // QR Overview metrics grid
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 4,
-                mainAxisSpacing: 8,
-                crossAxisSpacing: 8,
-                childAspectRatio: 0.65,
-                children: [
-                  _buildAnalyticsGridCell(
-                    'Total QR Scans',
-                    '${controller.calculatedTotalQrScans}',
-                    'Realtime',
-                    const Color(0xFF10B981),
-                    "assets/icons/fleet_operator_icons/qr-code-scan.svg",
-                  ),
-                  _buildAnalyticsGridCell(
-                    'Unique Scans',
-                    '${(controller.calculatedTotalQrScans * 0.75).round()}',
-                    'Scanners',
-                    const Color(0xFF3B82F6),
-                    "assets/icons/fleet_operator_icons/infoSharingA.svg",
-                  ),
-                  _buildAnalyticsGridCell(
-                    'Avg. Scans/Day',
-                    '${((controller.analytics.value.totalScans > 0 ? controller.analytics.value.totalScans : 1400) ~/ 7)}',
-                    'Daily',
-                    const Color(0xFFF59E0B),
-                    "assets/icons/advertiser_ic/qrAnalytics.svg",
-                  ),
-                  _buildAnalyticsGridCell(
-                    'Scan\nRate',
-                    '2.45%',
-                    'CTR',
-                    const Color(0xFF8B5CF6),
-                    "assets/icons/advertiser_ic/paymentTermsA.svg",
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18),
-
-              // QR Scans by Campaigns Progress List
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: AppColors.cardBg,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.cardBorder, width: 1.2),
-                ),
+          // 2. Scrollable Tab Contents
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () => controller.refreshTransitAnalytics(),
+              color: const Color(0xFF3B82F6),
+              backgroundColor: AppColors.cardBg,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('QR Scans by Campaigns', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
-                        _buildMiniDropdown('Total Scans'),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    if (controller.campaigns.isNotEmpty) ...[
-                      ...(() {
-                        final sortedList = List<GovCampaignModel>.from(controller.campaigns)
-                          ..sort((a, b) => (b.qrScansCount ?? b.clicks ?? 0).compareTo(a.qrScansCount ?? a.clicks ?? 0));
-                        final totalScans = controller.calculatedTotalQrScans > 0 ? controller.calculatedTotalQrScans : 1;
-                        final colors = [
-                          const Color(0xFF8B5CF6),
-                          const Color(0xFF3B82F6),
-                          const Color(0xFF10B981),
-                          const Color(0xFFF59E0B),
-                          const Color(0xFFEC4899),
-                        ];
-                        return sortedList.take(6).toList().asMap().entries.map((entry) {
-                          final idx = entry.key + 1;
-                          final c = entry.value;
-                          final scans = c.qrScansCount ?? c.clicks ?? 0;
-                          final pct = ((scans / totalScans) * 100).clamp(0.0, 100.0);
-                          final color = colors[(idx - 1) % colors.length];
-                          return _buildQrScansRankingItem(idx, c.displayName, '$scans', pct, color);
-                        });
-                      })(),
+                    if (!isQrTab) ...[
+                      _buildNetworkOverviewContent(),
                     ] else ...[
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        child: Center(
-                          child: Text('No campaign QR scans recorded yet', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
-                        ),
-                      ),
+                      _buildQrAnalyticsContent(),
                     ],
+                    const SizedBox(height: 24),
                   ],
                 ),
               ),
-              const SizedBox(height: 18),
-
-              // Two Column charts: QR Scans Trend (Line) & QR Scans by Device Type (Donut)
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Container(
-                      height: 220,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.cardBg,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text('QR Scans Trend', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                              _buildMiniDropdown('Daily'),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              _buildChartLegendItem('Total', const Color(0xFF3B82F6)),
-                              const SizedBox(width: 6),
-                              _buildChartLegendItem('Unique', const Color(0xFF10B981)),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Expanded(
-                            child: CustomPaint(
-                              painter: GovAnalyticsQrTrendPainter(),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Container(
-                      height: 220,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.cardBg,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('QR Scans by Device Type', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 14),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: CustomPaint(
-                                    painter: GovAnalyticsQrDeviceDonutPainter(),
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    _buildDeviceLegendItem('Mobile', '78%', const Color(0xFF3B82F6)),
-                                    const SizedBox(height: 4),
-                                    _buildDeviceLegendItem('Desktop', '12%', const Color(0xFF10B981)),
-                                    const SizedBox(height: 4),
-                                    _buildDeviceLegendItem('Tablet', '6%', const Color(0xFFF59E0B)),
-                                    const SizedBox(height: 4),
-                                    _buildDeviceLegendItem('Others', '4%', const Color(0xFF8B5CF6)),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18),
-
-              // Bottom Insight Banner Card
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF8B5CF6).withOpacity(0.06),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFF8B5CF6).withOpacity(0.2), width: 1),
-                ),
-                child: Row(
-                  children: [
-                   SvgPicture.asset('assets/icons/light.svg',width: 25,height: 25,),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Insight',
-                            style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            controller.campaigns.isNotEmpty
-                                ? '${controller.campaigns.first.displayName} is actively tracked across transit corridors for citizen engagement.'
-                                : 'Public awareness campaigns are actively monitored for QR scan engagement.',
-                            style: const TextStyle(color: AppColors.textSecondary, fontSize: 9.5),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Switch to QR Analytics sub tab of Road Safety Details
-                        controller.selectedNavIndex.value = 1; // go to campaigns tab list
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF8B5CF6).withOpacity(0.12),
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      child: const Text('View Qr Analytics', style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 9, fontWeight: FontWeight.bold)),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-            ],
-          ],
-        ),
+            ),
+          ),
+        ],
       );
     });
   }
 
-  Widget _buildSubTabHeaderButton(String label, bool isSelected, {bool hasNewBadge = false}) {
-    return GestureDetector(
-      onTap: () => controller.selectedAnalyticsSubTab.value = label,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: isSelected ? const Color(0xFF3B82F6) : Colors.transparent,
-              width: 2,
-            ),
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? Colors.white : AppColors.textMuted,
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-            if (hasNewBadge) ...[
-              const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEC4899),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: const Text(
-                  'NEW',
-                  style: TextStyle(color: Colors.white, fontSize: 7, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQrScansRankingItem(int rank, String title, String scans, double percentage, Color color) {
+  // 1. Header Banner with Title, Subtitle, Refresh & Filters (drawer and breadcrumb removed)
+  Widget _buildAnalyticsHeaderBanner(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        children: [
-          Text('$rank', style: const TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.bold)),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(2),
-                  child: LinearProgressIndicator(
-                    value: percentage / 100,
-                    backgroundColor: Colors.black26,
-                    valueColor: AlwaysStoppedAnimation<Color>(color),
-                    minHeight: 3.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(scans, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-              Text('${percentage.toStringAsFixed(1)}%', style: const TextStyle(color: AppColors.textMuted, fontSize: 8)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDeviceLegendItem(String name, String percentage, Color color) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(width: 5, height: 5, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
-        const SizedBox(width: 4),
-        Text(name, style: const TextStyle(color: AppColors.textMuted, fontSize: 7.5)),
-        const SizedBox(width: 6),
-        Text(percentage, style: const TextStyle(color: Colors.white, fontSize: 7.5, fontWeight: FontWeight.bold)),
-      ],
-    );
-  }
-
-  Widget _buildMiniDropdown(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.black38,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: AppColors.cardBorder, width: 1),
-      ),
-      child: Row(
-        children: [
-          Text(label, style: const TextStyle(color: Colors.white, fontSize: 9.5)),
-          const SizedBox(width: 4),
-          const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white, size: 10),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAnalyticsGridCell(String title, String val, String percentage, Color color, String icon) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 4,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppColors.cardBorder,
-          width: 1.2,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          title=='Scan Rate'|| title=='Unique Scans'?
-        SvgPicture.asset(icon,width: 25,height: 25,):
-        SvgPicture.asset(icon,width: 21,height: 21,),
-          const SizedBox(height: 5),
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 10,
-              height: 1,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-
-          const SizedBox(height: 5),
-
-          Text(
-            val,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              height: 1,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-
-          const SizedBox(height: 5),
-
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                percentage,
-                style: TextStyle(
-                  color: color,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  height: 1,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              // const SizedBox(width: 2),
-              // Flexible(
-              //   child: Text(
-              //     'vs last 7d',
-              //     style: const TextStyle(
-              //       color: Colors.white,
-              //       fontSize: 6,
-              //       height: 1,
-              //     ),
-              //     maxLines: 1,
-              //     overflow: TextOverflow.ellipsis,
-              //   ),
-              // ),
-            ],
-          ),
-          const SizedBox(height: 5),
-          Text(
-            'vs last 7d',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 9,
-              height: 1,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPerformanceOverviewChartCard() {
-    return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(16),
@@ -4173,70 +3677,519 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: const [
-                  Text('Performance Overview', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
-                  SizedBox(width: 4),
-                  Icon(Icons.info_outline_rounded, color: AppColors.textMuted, size: 11),
-                ],
-              ),
-              Row(
-                children: [
-                  _buildChartLegendItem('Displays', const Color(0xFF3B82F6)),
-                  const SizedBox(width: 10),
-                  _buildChartLegendItem('Reach', const Color(0xFF10B981)),
-                  const SizedBox(width: 10),
-                  _buildChartLegendItem('Impressions', const Color(0xFF8B5CF6)),
-                ],
-              ),
-            ],
+          // Title & Subtitle
+          Text(
+            'gov_analytics.title'.tr,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              letterSpacing: -0.3,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            'gov_analytics.sub'.tr,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 11,
+              height: 1.3,
+            ),
           ),
           const SizedBox(height: 14),
 
-          // Custom chart painter
-          SizedBox(
-            height: 180,
-            width: double.infinity,
-            child: CustomPaint(
-              painter: GovAnalyticsChartPainter(),
-            ),
+          // Filters and Refresh Row
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              // Refresh Button
+              Obx(() {
+                final isRefreshing = controller.isAnalyticsRefreshing.value;
+                return Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: isRefreshing ? null : () => controller.refreshTransitAnalytics(),
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      height: 36,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.black26,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppColors.cardBorder, width: 1),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (isRefreshing)
+                            const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          else
+                            const Icon(Icons.refresh_rounded, color: Colors.white, size: 16),
+                          const SizedBox(width: 6),
+                          Text(
+                            isRefreshing ? 'updating'.tr : 'common.refresh'.tr,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
+
+              // Category Filter Dropdown
+              Obx(() {
+                final selectedCat = controller.analyticsCategory.value;
+
+                // Remove duplicates and any 'all' that the API/controller already included
+                final categories = controller.analyticsAvailableCategories
+                    .where((c) => c != 'all')
+                    .toSet()
+                    .toList();
+
+                // Guard: value must match exactly one item
+                final safeValue =
+                (selectedCat == 'all' || categories.contains(selectedCat))
+                    ? selectedCat
+                    : 'all';
+
+                return Container(
+                  height: 36,
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.black26,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.cardBorder, width: 1),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: safeValue,
+                      dropdownColor: AppColors.cardBg,
+                      icon: const Icon(Icons.keyboard_arrow_down_rounded,
+                          color: Colors.white70, size: 18),
+                      style: const TextStyle(
+                          color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                      items: [
+                        DropdownMenuItem<String>(
+                          value: 'all',
+                          child: Text('gov_analytics.all_categories'.tr),
+                        ),
+                        ...categories.map((cat) => DropdownMenuItem<String>(
+                          value: cat,
+                          child: Text(cat),
+                        )),
+                      ],
+                      onChanged: (val) {
+                        if (val != null) {
+                          controller.analyticsCategory.value = val;
+                          controller.fetchAgencyAnalytics(
+                            range: controller.analyticsDateRange.value,
+                            cat: val,
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                );
+              }),
+              /*Obx(() {
+                final selectedCat = controller.analyticsCategory.value;
+                final categories = controller.analyticsAvailableCategories;
+                return Container(
+                  height: 36,
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.black26,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.cardBorder, width: 1),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: selectedCat,
+                      dropdownColor: AppColors.cardBg,
+                      icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white70, size: 18),
+                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                      items: [
+                        DropdownMenuItem<String>(
+                          value: 'all',
+                          child: Text('gov_analytics.all_categories'.tr),
+                        ),
+                        ...categories.map((cat) => DropdownMenuItem<String>(
+                          value: cat,
+                          child: Text(cat),
+                        )),
+                      ],
+                      onChanged: (val) {
+                        if (val != null) {
+                          controller.analyticsCategory.value = val;
+                          controller.fetchAgencyAnalytics(
+                            range: controller.analyticsDateRange.value,
+                            cat: val,
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                );
+              }),*/
+
+              // Date Range Filter Dropdown
+              Obx(() {
+                final selectedRange = controller.analyticsDateRange.value;
+                return Container(
+                  height: 36,
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.black26,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.cardBorder, width: 1),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: selectedRange,
+                      dropdownColor: AppColors.cardBg,
+                      icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white70, size: 18),
+                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                      items: [
+                        DropdownMenuItem<String>(
+                          value: '7days',
+                          child: Text('gov_analytics.last_7_days'.tr),
+                        ),
+                        DropdownMenuItem<String>(
+                          value: '30days',
+                          child: Text('gov_analytics.last_30_days'.tr),
+                        ),
+                        DropdownMenuItem<String>(
+                          value: 'month',
+                          child: Text('gov_analytics.current_month'.tr),
+                        ),
+                      ],
+                      onChanged: (val) {
+                        if (val != null) {
+                          controller.analyticsDateRange.value = val;
+                          controller.fetchAgencyAnalytics(
+                            range: val,
+                            cat: controller.analyticsCategory.value,
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                );
+              }),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildChartLegendItem(String label, Color color) {
-    return Row(
-      children: [
-        Container(
-          width: 6,
-          height: 6,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+  // 2. Main Tab Switcher (Network Overview vs QR Citizen Analytics) with AppTheme.primaryGradient
+  Widget _buildAnalyticsMainTabSwitcher() {
+    return Obx(() {
+      final isQrTab = controller.analyticsMainTab.value == 'qr';
+
+      return Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.cardBorder, width: 1.2),
         ),
-        const SizedBox(width: 4),
-        Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 8)),
+        child: Row(
+          children: [
+            // Network Overview Tab
+            Expanded(
+              child: GestureDetector(
+                onTap: () => controller.analyticsMainTab.value = 'overview',
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  decoration: BoxDecoration(
+                    gradient: !isQrTab ? AppTheme.primaryGradient : null,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: !isQrTab
+                        ? [
+                            BoxShadow(
+                              color: const Color(0xFF3B82F6).withValues(alpha: 0.35),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.bar_chart_rounded,
+                        color: !isQrTab ? Colors.white : AppColors.textMuted,
+                        size: 17,
+                      ),
+                      const SizedBox(width: 7),
+                      Flexible(
+                        child: Text(
+                          'gov_analytics.network_overview'.tr,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: !isQrTab ? Colors.white : AppColors.textMuted,
+                            fontSize: 11.5,
+                            fontWeight: !isQrTab ? FontWeight.bold : FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 4),
+
+            // QR Citizen Analytics Tab
+            Expanded(
+              child: GestureDetector(
+                onTap: () => controller.analyticsMainTab.value = 'qr',
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  decoration: BoxDecoration(
+                    gradient: isQrTab ? AppTheme.primaryGradient : null,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: isQrTab
+                        ? [
+                            BoxShadow(
+                              color: const Color(0xFF3B82F6).withValues(alpha: 0.35),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.qr_code_2_rounded,
+                        color: isQrTab ? Colors.white : AppColors.textMuted,
+                        size: 17,
+                      ),
+                      const SizedBox(width: 7),
+                      Flexible(
+                        child: Text(
+                          'gov_analytics.qr_citizen_analytics'.tr,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: isQrTab ? Colors.white : AppColors.textMuted,
+                            fontSize: 11.5,
+                            fontWeight: isQrTab ? FontWeight.bold : FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  // ==========================================
+  // TAB 1: NETWORK OVERVIEW CONTENT
+  // ==========================================
+  Widget _buildNetworkOverviewContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 4 KPI Cards (2x2 Grid)
+        _buildNetworkKpiGrid(),
+        const SizedBox(height: 16),
+
+        // Performance Trend Daily Bar Chart Card
+        _buildPerformanceTrendCard(),
+        const SizedBox(height: 16),
+
+        // Campaign Status Breakdown Card
+        _buildCampaignStatusCard(),
+        const SizedBox(height: 16),
+
+        // Top Performing Public Service Campaigns Card / Table
+        _buildTopPerformingSection(),
+        const SizedBox(height: 24),
       ],
     );
   }
 
-  Widget _buildCampaignStatusDonutCard() {
+  // 4 KPI Cards (Total Campaigns, Active Campaigns, Emergency Broadcasts, Transit Fleet Reach)
+  Widget _buildNetworkKpiGrid() {
     return Obx(() {
-      final total = controller.campaigns.length;
-      final active = controller.campaigns.where((c) => (c.status ?? '').toLowerCase() == 'active').length;
-      final scheduled = controller.campaigns.where((c) => (c.status ?? '').toLowerCase() == 'scheduled').length;
-      final completed = controller.campaigns.where((c) => (c.status ?? '').toLowerCase() == 'completed').length;
-      final paused = controller.campaigns.where((c) => (c.status ?? '').toLowerCase() == 'paused' || (c.status ?? '').toLowerCase() == 'inactive').length;
-      final activePct = total > 0 ? ((active / total) * 100).round() : 0;
-      final schedPct = total > 0 ? ((scheduled / total) * 100).round() : 0;
-      final compPct = total > 0 ? ((completed / total) * 100).round() : 0;
-      final pausePct = total > 0 ? ((paused / total) * 100).round() : 0;
+      final totalCampaigns = controller.analyticsTotalCampaigns;
+      final activeCampaigns = controller.analyticsActiveCampaigns;
+      final completedCampaigns = controller.analyticsCompletedCampaigns;
+      final scheduledCampaigns = controller.analyticsScheduledCampaigns;
+      final emergencyAlerts = controller.analyticsEmergencyAlerts;
+      final reachPct = controller.analyticsNetworkReachPct;
+      final activeBuses = controller.analyticsActiveVehiclesCount;
+      final totalBuses = controller.analyticsTotalVehiclesCount;
+
+      final reachChange = 'gov_analytics.n_of_n_active_buses'.tr
+          .replaceAll('{{active}}', '$activeBuses')
+          .replaceAll('{{total}}', '$totalBuses');
+
+      return GridView.count(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        crossAxisCount: 2,
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+        childAspectRatio: 1.25,
+        children: [
+          _buildKpiCard(
+            title: 'gov_analytics.kpi_total_campaigns'.tr,
+            value: '$totalCampaigns',
+            subtitle: '$completedCampaigns ${'gov_analytics.completed_suffix'.tr}',
+            dotColor: const Color(0xFF10B981),
+            icon: Icons.flag_rounded,
+          ),
+          _buildKpiCard(
+            title: 'gov_analytics.active_campaigns'.tr,
+            value: '$activeCampaigns',
+            subtitle: '$scheduledCampaigns ${'gov_analytics.pending_scheduled_suffix'.tr}',
+            dotColor: const Color(0xFF3B82F6),
+            icon: Icons.directions_bus_rounded,
+          ),
+          _buildKpiCard(
+            title: 'gov_analytics.emergency_broadcasts'.tr,
+            value: '$emergencyAlerts',
+            subtitle: 'gov_analytics.public_alerts_dispatched'.tr,
+            dotColor: const Color(0xFFEF4444),
+            icon: Icons.warning_amber_rounded,
+          ),
+          _buildKpiCard(
+            title: 'gov_analytics.kpi_fleet_reach'.tr,
+            value: '$reachPct%',
+            subtitle: reachChange,
+            dotColor: const Color(0xFF8B5CF6),
+            icon: Icons.track_changes_rounded,
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildKpiCard({
+    required String title,
+    required String value,
+    required String subtitle,
+    required Color dotColor,
+    required IconData icon,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  title.toUpperCase(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ),
+              Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: Colors.black26,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.cardBorder, width: 1),
+                ),
+                child: Icon(icon, color: Colors.white70, size: 15),
+              ),
+            ],
+          ),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+              letterSpacing: -0.5,
+            ),
+          ),
+          Row(
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
+              ),
+              const SizedBox(width: 5),
+              Expanded(
+                child: Text(
+                  subtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Performance Trend Daily Bar Chart Card
+  Widget _buildPerformanceTrendCard() {
+    return Obx(() {
+      final daysTrend = controller.analyticsDaysTrend;
+      final maxDayCount = controller.analyticsMaxDayCount;
+      final totalPlays = controller.analyticsTotalPlaysInWindow;
+      final totalCampaigns = controller.analyticsTotalCampaigns;
+      final activeCampaigns = controller.analyticsActiveCampaigns;
+      final totalImpressions = controller.analyticsTotalImpressions;
 
       return Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppColors.cardBg,
           borderRadius: BorderRadius.circular(16),
@@ -4245,132 +4198,981 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Campaign Status', style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 14),
-            Row(
+            // Title & Subtitle
+            Text(
+              'gov_analytics.perf_trend_title'.tr,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.4,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              '${'gov_analytics.perf_trend_sub'.tr} — $totalPlays ${'gov_analytics.plays_in_selected_window'.tr}',
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 10,
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // 3 Legend Badges
+            Wrap(
+              spacing: 8,
+              runSpacing: 6,
               children: [
-                // Donut chart representation
-                SizedBox(
-                  width: 100,
-                  height: 100,
-                  child: CustomPaint(
-                    painter: GovCampaignDonutPainter(),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('$total', style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
-                          const Text('Total', style: TextStyle(color: AppColors.textMuted, fontSize: 8)),
-                        ],
+                _buildLegendBadge(const Color(0xFF3B82F6), '${'gov_analytics.total_campaigns_legend'.tr} ($totalCampaigns)'),
+                _buildLegendBadge(const Color(0xFF10B981), '${'gov_analytics.active_legend'.tr} ($activeCampaigns)'),
+                _buildLegendBadge(const Color(0xFF8B5CF6), '${'gov_analytics.impressions_legend'.tr} ($totalImpressions)'),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Dynamic Bars or Empty State
+            if (daysTrend.isEmpty)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.black12,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.cardBorder.withValues(alpha: 0.5), style: BorderStyle.solid),
+                ),
+                child: Text(
+                  'gov_analytics.no_telemetry_recorded'.tr,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                ),
+              )
+            else
+              Container(
+                height: 170,
+                padding: const EdgeInsets.fromLTRB(10, 16, 10, 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0F172A).withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.cardBorder),
+                ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final chartHeight = constraints.maxHeight - 28;
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: daysTrend.map((d) {
+                          final count = (d['count'] as num?)?.toDouble() ?? 0.0;
+                          final double heightFactor = maxDayCount > 0
+                              ? (count / maxDayCount).clamp(0.06, 1.0)
+                              : 0.06;
+                          final barHeight = chartHeight * heightFactor;
+                          final dayLabel = d['day']?.toString() ?? '';
+
+                          return Container(
+                            width: 38,
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                if (count > 0)
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 4),
+                                    child: Text(
+                                      count >= 1000 ? '${(count / 1000).toStringAsFixed(1)}k' : '${count.toInt()}',
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 8,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                Container(
+                                  width: 22,
+                                  height: barHeight,
+                                  decoration: BoxDecoration(
+                                    gradient: count > 0 ? AppTheme.primaryGradient : null,
+                                    color: count > 0 ? null : const Color(0xFF334155),
+                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(5)),
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  dayLabel,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: AppColors.textMuted,
+                                    fontSize: 8.5,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
                       ),
+                    );
+                  },
+                ),
+              ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildLegendBadge(Color color, String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.black26,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.cardBorder, width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(width: 6, height: 6, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+          const SizedBox(width: 5),
+          Text(
+            text,
+            style: const TextStyle(color: Colors.white70, fontSize: 9.5, fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Campaign Status Breakdown Card
+  Widget _buildCampaignStatusCard() {
+    return Obx(() {
+      final total = controller.analyticsTotalCampaigns;
+      final active = controller.analyticsActiveCampaigns;
+      final scheduled = controller.analyticsScheduledCampaigns;
+      final completed = controller.analyticsCompletedCampaigns;
+      final emergency = controller.analyticsEmergencyAlerts;
+
+      final activePct = total > 0 ? ((active / total) * 100).round() : 0;
+      final scheduledPct = total > 0 ? ((scheduled / total) * 100).round() : 0;
+      final completedPct = total > 0 ? ((completed / total) * 100).round() : 0;
+      final emergencyPct = total > 0 ? ((emergency / total) * 100).round() : 0;
+
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'gov_analytics.status_title'.tr,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.4,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              'gov_analytics.distribution_desc'.tr,
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
+            ),
+            const SizedBox(height: 16),
+
+            // Center Visual Ring
+            Center(
+              child: Container(
+                width: 105,
+                height: 105,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFF3B82F6), width: 7),
+                  color: const Color(0xFF0F172A).withValues(alpha: 0.4),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF3B82F6).withValues(alpha: 0.15),
+                      blurRadius: 12,
+                      spreadRadius: 2,
                     ),
+                  ],
+                ),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '$total',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      Text(
+                        'gov_analytics.total'.tr.toUpperCase(),
+                        style: const TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 8.5,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 28),
+              ),
+            ),
+            const SizedBox(height: 16),
 
-                // Legend table
+            // 4 Mini Breakdown Cards (2x2 Grid)
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              childAspectRatio: 2.2,
+              children: [
+                _buildStatusMiniCard(
+                  label: 'gov_analytics.active'.tr,
+                  count: '$active ($activePct%)',
+                  color: const Color(0xFF10B981),
+                ),
+                _buildStatusMiniCard(
+                  label: 'gov_analytics.scheduled'.tr,
+                  count: '$scheduled ($scheduledPct%)',
+                  color: const Color(0xFF3B82F6),
+                ),
+                _buildStatusMiniCard(
+                  label: 'gov_analytics.completed'.tr,
+                  count: '$completed ($completedPct%)',
+                  color: const Color(0xFF94A3B8),
+                ),
+                _buildStatusMiniCard(
+                  label: 'gov_analytics.emergency_alerts'.tr,
+                  count: '$emergency ($emergencyPct%)',
+                  color: const Color(0xFFEF4444),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildStatusMiniCard({
+    required String label,
+    required String count,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.black26,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.cardBorder, width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            children: [
+              Container(width: 6, height: 6, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 3),
+          Text(
+            count,
+            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Top Performing Public Service Campaigns Section (Card vs Table toggle)
+  Widget _buildTopPerformingSection() {
+    return Obx(() {
+      final list = controller.analyticsTopCampaigns;
+      final viewMode = controller.analyticsViewMode.value;
+
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header with Title, ViewModeToggle & View All
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Expanded(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildDonutLegendRow('Active', '$active ($activePct%)', const Color(0xFF10B981)),
-                      const SizedBox(height: 8),
-                      _buildDonutLegendRow('Scheduled', '$scheduled ($schedPct%)', const Color(0xFFF59E0B)),
-                      const SizedBox(height: 8),
-                      _buildDonutLegendRow('Completed', '$completed ($compPct%)', const Color(0xFF3B82F6)),
-                      const SizedBox(height: 8),
-                      _buildDonutLegendRow('Paused', '$paused ($pausePct%)', const Color(0xFF64748B)),
+                      Text(
+                        'gov_analytics.top_campaigns_title'.tr,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'gov_analytics.top_campaigns_sub'.tr,
+                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 9.5),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+
+                // View Mode Toggle (Card vs Table)
+                Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: Colors.black26,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.cardBorder),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      GestureDetector(
+                        onTap: () => controller.analyticsViewMode.value = 'card',
+                        child: Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: viewMode == 'card' ? const Color(0xFF3B82F6) : Colors.transparent,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Icon(
+                            Icons.grid_view_rounded,
+                            size: 14,
+                            color: viewMode == 'card' ? Colors.white : AppColors.textMuted,
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => controller.analyticsViewMode.value = 'table',
+                        child: Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: viewMode == 'table' ? const Color(0xFF3B82F6) : Colors.transparent,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Icon(
+                            Icons.table_rows_rounded,
+                            size: 14,
+                            color: viewMode == 'table' ? Colors.white : AppColors.textMuted,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+
+                // View All Button (Switches to Campaigns Tab)
+                GestureDetector(
+                  onTap: () => controller.updateNavIndex(1),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'gov_analytics.view_all'.tr,
+                        style: const TextStyle(
+                          color: Color(0xFF3B82F6),
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right_rounded, color: Color(0xFF3B82F6), size: 16),
                     ],
                   ),
                 ),
               ],
             ),
+            const SizedBox(height: 14),
+
+            // Content
+            if (list.isEmpty)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.black12,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.cardBorder.withValues(alpha: 0.5)),
+                ),
+                child: Text(
+                  'gov_analytics.no_campaigns_ranked'.tr,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                ),
+              )
+            else if (viewMode == 'card')
+              Column(
+                children: list.map((item) {
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.black26,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.cardBorder, width: 1),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Rank Badge with AppTheme.primaryGradient
+                            Container(
+                              width: 26,
+                              height: 26,
+                              decoration: BoxDecoration(
+                                gradient: AppTheme.primaryGradient,
+                                borderRadius: BorderRadius.circular(7),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFF3B82F6).withValues(alpha: 0.3),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '#${item['rank']}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+
+                            // Name & Category
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item['name']?.toString() ?? '',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    item['category']?.toString() ?? '',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: AppColors.textMuted,
+                                      fontSize: 9.5,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+
+                            // Status Pill
+                            _buildStatusPill(item['status']?.toString() ?? ''),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Metrics (Reach & Impressions)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0F172A).withValues(alpha: 0.4),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    '${'gov_analytics.reach'.tr.toUpperCase()}: ',
+                                    style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    item['reach']?.toString() ?? '',
+                                    style: const TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    '${'gov_analytics.impressions'.tr.toUpperCase()}: ',
+                                    style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    item['impressions']?.toString() ?? '',
+                                    style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 10.5, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              )
+            else
+              // Table View
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                child: DataTable(
+                  horizontalMargin: 8,
+                  columnSpacing: 16,
+                  headingRowHeight: 36,
+                  dataRowMinHeight: 42,
+                  dataRowMaxHeight: 46,
+                  border: TableBorder(
+                    horizontalInside: BorderSide(color: AppColors.cardBorder.withValues(alpha: 0.4), width: 1),
+                  ),
+                  columns: [
+                    DataColumn(label: Text('gov_analytics.rank_campaign'.tr.toUpperCase(), style: const TextStyle(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold))),
+                    DataColumn(label: Text('gov_analytics.category'.tr.toUpperCase(), style: const TextStyle(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold))),
+                    DataColumn(label: Text('gov_analytics.reach'.tr.toUpperCase(), style: const TextStyle(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold))),
+                    DataColumn(label: Text('gov_analytics.impressions'.tr.toUpperCase(), style: const TextStyle(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold))),
+                    DataColumn(label: Text('gov_analytics.status'.tr.toUpperCase(), style: const TextStyle(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold))),
+                  ],
+                  rows: list.map((item) {
+                    return DataRow(
+                      cells: [
+                        DataCell(
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 20,
+                                height: 20,
+                                decoration: BoxDecoration(
+                                  color: Colors.black38,
+                                  borderRadius: BorderRadius.circular(5),
+                                  border: Border.all(color: AppColors.cardBorder),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '${item['rank']}',
+                                    style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              ConstrainedBox(
+                                constraints: const BoxConstraints(maxWidth: 140),
+                                child: Text(
+                                  item['name']?.toString() ?? '',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        DataCell(
+                          Text(item['category']?.toString() ?? '', style: const TextStyle(color: AppColors.textSecondary, fontSize: 10)),
+                        ),
+                        DataCell(
+                          Text(item['reach']?.toString() ?? '', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                        ),
+                        DataCell(
+                          Text(item['impressions']?.toString() ?? '', style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 10, fontWeight: FontWeight.bold)),
+                        ),
+                        DataCell(
+                          _buildStatusPill(item['status']?.toString() ?? ''),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
           ],
         ),
       );
     });
   }
 
-  Widget _buildDonutLegendRow(String status, String details, Color color) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Container(width: 7, height: 7, color: color),
-            const SizedBox(width: 8),
-            Text(status, style: const TextStyle(color: AppColors.textSecondary, fontSize: 10)),
-          ],
+  Widget _buildStatusPill(String status) {
+    final s = status.toLowerCase();
+    Color bg;
+    Color border;
+    Color textColor;
+    String label = status;
+
+    if (s == 'live' || s == 'active') {
+      bg = const Color(0xFF10B981).withValues(alpha: 0.15);
+      border = const Color(0xFF10B981).withValues(alpha: 0.4);
+      textColor = const Color(0xFF34D399);
+      label = 'common.active'.tr;
+    } else if (s == 'completed') {
+      bg = const Color(0xFF3B82F6).withValues(alpha: 0.15);
+      border = const Color(0xFF3B82F6).withValues(alpha: 0.4);
+      textColor = const Color(0xFF60A5FA);
+      label = 'common.completed'.tr;
+    } else if (s == 'pending_approval' || s == 'scheduled' || s == 'draft') {
+      bg = const Color(0xFFF59E0B).withValues(alpha: 0.15);
+      border = const Color(0xFFF59E0B).withValues(alpha: 0.4);
+      textColor = const Color(0xFFFBBF24);
+      label = 'pending'.tr;
+    } else {
+      bg = const Color(0xFF64748B).withValues(alpha: 0.15);
+      border = const Color(0xFF64748B).withValues(alpha: 0.4);
+      textColor = const Color(0xFF94A3B8);
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: border, width: 1),
+      ),
+      child: Text(
+        label.toUpperCase(),
+        style: TextStyle(
+          color: textColor,
+          fontSize: 8.5,
+          fontWeight: FontWeight.bold,
         ),
-        Text(details, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+      ),
+    );
+  }
+
+  // ==========================================
+  // TAB 2: QR CITIZEN ANALYTICS CONTENT
+  // ==========================================
+  Widget _buildQrAnalyticsContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 4 QR KPI Metrics (2x2 Grid)
+        _buildQrKpiGrid(),
+        const SizedBox(height: 16),
+
+        // QR Scans by Public Campaign Card
+        _buildQrByCampaignCard(),
+        const SizedBox(height: 16),
+
+        // Device Type Breakdown (3 cards)
+        _buildQrDeviceBreakdownSection(),
+        const SizedBox(height: 24),
       ],
     );
   }
 
-  Widget _buildTopPerformingList() {
+  // 4 QR KPI Metrics
+  Widget _buildQrKpiGrid() {
     return Obx(() {
-      final list = controller.campaigns.take(5).toList();
-      if (list.isEmpty) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: AppColors.cardBg,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.cardBorder, width: 1),
-          ),
-          child: const Text('No campaign performance records available yet', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
-        );
-      }
+      final totalScans = controller.analyticsTotalScans;
+      final uniqueScans = controller.analyticsUniqueScans;
+      final avgScans = controller.analyticsAvgScansPerDay;
+      final scanRate = controller.analyticsOverallScanRate;
 
-      return Column(
-        children: list.asMap().entries.map((entry) {
-          final index = entry.key + 1;
-          final c = entry.value;
-          final reachStr = (c.reach ?? 0) > 0 ? '${c.reach}' : '${c.impressions ?? 0} imp';
-          return Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppColors.cardBg,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.cardBorder, width: 1),
-            ),
-            child: Row(
-              children: [
-                Text('$index', style: const TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.bold)),
-                const SizedBox(width: 12),
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6),
-                    color: AppColors.cardBg,
-                    image: c.resolvedMediaUrl.isNotEmpty
-                        ? DecorationImage(image: NetworkImage(c.resolvedMediaUrl), fit: BoxFit.cover)
-                        : null,
-                  ),
-                  child: c.resolvedMediaUrl.isEmpty
-                      ? const Icon(Icons.campaign_outlined, color: AppColors.textMuted, size: 16)
-                      : null,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(c.displayName, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text('Reach $reachStr', style: const TextStyle(color: AppColors.textSecondary, fontSize: 9.5)),
-                    const SizedBox(height: 2),
-                    Text((c.status ?? 'ACTIVE').toUpperCase(), style: TextStyle(color: c.statusColor, fontSize: 9, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ],
-            ),
-          );
-        }).toList(),
+      final range = controller.analyticsDateRange.value;
+      final days = range == '30days' ? 30 : (range == 'month' ? DateTime.now().day : 7);
+      final avgSub = '${'gov_analytics.averaged_over'.tr} $days ${'gov_analytics.days'.tr}';
+
+      return GridView.count(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        crossAxisCount: 2,
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+        childAspectRatio: 1.25,
+        children: [
+          _buildKpiCard(
+            title: 'gov_analytics.total_qr_scans'.tr,
+            value: '$totalScans',
+            subtitle: 'gov_analytics.telemetry_verified'.tr,
+            dotColor: const Color(0xFF10B981),
+            icon: Icons.qr_code_scanner_rounded,
+          ),
+          _buildKpiCard(
+            title: 'gov_analytics.unique_scanners'.tr,
+            value: '$uniqueScans',
+            subtitle: 'gov_analytics.unique_devices'.tr,
+            dotColor: const Color(0xFF3B82F6),
+            icon: Icons.devices_rounded,
+          ),
+          _buildKpiCard(
+            title: 'gov_analytics.avg_scans_day'.tr,
+            value: '$avgScans',
+            subtitle: avgSub,
+            dotColor: const Color(0xFFF59E0B),
+            icon: Icons.calendar_month_rounded,
+          ),
+          _buildKpiCard(
+            title: 'gov_analytics.overall_scan_rate'.tr,
+            value: scanRate,
+            subtitle: 'gov_analytics.imp_conversion'.tr,
+            dotColor: const Color(0xFF8B5CF6),
+            icon: Icons.trending_up_rounded,
+          ),
+        ],
       );
     });
+  }
+
+  // QR Scans by Public Campaign Card
+  Widget _buildQrByCampaignCard() {
+    return Obx(() {
+      final items = controller.analyticsQrByCampaign;
+      final colors = [
+        const Color(0xFF3B82F6),
+        const Color(0xFFEF4444),
+        const Color(0xFF10B981),
+        const Color(0xFFF59E0B),
+        const Color(0xFF8B5CF6),
+      ];
+
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'gov_analytics.qr_by_campaign_title'.tr,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.4,
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            if (items.isEmpty)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.black12,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.cardBorder.withValues(alpha: 0.5)),
+                ),
+                child: Text(
+                  'gov_analytics.no_qr_engagement'.tr,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                ),
+              )
+            else
+              Column(
+                children: items.asMap().entries.map((entry) {
+                  final idx = entry.key;
+                  final c = entry.value;
+                  final name = c['name']?.toString() ?? '';
+                  final scansFormatted = c['scansFormatted']?.toString() ?? '0';
+                  final pct = (c['pct'] as num?)?.toDouble() ?? 0.0;
+                  final color = colors[idx % colors.length];
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '$scansFormatted ${'gov_analytics.scans_label'.tr} ($pct%)',
+                              style: TextStyle(
+                                color: color,
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: (pct / 100).clamp(0.0, 1.0),
+                            backgroundColor: Colors.black38,
+                            valueColor: AlwaysStoppedAnimation<Color>(color),
+                            minHeight: 6,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+          ],
+        ),
+      );
+    });
+  }
+
+  // Device Type Breakdown (3 Cards: Mobile Scans, Tablet Devices, Other / Web)
+  Widget _buildQrDeviceBreakdownSection() {
+    return Obx(() {
+      final stats = controller.analyticsQrDeviceStats;
+      final mobile = stats['mobile']!;
+      final tablet = stats['tablet']!;
+      final web = stats['web']!;
+
+      return Row(
+        children: [
+          Expanded(
+            child: _buildDeviceCard(
+              icon: Icons.phone_android_rounded,
+              label: 'gov_analytics.mobile_scans'.tr,
+              pct: '${mobile['pct']}%',
+              count: '${mobile['count']} ${'gov_analytics.scans_label'.tr}',
+              countColor: const Color(0xFF10B981),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildDeviceCard(
+              icon: Icons.tablet_android_rounded,
+              label: 'gov_analytics.tablet_devices'.tr,
+              pct: '${tablet['pct']}%',
+              count: '${tablet['count']} ${'gov_analytics.scans_label'.tr}',
+              countColor: const Color(0xFF3B82F6),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildDeviceCard(
+              icon: Icons.language_rounded,
+              label: 'gov_analytics.other_web'.tr,
+              pct: '${web['pct']}%',
+              count: '${web['count']} ${'gov_analytics.scans_label'.tr}',
+              countColor: const Color(0xFF94A3B8),
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildDeviceCard({
+    required IconData icon,
+    required String label,
+    required String pct,
+    required String count,
+    required Color countColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: Colors.black26,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.cardBorder, width: 1),
+            ),
+            child: Icon(icon, color: Colors.white70, size: 16),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label.toUpperCase(),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: AppColors.textMuted,
+              fontSize: 8.5,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            pct,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            count,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: countColor,
+              fontSize: 9,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildBottomNav() {
@@ -4439,293 +5241,5 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
       ),
     );
   }
-}
-
-class GovCampaignDonutPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final double radius = size.width / 2;
-    final center = Offset(radius, radius);
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 10
-      ..strokeCap = StrokeCap.round;
-
-    double startAngle = -3.14 / 2;
-
-    // Active (58%)
-    paint.color = const Color(0xFF10B981);
-    double sweepAngle = 2 * 3.1415 * 0.58;
-    canvas.drawArc(Rect.fromCircle(center: center, radius: radius - 6), startAngle, sweepAngle, false, paint);
-    startAngle += sweepAngle;
-
-    // Scheduled (25%)
-    paint.color = const Color(0xFFF59E0B);
-    sweepAngle = 2 * 3.1415 * 0.25;
-    canvas.drawArc(Rect.fromCircle(center: center, radius: radius - 6), startAngle, sweepAngle, false, paint);
-    startAngle += sweepAngle;
-
-    // Completed (12%)
-    paint.color = const Color(0xFF3B82F6);
-    sweepAngle = 2 * 3.1415 * 0.12;
-    canvas.drawArc(Rect.fromCircle(center: center, radius: radius - 6), startAngle, sweepAngle, false, paint);
-    startAngle += sweepAngle;
-
-    // Paused (5%)
-    paint.color = const Color(0xFF64748B);
-    sweepAngle = 2 * 3.1415 * 0.05;
-    canvas.drawArc(Rect.fromCircle(center: center, radius: radius - 6), startAngle, sweepAngle, false, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class GovAnalyticsChartPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final double chartHeight = size.height - 30;
-    final double chartWidth = size.width - 40;
-
-    // Grid Lines and Labels
-    final gridPaint = Paint()
-      ..color = Colors.white.withOpacity(0.04)
-      ..strokeWidth = 1;
-
-    // Y Axis indicators
-    for (int i = 0; i <= 4; i++) {
-      final y = chartHeight - (i * chartHeight / 4) + 10;
-      canvas.drawLine(Offset(25, y), Offset(size.width, y), gridPaint);
-
-      // Y Labels (e.g. 0, 250, 500, 750, 1K)
-      final textPainter = TextPainter(
-        text: TextSpan(
-          text: i == 0 ? '0' : (i == 4 ? '1K' : '${i * 250}'),
-          style: const TextStyle(color: AppColors.textMuted, fontSize: 8),
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      textPainter.paint(canvas, Offset(5, y - 5));
-    }
-
-    // X Axis Dates: 12 May to 20 May (9 points)
-    final List<String> dates = ['12 May', '13 May', '14 May', '15 May', '16 May', '17 May', '18 May', '19 May', '20 May'];
-    final double stepX = chartWidth / (dates.length - 1);
-
-    for (int i = 0; i < dates.length; i++) {
-      final x = 30 + (i * stepX);
-      final textPainter = TextPainter(
-        text: TextSpan(
-          text: dates[i],
-          style: const TextStyle(color: AppColors.textMuted, fontSize: 7),
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      textPainter.paint(canvas, Offset(x - 12, chartHeight + 16));
-    }
-
-    // Data lists mapping blue, green, and purple lines
-    final List<double> displaysData = [400, 470, 600, 480, 560, 700, 680, 900];
-    final List<double> reachData = [270, 310, 460, 330, 370, 560, 530, 730];
-    final List<double> impressionsData = [140, 150, 290, 170, 260, 400, 350, 550];
-
-    void drawLine(List<double> data, Color color) {
-      final path = Path();
-      final linePaint = Paint()
-        ..color = color
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2;
-
-      final pointPaint = Paint()
-        ..color = color
-        ..style = PaintingStyle.fill;
-
-      for (int i = 0; i < data.length; i++) {
-        final x = 30 + (i * stepX);
-        final y = chartHeight - (data[i] / 1000 * chartHeight) + 10;
-        if (i == 0) {
-          path.moveTo(x, y);
-        } else {
-          path.lineTo(x, y);
-        }
-        canvas.drawCircle(Offset(x, y), 3, pointPaint);
-      }
-      canvas.drawPath(path, linePaint);
-    }
-
-    drawLine(displaysData, const Color(0xFF3B82F6));
-    drawLine(reachData, const Color(0xFF10B981));
-    drawLine(impressionsData, const Color(0xFF8B5CF6));
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class BhopalCoverageMapPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Custom painted stylized dark grid mapping representing a coverage map
-    final paint = Paint()
-      ..color = const Color(0xFF1E293B)
-      ..style = PaintingStyle.fill;
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paint);
-
-    // Bhopal lake shape representation
-    final lakePaint = Paint()
-      ..color = const Color(0xFF1D4ED8).withOpacity(0.2)
-      ..style = PaintingStyle.fill;
-    final path = Path()
-      ..moveTo(size.width * 0.3, size.height * 0.4)
-      ..quadraticBezierTo(size.width * 0.5, size.height * 0.3, size.width * 0.65, size.height * 0.5)
-      ..quadraticBezierTo(size.width * 0.5, size.height * 0.7, size.width * 0.3, size.height * 0.6)
-      ..close();
-    canvas.drawPath(path, lakePaint);
-
-    // Map street grids lines representing street paths
-    final gridPaint = Paint()
-      ..color = Colors.white.withOpacity(0.04)
-      ..strokeWidth = 1.2
-      ..style = PaintingStyle.stroke;
-
-    for (double i = 0; i < size.width; i += 30) {
-      canvas.drawLine(Offset(i, 0), Offset(i, size.height), gridPaint);
-    }
-    for (double j = 0; j < size.height; j += 30) {
-      canvas.drawLine(Offset(0, j), Offset(size.width, j), gridPaint);
-    }
-
-    // Bus tracking dots representation (live green and blue markers)
-    void drawTrackingMarker(double x, double y, Color color) {
-      canvas.drawCircle(Offset(x, y), 6, Paint()..color = color.withOpacity(0.2));
-      canvas.drawCircle(Offset(x, y), 3, Paint()..color = color);
-    }
-
-    drawTrackingMarker(size.width * 0.25, size.height * 0.35, const Color(0xFF3B82F6));
-    drawTrackingMarker(size.width * 0.45, size.height * 0.48, const Color(0xFF10B981));
-    drawTrackingMarker(size.width * 0.68, size.height * 0.32, const Color(0xFF3B82F6));
-    drawTrackingMarker(size.width * 0.52, size.height * 0.72, const Color(0xFF10B981));
-    drawTrackingMarker(size.width * 0.78, size.height * 0.65, const Color(0xFF3B82F6));
-    drawTrackingMarker(size.width * 0.32, size.height * 0.82, const Color(0xFF10B981));
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class GovAnalyticsQrTrendPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final double chartHeight = size.height - 20;
-    final double chartWidth = size.width - 20;
-
-    final List<String> dates = ['12 May', '14 May', '16 May', '18 May', '20 May'];
-    final double stepX = chartWidth / (dates.length - 1);
-
-    // Total scans: 2K, 3.8K, 3K, 4.5K, 6.5K
-    final List<double> total = [2000, 3800, 3000, 4500, 6500];
-    // Unique scans: 1.2K, 2.2K, 1.8K, 2.8K, 4.2K
-    final List<double> unique = [1200, 2200, 1800, 2800, 4200];
-
-    // Grid horizontal lines
-    final gridPaint = Paint()
-      ..color = Colors.white.withOpacity(0.04)
-      ..strokeWidth = 1;
-
-    for (int i = 0; i <= 4; i++) {
-      final y = chartHeight - (i * chartHeight / 4) + 6;
-      canvas.drawLine(Offset(10, y), Offset(size.width, y), gridPaint);
-    }
-
-    void drawLine(List<double> data, Color color) {
-      final path = Path();
-      final linePaint = Paint()
-        ..color = color
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2;
-
-      final pointPaint = Paint()
-        ..color = color
-        ..style = PaintingStyle.fill;
-
-      for (int i = 0; i < data.length; i++) {
-        final x = 12 + (i * stepX);
-        final y = chartHeight - (data[i] / 8000 * chartHeight) + 6;
-        if (i == 0) {
-          path.moveTo(x, y);
-        } else {
-          path.lineTo(x, y);
-        }
-        canvas.drawCircle(Offset(x, y), 3.5, pointPaint);
-      }
-      canvas.drawPath(path, linePaint);
-    }
-
-    drawLine(total, const Color(0xFF3B82F6));
-    drawLine(unique, const Color(0xFF10B981));
-
-    // X-Axis labels
-    for (int i = 0; i < dates.length; i++) {
-      final x = 12 + (i * stepX);
-      final textPainter = TextPainter(
-        text: TextSpan(
-          text: dates[i],
-          style: const TextStyle(color: AppColors.textMuted, fontSize: 8),
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      textPainter.paint(canvas, Offset(x - 14, chartHeight + 10));
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class GovAnalyticsQrDeviceDonutPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2.2;
-
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 10
-      ..strokeCap = StrokeCap.round;
-
-    double startAngle = -3.14159 / 2;
-
-    void drawSegment(double percentage, Color color) {
-      final sweepAngle = (percentage / 100) * 2 * 3.14159;
-      paint.color = color;
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        startAngle,
-        sweepAngle,
-        false,
-        paint,
-      );
-      startAngle += sweepAngle;
-    }
-
-    drawSegment(78, const Color(0xFF3B82F6));
-    drawSegment(12, const Color(0xFF10B981));
-    drawSegment(6, const Color(0xFFF59E0B));
-    drawSegment(4, const Color(0xFF8B5CF6));
-
-    // Middle text "18,642 Total"
-    final countPainter = TextPainter(
-      text: const TextSpan(
-        text: '18,642\nTotal',
-        style: TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold, height: 1.2),
-      ),
-      textAlign: TextAlign.center,
-      textDirection: TextDirection.ltr,
-    )..layout();
-    countPainter.paint(canvas, Offset(center.dx - countPainter.width / 2, center.dy - countPainter.height / 2));
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 

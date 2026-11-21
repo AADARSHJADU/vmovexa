@@ -242,10 +242,10 @@ class GovSideDrawer extends StatelessWidget {
                     ),
                     _buildNavItem(
                       icon: Icons.insert_chart_outlined_rounded,
-                      title: 'reports_and_analytics'.tr,
+                      title: 'gov_reports.compliance_reports'.tr,
                       onTap: () {
                         Get.back();
-                        _showReportsDialog(context, controller);
+                        Get.toNamed(Routes.GOV_COMPLIANCE_REPORTS);
                       },
                     ),
 
@@ -296,7 +296,7 @@ class GovSideDrawer extends StatelessWidget {
                       title: 'help_and_docs'.tr,
                       onTap: () {
                         Get.back();
-                        Get.toNamed(Routes.HELP_SUPPORT);
+                        Get.toNamed(Routes.GOV_HELP_SUPPORT);
                       },
                     ),
                     _buildNavItem(
@@ -449,117 +449,6 @@ class GovSideDrawer extends StatelessWidget {
       child: Text(
         initials.isNotEmpty ? initials.toUpperCase() : 'GO',
         style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-      ),
-    );
-  }
-
-  void _showReportsDialog(BuildContext context, GovernmentDashboardController controller) {
-    Get.dialog(
-      Dialog(
-        backgroundColor: AppColors.cardBg,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Compliance & Audit Reports',
-                    style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: AppColors.textMuted, size: 18),
-                    onPressed: () => Get.back(),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Download verified public broadcast logs, transit reach verification, and official compliance certificates.',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
-              ),
-              const SizedBox(height: 16),
-              _buildReportOption(
-                title: 'Broadcast Delivery Audit (PDF)',
-                subtitle: '${controller.campaigns.length} campaigns logged across active transit fleets',
-                icon: Icons.picture_as_pdf_rounded,
-                color: Colors.redAccent,
-              ),
-              const SizedBox(height: 10),
-              _buildReportOption(
-                title: 'Citizen Engagement Manifest (CSV)',
-                subtitle: '${controller.calculatedTotalQrScans} QR interactions recorded',
-                icon: Icons.table_chart_rounded,
-                color: const Color(0xFF10B981),
-              ),
-              const SizedBox(height: 10),
-              _buildReportOption(
-                title: 'Emergency Advisory Compliance Record',
-                subtitle: '${controller.emergencyBroadcasts.length} alerts archived',
-                icon: Icons.security_rounded,
-                color: const Color(0xFF8B5CF6),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildReportOption({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.cardBorder, width: 1),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: color, size: 18),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 2),
-                Text(subtitle, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
-              ],
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.download_rounded, color: Color(0xFF3B82F6), size: 20),
-            onPressed: () {
-              Get.back();
-              Get.snackbar(
-                'Report Exported',
-                '$title has been generated and downloaded.',
-                snackPosition: SnackPosition.BOTTOM,
-                backgroundColor: const Color(0xFF10B981),
-                colorText: Colors.white,
-              );
-            },
-          ),
-        ],
       ),
     );
   }

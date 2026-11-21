@@ -25,12 +25,6 @@ class GovernmentProfileView extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.menu_rounded, color: Colors.white, size: 24),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  onPressed: () => Scaffold.of(context).openDrawer(),
-                ),
                 Text(
                   'officer_profile'.tr,
                   style: const TextStyle(
@@ -84,9 +78,9 @@ class GovernmentProfileView extends StatelessWidget {
                     _buildHeroProfileCard(c),
                     const SizedBox(height: 18),
 
-                    // 2. 3 Core Metric Stat Pills matching Web
+                   /* // 2. 3 Core Metric Stat Pills matching Web
                     _buildStatsRow(c),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 24),*/
 
                     // 3. Account & Security Section
                     Text(
@@ -487,10 +481,10 @@ class GovernmentProfileView extends StatelessWidget {
         children: [
           _buildMenuRow(
             label: 'help_support'.tr,
-            subtitle: 'Public transit docs, regulatory FAQs, and ministry support',
+            subtitle: 'gov_help.summary'.tr,
             iconData: Icons.headset_mic_outlined,
             iconColor: const Color(0xFF10B981),
-            onTap: () => Get.toNamed(Routes.HELP_SUPPORT),
+            onTap: () => Get.toNamed(Routes.GOV_HELP_SUPPORT),
           ),
           const Divider(color: AppColors.cardBorder, height: 14),
           _buildMenuRow(

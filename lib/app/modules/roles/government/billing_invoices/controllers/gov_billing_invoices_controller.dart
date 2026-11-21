@@ -1,60 +1,186 @@
 // lib/app/modules/roles/government/billing_invoices/controllers/gov_billing_invoices_controller.dart
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:vmovexa/app/data/constants/api_constants.dart';
+import 'package:vmovexa/app/data/models/government_models.dart';
 import 'package:vmovexa/app/data/services/auth_service.dart';
 import 'package:vmovexa/app/data/services/government_service.dart';
-import 'package:vmovexa/app/data/services/http_client_service.dart';
+import 'package:vmovexa/app/data/services/storage_service.dart';
+import 'package:vmovexa/app/modules/roles/government/dashboard/controllers/government_dashboard_controller.dart';
+import 'package:vmovexa/app/routes/app_routes.dart';
 import '../models/gov_billing_models.dart';
-// lib/app/modules/roles/government/billing_invoices/controllers/gov_billing_invoices_controller.dart
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:get/get.dart';
-import 'package:vmovexa/app/data/constants/api_constants.dart';
-import 'package:vmovexa/app/data/services/auth_service.dart';
-import 'package:vmovexa/app/data/services/government_service.dart';
-import 'package:vmovexa/app/data/services/http_client_service.dart';
-import '../models/gov_billing_models.dart';
+
+class GovNormalizedCampaign {
+  final String id;
+  final String code;
+  final String? campaignNumericId;
+  final String name;
+  final String brandName;
+  final String rawStatus;
+  final double budget;
+  final double gstAmount;
+  final double totalBill;
+  final dynamic paymentBreakdown;
+  final String paymentToken;
+  final bool isPaid;
+  final DateTime? createdAt;
+  final DateTime? startDate;
+  final GovCampaignModel rawModel;
+
+  GovNormalizedCampaign({
+    required this.id,
+    required this.code,
+    this.campaignNumericId,
+    required this.name,
+    required this.brandName,
+    required this.rawStatus,
+    required this.budget,
+    required this.gstAmount,
+    required this.totalBill,
+    this.paymentBreakdown,
+    required this.paymentToken,
+    required this.isPaid,
+    this.createdAt,
+    this.startDate,
+    required this.rawModel,
+  });
+
+  /// Matches Admin panel BillingPaymentsPage.jsx lines 140-176
+  static GovNormalizedCampaign fromModel(GovCampaignModel c, String defaultOrg) {
+    Map<String, dynamic> breakdown = {};
+    if (c.paymentBreakdown != null) {
+      if (c.paymentBreakdown is Map) {
+        breakdown = Map<String, dynamic>.from(c.paymentBreakdown as Map);
+      } else if (c.paymentBreakdown is String) {
+        try {
+          breakdown = Map<String, dynamic>.from(jsonDecode(c.paymentBreakdown as String) as Map);
+        } catch (_) {}
+      }
+    } else if (c.rawJson != null && c.rawJson!['payment_breakdown'] != null) {
+      final pb = c.rawJson!['payment_breakdown'];
+      if (pb is Map) {
+        breakdown = Map<String, dynamic>.from(pb);
+      } else if (pb is String) {
+        try {
+          breakdown = Map<String, dynamic>.from(jsonDecode(pb) as Map);
+        } catch (_) {}
+      }
+    }
+
+    double parseD(dynamic v) {
+      if (v == null) return 0.0;
+      if (v is num) return v.toDouble();
+      return double.tryParse(v.toString()) ?? 0.0;
+    }
+
+    // Exact match with BillingPaymentsPage.jsx:
+    // const baseBudget = breakdown.baseAmount != null ? Number(breakdown.baseAmount) : Number(c.budget || 0);
+    // const gstAmount = breakdown.gstAmount != null ? Number(breakdown.gstAmount) : (breakdown.items ? 0 : Math.round(baseBudget * 0.18));
+    // const totalAmount = breakdown.totalAmount != null ? Number(breakdown.totalAmount) : (baseBudget + gstAmount);
+    final baseBudget = breakdown['baseAmount'] != null
+        ? parseD(breakdown['baseAmount'])
+        : (c.budget ?? 0.0);
+
+    final gstAmount = breakdown['gstAmount'] != null
+        ? parseD(breakdown['gstAmount'])
+        : (breakdown['items'] != null ? 0.0 : (baseBudget * 0.18).roundToDouble());
+
+    final totalAmount = breakdown['totalAmount'] != null
+        ? parseD(breakdown['totalAmount'])
+        : (baseBudget + gstAmount);
+
+    final rawPs = (c.rawJson?['payment_status'] ?? '').toString().toLowerCase().trim();
+    final isPaid = c.isPaid ||
+        rawPs == 'paid' ||
+        (c.paymentStatus ?? '').toString().toLowerCase().contains('paid') ||
+        (c.paymentStatus ?? '').toString().toLowerCase().contains('cleared');
+
+    final rawCode = (c.code != null && c.code!.trim().isNotEmpty && c.code != '0')
+        ? c.code!.trim()
+        : (c.rawJson?['code']?.toString().trim().isNotEmpty == true
+            ? c.rawJson!['code']!.toString().trim()
+            : (c.rawJson?['campaign_code']?.toString().trim().isNotEmpty == true
+                ? c.rawJson!['campaign_code']!.toString().trim()
+                : (c.rawJson?['campaignCode']?.toString().trim().isNotEmpty == true
+                    ? c.rawJson!['campaignCode']!.toString().trim()
+                    : (c.rawJson?['po_reference']?.toString().trim().isNotEmpty == true
+                        ? c.rawJson!['po_reference']!.toString().trim()
+                        : (c.id != null ? 'CMP-${c.id}' : 'CMP-0')))));
+
+    final campCode = rawCode;
+
+    // Matches BillingPaymentsPage.jsx:
+    // brandName: c.client_company || c.advertiser?.company_name || c.brand_name || (isGov ? (c.client_name || 'Government Agency') : '—')
+    final rawJson = c.rawJson ?? {};
+    final deptName = (c.clientCompany != null && c.clientCompany!.trim().isNotEmpty)
+        ? c.clientCompany!.trim()
+        : (rawJson['client_company']?.toString().trim().isNotEmpty == true
+            ? rawJson['client_company']!.toString().trim()
+            : (c.brandName != null && c.brandName!.trim().isNotEmpty
+                ? c.brandName!.trim()
+                : (rawJson['client_name']?.toString().trim().isNotEmpty == true
+                    ? rawJson['client_name']!.toString().trim()
+                    : (c.clientName != null && c.clientName!.trim().isNotEmpty
+                        ? c.clientName!.trim()
+                        : (c.agencyName != null && c.agencyName!.trim().isNotEmpty
+                            ? c.agencyName!.trim()
+                            : defaultOrg)))));
+
+    final token = breakdown['paymentToken']?.toString() ??
+        (c.rawJson != null ? c.rawJson!['payment_token']?.toString() : null) ??
+        '';
+
+    final resolvedTotal = totalAmount > 0.0 ? totalAmount : baseBudget;
+
+    return GovNormalizedCampaign(
+      id: campCode,
+      code: campCode,
+      campaignNumericId: c.id,
+      name: c.title ?? c.name ?? 'Civic Broadcast Flight',
+      brandName: deptName,
+      rawStatus: (c.status ?? 'draft').toLowerCase(),
+      budget: baseBudget,
+      gstAmount: gstAmount,
+      totalBill: resolvedTotal,
+      paymentBreakdown: breakdown,
+      paymentToken: token,
+      isPaid: isPaid,
+      createdAt: c.createdAt,
+      startDate: c.startDate,
+      rawModel: c,
+    );
+  }
+}
 
 class GovBillingInvoicesController extends GetxController {
   final AuthService _authService = AuthService.to;
   final GovernmentService _govService = GovernmentService.to;
-  final HttpClientService _http = HttpClientService.to;
 
-  // Reactive States
   final RxBool isLoading = true.obs;
   final RxBool isRefreshing = false.obs;
+  final RxBool isDownloading = false.obs;
 
-  // Tabs: 0 = Invoices & Tax Receipts, 1 = Transactions Ledger, 2 = Quotas & Capacity
-  final RxInt selectedTab = 0.obs;
+  // Raw API Collections
+  final RxList<GovCampaignModel> rawCampaigns = <GovCampaignModel>[].obs;
+  final RxList<Map<String, dynamic>> rawInvoices = <Map<String, dynamic>>[].obs;
 
-  // Filter & Search
-  final RxString invoiceFilter = 'all'.obs; // 'all' | 'paid' | 'pending' | 'exempt'
+  // Filter & Search & Pagination
+  final RxString selectedInvoiceTab = 'all'.obs; // 'all' | 'pending' | 'paid'
   final TextEditingController searchController = TextEditingController();
-  final RxString searchQuery = ''.obs;
-
-  // Data Observables
-  final Rx<GovSubscriptionModel> subscription = GovSubscriptionModel().obs;
-  final RxList<GovInvoiceModel> allInvoices = <GovInvoiceModel>[].obs;
-  final RxList<GovInvoiceModel> filteredInvoices = <GovInvoiceModel>[].obs;
-  final RxList<GovTransactionModel> allTransactions = <GovTransactionModel>[].obs;
-  final RxList<GovTransactionModel> filteredTransactions = <GovTransactionModel>[].obs;
-
-  // Summary KPI Computations
-  final RxDouble totalBilled = 0.0.obs;
-  final RxDouble pendingAmount = 0.0.obs;
-  final RxDouble paidAmount = 0.0.obs;
-  final RxInt paidCount = 0.obs;
-  final RxInt pendingCount = 0.obs;
-  final RxInt exemptCount = 0.obs;
+  final RxString invoiceSearch = ''.obs;
+  final RxInt invoicePage = 1.obs;
+  final int invoicePageSize = 10;
 
   @override
   void onInit() {
     super.onInit();
     searchController.addListener(() {
-      searchQuery.value = searchController.text.trim();
-      _applyFilters();
+      invoiceSearch.value = searchController.text.trim();
+      invoicePage.value = 1;
     });
     loadBillingData();
   }
@@ -65,17 +191,13 @@ class GovBillingInvoicesController extends GetxController {
     super.onClose();
   }
 
-  /// Load Billing Data from API + fallback to Sovereign Government Defaults
+  /// Load Billing Data from Government API
   Future<void> loadBillingData() async {
     try {
       isLoading.value = true;
       await _fetchData();
     } catch (e) {
-      debugPrint('Error loading billing data: $e');
-      allInvoices.clear();
-      allTransactions.clear();
-      _calculateSummary();
-      _applyFilters();
+      debugPrint('[GovBilling] Error loading billing data: $e');
     } finally {
       isLoading.value = false;
     }
@@ -86,701 +208,456 @@ class GovBillingInvoicesController extends GetxController {
       isRefreshing.value = true;
       await _fetchData();
       Get.snackbar(
-        'Billing Refreshed',
-        'Official invoices and operational quotas up to date',
+        'gov_billing.title'.tr,
+        'gov_billing.official_gst_receipts'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF10B981),
         colorText: Colors.white,
         duration: const Duration(seconds: 2),
       );
     } catch (e) {
-      debugPrint('Error refreshing billing data: $e');
+      debugPrint('[GovBilling] Error refreshing billing data: $e');
     } finally {
       isRefreshing.value = false;
     }
   }
 
   Future<void> _fetchData() async {
-    final user = _authService.currentUser;
-    final orgName = user?.organization?.name ?? user?.companyName ?? 'State Public Transit Department';
-    final orgAddress = user?.officeAddress ?? user?.organization?.officeAddress ?? 'Ministry of Transport, Central Secretariat, New Delhi';
-
-    // 1. Fetch Subscription & Quotas
-    GovSubscriptionModel sub = GovSubscriptionModel(
-      organizationName: orgName,
-      officeAddress: orgAddress,
-    );
-
+    // 1. Fetch Government Campaigns
     try {
-      final subRes = await _http.get<GovSubscriptionModel>(
-        ApiConstants.billingSubscription,
-        requiresAuth: true,
-        create: (data) {
-          if (data is Map) {
-            return GovSubscriptionModel.fromJson(Map<String, dynamic>.from(data));
-          }
-          return GovSubscriptionModel();
-        },
-      );
-      if (subRes.success && subRes.data != null) {
-        sub = subRes.data!;
-      }
-    } catch (_) {}
-
-    // Check live analytics to update monitored buses count
-    try {
-      final analyticsRes = await _govService.getAgencyAnalytics();
-      if (analyticsRes.success && analyticsRes.data != null) {
-        final totalVehicles = analyticsRes.data!.monitoredBuses > 0
-            ? analyticsRes.data!.monitoredBuses
-            : analyticsRes.data!.totalVehicles;
-        if (totalVehicles > 0) {
-          sub = GovSubscriptionModel(
-            id: sub.id,
-            planName: sub.planName,
-            planCode: sub.planCode,
-            monthlyPrice: sub.monthlyPrice,
-            status: sub.status,
-            billingCycle: sub.billingCycle,
-            renewalDate: sub.renewalDate,
-            busesUsed: totalVehicles,
-            busesLimit: sub.busesLimit > totalVehicles ? sub.busesLimit : totalVehicles + 25,
-            depotsUsed: sub.depotsUsed,
-            depotsLimit: sub.depotsLimit,
-            displaysUsed: totalVehicles * 2,
-            displaysLimit: sub.displaysLimit,
-            operatorsUsed: sub.operatorsUsed,
-            operatorsLimit: sub.operatorsLimit,
-            organizationName: orgName,
-            officeAddress: orgAddress,
-            gstin: sub.gstin,
-          );
+      if (Get.isRegistered<GovernmentDashboardController>()) {
+        final dash = Get.find<GovernmentDashboardController>();
+        if (dash.campaigns.isNotEmpty) {
+          rawCampaigns.assignAll(dash.campaigns);
         }
       }
-    } catch (_) {}
 
-    subscription.value = sub;
-
-    // 2. Fetch Invoices from API
-    List<GovInvoiceModel> invoices = [];
-    try {
-      final invRes = await _http.get<List<GovInvoiceModel>>(
-        ApiConstants.billingInvoices,
-        requiresAuth: true,
-        create: (data) {
-          final list = <GovInvoiceModel>[];
-          dynamic raw;
-          if (data is List) {
-            raw = data;
-          } else if (data is Map) {
-            raw = data['items'] ?? data['rows'] ?? data['invoices'] ?? data['data'];
-          }
-          if (raw is List) {
-            for (final item in raw) {
-              if (item is Map) {
-                list.add(GovInvoiceModel.fromJson(Map<String, dynamic>.from(item)));
-              }
-            }
-          }
-          return list;
-        },
-      );
-      if (invRes.success && invRes.data != null && invRes.data!.isNotEmpty) {
-        invoices = invRes.data!;
+      final campRes = await _govService.getCampaigns(ownerType: 'government');
+      if (campRes.success && campRes.data != null && campRes.data!.isNotEmpty) {
+        rawCampaigns.assignAll(campRes.data!);
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[GovBilling] Error fetching campaigns: $e');
+    }
 
-    // 3. Fetch Transactions from API
-    List<GovTransactionModel> transactions = [];
+    // 2. Fetch Official Billing Invoices
     try {
-      final txRes = await _http.get<List<GovTransactionModel>>(
-        ApiConstants.billingTransactions,
-        requiresAuth: true,
-        create: (data) {
-          final list = <GovTransactionModel>[];
-          dynamic raw;
-          if (data is List) {
-            raw = data;
-          } else if (data is Map) {
-            raw = data['items'] ?? data['rows'] ?? data['transactions'] ?? data['data'];
-          }
-          if (raw is List) {
-            for (final item in raw) {
-              if (item is Map) {
-                list.add(GovTransactionModel.fromJson(Map<String, dynamic>.from(item)));
-              }
-            }
-          }
-          return list;
-        },
-      );
-      if (txRes.success && txRes.data != null && txRes.data!.isNotEmpty) {
-        transactions = txRes.data!;
+      final invRes = await _govService.getBillingInvoices();
+      if (invRes.success && invRes.data != null) {
+        rawInvoices.assignAll(invRes.data!);
       }
-    } catch (_) {}
-
-    allInvoices.assignAll(invoices);
-    allTransactions.assignAll(transactions);
-
-    _calculateSummary();
-    _applyFilters();
+    } catch (e) {
+      debugPrint('[GovBilling] Error fetching invoices: $e');
+    }
   }
 
-  void _calculateSummary() {
-    double billed = 0.0;
-    double pending = 0.0;
-    double paid = 0.0;
-    int pCount = 0;
-    int pendCount = 0;
-    int exCount = 0;
+  /// Normalized campaigns list (matches BillingPaymentsPage.jsx)
+  List<GovNormalizedCampaign> get normalizedCampaigns {
+    final defaultOrg = _authService.currentUser?.organization?.name ??
+        _authService.currentUser?.companyName ??
+        'Government Agency';
 
-    for (final inv in allInvoices) {
-      billed += inv.totalAmount;
-      if (inv.isExempt) {
-        exCount++;
-      } else if (inv.isPaid) {
-        paid += inv.totalAmount;
-        pCount++;
-      } else if (inv.isPending) {
-        pending += inv.totalAmount;
-        pendCount++;
+    return rawCampaigns
+        .map((c) => GovNormalizedCampaign.fromModel(c, defaultOrg))
+        .toList();
+  }
+
+  /// Approved Campaigns for Government Flow (matches BillingPaymentsPage.jsx)
+  List<GovNormalizedCampaign> get approvedCampaigns {
+    return normalizedCampaigns.where((c) {
+      final s = c.rawStatus;
+      return s == 'approved' ||
+          s == 'live' ||
+          s == 'running' ||
+          s == 'completed' ||
+          c.isPaid;
+    }).toList();
+  }
+
+  List<GovNormalizedCampaign> get paidCampaigns {
+    return approvedCampaigns.where((c) => c.isPaid).toList();
+  }
+
+  List<GovNormalizedCampaign> get pendingCampaigns {
+    return approvedCampaigns.where((c) => !c.isPaid).toList();
+  }
+
+  /// Paid & Disbursed total (matches BillingPaymentsPage.jsx line 203:
+  /// paidCampaigns.reduce((acc, c) => acc + (c.totalBill || 0), 0))
+  double get paidTotal {
+    return paidCampaigns.fold<double>(0.0, (acc, c) => acc + c.totalBill);
+  }
+
+  /// Pending total (matches BillingPaymentsPage.jsx line 199:
+  /// pendingCampaigns.reduce((acc, c) => acc + (c.totalBill || 0), 0))
+  double get pendingTotal {
+    return pendingCampaigns.fold<double>(0.0, (acc, c) => acc + c.totalBill);
+  }
+
+  /// Master Invoices List: Consolidates both DB Invoices and Approved Government Campaigns seamlessly
+  /// Matches allInvoices in Admin panel BillingPaymentsPage.jsx lines 208-313
+  List<GovBillingInvoiceItem> get allInvoices {
+    final list = <GovBillingInvoiceItem>[];
+    final seenCampaignCodes = <String>{};
+
+    // 1. Process DB Invoices (matches BillingPaymentsPage.jsx lines 212-283)
+    for (final inv in rawInvoices) {
+      final invPo = (inv['po_reference'] ?? inv['poReference'] ?? '').toString().trim();
+      final invIdStr = (inv['id'] ?? '').toString();
+      final invCode = (inv['code'] ?? '').toString();
+
+      // Find matching government campaign (matches BillingPaymentsPage.jsx lines 217-228)
+      GovNormalizedCampaign? matchedCamp;
+      for (final c in normalizedCampaigns) {
+        final campCode = c.code.trim();
+        final campId = (c.campaignNumericId ?? c.id).trim();
+        if (invPo.isEmpty) continue;
+
+        if (campCode.toLowerCase() == invPo.toLowerCase() ||
+            campId == invPo ||
+            'cmp-$campId'.toLowerCase() == invPo.toLowerCase() ||
+            invPo.toLowerCase() == 'cmp-${campCode.toLowerCase()}') {
+          matchedCamp = c;
+          break;
+        }
+      }
+
+      final resolvedCode = matchedCamp?.code ??
+          (invPo.startsWith('CMP-') ? invPo : null) ??
+          (matchedCamp?.campaignNumericId != null ? 'CMP-${matchedCamp!.campaignNumericId}' : null);
+
+      final payerType = (inv['payer_type'] ?? inv['payerType'] ?? '').toString().toLowerCase().trim();
+      final invType = (inv['type'] ?? '').toString().toLowerCase().trim();
+
+      // Matches BillingPaymentsPage.jsx lines 234-246:
+      // Only include invoices related to campaigns of current portal
+      final isCampaignRelated = matchedCamp != null ||
+          (invPo.isNotEmpty && invPo.startsWith('CMP-')) ||
+          (invType == 'ad_spend' && resolvedCode != null) ||
+          payerType == 'government' ||
+          invPo.startsWith('GOV-');
+
+      if (!isCampaignRelated) {
+        // Exclude non-campaign tenant SaaS subscription invoices
+        continue;
+      }
+
+      if (matchedCamp == null && payerType == 'advertiser') {
+        continue;
+      }
+      if (matchedCamp == null && payerType != 'government' && !invPo.startsWith('GOV-')) {
+        continue;
+      }
+
+      if (resolvedCode != null) {
+        seenCampaignCodes.add(resolvedCode.toLowerCase());
+      }
+      if (matchedCamp != null) {
+        seenCampaignCodes.add(matchedCamp.id.toLowerCase());
+        seenCampaignCodes.add(matchedCamp.code.toLowerCase());
+        if (matchedCamp.campaignNumericId != null) {
+          seenCampaignCodes.add(matchedCamp.campaignNumericId!.toLowerCase());
+          seenCampaignCodes.add('cmp-${matchedCamp.campaignNumericId!.toLowerCase()}');
+        }
+      }
+
+      final isPaid = (inv['status'] ?? '').toString().toLowerCase() == 'paid' ||
+          (matchedCamp != null && matchedCamp.isPaid);
+
+      // Matches BillingPaymentsPage.jsx line 276:
+      // amount: matchedCamp ? matchedCamp.totalBill : (Number(inv.total) || 0)
+      final amount = matchedCamp != null
+          ? matchedCamp.totalBill
+          : _parseDouble(inv['total'] ?? inv['amount'] ?? inv['totalAmount']);
+
+      final base = matchedCamp != null
+          ? matchedCamp.budget
+          : _parseDouble(inv['subtotal'] ?? inv['baseAmount']);
+
+      final gst = matchedCamp != null
+          ? matchedCamp.gstAmount
+          : _parseDouble(inv['tax'] ?? inv['taxAmount'] ?? inv['gstAmount']);
+
+      list.add(GovBillingInvoiceItem(
+        id: invCode.isNotEmpty ? invCode : 'INV-${invIdStr.isNotEmpty ? invIdStr : list.length + 1}',
+        numericId: inv['id'],
+        date: _formatDate(inv['issued_at'] ?? inv['createdAt'] ?? inv['issueDate']),
+        dueDate: inv['due_at'] != null ? _formatDate(inv['due_at']) : null,
+        campaign: matchedCamp?.name ?? (inv['customer_name'] ?? inv['title'] ?? resolvedCode ?? 'Campaign Ad').toString(),
+        campaignCode: resolvedCode ?? '—',
+        clientBrand: matchedCamp?.brandName ?? (inv['customer_name'] ?? '—').toString(),
+        poReference: invPo.isNotEmpty ? invPo : null,
+        campCode: resolvedCode,
+        amount: amount,
+        baseAmount: base,
+        gstAmount: gst,
+        status: isPaid ? 'Paid' : 'Pending',
+        isPaid: isPaid,
+        paymentToken: matchedCamp?.paymentToken,
+        matchedCamp: matchedCamp?.rawModel,
+      ));
+    }
+
+    // 2. Approved & Live campaigns that aren't yet recorded as separate Invoice entities
+    // Matches BillingPaymentsPage.jsx lines 285-310
+    for (final camp in approvedCampaigns) {
+      final campCodeKey = camp.code.toLowerCase();
+      final campIdKey = (camp.campaignNumericId ?? camp.id).toLowerCase();
+      final campNumKey = (camp.campaignNumericId ?? '').toLowerCase();
+
+      final alreadySeen = seenCampaignCodes.contains(campCodeKey) ||
+          seenCampaignCodes.contains(campIdKey) ||
+          (campNumKey.isNotEmpty && seenCampaignCodes.contains(campNumKey)) ||
+          (campNumKey.isNotEmpty && seenCampaignCodes.contains('cmp-$campNumKey'));
+
+      if (!alreadySeen) {
+        final resolvedCode = camp.code.isNotEmpty
+            ? camp.code
+            : 'CMP-${camp.campaignNumericId ?? camp.id}';
+
+        list.add(GovBillingInvoiceItem(
+          id: 'INV-${camp.campaignNumericId ?? camp.id}',
+          numericId: camp.campaignNumericId ?? camp.id,
+          date: camp.createdAt != null
+              ? _formatDate(camp.createdAt)
+              : _formatDate(DateTime.now()),
+          dueDate: null,
+          campaign: camp.name,
+          campaignCode: resolvedCode,
+          clientBrand: camp.brandName,
+          poReference: camp.code,
+          campCode: resolvedCode,
+          amount: camp.totalBill,
+          baseAmount: camp.budget,
+          gstAmount: camp.gstAmount,
+          status: camp.isPaid ? 'Paid' : 'Pending',
+          isPaid: camp.isPaid,
+          paymentToken: camp.paymentToken,
+          matchedCamp: camp.rawModel,
+        ));
       }
     }
 
-    totalBilled.value = billed;
-    pendingAmount.value = pending;
-    paidAmount.value = paid;
-    paidCount.value = pCount;
-    pendingCount.value = pendCount;
-    exemptCount.value = exCount;
+    return list;
   }
 
-  void setTab(int index) {
-    selectedTab.value = index;
+  double _parseDouble(dynamic v) {
+    if (v == null) return 0.0;
+    if (v is num) return v.toDouble();
+    return double.tryParse(v.toString()) ?? 0.0;
   }
 
-  void setInvoiceFilter(String filter) {
-    invoiceFilter.value = filter;
-    _applyFilters();
+  String _formatDate(dynamic d) {
+    if (d == null) return DateFormat('MM/dd/yyyy').format(DateTime.now());
+    if (d is DateTime) return DateFormat('MM/dd/yyyy').format(d);
+    try {
+      final parsed = DateTime.parse(d.toString());
+      return DateFormat('MM/dd/yyyy').format(parsed);
+    } catch (_) {
+      return d.toString();
+    }
   }
 
-  void _applyFilters() {
-    final q = searchQuery.value.toLowerCase();
-    final filter = invoiceFilter.value;
+  // KPI Summary Computations
+  int get allInvoicesCount => allInvoices.length;
+  int get invoicePaidCount => allInvoices.where((i) => i.isPaid).length;
+  int get invoicePendingCount => allInvoices.where((i) => !i.isPaid).length;
 
-    filteredInvoices.assignAll(allInvoices.where((inv) {
-      final matchesSearch = q.isEmpty ||
-          inv.code.toLowerCase().contains(q) ||
-          inv.title.toLowerCase().contains(q) ||
-          inv.poReference.toLowerCase().contains(q) ||
-          inv.gstin.toLowerCase().contains(q);
+  // Filtering & Pagination
+  List<GovBillingInvoiceItem> get filteredInvoices {
+    final query = invoiceSearch.value.trim().toLowerCase();
+    final tab = selectedInvoiceTab.value;
 
-      if (!matchesSearch) return false;
+    return allInvoices.where((inv) {
+      final matchesTab = tab == 'all' ||
+          (tab == 'paid' && inv.isPaid) ||
+          (tab == 'pending' && !inv.isPaid);
 
-      if (filter == 'paid') return inv.isPaid && !inv.isExempt;
-      if (filter == 'pending') return inv.isPending;
-      if (filter == 'exempt') return inv.isExempt;
-      return true; // 'all'
-    }).toList());
+      if (!matchesTab) return false;
 
-    filteredTransactions.assignAll(allTransactions.where((tx) {
-      return q.isEmpty ||
-          tx.transactionId.toLowerCase().contains(q) ||
-          tx.description.toLowerCase().contains(q) ||
-          tx.utr.toLowerCase().contains(q) ||
-          tx.paymentMethod.toLowerCase().contains(q);
-    }).toList());
+      if (query.isEmpty) return true;
+
+      final idMatch = inv.id.toLowerCase().contains(query);
+      final campMatch = inv.campaign.toLowerCase().contains(query);
+      final brandMatch = inv.clientBrand.toLowerCase().contains(query);
+      final codeMatch = inv.campaignCode.toLowerCase().contains(query);
+
+      return idMatch || campMatch || brandMatch || codeMatch;
+    }).toList();
   }
 
-  void copyToClipboard(String text, String label) {
-    Clipboard.setData(ClipboardData(text: text));
-    Get.snackbar(
-      'Copied!',
-      '$label copied to clipboard.',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color(0xFF6366F1),
-      colorText: Colors.white,
-      duration: const Duration(seconds: 2),
-      icon: const Icon(Icons.copy_rounded, color: Colors.white, size: 18),
-    );
+  int get totalInvoicePages =>
+      (filteredInvoices.length / invoicePageSize).ceil().clamp(1, 9999);
+
+  List<GovBillingInvoiceItem> get paginatedInvoices {
+    final from = (invoicePage.value - 1) * invoicePageSize;
+    if (from >= filteredInvoices.length) return [];
+    return filteredInvoices.skip(from).take(invoicePageSize).toList();
+  }
+
+  int get paginationStartIndex {
+    if (filteredInvoices.isEmpty) return 0;
+    return (invoicePage.value - 1) * invoicePageSize + 1;
+  }
+
+  int get paginationEndIndex {
+    final end = invoicePage.value * invoicePageSize;
+    return end > filteredInvoices.length ? filteredInvoices.length : end;
+  }
+
+  void setInvoiceTab(String tab) {
+    selectedInvoiceTab.value = tab;
+    invoicePage.value = 1;
+  }
+
+  void nextInvoicePage() {
+    if (invoicePage.value < totalInvoicePages) {
+      invoicePage.value++;
+    }
+  }
+
+  void prevInvoicePage() {
+    if (invoicePage.value > 1) {
+      invoicePage.value--;
+    }
+  }
+
+  // ACTIONS
+
+  /// 1. Detail: Open Campaign Details
+  void openCampaignDetails(GovBillingInvoiceItem inv) {
+    if (inv.matchedCamp != null) {
+      Get.toNamed(Routes.GOV_CAMPAIGN_DETAILS, arguments: inv.matchedCamp);
+    } else {
+      Get.toNamed(Routes.GOV_CAMPAIGN_DETAILS, arguments: inv.targetCampCode);
+    }
+  }
+
+  /// 2. Tax Invoice: Open live Tax Invoice URL via url_launcher
+  Future<void> openTaxInvoiceUrl(GovBillingInvoiceItem inv) async {
+    final token = StorageService.to.getAccessToken() ?? '';
+    final baseApi = ApiConstants.baseUrl;
+
+    String url;
+    if (inv.numericId != null) {
+      url = '$baseApi/campaigns/${inv.numericId}/public-invoice${token.isNotEmpty ? "?token=$token" : ""}';
+    } else {
+      url = '$baseApi/billing/invoices/${inv.id}/html${token.isNotEmpty ? "?token=$token" : ""}';
+    }
+
+    try {
+      final uri = Uri.parse(url);
+      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!launched) {
+        await launchUrl(uri, mode: LaunchMode.platformDefault);
+      }
+    } catch (e) {
+      Get.snackbar(
+        'gov_billing.action_tax_invoice'.tr,
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  /// 3. Download PDF: Direct save of Tax Invoice PDF to mobile device storage
+  Future<void> downloadInvoicePdf(GovBillingInvoiceItem inv) async {
+    isDownloading.value = true;
+    try {
+      final pdfContent = _generateInvoicePdfText(inv);
+      final fileName = 'INVOICE_${inv.id.replaceAll(RegExp(r"[^\w\-]"), "_")}.pdf';
+
+      Directory saveDir;
+      if (Platform.isAndroid) {
+        final downloadDir = Directory('/storage/emulated/0/Download');
+        if (await downloadDir.exists()) {
+          saveDir = downloadDir;
+        } else {
+          saveDir = Directory.systemTemp;
+        }
+      } else {
+        saveDir = Directory.systemTemp;
+      }
+
+      final file = File('${saveDir.path}/$fileName');
+      await file.writeAsString(pdfContent, flush: true);
+
+      Get.snackbar(
+        'gov_billing.invoice_saved_title'.tr,
+        '${file.path} (${(inv.amount).toStringAsFixed(2)})',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFF10B981),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 4),
+        mainButton: TextButton(
+          onPressed: () => _openDownloadedFile(file.path),
+          child: Text(
+            'open'.tr.toUpperCase(),
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+        ),
+      );
+    } catch (e) {
+      Get.snackbar(
+        'error'.tr,
+        'Could not save invoice file: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+    } finally {
+      isDownloading.value = false;
+    }
+  }
+
+  String _generateInvoicePdfText(GovBillingInvoiceItem inv) {
+    final currencyFormat = NumberFormat('#,##,###.00', 'en_IN');
+    return '''
+================================================================
+% OFFICIAL GST TAX INVOICE - VMOVEXA GOVERNMENT TRANSIT
+================================================================
+INVOICE ID: ${inv.id}
+DATE: ${inv.date}
+DUE DATE: ${inv.dueDate ?? "Immediate"}
+PAYMENT STATUS: ${inv.status.toUpperCase()}
+
+ISSUED BY:
+VMOVEXA Smart Transit & Mobility Media Network
+State Municipal Operations
+GSTIN: 07AAACG0000A1Z5
+
+BILLED TO (GOVERNMENT AGENCY):
+Department: ${inv.clientBrand}
+Campaign Title: ${inv.campaign}
+Campaign Code: ${inv.campaignCode}
+
+LINE ITEMS:
+1. Public Transit Digital Media Broadcast & Telematics
+   Base Amount:     INR ${currencyFormat.format(inv.baseAmount)}
+   CGST (9.0%):     INR ${currencyFormat.format(inv.gstAmount / 2)}
+   SGST (9.0%):     INR ${currencyFormat.format(inv.gstAmount / 2)}
+   -------------------------------------------------------------
+   TOTAL AMOUNT:    INR ${currencyFormat.format(inv.amount)}
+
+Certified digital tax receipt issued by VMOVEXA Government Platform.
+================================================================
+''';
+  }
+
+  Future<void> _openDownloadedFile(String filePath) async {
+    try {
+      final uri = Uri.file(filePath);
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      Get.snackbar(
+        'gov_billing.invoice_saved_title'.tr,
+        filePath,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFF2563EB),
+        colorText: Colors.white,
+      );
+    }
   }
 }
-
-// class GovBillingInvoicesController extends GetxController {
-//   final AuthService _authService = AuthService.to;
-//   final GovernmentService _govService = GovernmentService.to;
-//   final HttpClientService _http = HttpClientService.to;
-//
-//   // Reactive States
-//   final RxBool isLoading = true.obs;
-//   final RxBool isRefreshing = false.obs;
-//
-//   // Tabs: 0 = Invoices & Tax Receipts, 1 = Transactions Ledger, 2 = Quotas & Capacity
-//   final RxInt selectedTab = 0.obs;
-//
-//   // Filter & Search
-//   final RxString invoiceFilter = 'all'.obs; // 'all' | 'paid' | 'pending' | 'exempt'
-//   final TextEditingController searchController = TextEditingController();
-//   final RxString searchQuery = ''.obs;
-//
-//   // Data Observables
-//   final Rx<GovSubscriptionModel> subscription = GovSubscriptionModel().obs;
-//   final RxList<GovInvoiceModel> allInvoices = <GovInvoiceModel>[].obs;
-//   final RxList<GovInvoiceModel> filteredInvoices = <GovInvoiceModel>[].obs;
-//   final RxList<GovTransactionModel> allTransactions = <GovTransactionModel>[].obs;
-//   final RxList<GovTransactionModel> filteredTransactions = <GovTransactionModel>[].obs;
-//
-//   // Summary KPI Computations
-//   final RxDouble totalBilled = 0.0.obs;
-//   final RxDouble pendingAmount = 0.0.obs;
-//   final RxDouble paidAmount = 0.0.obs;
-//   final RxInt paidCount = 0.obs;
-//   final RxInt pendingCount = 0.obs;
-//   final RxInt exemptCount = 0.obs;
-//
-//   @override
-//   void onInit() {
-//     super.onInit();
-//     searchController.addListener(() {
-//       searchQuery.value = searchController.text.trim();
-//       _applyFilters();
-//     });
-//     loadBillingData();
-//   }
-//
-//   @override
-//   void onClose() {
-//     searchController.dispose();
-//     super.onClose();
-//   }
-//
-//   /// Load Billing Data from API + fallback to Sovereign Government Defaults
-//   Future<void> loadBillingData() async {
-//     try {
-//       isLoading.value = true;
-//       await _fetchData();
-//     } catch (e) {
-//       debugPrint('Error loading billing data: $e');
-//       _populateSovereignDefaults();
-//     } finally {
-//       isLoading.value = false;
-//     }
-//   }
-//
-//   Future<void> refreshData() async {
-//     try {
-//       isRefreshing.value = true;
-//       await _fetchData();
-//       Get.snackbar(
-//         'Billing Refreshed',
-//         'Official invoices and operational quotas up to date',
-//         snackPosition: SnackPosition.BOTTOM,
-//         backgroundColor: const Color(0xFF10B981),
-//         colorText: Colors.white,
-//         duration: const Duration(seconds: 2),
-//       );
-//     } catch (e) {
-//       debugPrint('Error refreshing billing data: $e');
-//     } finally {
-//       isRefreshing.value = false;
-//     }
-//   }
-//
-//   Future<void> _fetchData() async {
-//     final user = _authService.currentUser;
-//     final orgName = user?.organization?.name ?? user?.companyName ?? 'State Public Transit Department';
-//     final orgAddress = user?.officeAddress ?? user?.organization?.officeAddress ?? 'Ministry of Transport, Central Secretariat, New Delhi';
-//
-//     // 1. Fetch Subscription & Quotas
-//     GovSubscriptionModel sub = GovSubscriptionModel(
-//       organizationName: orgName,
-//       officeAddress: orgAddress,
-//     );
-//
-//     try {
-//       final subRes = await _http.get<GovSubscriptionModel>(
-//         ApiConstants.billingSubscription,
-//         requiresAuth: true,
-//         create: (data) {
-//           if (data is Map) {
-//             return GovSubscriptionModel.fromJson(Map<String, dynamic>.from(data));
-//           }
-//           return GovSubscriptionModel();
-//         },
-//       );
-//       if (subRes.success && subRes.data != null) {
-//         sub = subRes.data!;
-//       }
-//     } catch (_) {}
-//
-//     // Check live analytics to update monitored buses count
-//     try {
-//       final analyticsRes = await _govService.getAgencyAnalytics();
-//       if (analyticsRes.success && analyticsRes.data != null) {
-//         final totalVehicles = analyticsRes.data!.monitoredBuses > 0
-//             ? analyticsRes.data!.monitoredBuses
-//             : analyticsRes.data!.totalVehicles;
-//         if (totalVehicles > 0) {
-//           sub = GovSubscriptionModel(
-//             id: sub.id,
-//             planName: sub.planName,
-//             planCode: sub.planCode,
-//             monthlyPrice: sub.monthlyPrice,
-//             status: sub.status,
-//             billingCycle: sub.billingCycle,
-//             renewalDate: sub.renewalDate,
-//             busesUsed: totalVehicles,
-//             busesLimit: sub.busesLimit > totalVehicles ? sub.busesLimit : totalVehicles + 25,
-//             depotsUsed: sub.depotsUsed,
-//             depotsLimit: sub.depotsLimit,
-//             displaysUsed: totalVehicles * 2,
-//             displaysLimit: sub.displaysLimit,
-//             operatorsUsed: sub.operatorsUsed,
-//             operatorsLimit: sub.operatorsLimit,
-//             organizationName: orgName,
-//             officeAddress: orgAddress,
-//             gstin: sub.gstin,
-//           );
-//         }
-//       }
-//     } catch (_) {}
-//
-//     subscription.value = sub;
-//
-//     // 2. Fetch Invoices from API
-//     List<GovInvoiceModel> invoices = [];
-//     try {
-//       final invRes = await _http.get<List<GovInvoiceModel>>(
-//         ApiConstants.billingInvoices,
-//         requiresAuth: true,
-//         create: (data) {
-//           final list = <GovInvoiceModel>[];
-//           dynamic raw;
-//           if (data is List) {
-//             raw = data;
-//           } else if (data is Map) {
-//             raw = data['items'] ?? data['rows'] ?? data['invoices'] ?? data['data'];
-//           }
-//           if (raw is List) {
-//             for (final item in raw) {
-//               if (item is Map) {
-//                 list.add(GovInvoiceModel.fromJson(Map<String, dynamic>.from(item)));
-//               }
-//             }
-//           }
-//           return list;
-//         },
-//       );
-//       if (invRes.success && invRes.data != null && invRes.data!.isNotEmpty) {
-//         invoices = invRes.data!;
-//       }
-//     } catch (_) {}
-//
-//     // 3. Fetch Transactions from API
-//     List<GovTransactionModel> transactions = [];
-//     try {
-//       final txRes = await _http.get<List<GovTransactionModel>>(
-//         ApiConstants.billingTransactions,
-//         requiresAuth: true,
-//         create: (data) {
-//           final list = <GovTransactionModel>[];
-//           dynamic raw;
-//           if (data is List) {
-//             raw = data;
-//           } else if (data is Map) {
-//             raw = data['items'] ?? data['rows'] ?? data['transactions'] ?? data['data'];
-//           }
-//           if (raw is List) {
-//             for (final item in raw) {
-//               if (item is Map) {
-//                 list.add(GovTransactionModel.fromJson(Map<String, dynamic>.from(item)));
-//               }
-//             }
-//           }
-//           return list;
-//         },
-//       );
-//       if (txRes.success && txRes.data != null && txRes.data!.isNotEmpty) {
-//         transactions = txRes.data!;
-//       }
-//     } catch (_) {}
-//
-//     // If API returned empty for invoices, populate Sovereign Government Invoices
-//     if (invoices.isEmpty) {
-//       invoices = _getSovereignInvoices(orgName, orgAddress);
-//     }
-//     if (transactions.isEmpty) {
-//       transactions = _getSovereignTransactions();
-//     }
-//
-//     allInvoices.assignAll(invoices);
-//     allTransactions.assignAll(transactions);
-//
-//     _calculateSummary();
-//     _applyFilters();
-//   }
-//
-//   void _populateSovereignDefaults() {
-//     final user = _authService.currentUser;
-//     final orgName = user?.organization?.name ?? 'State Public Transit Department';
-//     final orgAddress = user?.officeAddress ?? 'Ministry of Transport, Central Secretariat, New Delhi';
-//
-//     subscription.value = GovSubscriptionModel(
-//       organizationName: orgName,
-//       officeAddress: orgAddress,
-//     );
-//
-//     allInvoices.assignAll(_getSovereignInvoices(orgName, orgAddress));
-//     allTransactions.assignAll(_getSovereignTransactions());
-//
-//     _calculateSummary();
-//     _applyFilters();
-//   }
-//
-//   List<GovInvoiceModel> _getSovereignInvoices(String orgName, String orgAddress) {
-//     return [
-//       GovInvoiceModel(
-//         id: '1001',
-//         code: 'INV-2026-GOV-001',
-//         title: 'Public Transit Safety Broadcasts — Q1 Sovereign Grant',
-//         poReference: 'STAT-TRANSIT-2026-A1',
-//         issueDate: DateTime.now().subtract(const Duration(days: 4)),
-//         dueDate: DateTime.now().add(const Duration(days: 26)),
-//         paidAt: DateTime.now().subtract(const Duration(days: 4)),
-//         status: 'exempt',
-//         subtotal: 0.0,
-//         taxAmount: 0.0,
-//         totalAmount: 0.0,
-//         customerName: orgName,
-//         billingAddress: orgAddress,
-//         gstin: '07AAACG0000A1Z5',
-//         paymentMethod: 'Statutory Zero-Rated Exemption',
-//         utr: 'MINISTRY-EXEMPT-2026-08',
-//         items: [
-//           GovInvoiceItemModel(
-//             description: 'Emergency Audio Siren & Screen Takeover Override Authorization',
-//             hsnCode: '998313',
-//             quantity: 1,
-//             unitRate: 0.0,
-//             total: 0.0,
-//             taxPercent: 0.0,
-//           ),
-//           GovInvoiceItemModel(
-//             description: 'State Transit Fleet GPS Radar & Real-Time Corridor Tracking',
-//             hsnCode: '998412',
-//             quantity: 24,
-//             unitRate: 0.0,
-//             total: 0.0,
-//             taxPercent: 0.0,
-//           ),
-//         ],
-//       ),
-//       GovInvoiceModel(
-//         id: '1002',
-//         code: 'TAX-2026-08942',
-//         title: 'Municipal Transit Displays Infrastructure & Bandwidth',
-//         poReference: 'MUNI-CORRIDOR-892',
-//         issueDate: DateTime.now().subtract(const Duration(days: 18)),
-//         dueDate: DateTime.now().subtract(const Duration(days: 4)),
-//         paidAt: DateTime.now().subtract(const Duration(days: 12)),
-//         status: 'paid',
-//         subtotal: 42500.0,
-//         taxAmount: 7650.0,
-//         totalAmount: 50150.0,
-//         customerName: orgName,
-//         billingAddress: orgAddress,
-//         gstin: '07AAACG0000A1Z5',
-//         paymentMethod: 'Treasury Direct RTGS',
-//         utr: 'UTR-SBIN20260481920',
-//         items: [
-//           GovInvoiceItemModel(
-//             description: 'Edge Display Hardware Health Telemetry & Display Cloud Sync',
-//             hsnCode: '998313',
-//             quantity: 48,
-//             unitRate: 750.0,
-//             total: 36000.0,
-//             taxPercent: 18.0,
-//           ),
-//           GovInvoiceItemModel(
-//             description: 'SLA Guaranteed 99.9% Uptime High-Priority Data Ingestion',
-//             hsnCode: '998412',
-//             quantity: 1,
-//             unitRate: 6500.0,
-//             total: 6500.0,
-//             taxPercent: 18.0,
-//           ),
-//         ],
-//       ),
-//       GovInvoiceModel(
-//         id: '1003',
-//         code: 'TAX-2026-08102',
-//         title: 'Corridor Citizen Information Campaign Flight #8102',
-//         poReference: 'CMP-GOV-8102',
-//         issueDate: DateTime.now().subtract(const Duration(days: 35)),
-//         dueDate: DateTime.now().subtract(const Duration(days: 10)),
-//         paidAt: DateTime.now().subtract(const Duration(days: 28)),
-//         status: 'paid',
-//         subtotal: 18000.0,
-//         taxAmount: 3240.0,
-//         totalAmount: 21240.0,
-//         customerName: orgName,
-//         billingAddress: orgAddress,
-//         gstin: '07AAACG0000A1Z5',
-//         paymentMethod: 'State Transport Fund',
-//         utr: 'UTR-CBIN20260381023',
-//         items: [
-//           GovInvoiceItemModel(
-//             description: 'Metro Feeder Route Public Health Awareness Broadcast',
-//             hsnCode: '998313',
-//             quantity: 1,
-//             unitRate: 18000.0,
-//             total: 18000.0,
-//             taxPercent: 18.0,
-//           ),
-//         ],
-//       ),
-//       GovInvoiceModel(
-//         id: '1004',
-//         code: 'INV-2026-GOV-004',
-//         title: 'Annual Sovereign Multi-Corridor Telematics Clearance',
-//         poReference: 'ANNUAL-STAT-2026',
-//         issueDate: DateTime.now().subtract(const Duration(days: 60)),
-//         dueDate: DateTime.now().subtract(const Duration(days: 30)),
-//         paidAt: DateTime.now().subtract(const Duration(days: 55)),
-//         status: 'paid',
-//         subtotal: 95000.0,
-//         taxAmount: 17100.0,
-//         totalAmount: 112100.0,
-//         customerName: orgName,
-//         billingAddress: orgAddress,
-//         gstin: '07AAACG0000A1Z5',
-//         paymentMethod: 'Treasury Budget Allocation',
-//         utr: 'TREASURY-DISPATCH-99120',
-//         items: [
-//           GovInvoiceItemModel(
-//             description: 'State Transit Telematics & Emergency Command Hub Access',
-//             hsnCode: '998313',
-//             quantity: 1,
-//             unitRate: 95000.0,
-//             total: 95000.0,
-//             taxPercent: 18.0,
-//           ),
-//         ],
-//       ),
-//     ];
-//   }
-//
-//   List<GovTransactionModel> _getSovereignTransactions() {
-//     return [
-//       GovTransactionModel(
-//         id: '201',
-//         transactionId: 'TXN-TREASURY-8849201',
-//         description: 'Municipal Transit Displays Infrastructure & Bandwidth',
-//         createdAt: DateTime.now().subtract(const Duration(days: 12)),
-//         amount: 50150.0,
-//         status: 'success',
-//         paymentMethod: 'Treasury Direct RTGS',
-//         utr: 'UTR-SBIN20260481920',
-//       ),
-//       GovTransactionModel(
-//         id: '202',
-//         transactionId: 'TXN-FUND-7729103',
-//         description: 'Corridor Citizen Information Campaign Flight #8102',
-//         createdAt: DateTime.now().subtract(const Duration(days: 28)),
-//         amount: 21240.0,
-//         status: 'success',
-//         paymentMethod: 'State Transport Fund Transfer',
-//         utr: 'UTR-CBIN20260381023',
-//       ),
-//       GovTransactionModel(
-//         id: '203',
-//         transactionId: 'TXN-ANNUAL-9912044',
-//         description: 'Annual Sovereign Multi-Corridor Telematics Clearance',
-//         createdAt: DateTime.now().subtract(const Duration(days: 55)),
-//         amount: 112100.0,
-//         status: 'success',
-//         paymentMethod: 'Treasury Budget Allocation',
-//         utr: 'TREASURY-DISPATCH-99120',
-//       ),
-//     ];
-//   }
-//
-//   void _calculateSummary() {
-//     double billed = 0.0;
-//     double pending = 0.0;
-//     double paid = 0.0;
-//     int pCount = 0;
-//     int pendCount = 0;
-//     int exCount = 0;
-//
-//     for (final inv in allInvoices) {
-//       billed += inv.totalAmount;
-//       if (inv.isExempt) {
-//         exCount++;
-//       } else if (inv.isPaid) {
-//         paid += inv.totalAmount;
-//         pCount++;
-//       } else if (inv.isPending) {
-//         pending += inv.totalAmount;
-//         pendCount++;
-//       }
-//     }
-//
-//     totalBilled.value = billed;
-//     pendingAmount.value = pending;
-//     paidAmount.value = paid;
-//     paidCount.value = pCount;
-//     pendingCount.value = pendCount;
-//     exemptCount.value = exCount;
-//   }
-//
-//   void setTab(int index) {
-//     selectedTab.value = index;
-//   }
-//
-//   void setInvoiceFilter(String filter) {
-//     invoiceFilter.value = filter;
-//     _applyFilters();
-//   }
-//
-//   void _applyFilters() {
-//     final q = searchQuery.value.toLowerCase();
-//     final filter = invoiceFilter.value;
-//
-//     filteredInvoices.assignAll(allInvoices.where((inv) {
-//       final matchesSearch = q.isEmpty ||
-//           inv.code.toLowerCase().contains(q) ||
-//           inv.title.toLowerCase().contains(q) ||
-//           inv.poReference.toLowerCase().contains(q) ||
-//           inv.gstin.toLowerCase().contains(q);
-//
-//       if (!matchesSearch) return false;
-//
-//       if (filter == 'paid') return inv.isPaid && !inv.isExempt;
-//       if (filter == 'pending') return inv.isPending;
-//       if (filter == 'exempt') return inv.isExempt;
-//       return true; // 'all'
-//     }).toList());
-//
-//     filteredTransactions.assignAll(allTransactions.where((tx) {
-//       return q.isEmpty ||
-//           tx.transactionId.toLowerCase().contains(q) ||
-//           tx.description.toLowerCase().contains(q) ||
-//           tx.utr.toLowerCase().contains(q) ||
-//           tx.paymentMethod.toLowerCase().contains(q);
-//     }).toList());
-//   }
-//
-//   void copyToClipboard(String text, String label) {
-//     Clipboard.setData(ClipboardData(text: text));
-//     Get.snackbar(
-//       'Copied!',
-//       '$label copied to clipboard.',
-//       snackPosition: SnackPosition.BOTTOM,
-//       backgroundColor: const Color(0xFF6366F1),
-//       colorText: Colors.white,
-//       duration: const Duration(seconds: 2),
-//       icon: const Icon(Icons.copy_rounded, color: Colors.white, size: 18),
-//     );
-//   }
-// }

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
+import 'package:vmovexa/app/widgets/custom_back_button.dart';
 import '../controllers/gov_billing_invoices_controller.dart';
 import '../models/gov_billing_models.dart';
 
@@ -11,57 +13,46 @@ class GovBillingInvoicesView extends GetView<GovBillingInvoicesController> {
 
   @override
   Widget build(BuildContext context) {
+    final c = Get.isRegistered<GovBillingInvoicesController>()
+        ? Get.find<GovBillingInvoicesController>()
+        : Get.put(GovBillingInvoicesController());
+
+    final currencyFormat = NumberFormat('#,##,###', 'en_IN');
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
-            // 1. Top Bar
-            _buildTopBar(context),
+            // Top App Bar
+            _buildTopAppBar(context, c),
 
-            // 2. Main Content
+            // Main Content Area
             Expanded(
               child: Obx(() {
-                if (controller.isLoading.value) {
+                if (c.isLoading.value) {
                   return const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF6366F1)),
+                    child: CircularProgressIndicator(color: Color(0xFF3B82F6)),
                   );
                 }
 
                 return RefreshIndicator(
-                  onRefresh: controller.refreshData,
-                  color: const Color(0xFF6366F1),
-                  backgroundColor: AppColors.cardBg,
+                  onRefresh: c.refreshData,
+                  color: const Color(0xFF3B82F6),
+                  backgroundColor: const Color(0xFF1E293B),
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // 1. Plan & Sovereign Clearance Card
-                        _buildSovereignPlanCard(context),
-                        const SizedBox(height: 16),
-
-                        // 2. 3 KPI Summary Cards
-                        _buildSummaryKpiCards(),
+                        // Top 2 KPI Summary Boxes
+                        _buildTopKpiBoxes(c, currencyFormat),
                         const SizedBox(height: 18),
 
-                        // 3. Segmented Navigation Bar
-                        _buildSegmentedTabs(),
-                        const SizedBox(height: 16),
-
-                        // 4. Tab Content
-                        if (controller.selectedTab.value == 0)
-                          _buildInvoicesTab(context)
-                        else if (controller.selectedTab.value == 1)
-                          _buildTransactionsTab(context)
-                        else
-                          _buildQuotasTab(context),
-
+                        // Section: Department Invoices & Clearance Receipts
+                        _buildInvoicesSection(context, c),
                         const SizedBox(height: 24),
-                        // 5. Help & Statutory Support Banner
-                        _buildSupportCard(context),
-                        const SizedBox(height: 32),
                       ],
                     ),
                   ),
@@ -74,43 +65,35 @@ class GovBillingInvoicesView extends GetView<GovBillingInvoicesController> {
     );
   }
 
-  // ----------------------------------------------------
-  // 1. TOP BAR
-  // ----------------------------------------------------
-  Widget _buildTopBar(BuildContext context) {
+  /// Top App Bar
+  Widget _buildTopAppBar(BuildContext context, GovBillingInvoicesController c) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: const BoxDecoration(
-        color: Color(0xFF090D16),
-        border: Border(bottom: BorderSide(color: AppColors.cardBorder, width: 1)),
+        color: AppColors.background,
+        border: Border(bottom: BorderSide(color: Color(0xFF1E293B), width: 1)),
       ),
       child: Row(
         children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 22),
-            onPressed: () => Get.back(),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-          ),
-          const SizedBox(width: 14),
-          const Expanded(
+          const CustomBackButton(),
+          const SizedBox(width: 10),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Billing & Invoices',
-                  style: TextStyle(
+                  'gov_billing.title'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 17,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: -0.3,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
-                  'Official GST tax billing, sovereign allocation & receipts ledger',
-                  style: TextStyle(
-                    color: AppColors.textMuted,
+                  'gov_billing.dept_invoices_receipts'.tr,
+                  style: const TextStyle(
+                    color: Color(0xFF94A3B8),
                     fontSize: 11,
                   ),
                   maxLines: 1,
@@ -119,1367 +102,675 @@ class GovBillingInvoicesView extends GetView<GovBillingInvoicesController> {
               ],
             ),
           ),
-          Obx(() {
-            final isRef = controller.isRefreshing.value;
-            return IconButton(
-              icon: isRef
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
-                    )
-                  : const Icon(Icons.refresh_rounded, color: Colors.white70, size: 22),
-              onPressed: isRef ? null : controller.refreshData,
-              tooltip: 'Refresh Billing',
-            );
-          }),
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 20),
+            onPressed: c.refreshData,
+            tooltip: 'refresh_content'.tr,
+          ),
         ],
       ),
     );
   }
 
-  // ----------------------------------------------------
-  // 2. SOVEREIGN PLAN & CLEARANCE CARD
-  // ----------------------------------------------------
-  Widget _buildSovereignPlanCard(BuildContext context) {
+  /// Top 2 KPI Summary Boxes:
+  /// 1. Total Invoices & Sanctions
+  /// 2. Paid & Disbursed
+  Widget _buildTopKpiBoxes(GovBillingInvoicesController c, NumberFormat currencyFormat) {
     return Obx(() {
-      final sub = controller.subscription.value;
+      final totalInvoices = c.allInvoicesCount;
+      final paidInvoices = c.invoicePaidCount;
+      final pendingInvoices = c.invoicePendingCount;
+      final paidTotal = c.paidTotal;
 
-      return Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.cardBorder, width: 1.2),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.25),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        sub.organizationName,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        sub.planName,
-                        style: const TextStyle(
-                          color: Color(0xFF818CF8),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFF10B981), width: 1),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.verified_rounded, color: Color(0xFF10B981), size: 13),
-                      SizedBox(width: 4),
-                      Text(
-                        'Active Tier',
-                        style: TextStyle(
-                          color: Color(0xFF10B981),
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-
-            // Statutory Sovereign Exemption Banner
-            Container(
-              padding: const EdgeInsets.all(12),
+      return Row(
+        children: [
+          // Box 1: Total Invoices & Sanctions
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: const Color(0xFF10B981).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+                color: AppColors.cardBg,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.cardBorder, width: 1.2),
               ),
-              child: const Row(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.shield_rounded, color: Color(0xFF10B981), size: 20),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Direct Ministry of Transport Exemption',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          'gov_billing.total_sanctions'.tr.toUpperCase(),
+                          style: const TextStyle(
+                            color: Color(0xFF94A3B8),
+                            fontSize: 10,
                             fontWeight: FontWeight.bold,
+                            letterSpacing: 0.3,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: const Color(0x1F3B82F6),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0x4D3B82F6)),
+                        ),
+                        child: const Icon(Icons.check_circle_outline_rounded, color: Color(0xFF60A5FA), size: 16),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '$totalInvoices',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '$paidInvoices ${'gov_billing.tab_paid'.tr} · $pendingInvoices ${'gov_billing.tab_pending'.tr}',
+                    style: const TextStyle(
+                      color: Color(0xFF94A3B8),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+
+          // Box 2: Paid & Disbursed
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AppColors.cardBg,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.cardBorder, width: 1.2),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          'gov_billing.paid_disbursed'.tr.toUpperCase(),
+                          style: const TextStyle(
+                            color: Color(0xFF94A3B8),
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.3,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: const Color(0x1F10B981),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0x4D10B981)),
+                        ),
+                        child: const Icon(Icons.payments_outlined, color: Color(0xFF34D399), size: 16),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '₹ ${currencyFormat.format(paidTotal)}',
+                    style: const TextStyle(
+                      color: Color(0xFF34D399),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '$paidInvoices ${'gov_billing.settled_invoices'.tr}',
+                    style: const TextStyle(
+                      color: Color(0xFF94A3B8),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
+  /// Section: Department Invoices & Clearance Receipts
+  Widget _buildInvoicesSection(BuildContext context, GovBillingInvoicesController c) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section Header with Title and GST Badge
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            'gov_billing.dept_invoices_receipts'.tr,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.2,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        SizedBox(height: 3),
-                        Text(
-                          'Public Welfare & Emergency Broadcast services are zero-rated under State Public Information Act.',
-                          style: TextStyle(
-                            color: Color(0xFF94A3B8),
-                            fontSize: 10.5,
-                            height: 1.35,
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0x1F3B82F6),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: const Color(0x4D3B82F6)),
+                          ),
+                          child: Text(
+                            'gov_billing.official_gst_receipts'.tr,
+                            style: const TextStyle(
+                              color: Color(0xFF60A5FA),
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Quotas Micro Progress Bars Grid
-            Row(
-              children: [
-                Expanded(
-                  child: _buildQuotaMini(
-                    label: 'Transit Buses',
-                    used: sub.busesUsed,
-                    limit: sub.busesLimit,
-                    percent: sub.busesPercent,
-                    color: const Color(0xFF3B82F6),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _buildQuotaMini(
-                    label: 'Display Screens',
-                    used: sub.displaysUsed,
-                    limit: sub.displaysLimit,
-                    percent: sub.displaysPercent,
-                    color: const Color(0xFF8B5CF6),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildQuotaMini(
-                    label: 'Depots / Corridors',
-                    used: sub.depotsUsed,
-                    limit: sub.depotsLimit,
-                    percent: sub.depotsPercent,
-                    color: const Color(0xFFF59E0B),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _buildQuotaMini(
-                    label: 'Emergency Override',
-                    used: 1,
-                    limit: 1,
-                    percent: 1.0,
-                    color: const Color(0xFF10B981),
-                    customValue: 'Unlimited',
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    });
-  }
-  Widget _buildQuotaMini({
-    required String label,
-    required int used,
-    required int limit,
-    required double percent,
-    required Color color,
-    String? customValue,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0F172A),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.cardBorder, width: 0.8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Flexible(
-                child: Text(
-                  customValue ?? '$used / $limit',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.end,
-                  style: TextStyle(
-                    color: color,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'gov_billing.receipts_subtitle'.tr,
+                      style: const TextStyle(
+                        color: Color(0xFF94A3B8),
+                        fontSize: 10.5,
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(3),
-            child: LinearProgressIndicator(
-              value: percent,
-              backgroundColor: const Color(0xFF1E293B),
-              valueColor: AlwaysStoppedAnimation<Color>(color),
-              minHeight: 4,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
- /* Widget _buildQuotaMini({
-    required String label,
-    required int used,
-    required int limit,
-    required double percent,
-    required Color color,
-    String? customValue,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0F172A),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.cardBorder, width: 0.8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.w600),
-              ),
-              Text(
-                customValue ?? '$used / $limit',
-                style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(3),
-            child: LinearProgressIndicator(
-              value: percent,
-              backgroundColor: const Color(0xFF1E293B),
-              valueColor: AlwaysStoppedAnimation<Color>(color),
-              minHeight: 4,
-            ),
-          ),
-        ],
-      ),
-    );
-  }*/
+          const SizedBox(height: 14),
 
-  // ----------------------------------------------------
-  // 3. 3 KPI SUMMARY CARDS
-  // ----------------------------------------------------
-  Widget _buildSummaryKpiCards() {
-    return Obx(() {
-      final totalInvoices = controller.allInvoices.length;
-      final paidTotal = controller.paidAmount.value;
-      final pendingTotal = controller.pendingAmount.value;
-      final pCount = controller.paidCount.value;
-      final exCount = controller.exemptCount.value;
-      final pendCount = controller.pendingCount.value;
+          // 3 Filter Tabs: All, Pending, Paid (styled with primaryGradient when selected)
+          Obx(() {
+            final activeTab = c.selectedInvoiceTab.value;
+            final tabs = [
+              {'id': 'all', 'label': '${'gov_billing.tab_all'.tr} (${c.allInvoicesCount})'},
+              {'id': 'pending', 'label': '${'gov_billing.tab_pending'.tr} (${c.invoicePendingCount})'},
+              {'id': 'paid', 'label': '${'gov_billing.tab_paid'.tr} (${c.invoicePaidCount})'},
+            ];
 
-      return Row(
-        children: [
-          // Total Bills
-          Expanded(
-            child: _buildKpiCard(
-              title: 'TOTAL INVOICES',
-              value: '$totalInvoices',
-              subtext: '$pCount Paid · $exCount Exempt',
-              icon: Icons.receipt_long_rounded,
-              color: const Color(0xFF818CF8),
-            ),
-          ),
-          const SizedBox(width: 8),
-
-          // Pending Settlement
-          Expanded(
-            child: _buildKpiCard(
-              title: 'PENDING BILLS',
-              value: pendingTotal > 0 ? '₹${pendingTotal.toInt()}' : '₹0',
-              subtext: '$pendCount Pending Clearance',
-              icon: Icons.pending_actions_rounded,
-              color: const Color(0xFFF59E0B),
-            ),
-          ),
-          const SizedBox(width: 8),
-
-          // Paid & Settled
-          Expanded(
-            child: _buildKpiCard(
-              title: 'PAID & SETTLED',
-              value: paidTotal > 0 ? '₹${(paidTotal / 1000).toStringAsFixed(1)}k' : '₹0',
-              subtext: '$pCount Settled Bills',
-              icon: Icons.verified_rounded,
-              color: const Color(0xFF10B981),
-            ),
-          ),
-        ],
-      );
-    });
-  }
-  Widget _buildKpiCard({
-    required String title,
-    required String value,
-    required String subtext,
-    required IconData icon,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 8.5,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
+            return Row(
+              children: tabs.map((tab) {
+                final isSelected = activeTab == tab['id'];
+                return Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3),
+                    child: GestureDetector(
+                      onTap: () => c.setInvoiceTab(tab['id']!),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          gradient: isSelected ? AppTheme.primaryGradient : null,
+                          color: isSelected ? null : const Color(0xFF1E293B),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: isSelected ? Colors.transparent : const Color(0xFF334155),
+                          ),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          tab['label']!,
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : const Color(0xFF94A3B8),
+                            fontSize: 11,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
                   ),
+                );
+              }).toList(),
+            );
+          }),
+          const SizedBox(height: 12),
+
+          // Search Bar
+          Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E293B),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF334155)),
+            ),
+            child: TextField(
+              controller: c.searchController,
+              style: const TextStyle(color: Colors.white, fontSize: 12),
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF64748B), size: 18),
+                hintText: 'gov_billing.search_ph'.tr,
+                hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+                suffixIcon: Obx(
+                  () => c.invoiceSearch.value.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear_rounded, color: Colors.white54, size: 16),
+                          onPressed: () {
+                            c.searchController.clear();
+                            c.invoiceSearch.value = '';
+                          },
+                        )
+                      : const SizedBox.shrink(),
                 ),
               ),
-              const SizedBox(width: 4),
-              Icon(
-                icon,
-                color: color,
-                size: 14,
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w900,
             ),
           ),
-          const SizedBox(height: 3),
-          Text(
-            subtext,
-            style: TextStyle(
-              color: color,
-              fontSize: 8.5,
-              fontWeight: FontWeight.w600,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+          const SizedBox(height: 14),
+
+          // Invoice Cards List
+          Obx(() {
+            final invoices = c.paginatedInvoices;
+
+            if (invoices.isEmpty) {
+              return Container(
+                padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 16),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E293B).withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFF334155), style: BorderStyle.solid),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.receipt_long_outlined, color: Color(0xFF64748B), size: 36),
+                    const SizedBox(height: 10),
+                    Text(
+                      'gov_billing.no_invoices_found'.tr,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'gov_billing.no_invoices_desc'.tr,
+                      style: const TextStyle(
+                        color: Color(0xFF94A3B8),
+                        fontSize: 10.5,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: invoices.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 12),
+              itemBuilder: (ctx, idx) {
+                final inv = invoices[idx];
+                return _buildInvoiceCard(context, c, inv);
+              },
+            );
+          }),
+          const SizedBox(height: 14),
+
+          // Bottom Pagination Bar
+          _buildPaginationBar(c),
         ],
       ),
     );
   }
-/*  Widget _buildKpiCard({
-    required String title,
-    required String value,
-    required String subtext,
-    required IconData icon,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 8.5,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              Icon(icon, color: color, size: 14),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          const SizedBox(height: 3),
-          Text(
-            subtext,
-            style: TextStyle(
-              color: color,
-              fontSize: 8.5,
-              fontWeight: FontWeight.w600,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }*/
 
-  // ----------------------------------------------------
-  // 4. SEGMENTED TABS
-  // ----------------------------------------------------
-  Widget _buildSegmentedTabs() {
-    return Obx(() {
-      final tab = controller.selectedTab.value;
-      final invCount = controller.allInvoices.length;
-      final txCount = controller.allTransactions.length;
-
-      return Container(
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: const Color(0xFF0F172A),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.cardBorder, width: 1),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: _buildTabButton(
-                title: 'Invoices ($invCount)',
-                icon: Icons.description_outlined,
-                isSelected: tab == 0,
-                onTap: () => controller.setTab(0),
-              ),
-            ),
-            Expanded(
-              child: _buildTabButton(
-                title: 'Transactions ($txCount)',
-                icon: Icons.history_rounded,
-                isSelected: tab == 1,
-                onTap: () => controller.setTab(1),
-              ),
-            ),
-            Expanded(
-              child: _buildTabButton(
-                title: 'Quotas',
-                icon: Icons.pie_chart_outline_rounded,
-                isSelected: tab == 2,
-                onTap: () => controller.setTab(2),
-              ),
-            ),
-          ],
-        ),
-      );
-    });
-  }
-
-  Widget _buildTabButton({
-    required String title,
-    required IconData icon,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 9),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF6366F1) : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: isSelected ? Colors.white : AppColors.textMuted, size: 14),
-            const SizedBox(width: 6),
-            Text(
-              title,
-              style: TextStyle(
-                color: isSelected ? Colors.white : AppColors.textMuted,
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ----------------------------------------------------
-  // 5. INVOICES TAB
-  // ----------------------------------------------------
-  Widget _buildInvoicesTab(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Search Input & Status Filter Chips
-        _buildSearchAndFilters(),
-        const SizedBox(height: 14),
-
-        // Invoices List
-        Obx(() {
-          final list = controller.filteredInvoices;
-          if (list.isEmpty) {
-            return _buildEmptyState('No invoices found matching your criteria.');
-          }
-
-          return ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: list.length,
-            separatorBuilder: (ctx, i) => const SizedBox(height: 12),
-            itemBuilder: (ctx, i) => _buildInvoiceCard(ctx, list[i]),
-          );
-        }),
-      ],
-    );
-  }
-
-  Widget _buildSearchAndFilters() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Search Box
-        Container(
-          height: 44,
-          decoration: BoxDecoration(
-            color: const Color(0xFF0F172A),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.cardBorder, width: 1),
-          ),
-          child: TextField(
-            controller: controller.searchController,
-            style: const TextStyle(color: Colors.white, fontSize: 12),
-            decoration: InputDecoration(
-              hintText: 'Search by Invoice #, particulars or GSTIN…',
-              hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 11),
-              prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted, size: 18),
-              suffixIcon: Obx(() {
-                if (controller.searchQuery.value.isNotEmpty) {
-                  return IconButton(
-                    icon: const Icon(Icons.clear_rounded, color: Colors.white70, size: 16),
-                    onPressed: () => controller.searchController.clear(),
-                  );
-                }
-                return const SizedBox();
-              }),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(vertical: 12),
-            ),
-          ),
-        ),
-        const SizedBox(height: 10),
-
-        // Filter Chips
-        Obx(() {
-          final current = controller.invoiceFilter.value;
-          final allCount = controller.allInvoices.length;
-          final paidCount = controller.paidCount.value;
-          final pendingCount = controller.pendingCount.value;
-          final exemptCount = controller.exemptCount.value;
-
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            child: Row(
-              children: [
-                _buildFilterChip('All ($allCount)', 'all', current == 'all'),
-                const SizedBox(width: 8),
-                _buildFilterChip('Paid ($paidCount)', 'paid', current == 'paid'),
-                const SizedBox(width: 8),
-                _buildFilterChip('Pending ($pendingCount)', 'pending', current == 'pending'),
-                const SizedBox(width: 8),
-                _buildFilterChip('Zero-Rated ($exemptCount)', 'exempt', current == 'exempt'),
-              ],
-            ),
-          );
-        }),
-      ],
-    );
-  }
-
-  Widget _buildFilterChip(String label, String value, bool isSelected) {
-    return GestureDetector(
-      onTap: () => controller.setInvoiceFilter(value),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF6366F1).withValues(alpha: 0.2) : const Color(0xFF0F172A),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? const Color(0xFF6366F1) : AppColors.cardBorder,
-            width: 1,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? const Color(0xFF818CF8) : AppColors.textMuted,
-            fontSize: 11,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInvoiceCard(BuildContext context, GovInvoiceModel inv) {
-    final issueStr = inv.issueDate != null ? DateFormat('dd MMM yyyy').format(inv.issueDate!) : '—';
-    final dueStr = inv.dueDate != null ? DateFormat('dd MMM yyyy').format(inv.dueDate!) : '—';
+  /// Individual Invoice Card
+  Widget _buildInvoiceCard(
+      BuildContext context, GovBillingInvoicesController c, GovBillingInvoiceItem inv) {
+    final currencyFormat = (inv.amount % 1 == 0)
+        ? NumberFormat('#,##,###', 'en_IN')
+        : NumberFormat('#,##,###.00', 'en_IN');
+    final isPending = !inv.isPaid;
 
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFF334155), width: 1.1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header: Code Badge + Status Pill
+          // Top Row: Invoice ID & Status Badge
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0F172A),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: const Color(0xFF334155), width: 1),
-                    ),
-                    child: Text(
-                      inv.code,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontFamily: 'monospace',
-                        fontWeight: FontWeight.bold,
-                      ),
+                  Text(
+                    inv.id,
+                    style: const TextStyle(
+                      color: Color(0xFF60A5FA),
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'monospace',
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  InkWell(
-                    onTap: () => controller.copyToClipboard(inv.code, 'Invoice number'),
-                    child: const Icon(Icons.copy_rounded, color: AppColors.textMuted, size: 14),
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0F172A),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      inv.campaignCode,
+                      style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 9.5),
+                    ),
                   ),
                 ],
               ),
+
+              // Status Badge
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: inv.statusBgColor,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: inv.statusColor.withValues(alpha: 0.5), width: 0.8),
-                ),
-                child: Text(
-                  inv.displayStatus,
-                  style: TextStyle(
-                    color: inv.statusColor,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
+                  color: isPending
+                      ? const Color(0x1FF59E0B)
+                      : const Color(0x1F10B981),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isPending
+                        ? const Color(0x4DF59E0B)
+                        : const Color(0x4D10B981),
                   ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (!isPending) ...[
+                      const Icon(Icons.check_rounded, color: Color(0xFF34D399), size: 12),
+                      const SizedBox(width: 3),
+                    ] else ...[
+                      const Icon(Icons.hourglass_empty_rounded, color: Color(0xFFFBBF24), size: 11),
+                      const SizedBox(width: 3),
+                    ],
+                    Text(
+                      isPending ? 'gov_billing.awaiting_payment'.tr : 'gov_billing.paid_cleared'.tr,
+                      style: TextStyle(
+                        color: isPending ? const Color(0xFFFBBF24) : const Color(0xFF34D399),
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
 
-          // Title / Particulars
+          // Campaign Name
           Text(
-            inv.title,
+            inv.campaign,
             style: const TextStyle(
               color: Colors.white,
               fontSize: 13,
               fontWeight: FontWeight.bold,
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
 
-          // PO / Reference number
-          if (inv.poReference.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Text(
-                'Reference: ${inv.poReference}',
-                style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10.5),
+          // Department Tag
+          Row(
+            children: [
+              const Icon(Icons.account_balance_outlined, color: Color(0xFF94A3B8), size: 12),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  inv.clientBrand,
+                  style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10.5),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
+            ],
+          ),
+          const SizedBox(height: 8),
 
-          // Date & Amount Strip
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF0F172A),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Issued: $issueStr', style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
-                    const SizedBox(height: 2),
-                    Text('Due: $dueStr', style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
-                  ],
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
+          // Dates and Amount Row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    inv.date,
+                    style: const TextStyle(color: Color(0xFF64748B), fontSize: 10),
+                  ),
+                  if (inv.dueDate != null)
                     Text(
-                      inv.isExempt ? '₹0.00 (Exempt)' : '₹${inv.totalAmount.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        color: inv.isExempt ? const Color(0xFF3B82F6) : Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w900,
-                      ),
+                      '${'gov_billing.due_label'.tr} ${inv.dueDate}',
+                      style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 9.5),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      inv.isExempt ? 'Zero-Rated Statutory' : 'Incl. 18% GST',
-                      style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5),
-                    ),
-                  ],
+                ],
+              ),
+              Text(
+                '₹ ${currencyFormat.format(inv.amount)}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.w900,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
 
-          // Action Buttons
+          // Action Buttons: Detail, Tax Invoice, Download PDF
           Row(
             children: [
+              // 1. Detail Button
               Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _showInvoiceDetailsModal(context, inv),
+                child: OutlinedButton(
+                  onPressed: () => c.openCampaignDetails(inv),
                   style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
                     side: const BorderSide(color: Color(0xFF334155)),
-                    padding: const EdgeInsets.symmetric(vertical: 9),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    backgroundColor: const Color(0xFF0F172A),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  icon: const Icon(Icons.remove_red_eye_outlined, color: Colors.white70, size: 14),
-                  label: const Text('View Breakdown', style: TextStyle(color: Colors.white, fontSize: 11)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.visibility_rounded, size: 13, color: Color(0xFF8B5CF6)),
+                      const SizedBox(width: 4),
+                      Text(
+                        'gov_billing.action_details'.tr,
+                        style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
-              OutlinedButton.icon(
-                onPressed: () => _showDownloadSheet(context, inv),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Color(0xFF6366F1), width: 1.2),
-                  backgroundColor: const Color(0xFF6366F1).withValues(alpha: 0.1),
-                  padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-                icon: const Icon(Icons.download_rounded, color: Color(0xFF818CF8), size: 14),
-                label: const Text('Download', style: TextStyle(color: Color(0xFF818CF8), fontSize: 11, fontWeight: FontWeight.bold)),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 
-  // ----------------------------------------------------
-  // 6. TRANSACTIONS TAB
-  // ----------------------------------------------------
-  Widget _buildTransactionsTab(BuildContext context) {
-    return Obx(() {
-      final list = controller.filteredTransactions;
-      if (list.isEmpty) {
-        return _buildEmptyState('No treasury payment records found.');
-      }
-
-      return ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: list.length,
-        separatorBuilder: (ctx, i) => const SizedBox(height: 12),
-        itemBuilder: (ctx, i) {
-          final tx = list[i];
-          final dateStr = tx.createdAt != null ? DateFormat('dd MMM yyyy, hh:mm a').format(tx.createdAt!) : '—';
-
-          return Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: AppColors.cardBg,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.cardBorder, width: 1.2),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          tx.transactionId,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11.5,
-                            fontFamily: 'monospace',
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        InkWell(
-                          onTap: () => controller.copyToClipboard(tx.transactionId, 'Transaction ID'),
-                          child: const Icon(Icons.copy_rounded, color: AppColors.textMuted, size: 13),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        tx.status.toUpperCase(),
-                        style: const TextStyle(
-                          color: Color(0xFF10B981),
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  tx.description,
-                  style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Rail: ${tx.paymentMethod}', style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
-                        if (tx.utr.isNotEmpty)
-                          Text('UTR: ${tx.utr}', style: const TextStyle(color: Color(0xFF818CF8), fontSize: 10)),
-                        Text(dateStr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
-                      ],
-                    ),
-                    Text(
-                      '₹${tx.amount.toStringAsFixed(2)}',
-                      style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w900),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        },
-      );
-    });
-  }
-
-  // ----------------------------------------------------
-  // 7. QUOTAS TAB
-  // ----------------------------------------------------
-  Widget _buildQuotasTab(BuildContext context) {
-    return Obx(() {
-      final sub = controller.subscription.value;
-
-      return Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.cardBorder, width: 1.2),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Operational Quotas & Transit Capacity',
-              style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              'Allocated capacity under Ministry Sovereign Agreement.',
-              style: TextStyle(color: AppColors.textMuted, fontSize: 11),
-            ),
-            const SizedBox(height: 18),
-            _buildQuotaFullBar(
-              title: 'Active Monitored Buses',
-              used: sub.busesUsed,
-              limit: sub.busesLimit,
-              percent: sub.busesPercent,
-              color: const Color(0xFF3B82F6),
-            ),
-            const SizedBox(height: 16),
-            _buildQuotaFullBar(
-              title: 'Connected Display Screens',
-              used: sub.displaysUsed,
-              limit: sub.displaysLimit,
-              percent: sub.displaysPercent,
-              color: const Color(0xFF8B5CF6),
-            ),
-            const SizedBox(height: 16),
-            _buildQuotaFullBar(
-              title: 'Transit Depots & Secretarial Divisions',
-              used: sub.depotsUsed,
-              limit: sub.depotsLimit,
-              percent: sub.depotsPercent,
-              color: const Color(0xFFF59E0B),
-            ),
-            const SizedBox(height: 16),
-            _buildQuotaFullBar(
-              title: 'Authorized Officers & Operators',
-              used: sub.operatorsUsed,
-              limit: sub.operatorsLimit,
-              percent: sub.operatorsPercent,
-              color: const Color(0xFF10B981),
-            ),
-          ],
-        ),
-      );
-    });
-  }
-
-  Widget _buildQuotaFullBar({
-    required String title,
-    required int used,
-    required int limit,
-    required double percent,
-    required Color color,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(title, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
-            Text('$used / $limit (${(percent * 100).toStringAsFixed(0)}%)',
-                style: TextStyle(color: color, fontSize: 11.5, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        const SizedBox(height: 8),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(
-            value: percent,
-            backgroundColor: const Color(0xFF0F172A),
-            valueColor: AlwaysStoppedAnimation<Color>(color),
-            minHeight: 6,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ----------------------------------------------------
-  // 8. SUPPORT & STATUTORY FOOTER
-  // ----------------------------------------------------
-  Widget _buildSupportCard(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0F172A),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.cardBorder, width: 1),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF6366F1).withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(Icons.help_outline_rounded, color: Color(0xFF818CF8), size: 20),
-          ),
-          const SizedBox(width: 12),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Need Ministry Exemption Documentation?',
-                  style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  'Contact VMOVEXA Government Desk at billing@vmovexa.com',
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 10),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(String message) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1),
-      ),
-      child: Column(
-        children: [
-          const Icon(Icons.receipt_long_outlined, color: AppColors.textMuted, size: 36),
-          const SizedBox(height: 12),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ----------------------------------------------------
-  // 9. MODALS & BOTTOM SHEETS
-  // ----------------------------------------------------
-  void _showInvoiceDetailsModal(BuildContext context, GovInvoiceModel inv) {
-    Get.bottomSheet(
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.85,
-        ),
-        decoration: const BoxDecoration(
-          color: Color(0xFF1E293B),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              // 2. Tax Invoice Button (opens via url_launcher)
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => c.openTaxInvoiceUrl(inv),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    side: const BorderSide(color: Color(0xFF334155)),
+                    backgroundColor: const Color(0xFF0F172A),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      const Icon(Icons.receipt_long_rounded, size: 13, color: Color(0xFF3B82F6)),
+                      const SizedBox(width: 4),
                       Text(
-                        inv.code,
-                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        inv.displayStatus,
-                        style: TextStyle(color: inv.statusColor, fontSize: 11, fontWeight: FontWeight.bold),
+                        'gov_billing.action_tax_invoice'.tr,
+                        style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close_rounded, color: Colors.white70, size: 20),
-                    onPressed: () => Get.back(),
+                ),
+              ),
+              const SizedBox(width: 8),
+
+
+            ],
+          ),
+          SizedBox(height: 12),
+          // 3. Download PDF (with primaryGradient)
+          Container(
+            height: 36,
+            decoration: BoxDecoration(
+              gradient: AppTheme.primaryGradient,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF2563EB).withValues(alpha: 0.3),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: ElevatedButton(
+              onPressed: () => c.downloadInvoicePdf(inv),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                padding: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.download_rounded, size: 13, color: Colors.white),
+                  const SizedBox(width: 4),
+                  Text(
+                    'gov_billing.action_download_pdf'.tr,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
-              const Divider(color: Color(0xFF334155), height: 20),
-
-              // Customer / Agency Info
-              const Text('RECIPIENT AGENCY', style: TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 4),
-              Text(inv.customerName, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-              Text(inv.billingAddress, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
-              Text('GSTIN: ${inv.gstin} · PAN: ${inv.pan}', style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11, fontFamily: 'monospace')),
-              const SizedBox(height: 14),
-
-              // Line Items
-              const Text('ITEMIZED BREAKDOWN', style: TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 6),
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0F172A),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFF334155)),
-                ),
-                child: Column(
-                  children: [
-                    ...inv.items.map((it) => Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(it.description, style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w600)),
-                                    const SizedBox(height: 2),
-                                    Text('HSN: ${it.hsnCode} · Qty: ${it.quantity} @ ₹${it.unitRate}',
-                                        style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
-                                  ],
-                                ),
-                              ),
-                              Text(
-                                it.total == 0 ? '₹0.00' : '₹${it.total.toStringAsFixed(2)}',
-                                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        )),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 14),
-
-              // Total Calculation Card
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0F172A),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  children: [
-                    _buildCalcRow('Subtotal (Taxable Value)', '₹${inv.subtotal.toStringAsFixed(2)}'),
-                    const SizedBox(height: 4),
-                    _buildCalcRow('CGST (9%)', '₹${(inv.taxAmount / 2).toStringAsFixed(2)}'),
-                    const SizedBox(height: 4),
-                    _buildCalcRow('SGST (9%)', '₹${(inv.taxAmount / 2).toStringAsFixed(2)}'),
-                    const Divider(color: Color(0xFF334155), height: 16),
-                    _buildCalcRow(
-                      'Grand Total',
-                      inv.isExempt ? '₹0.00 (Zero-Rated)' : '₹${inv.totalAmount.toStringAsFixed(2)}',
-                      isBold: true,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 14),
-
-              // UTR reference
-              if (inv.utr.isNotEmpty)
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 16),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Payment Reference: ${inv.utr}',
-                          style: const TextStyle(color: Color(0xFF10B981), fontSize: 10.5, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-              const SizedBox(height: 18),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Get.back();
-                    _showDownloadSheet(context, inv);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6366F1),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                  icon: const Icon(Icons.download_rounded, color: Colors.white, size: 16),
-                  label: const Text('Download Official Tax Invoice', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
-      isScrollControlled: true,
     );
   }
 
-  Widget _buildCalcRow(String label, String value, {bool isBold = false}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: isBold ? Colors.white : AppColors.textMuted,
-            fontSize: isBold ? 13 : 11,
-            fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
-          ),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            color: isBold ? const Color(0xFF10B981) : Colors.white,
-            fontSize: isBold ? 14 : 11.5,
-            fontWeight: isBold ? FontWeight.w900 : FontWeight.w600,
-          ),
-        ),
-      ],
-    );
-  }
+  /// Bottom Pagination Bar
+  Widget _buildPaginationBar(GovBillingInvoicesController c) {
+    return Obx(() {
+      final current = c.invoicePage.value;
+      final total = c.totalInvoicePages;
+      final start = c.paginationStartIndex;
+      final end = c.paginationEndIndex;
+      final totalItems = c.filteredInvoices.length;
 
-  void _showDownloadSheet(BuildContext context, GovInvoiceModel inv) {
-    final downloadUrl = inv.htmlDownloadUrl;
-
-    Get.bottomSheet(
-      Container(
-        padding: const EdgeInsets.all(20),
-        decoration: const BoxDecoration(
-          color: Color(0xFF1E293B),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E293B),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: const Color(0xFF334155)),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            Text(
+              '$start-$end ${'gov_billing.of'.tr} $totalItems',
+              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10.5),
+            ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Download Tax Invoice',
-                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                IconButton(
+                  icon: const Icon(Icons.chevron_left_rounded, color: Colors.white),
+                  onPressed: current > 1 ? () => c.prevInvoicePage() : null,
+                  iconSize: 20,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                ),
+                Text(
+                  '${'gov_billing.page'.tr} $current / $total',
+                  style: const TextStyle(color: Colors.white70, fontSize: 10.5, fontWeight: FontWeight.bold),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close_rounded, color: Colors.white70, size: 20),
-                  onPressed: () => Get.back(),
+                  icon: const Icon(Icons.chevron_right_rounded, color: Colors.white),
+                  onPressed: current < total ? () => c.nextInvoicePage() : null,
+                  iconSize: 20,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
                 ),
               ],
             ),
-            const SizedBox(height: 4),
-            Text(
-              'Official receipt for ${inv.code} is available on the secure VMOVEXA Billing Gateway.',
-              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
-            ),
-            const SizedBox(height: 18),
-            ListTile(
-              leading: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF6366F1).withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(Icons.link_rounded, color: Color(0xFF818CF8), size: 20),
-              ),
-              title: const Text('Copy Invoice Web URL', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-              subtitle: const Text('Copy direct HTTPS link to view in browser', style: TextStyle(color: Color(0xFF64748B), fontSize: 11)),
-              trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF64748B), size: 20),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              onTap: () {
-                Get.back();
-                controller.copyToClipboard(downloadUrl, 'Invoice URL');
-              },
-            ),
-            const SizedBox(height: 8),
-            ListTile(
-              leading: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(Icons.copy_all_rounded, color: Color(0xFF10B981), size: 20),
-              ),
-              title: const Text('Copy Invoice Reference Number', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-              subtitle: Text(inv.code, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11, fontFamily: 'monospace')),
-              trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF64748B), size: 20),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              onTap: () {
-                Get.back();
-                controller.copyToClipboard(inv.code, 'Invoice reference');
-              },
-            ),
           ],
         ),
-      ),
-      isScrollControlled: true,
-    );
+      );
+    });
   }
 }
