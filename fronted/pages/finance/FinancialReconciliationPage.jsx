@@ -49,8 +49,7 @@ export const FinancialReconciliationPage = () => {
       const name = String(acc.name || acc.accountName || '').toLowerCase();
       const num = String(acc.accountNumber || '').toLowerCase();
       const cat = String(acc.category || '').toLowerCase();
-      const status = String(acc.status || '').toLowerCase();
-      return name.includes(q) || num.includes(q) || cat.includes(q) || status.includes(q);
+      return name.includes(q) || num.includes(q) || cat.includes(q);
     });
   }, [accounts, accountSearch]);
 
@@ -212,7 +211,6 @@ export const FinancialReconciliationPage = () => {
                   <th className="py-3 px-4 text-center">{t('finance.reconciliation.matched')}</th>
                   <th className="py-3 px-4 text-center">{t('finance.reconciliation.unmatched')}</th>
                   <th className="py-3 px-4">{t('finance.reconciliation.ledger_balance')}</th>
-                  <th className="py-3 px-4">{t('common.status')}</th>
                   <th className="py-3 px-4 text-right">{t('common.actions')}</th>
                 </tr>
               </thead>
@@ -231,18 +229,6 @@ export const FinancialReconciliationPage = () => {
                       {String(acc.ledgerBalance || acc.balance || '0').startsWith('₹')
                         ? (acc.ledgerBalance || acc.balance)
                         : `₹${Number(acc.ledgerBalance || acc.balance || 0).toLocaleString('en-IN')}`}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full font-bold text-[11px] border inline-flex items-center gap-1 ${
-                          acc.status === 'Reconciled'
-                            ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
-                            : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800'
-                        }`}
-                      >
-                        <span className={`w-1.5 h-1.5 rounded-full ${acc.status === 'Reconciled' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-                        <span>{acc.status === 'Reconciled' ? t('finance.reconciliation.status_reconciled', 'Reconciled') : t('finance.reconciliation.status_pending', acc.status || 'Pending')}</span>
-                      </span>
                     </td>
                     <td className="py-3.5 px-4 text-right">
                       <Link
@@ -278,16 +264,6 @@ export const FinancialReconciliationPage = () => {
                       {acc.accountNumber}
                     </div>
                   </div>
-                  <span
-                    className={`px-2 py-0.5 rounded-full font-bold text-[10px] border shrink-0 inline-flex items-center gap-1 ${
-                      acc.status === 'Reconciled'
-                        ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
-                        : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800'
-                    }`}
-                  >
-                    <span className={`w-1.5 h-1.5 rounded-full ${acc.status === 'Reconciled' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-                    <span>{acc.status === 'Reconciled' ? t('finance.reconciliation.status_reconciled', 'Reconciled') : t('finance.reconciliation.status_pending', acc.status || 'Pending')}</span>
-                  </span>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 bg-slate-50/80 dark:bg-zinc-800/50 p-2.5 rounded-lg border border-slate-100 dark:border-zinc-800 text-center">

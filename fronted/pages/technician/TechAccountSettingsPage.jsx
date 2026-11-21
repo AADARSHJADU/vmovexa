@@ -8,7 +8,7 @@ import Breadcrumb from '../../components/ui/Breadcrumb';
 import { FleetIcons } from '../../components/FleetIcons';
 
 export const TechAccountSettingsPage = () => {
-  const { t } = useTranslation();
+  const { t, languages } = useTranslation();
   const navigate = useNavigate();
   const { user, updateProfile } = useAuth();
 
@@ -343,12 +343,11 @@ export const TechAccountSettingsPage = () => {
                 onChange={(e) => setFormData({ ...formData, language: e.target.value })}
                 className="w-full h-11 px-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="en" className="dark:bg-zinc-900">{t('common.language_en')}</option>
-                <option value="hi" className="dark:bg-zinc-900">{t('common.language_hi')}</option>
-                <option value="kn" className="dark:bg-zinc-900">{t('common.language_kn')}</option>
-                <option value="mr" className="dark:bg-zinc-900">{t('common.language_mr')}</option>
-                <option value="te" className="dark:bg-zinc-900">{t('common.language_te')}</option>
-                <option value="ta" className="dark:bg-zinc-900">{t('common.language_ta')}</option>
+                {languages.filter((language) => language.is_active !== false).map((language) => (
+                  <option key={language.code} value={language.code} className="dark:bg-zinc-900">
+                    {language.native_name || language.name} ({language.code})
+                  </option>
+                ))}
               </select>
             </div>
 

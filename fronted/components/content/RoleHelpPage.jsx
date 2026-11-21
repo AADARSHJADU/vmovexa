@@ -10,7 +10,7 @@ import { resolveFileUrl } from '../../api/services/upload.service.js';
 import { Breadcrumb } from '../ui/Breadcrumb';
 
 export const RoleHelpPage = ({ roleCode, defaultHistoryPath, showContactCta = true }) => {
-  const { t, currentLanguage } = useTranslation();
+  const { t } = useTranslation();
   const { loadPage, getPage } = useContent();
   const [searchQuery, setSearchQuery] = useState('');
   const [openFaq, setOpenFaq] = useState(null);
@@ -61,8 +61,6 @@ export const RoleHelpPage = ({ roleCode, defaultHistoryPath, showContactCta = tr
     const isTech = roleCode === 'ROLE-CENTRAL-TECH';
     const isFinance = roleCode === 'ROLE-FINANCE-OFFICER';
     const isGov = roleCode === 'ROLE-GOVT-AGENCY';
-    const preferTranslatedFinanceDefaults = isFinance && currentLanguage !== 'en';
-
     const defaultTitle = isTech
       ? t('technician.help.title', roleDefault.title)
       : isFinance
@@ -134,21 +132,21 @@ export const RoleHelpPage = ({ roleCode, defaultHistoryPath, showContactCta = tr
     ] : roleDefault.faqs;
 
     return {
-      title: preferTranslatedFinanceDefaults ? defaultTitle : (current?.title || defaultTitle),
-      summary: preferTranslatedFinanceDefaults ? defaultSummary : (current?.summary || defaultSummary),
-      contact: preferTranslatedFinanceDefaults ? defaultContact : (parsedSections?.contact || defaultContact),
-      guides: (!preferTranslatedFinanceDefaults && parsedSections?.guides && parsedSections.guides.length > 0)
+      title: current?.title || defaultTitle,
+      summary: current?.summary || defaultSummary,
+      contact: parsedSections?.contact || defaultContact,
+      guides: (parsedSections?.guides && parsedSections.guides.length > 0)
         ? parsedSections.guides
         : defaultGuides,
-      faqs: (!preferTranslatedFinanceDefaults && parsedSections?.faqs && parsedSections.faqs.length > 0)
+      faqs: (parsedSections?.faqs && parsedSections.faqs.length > 0)
         ? parsedSections.faqs
-        : (!preferTranslatedFinanceDefaults && Array.isArray(parsedSections) && parsedSections.length > 0)
+        : (Array.isArray(parsedSections) && parsedSections.length > 0)
           ? parsedSections.map((s) => ({ q: s.title || s.q, a: s.content || s.a }))
           : defaultFaqs,
       videoAcademy: parsedSections?.videoAcademy || null,
       historyPath: defaultHistoryPath || roleDefault.historyPath,
     };
-  }, [current, roleDefault, defaultHistoryPath, roleCode, currentLanguage, t]);
+  }, [current, roleDefault, defaultHistoryPath, roleCode, t]);
 
   // Filter FAQs with live search
   const filteredFaqs = useMemo(() => {
@@ -175,7 +173,7 @@ export const RoleHelpPage = ({ roleCode, defaultHistoryPath, showContactCta = tr
 
   const getBreadcrumbs = () => {
     const path = location.pathname;
-    let portal = { label: t('roles.admin', 'Admin'), to: '/admin/dashboard' };
+    let portal = { label: t('ag.admin.admin_operations', 'Admin Operations'), to: '/admin/dashboard' };
     if (path.startsWith('/superadmin')) {
       portal = { label: t('roles.superadmin', 'Super Admin'), to: '/superadmin/dashboard' };
     } else if (path.startsWith('/fleet-operator') || path.startsWith('/fleet-manager')) {
@@ -204,7 +202,7 @@ export const RoleHelpPage = ({ roleCode, defaultHistoryPath, showContactCta = tr
 
       {/* 1. Header with Breadcrumbs & Ticket History */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
-        <div>
+        <div className="min-w-0 flex-1">
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
             {pageData.title}
           </h1>
@@ -213,138 +211,134 @@ export const RoleHelpPage = ({ roleCode, defaultHistoryPath, showContactCta = tr
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap w-full sm:w-auto">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0 flex-nowrap">
           <Link
             to={newPath}
-            className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+            className="px-3.5 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white text-xs font-bold rounded-xl shadow-xs hover:shadow-md transition-all flex items-center justify-center gap-1.5 sm:gap-2 active:scale-95 cursor-pointer whitespace-nowrap"
           >
-            <FleetIcons.Plus className="w-4 h-4 text-white shrink-0" />
-            <span>{t('ag.shared.rolehelppage.raise_support_ticket', 'Raise Support Ticket')}</span>
+            <FleetIcons.Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white shrink-0" />
+            <span>{t('ag.shared.rolehelppage.raise_ticket', 'Raise Ticket')}</span>
           </Link>
           {pageData.historyPath && (
             <Link
               to={resolvedHistoryPath}
-              className="w-full sm:w-auto px-4 py-2.5 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-bold rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5"
+              className="px-3.5 sm:px-4 py-2 sm:py-2.5 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-bold rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5 whitespace-nowrap"
             >
-              <FleetIcons.Ticket className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-              <span>{t('ag.shared.rolehelppage.view_ticket_history', 'View Ticket History')}</span>
+              <FleetIcons.Ticket className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-500 dark:text-slate-400 shrink-0" />
+              <span>{t('ag.shared.rolehelppage.ticket_history', 'Ticket History')}</span>
             </Link>
           )}
         </div>
       </div>
 
-      {/* 2. Contact / Emergency Hotline Hero Banner */}
+      {/* 2. Contact / Emergency Hotline Hero Banner — Gradient for all portals */}
       {isRedTheme ? (
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-red-600 text-white flex items-center justify-center shrink-0 shadow-md">
-              <FleetIcons.Phone className="w-6 h-6" />
+        <div className="p-6 rounded-2xl bg-gradient-to-r from-violet-600 via-purple-600 to-pink-500 border border-violet-500/30 text-white flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl shadow-violet-500/20">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center text-white shrink-0 shadow-inner backdrop-blur-md">
+              <FleetIcons.Phone className="w-7 h-7 text-white" />
             </div>
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-red-700">
-                {pageData.contact.badge || 'Transit Emergency SOS'}
-              </span>
-              <h2 className="text-lg font-black text-red-950">
+              <div className="text-[11px] font-bold text-white uppercase tracking-wider">
+                {pageData.contact.badge}
+              </div>
+              <h2 className="text-lg font-black text-white tracking-tight">
                 {pageData.contact.title}
               </h2>
-              <p className="text-xs text-red-800 font-medium">
+              <p className="text-xs text-white mt-0.5 max-w-lg leading-relaxed">
                 {pageData.contact.description}
               </p>
             </div>
           </div>
-
           {showContactCta && normalizedKey !== 'ROLE-DRIVER' && pageData.contact?.ctaText && pageData.contact.ctaText.trim() ? (
             <button
               type="button"
               onClick={() => alert(pageData.contact.actionAlert || 'Calling control room...')}
-              className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all shrink-0 w-full sm:w-auto cursor-pointer"
+              className="px-6 py-2.5 bg-white/20 hover:bg-white/30 border border-white/30 text-white text-xs font-bold rounded-xl shadow-sm transition-all shrink-0 w-full sm:w-auto cursor-pointer"
             >
               {pageData.contact.ctaText}
             </button>
           ) : null}
         </div>
       ) : isDarkTheme ? (
-        <div className="p-6 rounded-2xl bg-slate-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-md">
+        <div className="p-6 rounded-2xl bg-gradient-to-r from-violet-600 via-purple-600 to-pink-500 border border-violet-500/30 text-white flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl shadow-violet-500/20">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 shrink-0">
-              <FleetIcons.Headset className="w-7 h-7 text-blue-400" />
+            <div className="w-14 h-14 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center text-white shrink-0 shadow-inner backdrop-blur-md">
+              <FleetIcons.Headset className="w-7 h-7 text-white" />
             </div>
             <div>
-              <div className="text-[11px] font-bold text-blue-400 uppercase tracking-wider">
-                {pageData.contact.badge || 'Dedicated Helpdesk'}
+              <div className="text-[11px] font-bold text-white uppercase tracking-wider">
+                {pageData.contact.badge}
               </div>
-              <h2 className="text-lg font-black text-white">
+              <h2 className="text-lg font-black text-white tracking-tight">
                 {pageData.contact.title}
               </h2>
-              <p className="text-xs text-slate-300 mt-0.5 max-w-lg leading-relaxed">
+              <p className="text-xs text-white mt-0.5 max-w-lg leading-relaxed">
                 {pageData.contact.description}
               </p>
             </div>
           </div>
-
           {showContactCta && pageData.contact?.ctaText && pageData.contact.ctaText.trim() && pageData.contact.ctaText !== 'Access NOC Bridge' && normalizedKey !== 'ROLE-SUPER-ADMIN' && normalizedKey !== 'ROLE-FLEET-OPERATOR' ? (
             <button
               type="button"
               onClick={() => alert(pageData.contact.actionAlert || 'Connecting to support desk...')}
-              className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-sm shrink-0 cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 border border-white/30 text-white text-xs font-bold transition-all shadow-sm shrink-0 cursor-pointer"
             >
               {pageData.contact.ctaText}
             </button>
           ) : null}
         </div>
       ) : isBlueTheme ? (
-        <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 text-white flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-md">
+        <div className="p-6 rounded-2xl bg-gradient-to-r from-violet-600 via-purple-600 to-pink-500 border border-violet-500/30 text-white flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl shadow-violet-500/20">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shrink-0">
+            <div className="w-14 h-14 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center text-white shrink-0 shadow-inner backdrop-blur-md">
               <FleetIcons.Phone className="w-7 h-7 text-white" />
             </div>
             <div>
-              <div className="text-[11px] font-bold text-blue-200 uppercase tracking-wider">
-                {pageData.contact.badge || 'Direct Support Line'}
+              <div className="text-[11px] font-bold text-white uppercase tracking-wider">
+                {pageData.contact.badge}
               </div>
               <h2 className="text-lg font-black text-white">
                 {pageData.contact.title}
               </h2>
-              <p className="text-xs text-blue-100 mt-0.5 max-w-lg leading-relaxed">
+              <p className="text-xs text-white mt-0.5 max-w-lg leading-relaxed">
                 {pageData.contact.description}
               </p>
             </div>
           </div>
-
           {showContactCta && pageData.contact?.ctaText && pageData.contact.ctaText.trim() ? (
             <button
               type="button"
               onClick={() => alert(pageData.contact.actionAlert || 'Connecting to support line...')}
-              className="px-5 py-2.5 rounded-xl bg-white hover:bg-blue-50 text-blue-900 text-xs font-bold transition-all shadow-sm shrink-0 cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 border border-white/30 text-white text-xs font-bold transition-all shadow-sm shrink-0 cursor-pointer"
             >
               {pageData.contact.ctaText}
             </button>
           ) : null}
         </div>
       ) : (
-        <div className="p-5 rounded-2xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-slate-200 dark:bg-zinc-700 text-slate-700 dark:text-zinc-200 flex items-center justify-center shrink-0">
-              <FleetIcons.Headset className="w-6 h-6 text-slate-700 dark:text-zinc-200" />
+        <div className="p-6 rounded-2xl bg-gradient-to-r from-violet-600 via-purple-600 to-pink-500 border border-violet-500/30 text-white flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl shadow-violet-500/20">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center text-white shrink-0 shadow-inner backdrop-blur-md">
+              <FleetIcons.Headset className="w-7 h-7 text-white" />
             </div>
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
-                {pageData.contact.badge || 'Helpdesk'}
-              </span>
-              <h2 className="text-base font-black text-slate-900 dark:text-white">
+              <div className="text-[11px] font-bold text-white uppercase tracking-wider">
+                {pageData.contact.badge}
+              </div>
+              <h2 className="text-base font-black text-white">
                 {pageData.contact.title}
               </h2>
-              <p className="text-xs text-slate-600 dark:text-zinc-300 font-medium">
+              <p className="text-xs text-white mt-0.5 max-w-lg leading-relaxed">
                 {pageData.contact.description}
               </p>
             </div>
           </div>
-
           {showContactCta && pageData.contact?.ctaText && pageData.contact.ctaText.trim() ? (
             <button
               type="button"
               onClick={() => alert(pageData.contact.actionAlert || 'Initiating support request...')}
-              className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100 text-white text-xs font-bold rounded-xl shadow-xs transition-all shrink-0 cursor-pointer"
+              className="px-5 py-2.5 bg-white/20 hover:bg-white/30 border border-white/30 text-white text-xs font-bold rounded-xl transition-all shrink-0 cursor-pointer"
             >
               {pageData.contact.ctaText}
             </button>
@@ -486,18 +480,18 @@ export const RoleHelpPage = ({ roleCode, defaultHistoryPath, showContactCta = tr
                 <details
                   key={idx}
                   open={isOpen}
-                  className="group p-4 bg-slate-50 dark:bg-zinc-800/40 rounded-xl border border-slate-100 dark:border-zinc-800/60 open:bg-white dark:open:bg-zinc-900 open:border-slate-200 dark:open:border-zinc-700 transition-all"
+                  className="group min-w-0 overflow-hidden p-4 bg-slate-50 dark:bg-zinc-800/40 rounded-xl border border-slate-100 dark:border-zinc-800/60 open:bg-white dark:open:bg-zinc-900 open:border-slate-200 dark:open:border-zinc-700 transition-all"
                   onClick={(e) => {
                     e.preventDefault();
                     setOpenFaq(isOpen ? null : idx);
                   }}
                 >
-                  <summary className="text-xs font-bold text-slate-900 dark:text-white cursor-pointer list-none flex items-center justify-between">
-                    <span>{faq.q}</span>
-                    <FleetIcons.ChevronDown className={`w-4 h-4 text-slate-400 dark:text-zinc-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                  <summary className="min-w-0 text-xs font-bold text-slate-900 dark:text-white cursor-pointer list-none flex items-start justify-between gap-3">
+                    <span className="min-w-0 flex-1 whitespace-normal break-words [overflow-wrap:anywhere]">{faq.q}</span>
+                    <FleetIcons.ChevronDown className={`w-4 h-4 shrink-0 text-slate-400 dark:text-zinc-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                   </summary>
                   {isOpen && (
-                    <p className="text-xs text-slate-600 dark:text-zinc-300 font-medium mt-2.5 pt-2 border-t border-slate-100 dark:border-zinc-800 leading-relaxed whitespace-pre-line">
+                    <p className="min-w-0 text-xs text-slate-600 dark:text-zinc-300 font-medium mt-2.5 pt-2 border-t border-slate-100 dark:border-zinc-800 leading-relaxed whitespace-pre-line break-words [overflow-wrap:anywhere]">
                       {faq.a}
                     </p>
                   )}

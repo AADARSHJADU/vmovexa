@@ -255,6 +255,7 @@ export const AdminDriverDetailsPage = () => {
   const isRejected = Boolean(driver.kyc_rejected || driver.kycRejected || rejectionReason || (driver.status || '').toLowerCase() === 'rejected');
   const isVerified = !isRejected && Boolean(driver.documents_verified);
   const isPending = !isRejected && ['pending_approval', 'pending'].includes((driver.status || '').toLowerCase());
+  const joiningDate = driver.joining_date || driver.joiningDate || driver.created_at || driver.createdAt;
 
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-200">
@@ -263,7 +264,7 @@ export const AdminDriverDetailsPage = () => {
         <div className="flex flex-col min-w-0 flex-1">
           <Breadcrumb
             items={[
-              { label: isFleetPortal ? t('ag.admin.admindriverdetailspage.fleet_operator', 'Fleet Operator') : t('ag.admin.admindriverdetailspage.tenant_admin', 'Tenant Admin'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
+              { label: isFleetPortal ? t('ag.admin.admindriverdetailspage.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
               { label: t('ag.admin.admindriverdetailspage.drivers_roster', 'Drivers Roster'), path: basePath },
               { label: driver.name },
             ]}
@@ -666,24 +667,19 @@ export const AdminDriverDetailsPage = () => {
         </div>
 
         {/* Section: Operational Notes & Record Info */}
-        {(driver.notes || driver.joining_date || driver.safety_rating != null || driver.total_trips != null) && (
           <div className="border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4 min-w-0 overflow-hidden">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
               <FleetIcons.Edit className="w-4 h-4 text-indigo-500 shrink-0" />
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
-                {t('ag.admin.admindriverdetailspage.operations_safety_and_notes', 'Operations, Safety & Notes')}
+                {t('admin.drivers.operations_notes', 'Operations & Notes')}
               </h3>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs min-w-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs min-w-0">
               <div className="min-w-0">
                 <span className="text-slate-400 dark:text-zinc-500 text-[10px] font-bold uppercase block">{t('admin.drivers.joining_date') || 'Joining Date'}</span>
-                <div className="font-medium text-slate-800 text-sm mt-0.5 break-all">{driver.joining_date || driver.joiningDate || '—'}</div>
-              </div>
-              <div className="min-w-0">
-                <span className="text-slate-400 dark:text-zinc-500 text-[10px] font-bold uppercase block">{t('admin.drivers.safety_rating') || 'Safety Rating'}</span>
-                <div className="font-bold text-amber-600 text-sm mt-0.5 break-all">
-                  {driver.safety_rating != null ? `⭐ ${driver.safety_rating} / 5.0` : '—'}
+                <div className="font-medium text-slate-800 text-sm mt-0.5 break-all">
+                  {joiningDate ? new Date(joiningDate).toLocaleDateString('en-IN') : '—'}
                 </div>
               </div>
               <div className="min-w-0">
@@ -695,15 +691,13 @@ export const AdminDriverDetailsPage = () => {
                 <div className="mt-0.5"><span className="font-bold uppercase text-slate-800">{driver.status || 'available'}</span></div>
               </div>
               {driver.notes && (
-                <div className="sm:col-span-2 md:col-span-4 bg-slate-50 p-3 rounded-xl border border-slate-100 min-w-0">
+                <div className="sm:col-span-2 md:col-span-3 bg-slate-50 p-3 rounded-xl border border-slate-100 min-w-0">
                   <span className="text-slate-400 dark:text-zinc-500 text-[10px] font-bold uppercase block mb-1">{t('admin.drivers.operational_notes') || 'Operational Notes:'}</span>
                   <p className="text-slate-700 text-xs font-medium break-words">{driver.notes}</p>
                 </div>
               )}
             </div>
           </div>
-        )}
-
         {/* Section: Multi-Document Attachments */}
         <div className="min-w-0 overflow-hidden">
           <MultipleDocumentUploader

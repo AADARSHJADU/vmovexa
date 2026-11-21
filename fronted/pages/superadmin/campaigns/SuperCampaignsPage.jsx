@@ -70,7 +70,7 @@ const getScheduleStatusLabel = (t, status) => {
 
 export const SuperCampaignsPage = () => {
   const { t } = useTranslation();
-  const { campaigns, loadCampaigns } = useSuperCampaign();
+  const { campaigns, campaignsPagination, loadCampaigns } = useSuperCampaign();
   const [filters, setFilters] = useState({
     search: '',
     ownerType: 'all',
@@ -95,7 +95,7 @@ export const SuperCampaignsPage = () => {
         page,
         limit,
         includeFilterOptions: true,
-        ...(filters.search ? { search: filters.search } : {}),
+        ...(filters.search.trim() ? { search: filters.search.trim() } : {}),
         ...(filters.ownerType !== 'all' ? { ownerType: filters.ownerType } : {}),
         ...(filters.status !== 'all' ? { status: filters.status } : {}),
         ...(filters.paymentStatus !== 'all' ? { paymentStatus: filters.paymentStatus } : {}),
@@ -111,34 +111,70 @@ export const SuperCampaignsPage = () => {
   }, [filters, page, limit, loadCampaigns, refreshKey]);
 
   const rows = Array.isArray(campaigns) ? campaigns : (campaigns?.rows || []);
-  const meta = campaigns?.meta || {};
+  const meta = campaignsPagination || campaigns?.meta || {};
+  const filterOptions = campaignsPagination?.filterOptions || campaigns?.filterOptions || {};
 
   const routes = useMemo(() => {
-    if (Array.isArray(campaigns?.filterOptions?.routes)) return campaigns.filterOptions.routes.map((item) => [String(item.id), item.name]);
+    if (Array.isArray(filterOptions.routes)) {
+      return filterOptions.routes.map((item) => [String(item.id), item.name]);
+    }
     const map = new Map();
     rows.flatMap((campaign) => campaign.targets || []).forEach((target) => {
       if (target.route_id) map.set(String(target.route_id), target.route?.name || `Route #${target.route_id}`);
     });
     return [...map.entries()];
-  }, [rows, campaigns]);
+  }, [rows, filterOptions.routes]);
 
   const fleets = useMemo(() => {
-    if (Array.isArray(campaigns?.filterOptions?.fleets)) return campaigns.filterOptions.fleets.map((item) => [String(item.id), item.name]);
+    if (Array.isArray(filterOptions.fleets)) {
+      return filterOptions.fleets.map((item) => [String(item.id), item.name]);
+    }
     const map = new Map();
     rows.flatMap((campaign) => campaign.targets || []).forEach((target) => {
       if (target.fleet_id) map.set(String(target.fleet_id), target.fleet?.name || target.fleet_name || `Fleet #${target.fleet_id}`);
     });
     return [...map.entries()];
-  }, [rows, campaigns]);
+  }, [rows, filterOptions.fleets]);
 
   const organizations = useMemo(() => {
-    if (Array.isArray(campaigns?.filterOptions?.organizations)) return campaigns.filterOptions.organizations.map((item) => [String(item.id), item.name]);
+    if (Array.isArray(filterOptions.organizations)) {
+      return filterOptions.organizations.map((item) => [String(item.id), item.name]);
+    }
     const map = new Map();
     rows.flatMap((campaign) => campaign.targets || []).forEach((target) => {
       if (target.organization_id) map.set(String(target.organization_id), target.organization?.name || `Tenant #${target.organization_id}`);
     });
     return [...map.entries()];
-  }, [rows, campaigns]);
+  }, [rows, filterOptions.organizations]);
+
+  const hasActiveFilters = Boolean(
+    filters.search.trim() ||
+    filters.ownerType !== 'all' ||
+    filters.status !== 'all' ||
+    filters.paymentStatus !== 'all' ||
+    filters.routeId !== 'all' ||
+    filters.fleetId !== 'all' ||
+    filters.organizationId !== 'all' ||
+    filters.dateFrom ||
+    filters.dateTo ||
+    filters.autoScheduled !== 'all'
+  );
+
+  const resetFilters = () => {
+    setFilters({
+      search: '',
+      ownerType: 'all',
+      status: 'all',
+      paymentStatus: 'all',
+      routeId: 'all',
+      fleetId: 'all',
+      organizationId: 'all',
+      dateFrom: '',
+      dateTo: '',
+      autoScheduled: 'all',
+    });
+    setPage(1);
+  };
 
   const update = (key, value) => {
     setFilters((current) => ({ ...current, [key]: value }));
@@ -267,6 +303,7 @@ export const SuperCampaignsPage = () => {
           <input
             type="date"
             value={filters.dateFrom}
+            max={filters.dateTo || undefined}
             onChange={(e) => update('dateFrom', e.target.value)}
             className="mt-1 w-full px-3 py-2 text-xs rounded-xl border dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
           />
@@ -277,10 +314,24 @@ export const SuperCampaignsPage = () => {
           <input
             type="date"
             value={filters.dateTo}
+            min={filters.dateFrom || undefined}
             onChange={(e) => update('dateTo', e.target.value)}
             className="mt-1 w-full px-3 py-2 text-xs rounded-xl border dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
           />
         </label>
+
+        {hasActiveFilters && (
+          <div className="sm:col-span-2 xl:col-span-5 flex justify-end pt-1">
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
+            >
+              <FleetIcons.Close className="w-3.5 h-3.5" />
+              <span>{t('common.clear_filters', 'Clear Filters')}</span>
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">

@@ -8,7 +8,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { resolveFileUrl, uploadFile } from '../../api/services/upload.service';
 
 export const GovAccountSettingsPage = () => {
-  const { t } = useTranslation();
+  const { t, languages } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const isSuperAdmin = location.pathname.startsWith('/superadmin');
@@ -336,12 +336,11 @@ export const GovAccountSettingsPage = () => {
                 onChange={(e) => setFormData({ ...formData, language: e.target.value })}
                 className="w-full h-11 px-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-800 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:border-blue-500"
               >
-                <option value="en">{t('common.lang_en', 'English')}</option>
-                <option value="hi">{t('common.lang_hi', 'Hindi')}</option>
-                <option value="kn">{t('common.lang_kn', 'Kannada')}</option>
-                <option value="mr">{t('common.lang_mr', 'Marathi')}</option>
-                <option value="te">{t('common.lang_te', 'Telugu')}</option>
-                <option value="ta">{t('common.lang_ta', 'Tamil')}</option>
+                {languages.filter((language) => language.is_active !== false).map((language) => (
+                  <option key={language.code} value={language.code}>
+                    {language.native_name || language.name} ({language.code})
+                  </option>
+                ))}
               </select>
             </div>
 

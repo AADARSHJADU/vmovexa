@@ -5,7 +5,7 @@
 import { useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import {
-  loginThunk, verifyLoginOtpThunk, loginWithGoogleThunk, registerThunk, registerWithGoogleThunk, loginWithZohoThunk, loginWithAppleThunk, loginWithFirebaseAppleThunk, registerWithAppleThunk, resubmitRegistrationThunk, requestSignupOtpThunk, verifySignupOtpThunk, forgotPasswordThunk, resetPasswordThunk, fetchMeThunk, updateMeThunk, completeOrganizationProfileThunk, logoutThunk, clearAuthError,
+  loginThunk, verifyLoginOtpThunk, loginWithGoogleThunk, registerThunk, registerWithGoogleThunk, loginWithZohoThunk, loginWithAppleThunk, loginWithFirebaseAppleThunk, registerWithAppleThunk, resubmitRegistrationThunk, requestSignupOtpThunk, verifySignupOtpThunk, forgotPasswordThunk, resetPasswordThunk, changePasswordThunk, fetchMeThunk, updateMeThunk, completeOrganizationProfileThunk, logoutThunk, clearAuthError,
   selectUser, selectRole, selectPermissions, selectIsAuthenticated,
   selectAuthStatus, selectAuthError, selectBootstrapped,
 } from '../store/slices/authSlice';
@@ -39,6 +39,7 @@ export function useAuth() {
   const verifySignupOtp = useCallback((payload) => dispatch(verifySignupOtpThunk(payload)).unwrap(), [dispatch]);
   const forgotPassword = useCallback((email) => dispatch(forgotPasswordThunk(email)).unwrap(), [dispatch]);
   const resetPassword = useCallback((payload) => dispatch(resetPasswordThunk(payload)).unwrap(), [dispatch]);
+  const changePassword = useCallback((payload) => dispatch(changePasswordThunk(payload)).unwrap(), [dispatch]);
   const loadSession = useCallback(() => dispatch(fetchMeThunk()).unwrap(), [dispatch]);
   const logout = useCallback(() => dispatch(logoutThunk()).unwrap(), [dispatch]);
   const updateProfile = useCallback((patch) => dispatch(updateMeThunk(patch)).unwrap(), [dispatch]);
@@ -101,7 +102,9 @@ export function useAuth() {
   const stopImpersonation = useCallback(async () => {
     try {
       await impersonationService.stopImpersonation();
-    } catch (_) {}
+    } catch {
+      /* ignore */
+    }
     storage.stopImpersonation();
     await dispatch(fetchMeThunk()).unwrap();
   }, [dispatch]);
@@ -112,7 +115,7 @@ export function useAuth() {
     isLoading: status === 'loading',
     isImpersonating: storage.isImpersonating(),
     impersonationTarget: storage.getImpersonationTarget(),
-    login, verifyLoginOtp, loginWithGoogle, register, registerWithGoogle, loginWithZoho, loginWithApple, loginWithFirebaseApple, registerWithApple, resubmitRegistration, requestSignupOtp, verifySignupOtp, forgotPassword, resetPassword, loadSession, fetchMe: loadSession, logout, updateProfile, completeOrganizationProfile, clearError, hasPermission, can,
+    login, verifyLoginOtp, loginWithGoogle, register, registerWithGoogle, loginWithZoho, loginWithApple, loginWithFirebaseApple, registerWithApple, resubmitRegistration, requestSignupOtp, verifySignupOtp, forgotPassword, resetPassword, changePassword, loadSession, fetchMe: loadSession, logout, updateProfile, completeOrganizationProfile, clearError, hasPermission, can,
     impersonateTenant, impersonateAdvertiser, impersonateUser, stopImpersonation,
   };
 }

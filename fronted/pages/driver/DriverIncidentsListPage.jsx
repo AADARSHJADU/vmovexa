@@ -119,11 +119,11 @@ export const DriverIncidentsListPage = () => {
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-200 pb-20">
       {/* Header Bar */}
-      <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
         <div>
           <Breadcrumb
             items={[
-              { label: t('ag.driver.driverincidentslistpage.driver', 'Driver'), path: '/driver/dashboard' },
+              { label: t('roles.driver', 'Driver'), path: '/driver/dashboard' },
               { label: t('ag.driver.driverincidentslistpage.incident_log', 'Incident Log') },
             ]}
             className="mb-2"
@@ -133,7 +133,7 @@ export const DriverIncidentsListPage = () => {
               <FleetIcons.Alert className="w-5 h-5 text-red-600 dark:text-red-400" />
               <span>{t('driver.incidents.title')}</span>
             </h1>
-            <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
               {t('ag.driver.driverincidentslistpage.comprehensive_audit_log_of_all_driver_road_i', 'Comprehensive audit log of all driver road incidents, medical dispatches, and emergency records')}
             </p>
           </div>

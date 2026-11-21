@@ -126,19 +126,18 @@ export const AssignFleetVehiclePage = () => {
 
   return (
     <div className="w-full space-y-6 pb-20 animate-in fade-in duration-200">
-      {/* 1. Header Banner & Breadcrumb */}
-      <div>
-        <Breadcrumb
-          items={[
-            { label: t('ag.fleet.assignfleetvehiclepage.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
-            { label: t('ag.fleet.assignfleetvehiclepage.fleet_operators', 'Fleet Operators'), path: '/fleet-operator/fleets' },
-            { label: fleet.name || `Fleet #${fleet.id}`, path: `/fleet-operator/fleets/${fleet.id}` },
-            { label: t('ag.fleet.assignfleetvehiclepage.assign_bind_vehicle', 'Assign & Bind Vehicle') },
-          ]}
-          className="mb-2"
-        />
-
-        <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm">
+      {/* 1. Header & Breadcrumb */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+        <div>
+          <Breadcrumb
+            items={[
+              { label: t('roles.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
+              { label: t('fleet.fleets.title', 'Fleet Directory'), path: '/fleet-operator/fleets' },
+              { label: fleet.name || `Fleet #${fleet.id}`, path: `/fleet-operator/fleets/${fleet.id}` },
+              { label: t('ag.fleet.assignfleetvehiclepage.assign_bind_vehicle', 'Assign & Bind Vehicle') },
+            ]}
+            className="mb-2"
+          />
           <div className="flex items-center gap-3">
             <button 
               type="button"
@@ -152,20 +151,23 @@ export const AssignFleetVehiclePage = () => {
               <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                 {t('ag.fleet.assignfleetvehiclepage.assign_and_bind_vehicle_to', 'Assign & Bind Vehicle to')} {fleet.name}
               </h1>
-              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
                 {t('ag.fleet.assignfleetvehiclepage.allocate_a_vehicle_along_with_an_authorized_', 'Allocate a vehicle along with an authorized driver and IoT GPS telematics hardware to complete this fleet unit.')}
               </p>
             </div>
           </div>
+        </div>
 
-          <div className="flex items-center gap-3 self-end sm:self-auto w-full sm:w-auto">
-            <button 
-              type="button"
-              onClick={() => navigate(`/fleet-operator/fleets/${fleet.id}`)}
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-bold transition-all cursor-pointer text-center"
-            >
-              {t('ag.fleet.assignfleetvehiclepage.cancel', 'Cancel')}
-            </button>
+        <div className="flex items-center gap-2.5 self-end sm:self-auto w-full sm:w-auto">
+          <button 
+            type="button"
+            onClick={() => navigate(`/fleet-operator/fleets/${fleet.id}`)}
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-bold transition-all cursor-pointer text-center"
+          >
+            {t('ag.fleet.assignfleetvehiclepage.cancel', 'Cancel')}
+          </button>
+        </div>
+      </div>
             <button
               type="button"
               onClick={handleSubmit}

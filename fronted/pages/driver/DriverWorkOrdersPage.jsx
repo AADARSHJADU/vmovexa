@@ -80,17 +80,16 @@ export const DriverWorkOrdersPage = () => {
 
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-200">
-      <Breadcrumb
-        items={[
-          { label: t('nav.dashboard', 'Dashboard'), path: '/driver/dashboard' },
-          { label: t('driver.work_orders.title', 'Fleet Work Orders') },
-        ]}
-        className="mb-1"
-      />
-
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
         <div>
+          <Breadcrumb
+            items={[
+              { label: t('roles.driver', 'Driver'), path: '/driver/dashboard' },
+              { label: t('driver.work_orders.title', 'Fleet Work Orders') },
+            ]}
+            className="mb-2"
+          />
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
             {t('driver.work_orders.title', 'Fleet Work Orders')}
           </h1>

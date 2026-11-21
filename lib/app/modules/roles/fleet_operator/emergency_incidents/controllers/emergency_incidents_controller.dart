@@ -1,6 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:http/http.dart' as http;
 import '../../../../../data/models/fleet_models.dart';
 import '../../../../../data/models/incident_model.dart';
 import '../../../../../data/services/fleet_service.dart';
@@ -77,6 +81,8 @@ class EmergencyIncidentsController extends GetxController {
   final RxnDouble reportLongitude = RxnDouble();
   final RxString reportWeatherConditions = 'Clear'.obs;
   final RxString reportRoadType = 'City Street'.obs;
+  final MapController mapController = MapController();
+  final RxBool isReverseGeocoding = false.obs;
 
   // Step 3: Medical & Severity
   final RxString reportSeverity = 'high'.obs;
@@ -182,6 +188,16 @@ class EmergencyIncidentsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    final args = Get.arguments;
+    if (args is Map) {
+      if (args['vehicleId'] != null) {
+        reportVehicleId.value = args['vehicleId'].toString();
+      }
+      if (args['driverId'] != null) {
+        reportDriverId.value = args['driverId'].toString();
+      }
+    }
+
     searchController.addListener(() {
       searchQuery.value = searchController.text.trim();
     });
@@ -207,6 +223,7 @@ class EmergencyIncidentsController extends GetxController {
     reportPoliceStationCtrl.dispose();
     reportImmediateActionCtrl.dispose();
     reportContactPhoneCtrl.dispose();
+    mapController.dispose();
     super.onClose();
   }
 
@@ -400,12 +417,28 @@ class EmergencyIncidentsController extends GetxController {
     try {
       final vRes = await _fleetService.getVehicles(limit: 100);
       if (vRes.success && vRes.data != null) {
-        vehiclesList.assignAll(vRes.data!);
+        // Allow only active/operational vehicles in incident report
+        final activeVehicles = vRes.data!.where((v) {
+          final s = v.status.trim().toLowerCase();
+          return s == 'active' || s == 'in_depot' || s == 'on_route' || s == 'moving';
+        }).toList();
+        vehiclesList.assignAll(activeVehicles.isNotEmpty ? activeVehicles : vRes.data!);
       }
 
       final dRes = await _fleetService.getDrivers(limit: 100);
       if (dRes.success && dRes.data != null) {
         driversList.assignAll(dRes.data!);
+      }
+
+      // Auto-link driver if vehicle was passed from trip details
+      if (reportVehicleId.value != null && reportDriverId.value == null) {
+        final foundVeh = _firstOrNull(vehiclesList, (v) => v.id.toString() == reportVehicleId.value.toString());
+        if (foundVeh != null) {
+          final assigned = getAssignedDriverForVehicle(foundVeh);
+          if (assigned != null) {
+            reportDriverId.value = assigned.id;
+          }
+        }
       }
     } catch (_) {
       // Non-critical fallback
@@ -424,6 +457,10 @@ class EmergencyIncidentsController extends GetxController {
     reportVehicleId.value = vId;
     final foundVeh = _firstOrNull(vehiclesList, (v) => v.id.toString() == vId.toString());
     if (foundVeh != null) {
+      // If vehicle has coordinates and none is set yet, initialize map pin
+      if (reportLatitude.value == null && foundVeh.startLatitude != null && foundVeh.startLongitude != null) {
+        setLocationFromCoordinates(foundVeh.startLatitude!, foundVeh.startLongitude!, fetchAddress: true);
+      }
       final assigned = getAssignedDriverForVehicle(foundVeh);
       if (assigned != null) {
         reportDriverId.value = assigned.id;
@@ -468,6 +505,79 @@ class EmergencyIncidentsController extends GetxController {
     }
   }
 
+  void moveMapTo(double lat, double lng, {double zoom = 15.0}) {
+    try {
+      mapController.move(LatLng(lat, lng), zoom);
+    } catch (_) {}
+  }
+
+  void zoomInMap() {
+    try {
+      final currentZoom = mapController.camera.zoom;
+      final center = mapController.camera.center;
+      mapController.move(center, (currentZoom + 1.0).clamp(3.0, 18.0));
+    } catch (_) {}
+  }
+
+  void zoomOutMap() {
+    try {
+      final currentZoom = mapController.camera.zoom;
+      final center = mapController.camera.center;
+      mapController.move(center, (currentZoom - 1.0).clamp(3.0, 18.0));
+    } catch (_) {}
+  }
+
+  void recenterMapToPin() {
+    final lat = reportLatitude.value ?? 22.7196;
+    final lng = reportLongitude.value ?? 75.8577;
+    moveMapTo(lat, lng, zoom: 15.0);
+  }
+
+  Future<void> setLocationFromCoordinates(double lat, double lng, {bool fetchAddress = true}) async {
+    reportLatitude.value = lat;
+    reportLongitude.value = lng;
+    reportLatitudeCtrl.text = lat.toStringAsFixed(6);
+    reportLongitudeCtrl.text = lng.toStringAsFixed(6);
+
+    moveMapTo(lat, lng);
+
+    if (fetchAddress) {
+      isReverseGeocoding.value = true;
+      try {
+        final uri = Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lng');
+        final res = await http.get(uri, headers: {'User-Agent': 'VmovexaDOOHApp/1.0'});
+        if (res.statusCode == 200) {
+          final data = jsonDecode(res.body);
+          if (data is Map<String, dynamic>) {
+            final addressMap = data['address'] as Map<String, dynamic>?;
+            final displayName = data['display_name']?.toString() ?? '';
+            final city = addressMap?['city'] ?? addressMap?['town'] ?? addressMap?['village'] ?? addressMap?['county'] ?? '';
+            final state = addressMap?['state'] ?? '';
+            final postcode = addressMap?['postcode'] ?? '';
+            final road = addressMap?['road'] ?? addressMap?['suburb'] ?? addressMap?['neighbourhood'] ?? '';
+
+            if (displayName.isNotEmpty) {
+              reportLocationCtrl.text = displayName;
+              reportAddressCtrl.text = displayName;
+            }
+            if (city.toString().isNotEmpty) reportCityCtrl.text = city.toString();
+            if (state.toString().isNotEmpty) reportStateCtrl.text = state.toString();
+            if (postcode.toString().isNotEmpty) reportPincodeCtrl.text = postcode.toString();
+            if (road.toString().isNotEmpty && reportLandmarkCtrl.text.isEmpty) {
+              reportLandmarkCtrl.text = road.toString();
+            }
+          }
+        }
+      } catch (_) {
+        if (reportLocationCtrl.text.isEmpty) {
+          reportLocationCtrl.text = 'Incident Pin (${lat.toStringAsFixed(4)}, ${lng.toStringAsFixed(4)})';
+        }
+      } finally {
+        isReverseGeocoding.value = false;
+      }
+    }
+  }
+
   void onReportPlaceSelected(GooglePlaceItemModel place) {
     if (place.formattedAddress.isNotEmpty) {
       reportLocationCtrl.text = place.formattedAddress;
@@ -493,29 +603,27 @@ class EmergencyIncidentsController extends GetxController {
       reportLongitude.value = place.longitude;
       reportLongitudeCtrl.text = place.longitude.toString();
     }
+    if (place.latitude != null && place.longitude != null) {
+      moveMapTo(place.latitude!, place.longitude!, zoom: 15.0);
+    }
   }
 
   Future<void> detectCurrentGps() async {
     isDetectingGps.value = true;
     try {
-      await Future.delayed(const Duration(milliseconds: 600));
-      if (reportLatitudeCtrl.text.isEmpty) {
-        const lat = 22.7196;
-        reportLatitude.value = lat;
-        reportLatitudeCtrl.text = lat.toString();
-      } else {
-        reportLatitude.value = double.tryParse(reportLatitudeCtrl.text);
+      await Future.delayed(const Duration(milliseconds: 300));
+      double lat = reportLatitude.value ?? double.tryParse(reportLatitudeCtrl.text) ?? 22.7196;
+      double lng = reportLongitude.value ?? double.tryParse(reportLongitudeCtrl.text) ?? 75.8577;
+
+      // If vehicle has startLatitude / startLongitude, prefer that
+      final veh = selectedVehicle;
+      if (reportLatitude.value == null && veh != null && veh.startLatitude != null && veh.startLongitude != null) {
+        lat = veh.startLatitude!;
+        lng = veh.startLongitude!;
       }
-      if (reportLongitudeCtrl.text.isEmpty) {
-        const lng = 75.8577;
-        reportLongitude.value = lng;
-        reportLongitudeCtrl.text = lng.toString();
-      } else {
-        reportLongitude.value = double.tryParse(reportLongitudeCtrl.text);
-      }
-      if (reportLocationCtrl.text.isEmpty) {
-        reportLocationCtrl.text = 'GPS Coordinates (${reportLatitudeCtrl.text}, ${reportLongitudeCtrl.text})';
-      }
+
+      await setLocationFromCoordinates(lat, lng, fetchAddress: true);
+
       Get.snackbar(
         'gps_locked'.tr,
         'gps_coords_locked_msg'.trParams({'lat': reportLatitudeCtrl.text, 'lng': reportLongitudeCtrl.text}),
@@ -629,34 +737,10 @@ class EmergencyIncidentsController extends GetxController {
 
   // --- Step Navigation ---
   void goToStep(int step) {
-    if (step > currentStep.value && currentStep.value == 1) {
-      if (reportDescriptionCtrl.text.trim().isEmpty) {
-        Get.snackbar(
-          'required_field'.tr,
-          'enter_desc_before_proceeding'.tr,
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color(0xFFF59E0B),
-          colorText: Colors.white,
-        );
-        return;
-      }
-    }
     currentStep.value = step.clamp(1, 4);
   }
 
   void goToNextStep() {
-    if (currentStep.value == 1) {
-      if (reportDescriptionCtrl.text.trim().isEmpty) {
-        Get.snackbar(
-          'required_field'.tr,
-          'enter_desc_before_proceeding'.tr,
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color(0xFFF59E0B),
-          colorText: Colors.white,
-        );
-        return;
-      }
-    }
     if (currentStep.value < 4) {
       currentStep.value++;
     }

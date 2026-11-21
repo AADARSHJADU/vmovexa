@@ -102,7 +102,7 @@ export const VehicleSlotsPage = ({ forcedPortal = null }) => {
   const isFleetPortal = forcedPortal ? forcedPortal === 'fleet' : location.pathname.startsWith('/fleet-operator');
   const basePath = isFleetPortal ? '/fleet-operator/slots' : '/admin/slots';
   const dashboardLink = isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard';
-  const portalLabel = isFleetPortal ? 'Fleet Operator' : 'Admin';
+  const portalLabel = isFleetPortal ? t('roles.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations');
 
   const canCreate = can('slots.create');
   const canUpdate = can('slots.update');
@@ -120,7 +120,10 @@ export const VehicleSlotsPage = ({ forcedPortal = null }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [activeTab, setActiveTab] = useState('All');
-  const [viewMode, setViewMode] = useState(() => localStorage.getItem('slot_view_mode') || 'table');
+  const [viewMode, setViewMode] = useState(() => {
+    const savedMode = localStorage.getItem('slot_view_mode') || 'table';
+    return !isFleetPortal && savedMode === 'timetable' ? 'table' : savedMode;
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(6);
   const [togglingStatusId, setTogglingStatusId] = useState(null);
@@ -266,7 +269,7 @@ export const VehicleSlotsPage = ({ forcedPortal = null }) => {
               }}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer ${
                 activeTab === tab.key
-                  ? 'bg-slate-900 dark:bg-white text-white dark:text-zinc-900 shadow-sm'
+                  ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-sm'
                   : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800'
               }`}
             >
@@ -295,19 +298,21 @@ export const VehicleSlotsPage = ({ forcedPortal = null }) => {
               tableValue="table"
               cardValue="grid"
             />
-            <button
-              type="button"
-              onClick={() => toggleViewMode('timetable')}
-              className={`p-2 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
-                viewMode === 'timetable'
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-600 shadow-xs'
-                  : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800'
-              }`}
-              title={t('admin.slots.hourly_timetable_view')}
-            >
-              <FleetIcons.Clock className={`w-3.5 h-3.5 ${viewMode === 'timetable' ? 'text-white' : 'text-slate-400'}`} />
-              <span className="hidden md:inline">{t('admin.slots.timetable_view')}</span>
-            </button>
+            {isFleetPortal && (
+              <button
+                type="button"
+                onClick={() => toggleViewMode('timetable')}
+                className={`p-2 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
+                  viewMode === 'timetable'
+                    ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white border-transparent shadow-xs'
+                    : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800'
+                }`}
+                title={t('admin.slots.hourly_timetable_view')}
+              >
+                <FleetIcons.Clock className={`w-3.5 h-3.5 ${viewMode === 'timetable' ? 'text-white' : 'text-slate-400'}`} />
+                <span className="hidden md:inline">{t('admin.slots.timetable_view')}</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

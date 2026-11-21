@@ -188,8 +188,8 @@ export const TechHardwareStatusPage = () => {
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <RefreshButton onClick={handleRefresh} loading={refreshing} />
           <Link
-            to="/technician/diagnostics"
-            className="px-4 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center gap-1.5"
+            to={`${basePath}/diagnostics`}
+            className="px-4 py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:via-indigo-500 hover:to-purple-500 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-500/25 transition-all flex items-center gap-1.5"
           >
             <FleetIcons.Target className="w-4 h-4" />
             <span>{t('technician.hardware_status.run_all')}</span>
@@ -231,14 +231,14 @@ export const TechHardwareStatusPage = () => {
                 }}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer ${
                   isTabActive
-                    ? 'bg-slate-900 text-white dark:bg-white dark:text-zinc-900 shadow-sm'
+                    ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-sm shadow-indigo-500/25'
                     : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800'
                 }`}
               >
                 <span>{tab.label}</span>
                 <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-md ${
-                    isTabActive ? 'bg-slate-700 dark:bg-zinc-200 text-white dark:text-zinc-900' : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400'
+                  className={`text-[10px] px-1.5 py-0.5 rounded-md ${
+                    isTabActive ? 'bg-white/25 text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400'
                   }`}
                 >
                   {tab.count}
@@ -380,8 +380,8 @@ export const TechHardwareStatusPage = () => {
             const gpsStatus = v.gps_status || (v.gps_device_id ? 'Online' : 'Not Installed');
             const netStatus = dev ? (isDevOnline && dev.sim_network ? `Connected (${dev.sim_network})` : 'Offline') : (v.network_status || 'Not Installed');
             const hwHealth = isDevOnline ? 'Healthy' : (isDevOffline ? 'Degraded / Offline' : 'Maintenance');
-            const diagLink = dev?.id ? `/technician/diagnostics?device=${dev.id}` : '/technician/diagnostics';
-            const connLink = dev?.id ? `/technician/devices/${dev.id}` : '/technician/devices';
+            const diagLink = dev?.id ? `${basePath}/diagnostics?device=${dev.id}` : `${basePath}/diagnostics`;
+            const connLink = dev?.id ? `${basePath}/devices/${dev.id}` : `${basePath}/devices`;
 
             return (
               <div key={v.id} className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm space-y-4">
@@ -414,7 +414,7 @@ export const TechHardwareStatusPage = () => {
                 <div className="pt-2 flex items-center gap-2">
                   <Link
                     to={diagLink}
-                    className="flex-1 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 text-white text-xs font-bold rounded-xl text-center transition-colors"
+                    className="flex-1 py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:via-indigo-500 hover:to-purple-500 text-white text-xs font-bold rounded-xl text-center shadow-sm shadow-indigo-500/25 transition-all"
                   >
                     {t('ag.technician.techhardwarestatuspage.run_diagnostics', 'Run Diagnostics')}
                   </Link>

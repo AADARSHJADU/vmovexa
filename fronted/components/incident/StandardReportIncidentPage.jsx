@@ -13,11 +13,60 @@ import { superOrganizationService } from '../../api/services/superadmin/organiza
 import { useAuth } from '../../hooks/useAuth';
 import { reverseGeocodeCoords } from '../../utils/geolocation';
 
-const NON_APPROVED_DRIVER_STATUSES = new Set(['pending_approval', 'pending', 'rejected']);
+const ACTIVE_VEHICLE_STATUSES = new Set(['active', 'in_depot', 'on_route']);
+const ASSIGNABLE_DRIVER_STATUSES = new Set(['available', 'on_duty', 'off_duty']);
 
 const isApprovedDriver = (driver) => {
   const status = String(driver?.status || '').trim().toLowerCase();
-  return Boolean(status) && !NON_APPROVED_DRIVER_STATUSES.has(status);
+  const userStatus = String(driver?.user?.status || '').trim().toLowerCase();
+  const isVerified = Boolean(
+    driver?.documents_verified
+    || driver?.aadhaar_verified
+    || driver?.verified
+  );
+
+  return ASSIGNABLE_DRIVER_STATUSES.has(status)
+    && (!userStatus || userStatus === 'active')
+    && isVerified;
+};
+
+const isActiveVehicle = (vehicle) => {
+  const status = String(vehicle?.status || '').trim().toLowerCase();
+  return ACTIVE_VEHICLE_STATUSES.has(status);
+};
+
+const driverBelongsToVehicleScope = (driver, vehicle) => {
+  if (!driver || !vehicle) return false;
+
+  const vehicleId = vehicle.id;
+  const assignedVehicleIds = [
+    driver.assigned_bus_id,
+    driver.assignedBusId,
+    driver.assignedBus?.id,
+  ];
+  if (assignedVehicleIds.some((id) => id != null && String(id) === String(vehicleId))) {
+    return true;
+  }
+
+  const vehicleFleetId = vehicle.fleet_id || vehicle.fleetId || vehicle.fleet?.id;
+  const driverFleetIds = [
+    driver.fleet_id,
+    driver.fleetId,
+    driver.fleet?.id,
+    driver.fleet_operator_id,
+    driver.fleetOperatorId,
+    driver.created_by,
+    driver.createdBy,
+    driver.creator?.id,
+  ];
+  const hasDriverFleetId = driverFleetIds.some((id) => id != null && id !== '');
+  if (vehicleFleetId && hasDriverFleetId) {
+    return driverFleetIds.some((id) => id != null && String(id) === String(vehicleFleetId));
+  }
+
+  const vehicleDepotId = vehicle.depot_id || vehicle.depotId || vehicle.depot?.id;
+  const driverDepotId = driver.depot_id || driver.depotId || driver.depot?.id;
+  return Boolean(vehicleDepotId && driverDepotId && String(driverDepotId) === String(vehicleDepotId));
 };
 
 export const StandardReportIncidentPage = ({
@@ -111,6 +160,11 @@ export const StandardReportIncidentPage = ({
     return getVehicleAssignedDriver(selectedVehicle);
   }, [selectedVehicle, drivers]);
 
+  const scopedDriversForSelectedVeh = useMemo(() => {
+    if (!selectedVehicle) return [];
+    return drivers.filter((driver) => driverBelongsToVehicleScope(driver, selectedVehicle));
+  }, [drivers, selectedVehicle]);
+
   // Load organizations for SuperAdmin
   useEffect(() => {
     if (roleScope === 'superadmin') {
@@ -139,7 +193,10 @@ export const StandardReportIncidentPage = ({
     let isMounted = true;
     setResourcesLoading(true);
 
-    const queryParams = { limit: 100 };
+    const queryParams = {
+      limit: 100,
+      exclude_status: 'pending_approval,pending,rejected,maintenance,offline',
+    };
     if (roleScope === 'superadmin' && selectedOrgId) {
       queryParams.organization_id = selectedOrgId;
     }
@@ -157,7 +214,7 @@ export const StandardReportIncidentPage = ({
           const vList = Array.isArray(vehResult.value)
             ? vehResult.value
             : vehResult.value?.rows || vehResult.value?.items || vehResult.value?.vehicles || [];
-          setVehicles(vList);
+          setVehicles(vList.filter(isActiveVehicle));
         }
         if (drvResult.status === 'fulfilled') {
           const dList = Array.isArray(drvResult.value)
@@ -461,7 +518,7 @@ export const StandardReportIncidentPage = ({
         <div>
           <Breadcrumb
             items={[
-              { label: t(`roles.${roleTitle.toLowerCase().replace(/[^a-z0-9]/g, '_')}`, roleTitle), to: `${basePath}/dashboard` },
+              { label: roleScope === 'admin' ? t('ag.admin.admin_operations', 'Admin Operations') : t(`roles.${roleTitle.toLowerCase().replace(/[^a-z0-9]/g, '_')}`, roleTitle), to: `${basePath}/dashboard` },
               { label: t('nav.incidents_log', 'Incidents Log'), to: `${basePath}/incidents` },
               { label: t('nav.report_incident', 'Report Incident') },
             ]}
@@ -629,13 +686,15 @@ export const StandardReportIncidentPage = ({
                 <select
                   value={formData.driverId}
                   onChange={(e) => handleDriverChange(e.target.value)}
-                  disabled={roleScope === 'superadmin' && !selectedOrgId}
+                  disabled={!formData.vehicleId || (roleScope === 'superadmin' && !selectedOrgId)}
                   className="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="">
                     {roleScope === 'superadmin' && !selectedOrgId
                       ? t('incident.select_tenant_first', 'Select Tenant Organization first')
-                      : t('incident.unassigned_driver', 'Unassigned / Outside Driver')}
+                      : !formData.vehicleId
+                        ? t('incident.select_vehicle_first', 'Select vehicle first')
+                        : t('incident.unassigned_driver', 'Unassigned / Outside Driver')}
                   </option>
 
                   {/* Highlight the driver assigned to the selected bus */}
@@ -648,8 +707,14 @@ export const StandardReportIncidentPage = ({
                     </optgroup>
                   )}
 
-                  <optgroup label={assignedDriverForSelectedVeh ? t('incident.other_drivers_in_org', 'Other Drivers in Organization') : t('incident.all_drivers', 'All Drivers')}>
-                    {drivers
+                  {formData.vehicleId && scopedDriversForSelectedVeh.length === 0 && !assignedDriverForSelectedVeh && (
+                    <option value="" disabled>
+                      {t('incident.no_verified_drivers_for_vehicle', 'No active verified drivers found for this vehicle')}
+                    </option>
+                  )}
+
+                  <optgroup label={assignedDriverForSelectedVeh ? t('incident.other_drivers_in_fleet', 'Other Drivers in Fleet') : t('incident.drivers_in_fleet', 'Drivers in Vehicle Fleet')}>
+                    {scopedDriversForSelectedVeh
                       .filter(
                         (d) =>
                           !assignedDriverForSelectedVeh ||

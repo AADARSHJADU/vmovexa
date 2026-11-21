@@ -764,23 +764,40 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                Obx(() => Text(
                   controller.driverName,
                   style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-                ),
+                )),
                 const SizedBox(height: 4),
-                Text('assigned_transit_pilot'.tr, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                Obx(() {
+                  final phone = controller.driverPhone;
+                  final emp = controller.driverEmpId;
+                  final parts = <String>[];
+                  if (emp != null && emp.isNotEmpty) parts.add(emp);
+                  if (phone != null && phone.isNotEmpty) parts.add(phone);
+                  final sub = parts.isNotEmpty ? parts.join(' · ') : 'assigned_transit_pilot'.tr;
+                  return Text(
+                    sub,
+                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                  );
+                }),
               ],
             ),
           ),
           Row(
             children: [
               OutlinedButton(
-                onPressed: () {
-                  Get.toNamed(Routes.ASSIGN_DRIVER, arguments: {
+                onPressed: () async {
+                  final result = await Get.toNamed(Routes.ASSIGN_DRIVER, arguments: {
                     'vehicleId': controller.vehicleId ?? '',
                     'vehicleName': controller.registrationNumber,
+                    'fleetName': controller.fleetName,
+                    'vehicleType': controller.vehicleType,
+                    'fromDetails': true,
                   });
+                  if (result == true) {
+                    controller.loadVehicleDetails();
+                  }
                 },
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.white24),

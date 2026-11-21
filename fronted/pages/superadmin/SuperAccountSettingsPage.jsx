@@ -7,7 +7,7 @@ import { useAuth } from '../../hooks/useAuth';
 import toast from 'react-hot-toast';
 
 export const SuperAccountSettingsPage = () => {
-  const { t } = useTranslation();
+  const { t, languages, changeLanguage } = useTranslation();
   const navigate = useNavigate();
   const { user, updateProfile, fetchMe } = useAuth();
   const [formData, setFormData] = useState({
@@ -15,6 +15,7 @@ export const SuperAccountSettingsPage = () => {
     email: user?.email || '',
     phone: user?.phone || '',
     timezone: user?.timezone || 'Asia/Kolkata',
+    language: user?.language?.code || user?.settings?.locale || 'en',
   });
   const [saving, setSaving] = useState(false);
 
@@ -25,6 +26,7 @@ export const SuperAccountSettingsPage = () => {
         email: user.email || '',
         phone: user.phone || '',
         timezone: user.timezone || 'Asia/Kolkata',
+        language: user?.language?.code || user?.settings?.locale || 'en',
       });
     }
   }, [user]);
@@ -38,6 +40,7 @@ export const SuperAccountSettingsPage = () => {
           name: formData.name,
           phone: formData.phone,
           timezone: formData.timezone,
+          language: formData.language,
         }),
         {
           loading: t('common.saving', 'Saving changes…'),
@@ -45,7 +48,8 @@ export const SuperAccountSettingsPage = () => {
           error: (err) => err?.message || 'Update failed.',
         }
       );
-      if (fetchMe) fetchMe();
+      await changeLanguage(formData.language, { persist: false });
+      if (fetchMe) await fetchMe();
       navigate('/superadmin/profile');
     } finally {
       setSaving(false);
@@ -140,6 +144,23 @@ export const SuperAccountSettingsPage = () => {
                 <option value="Europe/London">{t('tz.london', 'Europe/London (GMT/BST)')}</option>
                 <option value="Asia/Dubai">{t('tz.dubai', 'Asia/Dubai (GST - UTC+04:00)')}</option>
                 <option value="Asia/Singapore">{t('tz.singapore', 'Asia/Singapore (SGT - UTC+08:00)')}</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1.5">
+                {t('settings.language_label', 'Primary Language')}
+              </label>
+              <select
+                value={formData.language}
+                onChange={(e) => setFormData({ ...formData, language: e.target.value })}
+                className="w-full px-3.5 py-2.5 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:border-blue-500"
+              >
+                {languages.filter((language) => language.is_active !== false).map((language) => (
+                  <option key={language.code} value={language.code}>
+                    {language.native_name || language.name} ({language.code})
+                  </option>
+                ))}
               </select>
             </div>
           </div>

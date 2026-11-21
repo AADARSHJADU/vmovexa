@@ -6,6 +6,7 @@ import Breadcrumb from '../ui/Breadcrumb';
 export const StandardIncidentSuccessPage = ({
   roleTitle = 'Fleet Operator',
   basePath = '/fleet-operator',
+  roleScope = null,
 }) => {
   const { t } = useTranslation();
   const location = useLocation();
@@ -26,7 +27,7 @@ export const StandardIncidentSuccessPage = ({
     <section className="flex min-h-[calc(100dvh-10rem)] w-full flex-col items-center gap-6 overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-emerald-50/60 p-4 shadow-sm animate-in fade-in zoom-in-95 duration-200 dark:border-zinc-800 dark:from-zinc-900 dark:via-zinc-900 dark:to-emerald-950/20 sm:p-6 lg:p-8">
       <Breadcrumb
         items={[
-          { label: t(`roles.${roleTitle.toLowerCase().replace(/[^a-z0-9]/g, '_')}`, roleTitle), to: `${basePath}/dashboard` },
+          { label: roleScope === 'admin' ? t('ag.admin.admin_operations', 'Admin Operations') : t(`roles.${roleTitle.toLowerCase().replace(/[^a-z0-9]/g, '_')}`, roleTitle), to: `${basePath}/dashboard` },
           { label: t('nav.incidents_log', 'Incidents Log'), to: `${basePath}/incidents` },
           { label: t('incident.report_success', 'Report Success') },
         ]}

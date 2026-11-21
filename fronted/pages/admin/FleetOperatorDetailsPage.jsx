@@ -21,6 +21,19 @@ const formatName = (v, fallback = '—') => {
   return String(v);
 };
 
+const TIMEZONE_LABELS = {
+  'Asia/Kolkata': 'Asia/Kolkata (IST - UTC+05:30)',
+  UTC: 'UTC (UTC+00:00)',
+  'Asia/Dubai': 'Asia/Dubai (GST - UTC+04:00)',
+  'Asia/Singapore': 'Asia/Singapore (SGT - UTC+08:00)',
+  'Europe/London': 'Europe/London (GMT/BST)',
+  'America/New_York': 'America/New_York (ET)',
+  'America/Chicago': 'America/Chicago (CT)',
+  'America/Denver': 'America/Denver (MT)',
+  'America/Los_Angeles': 'America/Los_Angeles (PT)',
+  'Australia/Sydney': 'Australia/Sydney (AET)',
+};
+
 export const FleetOperatorDetailsPage = () => {
   const { t } = useTranslation();
   const { id } = useParams();
@@ -264,7 +277,8 @@ export const FleetOperatorDetailsPage = () => {
   const status = selectedOperator.status || 'active';
   const designation = selectedOperator.clearance || selectedOperator.designation || 'Fleet Operator Lead';
   const department = selectedOperator.department || 'Transit Operations';
-  const timezone = selectedOperator.timezone || 'Asia/Kolkata';
+  const timezoneValue = selectedOperator.timezone || selectedOperator.time_zone || 'Asia/Kolkata';
+  const timezone = TIMEZONE_LABELS[timezoneValue] || timezoneValue;
   const baseCity = selectedOperator.location || selectedOperator.city || selectedOperator.baseCity || selectedOperator.base_city || selectedOperator.fleetOperatorProfile?.location || selectedOperator.fleetOperatorProfile?.base_city || '—';
   const docsList = Array.isArray(selectedOperator.documents) ? selectedOperator.documents : [];
   const createdAt = selectedOperator.createdAt ? new Date(selectedOperator.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
@@ -277,7 +291,7 @@ export const FleetOperatorDetailsPage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-wrap">
         <Breadcrumb
           items={[
-            { label: isFleetPortal ? t('ag.admin.fleetoperatordetailspage.fleet_operator', 'Fleet Operator') : t('ag.admin.fleetoperatordetailspage.tenant_admin', 'Tenant Admin'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
+            { label: isFleetPortal ? t('ag.admin.fleetoperatordetailspage.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
             { label: isFleetPortal ? t('ag.admin.fleetoperatordetailspage.fleets', 'Fleets') : t('ag.admin.fleetoperatordetailspage.fleet_operators', 'Fleet Operators'), path: basePath },
             ...(activeTab === 'overview'
               ? [{ label: selectedOperator.name }]
@@ -337,18 +351,18 @@ export const FleetOperatorDetailsPage = () => {
         <>
           {/* Regular Operator Profile Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
               <Link
                 to={basePath}
-                className="p-2 rounded-xl border border-slate-200 dark:border-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-600 dark:text-zinc-300 transition-colors font-bold text-xs flex items-center gap-1.5"
+                className="p-2 rounded-xl border border-slate-200 dark:border-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-600 dark:text-zinc-300 transition-colors font-bold text-xs flex items-center gap-1.5 shrink-0"
               >
                 {t('ag.admin.fleetoperatordetailspage.back', '← Back')}
               </Link>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-                  <span>{selectedOperator.name}</span>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight flex flex-wrap items-center gap-3">
+                  <span className="min-w-0 break-words [overflow-wrap:anywhere]" title={selectedOperator.name}>{selectedOperator.name}</span>
                   <span
-                    className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase border ${
+                    className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase border shrink-0 ${
                       status === 'active'
                         ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
                         : status === 'pending_approval'
@@ -359,7 +373,7 @@ export const FleetOperatorDetailsPage = () => {
                     {status}
                   </span>
                 </h1>
-                <p className="text-xs text-slate-500 dark:text-zinc-400 font-mono mt-0.5">
+                <p className="text-xs text-slate-500 dark:text-zinc-400 font-mono mt-0.5 break-words [overflow-wrap:anywhere]">
                   {t('ag.admin.fleetoperatordetailspage.code', 'Code:')} <strong className="text-slate-800 dark:text-zinc-200">{code}</strong> · {t('admin.fleet_operators.role_label') || 'Role:'} <strong className="text-blue-700 dark:text-blue-400">{roleName} ({roleCode})</strong>
                 </p>
               </div>
@@ -487,12 +501,12 @@ export const FleetOperatorDetailsPage = () => {
         </div>
 
         {/* Tab 1: OVERVIEW */}
-        <div className="p-6">
+        <div className="p-4 sm:p-6 min-w-0">
           {activeTab === 'overview' && (
             <div className="space-y-6">
               {/* Profile Card Banner */}
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-5 p-6 bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-800 rounded-2xl">
-                <div className="flex items-center gap-4">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-5 p-6 bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 min-w-0 flex-1 max-w-full">
                   <div className="w-20 h-20 rounded-2xl bg-white dark:bg-zinc-900 border-2 border-slate-200 dark:border-zinc-700 shadow-sm flex items-center justify-center text-slate-800 dark:text-white font-black text-2xl overflow-hidden shrink-0">
                     {avatar ? (
                       <img src={resolveFileUrl(avatar)} alt="" className="w-full h-full object-cover" />
@@ -500,66 +514,66 @@ export const FleetOperatorDetailsPage = () => {
                       selectedOperator.name?.charAt(0).toUpperCase() || 'O'
                     )}
                   </div>
-                  <div className="space-y-1">
-                    <h3 className="text-xl font-black text-slate-900 dark:text-white">{selectedOperator.name}</h3>
-                    <div className="text-xs text-slate-600 dark:text-zinc-400 font-medium flex items-center gap-2">
-                      <span className="font-bold text-slate-800 dark:text-zinc-200 bg-slate-200/70 dark:bg-zinc-700 px-2 py-0.5 rounded-md">{designation}</span>
-                      <span>·</span>
-                      <span>{department}</span>
+                  <div className="space-y-1 min-w-0 flex-1">
+                    <h3 className="text-xl font-black text-slate-900 dark:text-white break-words [overflow-wrap:anywhere]" title={selectedOperator.name}>{selectedOperator.name}</h3>
+                    <div className="text-xs text-slate-600 dark:text-zinc-400 font-medium flex flex-wrap items-center gap-2 min-w-0">
+                      <span className="font-bold text-slate-800 dark:text-zinc-200 bg-slate-200/70 dark:bg-zinc-700 px-2 py-0.5 rounded-md break-words [overflow-wrap:anywhere] max-w-full inline-block align-middle" title={designation}>{designation}</span>
+                      <span className="shrink-0">·</span>
+                      <span className="break-words [overflow-wrap:anywhere] max-w-full inline-block align-middle" title={department}>{department}</span>
                     </div>
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-zinc-400 pt-1 font-mono">
-                      <span className="inline-flex items-center gap-1.5">
-                        <FleetIcons.Mail className="w-3.5 h-3.5 text-slate-400 dark:text-zinc-500" />
-                        <span>{selectedOperator.email}</span>
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-zinc-400 pt-1 font-mono min-w-0">
+                      <span className="inline-flex items-center gap-1.5 min-w-0 max-w-full" title={selectedOperator.email}>
+                        <FleetIcons.Mail className="w-3.5 h-3.5 text-slate-400 dark:text-zinc-500 shrink-0" />
+                        <span className="break-all [overflow-wrap:anywhere]">{selectedOperator.email}</span>
                       </span>
-                      <span>•</span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <FleetIcons.Phone className="w-3.5 h-3.5 text-slate-400 dark:text-zinc-500" />
+                      <span className="shrink-0">•</span>
+                      <span className="inline-flex items-center gap-1.5 shrink-0">
+                        <FleetIcons.Phone className="w-3.5 h-3.5 text-slate-400 dark:text-zinc-500 shrink-0" />
                         <span>{selectedOperator.phone || '—'}</span>
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex flex-col items-start md:items-end text-xs text-slate-500 dark:text-zinc-400 space-y-1 border-t md:border-t-0 pt-3 md:pt-0 border-slate-200 dark:border-zinc-700 w-full md:w-auto">
-                  <div>{t('common.status') || 'Status:'} <strong className="text-slate-900 dark:text-white uppercase font-mono">{status}</strong></div>
-                  <div>{t('admin.fleet_operators.account_code') || 'Account Code:'} <strong className="text-slate-900 dark:text-white font-mono">{code}</strong></div>
+                <div className="flex flex-col items-start md:items-end text-xs text-slate-500 dark:text-zinc-400 space-y-1 border-t md:border-t-0 pt-3 md:pt-0 border-slate-200 dark:border-zinc-700 w-full md:max-w-[40%] min-w-0 shrink-0">
+                  <div className="max-w-full break-words [overflow-wrap:anywhere]">{t('common.status') || 'Status:'} <strong className="text-slate-900 dark:text-white uppercase font-mono">{status}</strong></div>
+                  <div className="max-w-full break-all [overflow-wrap:anywhere]">{t('admin.fleet_operators.account_code') || 'Account Code:'} <strong className="text-slate-900 dark:text-white font-mono">{code}</strong></div>
                   <div>{t('admin.fleet_operators.provisioned') || 'Provisioned:'} <strong className="text-slate-800 dark:text-zinc-200">{createdAt}</strong></div>
                 </div>
               </div>
 
               {/* 4 Stat Metrics Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="p-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl space-y-1 shadow-2xs">
+                <div className="p-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl space-y-1 shadow-2xs min-w-0 overflow-hidden">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">{t('admin.fleet_operators.col_depot') || 'Assigned Depot'}</span>
-                  <div className="text-base font-black text-slate-900 dark:text-white truncate">{depot}</div>
-                  <p className="text-[11px] text-slate-500 dark:text-zinc-400">{baseCity}</p>
+                  <div className="text-base font-black text-slate-900 dark:text-white break-words [overflow-wrap:anywhere]">{depot}</div>
+                  <p className="text-[11px] text-slate-500 dark:text-zinc-400 break-words [overflow-wrap:anywhere]">{baseCity}</p>
                 </div>
                 <div
                   onClick={() => switchTab('vehicles')}
-                  className="p-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-xs rounded-xl space-y-1 shadow-2xs cursor-pointer transition-all group"
+                  className="p-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-xs rounded-xl space-y-1 shadow-2xs cursor-pointer transition-all group min-w-0 overflow-hidden"
                   title={t('admin.fleet_operators.tab_vehicles') || "Click to view assigned vehicles"}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">{t('admin.fleet_operators.bus_quota') || 'Bus Fleet Quota'}</span>
+                  <div className="flex flex-wrap items-start justify-between gap-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 break-words [overflow-wrap:anywhere]">{t('admin.fleet_operators.bus_quota') || 'Bus Fleet Quota'}</span>
                     <span className="text-[10px] text-blue-600 dark:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity font-bold">{t('common.details') || 'View'} →</span>
                   </div>
-                  <div className="text-base font-black text-blue-700 dark:text-blue-400">{currentBuses} {t('ag.admin.fleetoperatordetailspage.active', 'Active /')} {maxBuses} {t('ag.admin.fleetoperatordetailspage.max', 'Max')}</div>
-                  <p className="text-[11px] text-slate-500 dark:text-zinc-400">{t('admin.fleet_operators.assigned_max_buses') || 'Assigned / Max Bus Capacity'}</p>
+                  <div className="text-base font-black text-blue-700 dark:text-blue-400 break-words [overflow-wrap:anywhere]">{currentBuses} {t('ag.admin.fleetoperatordetailspage.active', 'Active /')} {maxBuses} {t('ag.admin.fleetoperatordetailspage.max', 'Max')}</div>
+                  <p className="text-[11px] text-slate-500 dark:text-zinc-400 break-words [overflow-wrap:anywhere]">{t('admin.fleet_operators.assigned_max_buses') || 'Assigned / Max Bus Capacity'}</p>
                 </div>
                 <Link
                   to={isFleetPortal ? '/fleet-operator/drivers' : '/admin/drivers'}
-                  className="p-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-emerald-400 dark:hover:border-emerald-500 hover:shadow-xs rounded-xl space-y-1 shadow-2xs transition-all group block cursor-pointer"
+                  className="p-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-emerald-400 dark:hover:border-emerald-500 hover:shadow-xs rounded-xl space-y-1 shadow-2xs transition-all group block cursor-pointer min-w-0 overflow-hidden"
                   title={t('admin.fleet_operators.drivers_count') || "Click to view enrolled drivers"}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">{t('admin.fleet_operators.driver_quota') || 'Driver Quota Capacity'}</span>
+                  <div className="flex flex-wrap items-start justify-between gap-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 break-words [overflow-wrap:anywhere]">{t('admin.fleet_operators.driver_quota') || 'Driver Quota Capacity'}</span>
                     <span className="text-[10px] text-emerald-600 dark:text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity font-bold">{t('common.details') || 'View'} →</span>
                   </div>
-                  <div className="text-base font-black text-emerald-700 dark:text-emerald-400">{currentDrivers} {t('ag.admin.fleetoperatordetailspage.active', 'Active /')} {maxDrivers} {t('ag.admin.fleetoperatordetailspage.max', 'Max')}</div>
-                  <p className="text-[11px] text-slate-500 dark:text-zinc-400">{t('admin.fleet_operators.assigned_max_drivers') || 'Assigned / Max Driver Headcount'}</p>
+                  <div className="text-base font-black text-emerald-700 dark:text-emerald-400 break-words [overflow-wrap:anywhere]">{currentDrivers} {t('ag.admin.fleetoperatordetailspage.active', 'Active /')} {maxDrivers} {t('ag.admin.fleetoperatordetailspage.max', 'Max')}</div>
+                  <p className="text-[11px] text-slate-500 dark:text-zinc-400 break-words [overflow-wrap:anywhere]">{t('admin.fleet_operators.assigned_max_drivers') || 'Assigned / Max Driver Headcount'}</p>
                 </Link>
-                <div className="p-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl space-y-1 shadow-2xs">
+                <div className="p-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl space-y-1 shadow-2xs min-w-0 overflow-hidden">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">{t('admin.fleet_operators.kyc_verification') || 'KYC Verification'}</span>
                   <div className="text-base font-black text-purple-700 dark:text-purple-400">{docsList.length} {t('admin.fleet_operators.uploaded') || 'Uploaded'} {t('ag.admin.fleetoperatordetailspage.docs', 'Docs')}</div>
                   <p className="text-[11px] text-slate-500 dark:text-zinc-400">{t('admin.fleet_operators.legal_identity') || 'Legal & identity proofs'}</p>
@@ -576,7 +590,7 @@ export const FleetOperatorDetailsPage = () => {
                     {t('ag.admin.fleetoperatordetailspage.fleet_operational_description_and_scope', 'Fleet Operational Description & Scope')}
                   </h4>
                 </div>
-                <div className="bg-white/80 dark:bg-zinc-800/80 border border-blue-100/80 dark:border-zinc-700/60 rounded-xl p-3.5 text-xs text-slate-700 dark:text-zinc-300 leading-relaxed font-medium break-words break-all whitespace-pre-wrap min-w-0 max-w-full overflow-hidden">
+                <div className="bg-white/80 dark:bg-zinc-800/80 border border-blue-100/80 dark:border-zinc-700/60 rounded-xl p-3.5 text-xs text-slate-700 dark:text-zinc-300 leading-relaxed font-medium break-words [overflow-wrap:anywhere] whitespace-pre-wrap min-w-0 max-w-full overflow-hidden">
                   {selectedOperator.description || 'No operational description provided.'}
                 </div>
               </div>
@@ -589,38 +603,38 @@ export const FleetOperatorDetailsPage = () => {
                     <FleetIcons.User className="w-4 h-4 text-slate-500 dark:text-zinc-400" />
                     <span>{t('admin.fleet_operators.personal_details') || 'Personal & Account Details'}</span>
                   </h4>
-                  <div className="grid grid-cols-2 gap-4 text-xs font-medium divide-y divide-slate-100 dark:divide-zinc-800">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-medium divide-y divide-slate-100 dark:divide-zinc-800">
                     <div className="space-y-0.5 pt-2 min-w-0">
                       <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase">{t('admin.drivers.full_name') || 'Full Name'}</span>
-                      <div className="text-slate-900 dark:text-white font-bold truncate">{selectedOperator.name}</div>
+                      <div className="text-slate-900 dark:text-white font-bold break-words [overflow-wrap:anywhere]">{selectedOperator.name}</div>
                     </div>
                     <div className="space-y-0.5 pt-2 min-w-0">
                       <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase">{t('admin.drivers.email_address') || 'Email Address'}</span>
-                      <div className="text-slate-900 dark:text-white font-mono truncate">{selectedOperator.email}</div>
+                      <div className="text-slate-900 dark:text-white font-mono break-all [overflow-wrap:anywhere]">{selectedOperator.email}</div>
                     </div>
                     <div className="space-y-0.5 pt-2 min-w-0">
                       <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase">{t('admin.drivers.phone_number') || 'Phone Number'}</span>
-                      <div className="text-slate-900 dark:text-white font-mono">{selectedOperator.phone || '—'}</div>
+                      <div className="text-slate-900 dark:text-white font-mono break-words [overflow-wrap:anywhere]">{selectedOperator.phone || '—'}</div>
                     </div>
                     <div className="space-y-0.5 pt-2 min-w-0">
                       <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase">{t('admin.fleet_operators.role_label') || 'Role Title'}</span>
-                      <div className="text-blue-700 dark:text-blue-400 font-bold">{roleName}</div>
+                      <div className="text-blue-700 dark:text-blue-400 font-bold break-words [overflow-wrap:anywhere]">{roleName}</div>
                     </div>
                     <div className="space-y-0.5 pt-2 min-w-0">
                       <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase">{t('admin.fleet_operators.designation') || 'Designation / Clearance'}</span>
-                      <div className="text-slate-900 dark:text-white font-bold">{designation}</div>
+                      <div className="text-slate-900 dark:text-white font-bold break-words [overflow-wrap:anywhere]">{designation}</div>
                     </div>
                     <div className="space-y-0.5 pt-2 min-w-0">
                       <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase">{t('admin.fleet_operators.department') || 'Department'}</span>
-                      <div className="text-slate-900 dark:text-white font-bold">{department}</div>
+                      <div className="text-slate-900 dark:text-white font-bold break-words [overflow-wrap:anywhere]">{department}</div>
                     </div>
                     <div className="space-y-0.5 pt-2 min-w-0">
                       <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase">{t('admin.fleet_operators.timezone') || 'Timezone'}</span>
-                      <div className="text-slate-900 dark:text-white font-mono">{timezone}</div>
+                      <div className="text-slate-900 dark:text-white font-mono break-words [overflow-wrap:anywhere]">{timezone}</div>
                     </div>
                     <div className="space-y-0.5 pt-2 min-w-0">
                       <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase">{t('admin.fleet_operators.primary_city') || 'Primary Base City'}</span>
-                      <div className="text-slate-900 dark:text-white font-bold">{baseCity}</div>
+                      <div className="text-slate-900 dark:text-white font-bold break-words [overflow-wrap:anywhere]">{baseCity}</div>
                     </div>
                   </div>
                 </div>
@@ -631,14 +645,14 @@ export const FleetOperatorDetailsPage = () => {
                     <FleetIcons.Bus className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                     <span>{t('admin.fleet_operators.depot_ops_scope') || 'Depot & Vehicle Operations Scope'}</span>
                   </h4>
-                  <div className="grid grid-cols-2 gap-4 text-xs font-medium divide-y divide-slate-100 dark:divide-zinc-800">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-medium divide-y divide-slate-100 dark:divide-zinc-800">
                     <div className="space-y-0.5 pt-2 min-w-0">
                       <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase">{t('admin.fleet_operators.col_depot') || 'Assigned Depot Base'}</span>
-                      <div className="text-slate-900 dark:text-white font-bold truncate">{depot}</div>
+                      <div className="text-slate-900 dark:text-white font-bold break-words [overflow-wrap:anywhere]">{depot}</div>
                     </div>
                     <div className="space-y-0.5 pt-2 min-w-0">
                       <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase">{t('admin.fleet_operators.fleet_category') || 'Fleet Category'}</span>
-                      <div className="text-slate-900 dark:text-white font-bold">{selectedOperator.fleet_type || 'Intracity Transit'}</div>
+                      <div className="text-slate-900 dark:text-white font-bold break-words [overflow-wrap:anywhere]">{selectedOperator.fleet_type || 'Intracity Transit'}</div>
                     </div>
                     <div className="space-y-0.5 pt-2 min-w-0">
                       <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase">{t('admin.fleet_operators.allowed_bus_capacity') || 'Allowed Bus Fleet Capacity'}</span>
@@ -650,7 +664,7 @@ export const FleetOperatorDetailsPage = () => {
                     </div>
                     <div className="space-y-0.5 pt-2 min-w-0">
                       <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase">{t('admin.fleet_operators.working_hours') || 'Working Hours'}</span>
-                      <div className="text-slate-900 dark:text-white font-mono">{selectedOperator.working_hours || selectedOperator.workingHours || '05:00 AM - 11:30 PM'}</div>
+                      <div className="text-slate-900 dark:text-white font-mono break-words [overflow-wrap:anywhere]">{selectedOperator.working_hours || selectedOperator.workingHours || '05:00 AM - 11:30 PM'}</div>
                     </div>
                     <div className="space-y-0.5 pt-2 min-w-0">
                       <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase">{t('common.status') || 'Account Status'}</span>
@@ -662,8 +676,8 @@ export const FleetOperatorDetailsPage = () => {
 
               {/* {t('admin.fleet_operators.uploaded') || 'Uploaded'} Verification & KYC Documents Section */}
               <div className="space-y-3 pt-2">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
+                <div className="flex flex-wrap items-center justify-between gap-2 min-w-0">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2 min-w-0 break-words [overflow-wrap:anywhere]">
                     <FleetIcons.FileText className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                     <span>{t('admin.fleet_operators.kyc_docs_title') || 'Verification & Legal KYC Documents'}</span>
                   </h4>
@@ -678,17 +692,17 @@ export const FleetOperatorDetailsPage = () => {
                       return (
                         <div
                           key={idx}
-                          className="p-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 rounded-xl flex items-center justify-between shadow-2xs transition-all group"
+                          className="p-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs transition-all group min-w-0 overflow-hidden"
                         >
-                          <div className="flex items-center gap-3 min-w-0">
+                          <div className="flex items-start gap-3 min-w-0 flex-1 max-w-full">
                             <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-900/50 flex items-center justify-center shrink-0">
                               <FleetIcons.FileText className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                             </div>
-                            <div className="min-w-0">
-                              <div className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-purple-700 dark:group-hover:text-purple-400 truncate">
+                            <div className="min-w-0 flex-1 max-w-full">
+                              <div className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-purple-700 dark:group-hover:text-purple-400 break-words [overflow-wrap:anywhere]">
                                 {title}
                               </div>
-                              <div className="text-[10px] text-slate-400 dark:text-zinc-500 font-mono mt-0.5 flex items-center gap-2">
+                              <div className="text-[10px] text-slate-400 dark:text-zinc-500 font-mono mt-0.5 flex flex-wrap items-center gap-2">
                                 <span>{t('admin.fleet_operators.kyc_attached') || 'KYC Attached'}</span>
                                 <span>•</span>
                                 <span className="text-emerald-600 dark:text-emerald-400 font-bold">{t('admin.fleet_operators.uploaded') || 'Uploaded'}</span>
@@ -725,29 +739,29 @@ export const FleetOperatorDetailsPage = () => {
             <div className="space-y-6">
               {/* Dedicated Vehicles Section Banner */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-800 shadow-2xs">
-                <div className="flex items-center gap-3.5">
+                <div className="flex items-start gap-3.5 min-w-0 flex-1">
                   <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900/50 flex items-center justify-center font-bold text-xl shrink-0">
                     <FleetIcons.Bus className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 px-2.5 py-0.5 rounded-md border border-blue-200 dark:border-blue-800">
+                      <span className="text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 px-2.5 py-0.5 rounded-md border border-blue-200 dark:border-blue-800 break-words [overflow-wrap:anywhere] max-w-full">
                         {t('ag.admin.fleetoperatordetailspage.fleet', 'Fleet:')} {selectedOperator.name}
                       </span>
-                      <span className="text-xs text-slate-500 dark:text-zinc-400 font-mono">
+                      <span className="text-xs text-slate-500 dark:text-zinc-400 font-mono break-all [overflow-wrap:anywhere]">
                         {code} · {depot}
                       </span>
                     </div>
-                    <h3 className="text-lg font-black text-slate-900 dark:text-white tracking-tight mt-1">
+                    <h3 className="text-lg font-black text-slate-900 dark:text-white tracking-tight mt-1 break-words [overflow-wrap:anywhere]">
                       {t('ag.admin.fleetoperatordetailspage.assigned_vehicles', 'Assigned Vehicles (')}{vehiclesList.length})
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+                    <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 break-words [overflow-wrap:anywhere]">
                       {t('ag.admin.fleetoperatordetailspage.manage_commercial_transit_buses_assigned_dri', 'Manage commercial transit buses, assigned drivers, and telematics operating under this fleet allocation.')}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 flex-wrap shrink-0">
+                <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto sm:shrink-0">
                   <RefreshButton
                     onClick={refreshVehiclesAndDetails}
                     loading={loadingVehicles || loading}
@@ -837,15 +851,15 @@ export const FleetOperatorDetailsPage = () => {
                       <div
                         key={v.id}
                         onClick={() => navigate(`${isFleetPortal ? '/fleet-operator/vehicles' : '/admin/vehicles'}/${v.id}`)}
-                        className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-md transition-all cursor-pointer shadow-sm flex flex-col justify-between group"
+                        className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-md transition-all cursor-pointer shadow-sm flex flex-col justify-between group min-w-0 overflow-hidden"
                       >
                         <div>
                           <div className="flex items-start justify-between gap-2">
-                            <div>
-                              <h5 className="text-sm font-black text-slate-900 dark:text-white font-mono group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors flex items-center gap-2">
-                                <span>{busNumber}</span>
+                            <div className="min-w-0 flex-1">
+                              <h5 className="text-sm font-black text-slate-900 dark:text-white font-mono group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors flex items-center gap-2 min-w-0">
+                                <span className="break-all [overflow-wrap:anywhere]">{busNumber}</span>
                               </h5>
-                              <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium mt-0.5">{vehicleType}</p>
+                              <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium mt-0.5 break-words [overflow-wrap:anywhere]">{vehicleType}</p>
                             </div>
                             <span
                               className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase border ${
@@ -861,22 +875,22 @@ export const FleetOperatorDetailsPage = () => {
                           </div>
 
                           <div className="mt-4 p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800 space-y-2 text-xs">
-                            <div className="flex items-center justify-between">
+                            <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] items-start gap-2">
                               <span className="text-slate-400 dark:text-zinc-500 text-[11px]">{t('admin.fleet_operators.assigned_driver') || 'Assigned Driver:'}</span>
-                              <span className="font-bold text-slate-800 dark:text-zinc-200 truncate max-w-[140px]">{driverName}</span>
+                              <span className="font-bold text-slate-800 dark:text-zinc-200 text-right break-words [overflow-wrap:anywhere]">{driverName}</span>
                             </div>
-                            <div className="flex items-center justify-between">
+                            <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] items-start gap-2">
                               <span className="text-slate-400 dark:text-zinc-500 text-[11px]">{t('admin.fleet_operators.home_depot') || 'Home Depot:'}</span>
-                              <span className="font-medium text-slate-700 dark:text-zinc-300 truncate max-w-[140px]">{depotName}</span>
+                              <span className="font-medium text-slate-700 dark:text-zinc-300 text-right break-words [overflow-wrap:anywhere]">{depotName}</span>
                             </div>
-                            <div className="flex items-center justify-between">
+                            <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] items-start gap-2">
                               <span className="text-slate-400 dark:text-zinc-500 text-[11px]">{t('admin.fleet_operators.transit_route') || 'Transit Route:'}</span>
-                              <span className="font-medium text-slate-700 dark:text-zinc-300 truncate max-w-[140px]">{routeName}</span>
+                              <span className="font-medium text-slate-700 dark:text-zinc-300 text-right break-words [overflow-wrap:anywhere]">{routeName}</span>
                             </div>
                             {v.edgeDevice && (
-                              <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 dark:border-zinc-700/60">
+                              <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] items-start gap-2 pt-1 border-t border-slate-200/60 dark:border-zinc-700/60">
                                 <span className="text-slate-400 dark:text-zinc-500 text-[11px]">{t('admin.fleet_operators.gps_device') || 'GPS Device:'}</span>
-                                <span className="font-mono text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                                <span className="font-mono text-[11px] font-bold text-right text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800 break-all [overflow-wrap:anywhere]">
                                   {v.edgeDevice.box_id || 'Active GPS'}
                                 </span>
                               </div>
@@ -884,8 +898,8 @@ export const FleetOperatorDetailsPage = () => {
                           </div>
                         </div>
 
-                        <div className="mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-xs font-bold">
-                          <span className="text-blue-600 dark:text-blue-400 group-hover:underline flex items-center gap-1">
+                        <div className="mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-2 text-xs font-bold">
+                          <span className="text-blue-600 dark:text-blue-400 group-hover:underline flex items-center gap-1 min-w-0 break-words [overflow-wrap:anywhere]">
                             <span>{t('admin.fleet_operators.view_specs') || 'View Specs & Telematics'}</span>
                             <FleetIcons.ArrowLeft className="w-3.5 h-3.5 rotate-180" />
                           </span>
@@ -941,15 +955,15 @@ export const FleetOperatorDetailsPage = () => {
                       <div key={act.id} className="relative group">
                         <div className="absolute -left-6 top-1 w-3 h-3 rounded-full bg-slate-900 dark:bg-blue-500 ring-4 ring-white dark:ring-zinc-900" />
                         <div className="bg-slate-50 dark:bg-zinc-800/50 p-3.5 rounded-xl border border-slate-200 dark:border-zinc-800 space-y-1">
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold text-slate-900 dark:text-white text-xs uppercase tracking-wider">
+                          <div className="flex flex-wrap items-start justify-between gap-2 min-w-0">
+                            <span className="font-bold text-slate-900 dark:text-white text-xs uppercase tracking-wider break-words [overflow-wrap:anywhere] min-w-0">
                               {act.action || act.description || 'System Activity'}
                             </span>
-                            <span className="text-[10px] font-mono text-slate-400 dark:text-zinc-500">
+                            <span className="text-[10px] font-mono text-slate-400 dark:text-zinc-500 break-words [overflow-wrap:anywhere]">
                               {act.createdAt ? new Date(act.createdAt).toLocaleString() : t('ag.admin.fleetoperatordetailspage.recently', 'Recently')}
                             </span>
                           </div>
-                          <p className="text-[11px] text-slate-600 dark:text-zinc-300 font-mono">
+                          <p className="text-[11px] text-slate-600 dark:text-zinc-300 font-mono whitespace-pre-wrap break-all [overflow-wrap:anywhere] max-w-full">
                             {act.details || act.payload ? JSON.stringify(act.details || act.payload) : act.action}
                           </p>
                         </div>

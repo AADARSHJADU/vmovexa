@@ -14,7 +14,7 @@ class HttpClientService extends GetxService {
   static HttpClientService get to => Get.find<HttpClientService>();
 
   final http.Client _client = http.Client();
-  bool _isRefreshingToken = false;
+  Completer<bool>? _refreshCompleter;
 
   /// Helper to build full Uri
   Uri _buildUri(String endpoint, [Map<String, dynamic>? queryParams]) {
@@ -300,7 +300,12 @@ class HttpClientService extends GetxService {
       }
 
       // Check for 401 Unauthorized - handle silent token refresh
-      if (response.statusCode == 401 && requiresAuth && !isRetry) {
+      final isAuthCall = endpoint == ApiConstants.refreshToken ||
+          endpoint == ApiConstants.loginEmail ||
+          endpoint == ApiConstants.loginPhone ||
+          endpoint == ApiConstants.verifyOtp;
+
+      if (response.statusCode == 401 && requiresAuth && !isRetry && !isAuthCall) {
         final refreshed = await _handleTokenRefresh();
         if (refreshed) {
           // Retry the original request once with new token
@@ -315,11 +320,17 @@ class HttpClientService extends GetxService {
             create: create,
           );
         } else {
-          // Refresh failed - force logout
-          if (Get.isRegistered<StorageService>()) {
+          // Refresh failed - force logout only if user is logged in and not already on auth screen
+          final currentRoute = Get.currentRoute;
+          final isAlreadyOnAuthScreen = currentRoute == Routes.LOGIN ||
+              currentRoute == Routes.ONBOARDING ||
+              currentRoute == Routes.REGISTER;
+
+          if (!isAlreadyOnAuthScreen && Get.isRegistered<StorageService>()) {
             await StorageService.to.clearAuth();
+            Get.offAllNamed(Routes.LOGIN);
           }
-          Get.offAllNamed(Routes.LOGIN);
+
           return ApiResponseModel.failure(
             message: 'Session expired. Please log in again.',
             error: 'UNAUTHORIZED',
@@ -376,42 +387,79 @@ class HttpClientService extends GetxService {
     }
   }
 
-  /// Attempt silent token refresh via POST /auth/refresh
+  /// Attempt silent token refresh via POST /auth/refresh with concurrent request queueing
   Future<bool> _handleTokenRefresh() async {
-    if (_isRefreshingToken) return false;
-    _isRefreshingToken = true;
+    // If a refresh is already in progress, wait for the same refresh to complete
+    if (_refreshCompleter != null) {
+      return await _refreshCompleter!.future;
+    }
+
+    _refreshCompleter = Completer<bool>();
 
     try {
-      if (!Get.isRegistered<StorageService>()) return false;
+      if (!Get.isRegistered<StorageService>()) {
+        _completeRefresh(false);
+        return false;
+      }
+
       final refreshToken = StorageService.to.getRefreshToken();
-      if (refreshToken == null || refreshToken.isEmpty) return false;
+      if (refreshToken == null || refreshToken.trim().isEmpty) {
+        _completeRefresh(false);
+        return false;
+      }
 
       final refreshUri = _buildUri(ApiConstants.refreshToken);
       final response = await _client.post(
         refreshUri,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'refresh_token': refreshToken}),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({
+          'refreshToken': refreshToken.trim(),
+          'refresh_token': refreshToken.trim(),
+        }),
       ).timeout(ApiConstants.receiveTimeout);
+
+      if (kDebugMode) {
+        debugPrint('🔄 [TokenRefresh] HTTP ${response.statusCode}: ${response.body}');
+      }
 
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body);
-        if (decoded is Map<String, dynamic> && decoded['data'] != null) {
-          final authData = AuthResponseModel.fromJson(decoded['data']);
-          if (authData.accessToken != null && authData.refreshToken != null) {
+        final data = decoded is Map ? (decoded['data'] ?? decoded) : null;
+        if (data is Map) {
+          final authData = AuthResponseModel.fromJson(Map<String, dynamic>.from(data));
+          final newAccess = authData.accessToken;
+          // If backend didn't rotate refreshToken, keep the current valid one
+          final newRefresh = (authData.refreshToken != null && authData.refreshToken!.isNotEmpty)
+              ? authData.refreshToken!
+              : refreshToken.trim();
+
+          if (newAccess != null && newAccess.isNotEmpty) {
             await StorageService.to.saveTokens(
-              accessToken: authData.accessToken!,
-              refreshToken: authData.refreshToken!,
+              accessToken: newAccess,
+              refreshToken: newRefresh,
             );
+            _completeRefresh(true);
             return true;
           }
         }
       }
+
+      _completeRefresh(false);
       return false;
     } catch (e) {
-      debugPrint('Failed to refresh token: $e');
+      if (kDebugMode) debugPrint('Failed to refresh token: $e');
+      _completeRefresh(false);
       return false;
-    } finally {
-      _isRefreshingToken = false;
     }
+  }
+
+  void _completeRefresh(bool result) {
+    if (_refreshCompleter != null && !_refreshCompleter!.isCompleted) {
+      _refreshCompleter!.complete(result);
+    }
+    _refreshCompleter = null;
   }
 }

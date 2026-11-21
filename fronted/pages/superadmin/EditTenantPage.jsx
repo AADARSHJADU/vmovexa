@@ -347,7 +347,6 @@ export const EditTenantPage = () => {
       depots_count: formData.depotsCount !== '' ? Number(formData.depotsCount) : 0,
       depotsCount: formData.depotsCount !== '' ? Number(formData.depotsCount) : 0,
       mrr: formData.mrr !== '' ? Number(formData.mrr) : 0,
-      status: formData.status,
       // Admin user account fields
       adminId: formData.adminId || null,
       adminName: formData.adminName ? formData.adminName.trim() : '',
@@ -788,21 +787,15 @@ export const EditTenantPage = () => {
             </p>
           </div>
 
-          {/* Account Status Selector */}
+          {/* Account status is lifecycle-controlled by Approve / Reject / Suspend actions. */}
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{t('superadmin.edit_tenant.account_status_lbl', 'Account Status *')}</label>
-            <select
-              value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-              className="w-full sm:w-64 px-3.5 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white focus:outline-none"
-            >
-              <option value="active">{t('common.active', 'Active')}</option>
-              <option value="pending_approval">{t('common.pending_approval', 'Pending Approval')}</option>
-              <option value="approved">{t('common.approved', 'Approved')}</option>
-              <option value="suspended">{t('common.suspended', 'Suspended')}</option>
-              <option value="rejected">{t('common.rejected', 'Rejected')}</option>
-              <option value="expired">{t('common.expired', 'Expired')}</option>
-            </select>
+            <div className="w-full sm:w-64 px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white capitalize">
+              {String(formData.status || 'unknown').replaceAll('_', ' ')}
+            </div>
+            <p className="mt-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+              {t('superadmin.edit_tenant.status_lifecycle_hint', 'Status can only be changed using the tenant lifecycle actions.')}
+            </p>
           </div>
 
           {/* Plan Selection Cards */}

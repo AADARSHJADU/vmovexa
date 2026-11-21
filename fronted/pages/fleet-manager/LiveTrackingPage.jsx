@@ -17,9 +17,10 @@ export const LiveTrackingPage = () => {
   const { can } = useAuth();
   const canView = can('tracking.view');
 
-  const { vehicles, telemetry, loadVehicles, loadTelemetry } = useFleetVehicle();
+  const { vehicles, telemetry: storedTelemetry, loadVehicles, loadTelemetry } = useFleetVehicle();
   const vehicleList = useMemo(() => {
-    return Array.isArray(vehicles) ? vehicles : (vehicles?.items || vehicles?.rows || []);
+    const list = Array.isArray(vehicles) ? vehicles : (vehicles?.items || vehicles?.rows || []);
+    return list.filter((vehicle) => !['pending', 'pending_approval'].includes(String(vehicle.status || '').trim().toLowerCase()));
   }, [vehicles]);
 
   // Selected Vehicle State
@@ -27,12 +28,12 @@ export const LiveTrackingPage = () => {
   const [followVehicle, setFollowVehicle] = useState(true);
   const [mapStyle, setMapStyle] = useState('roadmap'); // roadmap, satellite, traffic, terrain
   const [stepsDrawerOpen, setStepsDrawerOpen] = useState(false);
-  const [packetCount, setPacketCount] = useState(0);
-  const [, setLastPacketTime] = useState(null);
 
   // Real-time MQTT Telemetry tracking via Socket.IO
   const { positions, connected } = useVehicleTracking(selectedVehicleId);
-  const livePos = selectedVehicleId ? positions[selectedVehicleId] : null;
+  const hasSelectedVehicle = vehicleList.some(v => String(v.id) === String(selectedVehicleId));
+  const livePos = hasSelectedVehicle ? positions[selectedVehicleId] : null;
+  const telemetry = hasSelectedVehicle ? storedTelemetry : null;
 
   // Map Container & Instance Refs
   const mapContainerRef = useRef(null);
@@ -47,13 +48,16 @@ export const LiveTrackingPage = () => {
   // 1. Initial Vehicles Loading
   useEffect(() => {
     if (!canView) return;
-    loadVehicles().catch(() => {});
+    loadVehicles({ exclude_status: 'pending,pending_approval' }).catch(() => {});
   }, [canView, loadVehicles]);
 
   // Automatically select the active vehicle (prioritizing vehicle with assigned route / GPS)
   useEffect(() => {
-    if (vehicleList.length === 0) return;
-    if (selectedVehicleId == null) {
+    if (vehicleList.length === 0) {
+      setSelectedVehicleId(null);
+      return;
+    }
+    if (!vehicleList.some(v => String(v.id) === String(selectedVehicleId))) {
       const prioritized = vehicleList.find(v => v.route_id || v.route || v.assigned_route) || vehicleList[0];
       setSelectedVehicleId(prioritized.id);
     }
@@ -65,10 +69,10 @@ export const LiveTrackingPage = () => {
 
   // Load telemetry history from DB whenever selected vehicle changes
   useEffect(() => {
-    if (selectedVehicleId) {
+    if (selectedVehicleId && hasSelectedVehicle) {
       loadTelemetry(selectedVehicleId).catch(() => {});
     }
-  }, [selectedVehicleId, loadTelemetry]);
+  }, [selectedVehicleId, hasSelectedVehicle, loadTelemetry]);
 
   // 2. Decode Route Coordinates strictly from DB (selectedVehicle.route.polyline)
   const routeWaypoints = useMemo(() => {
@@ -127,7 +131,7 @@ export const LiveTrackingPage = () => {
             ? Number(selectedVehicle.route.start_longitude) 
             : (selectedVehicle.depot?.longitude ? Number(selectedVehicle.depot.longitude) : null))));
 
-  // Telemetry Metrics (Speed, Heading, Satellites, Battery) strictly from Live or DB
+  // Telemetry metrics used by the map overlay.
   const currentSpeed = hasLiveCoords && livePos.speed != null
     ? Math.round(Number(livePos.speed))
     : (hasDbCoords && latestDbPosition.speed != null
@@ -146,23 +150,11 @@ export const LiveTrackingPage = () => {
       ? latestDbPosition.satellites
       : null);
 
-  const batteryLevel = hasLiveCoords && livePos.battery != null
-    ? livePos.battery
-    : (selectedVehicle.battery_level != null ? selectedVehicle.battery_level : null);
-
   const lastPingTimestamp = hasLiveCoords
     ? (livePos.at ? new Date(livePos.at) : new Date())
     : (hasDbCoords
       ? new Date(latestDbPosition.recorded_at)
       : (selectedVehicle.last_telemetry_at ? new Date(selectedVehicle.last_telemetry_at) : null));
-
-  // Count incoming packets from live MQTT / Socket.IO
-  useEffect(() => {
-    if (livePos) {
-      setPacketCount((prev) => prev + 1);
-      setLastPacketTime(new Date());
-    }
-  }, [livePos]);
 
   // 5. Initialize Leaflet Map Instance
   useEffect(() => {
@@ -312,6 +304,12 @@ export const LiveTrackingPage = () => {
       }
     } else {
       // Clear route lines if vehicle has no route
+      for (const markerRef of [startMarkerRef, destMarkerRef]) {
+        if (markerRef.current) {
+          map.removeLayer(markerRef.current);
+          markerRef.current = null;
+        }
+      }
       if (polylineOuterRef.current) {
         map.removeLayer(polylineOuterRef.current);
         polylineOuterRef.current = null;
@@ -325,7 +323,13 @@ export const LiveTrackingPage = () => {
 
   // 8. Update Vehicle Marker position & heading smoothly
   useEffect(() => {
-    if (markerLat == null || markerLng == null) return;
+    if (markerLat == null || markerLng == null) {
+      if (vehicleMarkerRef.current && mapInstanceRef.current) {
+        mapInstanceRef.current.removeLayer(vehicleMarkerRef.current);
+        vehicleMarkerRef.current = null;
+      }
+      return;
+    }
 
     if (!vehicleMarkerRef.current && mapInstanceRef.current) {
       const busLabel = selectedVehicle.bus_number || selectedVehicle.code || 'Vehicle';
@@ -395,41 +399,33 @@ export const LiveTrackingPage = () => {
   }
 
   return (
-    <div className="w-full space-y-4 pb-16">
-      {/* 1. Global Standard Breadcrumb Navigation */}
-      <Breadcrumb
-        items={[
-          { label: t('ag.fleet.livetrackingpage.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
-          { label: t('ag.fleet.livetrackingpage.live_tracking', 'Live Tracking') },
-        ]}
-        className="mb-2"
-      />
-
+    <div className="w-full space-y-4 pb-8 sm:pb-12">
       {/* Header & Controls */}
-      <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 px-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm transition-colors">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm shadow-xs shrink-0">
-            <FleetIcons.Compass className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-          </div>
-          <div>
-            <h1 className="text-lg font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-              <span>{t('fleet.live.google_maps_title')}</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800">
-                {t('ag.fleet.livetrackingpage.mqtt_telemetry', 'MQTT Telemetry')}
-              </span>
-            </h1>
-            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
-              {t('ag.fleet.livetrackingpage.real_time_low_latency_gps_telematics_and_geo', 'Real-time low-latency GPS telematics and geospatial transit monitoring.')}
-            </p>
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+        <div>
+          <Breadcrumb
+            items={[
+              { label: t('roles.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
+              { label: t('fleet.nav.live_telematics', 'Live Telematics') },
+            ]}
+            className="mb-2"
+          />
+          <div className="flex items-center gap-3">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('fleet.live.google_maps_title')}</h1>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
+                {t('ag.fleet.livetrackingpage.simple_desc', 'Track your fleet vehicle, route and live status in one place.')}
+              </p>
+            </div>
           </div>
         </div>
 
         {/* Vehicle Selector & Simulation Controls */}
-        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+        <div className="grid grid-cols-2 sm:flex sm:flex-nowrap items-center gap-2 w-full lg:w-auto">
           <select
             value={selectedVehicleId ?? ''}
             onChange={(e) => setSelectedVehicleId(e.target.value)}
-            className="h-9 px-3 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 shadow-xs"
+            className="col-span-2 sm:col-span-1 h-11 sm:h-10 w-full sm:w-64 lg:w-72 px-3 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 shadow-xs"
           >
             {vehicleList.length === 0 && <option value="">{t('fleet.live.no_vehicles')}</option>}
             {vehicleList.map((v) => (
@@ -441,7 +437,7 @@ export const LiveTrackingPage = () => {
 
           {/* Live Socket.IO indicator */}
           <div
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs border ${
+            className={`h-10 min-w-20 px-3 rounded-xl text-[11px] font-bold whitespace-nowrap flex items-center justify-center gap-1.5 shadow-xs border ${
               connected
                 ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-800'
                 : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 border-slate-300 dark:border-zinc-700'
@@ -449,73 +445,33 @@ export const LiveTrackingPage = () => {
             title={connected ? t('ag.fleet.livetrackingpage.live_telemetry_socket_bridge_active', 'Live telemetry socket bridge active') : t('ag.fleet.livetrackingpage.connecting_to_live_telemetry_socket_', 'Connecting to live telemetry socket bridge...')}
           >
             <span className={`w-2 h-2 rounded-full ${connected ? 'bg-emerald-500 animate-ping' : 'bg-slate-400'}`}></span>
-            <span>{connected ? t('ag.fleet.livetrackingpage.bridge_connected', 'Bridge Connected') : t('ag.fleet.livetrackingpage.bridge_offline', 'Bridge Offline')}</span>
+            <span>{connected ? t('ag.fleet.livetrackingpage.live', 'Live') : t('ag.fleet.livetrackingpage.offline', 'Offline')}</span>
           </div>
 
           {/* Auto-Follow Toggle */}
           <button
             type="button"
             onClick={() => setFollowVehicle(!followVehicle)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs border ${
+            className={`h-10 min-w-24 px-3 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all flex items-center justify-center gap-1.5 shadow-xs border ${
               followVehicle
                 ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 border-blue-300 dark:border-blue-800'
                 : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 border-slate-300 dark:border-zinc-700'
             }`}
             title={t('fleet.live.auto_center')}
           >
-            <span>{t('ag.fleet.livetrackingpage.auto_follow', 'Auto-Follow:')} {followVehicle ? t('ag.fleet.livetrackingpage.on', 'ON') : t('ag.fleet.livetrackingpage.off', 'OFF')}</span>
+            <span>{t('ag.fleet.livetrackingpage.follow', 'Follow:')} {followVehicle ? t('ag.fleet.livetrackingpage.on', 'ON') : t('ag.fleet.livetrackingpage.off', 'OFF')}</span>
           </button>
         </div>
       </div>
 
-      {/* 2. Live MQTT Stream Telemetry HUD Banner (Strictly Real Data) */}
-      <div className="w-full px-4 py-2.5 rounded-xl bg-slate-900 text-white border border-slate-800 shadow-md flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 font-bold">
-            <span className={`w-2.5 h-2.5 rounded-full ${hasLiveCoords ? 'bg-emerald-400 animate-ping' : 'bg-amber-400'}`}></span>
-            <span className={hasLiveCoords ? 'text-emerald-400' : 'text-amber-400'}>
-              {hasLiveCoords ? t('ag.fleet.livetrackingpage.mqtt_stream_active', 'MQTT Stream Active') : t('ag.fleet.livetrackingpage.awaiting_live_pings_showing_last_fix', 'Awaiting Live Pings (Showing Last Fix)')}
-            </span>
-          </div>
-          <span className="text-slate-600">•</span>
-          <div className="text-slate-300 font-mono text-[11px]">
-            {t('ag.fleet.livetrackingpage.topic', 'Topic:')} <span className="text-sky-400">{t('ag.fleet.livetrackingpage.vehicle', 'vehicle/')}{selectedVehicle.edgeDevice?.box_id || selectedVehicle.edge_device?.box_id || selectedVehicle.bus_number || 'APC3588Q26360091'}{t('ag.fleet.livetrackingpage.location', '/location')}</span>
-          </div>
-          <span className="text-slate-600 hidden md:inline">•</span>
-          <div className="text-slate-300 text-[11px] hidden md:block">
-            {t('ag.fleet.livetrackingpage.broker', 'Broker:')} <strong className="text-white">127.0.0.1:1883</strong> {t('ag.fleet.livetrackingpage.qos_1', '(QoS 1)')}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-4 text-[11px]">
-          <div className="text-slate-300">
-            {t('ag.fleet.livetrackingpage.packets_ingested', 'Packets Ingested:')} <strong className="text-emerald-400 font-mono font-black">{packetCount}</strong>
-          </div>
-          <span className="text-slate-600">•</span>
-          <div className="text-slate-300">
-            {t('ag.fleet.livetrackingpage.coordinates', 'Coordinates:')}{' '}
-            <strong className="text-amber-300 font-mono font-bold">
-              {markerLat != null && markerLng != null ? `${markerLat.toFixed(5)}, ${markerLng.toFixed(5)}` : t('ag.fleet.livetrackingpage.no_fix', 'No Fix')}
-            </strong>
-          </div>
-          <span className="text-slate-600">•</span>
-          <div className="text-slate-300">
-            {t('ag.fleet.livetrackingpage.last_ping', 'Last Ping:')}{' '}
-            <strong className="text-white">
-              {lastPingTimestamp ? lastPingTimestamp.toLocaleTimeString() : '—'}
-            </strong>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Interactive Leaflet / Google Maps Viewport Container */}
-      <div className="relative w-full h-[480px] md:h-[500px] lg:h-[520px] rounded-3xl overflow-hidden border border-slate-300 dark:border-zinc-800 shadow-xl select-none z-10">
+      {/* Interactive map */}
+      <div className="relative w-full h-[360px] sm:h-[460px] lg:h-[540px] rounded-2xl overflow-hidden border border-slate-200 dark:border-zinc-800 shadow-sm select-none z-10">
         
         {/* Leaflet Map with Google Maps Tiles */}
         <div ref={mapContainerRef} className="w-full h-full z-0"></div>
 
         {/* FLOATING OVERLAY 1: Route & Navigation HUD (Top Left) */}
-        <div className="absolute top-3 left-3 sm:w-84 bg-[#0F9D58] text-white rounded-2xl shadow-xl p-3 border border-emerald-400/40 backdrop-blur-md z-30 transition-all">
+        <div className="absolute top-3 left-3 right-14 sm:right-auto sm:w-80 bg-emerald-600/95 text-white rounded-xl shadow-lg p-3 border border-emerald-400/40 backdrop-blur-md z-30 transition-all">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center shrink-0 shadow-inner">
               <FleetIcons.Compass className="w-5 h-5 text-white" />
@@ -619,7 +575,7 @@ export const LiveTrackingPage = () => {
         </div>
 
         {/* FLOATING OVERLAY 3: Real Speedometer Gauge (Bottom Left) */}
-        <div className="absolute bottom-20 left-3 z-20">
+        <div className="hidden sm:block absolute bottom-20 left-3 z-20">
           <div className="p-2 px-3 rounded-2xl bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-slate-200 dark:border-zinc-800 shadow-lg flex items-center gap-2.5">
             <div className="text-center">
               <div className="text-xl font-black font-mono text-slate-900 dark:text-white leading-none">
@@ -635,7 +591,7 @@ export const LiveTrackingPage = () => {
 
         {/* FLOATING OVERLAY 4: Route Details Drawer */}
         {stepsDrawerOpen && (
-          <div className="absolute top-28 left-3 right-3 sm:right-auto sm:w-84 max-h-[260px] overflow-y-auto bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md rounded-2xl shadow-2xl p-4 border border-slate-200 dark:border-zinc-800 z-30 space-y-2">
+          <div className="absolute top-28 left-3 right-14 sm:right-auto sm:w-80 max-h-[230px] overflow-y-auto bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md rounded-xl shadow-xl p-3 border border-slate-200 dark:border-zinc-800 z-30 space-y-2">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-zinc-800">
               <div className="font-bold text-[11px] text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
                 <FleetIcons.Pin className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
@@ -674,7 +630,7 @@ export const LiveTrackingPage = () => {
         )}
 
         {/* FLOATING OVERLAY 5: Bottom Navigation Status Bar */}
-        <div className="absolute bottom-3 left-3 right-3 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md rounded-2xl shadow-xl p-3 border border-slate-200 dark:border-zinc-800 z-20">
+        <div className="hidden absolute bottom-3 left-3 right-3 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md rounded-xl shadow-lg p-3 border border-slate-200 dark:border-zinc-800 z-20">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             
             {/* Trip Specs */}
@@ -750,65 +706,56 @@ export const LiveTrackingPage = () => {
         </div>
       </div>
 
-      {/* 4. Bottom 4 Telemetry Sensor Diagnostics Cards (100% Real Database / MQTT Data) */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-xs flex items-center gap-3 transition-colors">
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-lg shrink-0">
-            <FleetIcons.Speed className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+      {/* Selected vehicle summary and actions */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-4 shadow-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 min-w-0">
+          <div className="min-w-0">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">{t('fleet.live.assigned_route_info')}</div>
+            <div className="mt-1 font-bold text-sm text-slate-900 dark:text-white truncate">
+              {selectedVehicle.route?.name || selectedVehicle.assigned_route || t('ag.fleet.livetrackingpage.no_route_assigned', 'No route assigned')}
+            </div>
+            <div className="mt-1 text-xs text-slate-500 dark:text-zinc-400 truncate">
+              {originLabel} <FleetIcons.ArrowRight className="inline w-3 h-3 mx-1" /> {destinationLabel}
+            </div>
           </div>
-          <div>
-            <div className="text-[9px] text-slate-400 dark:text-zinc-500 font-semibold uppercase">{t('fleet.live.gnss_live_speed')}</div>
-            <div className="text-base font-black text-slate-900 dark:text-white mt-0.5">{currentSpeed} {t('ag.fleet.livetrackingpage.km_h', 'km/h')}</div>
-            <div className="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
-              <span className={`w-1.5 h-1.5 rounded-full ${hasLiveCoords ? 'bg-emerald-500 animate-ping' : 'bg-slate-400'}`}></span>
-              <span>{hasLiveCoords ? t('fleet.live.streaming_mqtt') : t('fleet.live.db_fix')}</span>
+
+          <div className="min-w-0 sm:border-l sm:border-slate-200 sm:dark:border-zinc-800 sm:pl-4">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">{t('admin.slots.th_driver', 'Driver')}</div>
+            <div className="mt-1 font-bold text-sm text-slate-900 dark:text-white truncate">
+              {selectedVehicle.driver?.name || t('ag.fleet.livetrackingpage.driver_unassigned', 'Driver unassigned')}
+            </div>
+            <div className="mt-1 text-xs text-slate-500 dark:text-zinc-400 truncate">
+              {selectedVehicle.driver?.phone || (lastPingTimestamp ? `${t('ag.fleet.livetrackingpage.last_ping', 'Last ping')}: ${lastPingTimestamp.toLocaleTimeString()}` : t('ag.fleet.livetrackingpage.no_live_fix', 'No live GPS fix'))}
             </div>
           </div>
         </div>
 
-        <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-xs flex items-center gap-3 transition-colors">
-          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 flex items-center justify-center text-lg shrink-0">
-            <FleetIcons.Battery className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-          </div>
-          <div>
-            <div className="text-[9px] text-slate-400 dark:text-zinc-500 font-semibold uppercase">{t('fleet.live.battery_level')}</div>
-            <div className="text-base font-black text-blue-600 dark:text-blue-400 mt-0.5">{batteryLevel != null ? `${batteryLevel}%` : '—'}</div>
-            <div className="text-[9px] text-slate-500 dark:text-zinc-400">
-              {selectedVehicle.fuel_type ? `${selectedVehicle.fuel_type}` : t('ag.fleet.livetrackingpage.vehicle_pack', 'Vehicle Pack')}
-            </div>
-          </div>
-        </div>
-
-        <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-xs flex items-center gap-3 transition-colors">
-          <div className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-800 flex items-center justify-center text-lg shrink-0">
-            <FleetIcons.Gps className="w-5 h-5 text-sky-600 dark:text-sky-400" />
-          </div>
-          <div>
-            <div className="text-[9px] text-slate-400 dark:text-zinc-500 font-semibold uppercase">{t('fleet.live.iot_telematics')}</div>
-            <div className="text-base font-black text-slate-900 dark:text-white mt-0.5">
-              {satellitesCount ? `${satellitesCount} Satellites` : t('ag.fleet.livetrackingpage.fix_established', 'Fix Established')}
-            </div>
-            <div className="text-[9px] text-slate-500 dark:text-zinc-400 font-mono truncate" title={selectedVehicle.edgeDevice?.box_id || 'Hardware Unit'}>
-              {t('ag.fleet.livetrackingpage.box', 'Box:')} {selectedVehicle.edgeDevice?.box_id || 'RK3588-SIM-001'}
-            </div>
-          </div>
-        </div>
-
-        <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-xs flex items-center gap-3 transition-colors">
-          <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800 flex items-center justify-center text-lg shrink-0">
-            <FleetIcons.Compass className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-          </div>
-          <div>
-            <div className="text-[9px] text-slate-400 dark:text-zinc-500 font-semibold uppercase">{t('fleet.live.heading_motion')}</div>
-            <div className="text-base font-black text-amber-600 dark:text-amber-400 mt-0.5">
-              {currentHeading > 0 ? `${currentHeading}°` : t('fleet.live.stationary')}
-            </div>
-            <div className="text-[9px] text-slate-500 dark:text-zinc-400 font-mono">
-              {selectedVehicle.status === 'on_route' ? t('ag.fleet.livetrackingpage.status_on_route', 'Status: On Route') : (selectedVehicle.status === 'in_depot' ? t('ag.fleet.livetrackingpage.status_in_depot', 'Status: In Depot') : selectedVehicle.status)}
-            </div>
-          </div>
+        <div className="grid grid-cols-2 sm:flex gap-2 lg:items-center">
+          {selectedVehicle.driver?.phone && (
+            <a
+              href={`tel:${selectedVehicle.driver.phone}`}
+              className="h-10 px-3 rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-bold flex items-center justify-center gap-1.5"
+            >
+              <FleetIcons.Phone className="w-3.5 h-3.5" /> {t('common.call')}
+            </a>
+          )}
+          <button
+            type="button"
+            onClick={handleRecenter}
+            className="h-10 px-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-xs font-bold border border-blue-200 dark:border-blue-800"
+          >
+            {t('ag.fleet.livetrackingpage.focus_bus', 'Focus Bus')}
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/fleet-operator/trips')}
+            className="col-span-2 h-10 px-4 rounded-xl bg-gradient-to-r from-violet-500 to-pink-500 hover:from-violet-600 hover:to-pink-600 text-white text-xs font-bold shadow-sm transition-all"
+          >
+            {t('ag.fleet.livetrackingpage.view_trips', 'View Trips')}
+          </button>
         </div>
       </div>
+
     </div>
   );
 };

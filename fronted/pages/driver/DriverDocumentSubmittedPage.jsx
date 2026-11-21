@@ -32,7 +32,7 @@ export const DriverDocumentSubmittedPage = () => {
       <div className="flex justify-start">
         <Breadcrumb
           items={[
-            { label: t('ag.driver.driverdocumentsubmittedpage.driver', 'Driver'), path: '/driver/dashboard' },
+            { label: t('roles.driver', 'Driver'), path: '/driver/dashboard' },
             { label: t('ag.driver.driverdocumentsubmittedpage.documents', 'Documents'), path: '/driver/documents' },
             { label: t('ag.driver.driverdocumentsubmittedpage.document_submission', 'Document Submission') },
           ]}

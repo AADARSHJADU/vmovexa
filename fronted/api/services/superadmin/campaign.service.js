@@ -1,14 +1,19 @@
 import { apiClient } from '../../client.js';
 import { ENDPOINTS } from '../../endpoints.js';
-import { unwrap, normalizeError } from '../../../utils/apiResponse.js';
+import { unwrap, unwrapPaginated, normalizeError } from '../../../utils/apiResponse.js';
 
 async function call(promise) {
   try { return unwrap((await promise).data); }
   catch (err) { throw normalizeError(err); }
 }
 
+async function callPaginated(promise) {
+  try { return unwrapPaginated((await promise).data); }
+  catch (err) { throw normalizeError(err); }
+}
+
 export const superCampaignService = {
-  getCampaigns: (params) => call(apiClient.get(ENDPOINTS.CAMPAIGNS.LIST, { params })),
+  getCampaigns: (params) => callPaginated(apiClient.get(ENDPOINTS.CAMPAIGNS.LIST, { params })),
   getCampaign: (id) => call(apiClient.get(ENDPOINTS.CAMPAIGNS.ONE(id))),
   getAnalytics: (id) => call(apiClient.get(ENDPOINTS.CAMPAIGNS.ANALYTICS(id))),
   getApprovals: (params) => call(apiClient.get('/approvals', { params: { entityType: 'campaign', ...params } })),

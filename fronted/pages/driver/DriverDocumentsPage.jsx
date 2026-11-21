@@ -130,7 +130,7 @@ export const DriverDocumentsPage = () => {
       <div className="border-b border-slate-200 dark:border-zinc-800 pb-4">
         <Breadcrumb
           items={[
-            { label: t('ag.driver.driverdocumentspage.driver', 'Driver'), path: '/driver/dashboard' },
+            { label: t('roles.driver', 'Driver'), path: '/driver/dashboard' },
             { label: t('ag.driver.driverdocumentspage.driver_documents', 'Driver Documents') },
           ]}
           className="mb-2"

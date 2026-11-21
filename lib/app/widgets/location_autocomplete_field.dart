@@ -139,24 +139,38 @@ class _LocationAutocompleteFieldState extends State<LocationAutocompleteField> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Label & Toggle Manual Coords
+
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                Text(
-                  widget.label,
-                  style: const TextStyle(
-                    color: Color(0xFFCBD5E1),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
+            Expanded(
+              child: Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      widget.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Color(0xFFCBD5E1),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
-                ),
-                if (widget.required)
-                  const Text(' *', style: TextStyle(color: Colors.redAccent, fontSize: 12)),
-              ],
+                  if (widget.required)
+                    const Text(
+                      ' *',
+                      style: TextStyle(
+                        color: Colors.redAccent,
+                        fontSize: 12,
+                      ),
+                    ),
+                ],
+              ),
             ),
-            if (widget.latController != null && widget.lngController != null)
+            if (widget.latController != null &&
+                widget.lngController != null)
               InkWell(
                 onTap: () {
                   setState(() {
@@ -164,11 +178,17 @@ class _LocationAutocompleteFieldState extends State<LocationAutocompleteField> {
                   });
                 },
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 2,
+                  ),
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        _showManualCoords ? Icons.tune_rounded : Icons.gps_fixed_rounded,
+                        _showManualCoords
+                            ? Icons.tune_rounded
+                            : Icons.gps_fixed_rounded,
                         color: widget.accentColor,
                         size: 13,
                       ),

@@ -488,76 +488,98 @@ class AddVehicleView extends GetView<AddVehicleController> {
     return Obx(() {
       final doc = controller.documentsMap[docType];
       final isUploaded = doc != null && doc.url.isNotEmpty;
+      final isCurrentUploading = controller.isUploadingDoc.value && controller.uploadingDocType.value == docType;
+      final isPdf = doc != null && (doc.url.toLowerCase().contains('.pdf') || doc.name.toLowerCase().endsWith('.pdf'));
 
-      return Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isUploaded ? const Color(0x1A10B981) : AppColors.inputBg,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isUploaded ? const Color(0x4D10B981) : AppColors.cardBorder,
-            width: 1.2,
-          ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Icon(
-                  isUploaded ? Icons.check_circle_rounded : Icons.cloud_upload_outlined,
-                  color: isUploaded ? const Color(0xFF10B981) : AppColors.textSecondary,
-                  size: 20,
-                ),
-                if (isUploaded)
-                  GestureDetector(
-                    onTap: () => controller.removeDocument(docType),
-                    child: const Icon(Icons.close_rounded, color: Colors.white54, size: 16),
-                  ),
-              ],
-            ),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-            ),
-            if (isUploaded)
-              GestureDetector(
-                onTap: () => _showDocumentPreviewDialog(context, doc.url, title),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.5)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.visibility_rounded, color: Color(0xFF10B981), size: 12),
-                      const SizedBox(width: 4),
-                      Text(
-                        'view_document'.tr,
-                        style: const TextStyle(
-                          color: Color(0xFF10B981),
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            else
-              GestureDetector(
-                onTap: () => _showMediaSourceSheet(
+      return InkWell(
+        onTap: isUploaded
+            ? null
+            : () => _showDocumentUploadSheet(
                   context: context,
-                  onSourceSelected: (src) => controller.pickAndUploadDocument(docType, src),
+                  docType: docType,
+                  title: title,
                 ),
-                child: Container(
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isUploaded ? const Color(0x1A10B981) : AppColors.inputBg,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isUploaded ? const Color(0x4D10B981) : AppColors.cardBorder,
+              width: 1.2,
+            ),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (isCurrentUploading)
+                    const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primaryButtonBlue),
+                    )
+                  else
+                    Icon(
+                      isUploaded
+                          ? (isPdf ? Icons.picture_as_pdf_rounded : Icons.check_circle_rounded)
+                          : Icons.cloud_upload_outlined,
+                      color: isUploaded
+                          ? (isPdf ? const Color(0xFFEF4444) : const Color(0xFF10B981))
+                          : AppColors.textSecondary,
+                      size: 20,
+                    ),
+                  if (isUploaded)
+                    GestureDetector(
+                      onTap: () => controller.removeDocument(docType),
+                      child: const Icon(Icons.close_rounded, color: Colors.white54, size: 16),
+                    ),
+                ],
+              ),
+              Text(
+                isUploaded && doc.name.isNotEmpty ? doc.name : title,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+              ),
+              if (isCurrentUploading)
+                Text(
+                  'uploading_label'.tr,
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
+                )
+              else if (isUploaded)
+                GestureDetector(
+                  onTap: () => _showDocumentPreviewDialog(context, doc.url, isUploaded && doc.name.isNotEmpty ? doc.name : title),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF10B981).withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.5)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.visibility_rounded, color: Color(0xFF10B981), size: 12),
+                        const SizedBox(width: 4),
+                        Text(
+                          'view_document'.tr,
+                          style: const TextStyle(
+                            color: Color(0xFF10B981),
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else
+                Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: AppColors.primaryButtonBlue.withValues(alpha: 0.15),
@@ -569,19 +591,29 @@ class AddVehicleView extends GetView<AddVehicleController> {
                     style: const TextStyle(color: AppColors.textLink, fontSize: 11, fontWeight: FontWeight.bold),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       );
     });
   }
 
-  void _showDocumentPreviewDialog(BuildContext context, String docUrl, String title) {
+  void _showDocumentPreviewDialog(BuildContext context, String docUrl, String title) async {
     final resolved = ApiConstants.resolveFileUrl(docUrl);
-    final isPdf = docUrl.toLowerCase().endsWith('.pdf');
+    final isPdf = docUrl.toLowerCase().contains('.pdf') || title.toLowerCase().contains('.pdf');
 
     if (isPdf) {
-      launchUrl(Uri.parse(resolved), mode: LaunchMode.externalApplication);
+      final uri = Uri.parse(resolved);
+      try {
+        final can = await canLaunchUrl(uri);
+        if (can) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        } else {
+          await launchUrl(uri);
+        }
+      } catch (e) {
+        Get.snackbar('error'.tr, 'Could not open PDF: $e', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+      }
       return;
     }
 
@@ -1226,7 +1258,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
             width: double.infinity,
             height: 48,
             child: OutlinedButton(
-              onPressed: () => Get.back(),
+              onPressed: isSubmitting ? null : () => Get.back(),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.cardBorder, width: 1.2),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -1391,6 +1423,110 @@ class AddVehicleView extends GetView<AddVehicleController> {
           style: const TextStyle(color: Colors.white, fontSize: 13),
           items: uniqueItems,
           onChanged: onChanged,
+        ),
+      ),
+    );
+  }
+
+  void _showDocumentUploadSheet({
+    required BuildContext context,
+    required String docType,
+    required String title,
+  }) {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+        decoration: const BoxDecoration(
+          color: Color(0xFF161926),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Upload $title',
+                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'select_attachment_source'.tr,
+                        style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close_rounded, color: Colors.white70),
+                  onPressed: () => Get.back(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEF4444).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.picture_as_pdf_rounded, color: Color(0xFFEF4444), size: 22),
+              ),
+              title: Text('choose_document_file'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+              subtitle: Text('upload_pdf_doc_desc'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              tileColor: AppColors.cardBg,
+              onTap: () {
+                Get.back();
+                controller.pickAndUploadDocumentFile(docType);
+              },
+            ),
+            const SizedBox(height: 10),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF60A5FA).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.camera_alt_rounded, color: Color(0xFF60A5FA), size: 22),
+              ),
+              title: Text('capture_with_camera'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+              subtitle: Text('take_photo_desc'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              tileColor: AppColors.cardBg,
+              onTap: () {
+                Get.back();
+                controller.pickAndUploadDocument(docType, ImageSource.camera);
+              },
+            ),
+            const SizedBox(height: 10),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF34D399).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.photo_library_rounded, color: Color(0xFF34D399), size: 22),
+              ),
+              title: Text('choose_from_gallery'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+              subtitle: Text('choose_gallery_desc'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              tileColor: AppColors.cardBg,
+              onTap: () {
+                Get.back();
+                controller.pickAndUploadDocument(docType, ImageSource.gallery);
+              },
+            ),
+          ],
         ),
       ),
     );

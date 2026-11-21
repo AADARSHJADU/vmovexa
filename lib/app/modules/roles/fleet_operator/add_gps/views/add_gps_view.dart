@@ -92,7 +92,7 @@ class AddGpsView extends GetView<AddGpsController> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              isEdit ? 'Edit GPS Device Config' : 'Register New GPS Device',
+              isEdit ? 'Edit Edge Device Config' : 'Register New Edge Device',
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -238,7 +238,7 @@ class AddGpsView extends GetView<AddGpsController> {
           Icon(Icons.add_a_photo_outlined, color: AppColors.textMuted, size: 30),
           SizedBox(height: 6),
           Text(
-            'Upload GPS Hardware Unit Photo',
+            'Upload Edge Hardware Unit Photo',
             style: TextStyle(color: AppColors.textMuted, fontSize: 12, fontWeight: FontWeight.w500),
           ),
         ],
@@ -258,18 +258,18 @@ class AddGpsView extends GetView<AddGpsController> {
       child: Column(
         children: [
           _buildTextField(
-            label: 'hardware_code_req'.tr,
+            label: 'Box ID / Hardware Code *',
             controller: controller.codeController,
-            hint: 'e.g. GPS-TRK-10492',
+            hint: 'e.g. EDGE-10492',
           ),
           const SizedBox(height: 12),
 
-          // IMEI with Scan button
+          // IMEI / MAC with Scan button
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                '15-Digit IMEI *',
+                'MAC Address / IMEI *',
                 style: TextStyle(color: AppColors.textSecondary, fontSize: 12, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 6),
@@ -287,9 +287,8 @@ class AddGpsView extends GetView<AddGpsController> {
                       child: TextField(
                         controller: controller.imeiController,
                         style: const TextStyle(color: Colors.white, fontSize: 13, fontFamily: 'monospace'),
-                        keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
-                          hintText: 'e.g. 865432049182341',
+                          hintText: 'e.g. 865432049182341 or AA:BB:CC:DD:EE:FF',
                           hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 12),
                           border: InputBorder.none,
                           isDense: true,
@@ -642,7 +641,7 @@ class AddGpsView extends GetView<AddGpsController> {
                     Icon(isEdit ? Icons.check_circle_rounded : Icons.add_circle_outline_rounded, color: Colors.white, size: 18),
                     const SizedBox(width: 8),
                     Text(
-                      isEdit ? 'edit_gps_unit'.tr : 'add_gps_unit'.tr,
+                      isEdit ? 'Update Edge Device Config' : 'Register Edge Device',
                       style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                   ],

@@ -24,11 +24,12 @@ import {
   verifySignupOtpThunk,
   forgotPasswordThunk,
   resetPasswordThunk,
+  changePasswordThunk,
   logoutThunk,
 } from '../thunks/auth.thunks.js';
 
 // Re-export thunks so callers don't need to change their imports
-export { loginThunk, verifyLoginOtpThunk, loginWithGoogleThunk, registerThunk, registerWithGoogleThunk, loginWithZohoThunk, loginWithAppleThunk, loginWithFirebaseAppleThunk, registerWithAppleThunk, resubmitRegistrationThunk, fetchMeThunk, updateMeThunk, completeOrganizationProfileThunk, requestSignupOtpThunk, verifySignupOtpThunk, forgotPasswordThunk, resetPasswordThunk, logoutThunk };
+export { loginThunk, verifyLoginOtpThunk, loginWithGoogleThunk, registerThunk, registerWithGoogleThunk, loginWithZohoThunk, loginWithAppleThunk, loginWithFirebaseAppleThunk, registerWithAppleThunk, resubmitRegistrationThunk, fetchMeThunk, updateMeThunk, completeOrganizationProfileThunk, requestSignupOtpThunk, verifySignupOtpThunk, forgotPasswordThunk, resetPasswordThunk, changePasswordThunk, logoutThunk };
 
 function roleCodeOf(user) {
   return (user && user.role && user.role.code) || null;

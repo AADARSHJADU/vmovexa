@@ -221,12 +221,12 @@ export const InvoicesListPage = () => {
                   <tr key={inv.id} className="hover:bg-slate-50/70 dark:hover:bg-zinc-800/40 transition-colors">
                     <td className="py-3.5 px-4 font-mono font-bold text-slate-900 dark:text-white">{inv.code ?? '—'}</td>
                     <td className="py-3.5 px-4">
-                      <span className={`px-2 py-0.5 rounded-md font-bold text-[10px] uppercase border ${
+                      <span className={`font-semibold text-xs whitespace-nowrap ${
                         inv.type === 'ad_spend'
-                          ? 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800'
+                          ? 'text-purple-600 dark:text-purple-400'
                           : inv.type === 'saas_subscription'
-                          ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800'
-                          : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border-slate-200 dark:border-zinc-700'
+                          ? 'text-blue-600 dark:text-blue-400'
+                          : 'text-slate-700 dark:text-zinc-300'
                       }`}>
                         {inv.type === 'ad_spend'
                           ? t('finance.invoices.type_ad_campaign', 'Ad Campaign')
@@ -302,12 +302,12 @@ export const InvoicesListPage = () => {
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-xs font-bold text-blue-700 dark:text-blue-400">{inv.code ?? '—'}</span>
-                      <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded uppercase border ${
+                      <span className={`text-[11px] font-semibold whitespace-nowrap ${
                         inv.type === 'ad_spend'
-                          ? 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800'
+                          ? 'text-purple-600 dark:text-purple-400'
                           : inv.type === 'saas_subscription'
-                          ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800'
-                          : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border-slate-200 dark:border-zinc-700'
+                          ? 'text-blue-600 dark:text-blue-400'
+                          : 'text-slate-600 dark:text-zinc-400'
                       }`}>
                         {inv.type === 'ad_spend'
                           ? t('finance.invoices.type_ad_campaign', 'Ad Campaign')

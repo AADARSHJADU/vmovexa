@@ -10,7 +10,7 @@ import { Breadcrumb } from '../../components/ui/Breadcrumb';
 import { resolveFileUrl, uploadFile } from '../../api/services/upload.service';
 
 export const FinanceOfficerAccountSettingsPage = () => {
-  const { t } = useTranslation();
+  const { t, languages } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const basePath = location.pathname.startsWith('/superadmin') ? '/superadmin/finance' : '/finance';
@@ -400,14 +400,11 @@ export const FinanceOfficerAccountSettingsPage = () => {
                 onChange={(e) => setFormData({ ...formData, language: e.target.value })}
                 className="w-full h-11 px-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
               >
-                <option value="en">{t('ag.finance.financeofficeraccountsettingspage.english_default', 'English (Default)')}</option>
-                <option value="hi">{t('ag.finance.financeofficeraccountsettingspage.hindi', 'हिंदी (Hindi)')}</option>
-                <option value="kn">{t('ag.finance.financeofficeraccountsettingspage.kannada', 'ಕನ್ನಡ (Kannada)')}</option>
-                <option value="mr">{t('ag.finance.financeofficeraccountsettingspage.marathi', 'मराठी (Marathi)')}</option>
-                <option value="ta">{t('ag.finance.financeofficeraccountsettingspage.tamil', 'தமிழ் (Tamil)')}</option>
-                <option value="te">{t('ag.finance.financeofficeraccountsettingspage.telugu', 'తెలుగు (Telugu)')}</option>
-                <option value="bn">{t('ag.finance.financeofficeraccountsettingspage.bengali', 'বাংলা (Bengali)')}</option>
-                <option value="gu">{t('ag.finance.financeofficeraccountsettingspage.gujarati', 'ગુજરાતી (Gujarati)')}</option>
+                {languages.filter((language) => language.is_active !== false).map((language) => (
+                  <option key={language.code} value={language.code}>
+                    {language.native_name || language.name} ({language.code})
+                  </option>
+                ))}
               </select>
             </div>
 

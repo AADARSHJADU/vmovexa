@@ -10,6 +10,13 @@ import { FleetIcons } from '../../components/FleetIcons';
 import toast from 'react-hot-toast';
 import { useTranslation } from '../../hooks/useTranslation';
 
+const SHOW_SANDBOX_CREDENTIALS = (() => {
+  const raw = String(import.meta.env.VITE_SHOW_PAYMENT_SANDBOX_CREDENTIALS ?? '').trim().toLowerCase();
+  if (raw === 'true') return true;
+  if (raw === 'false') return false;
+  return !import.meta.env.PROD;
+})();
+
 export const TenantSubscriptionCheckoutPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -489,32 +496,34 @@ export const TenantSubscriptionCheckoutPage = () => {
               <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">{t('admin.checkout.upi_instant', 'Instant UPI')}</span>
             </div>
 
-            {/* Razorpay Test Mode Card & Domestic Guide */}
-            <div className="p-3.5 rounded-2xl bg-amber-500/10 dark:bg-amber-950/30 border border-amber-300/60 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 space-y-2 text-xs">
-              <div className="flex items-center gap-1.5 font-bold text-amber-950 dark:text-amber-200">
-                <FleetIcons.Key className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                <span>{t('admin.checkout.sandbox_title', 'Razorpay Sandbox / Test Credentials')}</span>
+            {/* Razorpay Test Mode Card & Domestic Guide (controlled via VITE_SHOW_PAYMENT_SANDBOX_CREDENTIALS; hidden in production) */}
+            {SHOW_SANDBOX_CREDENTIALS && (
+              <div className="p-3.5 rounded-2xl bg-amber-500/10 dark:bg-amber-950/30 border border-amber-300/60 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 space-y-2 text-xs">
+                <div className="flex items-center gap-1.5 font-bold text-amber-950 dark:text-amber-200">
+                  <FleetIcons.Key className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                  <span>{t('admin.checkout.sandbox_title', 'Razorpay Sandbox / Test Credentials')}</span>
+                </div>
+                <div className="space-y-1.5 text-[11px] text-amber-800 dark:text-amber-300/90 leading-relaxed">
+                  <p>
+                    <strong className="text-amber-950 dark:text-amber-100">{t('admin.checkout.visa_credit', 'Visa Credit Card:')}</strong>{' '}
+                    <span className="font-mono bg-white dark:bg-zinc-900 px-2 py-0.5 rounded border border-amber-200 dark:border-zinc-700 font-bold select-all text-blue-700 dark:text-blue-400">
+                      4718 6091 0820 4366
+                    </span>{' '}
+                    <span className="text-amber-700 dark:text-amber-400/80">{t('admin.checkout.exp_hint', '(Exp: Any future date e.g. 12/28, CVV: 123)')}</span>
+                  </p>
+                  <p>
+                    <strong className="text-amber-950 dark:text-amber-100">{t('admin.checkout.visa_debit', 'Visa Debit Card:')}</strong>{' '}
+                    <span className="font-mono bg-white dark:bg-zinc-900 px-2 py-0.5 rounded border border-amber-200 dark:border-zinc-700 font-bold select-all text-blue-700 dark:text-blue-400">
+                      4100 2800 0000 1007
+                    </span>{' '}
+                    <span className="text-amber-700 dark:text-amber-400/80">{t('admin.checkout.exp_hint', '(Exp: Any future date e.g. 12/28, CVV: 123)')}</span>
+                  </p>
+                  <p>
+                    <strong className="text-amber-950 dark:text-amber-100">{t('admin.checkout.upi_option', 'UPI Option:')}</strong> {t('admin.checkout.upi_test_instructions', 'Select UPI on modal menu & enter UPI ID success@razorpay or choose Netbanking and click "Success".')}
+                  </p>
+                </div>
               </div>
-              <div className="space-y-1.5 text-[11px] text-amber-800 dark:text-amber-300/90 leading-relaxed">
-                <p>
-                  <strong className="text-amber-950 dark:text-amber-100">{t('admin.checkout.visa_credit', 'Visa Credit Card:')}</strong>{' '}
-                  <span className="font-mono bg-white dark:bg-zinc-900 px-2 py-0.5 rounded border border-amber-200 dark:border-zinc-700 font-bold select-all text-blue-700 dark:text-blue-400">
-                    4718 6091 0820 4366
-                  </span>{' '}
-                  <span className="text-amber-700 dark:text-amber-400/80">{t('admin.checkout.exp_hint', '(Exp: Any future date e.g. 12/28, CVV: 123)')}</span>
-                </p>
-                <p>
-                  <strong className="text-amber-950 dark:text-amber-100">{t('admin.checkout.visa_debit', 'Visa Debit Card:')}</strong>{' '}
-                  <span className="font-mono bg-white dark:bg-zinc-900 px-2 py-0.5 rounded border border-amber-200 dark:border-zinc-700 font-bold select-all text-blue-700 dark:text-blue-400">
-                    4100 2800 0000 1007
-                  </span>{' '}
-                  <span className="text-amber-700 dark:text-amber-400/80">{t('admin.checkout.exp_hint', '(Exp: Any future date e.g. 12/28, CVV: 123)')}</span>
-                </p>
-                <p>
-                  <strong className="text-amber-950 dark:text-amber-100">{t('admin.checkout.upi_option', 'UPI Option:')}</strong> {t('admin.checkout.upi_test_instructions', 'Select UPI on modal menu & enter UPI ID success@razorpay or choose Netbanking and click "Success".')}
-                </p>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Order Summary & Checkout Action */}

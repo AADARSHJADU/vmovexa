@@ -9,12 +9,33 @@ import { FleetIcons } from '../../components/FleetIcons';
 import { Pagination } from '../../components/ui/Pagination.jsx';
 import { RefreshButton } from '../../components/ui/RefreshButton';
 import { Breadcrumb } from '../../components/ui/Breadcrumb';
+import { resolveFileUrl } from '../../utils/media';
 
 function fmtDate(str) {
   if (!str) return '—';
-  const parts = str.split('T')[0].split('-');
+  const parts = String(str).split('T')[0].split('-');
   if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
   return str;
+}
+
+function formatPayerType(payerType) {
+  if (!payerType) return '—';
+  const map = {
+    tenant: 'Tenant Admin',
+    advertiser: 'Advertiser',
+    government: 'Government',
+  };
+  return map[String(payerType).toLowerCase()] || String(payerType).replace(/_/g, ' ');
+}
+
+function formatBillingType(type) {
+  if (!type) return '—';
+  const map = {
+    saas_subscription: 'SaaS Subscription',
+    ad_spend: 'Campaign Ad Spend',
+    psa_spend: 'Government PSA',
+  };
+  return map[String(type).toLowerCase()] || String(type).replace(/_/g, ' ');
 }
 
 export const ReportDetailsPage = () => {
@@ -24,7 +45,7 @@ export const ReportDetailsPage = () => {
   const location = useLocation();
   const basePath = location.pathname.startsWith('/superadmin') ? '/superadmin/finance' : '/finance';
 
-  const { loadReportById, currentReport } = useReports();
+  const { loadReportById, currentReport, resetCurrentReport } = useReports();
 
   const [loading, setLoading] = useState(true);
   const [ledgerSearch, setLedgerSearch] = useState('');
@@ -46,10 +67,12 @@ export const ReportDetailsPage = () => {
   }, [id, loadReportById]);
 
   useEffect(() => {
+    resetCurrentReport();
     fetchDetails();
-  }, [fetchDetails]);
+    return () => { resetCurrentReport(); };
+  }, [fetchDetails, resetCurrentReport]);
 
-  const report = currentReport;
+  const report = currentReport && String(currentReport.id) === String(id) ? currentReport : null;
   const params = useMemo(() => {
     if (typeof report?.params !== 'string') return report?.params || {};
     try {
@@ -68,7 +91,7 @@ export const ReportDetailsPage = () => {
   }, [report]);
 
   const reportTitle = params.title || report?.title || `Financial Statement REP-${id}`;
-  const periodStr = params.period || (params.startDate && params.endDate ? `${fmtDate(params.startDate)} to ${fmtDate(params.endDate)}` : 'All Time');
+  const periodStr = params.period || (params.startDate && params.endDate ? `${fmtDate(params.startDate)} to ${fmtDate(params.endDate)}` : '—');
   const generatedDate = report?.created_at || report?.createdAt ? new Date(report?.created_at || report?.createdAt).toLocaleDateString('en-IN') : '—';
 
   // Itemized transaction list (Exactly the rows exported to Excel/CSV)
@@ -101,24 +124,22 @@ export const ReportDetailsPage = () => {
   const pagedInvoices = filteredInvoices.slice(startIndex, startIndex + pageSize);
 
   // Financial KPI totals
-  const totalBilled = Number(summary.totalBilled || allInvoices.reduce((s, i) => s + Number(i.total || 0), 0));
-  const totalRevenue = Number(summary.totalRevenue || allInvoices.filter(i => i.status === 'paid').reduce((s, i) => s + Number(i.total || 0), 0));
-  const totalTax = Number(summary.totalTax || allInvoices.reduce((s, i) => s + Number(i.taxAmount || 0), 0));
-  const cgstTotal = Number(summary.cgstTotal || allInvoices.reduce((s, i) => s + Number(i.cgstAmount || 0), 0));
-  const sgstTotal = Number(summary.sgstTotal || allInvoices.reduce((s, i) => s + Number(i.sgstAmount || 0), 0));
-  const igstTotal = Number(summary.igstTotal || allInvoices.reduce((s, i) => s + Number(i.igstAmount || 0), 0));
-  const pendingDues = Number(summary.pendingDues || allInvoices.filter(i => i.status !== 'paid').reduce((s, i) => s + Number(i.total || 0), 0));
+  const totalBilled = Number(summary.totalBilled ?? allInvoices.reduce((s, i) => s + Number(i.total || 0), 0));
+  const totalRevenue = Number(summary.totalRevenue ?? allInvoices.filter((i) => i.status === 'paid').reduce((s, i) => s + Number(i.total || 0), 0));
+  const totalTax = Number(summary.totalTax ?? allInvoices.reduce((s, i) => s + Number(i.taxAmount || 0), 0));
+  const cgstTotal = Number(summary.cgstTotal ?? allInvoices.reduce((s, i) => s + Number(i.cgstAmount || 0), 0));
+  const sgstTotal = Number(summary.sgstTotal ?? allInvoices.reduce((s, i) => s + Number(i.sgstAmount || 0), 0));
+  const igstTotal = Number(summary.igstTotal ?? allInvoices.reduce((s, i) => s + Number(i.igstAmount || 0), 0));
+  const pendingDues = Number(summary.pendingDues ?? allInvoices.filter((i) => ['issued', 'overdue'].includes(i.status)).reduce((s, i) => s + Number(i.total || 0), 0));
 
   /** Download CSV file matching the table data */
   const handleDownloadCsv = () => {
     setDownloading(true);
     try {
-      const serverOrigin = (typeof window !== 'undefined' && window.location.hostname === 'one.vmovexa.com')
-        ? window.location.origin
-        : (import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1').replace(/\/api\/v1\/?$/, '');
-      if (report?.file_url && report.file_url.endsWith('.csv')) {
+      const resolvedUrl = report?.file_url ? resolveFileUrl(report.file_url) : '';
+      if (resolvedUrl && report.file_url.endsWith('.csv')) {
         const link = document.createElement('a');
-        link.href = `${serverOrigin}${report.file_url}`;
+        link.href = resolvedUrl;
         link.download = `${reportTitle.replace(/[^a-zA-Z0-9-_]/g, '_')}.csv`;
         document.body.appendChild(link);
         link.click();
@@ -144,12 +165,12 @@ export const ReportDetailsPage = () => {
         '',
         `"Invoice Code","Client / Payer Entity","Issue Date","Due Date","Payer Type","Billing Type","Taxable Subtotal (INR)","CGST (INR)","SGST (INR)","IGST (INR)","GST Amount (INR)","Breakdown Items","Gross Total (INR)","Status"`,
         ...allInvoices.map((inv) => [
-          `"${inv.code}"`,
+          `"${inv.code || ''}"`,
           `"${(inv.customerName || '').replace(/"/g, '""')}"`,
           `"${fmtDate(inv.issuedAt)}"`,
           `"${fmtDate(inv.dueAt)}"`,
-          `"${inv.payerType || ''}"`,
-          `"${(inv.type || '').replace(/_/g, ' ')}"`,
+          `"${formatPayerType(inv.payerType)}"`,
+          `"${formatBillingType(inv.type)}"`,
           inv.subtotal || 0,
           inv.cgstAmount || 0,
           inv.sgstAmount || 0,
@@ -161,7 +182,7 @@ export const ReportDetailsPage = () => {
         ].join(',')),
       ];
 
-      const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob([`\uFEFF${lines.join('\n')}`], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -169,6 +190,7 @@ export const ReportDetailsPage = () => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(url);
       toast.success('CSV ledger downloaded successfully!');
     } catch {
       toast.error('Failed to export CSV.');
@@ -197,8 +219,14 @@ export const ReportDetailsPage = () => {
             <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800 shrink-0">
               {t('ag.finance.reportdetailspage.rep', 'REP-')}{id}
             </span>
-            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 shrink-0">
-              {t('ag.finance.reportdetailspage.verified', '● Verified')}
+            <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${
+              report?.status === 'failed'
+                ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800'
+                : report?.status === 'generating'
+                ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800'
+                : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
+            }`}>
+              ● {report?.status ? report.status.charAt(0).toUpperCase() + report.status.slice(1) : 'Ready'}
             </span>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
@@ -220,7 +248,7 @@ export const ReportDetailsPage = () => {
             type="button"
             disabled={downloading}
             onClick={handleDownloadCsv}
-            className="col-span-2 sm:col-auto px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+            className="col-span-2 sm:col-auto px-4 py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
           >
             <FleetIcons.Download className="w-3.5 h-3.5" />
             <span>{downloading ? 'Downloading...' : 'Export Excel / CSV'}</span>
@@ -370,16 +398,16 @@ export const ReportDetailsPage = () => {
 
                     <td className="py-3 px-4">
                       <div className="font-bold text-slate-900 dark:text-white line-clamp-1">
-                        {inv.customerName}
+                        {inv.customerName || '—'}
                       </div>
                       <div className="text-[10px] text-slate-400 dark:text-zinc-500">
-                        {inv.payerType || 'Direct Entity'}
+                        {formatPayerType(inv.payerType)}
                       </div>
                     </td>
 
                     <td className="py-3 px-4">
-                      <span className="capitalize text-[11px] px-2 py-0.5 rounded bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300">
-                        {(inv.type || 'Standard').replace(/_/g, ' ')}
+                      <span className="text-[11px] px-2 py-0.5 rounded bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300">
+                        {formatBillingType(inv.type)}
                       </span>
                     </td>
 

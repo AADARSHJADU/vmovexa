@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, Link, useLocation, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { FleetIcons } from '../../components/FleetIcons';
@@ -251,23 +251,23 @@ export const AdminVehiclesPage = () => {
 
   return (
     <div className="w-full space-y-6 pb-16" ref={dropdownRef}>
-      {/* 1. Web Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm">
+      {/* 1. Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
         <div>
           <Breadcrumb
             items={[
-              { label: isFleetPortal ? t('ag.admin.adminvehiclespage.fleet_operator', 'Fleet Operator') : 'Admin', path: dashboardLink },
+              { label: isFleetPortal ? t('roles.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), path: dashboardLink },
               { label: t('admin.vehicles.title') },
             ]}
             className="mb-2"
           />
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1">{t('admin.vehicles.title')}</h1>
-          <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('admin.vehicles.title')}</h1>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
             {t('admin.vehicles.subtitle')}
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex items-center gap-2.5 w-full sm:w-auto">
           <RefreshButton
             onClick={() => fetchVehiclesList(currentPage, pageSize)}
             loading={loading}
@@ -277,7 +277,7 @@ export const AdminVehiclesPage = () => {
             <button 
               id="add-vehicle-btn"
               onClick={() => navigate(`${basePath}/add`)}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-sm shrink-0 cursor-pointer"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm flex-1 sm:flex-initial cursor-pointer"
             >
               <FleetIcons.Plus className="w-4 h-4 text-white" />
               <span>{t('admin.vehicles.add_vehicle')}</span>

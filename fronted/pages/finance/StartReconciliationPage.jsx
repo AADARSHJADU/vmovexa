@@ -136,22 +136,13 @@ export const StartReconciliationPage = () => {
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
-        <div className="flex items-start sm:items-center gap-3">
-          <Link
-            to={`${basePath}/reconciliation`}
-            className="px-3 py-2 rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-bold text-xs flex items-center justify-center gap-1.5 shrink-0 shadow-2xs hover:shadow-xs active:scale-98 cursor-pointer transition-colors"
-            title={t('finance.start_recon.back_recon')}
-          >
-            <FleetIcons.ArrowLeft className="w-3.5 h-3.5" /> <span>{t('common.back')}</span>
-          </Link>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-              {t('ag.finance.startreconciliationpage.reconciliation_wizard', 'Reconciliation Wizard')}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-0.5">
-              <span className="font-bold text-slate-800 dark:text-zinc-200">{accountInfo.name}</span> ({accountInfo.num}{t('ag.finance.startreconciliationpage.real_time_ledger_tally', ') · Real-Time Ledger Tally')}
-            </p>
-          </div>
+        <div>
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+            {t('ag.finance.startreconciliationpage.reconciliation_wizard', 'Reconciliation Wizard')}
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-0.5">
+            <span className="font-bold text-slate-800 dark:text-zinc-200">{accountInfo.name}</span> ({accountInfo.num}{t('ag.finance.startreconciliationpage.real_time_ledger_tally', ') · Real-Time Ledger Tally')}
+          </p>
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">

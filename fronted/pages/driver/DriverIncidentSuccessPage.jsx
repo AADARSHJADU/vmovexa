@@ -33,7 +33,7 @@ export const DriverIncidentSuccessPage = () => {
     <div className="w-full max-w-xl mx-auto py-8 sm:py-12 space-y-6 animate-in fade-in zoom-in-95 duration-200 text-center">
       <Breadcrumb
         items={[
-          { label: t('ag.driver.driverincidentsuccesspage.driver', 'Driver'), path: '/driver/dashboard' },
+          { label: t('roles.driver', 'Driver'), path: '/driver/dashboard' },
           { label: t('ag.driver.driverincidentsuccesspage.incidents', 'Incidents'), path: '/driver/incidents' },
           { label: t('ag.driver.driverincidentsuccesspage.report_status', 'Report Status') },
         ]}

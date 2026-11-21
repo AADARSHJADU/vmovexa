@@ -16,12 +16,15 @@ const INDIAN_STATES = [
   'Uttar Pradesh', 'Uttarakhand', 'West Bengal', 'Delhi', 'Jammu & Kashmir',
 ];
 
+const GSTIN_PATTERN = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/;
+
 export const TenantPendingApprovalPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, fetchMe, logout, completeOrganizationProfile } = useAuth();
   const [checking, setChecking] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [gstinError, setGstinError] = useState('');
 
   // Auto-refresh fresh user & organization data on mount
   useEffect(() => {
@@ -175,8 +178,11 @@ export const TenantPendingApprovalPage = () => {
   const orgPincode = user?.organization?.pincode || null;
   const orgLat = user?.organization?.latitude || null;
   const orgLng = user?.organization?.longitude || null;
-  const adminId = user?.id || user?.code || 'VMX-ADM-PENDING';
   const adminEmail = user?.email || '—';
+  const isRejected =
+    user?.status === 'rejected' ||
+    user?.organization?.status === 'rejected' ||
+    user?.org?.status === 'rejected';
 
   const handleCheckStatus = async () => {
     setChecking(true);
@@ -189,6 +195,8 @@ export const TenantPendingApprovalPage = () => {
       } else if (currentStatus === 'awaiting_subscription') {
         toast.success(t('ag.admin.tenantpendingapprovalpage.approved_please_choose_your_subscrip', 'Approved! Please choose your subscription plan.'));
         navigate('/admin/subscription', { replace: true });
+      } else if (currentStatus === 'rejected') {
+        toast.error(t('admin.onboard.application_rejected_open_notifications', 'Application rejected. Open Alerts & Messages to read the Super Admin notification.'));
       } else {
         toast('Your application is still under review by Super Admin.', { icon: '⏳' });
       }
@@ -211,6 +219,7 @@ export const TenantPendingApprovalPage = () => {
 
   const handleSubmitProfile = async (e) => {
     e.preventDefault();
+    const normalizedGstin = formData.gstin.trim().toUpperCase();
     if (!formData.organizationName.trim()) {
       toast.error(t('ag.admin.tenantpendingapprovalpage.please_enter_your_organization_fleet', 'Please enter your Organization / Fleet Company Name.'));
       return;
@@ -227,6 +236,14 @@ export const TenantPendingApprovalPage = () => {
       toast.error(t('ag.admin.tenantpendingapprovalpage.please_enter_your_operating_city', 'Please enter your operating City.'));
       return;
     }
+    if (normalizedGstin && !GSTIN_PATTERN.test(normalizedGstin)) {
+      const message = t('superadmin.onboard.err_gstin_invalid', 'Invalid GSTIN format (e.g. 27AAACM1234F1Z8)');
+      setGstinError(message);
+      toast.error(message);
+      return;
+    }
+
+    setGstinError('');
 
     setSubmitting(true);
     try {
@@ -240,10 +257,14 @@ export const TenantPendingApprovalPage = () => {
         latitude: formData.latitude,
         longitude: formData.longitude,
         cin: formData.cin.trim() || undefined,
-        gstin: formData.gstin.trim() || undefined,
+        gstin: normalizedGstin || undefined,
       });
       await fetchMe();
-      toast.success(t('ag.admin.tenantpendingapprovalpage.organization_profile_submitted_succe', 'Organization profile submitted successfully! Super Admin review initiated.'));
+      toast.success(
+        isRejected
+          ? t('admin.onboard.resubmitted_success', 'Application resubmitted successfully! Super Admin review has started again.')
+          : t('ag.admin.tenantpendingapprovalpage.organization_profile_submitted_succe', 'Organization profile submitted successfully! Super Admin review initiated.')
+      );
     } catch (err) {
       toast.error(err?.message || 'Failed to submit organization details.');
     } finally {
@@ -253,20 +274,22 @@ export const TenantPendingApprovalPage = () => {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-12">
-      {/* If profile is incomplete, render Profile Completion Form */}
-      {isProfileIncomplete ? (
+      {/* New and rejected tenants complete/resubmit the same Step 1 form. */}
+      {isProfileIncomplete || isRejected ? (
         <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 border border-amber-200 dark:border-amber-800/60 shadow-lg space-y-6">
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 border-b border-slate-100 dark:border-zinc-800 pb-6">
             <div className="space-y-2">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-300 text-xs font-bold">
                 <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                <span>{t('admin.onboard.step1_badge')}</span>
+                <span>{isRejected ? t('admin.onboard.resubmit_badge', 'Step 1 — Resubmission') : t('admin.onboard.step1_badge')}</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-                {t('admin.onboard.complete_title')}
+                {isRejected ? t('admin.onboard.resubmit_title', 'Update and Resubmit Organization Details') : t('admin.onboard.complete_title')}
               </h1>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium max-w-2xl leading-relaxed">
-                {t('ag.admin.tenantpendingapprovalpage.welcome', 'Welcome')} <strong className="text-slate-800 dark:text-zinc-200">{user?.name || 'Administrator'}</strong>{t('ag.admin.tenantpendingapprovalpage.your_authentication_was_successfu', '! Your authentication was successful. Search your office location with Google Maps below to auto-fill your coordinates, address, city, and state.')}
+                {isRejected
+                  ? t('admin.onboard.resubmit_help', 'Your application was rejected. Update the required details below and submit it again for Super Admin review. The previous details are already filled in.')
+                  : <>{t('ag.admin.tenantpendingapprovalpage.welcome', 'Welcome')} <strong className="text-slate-800 dark:text-zinc-200">{user?.name || 'Administrator'}</strong>{t('ag.admin.tenantpendingapprovalpage.your_authentication_was_successfu', '! Your authentication was successful. Search your office location with Google Maps below to auto-fill your coordinates, address, city, and state.')}</>}
               </p>
             </div>
 
@@ -506,9 +529,35 @@ export const TenantPendingApprovalPage = () => {
                   type="text"
                   placeholder={t('admin.onboard.gstin_ph')}
                   value={formData.gstin}
-                  onChange={(e) => setFormData({ ...formData, gstin: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-900 dark:text-white text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                  maxLength={15}
+                  autoCapitalize="characters"
+                  spellCheck={false}
+                  aria-invalid={Boolean(gstinError)}
+                  aria-describedby={gstinError ? 'gstin-error' : undefined}
+                  onChange={(e) => {
+                    const value = e.target.value.toUpperCase().replace(/\s/g, '').slice(0, 15);
+                    setFormData({ ...formData, gstin: value });
+                    if (!value || GSTIN_PATTERN.test(value)) setGstinError('');
+                  }}
+                  onBlur={() => {
+                    const value = formData.gstin.trim().toUpperCase();
+                    setGstinError(
+                      value && !GSTIN_PATTERN.test(value)
+                        ? t('superadmin.onboard.err_gstin_invalid', 'Invalid GSTIN format (e.g. 27AAACM1234F1Z8)')
+                        : ''
+                    );
+                  }}
+                  className={`w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-zinc-800 text-slate-900 dark:text-white text-xs font-medium focus:ring-2 focus:outline-none transition-all ${
+                    gstinError
+                      ? 'border-red-500 focus:ring-red-500 dark:border-red-500'
+                      : 'border-slate-200 dark:border-zinc-700 focus:ring-blue-500'
+                  }`}
                 />
+                {gstinError && (
+                  <p id="gstin-error" className="text-xs font-medium text-red-600 dark:text-red-400" role="alert">
+                    {gstinError}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -528,7 +577,7 @@ export const TenantPendingApprovalPage = () => {
                   </>
                 ) : (
                   <>
-                    <span>{t('admin.onboard.submit_request')}</span>
+                    <span>{isRejected ? t('admin.onboard.resubmit_request', 'Resubmit for Review') : t('admin.onboard.submit_request')}</span>
                     <FleetIcons.ArrowRight className="w-4 h-4 text-white inline ml-1" />
                   </>
                 )}
@@ -543,15 +592,19 @@ export const TenantPendingApprovalPage = () => {
             <div className="space-y-3">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-400 text-xs font-bold">
                 <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                <span>{t('admin.onboard.verification_underway')}</span>
+                <span>{isRejected ? t('admin.onboard.step_submitted', 'Form Submitted') : t('admin.onboard.verification_underway')}</span>
               </div>
 
               <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-                {t('ag.admin.tenantpendingapprovalpage.organization_awaiting_super_admin_review', 'Organization Awaiting Super Admin Review')}
+                {isRejected
+                  ? t('admin.onboard.form_submitted_title', 'Organization Form Submitted')
+                  : t('ag.admin.tenantpendingapprovalpage.organization_awaiting_super_admin_review', 'Organization Awaiting Super Admin Review')}
               </h1>
 
               <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium max-w-2xl leading-relaxed">
-                {t('ag.admin.tenantpendingapprovalpage.your_fleet_enterprise_account_for', 'Your fleet enterprise account for')} <strong className="text-slate-800 dark:text-zinc-200">{orgName}</strong> {t('ag.admin.tenantpendingapprovalpage.has_been_logged_in_the_system_while_platform', 'has been logged in the system. While platform governance completes verification, your portal controls remain locked.')}
+                {t('ag.admin.tenantpendingapprovalpage.your_fleet_enterprise_account_for', 'Your fleet enterprise account for')} <strong className="text-slate-800 dark:text-zinc-200">{orgName}</strong> {isRejected
+                  ? t('admin.onboard.rejected_notification_hint', 'is currently at the form-submitted stage. Open Alerts & Messages to read the Super Admin notification. Portal controls remain locked.')
+                  : t('ag.admin.tenantpendingapprovalpage.has_been_logged_in_the_system_while_platform', 'has been logged in the system. While platform governance completes verification, your portal controls remain locked.')}
               </p>
             </div>
 
@@ -581,27 +634,29 @@ export const TenantPendingApprovalPage = () => {
                 {t('ag.admin.tenantpendingapprovalpage.tenant_onboarding_pipeline', 'Tenant Onboarding Pipeline')}
               </h2>
               <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
-                {t('ag.admin.tenantpendingapprovalpage.stage_2_of_4_in_progress', 'Stage 2 of 4 In Progress')}
+                {isRejected
+                  ? t('admin.onboard.stage_1_form_submitted', 'Stage 1 of 4 — Form Submitted')
+                  : t('ag.admin.tenantpendingapprovalpage.stage_2_of_4_in_progress', 'Stage 2 of 4 In Progress')}
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
               {/* Step 1: Completed */}
-              <div className="bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl p-3.5 space-y-1">
-                <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-bold text-xs">
-                  <FleetIcons.Check className="w-3.5 h-3.5 text-emerald-600" />
+              <div className={`${isRejected ? 'bg-amber-50/80 dark:bg-amber-950/40 border-2 border-amber-400 dark:border-amber-600 shadow-sm' : 'bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60'} rounded-2xl p-3.5 space-y-1`}>
+                <div className={`flex items-center gap-1.5 ${isRejected ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-700 dark:text-emerald-400'} font-bold text-xs`}>
+                  <FleetIcons.Check className={`w-3.5 h-3.5 ${isRejected ? 'text-amber-600' : 'text-emerald-600'}`} />
                   <span>{t('admin.onboard.step_submitted')}</span>
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium">{t('admin.onboard.step_submitted_desc')}</p>
               </div>
 
               {/* Step 2: Current */}
-              <div className="bg-amber-50/80 dark:bg-amber-950/40 border-2 border-amber-400 dark:border-amber-600 rounded-2xl p-3.5 space-y-1 shadow-sm">
-                <div className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400 font-bold text-xs">
-                  <FleetIcons.Clock className="w-3.5 h-3.5 text-amber-600 animate-spin" />
+              <div className={`${isRejected ? 'bg-slate-50 dark:bg-zinc-800/40 border border-slate-200 dark:border-zinc-800 opacity-60' : 'bg-amber-50/80 dark:bg-amber-950/40 border-2 border-amber-400 dark:border-amber-600 shadow-sm'} rounded-2xl p-3.5 space-y-1`}>
+                <div className={`flex items-center gap-1.5 ${isRejected ? 'text-slate-500 dark:text-zinc-400' : 'text-amber-700 dark:text-amber-400'} font-bold text-xs`}>
+                  <FleetIcons.Clock className={`w-3.5 h-3.5 ${isRejected ? 'text-slate-400' : 'text-amber-600 animate-spin'}`} />
                   <span>{t('admin.onboard.step_review')}</span>
                 </div>
-                <p className="text-[11px] text-slate-600 dark:text-zinc-300 font-semibold">{t('admin.onboard.step_review_desc')}</p>
+                <p className={`text-[11px] ${isRejected ? 'text-slate-400 dark:text-zinc-500 font-medium' : 'text-slate-600 dark:text-zinc-300 font-semibold'}`}>{t('admin.onboard.step_review_desc')}</p>
               </div>
 
               {/* Step 3: Upcoming */}
@@ -635,10 +690,6 @@ export const TenantPendingApprovalPage = () => {
                 <div className="flex justify-between items-center pb-2 border-b border-slate-200/80 dark:border-zinc-700/60 last:border-0 last:pb-0">
                   <span className="text-slate-500 dark:text-zinc-400 font-medium">{t('admin.onboard.legal_name_label')}</span>
                   <span className="font-bold text-slate-900 dark:text-white">{orgName}</span>
-                </div>
-                <div className="flex justify-between items-center pb-2 border-b border-slate-200/80 dark:border-zinc-700/60 last:border-0 last:pb-0">
-                  <span className="text-slate-500 dark:text-zinc-400 font-medium">{t('admin.onboard.admin_id_label')}</span>
-                  <span className="font-mono text-slate-800 dark:text-zinc-200 font-bold">{adminId}</span>
                 </div>
                 <div className="flex justify-between items-center pb-2 border-b border-slate-200/80 dark:border-zinc-700/60 last:border-0 last:pb-0">
                   <span className="text-slate-500 dark:text-zinc-400 font-medium">{t('admin.onboard.contact_label')}</span>

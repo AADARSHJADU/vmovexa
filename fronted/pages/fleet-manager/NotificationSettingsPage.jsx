@@ -91,38 +91,38 @@ export const NotificationSettingsPage = () => {
 
   return (
     <div className="w-full space-y-6 pb-20 animate-in fade-in duration-200">
-      {/* 1. Global Standard Breadcrumb Navigation */}
-      <Breadcrumb
-        items={[
-          { label: t('ag.fleet.notificationsettingspage.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
-          { label: t('ag.fleet.notificationsettingspage.profile', 'Profile'), path: '/fleet-operator/profile' },
-          { label: t('ag.fleet.notificationsettingspage.notification_settings', 'Notification Settings') },
-        ]}
-        className="mb-2"
-      />
-
-      {/* Header Banner */}
-      <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm transition-colors">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => navigate('/fleet-operator/profile')}
-            className="p-2.5 rounded-xl border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
-            title={t('common.back_to_profile')}
-          >
-            <FleetIcons.ArrowLeft className="w-4 h-4" />
-          </button>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('common.notification_settings')}</h1>
-            <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium mt-0.5">
-              {t('ag.fleet.notificationsettingspage.manage_all_notifications_and_five_delivery_c', 'Manage all notifications and five delivery channels')}
-            </p>
+      {/* 1. Header & Breadcrumb */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+        <div>
+          <Breadcrumb
+            items={[
+              { label: t('roles.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
+              { label: t('roles.operator_profile', 'Operator Profile'), path: '/fleet-operator/profile' },
+              { label: t('fleet.profile.notification_settings', 'Notification Settings') },
+            ]}
+            className="mb-2"
+          />
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => navigate('/fleet-operator/profile')}
+              className="p-2.5 rounded-xl border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
+              title={t('common.back_to_profile')}
+            >
+              <FleetIcons.ArrowLeft className="w-4 h-4" />
+            </button>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('common.notification_settings')}</h1>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
+                {t('ag.fleet.notificationsettingspage.manage_all_notifications_and_five_delivery_c', 'Manage all notifications and five delivery channels')}
+              </p>
+            </div>
           </div>
         </div>
 
         <Link
           to="/fleet-operator/profile"
-          className="px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold rounded-xl transition-all self-start sm:self-auto hover:bg-slate-800 dark:hover:bg-zinc-100"
+          className="w-full sm:w-auto px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold rounded-xl transition-all hover:bg-slate-800 dark:hover:bg-zinc-100 text-center"
         >
           {t('ag.fleet.notificationsettingspage.done', 'Done')}
         </Link>

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../hooks/useTranslation';
 import { FleetIcons } from '../../components/FleetIcons';
@@ -7,6 +7,14 @@ import { useAdminDashboard } from '../../hooks/admin/useAdminDashboard';
 import { useAdminFleetOperator } from '../../hooks/admin/useAdminFleetOperator';
 import { useAdminTechnicianRequest } from '../../hooks/admin/useAdminTechnicianRequest';
 import { useAuth } from '../../hooks/useAuth';
+
+const toTitleCase = (str) => {
+  if (!str) return '';
+  return String(str)
+    .split(' ')
+    .map((word) => (word ? word.charAt(0).toUpperCase() + word.slice(1) : ''))
+    .join(' ');
+};
 
 const formatName = (v, fallback = '—') => {
   if (!v) return fallback;
@@ -27,7 +35,7 @@ export const AdminDashboard = () => {
     loadWorkOrders().catch(() => {});
   }, [loadKpis, loadFleetOperators, loadWorkOrders]);
 
-  const [refreshing, setRefreshing] = React.useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -39,6 +47,9 @@ export const AdminDashboard = () => {
   };
 
   const kpis = apiKpis || {};
+  const currentPlan = kpis.currentPlan || null;
+  const planDaysRemaining = currentPlan?.daysRemaining;
+  const hasPlanExpiry = planDaysRemaining != null;
   const orgName = user?.organization?.name || user?.org?.name || '';
   const operatorsList = Array.isArray(fleetOperators) ? fleetOperators : (fleetOperators?.items || fleetOperators?.rows || []);
   const workOrdersList = Array.isArray(workOrders) ? workOrders : (workOrders?.items || workOrders?.rows || []);
@@ -49,12 +60,13 @@ export const AdminDashboard = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-              {orgName ? `${orgName} Dashboard` : t('ag.admin.admindashboard.admin_dashboard', 'Admin Dashboard')}
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight capitalize">
+              {orgName ? `${toTitleCase(orgName)} Dashboard` : t('ag.admin.admindashboard.admin_dashboard', 'Admin Dashboard')}
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
-            {user?.name ?? ''}{user?.email ? ` · ${user.email}` : ''}
+            <span className="capitalize">{toTitleCase(user?.name) || ''}</span>
+            {user?.email ? ` · ${user.email}` : ''}
           </p>
         </div>
 
@@ -104,25 +116,45 @@ export const AdminDashboard = () => {
               <FleetIcons.Users className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{kpis.totalDrivers ?? '—'} {t('nav.drivers') || 'Drivers'}</div>
+          <div className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{kpis.totalDrivers ?? '—'} {t('admin.dashboard.drivers_unit', 'Drivers')}</div>
           <div className="flex items-center justify-between text-[11px]">
             <span className="text-emerald-600 dark:text-emerald-400 font-bold">{kpis.validDrivers ?? '—'} {t('admin.dashboard.dl_valid')}</span>
             <span className="text-amber-600 dark:text-amber-400 font-bold">{kpis.expiringDrivers ?? '—'} {t('admin.dashboard.expiring_soon')}</span>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm space-y-3">
+        <Link to="/admin/billing" className="block bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-purple-300 dark:hover:border-purple-700 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all space-y-3 group">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">{t('admin.dashboard.ad_rev_share')}</span>
-            <span className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-              <FleetIcons.Check className="w-4 h-4" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">{t('admin.dashboard.current_plan', 'Current Plan')}</span>
+            <span className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <FleetIcons.Sparkles className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">
-            {kpis.tenantMonthlyRevenueShare !== undefined ? `₹ ${Number(kpis.tenantMonthlyRevenueShare || 0).toLocaleString('en-IN')}` : '—'}
+          <div className="text-2xl font-black text-purple-700 dark:text-purple-400 tracking-tight truncate">
+            {currentPlan?.name || t('admin.billing.no_active_plan', 'No Active Plan')}
           </div>
-          <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium">{t('admin.dashboard.earned_this_month')} {kpis.activeDisplays ?? '—'} {t('admin.dashboard.screens')}</p>
-        </div>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-medium">
+            {currentPlan ? (
+              <>
+                <span className={`font-bold uppercase ${currentPlan.status === 'active' ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                  {currentPlan.status || 'active'}
+                </span>
+                <span className="text-slate-300 dark:text-zinc-700">•</span>
+                <span className="capitalize text-slate-500 dark:text-zinc-400">{currentPlan.billingCycle || 'monthly'} billing</span>
+                {hasPlanExpiry && (
+                  <>
+                    <span className="text-slate-300 dark:text-zinc-700">•</span>
+                    <span className={planDaysRemaining <= 7 ? 'text-amber-600 dark:text-amber-400 font-bold' : 'text-slate-500 dark:text-zinc-400'}>
+                      {planDaysRemaining} days left
+                    </span>
+                  </>
+                )}
+              </>
+            ) : (
+              <span className="text-slate-500 dark:text-zinc-400">Choose a subscription plan</span>
+            )}
+          </div>
+        </Link>
       </div>
 
       {/* Fleet Operators Overview & Central Tech Work Orders Desk */}
@@ -155,7 +187,7 @@ export const AdminDashboard = () => {
                     </span>
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium truncate mt-0.5">
-                    {formatName(opr.depot)} · {opr.assignedBuses ?? '—'} {t('fleet.buses') || 'Buses'} · {opr.activeDriversCount ?? '—'} {t('nav.drivers') || 'Drivers'}
+                    {formatName(opr.depot)} · {opr.assignedBuses ?? '—'} {t('fleet.buses', 'Buses') || 'Buses'} · {opr.activeDriversCount ?? '—'} {t('admin.dashboard.drivers_unit', 'Drivers')}
                   </p>
                 </div>
 

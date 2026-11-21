@@ -35,7 +35,7 @@ class AddGpsController extends GetxController {
   // Selections
   final RxString selectedType = 'external'.obs;
   final RxString selectedVendor = 'Teltonika'.obs;
-  final RxString selectedModel = 'Teltonika FMB920'.obs;
+  final RxString selectedModel = 'EdgeBox-500'.obs;
   final RxString selectedProvider = 'Jio'.obs;
   final RxString selectedNetworkType = '4G LTE-M'.obs;
   final RxString selectedMountingPosition = 'Behind Driver Dashboard'.obs;
@@ -44,8 +44,9 @@ class AddGpsController extends GetxController {
   final Rxn<String> selectedVehicleId = Rxn<String>();
 
   // Available options matching Web Admin
-  final List<String> vendors = ['Teltonika', 'Concox', 'Queclink', 'Coban'];
+  final List<String> vendors = ['Teltonika', 'Concox', 'Queclink', 'Coban', 'VMovexa'];
   final List<String> models = [
+    'EdgeBox-500',
     'Teltonika FMB920',
     'Queclink GV57',
     'Teltonika FMB125',
@@ -84,9 +85,9 @@ class AddGpsController extends GetxController {
       isEditMode.value = false;
       deviceId = '';
       // Generate default code
-      codeController.text = 'GPS-TRK-${10000 + Random().nextInt(90000)}';
+      codeController.text = 'EDGE-${10000 + Random().nextInt(90000)}';
       batteryController.text = '1200 mAh';
-      firmwareController.text = 'v3.2.14-PROD';
+      firmwareController.text = 'v1.0.4';
       networkController.text = 'Jio 4G IoT';
       dateController.text = DateTime.now().toIso8601String().split('T')[0];
     }
@@ -244,15 +245,20 @@ class AddGpsController extends GetxController {
 
     isSubmitting.value = true;
     try {
+      final codeVal = codeController.text.trim().isNotEmpty
+          ? codeController.text.trim()
+          : 'EDGE-${10000 + Random().nextInt(90000)}';
+      final macVal = imeiController.text.trim();
+
       final payload = <String, dynamic>{
-        'code': codeController.text.trim().isNotEmpty
-            ? codeController.text.trim()
-            : 'GPS-TRK-${10000 + Random().nextInt(90000)}',
-        'imei': imeiController.text.trim(),
+        'box_id': codeVal,
+        'code': codeVal,
+        'mac': macVal,
+        'imei': macVal,
         'type': selectedType.value,
         'vendor': selectedVendor.value,
         'model': selectedModel.value,
-        'serial_number': serialNoController.text.trim(),
+        'serial_number': serialNoController.text.trim().isNotEmpty ? serialNoController.text.trim() : macVal,
         'alias_name': aliasController.text.trim(),
         'sim': simNoController.text.trim(),
         'sim_provider': selectedProvider.value,
@@ -261,7 +267,8 @@ class AddGpsController extends GetxController {
             : '${selectedProvider.value} 4G IoT',
         'network_type': selectedNetworkType.value,
         'battery_capacity': batteryController.text.trim().isNotEmpty ? batteryController.text.trim() : '1200 mAh',
-        'firmware': firmwareController.text.trim().isNotEmpty ? firmwareController.text.trim() : 'v3.2.14-PROD',
+        'firmware': firmwareController.text.trim().isNotEmpty ? firmwareController.text.trim() : 'v1.0.4',
+        'agent_version': firmwareController.text.trim().isNotEmpty ? firmwareController.text.trim() : '1.0.4',
         'mounting_position': selectedMountingPosition.value,
         'power_wire': selectedPowerWire.value,
         'installation_date': dateController.text.trim(),
@@ -269,15 +276,21 @@ class AddGpsController extends GetxController {
         'image_url': imageUrl.value,
         'status': selectedVehicleId.value != null ? 'assigned' : status.value,
         if (selectedVehicleId.value != null) 'vehicle_id': selectedVehicleId.value,
+        if (selectedVehicleId.value != null) 'vehicleId': selectedVehicleId.value,
       };
 
       if (isEditMode.value) {
         final res = await FleetService.to.updateGpsDevice(deviceId, payload);
         if (res.success) {
+          if (selectedVehicleId.value != null && selectedVehicleId.value!.isNotEmpty) {
+            try {
+              await FleetService.to.assignGpsVehicle(deviceId, selectedVehicleId.value);
+            } catch (_) {}
+          }
           Get.back(result: true);
           Get.snackbar(
             'Updated',
-            'GPS Device configuration updated successfully!',
+            'Edge Device configuration updated successfully!',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
@@ -285,7 +298,7 @@ class AddGpsController extends GetxController {
         } else {
           Get.snackbar(
             'Error',
-            res.message ?? 'Failed to update GPS device',
+            res.message ?? 'Failed to update Edge Device',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.redAccent,
             colorText: Colors.white,
@@ -294,10 +307,16 @@ class AddGpsController extends GetxController {
       } else {
         final res = await FleetService.to.createGpsDevice(payload);
         if (res.success) {
+          final newId = res.data is Map ? (res.data['id'] ?? res.data['data']?['id']) : null;
+          if (newId != null && selectedVehicleId.value != null && selectedVehicleId.value!.isNotEmpty) {
+            try {
+              await FleetService.to.assignGpsVehicle(newId.toString(), selectedVehicleId.value);
+            } catch (_) {}
+          }
           Get.back(result: true);
           Get.snackbar(
             'Registered',
-            'GPS Device registered successfully!',
+            'Edge Device registered successfully!',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
@@ -305,7 +324,7 @@ class AddGpsController extends GetxController {
         } else {
           Get.snackbar(
             'Error',
-            res.message ?? 'Failed to register GPS device',
+            res.message ?? 'Failed to register Edge Device',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.redAccent,
             colorText: Colors.white,

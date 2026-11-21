@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from '../hooks/useTranslation';
+import toast from 'react-hot-toast';
 
 // Flag & Icon helper by language code
 const getLanguageFlag = (code) => {
@@ -26,9 +27,10 @@ const getLanguageFlag = (code) => {
 };
 
 export const LanguageSwitcher = ({ className = '', compact = false }) => {
-  const { currentLanguage, activeLanguage, languages, changeLanguage, loading, t } = useTranslation();
+  const { currentLanguage, activeLanguage, languages, changeLanguage, t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [savingLanguage, setSavingLanguage] = useState(false);
   const dropdownRef = useRef(null);
 
   // Close dropdown on click outside
@@ -53,10 +55,21 @@ export const LanguageSwitcher = ({ className = '', compact = false }) => {
     );
   });
 
-  const handleSelect = (code) => {
-    changeLanguage(code);
-    setIsOpen(false);
-    setSearch('');
+  const handleSelect = async (code) => {
+    if (code === currentLanguage) {
+      setIsOpen(false);
+      return;
+    }
+    setSavingLanguage(true);
+    try {
+      await changeLanguage(code);
+      setIsOpen(false);
+      setSearch('');
+    } catch (error) {
+      toast.error(error?.message || t('i18n.language_save_failed', 'Could not save language preference.'));
+    } finally {
+      setSavingLanguage(false);
+    }
   };
 
   return (
@@ -126,6 +139,7 @@ export const LanguageSwitcher = ({ className = '', compact = false }) => {
                   key={lang.code}
                   type="button"
                   onClick={() => handleSelect(lang.code)}
+                  disabled={savingLanguage}
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all text-left ${
                     isSelected
                       ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-500/20'

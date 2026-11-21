@@ -113,16 +113,6 @@ export const DriverCreateWorkOrderPage = () => {
 
   return (
     <div className="w-full space-y-6 pb-20 animate-in fade-in duration-200">
-      {/* Breadcrumb */}
-      <Breadcrumb
-        items={[
-          { label: t('nav.dashboard', 'Dashboard'), path: '/driver/dashboard' },
-          { label: t('ag.driver.drivercreateworkorderpage.fleet_work_orders', 'Fleet Work Orders'), path: '/driver/work-orders' },
-          { label: t('ag.driver.drivercreateworkorderpage.report_issue', 'Report Issue') },
-        ]}
-        className="mb-1"
-      />
-
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
         <div className="flex items-center gap-3">
@@ -134,6 +124,14 @@ export const DriverCreateWorkOrderPage = () => {
             <FleetIcons.ArrowLeft className="w-4 h-4" />
           </button>
           <div>
+            <Breadcrumb
+              items={[
+                { label: t('roles.driver', 'Driver'), path: '/driver/dashboard' },
+                { label: t('ag.driver.drivercreateworkorderpage.fleet_work_orders', 'Fleet Work Orders'), path: '/driver/work-orders' },
+                { label: t('ag.driver.drivercreateworkorderpage.report_issue', 'Report Issue') },
+              ]}
+              className="mb-2"
+            />
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('ag.driver.drivercreateworkorderpage.report_bus_issue', 'Report Bus Issue')}</h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-0.5">{t('ag.driver.drivercreateworkorderpage.submit_a_maintenance_or_technician_r', 'Submit a maintenance or technician request for your assigned bus')}</p>
           </div>

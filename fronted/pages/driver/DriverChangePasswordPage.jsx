@@ -37,16 +37,16 @@ export const DriverChangePasswordPage = () => {
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-200">
       {/* Header */}
-      <div>
-        <Breadcrumb
-          items={[
-            { label: t('ag.driver.driverchangepasswordpage.driver', 'Driver'), path: '/driver/dashboard' },
-            { label: t('ag.driver.driverchangepasswordpage.profile', 'Profile'), path: '/driver/profile' },
-            { label: t('ag.driver.driverchangepasswordpage.change_password', 'Change Password') },
-          ]}
-          className="mb-2"
-        />
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+        <div>
+          <Breadcrumb
+            items={[
+              { label: t('roles.driver', 'Driver'), path: '/driver/dashboard' },
+              { label: t('ag.driver.driverchangepasswordpage.profile', 'Profile'), path: '/driver/profile' },
+              { label: t('ag.driver.driverchangepasswordpage.change_password', 'Change Password') },
+            ]}
+            className="mb-2"
+          />
           <div className="flex items-center gap-3">
             <Link
               to="/driver/profile"
@@ -62,14 +62,14 @@ export const DriverChangePasswordPage = () => {
               </p>
             </div>
           </div>
-
-          <Link
-            to="/driver/profile"
-            className="px-4 py-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-bold rounded-xl transition-colors self-start sm:self-auto"
-          >
-            {t('ag.driver.driverchangepasswordpage.back_to_profile', 'Back to Profile')}
-          </Link>
         </div>
+
+        <Link
+          to="/driver/profile"
+          className="px-4 py-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-bold rounded-xl transition-colors self-start sm:self-auto"
+        >
+          {t('ag.driver.driverchangepasswordpage.back_to_profile', 'Back to Profile')}
+        </Link>
       </div>
 
       {error && (

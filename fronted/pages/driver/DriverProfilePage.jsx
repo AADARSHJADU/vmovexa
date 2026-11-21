@@ -49,32 +49,30 @@ export const DriverProfilePage = () => {
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-200 pb-16">
       {/* 1. Header with Breadcrumb */}
-      <div>
-        <Breadcrumb
-          items={[
-            { label: t('ag.driver.driverprofilepage.driver', 'Driver'), path: '/driver/dashboard' },
-            { label: t('ag.driver.driverprofilepage.profile', 'Profile') },
-          ]}
-          className="mb-2"
-        />
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-              {t('driver.profile.title', 'Driver Profile')}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
-              {t('driver.profile.desc', 'View and manage your verified credentials, assigned vehicle, and account security.')}
-            </p>
-          </div>
-
-          <Link
-            to="/driver/settings"
-            className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all self-start sm:self-auto flex items-center gap-2 cursor-pointer"
-          >
-            <FleetIcons.Settings className="w-4 h-4 text-white" />
-            <span>{t('ag.driver.driverprofilepage.edit_profile', 'Edit Profile')}</span>
-          </Link>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+        <div>
+          <Breadcrumb
+            items={[
+              { label: t('roles.driver', 'Driver'), path: '/driver/dashboard' },
+              { label: t('ag.driver.driverprofilepage.profile', 'Profile') },
+            ]}
+            className="mb-2"
+          />
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+            {t('driver.profile.title', 'Driver Profile')}
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
+            {t('driver.profile.desc', 'View and manage your verified credentials, assigned vehicle, and account security.')}
+          </p>
         </div>
+
+        <Link
+          to="/driver/settings"
+          className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all self-start sm:self-auto flex items-center gap-2 cursor-pointer"
+        >
+          <FleetIcons.Settings className="w-4 h-4 text-white" />
+          <span>{t('ag.driver.driverprofilepage.edit_profile', 'Edit Profile')}</span>
+        </Link>
       </div>
 
       {/* 2. Driver Hero Banner */}

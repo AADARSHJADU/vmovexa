@@ -61,19 +61,18 @@ export const AssignDriverPage = () => {
 
   return (
     <div className="w-full space-y-6 pb-20 animate-in fade-in duration-200">
-      {/* 1. Breadcrumb Header Banner */}
-      <div>
-        <Breadcrumb
-          items={[
-            { label: t('ag.fleet.assigndriverpage.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
-            { label: t('ag.fleet.assigndriverpage.vehicles_directory', 'Vehicles Directory'), path: '/fleet-operator/vehicles' },
-            { label: targetVehicle.bus_number ?? targetVehicle.code ?? id },
-            { label: t('ag.fleet.assigndriverpage.assign_driver', 'Assign Driver') },
-          ]}
-          className="mb-2"
-        />
-
-        <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm">
+      {/* 1. Header & Breadcrumb */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+        <div>
+          <Breadcrumb
+            items={[
+              { label: t('roles.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
+              { label: t('fleet.vehicles.title', 'Vehicles & Displays'), path: '/fleet-operator/vehicles' },
+              { label: targetVehicle.bus_number ?? targetVehicle.code ?? id },
+              { label: t('ag.fleet.assigndriverpage.assign_driver', 'Assign Driver') },
+            ]}
+            className="mb-2"
+          />
           <div className="flex items-center gap-3">
             <button 
               type="button"
@@ -85,29 +84,29 @@ export const AssignDriverPage = () => {
             </button>
             <div>
               <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('fleet.assign.driver_title')}</h1>
-              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
                 {t('ag.fleet.assigndriverpage.select_an_authorized_commercial_driver_from_', 'Select an authorized commercial driver from your roster to assign to this vehicle.')}
               </p>
             </div>
           </div>
+        </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <button 
-              type="button"
-              onClick={() => navigate(nextRoute)}
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-bold transition-all cursor-pointer"
-            >
-              {t('fleet.assign.skip_for_now')}
-            </button>
-            <button
-              type="button"
-              onClick={handleAssign}
-              className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-md shadow-blue-500/20 flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <FleetIcons.Driver className="w-4 h-4 text-white" />
-              <span>{t('fleet.assign.driver_proceed')}</span>
-            </button>
-          </div>
+        <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+          <button 
+            type="button"
+            onClick={() => navigate(nextRoute)}
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-bold transition-all cursor-pointer"
+          >
+            {t('fleet.assign.skip_for_now')}
+          </button>
+          <button
+            type="button"
+            onClick={handleAssign}
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <FleetIcons.Driver className="w-4 h-4 text-white" />
+            <span>{t('fleet.assign.driver_proceed')}</span>
+          </button>
         </div>
       </div>
 

@@ -106,16 +106,16 @@ export const DriverSupportHistoryPage = () => {
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-200">
       {/* Header */}
-      <div>
-        <Breadcrumb
-          items={[
-            { label: t('ag.driver.driversupporthistorypage.driver', 'Driver'), path: '/driver/dashboard' },
-            { label: t('ag.driver.driversupporthistorypage.help_support', 'Help & Support'), path: '/driver/help' },
-            { label: t('ag.driver.driversupporthistorypage.support_history', 'Support History') },
-          ]}
-          className="mb-2"
-        />
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+        <div>
+          <Breadcrumb
+            items={[
+              { label: t('roles.driver', 'Driver'), path: '/driver/dashboard' },
+              { label: t('ag.driver.driversupporthistorypage.help_support', 'Help & Support'), path: '/driver/help' },
+              { label: t('ag.driver.driversupporthistorypage.support_history', 'Support History') },
+            ]}
+            className="mb-2"
+          />
           <div className="flex items-center gap-3">
             <Link
               to="/driver/help"

@@ -19,6 +19,7 @@ export {
 
 const initialState = {
   campaigns: [],
+  campaignsPagination: null,
   selectedCampaign: null,
   approvals: [],
   status: 'idle',
@@ -34,7 +35,8 @@ const superCampaignSlice = createSlice({
       .addCase(fetchCampaignsThunk.pending, (state) => { state.status = 'loading'; })
       .addCase(fetchCampaignsThunk.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.campaigns = action.payload;
+        state.campaigns = Array.isArray(action.payload) ? action.payload : (action.payload?.rows || []);
+        if (action.payload?.meta) state.campaignsPagination = action.payload.meta;
       })
       .addCase(fetchSuperCampaignThunk.fulfilled, (state, action) => {
         state.selectedCampaign = action.payload;
@@ -47,5 +49,6 @@ const superCampaignSlice = createSlice({
 
 export default superCampaignSlice.reducer;
 export const selectSuperCampaigns = (state) => state.superCampaign.campaigns;
+export const selectSuperCampaignsPagination = (state) => state.superCampaign.campaignsPagination;
 export const selectSuperApprovals = (state) => state.superCampaign.approvals;
 export const selectSuperSelectedCampaign = (state) => state.superCampaign.selectedCampaign;

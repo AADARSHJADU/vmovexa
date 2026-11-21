@@ -10,6 +10,35 @@ import { storage } from '../../utils/storage';
 import toast from 'react-hot-toast';
 import { InvoiceDownloadButton } from '../../components/billing/InvoiceDownloadButton';
 
+const toValidDate = (value) => {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const formatDateTime = (date) => date
+  ? date.toLocaleString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+      timeZone: 'Asia/Kolkata',
+    })
+  : 'Not available';
+
+const formatDuration = (milliseconds, includeSeconds = false) => {
+  if (milliseconds == null || !Number.isFinite(milliseconds)) return 'Not available';
+  const totalSeconds = Math.max(0, Math.floor(Math.abs(milliseconds) / 1000));
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `${days}d ${hours}h ${minutes}m${includeSeconds ? ` ${seconds}s` : ''}`;
+};
+
 export const AdminBillingPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -21,6 +50,12 @@ export const AdminBillingPage = () => {
   const [invoicePage, setInvoicePage] = useState(1);
   const [invoicePageSize, setInvoicePageSize] = useState(10);
   const [loading, setLoading] = useState(true);
+  const [currentTime, setCurrentTime] = useState(() => Date.now());
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setCurrentTime(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   // Quota counts state
   const [quotas, setQuotas] = useState({
@@ -112,7 +147,30 @@ export const AdminBillingPage = () => {
   const currentPlan = subscription?.plan || null;
   const status = subscription?.status || 'active';
   const isGrace = status === 'grace';
-  const isExpired = status === 'expired';
+  const periodStart = toValidDate(subscription?.current_period_start);
+  const periodEnd = toValidDate(subscription?.current_period_end);
+  const purchaseAt = toValidDate(
+    subscription?.purchase?.paid_at
+      || subscription?.purchase?.collected_at
+      || subscription?.purchase?.created_at
+      || subscription?.current_period_start
+      || subscription?.created_at
+      || subscription?.createdAt
+  );
+  const nextBillingAt = toValidDate(subscription?.next_billing_at);
+  const trialEndsAt = toValidDate(subscription?.trial_ends_at);
+  const graceEndsAt = toValidDate(subscription?.grace_ends_at);
+  const accessEnd = isGrace && graceEndsAt ? graceEndsAt : periodEnd;
+  const remainingMs = accessEnd ? accessEnd.getTime() - currentTime : null;
+  const totalPeriodMs = periodStart && periodEnd ? periodEnd.getTime() - periodStart.getTime() : null;
+  const elapsedMs = periodStart ? Math.max(0, currentTime - periodStart.getTime()) : null;
+  const periodProgress = totalPeriodMs > 0
+    ? Math.min(100, Math.max(0, Math.round((elapsedMs / totalPeriodMs) * 100)))
+    : 0;
+  const isExpired = status === 'expired' || (!isGrace && remainingMs != null && remainingMs <= 0);
+  const billingCycleLabel = currentPlan?.billing_cycle
+    ? String(currentPlan.billing_cycle).replace(/_/g, ' ')
+    : 'Monthly';
 
   const busPercent = quotas.busesLimit > 0 ? Math.min(100, Math.round((quotas.busesUsed / quotas.busesLimit) * 100)) : 0;
   const driverPercent = quotas.driversLimit > 0 ? Math.min(100, Math.round(((quotas.driversUsed || 0) / quotas.driversLimit) * 100)) : 0;
@@ -141,7 +199,7 @@ export const AdminBillingPage = () => {
         <div>
           <Breadcrumb
             items={[
-              { label: t('nav.admin') || 'Tenant Admin', path: '/admin/dashboard' },
+              { label: t('ag.admin.admin_operations', 'Admin Operations'), path: '/admin/dashboard' },
               { label: t('admin.billing.title') },
             ]}
             className="mb-2"
@@ -280,6 +338,73 @@ export const AdminBillingPage = () => {
                   <span>{t('admin.billing.change_tier')}</span>
                 </button>
               </div>
+            </div>
+
+            {/* Subscription purchase and validity timeline */}
+            <div className="pt-6 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <h3 className="text-sm font-black text-slate-900 dark:text-white">Subscription Timeline & Validity</h3>
+                  <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">All dates and times are shown in India Standard Time (IST).</p>
+                </div>
+                <span className={`w-fit text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border ${
+                  isExpired
+                    ? 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800'
+                    : remainingMs != null && remainingMs <= 7 * 86400000
+                      ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800'
+                      : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
+                }`}>
+                  {isExpired ? 'Validity Ended' : isGrace ? 'Grace Access Active' : 'Currently Valid'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                {[
+                  { label: 'Purchased / Payment Completed', value: formatDateTime(purchaseAt), accent: 'text-blue-700 dark:text-blue-400' },
+                  { label: 'Subscription Activated', value: formatDateTime(periodStart), accent: 'text-emerald-700 dark:text-emerald-400' },
+                  { label: 'Valid Until / Expiry', value: formatDateTime(periodEnd), accent: isExpired ? 'text-rose-700 dark:text-rose-400' : 'text-amber-700 dark:text-amber-400' },
+                  { label: isExpired ? 'Expired Since' : isGrace ? 'Grace Access Remaining' : 'Time Remaining', value: remainingMs == null ? 'Not available' : formatDuration(remainingMs, true), accent: isExpired ? 'text-rose-700 dark:text-rose-400' : 'text-indigo-700 dark:text-indigo-400' },
+                  { label: 'Total Subscription Duration', value: formatDuration(totalPeriodMs), accent: 'text-slate-900 dark:text-white' },
+                  { label: subscription?.auto_renew ? 'Next Automatic Billing' : 'Renewal / Next Billing', value: formatDateTime(nextBillingAt || periodEnd), accent: 'text-purple-700 dark:text-purple-400' },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-800/40 px-4 py-3">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">{item.label}</p>
+                    <p className={`text-xs sm:text-sm font-black mt-1 ${item.accent}`}>{item.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {totalPeriodMs > 0 && (
+                <div className="rounded-xl border border-slate-200 dark:border-zinc-800 px-4 py-3 space-y-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-bold">
+                    <span className="text-slate-600 dark:text-zinc-300">Validity used: {periodProgress}%</span>
+                    <span className={isExpired ? 'text-rose-600 dark:text-rose-400' : 'text-slate-500 dark:text-zinc-400'}>
+                      {isExpired ? `Expired ${formatDuration(remainingMs, true)} ago` : `${formatDuration(remainingMs, true)} remaining`}
+                    </span>
+                  </div>
+                  <div className="w-full h-2.5 rounded-full bg-slate-100 dark:bg-zinc-800 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        isExpired ? 'bg-rose-500' : periodProgress >= 80 ? 'bg-amber-500' : 'bg-emerald-500'
+                      }`}
+                      style={{ width: `${isExpired ? 100 : periodProgress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div><span className="block text-[10px] uppercase font-bold text-slate-400">Billing Cycle</span><strong className="capitalize text-slate-800 dark:text-zinc-100">{billingCycleLabel}</strong></div>
+                <div><span className="block text-[10px] uppercase font-bold text-slate-400">Payment Mode</span><strong className="capitalize text-slate-800 dark:text-zinc-100">{subscription?.purchase?.payment_mode || subscription?.purchase?.method || 'Not available'}</strong></div>
+                <div><span className="block text-[10px] uppercase font-bold text-slate-400">Payment Reference</span><strong className="font-mono text-slate-800 dark:text-zinc-100 break-all">{subscription?.purchase?.reference_number || subscription?.purchase?.code || 'Not available'}</strong></div>
+              </div>
+
+              {(trialEndsAt || graceEndsAt) && (
+                <div className="text-[11px] text-slate-500 dark:text-zinc-400 border-t border-slate-100 dark:border-zinc-800 pt-3">
+                  {trialEndsAt && <span className="mr-5">Trial ends: <strong>{formatDateTime(trialEndsAt)}</strong></span>}
+                  {graceEndsAt && <span>Grace period ends: <strong>{formatDateTime(graceEndsAt)}</strong></span>}
+                </div>
+              )}
             </div>
 
             {/* Feature Specs Strip */}

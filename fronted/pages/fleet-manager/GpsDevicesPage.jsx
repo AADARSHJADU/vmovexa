@@ -97,32 +97,29 @@ export const GpsDevicesPage = () => {
 
   return (
     <div className="w-full space-y-6 pb-16 animate-in fade-in duration-200" ref={dropdownRef}>
-      {/* 1. Web Header Banner */}
-      <div>
-        <Breadcrumb
-          items={[
-            { label: t('ag.fleet.gpsdevicespage.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
-            { label: t('ag.fleet.gpsdevicespage.hardware_telematics', 'Hardware Telematics') },
-          ]}
-          className="mb-2"
-        />
+      {/* 1. Header & Breadcrumb */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+        <div>
+          <Breadcrumb
+            items={[
+              { label: t('roles.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
+              { label: t('fleet.gps.title', 'Edge Devices') },
+            ]}
+            className="mb-2"
+          />
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('fleet.gps.title', 'Edge Devices')}</h1>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">{t('fleet.gps.subtitle')}</p>
+        </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('fleet.gps.title')}</h1>
-            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">{t('fleet.gps.subtitle')}</p>
-          </div>
-
-          <div className="flex items-center gap-3 shrink-0">
-            <RefreshButton onClick={handleRefresh} loading={refreshing} />
-            <button 
-              onClick={() => navigate('/fleet-operator/gps/add')}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
-            >
-              <FleetIcons.Plus className="w-4 h-4 text-white" />
-              <span>{t('fleet.gps.register_device')}</span>
-            </button>
-          </div>
+        <div className="flex items-center gap-2.5 w-full sm:w-auto">
+          <RefreshButton onClick={handleRefresh} loading={refreshing} />
+          <button 
+            onClick={() => navigate('/fleet-operator/edge-devices/add')}
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+          >
+            <FleetIcons.Plus className="w-4 h-4 text-white" />
+            <span>{t('fleet.gps.register_device')}</span>
+          </button>
         </div>
       </div>
 

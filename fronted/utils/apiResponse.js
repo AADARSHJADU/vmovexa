@@ -28,6 +28,7 @@ export function unwrapPaginated(responseBody) {
       if (responseBody.meta.stats) meta.stats = responseBody.meta.stats;
       if (responseBody.meta.counts) meta.counts = responseBody.meta.counts;
       if (responseBody.meta.summary) meta.summary = responseBody.meta.summary;
+      if (responseBody.meta.filterOptions) meta.filterOptions = responseBody.meta.filterOptions;
     }
     const rows = Array.isArray(responseBody.data) ? responseBody.data : (responseBody.data?.rows || []);
     return { rows, meta };

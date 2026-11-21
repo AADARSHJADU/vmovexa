@@ -44,7 +44,7 @@ export const TenantsListPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const { impersonateTenant, user, isSuperAdmin, can } = useAuth();
+  const { impersonateTenant, isSuperAdmin, can } = useAuth();
 
   const isFinance = location.pathname.startsWith('/finance') || location.pathname.startsWith('/superadmin/finance');
   const basePath = location.pathname.startsWith('/finance/subscriptions')
@@ -56,12 +56,12 @@ export const TenantsListPage = () => {
     ? (location.pathname.startsWith('/superadmin') ? '/superadmin/finance/dashboard' : '/finance/dashboard')
     : '/superadmin/dashboard';
 
-  const userRoleCode = typeof user?.role === 'object' ? user?.role?.code : user?.role;
   const canApprove = isSuperAdmin;
   const canSuspend = isSuperAdmin;
   const canCreateTenant = can('tenants.create');
   const canEditTenant = can('tenants.update');
-  const canImpersonate = isSuperAdmin;
+  // Impersonation is intentionally unavailable throughout Finance subscriptions.
+  const canImpersonate = isSuperAdmin && !isFinance;
 
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -70,7 +70,7 @@ export const TenantsListPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(6);
   const [impersonatingId, setImpersonatingId] = useState(null);
-  const [activeMenuId, setActiveMenuId] = useState(null);
+  const [openMenu, setOpenMenu] = useState(null);
 
   const [selectedPlan, setSelectedPlan] = useState('all');
   const [selectedPaymentStatus, setSelectedPaymentStatus] = useState('all');
@@ -106,7 +106,6 @@ export const TenantsListPage = () => {
 
   // Map active tab to status filter
   const statusParam = useMemo(() => {
-    if (activeTab === 'payment_pending') return 'payment_pending';
     if (activeTab === 'pending' || activeTab === 'pending_approval') return 'pending_approval';
     if (activeTab === 'active') return 'active';
     if (activeTab === 'suspended') return 'suspended';
@@ -120,7 +119,12 @@ export const TenantsListPage = () => {
     };
     if (debouncedSearch) params.search = debouncedSearch;
     if (statusParam) params.status = statusParam;
-    if (selectedPaymentStatus !== 'all') params.payment_status = selectedPaymentStatus;
+    const paymentStatus = selectedPaymentStatus !== 'all'
+      ? selectedPaymentStatus
+      : activeTab === 'payment_pending'
+      ? 'payment_pending'
+      : undefined;
+    if (paymentStatus) params.payment_status = paymentStatus;
     if (selectedPlan !== 'all') params.plan_id = selectedPlan;
     if (sortBy !== 'newest') params.sortBy = sortBy;
     return params;
@@ -128,6 +132,7 @@ export const TenantsListPage = () => {
     currentPage,
     itemsPerPage,
     debouncedSearch,
+    activeTab,
     statusParam,
     selectedPaymentStatus,
     selectedPlan,
@@ -159,16 +164,56 @@ export const TenantsListPage = () => {
     }
   };
 
-  // Close 3-dot actions menu on outside click
+  // 3-dot Action Menu State & Handlers (viewport-anchored fixed position so table headers & overflow never clip it)
   useEffect(() => {
-    const handleOutsideClick = (e) => {
+    if (!openMenu) return;
+    const handleOutside = (e) => {
       if (!e.target.closest('[data-tenant-actions-menu]')) {
-        setActiveMenuId(null);
+        setOpenMenu(null);
       }
     };
-    document.addEventListener('click', handleOutsideClick);
-    return () => document.removeEventListener('click', handleOutsideClick);
-  }, []);
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setOpenMenu(null);
+    };
+    const handleScrollOrResize = () => setOpenMenu(null);
+    document.addEventListener('mousedown', handleOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('scroll', handleScrollOrResize, true);
+    window.addEventListener('resize', handleScrollOrResize);
+    return () => {
+      document.removeEventListener('mousedown', handleOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('scroll', handleScrollOrResize, true);
+      window.removeEventListener('resize', handleScrollOrResize);
+    };
+  }, [openMenu]);
+
+  const handleToggleMenu = (e, tItem) => {
+    e.stopPropagation();
+    if (openMenu?.id === tItem.id) {
+      setOpenMenu(null);
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const hasApproval = canApprove && tItem.status === 'pending_approval';
+    const hasSuspend = canSuspend && ['active', 'suspended'].includes(String(tItem.status || '').toLowerCase());
+    let estimatedHeight = 44; // base padding
+    estimatedHeight += 36; // View details
+    if (canEditTenant) estimatedHeight += 36;
+    if (canImpersonate) estimatedHeight += 36;
+    if (hasApproval) estimatedHeight += 72; // approve + reject
+    if (hasSuspend) estimatedHeight += 36; // suspend/activate
+
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const openUp = spaceBelow < estimatedHeight + 16 && rect.top > estimatedHeight + 16;
+    setOpenMenu({
+      id: tItem.id,
+      tItem,
+      top: openUp ? rect.top - 6 : rect.bottom + 6,
+      right: Math.max(12, window.innerWidth - rect.right),
+      openUp,
+    });
+  };
 
   const tenantsList = organizations || [];
   const kpis = superAdminKpis || {};
@@ -203,10 +248,13 @@ export const TenantsListPage = () => {
       toast.error(t('ag.superadmin.tenantslistpage.only_super_admin_can_change_tenant_s', 'Only Super Admin can change tenant status.'));
       return;
     }
-    const isSuspended = String(currentStatus || '').toLowerCase() === 'suspended';
-    const orgItem = organizations.find((o) => o.id === id);
-    const isOrgPaid = orgItem?.payment_status === 'paid';
-    const newStatus = isSuspended ? (isOrgPaid ? 'active' : 'approved') : 'suspended';
+    const normalizedStatus = String(currentStatus || '').toLowerCase();
+    const isSuspended = normalizedStatus === 'suspended';
+    if (normalizedStatus !== 'active' && !isSuspended) {
+      toast.error(t('tenants.invalid_suspend_transition', 'Only an active tenant can be suspended.'));
+      return;
+    }
+    const newStatus = isSuspended ? 'active' : 'suspended';
     try {
       await toast.promise(
         updateStatus(id, newStatus).then(() => {
@@ -230,7 +278,7 @@ export const TenantsListPage = () => {
     }
     try {
       await toast.promise(
-        superOrganizationService.approveOrganization(id, { activateTrial: false, planId: 1 }).then(() => {
+        superOrganizationService.approveOrganization(id, { activateTrial: false }).then(() => {
           return Promise.all([
             loadOrganizations(getFilterParams()),
             loadSuperAdminKpis(),
@@ -353,11 +401,10 @@ export const TenantsListPage = () => {
         >
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">{t('superadmin.total_tenants', 'Total Tenants')}</span>
           <div className="text-xl font-black text-slate-900 dark:text-white mt-1">{tenantCounts.all}</div>
-          <p className="text-[10px] text-slate-400 dark:text-zinc-500 mt-0.5">{t('superadmin.all_registered', 'All registered')}</p>
         </div>
 
         <div
-          onClick={() => { setActiveTab('payment_pending'); setCurrentPage(1); }}
+          onClick={() => { setActiveTab('payment_pending'); setSelectedPaymentStatus('all'); setCurrentPage(1); }}
           className={`bg-white dark:bg-zinc-900 border rounded-xl p-3.5 shadow-sm cursor-pointer transition-all hover:border-amber-400 ${
             activeTab === 'payment_pending' ? 'border-amber-500 ring-2 ring-amber-500/20 bg-amber-50/20 dark:bg-amber-950/20' : 'border-slate-200 dark:border-zinc-800'
           }`}
@@ -372,7 +419,6 @@ export const TenantsListPage = () => {
             )}
           </div>
           <div className="text-xl font-black text-amber-600 dark:text-amber-400 mt-1">{tenantCounts.paymentPending}</div>
-          <p className="text-[10px] text-amber-600/80 dark:text-amber-400/80 mt-0.5">{t('superadmin.awaiting_checkout', 'Awaiting checkout')}</p>
         </div>
 
         <div
@@ -383,7 +429,6 @@ export const TenantsListPage = () => {
         >
           <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">{t('superadmin.active_tenants', 'Active Tenants')}</span>
           <div className="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{tenantCounts.active}</div>
-          <p className="text-[10px] text-emerald-600/80 dark:text-emerald-400/80 mt-0.5">{t('superadmin.active_and_running', 'Active & running')}</p>
         </div>
 
         <div
@@ -394,7 +439,6 @@ export const TenantsListPage = () => {
         >
           <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">{t('common.pending_review', 'Pending Review')}</span>
           <div className="text-xl font-black text-blue-600 dark:text-blue-400 mt-1">{tenantCounts.pending}</div>
-          <p className="text-[10px] text-blue-600/80 dark:text-blue-400/80 mt-0.5">{t('superadmin.awaiting_kyc', 'Awaiting KYC')}</p>
         </div>
 
         <div
@@ -405,7 +449,6 @@ export const TenantsListPage = () => {
         >
           <span className="text-[11px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400">{t('common.suspended', 'Suspended')}</span>
           <div className="text-xl font-black text-red-600 dark:text-red-400 mt-1">{tenantCounts.suspended}</div>
-          <p className="text-[10px] text-red-600/80 dark:text-red-400/80 mt-0.5">{t('superadmin.access_disabled', 'Access disabled')}</p>
         </div>
       </div>
 
@@ -420,6 +463,7 @@ export const TenantsListPage = () => {
                 key={tab.key}
                 onClick={() => {
                   setActiveTab(tab.key);
+                  if (tab.key === 'payment_pending') setSelectedPaymentStatus('all');
                   setCurrentPage(1);
                 }}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer ${
@@ -483,6 +527,7 @@ export const TenantsListPage = () => {
               value={selectedPaymentStatus}
               onChange={(e) => {
                 setSelectedPaymentStatus(e.target.value);
+                if (activeTab === 'payment_pending') setActiveTab('all');
                 setCurrentPage(1);
               }}
               className="px-2.5 py-1.5 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-slate-700 dark:text-zinc-200 focus:outline-none focus:border-blue-500 shadow-xs cursor-pointer"
@@ -633,16 +678,15 @@ export const TenantsListPage = () => {
                     </td>
                   </tr>
                 ) : (
-                  tenantsList.map((tItem, idx) => {
-                    const isNearBottom = idx >= Math.max(0, tenantsList.length - 2) && tenantsList.length > 2;
+                  tenantsList.map((tItem) => {
                     return (
                       <tr key={tItem.id} className="hover:bg-slate-50/80 dark:hover:bg-zinc-800/40 transition-colors">
                         <td className="px-4 py-3.5">
                           <div className="flex items-center gap-3">
                             <div className="w-9 h-9 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 flex items-center justify-center shrink-0 overflow-hidden shadow-sm relative">
-                              {(tItem.logo_url || tItem.logoUrl || tItem.logo) ? (
+                              {(tItem.logo_url || tItem.logoUrl || tItem.logo || tItem.primaryAdmin?.avatar_url || tItem.users?.[0]?.avatar_url) ? (
                                 <img
-                                  src={getMediaUrl(tItem.logo_url || tItem.logoUrl || tItem.logo)}
+                                  src={getMediaUrl(tItem.logo_url || tItem.logoUrl || tItem.logo || tItem.primaryAdmin?.avatar_url || tItem.users?.[0]?.avatar_url)}
                                   alt={tItem.name}
                                   className="w-full h-full object-cover"
                                   onError={(e) => {
@@ -654,7 +698,7 @@ export const TenantsListPage = () => {
                               ) : null}
                               <div
                                 className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-700 items-center justify-center font-bold text-white text-xs shadow-inner"
-                                style={{ display: (tItem.logo_url || tItem.logoUrl || tItem.logo) ? 'none' : 'flex' }}
+                                style={{ display: (tItem.logo_url || tItem.logoUrl || tItem.logo || tItem.primaryAdmin?.avatar_url || tItem.users?.[0]?.avatar_url) ? 'none' : 'flex' }}
                               >
                                 {tItem.name?.charAt(0)?.toUpperCase() || 'T'}
                               </div>
@@ -757,150 +801,18 @@ export const TenantsListPage = () => {
                             <div className="relative inline-block text-left" data-tenant-actions-menu>
                               <button
                                 type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setActiveMenuId(activeMenuId === tItem.id ? null : tItem.id);
-                                }}
+                                onClick={(e) => handleToggleMenu(e, tItem)}
                                 title={t('common.actions', 'Actions')}
+                                aria-label={t('common.actions', 'Actions')}
+                                aria-expanded={openMenu?.id === tItem.id}
                                 className={`p-1.5 rounded-lg border transition-colors inline-flex items-center justify-center cursor-pointer ${
-                                  activeMenuId === tItem.id
+                                  openMenu?.id === tItem.id
                                     ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/50 dark:text-blue-400 dark:border-blue-800'
                                     : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-zinc-700 border-slate-200 dark:border-zinc-700'
                                 }`}
                               >
                                 <FleetIcons.MoreVertical className="w-4 h-4" />
                               </button>
-
-                              {activeMenuId === tItem.id && (
-                                <div
-                                  className={`absolute right-0 ${
-                                    isNearBottom ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right'
-                                  } w-44 rounded-xl bg-white dark:bg-[#181b24] border border-slate-200 dark:border-zinc-700 shadow-xl py-1 z-50 text-left divide-y divide-slate-100 dark:divide-zinc-800 animate-in fade-in zoom-in-95 duration-100`}
-                                >
-                                  <div className="py-1">
-                                    {/* View Details */}
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setActiveMenuId(null);
-                                        navigate(`${basePath}/${tItem.id}`);
-                                      }}
-                                      className="w-full px-3 py-2 text-xs font-semibold text-slate-700 dark:text-zinc-200 hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/40 dark:hover:text-blue-300 flex items-center gap-2.5 transition-colors cursor-pointer"
-                                    >
-                                      <FleetIcons.Eye className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                                      <span>{t('common.view_details', 'View Details')}</span>
-                                    </button>
-
-                                    {/* Impersonate */}
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (!canImpersonate) return;
-                                        setActiveMenuId(null);
-                                        handleImpersonate(tItem);
-                                      }}
-                                      disabled={!canImpersonate || impersonatingId === tItem.id}
-                                      title={!canImpersonate ? t('ag.superadmin.tenantslistpage.impersonation_permission_required', 'Impersonation permission required') : undefined}
-                                      className="w-full px-3 py-2 text-xs font-semibold text-slate-700 dark:text-zinc-200 hover:bg-violet-50 hover:text-violet-700 dark:hover:bg-violet-950/40 dark:hover:text-violet-300 flex items-center gap-2.5 transition-colors cursor-pointer disabled:opacity-50"
-                                    >
-                                      {impersonatingId === tItem.id ? (
-                                        <svg className="w-3.5 h-3.5 animate-spin text-violet-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                        </svg>
-                                      ) : (
-                                        <FleetIcons.Key className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400 shrink-0" />
-                                      )}
-                                      <span>{t('superadmin.impersonate', 'Impersonate')}</span>
-                                    </button>
-
-                                    {/* Edit Tenant */}
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (!canEditTenant) return;
-                                        setActiveMenuId(null);
-                                        navigate(`${basePath}/${tItem.id}/edit`);
-                                      }}
-                                      disabled={!canEditTenant}
-                                      title={!canEditTenant ? t('ag.superadmin.tenantslistpage.edit_permission_required', 'Edit permission required') : undefined}
-                                      className="w-full px-3 py-2 text-xs font-semibold text-slate-700 dark:text-zinc-200 hover:bg-slate-50 hover:text-slate-900 dark:hover:bg-zinc-800 dark:hover:text-white flex items-center gap-2.5 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                      <FleetIcons.Edit className="w-3.5 h-3.5 text-slate-500 dark:text-zinc-400 shrink-0" />
-                                      <span>{t('superadmin.edit_tenant', 'Edit Tenant')}</span>
-                                    </button>
-                                  </div>
-
-                                  {canApprove && tItem.status === 'pending_approval' && (
-                                    <div className="py-1">
-                                      {/* Approve */}
-                                      <button
-                                        type="button"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setActiveMenuId(null);
-                                          handleApprove(tItem.id);
-                                        }}
-                                        className="w-full px-3 py-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300 flex items-center gap-2.5 transition-colors cursor-pointer"
-                                      >
-                                        <svg className="w-3.5 h-3.5 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        <span>{t('common.approve', 'Approve')}</span>
-                                      </button>
-
-                                      {/* Reject */}
-                                      <button
-                                        type="button"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setActiveMenuId(null);
-                                          handleReject(tItem.id);
-                                        }}
-                                        className="w-full px-3 py-2 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 hover:text-rose-700 dark:hover:bg-rose-950/40 dark:hover:text-rose-300 flex items-center gap-2.5 transition-colors cursor-pointer"
-                                      >
-                                        <svg className="w-3.5 h-3.5 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        <span>{t('common.reject', 'Reject')}</span>
-                                      </button>
-                                    </div>
-                                  )}
-
-                                  {canSuspend && (
-                                    <div className="py-1">
-                                      {/* Suspend / Activate */}
-                                      <button
-                                        type="button"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setActiveMenuId(null);
-                                          handleToggleStatus(tItem.id, tItem.status);
-                                        }}
-                                        className={`w-full px-3 py-2 text-xs font-semibold flex items-center gap-2.5 transition-colors cursor-pointer ${
-                                          String(tItem.status || '').toLowerCase() === 'suspended'
-                                            ? 'text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40'
-                                            : 'text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40'
-                                        }`}
-                                      >
-                                        {String(tItem.status || '').toLowerCase() === 'suspended' ? (
-                                          <svg className="w-3.5 h-3.5 text-blue-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                          </svg>
-                                        ) : (
-                                          <svg className="w-3.5 h-3.5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                          </svg>
-                                        )}
-                                        <span>{String(tItem.status || '').toLowerCase() === 'suspended' ? t('tenants.activate', 'Activate / Re-activate') : t('tenants.suspend', 'Suspend Tenant')}</span>
-                                      </button>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
                             </div>
                           </div>
                         </td>
@@ -947,9 +859,9 @@ export const TenantsListPage = () => {
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 flex items-center justify-center shrink-0 overflow-hidden shadow-sm relative">
-                        {(tItem.logo_url || tItem.logoUrl || tItem.logo) ? (
+                        {(tItem.logo_url || tItem.logoUrl || tItem.logo || tItem.primaryAdmin?.avatar_url || tItem.users?.[0]?.avatar_url) ? (
                           <img
-                            src={getMediaUrl(tItem.logo_url || tItem.logoUrl || tItem.logo)}
+                            src={getMediaUrl(tItem.logo_url || tItem.logoUrl || tItem.logo || tItem.primaryAdmin?.avatar_url || tItem.users?.[0]?.avatar_url)}
                             alt={tItem.name}
                             className="w-full h-full object-cover"
                             onError={(e) => {
@@ -961,7 +873,7 @@ export const TenantsListPage = () => {
                         ) : null}
                         <div
                           className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-700 items-center justify-center font-bold text-white text-sm shadow-inner"
-                          style={{ display: (tItem.logo_url || tItem.logoUrl || tItem.logo) ? 'none' : 'flex' }}
+                          style={{ display: (tItem.logo_url || tItem.logoUrl || tItem.logo || tItem.primaryAdmin?.avatar_url || tItem.users?.[0]?.avatar_url) ? 'none' : 'flex' }}
                         >
                           {tItem.name?.charAt(0)?.toUpperCase() || 'T'}
                         </div>
@@ -1061,8 +973,9 @@ export const TenantsListPage = () => {
                       <span>{t('common.view_details', 'View Details')}</span>
                     </button>
 
-                    {/* Quick Impersonate button on card */}
-                    <button
+                    {/* Quick Impersonate button on card — excluded from Finance subscriptions */}
+                    {canImpersonate && (
+                      <button
                       type="button"
                       onClick={() => handleImpersonate(tItem)}
                       disabled={impersonatingId === tItem.id}
@@ -1076,156 +989,173 @@ export const TenantsListPage = () => {
                       ) : (
                         <FleetIcons.Key className="w-4 h-4 text-violet-600 dark:text-violet-400" />
                       )}
-                    </button>
+                      </button>
+                    )}
 
                     {/* Vertical 3 dots */}
-                    <div className="relative" data-tenant-actions-menu>
+                    <div className="relative inline-block text-left" data-tenant-actions-menu>
                       <button
                         type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveMenuId(activeMenuId === tItem.id ? null : tItem.id);
-                        }}
+                        onClick={(e) => handleToggleMenu(e, tItem)}
                         title={t('common.actions', 'More Actions')}
+                        aria-label={t('common.actions', 'More Actions')}
+                        aria-expanded={openMenu?.id === tItem.id}
                         className={`p-2 rounded-xl border transition-colors inline-flex items-center justify-center cursor-pointer ${
-                          activeMenuId === tItem.id
+                          openMenu?.id === tItem.id
                             ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/50 dark:text-blue-400 dark:border-blue-800'
                             : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-zinc-700 border-slate-200 dark:border-zinc-700'
                         }`}
                       >
                         <FleetIcons.MoreVertical className="w-4 h-4" />
                       </button>
-
-                      {activeMenuId === tItem.id && (
-                        <div className="absolute right-0 bottom-full mb-1.5 w-44 rounded-xl bg-white dark:bg-[#181b24] border border-slate-200 dark:border-zinc-700 shadow-xl py-1 z-50 text-left divide-y divide-slate-100 dark:divide-zinc-800 animate-in fade-in zoom-in-95 duration-100">
-                          <div className="py-1">
-                            {/* View Details */}
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setActiveMenuId(null);
-                                navigate(`${basePath}/${tItem.id}`);
-                              }}
-                              className="w-full px-3 py-2 text-xs font-semibold text-slate-700 dark:text-zinc-200 hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/40 dark:hover:text-blue-300 flex items-center gap-2.5 transition-colors cursor-pointer"
-                            >
-                              <FleetIcons.Eye className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                              <span>{t('common.view_details', 'View Details')}</span>
-                            </button>
-                            {/* Edit Tenant */}
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (!canEditTenant) return;
-                                setActiveMenuId(null);
-                                navigate(`${basePath}/${tItem.id}/edit`);
-                              }}
-                              disabled={!canEditTenant}
-                              title={!canEditTenant ? t('ag.superadmin.tenantslistpage.edit_permission_required', 'Edit permission required') : undefined}
-                              className="w-full px-3 py-2 text-xs font-semibold text-slate-700 dark:text-zinc-200 hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/40 dark:hover:text-blue-300 flex items-center gap-2.5 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              <FleetIcons.Edit className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                              <span>{t('superadmin.edit_tenant', 'Edit Tenant')}</span>
-                            </button>
-
-                            {/* Impersonate */}
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (!canImpersonate) return;
-                                setActiveMenuId(null);
-                                handleImpersonate(tItem);
-                              }}
-                              disabled={!canImpersonate || impersonatingId === tItem.id}
-                              title={!canImpersonate ? t('ag.superadmin.tenantslistpage.impersonation_permission_required', 'Impersonation permission required') : undefined}
-                              className="w-full px-3 py-2 text-xs font-semibold text-slate-700 dark:text-zinc-200 hover:bg-violet-50 hover:text-violet-700 dark:hover:bg-violet-950/40 dark:hover:text-violet-300 flex items-center gap-2.5 transition-colors cursor-pointer disabled:opacity-50"
-                            >
-                              {impersonatingId === tItem.id ? (
-                                <svg className="w-3.5 h-3.5 animate-spin text-violet-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                </svg>
-                              ) : (
-                                <FleetIcons.Key className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400 shrink-0" />
-                              )}
-                              <span>{t('superadmin.impersonate', 'Impersonate')}</span>
-                            </button>
-
-                            {/* Approve */}
-                            {canApprove && tItem.status === 'pending_approval' && (
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setActiveMenuId(null);
-                                  handleApprove(tItem.id);
-                                }}
-                                className="w-full px-3 py-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300 flex items-center gap-2.5 transition-colors cursor-pointer"
-                              >
-                                <svg className="w-3.5 h-3.5 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span>{t('common.approve', 'Approve')}</span>
-                              </button>
-                            )}
-
-                            {/* Reject */}
-                            {canApprove && tItem.status === 'pending_approval' && (
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setActiveMenuId(null);
-                                  handleReject(tItem.id);
-                                }}
-                                className="w-full px-3 py-2 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 hover:text-rose-700 dark:hover:bg-rose-950/40 dark:hover:text-rose-300 flex items-center gap-2.5 transition-colors cursor-pointer"
-                              >
-                                <svg className="w-3.5 h-3.5 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span>{t('common.reject', 'Reject')}</span>
-                              </button>
-                            )}
-                          </div>
-
-                          {canSuspend && (
-                            <div className="py-1">
-                              {/* Suspend / Activate */}
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setActiveMenuId(null);
-                                  handleToggleStatus(tItem.id, tItem.status);
-                                }}
-                                className={`w-full px-3 py-2 text-xs font-semibold flex items-center gap-2.5 transition-colors cursor-pointer ${
-                                  String(tItem.status || '').toLowerCase() === 'suspended'
-                                    ? 'text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40'
-                                    : 'text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40'
-                                }`}
-                              >
-                                {String(tItem.status || '').toLowerCase() === 'suspended' ? (
-                                  <svg className="w-3.5 h-3.5 text-blue-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                  </svg>
-                                ) : (
-                                  <svg className="w-3.5 h-3.5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                  </svg>
-                                )}
-                                <span>{String(tItem.status || '').toLowerCase() === 'suspended' ? t('tenants.activate', 'Activate / Re-activate') : t('tenants.suspend', 'Suspend Tenant')}</span>
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
               );
             })
+          )}
+        </div>
+      )}
+
+      {/* Fixed 3-dot Action Dropdown (viewport-anchored: never clipped by table overflow or headers) */}
+      {openMenu && (
+        <div
+          data-tenant-actions-menu
+          style={{
+            position: 'fixed',
+            top: openMenu.top,
+            right: openMenu.right,
+            transform: openMenu.openUp ? 'translateY(-100%)' : 'none',
+          }}
+          className="w-48 rounded-xl bg-white dark:bg-[#181b24] border border-slate-200 dark:border-zinc-700 shadow-xl py-1 z-50 text-left divide-y divide-slate-100 dark:divide-zinc-800 animate-in fade-in zoom-in-95 duration-100"
+        >
+          <div className="py-1">
+            {/* View Details */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                const tenantId = openMenu.tItem.id;
+                setOpenMenu(null);
+                navigate(`${basePath}/${tenantId}`);
+              }}
+              className="w-full px-3 py-2 text-xs font-semibold text-slate-700 dark:text-zinc-200 hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/40 dark:hover:text-blue-300 flex items-center gap-2.5 transition-colors cursor-pointer"
+            >
+              <FleetIcons.Eye className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+              <span>{t('common.view_details', 'View Details')}</span>
+            </button>
+
+            {/* Impersonate — excluded from Finance subscriptions */}
+            {canImpersonate && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const targetTenant = openMenu.tItem;
+                  setOpenMenu(null);
+                  handleImpersonate(targetTenant);
+                }}
+                disabled={impersonatingId === openMenu.tItem.id}
+                className="w-full px-3 py-2 text-xs font-semibold text-slate-700 dark:text-zinc-200 hover:bg-violet-50 hover:text-violet-700 dark:hover:bg-violet-950/40 dark:hover:text-violet-300 flex items-center gap-2.5 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                {impersonatingId === openMenu.tItem.id ? (
+                  <svg className="w-3.5 h-3.5 animate-spin text-violet-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                ) : (
+                  <FleetIcons.Key className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400 shrink-0" />
+                )}
+                <span>{t('superadmin.impersonate', 'Impersonate')}</span>
+              </button>
+            )}
+
+            {/* Edit Tenant */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!canEditTenant) return;
+                const tenantId = openMenu.tItem.id;
+                setOpenMenu(null);
+                navigate(`${basePath}/${tenantId}/edit`);
+              }}
+              disabled={!canEditTenant}
+              title={!canEditTenant ? t('ag.superadmin.tenantslistpage.edit_permission_required', 'Edit permission required') : undefined}
+              className="w-full px-3 py-2 text-xs font-semibold text-slate-700 dark:text-zinc-200 hover:bg-slate-50 hover:text-slate-900 dark:hover:bg-zinc-800 dark:hover:text-white flex items-center gap-2.5 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <FleetIcons.Edit className="w-3.5 h-3.5 text-slate-500 dark:text-zinc-400 shrink-0" />
+              <span>{t('superadmin.edit_tenant', 'Edit Tenant')}</span>
+            </button>
+          </div>
+
+          {canApprove && openMenu.tItem.status === 'pending_approval' && (
+            <div className="py-1">
+              {/* Approve */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const tenantId = openMenu.tItem.id;
+                  setOpenMenu(null);
+                  handleApprove(tenantId);
+                }}
+                className="w-full px-3 py-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300 flex items-center gap-2.5 transition-colors cursor-pointer"
+              >
+                <svg className="w-3.5 h-3.5 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{t('common.approve', 'Approve')}</span>
+              </button>
+
+              {/* Reject */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const tenantId = openMenu.tItem.id;
+                  setOpenMenu(null);
+                  handleReject(tenantId);
+                }}
+                className="w-full px-3 py-2 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 hover:text-rose-700 dark:hover:bg-rose-950/40 dark:hover:text-rose-300 flex items-center gap-2.5 transition-colors cursor-pointer"
+              >
+                <svg className="w-3.5 h-3.5 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{t('common.reject', 'Reject')}</span>
+              </button>
+            </div>
+          )}
+
+          {canSuspend && ['active', 'suspended'].includes(String(openMenu.tItem.status || '').toLowerCase()) && (
+            <div className="py-1">
+              {/* Suspend / Activate */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const { id: tenantId, status: currentStatus } = openMenu.tItem;
+                  setOpenMenu(null);
+                  handleToggleStatus(tenantId, currentStatus);
+                }}
+                className={`w-full px-3 py-2 text-xs font-semibold flex items-center gap-2.5 transition-colors cursor-pointer ${
+                  String(openMenu.tItem.status || '').toLowerCase() === 'suspended'
+                    ? 'text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40'
+                    : 'text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40'
+                }`}
+              >
+                {String(openMenu.tItem.status || '').toLowerCase() === 'suspended' ? (
+                  <svg className="w-3.5 h-3.5 text-blue-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                ) : (
+                  <svg className="w-3.5 h-3.5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                )}
+                <span>{String(openMenu.tItem.status || '').toLowerCase() === 'suspended' ? t('tenants.activate', 'Activate / Re-activate') : t('tenants.suspend', 'Suspend Tenant')}</span>
+              </button>
+            </div>
           )}
         </div>
       )}

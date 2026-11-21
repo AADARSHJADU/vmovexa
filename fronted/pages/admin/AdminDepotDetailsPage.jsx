@@ -202,7 +202,7 @@ export const AdminDepotDetailsPage = () => {
         <div>
           <Breadcrumb
             items={[
-              { label: isFleetPortal ? t('ag.admin.admindepotdetailspage.fleet_operator', 'Fleet Operator') : t('ag.admin.admindepotdetailspage.admin_operations', 'Admin Operations'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
+              { label: isFleetPortal ? t('roles.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
               { label: t('admin.depots.title'), path: basePath },
               { label: depot.name },
             ]}
@@ -413,9 +413,9 @@ export const AdminDepotDetailsPage = () => {
                 <span className="text-slate-500 dark:text-zinc-400">{t('admin.depots.emergency_desk')}</span>
                 <span className="font-mono font-bold text-rose-600 dark:text-rose-400">{depot.emergency_phone || depot.emergencyPhone || '—'}</span>
               </div>
-              <div className="flex justify-between items-center py-1.5 border-b border-slate-100 dark:border-zinc-800">
-                <span className="text-slate-500 dark:text-zinc-400">{t('admin.depots.depot_email')}</span>
-                <span className="font-medium text-slate-800 dark:text-zinc-200 truncate max-w-[150px]">{depot.email || '—'}</span>
+              <div className="flex justify-between items-start gap-2 py-1.5 border-b border-slate-100 dark:border-zinc-800">
+                <span className="text-slate-500 dark:text-zinc-400 shrink-0">{t('admin.depots.depot_email')}</span>
+                <span className="font-medium text-slate-800 dark:text-zinc-200 text-right break-all">{depot.email || '—'}</span>
               </div>
               <div className="flex justify-between items-center py-1.5">
                 <span className="text-slate-500 dark:text-zinc-400">{t('admin.depots.operating_hours')}</span>

@@ -32,7 +32,7 @@ export const NewTechRequestPage = () => {
   const canAccessForm = isEditMode ? (hasEditPermission && serverCanEdit !== false) : canCreate;
 
   const { createWorkOrder, updateWorkOrder, loadWorkOrderDetail } = useAdminTechnicianRequest();
-  const { vehicles, pagination: vehiclePagination, loading: vehiclesLoading, loadVehicles } = useAdminVehicle();
+  const { vehicles, loading: vehiclesLoading, loadVehicles } = useAdminVehicle();
   const vehiclesList = Array.isArray(vehicles) ? vehicles : (vehicles?.items || vehicles?.rows || []);
   const approvedVehiclesList = vehiclesList.filter((vehicle) =>
     APPROVED_VEHICLE_STATUSES.has(String(vehicle.status || '').toLowerCase())
@@ -42,7 +42,7 @@ export const NewTechRequestPage = () => {
   const [fetching, setFetching] = useState(isEditMode);
   const [vehicleSearch, setVehicleSearch] = useState('');
   const [debouncedVehicleSearch, setDebouncedVehicleSearch] = useState('');
-  const [vehiclePage, setVehiclePage] = useState(1);
+  const [isVehicleDropdownOpen, setIsVehicleDropdownOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     vehicleId: '',
@@ -57,17 +57,16 @@ export const NewTechRequestPage = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedVehicleSearch(vehicleSearch.trim());
-      setVehiclePage(1);
     }, 350);
     return () => clearTimeout(timer);
   }, [vehicleSearch]);
 
   useEffect(() => {
     if (!canAccessForm) return;
-    const params = { page: vehiclePage, limit: 10, exclude_pending: true };
+    const params = { limit: 100, exclude_pending: true };
     if (debouncedVehicleSearch) params.search = debouncedVehicleSearch;
     loadVehicles(params).catch(() => {});
-  }, [canAccessForm, vehiclePage, debouncedVehicleSearch, loadVehicles]);
+  }, [canAccessForm, debouncedVehicleSearch, loadVehicles]);
 
   useEffect(() => {
     if (!canAccessForm) return;
@@ -91,12 +90,25 @@ export const NewTechRequestPage = () => {
               description: found.description || found.issue_details || '',
               instructions: found.instructions || '',
             });
+            setVehicleSearch(found.bus_number || found.busNumber || found.vehicle?.bus_number || '');
           }
         })
         .catch((err) => toast.error(err?.message || 'Failed to load request details'))
         .finally(() => setFetching(false));
     }
   }, [id, isEditMode, canAccessForm, loadWorkOrderDetail, navigate, basePath]);
+
+  const handleVehicleSelect = (vehicle) => {
+    const busNumber = vehicle?.bus_number || vehicle?.busNumber || vehicle?.code || '';
+    setFormData((prev) => ({
+      ...prev,
+      vehicleId: vehicle ? String(vehicle.id) : '',
+      busNumber,
+      depotName: vehicle?.depot?.name || vehicle?.depot_name || '',
+    }));
+    setVehicleSearch(busNumber);
+    setIsVehicleDropdownOpen(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -176,7 +188,7 @@ export const NewTechRequestPage = () => {
         <div>
           <Breadcrumb
             items={[
-              { label: isFleetPortal ? t('ag.admin.newtechrequestpage.fleet_operator', 'Fleet Operator') : t('ag.admin.newtechrequestpage.tenant_admin', 'Tenant Admin'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
+              { label: isFleetPortal ? t('ag.admin.newtechrequestpage.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
               { label: t('ag.admin.newtechrequestpage.technician_requests', 'Technician Requests'), path: basePath },
               { label: isEditMode ? t('ag.admin.newtechrequestpage.edit_request', 'Edit Request') : t('ag.admin.newtechrequestpage.new_request', 'New Request') },
             ]}
@@ -200,67 +212,98 @@ export const NewTechRequestPage = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1.5">{t('admin.tech_requests.bus_number_req')}</label>
-            <div className="relative mb-2">
-              <FleetIcons.Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="search"
-                value={vehicleSearch}
-                onChange={(e) => setVehicleSearch(e.target.value)}
-                placeholder={t('ag.admin.newtechrequestpage.search_bus_number_code_vin_or_model', 'Search bus number, code, VIN or model...')}
-                className="w-full pl-8 pr-3 py-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500"
-              />
-            </div>
-            <select
-              required
-              value={formData.vehicleId}
-              onChange={(e) => {
-                const vehicleId = e.target.value;
-                const v = approvedVehiclesList.find((item) => String(item.id) === vehicleId);
-                setFormData({
-                  ...formData,
-                  vehicleId,
-                  busNumber: v?.bus_number || v?.busNumber || '',
-                  depotName: v?.depot?.name || v?.depot_name || '',
-                });
+            <div
+              className="relative"
+              onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget)) setIsVehicleDropdownOpen(false);
               }}
-              className="w-full px-3.5 py-2.5 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors"
             >
-              <option value="">{vehiclesLoading ? t('ag.admin.newtechrequestpage.loading_vehicles', 'Loading vehicles...') : t('admin.tech_requests.select_bus_ph')}</option>
-              {isEditMode && formData.vehicleId && !approvedVehiclesList.some((v) => String(v.id) === String(formData.vehicleId)) && (
-                <option value={formData.vehicleId}>{formData.busNumber || `Vehicle #${formData.vehicleId}`} ({formData.depotName || 'Depot'})</option>
+              <FleetIcons.Search className="pointer-events-none absolute left-3.5 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-zinc-500" />
+              <input
+                type="text"
+                role="combobox"
+                aria-expanded={isVehicleDropdownOpen}
+                aria-controls="technician-vehicle-options"
+                autoComplete="off"
+                value={vehicleSearch}
+                onFocus={() => setIsVehicleDropdownOpen(true)}
+                onChange={(e) => {
+                  setVehicleSearch(e.target.value);
+                  setIsVehicleDropdownOpen(true);
+                  if (formData.vehicleId) {
+                    setFormData((prev) => ({ ...prev, vehicleId: '', busNumber: '', depotName: '' }));
+                  }
+                }}
+                placeholder={t('ag.admin.newtechrequestpage.search_bus_number_code_vin_or_model', 'Search bus number, code, VIN or model...')}
+                className={`h-11 w-full rounded-xl border bg-white pl-10 pr-10 text-xs font-bold text-slate-900 shadow-sm transition-all placeholder:font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 dark:bg-zinc-900 dark:text-white dark:placeholder:text-zinc-500 ${
+                  formData.vehicleId
+                    ? 'border-emerald-400 focus:border-emerald-500 focus:ring-emerald-500/15'
+                    : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/15 dark:border-zinc-700'
+                }`}
+              />
+
+              {(vehicleSearch || formData.vehicleId) && (
+                <button
+                  type="button"
+                  onClick={() => handleVehicleSelect(null)}
+                  className="absolute right-3 top-1/2 z-10 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                  title={t('common.clear', 'Clear')}
+                >
+                  <FleetIcons.Close className="h-3.5 w-3.5" />
+                </button>
               )}
-              {approvedVehiclesList.map((v) => {
-                const busNum = v.bus_number || v.busNumber || v.code;
-                return (
-                  <option key={v.id} value={v.id}>
-                    {busNum} ({formatName(v.depot)})
-                  </option>
-                );
-              })}
-            </select>
-            <div className="flex items-center justify-between gap-2 mt-2 text-[10px] text-slate-500 dark:text-zinc-400">
-              <span>
-                {t('ag.admin.newtechrequestpage.page', 'Page')} {vehiclePagination?.page || vehiclePage} {t('ag.admin.newtechrequestpage.of', 'of')} {vehiclePagination?.totalPages || 1} · {vehiclePagination?.total || 0} {t('ag.admin.newtechrequestpage.vehicles', 'vehicles')}
-              </span>
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => setVehiclePage((page) => Math.max(1, page - 1))}
-                  disabled={(vehiclePagination?.page || vehiclePage) <= 1 || vehiclesLoading}
-                  className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-700 font-bold disabled:opacity-40"
+
+              {isVehicleDropdownOpen && (
+                <div
+                  id="technician-vehicle-options"
+                  role="listbox"
+                  className="absolute z-40 mt-2 max-h-64 w-full overflow-y-auto rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl shadow-slate-900/10 dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-black/30"
                 >
-                  {t('ag.admin.newtechrequestpage.previous', 'Previous')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setVehiclePage((page) => page + 1)}
-                  disabled={(vehiclePagination?.page || vehiclePage) >= (vehiclePagination?.totalPages || 1) || vehiclesLoading}
-                  className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-700 font-bold disabled:opacity-40"
-                >
-                  {t('ag.admin.newtechrequestpage.next', 'Next')}
-                </button>
-              </div>
+                  {vehiclesLoading ? (
+                    <div className="flex items-center gap-2 px-3 py-3 text-xs font-semibold text-slate-500 dark:text-zinc-400">
+                      <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                      {t('ag.admin.newtechrequestpage.loading_vehicles', 'Loading vehicles...')}
+                    </div>
+                  ) : approvedVehiclesList.length === 0 ? (
+                    <div className="px-3 py-3 text-xs font-semibold text-slate-500 dark:text-zinc-400">
+                      {t('admin.tech_requests.no_matching_bus', 'No matching active bus found')}
+                    </div>
+                  ) : (
+                    approvedVehiclesList.map((vehicle) => {
+                      const busNumber = vehicle.bus_number || vehicle.busNumber || vehicle.code || `Vehicle #${vehicle.id}`;
+                      const isSelected = String(formData.vehicleId) === String(vehicle.id);
+                      return (
+                        <button
+                          key={vehicle.id}
+                          type="button"
+                          role="option"
+                          aria-selected={isSelected}
+                          onClick={() => handleVehicleSelect(vehicle)}
+                          className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${
+                            isSelected
+                              ? 'bg-blue-50 text-blue-800 dark:bg-blue-950/50 dark:text-blue-300'
+                              : 'text-slate-700 hover:bg-slate-50 dark:text-zinc-300 dark:hover:bg-zinc-800'
+                          }`}
+                        >
+                          <span className="min-w-0">
+                            <span className="block truncate font-mono text-xs font-black text-slate-900 dark:text-white">{busNumber}</span>
+                            <span className="mt-0.5 block truncate text-[10px] font-medium text-slate-500 dark:text-zinc-400">
+                              {vehicle.model || vehicle.vehicle_type || 'Bus'} · {formatName(vehicle.depot, 'Depot not assigned')}
+                            </span>
+                          </span>
+                          {isSelected && <FleetIcons.Check className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />}
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              )}
             </div>
+            <p className="mt-1.5 text-[10px] font-medium text-slate-500 dark:text-zinc-400">
+              {formData.vehicleId
+                ? t('admin.tech_requests.bus_selected', 'Bus selected. Type again to change it.')
+                : t('admin.tech_requests.search_bus_hint', 'Type a bus number, code, VIN, or model to search.')}
+            </p>
           </div>
 
           <div>

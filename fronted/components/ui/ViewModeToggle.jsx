@@ -1,4 +1,3 @@
-import React from 'react';
 import { FleetIcons } from '../FleetIcons';
 
 /**
@@ -21,13 +20,17 @@ export const ViewModeToggle = ({
 }) => {
   const isTableActive =
     viewMode === tableValue ||
-    (tableValue === 'table' && viewMode === 'list') ||
-    (tableValue === 'list' && viewMode === 'table');
+    (viewMode !== cardValue && (
+      (tableValue === 'table' && viewMode === 'list') ||
+      (tableValue === 'list' && viewMode === 'table')
+    ));
 
   const isCardActive =
     viewMode === cardValue ||
-    (cardValue === 'card' && viewMode === 'grid') ||
-    (cardValue === 'grid' && viewMode === 'card');
+    (viewMode !== tableValue && (
+      (cardValue === 'card' && viewMode === 'grid') ||
+      (cardValue === 'grid' && viewMode === 'card')
+    ));
 
   return (
     <div

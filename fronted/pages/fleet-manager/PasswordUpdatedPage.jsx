@@ -12,9 +12,9 @@ export const PasswordUpdatedPage = () => {
       {/* 1. Global Standard Breadcrumb Navigation */}
       <Breadcrumb
         items={[
-          { label: t('ag.fleet.passwordupdatedpage.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
-          { label: t('ag.fleet.passwordupdatedpage.profile', 'Profile'), path: '/fleet-operator/profile' },
-          { label: t('ag.fleet.passwordupdatedpage.password_updated', 'Password Updated') },
+          { label: t('roles.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
+          { label: t('roles.operator_profile', 'Operator Profile'), path: '/fleet-operator/profile' },
+          { label: t('fleet.password.updated_lbl', 'Password Updated') },
         ]}
         className="mb-2"
       />

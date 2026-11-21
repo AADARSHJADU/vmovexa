@@ -11,8 +11,12 @@ import '../../driver_staff/views/driver_staff_view.dart';
 import '../../profile/views/profile_view.dart';
 import '../../../../../data/models/fleet_models.dart';
 
-class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
+class FleetOpDashboardView extends StatelessWidget {
   const FleetOpDashboardView({super.key});
+
+  FleetOpDashboardController get controller => Get.isRegistered<FleetOpDashboardController>()
+      ? Get.find<FleetOpDashboardController>()
+      : Get.put(FleetOpDashboardController(), permanent: true);
 
   @override
   Widget build(BuildContext context) {
@@ -330,8 +334,14 @@ class FleetOpDashboardView extends GetView<FleetOpDashboardController> {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: () {
-                        Get.toNamed(Routes.ADD_VEHICLE);
+                      onTap: () async {
+                        final res = await Get.toNamed(Routes.ADD_VEHICLE);
+                        if (res == true) {
+                          controller.setNavIndex(1);
+                          if (Get.isRegistered<VehicleListController>()) {
+                            Get.find<VehicleListController>().loadVehicles();
+                          }
+                        }
                       },
                       borderRadius: BorderRadius.circular(12),
                       child: Padding(

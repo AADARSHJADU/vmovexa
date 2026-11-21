@@ -179,15 +179,6 @@ export const ReportsHubPage = () => {
           <RefreshButton onClick={handleRefresh} loading={refreshing} />
           <button
             type="button"
-            onClick={() => handleExport('pdf')}
-            disabled={isGenerating}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 text-xs font-bold transition-all shadow-xs inline-flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
-          >
-            <FleetIcons.FileText className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
-            <span>{t('ag.advertiser.reportshubpage.printable_html_report', 'Printable HTML Report')}</span>
-          </button>
-          <button
-            type="button"
             onClick={() => handleExport('csv')}
             disabled={isGenerating}
             className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-zinc-800 hover:bg-slate-800 dark:hover:bg-zinc-700 text-white text-xs font-bold transition-all shadow-xs border border-transparent dark:border-zinc-700 inline-flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"

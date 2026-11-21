@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { Link, useLocation } from 'react-router-dom';
-import toast from 'react-hot-toast';
 import { FleetIcons } from '../../components/FleetIcons';
 import { Breadcrumb } from '../../components/ui/Breadcrumb';
 
@@ -23,13 +22,6 @@ export const ReconciliationCompletePage = () => {
     return `BRS-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}-${Math.floor(1000 + Math.random() * 9000)}`;
   }, []);
 
-  const handleDownloadCertificate = () => {
-    toast.success('Opening official Bank Reconciliation Statement for print/PDF…');
-    setTimeout(() => {
-      window.print();
-    }, 400);
-  };
-
   return (
     <div className="w-full space-y-6 pb-12 animate-in fade-in duration-200">
       {/* 1. Global Left-Aligned Breadcrumb Navigation */}
@@ -43,17 +35,17 @@ export const ReconciliationCompletePage = () => {
       />
 
       {/* 2. Responsive Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4 print:hidden">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-xs shrink-0">
-            <FleetIcons.Check className="w-6 h-6 stroke-[2.5]" />
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4 print:hidden">
+        <div className="flex items-start sm:items-center gap-3 min-w-0">
+          <div className="w-11 h-11 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-xs shrink-0">
+            <FleetIcons.Check className="w-5 h-5 stroke-[2.5]" />
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                 {t('finance.recon_complete.title', 'Reconciliation Completed!')}
               </h1>
-              <span className="text-xs font-mono font-bold px-2.5 py-0.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 rounded-full flex items-center gap-1.5">
+              <span className="text-xs font-mono font-bold px-2.5 py-0.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 rounded-full inline-flex items-center gap-1.5 whitespace-nowrap">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span>{t('ag.finance.reconciliationcompletepage.100_balanced', '100% Balanced')}</span>
               </span>
@@ -64,21 +56,13 @@ export const ReconciliationCompletePage = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-          <button
-            type="button"
-            onClick={handleDownloadCertificate}
-            className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-          >
-            <FleetIcons.Printer className="w-3.5 h-3.5" />
-            <span>{t('ag.finance.reconciliationcompletepage.download_brs_audit_certificate_pdf', 'Download / Print BRS Certificate')}</span>
-          </button>
+        <div className="flex items-center gap-2 w-full lg:w-auto shrink-0">
           <Link
             to={`${basePath}/reconciliation`}
-            className="w-full sm:w-auto px-4 py-2.5 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+            className="w-full sm:w-auto px-4 py-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-bold rounded-xl transition-all inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer"
           >
-            <FleetIcons.ArrowLeft className="w-3.5 h-3.5" />
-            <span>{t('ag.finance.reconciliationcompletepage.back_to_reconciliation_roster', 'Back to Roster')}</span>
+            <FleetIcons.ArrowLeft className="w-3.5 h-3.5 shrink-0" />
+            <span>{t('common.back', 'Back')}</span>
           </Link>
         </div>
       </div>
@@ -256,28 +240,6 @@ export const ReconciliationCompletePage = () => {
           </div>
           <div className="font-mono text-[11px] text-emerald-800 dark:text-emerald-400 shrink-0 font-bold">
             SEAL: {statementRef}-OK
-          </div>
-        </div>
-
-        {/* Quick Footer Links */}
-        <div className="pt-2 border-t border-slate-100 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 print:hidden">
-          <div className="text-xs text-slate-500 dark:text-zinc-400">
-            Need an official certified audit printout for internal or statutory filings?
-          </div>
-          <div className="flex items-center gap-3">
-            <Link
-              to={`${basePath}/dashboard`}
-              className="text-xs font-bold text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-            >
-              {t('ag.finance.reconciliationcompletepage.go_to_dashboard', 'Go to Dashboard')}
-            </Link>
-            <span className="text-slate-300 dark:text-zinc-700">•</span>
-            <Link
-              to={`${basePath}/reconciliation`}
-              className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-500 transition-colors"
-            >
-              {t('ag.finance.reconciliationcompletepage.back_to_reconciliation_roster', 'Back to Reconciliation Roster')}
-            </Link>
           </div>
         </div>
       </div>

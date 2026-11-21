@@ -412,10 +412,6 @@ export const FinanceOfficerDetailsPage = ({ officer: officerProp = null, onClose
                   <span className="text-slate-400 dark:text-zinc-500">{t('superadmin.finance_officer.access_scope', 'Access Scope')}</span>
                   <span className="font-semibold text-emerald-600 dark:text-emerald-400">{t('superadmin.finance_officer.all_tenants_scope', 'All Tenants & Ledgers')}</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-slate-50 dark:border-zinc-800/50">
-                  <span className="text-slate-400 dark:text-zinc-500">{t('superadmin.finance_officer.mfa_verification', 'MFA Verification')}</span>
-                  <span className="font-semibold text-slate-900 dark:text-white">{officer.mfa_enabled ? t('ag.superadmin.financeofficerdetailspage.enabled', 'Enabled') : t('ag.superadmin.financeofficerdetailspage.disabled', 'Disabled')}</span>
-                </div>
                 <div className="flex justify-between py-1">
                   <span className="text-slate-400 dark:text-zinc-500">{t('common.joined', 'Joined')}</span>
                   <span className="font-mono text-slate-600 dark:text-zinc-400">{createdAt}</span>

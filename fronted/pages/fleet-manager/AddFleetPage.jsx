@@ -273,18 +273,17 @@ export const AddFleetPage = () => {
 
   return (
     <div className="w-full space-y-6 pb-20 animate-in fade-in duration-200">
-      {/* 1. Header Banner */}
-      <div>
-        <Breadcrumb
-          items={[
-            { label: t('ag.fleet.addfleetpage.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
-            { label: t('ag.fleet.addfleetpage.fleet_operators', 'Fleet Operators'), path: '/fleet-operator/fleets' },
-            { label: isEditMode ? `Edit Fleet #${id}` : t('ag.fleet.addfleetpage.add_fleet_operator', 'Add Fleet Operator') },
-          ]}
-          className="mb-2"
-        />
-
-        <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm">
+      {/* 1. Header & Breadcrumb */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+        <div>
+          <Breadcrumb
+            items={[
+              { label: t('roles.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
+              { label: t('fleet.fleets.title', 'Fleet Directory'), path: '/fleet-operator/fleets' },
+              { label: isEditMode ? `Edit Fleet #${id}` : t('fleet.fleets.add_operator', 'Add Fleet') },
+            ]}
+            className="mb-2"
+          />
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -298,15 +297,16 @@ export const AddFleetPage = () => {
               <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                 {isEditMode ? `Edit Fleet: ${formData.name || selectedFleet?.name || id}` : t('ag.fleet.addfleetpage.add_fleet_operator', 'Add Fleet Operator')}
               </h1>
-              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
                 {isEditMode
                   ? t('ag.fleet.addfleetpage.update_fleet_credentials_depot_alloc', 'Update fleet credentials, depot allocation, operational quotas, and KYC documents.')
                   : t('ag.fleet.addfleetpage.register_a_new_fleet_operation_base_', 'Register a new fleet operation, base depot hub, operational quotas, and compliance papers.')}
               </p>
             </div>
           </div>
+        </div>
 
-          <div className="flex items-center gap-3 self-end sm:self-auto w-full sm:w-auto">
+        <div className="flex items-center gap-2.5 self-end sm:self-auto w-full sm:w-auto">
             <button
               type="button"
               onClick={() => navigate('/fleet-operator/fleets')}
@@ -329,7 +329,6 @@ export const AddFleetPage = () => {
               </span>
             </button>
           </div>
-        </div>
       </div>
 
       {/* Mode & Approval Notice Banner */}

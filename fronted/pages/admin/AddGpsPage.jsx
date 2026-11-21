@@ -284,12 +284,12 @@ export const AddGpsPage = () => {
 
   return (
     <div className="w-full space-y-6 pb-20">
-      {/* 1. Header Banner */}
-      <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm">
+      {/* 1. Header */}
+      <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
         <div>
           <Breadcrumb
             items={[
-              { label: isFleetPortal ? t('ag.admin.addgpspage.fleet_operator', 'Fleet Operator') : t('ag.admin.addgpspage.tenant_admin', 'Tenant Admin'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
+              { label: isFleetPortal ? t('ag.admin.addgpspage.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
               { label: t('admin.gps.title'), path: basePath },
               { label: isEditMode ? `Edit GPS Device #${id}` : t('ag.admin.addgpspage.register_new_device', 'Register New Device') },
             ]}

@@ -219,18 +219,16 @@ export const ReportsAnalyticsPage = () => {
 
   return (
     <div className="w-full space-y-6 pb-16 animate-in fade-in duration-200">
-      {/* 1. Global Standard Breadcrumb Navigation */}
-      <Breadcrumb
-        items={[
-          { label: t('ag.fleet.reportsanalyticspage.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
-          { label: t('ag.fleet.reportsanalyticspage.reports_analytics', 'Reports & Analytics') },
-        ]}
-        className="mb-2"
-      />
-
       {/* Top Banner Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm transition-colors">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
         <div>
+          <Breadcrumb
+            items={[
+              { label: t('roles.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
+              { label: t('fleet.reports.title', 'Analytics & Reports') },
+            ]}
+            className="mb-2"
+          />
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             <span className="text-[11px] font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">{t('fleet.reports.telematics_engine')}</span>
@@ -238,12 +236,12 @@ export const ReportsAnalyticsPage = () => {
           <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
             {t('ag.fleet.reportsanalyticspage.reports_and_fleet_telematics_analytics', 'Reports & Fleet Telematics Analytics')}
           </h1>
-          <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
             {t('ag.fleet.reportsanalyticspage.real_time_gps_telemetry_dispatch_milestones_', 'Real-time GPS telemetry, dispatch milestones, fuel/EV health, and driver roster metrics.')}
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 w-full sm:w-auto">
           {/* Refresh Button */}
           <RefreshButton
             onClick={fetchData}
@@ -271,7 +269,7 @@ export const ReportsAnalyticsPage = () => {
             className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-sm shadow-blue-600/20 transition-all cursor-pointer disabled:opacity-50"
           >
             <FleetIcons.Download className="w-3.5 h-3.5 text-white" />
-            <span>{generatingExport ? t('ag.fleet.reportsanalyticspage.exporting', 'Exporting...') : t('ag.fleet.reportsanalyticspage.export_report_csv', 'Export Report (CSV)')}</span>
+            <span>{generatingExport ? t('ag.fleet.reportsanalyticspage.exporting', 'Exporting...') : t('ag.fleet.reportsanalyticspage.export_report_csv', 'Export')}</span>
           </button>}
         </div>
       </div>
@@ -454,14 +452,11 @@ export const ReportsAnalyticsPage = () => {
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                    {t('ag.fleet.reportsanalyticspage.weekly_telematics_performance_trend', 'Weekly Telematics Performance Trend')}
+                    {t('ag.fleet.reportsanalyticspage.weekly_telematics_performance_trend', 'Weekly Performance Trend')}
                   </h3>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
-                    {t('ag.fleet.reportsanalyticspage.live_gradient_visualizer', 'Live Gradient Visualizer')}
-                  </span>
                 </div>
                 <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
-                  {t('ag.fleet.reportsanalyticspage.hover_over_bars_to_inspect_daily_cumulative_', 'Hover over bars to inspect daily cumulative distance and telemetry readings')}
+                  {t('ag.fleet.reportsanalyticspage.hover_over_bars_to_inspect_daily_cumulative_', 'Hover over bars to view daily metrics')}
                 </p>
               </div>
 
@@ -531,8 +526,8 @@ export const ReportsAnalyticsPage = () => {
               <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-blue-600 to-cyan-400"></span>
               <span>{t('fleet.reports.sync_gps_publisher')}</span>
             </div>
-            <span className="font-mono font-bold text-slate-900 dark:text-white">
-              {t('ag.fleet.reportsanalyticspage.target_peak', 'Target Peak:')} {maxChartValue} {chartData[0]?.unit}
+            <span className="font-medium text-slate-600 dark:text-zinc-400">
+              {t('ag.fleet.reportsanalyticspage.target_peak', 'Peak:')} {maxChartValue} {chartData[0]?.unit}
             </span>
           </div>
         </div>

@@ -19,6 +19,29 @@ const SHIFT_PRESETS = [
   { label: 'Custom Shift', hours: 'custom', icon: 'Settings' },
 ];
 
+const TIMEZONE_OPTIONS = [
+  { value: 'Asia/Kolkata', label: 'Asia/Kolkata (IST - UTC+05:30)' },
+  { value: 'UTC', label: 'UTC (UTC+00:00)' },
+  { value: 'Asia/Dubai', label: 'Asia/Dubai (GST - UTC+04:00)' },
+  { value: 'Asia/Singapore', label: 'Asia/Singapore (SGT - UTC+08:00)' },
+  { value: 'Europe/London', label: 'Europe/London (GMT/BST)' },
+  { value: 'America/New_York', label: 'America/New_York (ET)' },
+  { value: 'America/Chicago', label: 'America/Chicago (CT)' },
+  { value: 'America/Denver', label: 'America/Denver (MT)' },
+  { value: 'America/Los_Angeles', label: 'America/Los_Angeles (PT)' },
+  { value: 'Australia/Sydney', label: 'Australia/Sydney (AET)' },
+];
+
+const normalizeTimezone = (value) => {
+  const normalized = String(value || '').trim();
+  if (!normalized || normalized === 'Asia/Kolkata (IST)' || normalized.startsWith('GMT +05:30')) {
+    return 'Asia/Kolkata';
+  }
+  return TIMEZONE_OPTIONS.some((option) => option.value === normalized)
+    ? normalized
+    : 'Asia/Kolkata';
+};
+
 const FLEET_DOCUMENT_CATEGORIES = [
   'Fleet Registration Certificate',
   'Transport / Stage Carriage License',
@@ -95,7 +118,7 @@ export const AddFleetOperatorPage = () => {
     department: 'Transit Operations',
     depotId: '',
     location: 'Bangalore Central Hub',
-    timeZone: 'Asia/Kolkata (IST)',
+    timeZone: 'Asia/Kolkata',
     workingHours: '05:00 AM - 11:30 PM',
     assignedBuses: '',
     activeDriversCount: '',
@@ -130,7 +153,7 @@ export const AddFleetOperatorPage = () => {
       department: opr.department || 'Transit Operations',
       depotId: opr.depotId || opr.depot_id || opr.depot?.id || '',
       location: opr.location || opr.city || opr.baseCity || 'Bangalore Central Hub',
-      timeZone: opr.timezone || opr.time_zone || 'Asia/Kolkata (IST)',
+      timeZone: normalizeTimezone(opr.timezone || opr.time_zone),
       workingHours: initialHours,
       assignedBuses: opr.max_buses != null ? String(opr.max_buses) : (opr.assignedBuses != null ? String(opr.assignedBuses) : (opr.assigned_buses != null ? String(opr.assigned_buses) : '')),
       activeDriversCount: opr.max_drivers != null ? String(opr.max_drivers) : (opr.target_drivers_count != null ? String(opr.target_drivers_count) : (opr.fleetOperatorProfile?.active_drivers_count != null ? String(opr.fleetOperatorProfile.active_drivers_count) : (opr.activeDriversCount != null ? String(opr.activeDriversCount) : ''))),
@@ -399,7 +422,7 @@ export const AddFleetOperatorPage = () => {
         ...(formData.password ? { password: formData.password } : {}),
         depotId: formData.depotId ? Number(formData.depotId) : null,
         location: formData.location.trim(),
-        time_zone: formData.timeZone,
+        timezone: formData.timeZone,
         working_hours: formData.workingHours.trim(),
         assignedBuses: Number(formData.assignedBuses) || 0,
         activeDriversCount: Number(formData.activeDriversCount) || 0,
@@ -470,12 +493,12 @@ export const AddFleetOperatorPage = () => {
 
   return (
     <div className="w-full space-y-6 pb-20">
-      {/* 1. Header Banner */}
-      <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm min-w-0">
+      {/* 1. Header */}
+      <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4 min-w-0">
         <div className="min-w-0">
           <Breadcrumb
             items={[
-              { label: isFleetPortal ? t('ag.admin.addfleetoperatorpage.fleet_operator', 'Fleet Operator') : t('ag.admin.addfleetoperatorpage.tenant_admin', 'Tenant Admin'), path: dashPath },
+              { label: isFleetPortal ? t('ag.admin.addfleetoperatorpage.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), path: dashPath },
               { label: t('ag.admin.addfleetoperatorpage.fleet_operators', 'Fleet Operators'), path: basePath },
               { label: isEditMode ? `Edit: ${formData.name || selectedOperator?.name || id}` : t('ag.admin.addfleetoperatorpage.add_fleet_operator', 'Add Fleet Operator') },
             ]}
@@ -783,6 +806,7 @@ export const AddFleetOperatorPage = () => {
               <label className="text-xs font-bold text-slate-700 dark:text-zinc-300">{t('admin.fleet_operators.designation') || 'Designation / Clearance'}</label>
               <input
                 type="text"
+                maxLength={60}
                 placeholder={t('admin.fleet_operators.designation_ph') || 'Fleet Operator Lead'}
                 value={formData.designation}
                 onChange={(e) => handleFieldChange('designation', e.target.value)}
@@ -794,6 +818,7 @@ export const AddFleetOperatorPage = () => {
               <label className="text-xs font-bold text-slate-700 dark:text-zinc-300">{t('admin.fleet_operators.department') || 'Department'}</label>
               <input
                 type="text"
+                maxLength={60}
                 placeholder={t('admin.fleet_operators.department_ph') || 'Transit Operations'}
                 value={formData.department}
                 onChange={(e) => handleFieldChange('department', e.target.value)}
@@ -918,12 +943,15 @@ export const AddFleetOperatorPage = () => {
 
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700 dark:text-zinc-300">{t('admin.fleet_operators.timezone') || 'Time Zone'}</label>
-              <input
-                type="text"
+              <select
                 value={formData.timeZone}
                 onChange={(e) => handleFieldChange('timeZone', e.target.value)}
                 className="w-full h-11 px-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800/70 border border-slate-200 dark:border-zinc-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 font-medium"
-              />
+              >
+                {TIMEZONE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
             </div>
 
             {/* Flexible Working Shift Hours */}

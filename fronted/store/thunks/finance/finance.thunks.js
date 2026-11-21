@@ -33,6 +33,14 @@ export const fetchFinanceInvoiceByIdThunk = createAsyncThunk(
   }
 );
 
+export const fetchFinanceInvoiceHtmlThunk = createAsyncThunk(
+  'finance/fetchInvoiceHtml',
+  async ({ id, params = {} }, { rejectWithValue }) => {
+    try { return await financeService.getInvoiceHtml(id, params); }
+    catch (err) { return rejectWithValue(err); }
+  }
+);
+
 export const generateFinanceInvoiceThunk = createAsyncThunk(
   'finance/generateInvoice',
   async (data, { rejectWithValue }) => {

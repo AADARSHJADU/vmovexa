@@ -28,7 +28,7 @@ export const VehicleSlotDetailsPage = ({ forcedPortal = null }) => {
   const isFleetPortal = forcedPortal ? forcedPortal === 'fleet' : location.pathname.startsWith('/fleet-operator');
   const basePath = isFleetPortal ? '/fleet-operator/slots' : '/admin/slots';
   const dashboardLink = isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard';
-  const portalLabel = isFleetPortal ? 'Fleet Operator' : 'Admin';
+  const portalLabel = isFleetPortal ? t('roles.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations');
 
   const vehicleBasePath = isFleetPortal ? '/fleet-operator/vehicles' : '/admin/vehicles';
   const driverBasePath = isFleetPortal ? '/fleet-operator/drivers' : '/admin/drivers';

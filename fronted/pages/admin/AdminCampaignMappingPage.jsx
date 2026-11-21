@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { apiClient } from '../../api/client.js';
@@ -41,6 +41,7 @@ export const AdminCampaignMappingPage = () => {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCampaigns();
   }, [fetchCampaigns]);
 
@@ -143,24 +144,24 @@ export const AdminCampaignMappingPage = () => {
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-200 pb-16">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
         <div>
           <Breadcrumb
             items={[
-              { label: 'Admin', path: `${basePath}/dashboard` },
+              { label: t('ag.admin.admin_operations', 'Admin Operations'), path: `${basePath}/dashboard` },
               { label: t('admin.campaign_mapping.title') },
             ]}
             className="mb-2"
           />
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
             {t('ag.admin.admincampaignmappingpage.campaign_mapping', 'Campaign Mapping')}
           </h1>
-          <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
             {t('admin.campaign_mapping.desc')}
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5 w-full sm:w-auto">
           <RefreshButton
             onClick={fetchCampaigns}
             loading={loading}
@@ -220,14 +221,14 @@ export const AdminCampaignMappingPage = () => {
               }}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
                 statusFilter === tab.id
-                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                  ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-sm'
                   : 'bg-slate-50 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-700'
               }`}
             >
               <span>{tab.label}</span>
               <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${
                 statusFilter === tab.id
-                  ? 'bg-white/20 dark:bg-slate-900/20 text-white dark:text-slate-900'
+                  ? 'bg-white/20 text-white'
                   : 'bg-slate-200 dark:bg-zinc-700 text-slate-700 dark:text-zinc-300'
               }`}>
                 {tab.count}
@@ -368,7 +369,7 @@ export const AdminCampaignMappingPage = () => {
                           )}
                           <Link
                             to={`/advertiser/campaigns/${c.id}`}
-                            className="px-2.5 py-1 rounded-lg bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-zinc-200 text-white dark:text-slate-900 font-bold text-[11px] transition-colors shadow-sm"
+                            className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white font-bold text-[11px] transition-all shadow-xs"
                           >
                             {t('ag.admin.admincampaignmappingpage.details', 'Details')}
                           </Link>

@@ -19,12 +19,16 @@ class AssignDriverView extends GetView<AssignDriverController> {
         child: Column(
           children: [
             // Top Bar
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Stack(
+                alignment: Alignment.center,
                 children: [
-                  const CustomBackButton(),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: CustomBackButton(),
+                  ),
                   Text(
                     'assign_driver'.tr,
                     style: const TextStyle(
@@ -33,16 +37,14 @@ class AssignDriverView extends GetView<AssignDriverController> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.info_outline_rounded, color: Colors.white, size: 24),
-                    onPressed: () {},
-                  ),
                 ],
               ),
             ),
 
+
             Expanded(
               child: SingleChildScrollView(
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,7 +106,7 @@ class AssignDriverView extends GetView<AssignDriverController> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Tabs
+                    // Tabs (Reactive counts & active state)
                     Obx(
                       () => Container(
                         decoration: const BoxDecoration(
@@ -112,39 +114,87 @@ class AssignDriverView extends GetView<AssignDriverController> {
                         ),
                         child: Row(
                           children: [
-                            _buildTabItem('${'available_tab'.tr} (08)', controller.selectedTab.value == 'Available', () => controller.selectedTab.value = 'Available'),
-                            const SizedBox(width: 24),
-                            _buildTabItem('${'assigned_tab'.tr} (12)', controller.selectedTab.value == 'Assigned', () => controller.selectedTab.value = 'Assigned'),
+                            _buildTabItem(
+                              '${'available_tab'.tr} (${controller.availableCount.toString().padLeft(2, '0')})',
+                              controller.selectedTab.value == 'Available',
+                              () => controller.switchTab('Available'),
+                            ),
+                            const SizedBox(width: 20),
+                            _buildTabItem(
+                              '${'assigned_tab'.tr} (${controller.assignedCount.toString().padLeft(2, '0')})',
+                              controller.selectedTab.value == 'Assigned',
+                              () => controller.switchTab('Assigned'),
+                            ),
                           ],
                         ),
                       ),
                     ),
                     const SizedBox(height: 18),
 
-                    // Drivers List
-                    Obx(
-                      () => ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: controller.filteredDrivers.length,
-                        itemBuilder: (context, index) {
-                          final driver = controller.filteredDrivers[index];
-                          final isSelected = controller.selectedDriver.value?.empId == driver.empId;
-                          return _buildDriverCard(driver, isSelected);
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 24),
+                    // Drivers List with synchronous reactive map
+                    Obx(() {
+                      if (controller.isLoading.value) {
+                        return const Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 40),
+                            child: CircularProgressIndicator(color: Color(0xFF6366F1)),
+                          ),
+                        );
+                      }
 
-                    // No Available Drivers prompt card
+                      // Explicitly access selectedDriver.value so this Obx always rebuilds when selection changes
+                      final _ = controller.selectedDriver.value;
+
+                      if (controller.filteredDrivers.isEmpty) {
+                        return Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+                          margin: const EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            color: AppColors.cardBg,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: AppColors.cardBorder, width: 1.2),
+                          ),
+                          child: Column(
+                            children: [
+                              const Icon(Icons.person_off_outlined, color: AppColors.textMuted, size: 36),
+                              const SizedBox(height: 10),
+                              Text(
+                                'No ${controller.selectedTab.value.toLowerCase()} drivers found${controller.searchPattern.value.isNotEmpty ? ' matching "${controller.searchPattern.value}"' : ''}.',
+                                style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      return Column(
+                        children: controller.filteredDrivers.map((driver) {
+                          return _buildDriverCard(driver);
+                        }).toList(),
+                      );
+                    }),
+                    const SizedBox(height: 16),
+
+                    // No Available Drivers prompt card / Add Driver Helper
                     _buildNoDriversCard(),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 28),
 
                     // Confirm Assignment Button
-                    CustomButton(
-                      text: 'assign_driver'.tr,
-                      prefixIcon: const Icon(Icons.assignment_ind_outlined, color: Colors.white, size: 18),
-                      onTap: controller.confirmAssignment,
+                    Obx(
+                      () => CustomButton(
+                        text: controller.isSubmitting.value ? 'assigning'.tr : 'assign_driver'.tr,
+                        isLoading: controller.isSubmitting.value,
+                        prefixIcon: controller.isSubmitting.value
+                            ? null
+                            : const Icon(Icons.assignment_ind_outlined, color: Colors.white, size: 18),
+                        onTap: () {
+                          if (!controller.isSubmitting.value) {
+                            controller.confirmAssignment();
+                          }
+                        },
+                      ),
                     ),
                     const SizedBox(height: 20),
                   ],
@@ -194,11 +244,6 @@ class AssignDriverView extends GetView<AssignDriverController> {
                       padding: const EdgeInsets.all(6.0),
                       child: SvgPicture.asset('assets/icons/bus11.svg'),
                     ),
-                    /*child: const Icon(
-                      Icons.directions_bus_rounded,
-                      color: Colors.white,
-                      size: 24,
-                    ),*/
                   ),
                 ),
               ),
@@ -227,210 +272,248 @@ class AssignDriverView extends GetView<AssignDriverController> {
   }
 
   Widget _buildTabItem(String label, bool isSelected, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          gradient: isSelected ? AppTheme.primaryGradient : null,
-          color: isSelected ? null : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppTheme.gradientPink.withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : AppColors.textSecondary,
-            fontSize: 13,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            gradient: isSelected ? AppTheme.primaryGradient : null,
+            color: isSelected ? null : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isSelected ? Colors.transparent : AppColors.cardBorder,
+              width: 1.0,
+            ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: AppTheme.gradientPink.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? Colors.white : AppColors.textSecondary,
+              fontSize: 13,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildDriverCard(DriverModel driver, bool isSelected) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isSelected ? const Color(0xFF6366F1) : AppColors.cardBorder,
-          width: 1.2,
+  Widget _buildDriverCard(DriverModel driver) {
+    return Obx(() {
+      final isSelected = controller.isDriverSelected(driver);
+      return Container(
+        margin: const EdgeInsets.only(bottom: 14),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF6366F1).withValues(alpha: 0.12) : AppColors.cardBg,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF6366F1) : AppColors.cardBorder,
+            width: isSelected ? 1.8 : 1.2,
+          ),
         ),
-      ),
-      child: Row(
-        children: [
-          // Driver circular image avatar with status dot
-          Stack(
-            children: [
-              CircleAvatar(
-                radius: 22,
-                backgroundImage: NetworkImage(
-                  driver.name == 'Rajesh Kumar'
-                      ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150'
-                      : driver.name == 'Priya Sharma'
-                          ? 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150'
-                          : driver.name == 'Amit Verma'
-                              ? 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150'
-                              : 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
-                ),
-              ),
-              Positioned(
-                right: 0,
-                bottom: 0,
-                child: Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF10B981),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.background, width: 1.5),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 12),
-          // Driver details structured in two columns to prevent overflow
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Col 1: Driver name and IDs
-                Expanded(
-                  flex: 3,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => controller.selectDriver(driver),
+            borderRadius: BorderRadius.circular(14),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Row(
+                children: [
+                  // Driver circular image avatar with status dot
+                  Stack(
                     children: [
-                      Text(
-                        driver.name,
-                        style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      CircleAvatar(
+                        radius: 22,
+                        backgroundColor: const Color(0xFF6366F1).withValues(alpha: 0.15),
+                        backgroundImage: (driver.avatarUrl != null && driver.avatarUrl!.isNotEmpty)
+                            ? NetworkImage(driver.avatarUrl!)
+                            : null,
+                        child: (driver.avatarUrl == null || driver.avatarUrl!.isEmpty)
+                            ? Text(
+                                driver.name.isNotEmpty ? driver.name.substring(0, 1).toUpperCase() : 'D',
+                                style: const TextStyle(color: Color(0xFF8B5CF6), fontWeight: FontWeight.bold, fontSize: 16),
+                              )
+                            : null,
                       ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          _buildGradientIcon(Icons.badge_outlined, size: 12),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              driver.empId,
-                              style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: driver.isAvailable ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: AppColors.background, width: 1.5),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          _buildGradientIcon(Icons.credit_card_outlined, size: 12),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              driver.dlNo,
-                              style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(width: 8),
-                // Col 2: License Expiry & Status
-                Expanded(
-                  flex: 3,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'license_expiry'.tr,
-                        style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          _buildGradientIcon(Icons.calendar_today_outlined, size: 10),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              driver.dlExpiry,
-                              style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w500),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                  const SizedBox(width: 12),
+                  // Driver details structured in two columns to prevent overflow
+                  Expanded(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Col 1: Driver name and IDs
+                        Expanded(
+                          flex: 3,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                driver.name,
+                                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  _buildGradientIcon(Icons.badge_outlined, size: 12),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      driver.empId,
+                                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  _buildGradientIcon(Icons.credit_card_outlined, size: 12),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      driver.dlNo,
+                                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'status'.tr,
-                        style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Container(
-                            width: 6,
-                            height: 6,
-                            decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle),
+                        ),
+                        const SizedBox(width: 8),
+                        // Col 2: License Expiry & Status
+                        Expanded(
+                          flex: 3,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'license_expiry'.tr,
+                                style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
+                              ),
+                              const SizedBox(height: 2),
+                              Row(
+                                children: [
+                                  _buildGradientIcon(Icons.calendar_today_outlined, size: 10),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      driver.dlExpiry,
+                                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w500),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'status'.tr,
+                                style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
+                              ),
+                              const SizedBox(height: 2),
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 6,
+                                    height: 6,
+                                    decoration: BoxDecoration(
+                                      color: driver.isAvailable ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      driver.status,
+                                      style: TextStyle(
+                                        color: driver.isAvailable ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              driver.status,
-                              style: const TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.bold),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          // Assign / Selected Button
-          OutlinedButton(
-            onPressed: () => controller.selectDriver(driver),
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: isSelected ? const Color(0xFF10B981) : const Color(0xFF8B5CF6)),
-              backgroundColor: isSelected ? const Color(0xFF10B981).withValues(alpha: 0.08) : Colors.transparent,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              minimumSize: Size.zero,
-            ),
-            child: Text(
-              isSelected ? 'selected'.tr : 'assign'.tr,
-              style: TextStyle(
-                color: isSelected ? const Color(0xFF10B981) : Colors.white,
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
+                  const SizedBox(width: 8),
+                  // Assign / Selected Button
+                  OutlinedButton(
+                    onPressed: () => controller.selectDriver(driver),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: isSelected ? const Color(0xFF10B981) : const Color(0xFF8B5CF6)),
+                      backgroundColor: isSelected ? const Color(0xFF10B981).withValues(alpha: 0.15) : Colors.transparent,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      minimumSize: Size.zero,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (isSelected) ...[
+                          const Icon(Icons.check, color: Color(0xFF10B981), size: 13),
+                          const SizedBox(width: 4),
+                        ],
+                        Text(
+                          isSelected ? 'selected'.tr : 'assign'.tr,
+                          style: TextStyle(
+                            color: isSelected ? const Color(0xFF10B981) : Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-        ],
-      ),
-    );
+        ),
+      );
+    });
   }
 
   Widget _buildNoDriversCard() {

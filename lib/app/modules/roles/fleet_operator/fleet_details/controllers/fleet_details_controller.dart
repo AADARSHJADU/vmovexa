@@ -344,11 +344,14 @@ class FleetDetailsController extends GetxController {
     }
   }
 
-  void goToAddVehicle() {
-    Get.toNamed(Routes.ADD_VEHICLE, arguments: {
+  Future<void> goToAddVehicle() async {
+    final res = await Get.toNamed(Routes.ADD_VEHICLE, arguments: {
       'fleet_id': fleetId.value,
       'fleet_name': fleet.value?.name,
     });
+    if (res == true) {
+      loadFleetDetails();
+    }
   }
 
   void goToAddDriver() {

@@ -55,7 +55,7 @@ export const DriverWorkOrderDetailPage = () => {
       <div className="w-full space-y-6 animate-in fade-in duration-200">
         <Breadcrumb
           items={[
-            { label: t('nav.dashboard', 'Dashboard'), path: '/driver/dashboard' },
+            { label: t('roles.driver', 'Driver'), path: '/driver/dashboard' },
             { label: t('driver.work_orders.title', 'Fleet Work Orders'), path: '/driver/work-orders' },
             { label: t('common.details', 'Details') },
           ]}
@@ -88,26 +88,25 @@ export const DriverWorkOrderDetailPage = () => {
 
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-200">
-      <Breadcrumb
-        items={[
-          { label: t('nav.dashboard', 'Dashboard'), path: '/driver/dashboard' },
-          { label: t('driver.work_orders.title', 'Fleet Work Orders'), path: '/driver/work-orders' },
-          { label: formatWorkOrderCode(workOrder.id, workOrder.code) },
-        ]}
-        className="mb-1"
-      />
-
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
         <div className="flex items-start gap-3">
           <Link
             to="/driver/work-orders"
-            className="p-2 rounded-xl border border-slate-200 dark:border-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-600 dark:text-zinc-300 transition-colors shrink-0"
+            className="p-2 rounded-xl border border-slate-200 dark:border-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-600 dark:text-zinc-300 transition-colors shrink-0 mt-1"
             title={t('driver.work_orders.back', 'Back to Work Orders')}
           >
             <FleetIcons.ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
+            <Breadcrumb
+              items={[
+                { label: t('roles.driver', 'Driver'), path: '/driver/dashboard' },
+                { label: t('driver.work_orders.title', 'Fleet Work Orders'), path: '/driver/work-orders' },
+                { label: formatWorkOrderCode(workOrder.id, workOrder.code) },
+              ]}
+              className="mb-2"
+            />
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight font-mono">
               {formatWorkOrderCode(workOrder.id, workOrder.code)}
             </h1>

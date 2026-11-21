@@ -51,16 +51,48 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
   void initState() {
     super.initState();
     final ctrl = VehicleSlotsController.to;
+
+    // Refresh resources when sheet is shown
+    ctrl.loadFormResources().then((_) {
+      if (mounted) {
+        setState(() {
+          if (_selectedVehicleId == null && ctrl.vehicles.isNotEmpty) {
+            _selectedVehicleId = ctrl.vehicles.first['id'].toString();
+          }
+          if (_selectedRouteId == null && ctrl.routes.isNotEmpty) {
+            _selectedRouteId = ctrl.routes.first['id'].toString();
+          }
+          if (_selectedDriverId == null) {
+            _autoLinkDriverFromVehicle();
+          }
+        });
+        _triggerConflictCheck();
+      }
+    });
+
     if (ctrl.vehicles.isNotEmpty) {
       _selectedVehicleId = ctrl.vehicles.first['id'].toString();
     }
     if (ctrl.routes.isNotEmpty) {
       _selectedRouteId = ctrl.routes.first['id'].toString();
     }
-    if (ctrl.drivers.isNotEmpty) {
+    _autoLinkDriverFromVehicle();
+    _triggerConflictCheck();
+  }
+
+  void _autoLinkDriverFromVehicle() {
+    final ctrl = VehicleSlotsController.to;
+    if (_selectedVehicleId != null) {
+      final veh = ctrl.vehicles.firstWhereOrNull((v) => v['id'].toString() == _selectedVehicleId);
+      final assignedDrv = veh?['assigned_driver_id']?.toString();
+      if (assignedDrv != null && assignedDrv.isNotEmpty && assignedDrv != '0') {
+        _selectedDriverId = assignedDrv;
+        return;
+      }
+    }
+    if (_selectedDriverId == null && ctrl.drivers.isNotEmpty) {
       _selectedDriverId = ctrl.drivers.first['id'].toString();
     }
-    _triggerConflictCheck();
   }
 
   @override
@@ -75,7 +107,7 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
   }
 
   void _triggerConflictCheck() {
-    if (_selectedVehicleId == null) return;
+    if (_selectedVehicleId == null || _selectedVehicleId!.isEmpty) return;
     _conflictDebounce?.cancel();
     _conflictDebounce = Timer(const Duration(milliseconds: 350), () {
       VehicleSlotsController.to.checkConflict(
@@ -89,20 +121,48 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_selectedVehicleId == null || _selectedRouteId == null) {
-      Get.snackbar('required_label'.tr, 'select_vehicle_and_route_err'.tr,
-          backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM,
-          margin: const EdgeInsets.all(12));
+
+    if (_selectedRouteId == null || _selectedRouteId!.trim().isEmpty) {
+      Get.snackbar(
+        'required_label'.tr,
+        'Please select a transit route corridor.',
+        backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.25),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(12),
+      );
+      return;
+    }
+
+    if (_selectedVehicleId == null || _selectedVehicleId!.trim().isEmpty) {
+      Get.snackbar(
+        'required_label'.tr,
+        'Please select a vehicle / bus.',
+        backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.25),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(12),
+      );
+      return;
+    }
+
+    if (_selectedDriverId == null || _selectedDriverId!.trim().isEmpty) {
+      Get.snackbar(
+        'required_label'.tr,
+        'Please select an assigned driver.',
+        backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.25),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(12),
+      );
       return;
     }
 
     final payload = {
       'slot_name': _slotNameCtrl.text.trim(),
-      'vehicle_id': _selectedVehicleId,
-      'route_id': _selectedRouteId,
-      if (_selectedDriverId != null) 'driver_id': _selectedDriverId,
+      'vehicle_id': int.tryParse(_selectedVehicleId!) ?? _selectedVehicleId,
+      'route_id': int.tryParse(_selectedRouteId!) ?? _selectedRouteId,
+      'driver_id': int.tryParse(_selectedDriverId!) ?? _selectedDriverId,
       'shift_type': _selectedShift,
       'start_time': _startTimeCtrl.text.trim(),
       'end_time': _endTimeCtrl.text.trim(),
@@ -239,102 +299,164 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
               return const SizedBox.shrink();
             }),
 
-            // Form Inputs
+            // Form Inputs (Reactive via Obx)
             Expanded(
-              child: Form(
-                key: _formKey,
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  children: [
-                    // Slot Name
-                    _buildTextField(
-                      label: 'slot_label_name_req'.tr,
-                      controller: _slotNameCtrl,
-                      hint: 'slot_label_hint'.tr,
-                      validator: (v) => (v == null || v.isEmpty) ? 'required_label'.tr : null,
-                    ),
-                    const SizedBox(height: 14),
+              child: Obx(() {
+                final routesList = ctrl.routes.toList();
+                final vehiclesList = ctrl.vehicles.toList();
+                final driversList = ctrl.drivers.toList();
+                final isLoadingResources = ctrl.isLoadingResources.value;
 
-                    // Vehicle & Route Dropdowns
-                    _buildDropdown(
-                      label: 'assigned_vehicle_req'.tr,
-                      value: _selectedVehicleId,
-                      items: ctrl.vehicles,
-                      onChanged: (val) {
-                        setState(() => _selectedVehicleId = val);
-                        _triggerConflictCheck();
-                      },
-                    ),
-                    const SizedBox(height: 14),
+                return Form(
+                  key: _formKey,
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    children: [
+                      // Section 1 Header: Transit Corridor, Vehicle & Driver Assignment
+                      _buildSectionHeader(
+                        '1. Transit Corridor & Vehicle Assignment',
+                        'Select route corridor, fleet vehicle, and assigned driver',
+                        Icons.alt_route_rounded,
+                        const Color(0xFF3B82F6),
+                      ),
+                      const SizedBox(height: 12),
 
-                    _buildDropdown(
-                      label: 'transit_corridor_route_req'.tr,
-                      value: _selectedRouteId,
-                      items: ctrl.routes,
-                      onChanged: (val) => setState(() => _selectedRouteId = val),
-                    ),
-                    const SizedBox(height: 14),
+                      // 1. Transit Route Corridor (FIRST)
+                      _buildDropdown(
+                        label: 'transit_corridor_route_req'.tr,
+                        hint: 'Select transit route corridor...',
+                        icon: Icons.alt_route_rounded,
+                        isRequired: true,
+                        isLoading: isLoadingResources,
+                        value: _selectedRouteId,
+                        items: routesList,
+                        onChanged: (val) {
+                          setState(() => _selectedRouteId = val);
+                        },
+                      ),
+                      const SizedBox(height: 14),
 
-                    _buildDropdown(
-                      label: 'primary_driver_opt'.tr,
-                      value: _selectedDriverId,
-                      items: ctrl.drivers,
-                      onChanged: (val) => setState(() => _selectedDriverId = val),
-                    ),
-                    const SizedBox(height: 14),
+                      // 2. Vehicle / Bus (SECOND)
+                      _buildDropdown(
+                        label: 'assigned_vehicle_req'.tr,
+                        hint: 'Select vehicle / bus...',
+                        icon: Icons.directions_bus_rounded,
+                        isRequired: true,
+                        isLoading: isLoadingResources,
+                        value: _selectedVehicleId,
+                        items: vehiclesList,
+                        onChanged: (val) {
+                          setState(() {
+                            _selectedVehicleId = val;
+                            // Auto-link assigned driver from vehicle like web frontend
+                            if (val != null) {
+                              final veh = vehiclesList.firstWhereOrNull((v) => v['id'].toString() == val.toString());
+                              final assignedDrvId = veh?['assigned_driver_id']?.toString();
+                              if (assignedDrvId != null && assignedDrvId.isNotEmpty && assignedDrvId != '0') {
+                                _selectedDriverId = assignedDrvId;
+                              }
+                            }
+                          });
+                          _triggerConflictCheck();
+                        },
+                      ),
+                      const SizedBox(height: 14),
 
-                    // Shift Type Selector
-                    _buildShiftSelector(),
-                    const SizedBox(height: 14),
+                      // 3. Assign Driver Dropdown (THIRD) - Required for Fleet Operator!
+                      _buildDropdown(
+                        label: 'assign_driver'.tr,
+                        hint: 'Select assigned driver...',
+                        icon: Icons.person_outline_rounded,
+                        isRequired: true,
+                        isLoading: isLoadingResources,
+                        value: _selectedDriverId,
+                        items: driversList,
+                        onChanged: (val) {
+                          setState(() => _selectedDriverId = val);
+                        },
+                      ),
+                      const SizedBox(height: 20),
 
-                    // Time Windows & Headway
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildTextField(
-                            label: 'start_time_req'.tr,
-                            controller: _startTimeCtrl,
-                            hint: '08:00',
-                            onChanged: (_) => _triggerConflictCheck(),
+                      // Section 2 Header: Shift Pattern & Operating Hours
+                      _buildSectionHeader(
+                        '2. Shift Pattern & Operating Hours',
+                        'Set operating shift and active start/end corridor hours',
+                        Icons.access_time_rounded,
+                        const Color(0xFF10B981),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Shift Type Selector
+                      _buildShiftSelector(),
+                      const SizedBox(height: 14),
+
+                      // Time Windows & Headway
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildTextField(
+                              label: 'start_time_req'.tr,
+                              controller: _startTimeCtrl,
+                              hint: '08:00',
+                              onChanged: (_) => _triggerConflictCheck(),
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: _buildTextField(
-                            label: 'end_time_req'.tr,
-                            controller: _endTimeCtrl,
-                            hint: '11:30',
-                            onChanged: (_) => _triggerConflictCheck(),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: _buildTextField(
+                              label: 'end_time_req'.tr,
+                              controller: _endTimeCtrl,
+                              hint: '11:30',
+                              onChanged: (_) => _triggerConflictCheck(),
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: _buildTextField(
-                            label: 'headway_mins'.tr,
-                            controller: _headwayCtrl,
-                            hint: '15',
-                            keyboardType: TextInputType.number,
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: _buildTextField(
+                              label: 'headway_mins'.tr,
+                              controller: _headwayCtrl,
+                              hint: '15',
+                              keyboardType: TextInputType.number,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
 
-                    // Operating Days Multi-chips
-                    _buildDaysSelector(),
-                    const SizedBox(height: 14),
+                      // Operating Days Multi-chips with Presets
+                      _buildDaysSelector(),
+                      const SizedBox(height: 20),
 
-                    // Notes
-                    _buildTextField(
-                      label: 'operational_notes'.tr,
-                      controller: _notesCtrl,
-                      hint: 'slot_operational_notes_hint'.tr,
-                      maxLines: 2,
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
+                      // Section 3 Header: Slot Details & Operational Notes
+                      _buildSectionHeader(
+                        '3. Slot Details & Operational Notes',
+                        'Provide timetable naming and transit crew notes',
+                        Icons.notes_rounded,
+                        const Color(0xFF8B5CF6),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Slot Name
+                      _buildTextField(
+                        label: 'slot_label_name_req'.tr,
+                        controller: _slotNameCtrl,
+                        hint: 'slot_label_hint'.tr,
+                        validator: (v) => (v == null || v.isEmpty) ? 'required_label'.tr : null,
+                      ),
+                      const SizedBox(height: 14),
+
+                      // Notes
+                      _buildTextField(
+                        label: 'operational_notes'.tr,
+                        controller: _notesCtrl,
+                        hint: 'slot_operational_notes_hint'.tr,
+                        maxLines: 2,
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                );
+              }),
             ),
 
             // Confirm Button
@@ -393,6 +515,44 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
     );
   }
 
+  Widget _buildSectionHeader(String title, String subtitle, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Color(0xFF1E293B), width: 1)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: color, size: 16),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  subtitle,
+                  style: const TextStyle(color: AppColors.textMuted, fontSize: 10.5),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildTextField({
     required String label,
     required TextEditingController controller,
@@ -447,13 +607,38 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
     required String? value,
     required List<Map<String, dynamic>> items,
     required void Function(String?) onChanged,
+    String? hint,
+    IconData? icon,
+    bool isRequired = false,
+    bool isLoading = false,
   }) {
+    final hasMatch = items.any((i) => i['id'].toString() == value);
+    final effectiveValue = hasMatch ? value : null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w600),
+        Row(
+          children: [
+            if (icon != null) ...[
+              Icon(icon, color: const Color(0xFF818CF8), size: 14),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              label,
+              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w600),
+            ),
+            if (isRequired)
+              const Text(' *', style: TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.bold)),
+            if (isLoading) ...[
+              const SizedBox(width: 8),
+              const SizedBox(
+                width: 12,
+                height: 12,
+                child: CircularProgressIndicator(strokeWidth: 1.5, color: Color(0xFF818CF8)),
+              ),
+            ],
+          ],
         ),
         const SizedBox(height: 6),
         Container(
@@ -461,14 +646,31 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
           decoration: BoxDecoration(
             color: const Color(0xFF1E293B),
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: const Color(0xFF334155)),
+            border: Border.all(
+              color: (isRequired && effectiveValue == null) ? const Color(0xFF475569) : const Color(0xFF334155),
+            ),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
-              value: items.any((i) => i['id'].toString() == value) ? value : (items.isNotEmpty ? items.first['id'].toString() : null),
+              value: effectiveValue,
+              hint: Text(
+                isLoading
+                    ? 'Loading...'
+                    : (items.isEmpty ? 'No options available' : (hint ?? 'Select an option...')),
+                style: TextStyle(
+                  color: items.isEmpty ? const Color(0xFFEF4444).withValues(alpha: 0.8) : const Color(0xFF64748B),
+                  fontSize: 12,
+                ),
+              ),
               dropdownColor: const Color(0xFF1E293B),
               isExpanded: true,
-              icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF94A3B8)),
+              icon: isLoading
+                  ? const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF94A3B8)),
+                    )
+                  : const Icon(Icons.arrow_drop_down, color: Color(0xFF94A3B8)),
               items: items.map((item) {
                 return DropdownMenuItem<String>(
                   value: item['id'].toString(),
@@ -530,14 +732,50 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
   }
 
   Widget _buildDaysSelector() {
+    final isAll = _selectedDays.length == 7;
+    final isWeekdays = _selectedDays.length == 5 && !_selectedDays.contains('Sat') && !_selectedDays.contains('Sun');
+    final isWeekends = _selectedDays.length == 2 && _selectedDays.contains('Sat') && _selectedDays.contains('Sun');
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'operating_days'.tr,
-          style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w600),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'operating_days'.tr,
+              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w600),
+            ),
+            Row(
+              children: [
+                _buildPresetChip('ALL', isSelected: isAll, onTap: () {
+                  setState(() {
+                    _selectedDays.clear();
+                    _selectedDays.addAll(_weekDays);
+                  });
+                  _triggerConflictCheck();
+                }),
+                const SizedBox(width: 6),
+                _buildPresetChip('WEEKDAYS', isSelected: isWeekdays, onTap: () {
+                  setState(() {
+                    _selectedDays.clear();
+                    _selectedDays.addAll(['Mon', 'Tue', 'Wed', 'Thu', 'Fri']);
+                  });
+                  _triggerConflictCheck();
+                }),
+                const SizedBox(width: 6),
+                _buildPresetChip('WEEKENDS', isSelected: isWeekends, onTap: () {
+                  setState(() {
+                    _selectedDays.clear();
+                    _selectedDays.addAll(['Sat', 'Sun']);
+                  });
+                  _triggerConflictCheck();
+                }),
+              ],
+            ),
+          ],
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: _weekDays.map((d) {
@@ -581,6 +819,31 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
     );
   }
 
+  Widget _buildPresetChip(String label, {required bool isSelected, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF3B82F6).withValues(alpha: 0.25) : const Color(0xFF1E293B),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF60A5FA) : const Color(0xFF334155),
+            width: 1,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? const Color(0xFF93C5FD) : const Color(0xFF64748B),
+            fontSize: 9.5,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
   String _getShiftLabel(String id) {
     switch (id) {
       case 'morning_peak':
@@ -596,4 +859,3 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
     }
   }
 }
-

@@ -179,18 +179,16 @@ export const DriverTripsPage = () => {
 
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-200 pb-16 min-w-0 max-w-full">
-      {/* 1. Standard Top Navigation Breadcrumb */}
-      <Breadcrumb
-        items={[
-          { label: t('ag.driver.drivertripspage.driver', 'Driver'), path: '/driver/dashboard' },
-          { label: t('ag.driver.drivertripspage.completed_trips_log', 'Completed Trips Log') },
-        ]}
-        className="mb-2"
-      />
-
-      {/* 2. Page Header Bar */}
+      {/* 1. Page Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
         <div>
+          <Breadcrumb
+            items={[
+              { label: t('roles.driver', 'Driver'), path: '/driver/dashboard' },
+              { label: t('ag.driver.drivertripspage.completed_trips_log', 'Completed Trips Log') },
+            ]}
+            className="mb-2"
+          />
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5 flex-wrap">
             <span>{t('driver.trips.title', 'Completed Trips Log')}</span>
             <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 flex items-center gap-1.5 shadow-sm">

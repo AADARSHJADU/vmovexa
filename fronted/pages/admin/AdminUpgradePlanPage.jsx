@@ -128,7 +128,7 @@ export const AdminUpgradePlanPage = () => {
       {/* Breadcrumb */}
       <Breadcrumb
         items={[
-          { label: t('ag.admin.adminupgradeplanpage.dashboard', 'Dashboard'), to: '/admin/dashboard' },
+          { label: t('ag.admin.admin_operations', 'Admin Operations'), to: '/admin/dashboard' },
           { label: t('ag.admin.adminupgradeplanpage.billing_quotas', 'Billing & Quotas'), to: '/admin/billing' },
           { label: t('ag.admin.adminupgradeplanpage.upgrade_tier', 'Upgrade Tier') },
         ]}

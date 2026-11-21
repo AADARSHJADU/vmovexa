@@ -1,5 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from '../../hooks/useTranslation';
 import { FleetIcons } from '../../components/FleetIcons';
@@ -9,10 +8,26 @@ import { RefreshButton } from '../../components/ui/RefreshButton';
 import { ViewModeToggle } from '../../components/ui/ViewModeToggle';
 import { useSuperActivity } from '../../hooks/superadmin/useSuperActivity';
 import { useOrganization } from '../../hooks/superadmin/useOrganization';
+import { copyToClipboard } from '../../utils/clipboard';
+
+function csvCell(val) {
+  if (val === null || val === undefined) return '""';
+  const str = typeof val === 'object' ? JSON.stringify(val) : String(val);
+  return `"${str.replace(/"/g, '""').replace(/\r?\n/g, ' ')}"`;
+}
 
 export const SuperUserActivityPage = () => {
   const { t } = useTranslation();
-  const { activityLogs, categories, pagination, loading, loadActivityLogs, loadCategories } = useSuperActivity();
+  const {
+    activityLogs,
+    categories,
+    pagination,
+    counts,
+    loading,
+    loadActivityLogs,
+    loadCategories,
+    exportActivityLogs,
+  } = useSuperActivity();
   const { organizations, loadOrganizations } = useOrganization();
 
   // Filters & Controls state
@@ -27,7 +42,8 @@ export const SuperUserActivityPage = () => {
   const [selectedLog, setSelectedLog] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [viewMode, setViewMode] = useState('list'); // 'list' | 'table'
+  const [viewMode, setViewMode] = useState('card'); // 'card' | 'table'
+  const [exporting, setExporting] = useState(false);
 
   // Debounce search input
   useEffect(() => {
@@ -62,42 +78,37 @@ export const SuperUserActivityPage = () => {
     };
   }, [dateRangeFilter]);
 
-  // Fetch activity logs whenever filters or page change
-  useEffect(() => {
-    const params = {
-      page: currentPage,
-      limit: pageSize,
-      ...(debouncedSearch ? { search: debouncedSearch } : {}),
-      ...(severityFilter !== 'All' ? { severity: severityFilter } : {}),
-      ...(categoryFilter !== 'All' ? { category: categoryFilter } : {}),
-      ...(tenantFilter !== 'All' ? { organizationId: tenantFilter } : {}),
-      ...dateParams,
-      sortBy,
-      sortOrder,
-    };
-    loadActivityLogs(params).catch(() => {});
-  }, [
-    loadActivityLogs,
-    currentPage,
-    pageSize,
-    debouncedSearch,
-    severityFilter,
-    categoryFilter,
-    tenantFilter,
-    dateParams,
+  const activeFilterParams = useMemo(() => ({
+    ...(debouncedSearch ? { search: debouncedSearch } : {}),
+    ...(severityFilter !== 'All' ? { severity: severityFilter } : {}),
+    ...(categoryFilter !== 'All' ? { category: categoryFilter } : {}),
+    ...(tenantFilter !== 'All' ? { organizationId: tenantFilter } : {}),
+    ...dateParams,
     sortBy,
     sortOrder,
-  ]);
+  }), [debouncedSearch, severityFilter, categoryFilter, tenantFilter, dateParams, sortBy, sortOrder]);
 
-  const logList = Array.isArray(activityLogs) ? activityLogs : (activityLogs?.rows || []);
+  // Fetch activity logs whenever filters or page change
+  useEffect(() => {
+    loadActivityLogs({
+      page: currentPage,
+      limit: pageSize,
+      ...activeFilterParams,
+    }).catch(() => {});
+  }, [loadActivityLogs, currentPage, pageSize, activeFilterParams]);
+
+  const logList = useMemo(
+    () => (Array.isArray(activityLogs) ? activityLogs : (activityLogs?.rows || [])),
+    [activityLogs]
+  );
   const tenantList = Array.isArray(organizations) ? organizations : (organizations?.rows || []);
   const categoryOptions = Array.isArray(categories) ? categories : [];
 
-  // Stat Counters
-  const totalEvents = pagination?.total ?? logList.length;
-  const criticalCount = useMemo(() => logList.filter((l) => l.severity === 'CRITICAL').length, [logList]);
-  const warningCount = useMemo(() => logList.filter((l) => l.severity === 'WARNING').length, [logList]);
-  const infoCount = useMemo(() => logList.filter((l) => l.severity === 'INFO' || !l.severity).length, [logList]);
+  // Stat Counters (prefer real total filtered counts from backend meta.counts)
+  const totalEvents = counts?.total ?? pagination?.total ?? logList.length;
+  const criticalCount = counts?.critical ?? logList.filter((l) => l.severity === 'CRITICAL').length;
+  const warningCount = counts?.warning ?? logList.filter((l) => l.severity === 'WARNING').length;
+  const infoCount = counts?.info ?? logList.filter((l) => l.severity === 'INFO' || !l.severity).length;
 
   const handleResetFilters = () => {
     setSearchQuery('');
@@ -110,31 +121,86 @@ export const SuperUserActivityPage = () => {
     setCurrentPage(1);
   };
 
-  const handleExportCSV = () => {
-    if (!logList.length) {
-      toast.error(t('ag.superadmin.superuseractivitypage.no_audit_logs_available_to_export', 'No audit logs available to export.'));
-      return;
-    }
+  const handleExportCSV = async () => {
+    if (exporting) return;
+    setExporting(true);
+    const toastId = toast.loading(t('activity.exporting_logs', 'Preparing full audit trail CSV...'));
     try {
-      const headers = ['Log ID', 'Timestamp', 'Severity', 'Category', 'Action', 'Actor Name', 'Actor Email', 'Actor Role', 'Scope/Tenant', 'IP Address'];
-      const csvRows = [headers.join(',')];
-      logList.forEach((l) => {
+      const allLogs = await exportActivityLogs(activeFilterParams);
+      if (!Array.isArray(allLogs) || allLogs.length === 0) {
+        toast.dismiss(toastId);
+        toast.error(t('ag.superadmin.superuseractivitypage.no_audit_logs_available_to_export', 'No audit logs available to export.'));
+        return;
+      }
+
+      const headers = [
+        'Log ID',
+        'Timestamp (ISO)',
+        'Timestamp (Local)',
+        'Severity',
+        'Category / Domain',
+        'Event',
+        'Action / Description',
+        'Actor ID',
+        'Actor Name',
+        'Actor Email',
+        'Actor Role',
+        'Causer Type',
+        'Organization ID',
+        'Scope / Tenant',
+        'Subject Type',
+        'Subject ID',
+        'HTTP Method',
+        'API Endpoint',
+        'HTTP Status',
+        'Duration (ms)',
+        'IP Address',
+        'User Agent',
+        'Previous Values (Before)',
+        'Updated Values (After)',
+        'Full Properties (JSON)',
+      ];
+      const csvRows = [headers.map(csvCell).join(',')];
+
+      allLogs.forEach((l) => {
+        let props = l.properties;
+        if (typeof props === 'string') {
+          try { props = JSON.parse(props); } catch { props = null; }
+        }
+        const createdIso = l.created_at ? new Date(l.created_at).toISOString() : '';
+        const createdLocal = l.created_at ? new Date(l.created_at).toLocaleString('en-IN') : (l.timestamp || '');
+
         const row = [
-          l.id,
-          `"${l.timestamp || l.created_at || ''}"`,
-          `"${l.severity || 'INFO'}"`,
-          `"${l.category || l.log_name || ''}"`,
-          `"${(l.action || l.description || '').replace(/"/g, '""')}"`,
-          `"${l.actorName || l.actor_name || ''}"`,
-          `"${l.actor_email || ''}"`,
-          `"${l.actorRole || l.actor_role || ''}"`,
-          `"${l.tenantName || l.tenant_name || 'Platform'}"`,
-          `"${l.ipAddress || l.ip_address || ''}"`,
+          l.id ?? '',
+          createdIso,
+          createdLocal,
+          l.severity || 'INFO',
+          l.category || l.log_name || '',
+          l.event || l.event_name || '',
+          l.action || l.description || '',
+          l.causer_id ?? l.actor_id ?? '',
+          l.actorName || l.actor_name || '',
+          l.actorEmail || l.actor_email || '',
+          l.actorRole || l.actor_role || '',
+          l.causer_type || '',
+          l.organization_id ?? '',
+          l.tenantName || l.tenant_name || (l.organization_id ? `Organization #${l.organization_id}` : 'Global Platform'),
+          l.subject_type || '',
+          l.subject_id ?? '',
+          l.httpMethod || props?.method || '',
+          l.endpoint || props?.endpoint || '',
+          l.statusCode !== '' && l.statusCode !== undefined ? l.statusCode : (props?.statusCode ?? ''),
+          l.durationMs !== '' && l.durationMs !== undefined ? l.durationMs : (props?.durationMs ?? ''),
+          l.ipAddress && l.ipAddress !== '—' ? l.ipAddress : (l.ip_address || ''),
+          l.user_agent || '',
+          props?.old ? JSON.stringify(props.old) : '',
+          props?.attributes ? JSON.stringify(props.attributes) : '',
+          props ? JSON.stringify(props) : '',
         ];
-        csvRows.push(row.join(','));
+        csvRows.push(row.map(csvCell).join(','));
       });
 
-      const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+      const blob = new Blob([`\uFEFF${csvRows.join('\n')}`], { type: 'text/csv;charset=utf-8;' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -142,9 +208,14 @@ export const SuperUserActivityPage = () => {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      toast.success(t('ag.superadmin.superuseractivitypage.audit_trail_csv_exported_successfull', 'Audit trail CSV exported successfully!'));
-    } catch (_err) {
+      window.URL.revokeObjectURL(url);
+      toast.dismiss(toastId);
+      toast.success(`Exported ${allLogs.length} audit log(s) to CSV!`);
+    } catch {
+      toast.dismiss(toastId);
       toast.error(t('ag.superadmin.superuseractivitypage.failed_to_export_audit_trail', 'Failed to export audit trail.'));
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -154,15 +225,19 @@ export const SuperUserActivityPage = () => {
     if (typeof selectedLog.properties === 'object') return selectedLog.properties;
     try {
       return JSON.parse(selectedLog.properties);
-    } catch (_e) {
+    } catch {
       return null;
     }
   }, [selectedLog]);
 
-  const handleCopyJSON = () => {
+  const handleCopyJSON = async () => {
     if (!selectedLog) return;
-    navigator.clipboard.writeText(JSON.stringify(selectedLog, null, 2));
-    toast.success(t('ag.superadmin.superuseractivitypage.log_payload_copied_to_clipboard', 'Log payload copied to clipboard!'));
+    const ok = await copyToClipboard(JSON.stringify(selectedLog, null, 2));
+    if (ok) {
+      toast.success(t('ag.superadmin.superuseractivitypage.log_payload_copied_to_clipboard', 'Log payload copied to clipboard!'));
+    } else {
+      toast.error(t('common.copy_failed', 'Failed to copy to clipboard.'));
+    }
   };
 
   // If a log is selected, render dedicated detail view with Breadcrumb navigation
@@ -175,8 +250,7 @@ export const SuperUserActivityPage = () => {
             <Breadcrumb
               items={[
                 { label: t('nav.superadmin') || 'Super Admin', path: '/superadmin/dashboard', icon: FleetIcons.Dashboard },
-                { label: t('superadmin.users_directory') || 'Global Users', path: '/superadmin/users' },
-                { label: t('ag.superadmin.superuseractivitypage.activity_logs', 'Activity Logs'), path: '/superadmin/activity', onClick: (e) => { e.preventDefault(); setSelectedLog(null); } },
+                { label: t('activity.breadcrumb_title', 'Platform Activity Logs'), path: '/superadmin/activity', onClick: (e) => { e.preventDefault(); setSelectedLog(null); } },
                 { label: `Log #${selectedLog.id}` },
               ]}
               className="mb-2"
@@ -220,7 +294,7 @@ export const SuperUserActivityPage = () => {
             <button
               type="button"
               onClick={() => setSelectedLog(null)}
-              className="px-4 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-zinc-900 hover:bg-slate-800 dark:hover:bg-zinc-100 text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+              className="px-4 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:via-indigo-500 hover:to-purple-500 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-500/25 transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
             >
               <FleetIcons.ArrowLeft className="w-4 h-4" />
               <span>{t('ag.superadmin.superuseractivitypage.back_to_activity_logs', 'Back to Activity Logs')}</span>
@@ -371,18 +445,6 @@ export const SuperUserActivityPage = () => {
             </pre>
           </div>
         </div>
-
-        {/* Bottom Back Button */}
-        <div className="flex justify-between items-center pt-2">
-          <button
-            type="button"
-            onClick={() => setSelectedLog(null)}
-            className="px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-zinc-900 hover:bg-slate-800 text-xs font-bold rounded-xl shadow-xs transition-all inline-flex items-center gap-2 cursor-pointer active:scale-95"
-          >
-            <FleetIcons.ArrowLeft className="w-4 h-4" />
-            <span>{t('ag.superadmin.superuseractivitypage.back_to_activity_logs', 'Back to Activity Logs')}</span>
-          </button>
-        </div>
       </div>
     );
   }
@@ -392,46 +454,38 @@ export const SuperUserActivityPage = () => {
       {/* Breadcrumb Navigation */}
       <Breadcrumb
         items={[
-          { label: t('nav.superadmin'), href: '/superadmin/dashboard', icon: FleetIcons.Dashboard },
-          { label: t('superadmin.users_directory') || 'Global Users', href: '/superadmin/users' },
-          { label: t('activity.breadcrumb_title') }
+          { label: t('nav.superadmin') || 'Super Admin', path: '/superadmin/dashboard', icon: FleetIcons.Dashboard },
+          { label: t('activity.breadcrumb_title', 'Platform Activity Logs') },
         ]}
         className="mb-2"
       />
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-5 rounded-2xl shadow-sm">
-        <div className="flex items-center gap-3">
-          <Link
-            to="/superadmin/users"
-            className="p-2 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-600 dark:text-zinc-300 transition-colors"
-            title={t('activity.back_to_users')}
-          >
-            <FleetIcons.ArrowLeft className="w-4 h-4" />
-          </Link>
-          <div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
-              {t('activity.audit_title', 'Sovereign Platform Audit Trail & Activity Logs')}
-            </h1>
-            <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium mt-0.5">
-              {t('activity.audit_sub', 'Tamper-evident chronological log of administrative actions, safety overrides, and tenant events')}
-            </p>
-          </div>
+        <div>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+            {t('activity.audit_title', 'Sovereign Platform Audit Trail & Activity Logs')}
+          </h1>
+          <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium mt-0.5">
+            {t('activity.audit_sub', 'Tamper-evident chronological log of administrative actions, safety overrides, and tenant events')}
+          </p>
         </div>
 
         <div className="flex items-center gap-2.5">
           <RefreshButton
-            onClick={() => loadActivityLogs({ page: currentPage, limit: pageSize })}
+            onClick={() => loadActivityLogs({ page: currentPage, limit: pageSize, ...activeFilterParams })}
             loading={loading}
             title={t('activity.refresh_title')}
           />
 
           <button
+            type="button"
+            disabled={exporting}
             onClick={handleExportCSV}
-            className="px-4 py-2 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-zinc-100 text-white dark:text-zinc-900 text-xs font-bold rounded-xl shadow-sm transition-all flex items-center gap-1.5"
+            className="px-4 py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:via-indigo-500 hover:to-purple-500 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-500/25 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
           >
             <FleetIcons.Document className="w-4 h-4" />
-            <span>{t('activity.export_logs', 'Export Audit Trail (CSV)')}</span>
+            <span>{exporting ? t('activity.exporting', 'Exporting...') : t('activity.export_logs', 'Export Audit Trail (CSV)')}</span>
           </button>
         </div>
       </div>
@@ -495,9 +549,9 @@ export const SuperUserActivityPage = () => {
             viewMode={viewMode}
             onViewModeChange={setViewMode}
             tableValue="table"
-            cardValue="list"
+            cardValue="card"
             tableTitle={t('ag.superadmin.superuseractivitypage.table_view', 'Table View')}
-            cardTitle={t('ag.superadmin.superuseractivitypage.list_view', 'List View')}
+            cardTitle={t('ag.superadmin.superuseractivitypage.list_view', 'Card View')}
             className="self-end lg:self-auto"
           />
         </div>
@@ -641,7 +695,7 @@ export const SuperUserActivityPage = () => {
           </p>
           <button
             onClick={handleResetFilters}
-            className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold rounded-xl transition-all inline-block mt-2"
+            className="px-4 py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:via-indigo-500 hover:to-purple-500 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-500/25 transition-all inline-block mt-2 cursor-pointer"
           >
             {t('activity.clear_filters')}
           </button>

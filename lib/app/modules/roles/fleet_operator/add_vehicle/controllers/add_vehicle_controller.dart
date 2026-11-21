@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:vmovexa/app/data/models/fleet_models.dart';
 import 'package:vmovexa/app/data/services/fleet_service.dart';
 import 'package:vmovexa/app/data/services/http_client_service.dart';
+import '../../dashboard/controllers/dashboard_controller.dart';
+import '../../vehicle_list/views/vehicle_list_view.dart';
 
 class AddVehicleController extends GetxController {
   final formKey = GlobalKey<FormState>();
@@ -94,6 +97,7 @@ class AddVehicleController extends GetxController {
   // Documents Map (keys: 'rc', 'fitness', 'transport_license', 'insurance')
   final RxMap<String, FleetDocumentModel> documentsMap = <String, FleetDocumentModel>{}.obs;
   final RxBool isUploadingDoc = false.obs;
+  final RxString uploadingDocType = ''.obs;
 
   // Bus Photos
   final RxList<String> busPhotos = <String>[].obs;
@@ -219,8 +223,12 @@ class AddVehicleController extends GetxController {
     try {
       final res = await FleetService.to.getVehicle(id);
       if (res.success && res.data != null) {
-        final data = res.data is Map ? Map<String, dynamic>.from(res.data as Map) : <String, dynamic>{};
-        _populateFromMap(data);
+        if (res.data is VehicleItemModel) {
+          _populateFromVehicleModel(res.data!);
+        } else if (res.data is Map) {
+          final data = Map<String, dynamic>.from(res.data as dynamic);
+          _populateFromMap(data);
+        }
       }
     } catch (e) {
       debugPrint('Error loading single vehicle details: $e');
@@ -422,8 +430,34 @@ class AddVehicleController extends GetxController {
     try {
       final XFile? file = await _picker.pickImage(source: source, imageQuality: 85);
       if (file == null) return;
+      await _uploadSelectedDocFile(docType, file.path, file.name);
+    } catch (e) {
+      Get.snackbar('error'.tr, '${'upload_failed'.tr}: $e', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+    }
+  }
 
+  Future<void> pickAndUploadDocumentFile(String docType) async {
+    try {
+      final List<PlatformFile> files = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'png', 'jpg', 'jpeg', 'doc', 'docx'],
+      );
+      if (files.isEmpty) return;
+      final pickedFile = files.first;
+      final filePath = pickedFile.path;
+      if (filePath == null || filePath.isEmpty) return;
+
+      await _uploadSelectedDocFile(docType, filePath, pickedFile.name);
+    } catch (e) {
+      Get.snackbar('error'.tr, '${'upload_failed'.tr}: $e', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+    }
+  }
+
+  Future<void> _uploadSelectedDocFile(String docType, String filePath, String fileName) async {
+    try {
       isUploadingDoc.value = true;
+      uploadingDocType.value = docType;
+
       Get.snackbar(
         'uploading_label'.tr,
         'uploading_doc_msg'.tr,
@@ -433,18 +467,18 @@ class AddVehicleController extends GetxController {
       );
 
       final res = await HttpClientService.to.uploadFile(
-        filePath: file.path,
+        filePath: filePath,
         purpose: 'vehicle_document',
       );
 
       if (res.success && res.data != null) {
         final uploadedUrl = res.data?['url'] ?? res.data?['file_url'] ?? res.data?['filePath'] ?? '';
         final doc = FleetDocumentModel(
-          name: file.name,
+          name: fileName,
           category: _formatDocTypeTitle(docType),
           purpose: docType,
           url: uploadedUrl.toString(),
-          localPath: file.path,
+          localPath: filePath,
           uploadedAt: DateTime.now().toIso8601String(),
         );
 
@@ -469,6 +503,7 @@ class AddVehicleController extends GetxController {
       Get.snackbar('error'.tr, '${'upload_failed'.tr}: $e', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
     } finally {
       isUploadingDoc.value = false;
+      uploadingDocType.value = '';
     }
   }
 
@@ -672,6 +707,15 @@ class AddVehicleController extends GetxController {
           }
 
           Get.back(result: true);
+
+          if (Get.isRegistered<FleetOpDashboardController>()) {
+            Get.find<FleetOpDashboardController>().setNavIndex(1);
+            Get.find<FleetOpDashboardController>().refreshDashboard();
+          }
+          if (Get.isRegistered<VehicleListController>()) {
+            Get.find<VehicleListController>().loadVehicles();
+          }
+
           Get.snackbar(
             'vehicle_updated'.tr,
             'vehicle_updated_success'.tr,
@@ -706,6 +750,15 @@ class AddVehicleController extends GetxController {
           }
 
           Get.back(result: true);
+
+          if (Get.isRegistered<FleetOpDashboardController>()) {
+            Get.find<FleetOpDashboardController>().setNavIndex(1);
+            Get.find<FleetOpDashboardController>().refreshDashboard();
+          }
+          if (Get.isRegistered<VehicleListController>()) {
+            Get.find<VehicleListController>().loadVehicles();
+          }
+
           Get.snackbar(
             'vehicle_registered'.tr,
             'vehicle_registered_success'.tr,
