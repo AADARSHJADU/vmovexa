@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { FleetIcons } from '../../components/FleetIcons';
@@ -13,7 +13,6 @@ export const AdminChangePasswordPage = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const hasMinLength = newPassword.length >= 8;
@@ -23,13 +22,12 @@ export const AdminChangePasswordPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     if (newPassword !== confirmPassword) {
-      setError('New passwords do not match');
+      toast.error('New passwords do not match');
       return;
     }
     if (!hasMinLength || !hasUpperCase || !hasNumber || !hasSpecial) {
-      setError('Password does not meet security requirements');
+      toast.error('Password does not meet security requirements');
       return;
     }
 
@@ -44,8 +42,8 @@ export const AdminChangePasswordPage = () => {
         }
       );
       navigate('/admin/settings/security/success');
-    } catch (err) {
-      setError(err?.message || 'Failed to update password');
+    } catch {
+      // Handled by toast.promise
     } finally {
       setLoading(false);
     }
@@ -58,7 +56,7 @@ export const AdminChangePasswordPage = () => {
         <div>
           <Breadcrumb
             items={[
-              { label: t('nav.admin') || 'Dashboard', path: '/admin/dashboard' },
+              { label: t('ag.admin.admin_operations', 'Admin Operations'), path: '/admin/dashboard' },
               { label: t('admin.profile.title') || 'Admin Profile', path: '/admin/profile' },
               { label: t('admin.password.title') }
             ]}
@@ -72,12 +70,6 @@ export const AdminChangePasswordPage = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-5">
-        {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs font-bold text-red-700">
-            {error}
-          </div>
-        )}
-
         <div className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1.5">{t('admin.password.curr_pass')}</label>
@@ -149,7 +141,7 @@ export const AdminChangePasswordPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2"
+            className="px-6 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-95 disabled:opacity-50 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
           >
             <FleetIcons.Key className="w-4 h-4" />
             <span>{loading ? t('common.saving') : t('admin.password.update_btn')}</span>

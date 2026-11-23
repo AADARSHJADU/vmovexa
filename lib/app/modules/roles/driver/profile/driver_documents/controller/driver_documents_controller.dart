@@ -4,6 +4,7 @@ import 'package:vmovexa/app/modules/roles/driver/profile/driver_documents/contro
 import 'package:vmovexa/app/modules/roles/driver/profile/driver_documents/model/document_requirement_model.dart';
 import 'package:vmovexa/app/modules/roles/driver/profile/driver_documents/view/preview_document_view.dart';
 import 'package:vmovexa/app/modules/roles/driver/profile/driver_documents/view/upload_document_view.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 
 import 'package:vmovexa/app/data/models/driver_models.dart';
 import 'package:vmovexa/app/data/services/driver_service.dart';
@@ -70,8 +71,9 @@ class DriverDocumentsController extends GetxController {
         }
 
         final statusStr = (p.status ?? '').toLowerCase();
-        isRejected.value = statusStr == 'rejected';
-        isVerified.value = !isRejected.value && (p.documentsVerified == true);
+        isRejected.value = statusStr == 'rejected' || p.kycRejected == true;
+        final isDocVerified = p.documentsVerified ?? p.verified ?? true;
+        isVerified.value = !isRejected.value && isDocVerified;
 
         // Check rejection reason if available
         if (isRejected.value) {
@@ -207,13 +209,11 @@ class DriverDocumentsController extends GetxController {
 
     documents.assignAll(result);
 
-    // Sync verification status to other controllers
-    final anyPending = result.any((d) => d.isMandatory && d.status != DocumentReqStatus.uploaded);
-    final verifiedAll = !anyPending && result.any((d) => d.status == DocumentReqStatus.uploaded);
-    isVerified.value = verifiedAll;
-
-    if (Get.isRegistered<DriverHomeController>()) {
-      Get.find<DriverHomeController>().isDocumentsVerified.value = verifiedAll;
+    // Profile is authoritative for driver document verification, matching Admin Panel (DriverDocumentsPage.jsx)
+    final p = driverProfile.value;
+    if (p != null) {
+      final isDocVerified = p.documentsVerified ?? p.verified ?? true;
+      isVerified.value = !isRejected.value && isDocVerified;
     }
   }
 
@@ -231,7 +231,7 @@ class DriverDocumentsController extends GetxController {
       AlertDialog(
         backgroundColor: const Color(0xFF15151F),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: const Text('Document Guidelines', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+        title: Text('doc_guidelines'.tr, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
         content: const Text(
           'Please upload clear, legible copies of your government-issued documents. Supported formats: JPG, PNG, PDF (under 10MB). Documents undergo compliance verification within 24-48 hours.',
           style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
@@ -239,7 +239,7 @@ class DriverDocumentsController extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Got it', style: TextStyle(color: Color(0xFFB042FF), fontWeight: FontWeight.bold)),
+            child: Text('got_it'.tr, style: const TextStyle(color: AppTheme.gradientBlue, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -250,25 +250,25 @@ class DriverDocumentsController extends GetxController {
     Get.dialog(
       AlertDialog(
         backgroundColor: const Color(0xFF15151F),
-        title: const Text('Delete Document', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        content: const Text('Are you sure you want to remove this document?', style: TextStyle(color: Colors.white70)),
+        title: Text('delete_document'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        content: Text('delete_doc_confirm'.tr, style: const TextStyle(color: Colors.white70)),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel', style: TextStyle(color: Colors.white54))),
+          TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr, style: const TextStyle(color: Colors.white54))),
           TextButton(
             onPressed: () async {
               Get.back();
               final res = await _driverService.deleteDocument(id);
               if (res.success) {
-                Get.snackbar('Deleted', 'Document removed successfully.', backgroundColor: const Color(0xFF15151F), colorText: Colors.white);
+                Get.snackbar('deleted'.tr, 'doc_deleted_success'.tr, backgroundColor: const Color(0xFF15151F), colorText: Colors.white);
                 await fetchDocuments();
                 if (Get.isRegistered<DriverProfileController>()) {
                   Get.find<DriverProfileController>().fetchProfile();
                 }
               } else {
-                Get.snackbar('Error', res.message ?? 'Failed to delete', backgroundColor: const Color(0xFF15151F), colorText: Colors.redAccent);
+                Get.snackbar('common.error'.tr, res.message ?? 'Failed to delete', backgroundColor: const Color(0xFF15151F), colorText: Colors.redAccent);
               }
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.redAccent)),
+            child: Text('delete'.tr, style: const TextStyle(color: Colors.redAccent)),
           ),
         ],
       ),

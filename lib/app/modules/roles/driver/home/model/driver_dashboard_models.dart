@@ -26,7 +26,7 @@ extension ScheduleStatusX on ScheduleStatus {
       case ScheduleStatus.completed:
         return const Color(0xFF3F7BF5);
       case ScheduleStatus.inProgress:
-        return const Color(0xFFB042FF);
+        return const Color(0xFF1C68FD);
     }
   }
 }

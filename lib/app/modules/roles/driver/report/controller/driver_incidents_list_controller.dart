@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../../../../routes/app_routes.dart';
 import 'package:vmovexa/app/data/models/driver_models.dart';
 import 'package:vmovexa/app/data/services/driver_service.dart';
+import 'package:vmovexa/app/data/services/storage_service.dart';
 
 class DriverIncidentsListController extends GetxController {
   DriverService get _driverService => DriverService.to;
@@ -46,7 +47,25 @@ class DriverIncidentsListController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _loadLocalIncidents();
     fetchIncidents();
+  }
+
+  void _loadLocalIncidents() {
+    if (Get.isRegistered<StorageService>()) {
+      final locals = StorageService.to.getLocalIncidents();
+      if (locals.isNotEmpty) {
+        allIncidents.assignAll(locals);
+      }
+    }
+  }
+
+  void addLocalIncident(DriverIncidentItem item) {
+    allIncidents.removeWhere((x) =>
+      (x.id != null && item.id != null && x.id == item.id) ||
+      (x.ticketNumber != null && item.ticketNumber != null && x.ticketNumber == item.ticketNumber)
+    );
+    allIncidents.insert(0, item);
   }
 
   @override
@@ -61,18 +80,41 @@ class DriverIncidentsListController extends GetxController {
       debugPrint('🚀 [DriverIncidentsListController] fetchIncidents() requested');
       final res = await _driverService.getIncidents();
       debugPrint('📥 [DriverIncidentsListController] API result: success=${res.success}, statusCode=${res.statusCode}, dataCount=${res.data?.length}');
-      if (res.success && res.data != null) {
-        allIncidents.assignAll(res.data!);
-        debugPrint('✅ [DriverIncidentsListController] Assigned ${allIncidents.length} incidents to allIncidents');
-        for (var inc in allIncidents) {
-          debugPrint('   👉 Incident #${inc.id} | Type: ${inc.incidentType} | Sev: ${inc.severity} | Status: ${inc.status} | Loc: ${inc.locationName ?? inc.location?.address}');
+
+      final List<DriverIncidentItem> merged = [];
+
+      // 1. Add remote items
+      if (res.success && res.data != null && res.data!.isNotEmpty) {
+        merged.addAll(res.data!);
+      }
+
+      // 2. Merge local items from device storage
+      if (Get.isRegistered<StorageService>()) {
+        final locals = StorageService.to.getLocalIncidents();
+        for (final loc in locals) {
+          final alreadyPresent = merged.any((m) =>
+            (m.id != null && loc.id != null && m.id == loc.id) ||
+            (m.ticketNumber != null && loc.ticketNumber != null && m.ticketNumber == loc.ticketNumber)
+          );
+          if (!alreadyPresent) {
+            merged.add(loc);
+          }
         }
-      } else {
-        allIncidents.clear();
-        debugPrint('⚠️ [DriverIncidentsListController] API failure or null data: ${res.message ?? res.error}');
+      }
+
+      allIncidents.assignAll(merged);
+      debugPrint('✅ [DriverIncidentsListController] Assigned ${allIncidents.length} incidents to allIncidents');
+      for (var inc in allIncidents) {
+        debugPrint('   👉 Incident #${inc.id} | Type: ${inc.incidentType} | Sev: ${inc.severity} | Status: ${inc.status} | Loc: ${inc.locationName ?? inc.location?.address}');
       }
     } catch (e, st) {
       debugPrint('❌ [DriverIncidentsListController] fetchIncidents error: $e\n$st');
+      if (allIncidents.isEmpty && Get.isRegistered<StorageService>()) {
+        final locals = StorageService.to.getLocalIncidents();
+        if (locals.isNotEmpty) {
+          allIncidents.assignAll(locals);
+        }
+      }
     } finally {
       isLoading.value = false;
       debugPrint('🏁 [DriverIncidentsListController] Done. Active items after filtering: ${filteredIncidents.length}');
@@ -129,19 +171,19 @@ class DriverIncidentsListController extends GetxController {
         final st = (inc.status ?? 'open').toLowerCase();
         final filterSt = activeSt.toLowerCase();
         if (filterSt == 'open') {
-          if (st != 'open' && st != 'review' && st != 'pending' && st != 'reported') {
+          if (!st.contains('open') && !st.contains('review') && !st.contains('pending') && !st.contains('reported') && !st.contains('new') && st.isNotEmpty) {
             return false;
           }
         } else if (filterSt == 'in_progress') {
-          if (st != 'in_progress' && st != 'investigating' && st != 'active') {
+          if (!st.contains('progress') && !st.contains('investigat') && !st.contains('active')) {
             return false;
           }
         } else if (filterSt == 'resolved') {
-          if (st != 'resolved') return false;
+          if (!st.contains('resolv')) return false;
         } else if (filterSt == 'closed') {
-          if (st != 'closed') return false;
+          if (!st.contains('clos')) return false;
         } else {
-          if (st != filterSt) return false;
+          if (!st.contains(filterSt)) return false;
         }
       }
 

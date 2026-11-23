@@ -50,42 +50,15 @@ export const INDIAN_STATES_AND_UTS = [
   'West Bengal',
 ];
 
+// Shared with EditTenantPage. The onboarding form no longer renders this picker.
 export const PRESET_AVATARS = [
-  {
-    id: 'transit_blue',
-    title: 'Blue Bus Transit',
-    url: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%232563eb'/><path d='M25 32h50c3 0 5 2 5 5v26c0 3-2 5-5 5H25c-3 0-5-2-5-5V37c0-3 2-5 5-5z' fill='%23ffffff' opacity='0.9'/><rect x='28' y='37' width='20' height='14' rx='3' fill='%232563eb'/><rect x='52' y='37' width='20' height='14' rx='3' fill='%232563eb'/><circle cx='35' cy='74' r='7' fill='%23ffffff'/><circle cx='65' cy='74' r='7' fill='%23ffffff'/></svg>",
-  },
-  {
-    id: 'city_emerald',
-    title: 'Emerald City Corp',
-    url: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23059669'/><path d='M28 24h44v56H28z' fill='%23ffffff'/><rect x='36' y='34' width='9' height='9' rx='2' fill='%23059669'/><rect x='55' y='34' width='9' height='9' rx='2' fill='%23059669'/><rect x='36' y='49' width='9' height='9' rx='2' fill='%23059669'/><rect x='55' y='49' width='9' height='9' rx='2' fill='%23059669'/></svg>",
-  },
-  {
-    id: 'shield_indigo',
-    title: 'Indigo Security Fleet',
-    url: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%234f46e5'/><path d='M50 20 L75 30 V55 C75 70 50 82 50 82 C50 82 25 70 25 55 V30 Z' fill='%23ffffff'/></svg>",
-  },
-  {
-    id: 'express_amber',
-    title: 'Amber Express Fleet',
-    url: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23d97706'/><path d='M55 20 L25 55 H45 L40 80 L75 45 H55 Z' fill='%23ffffff'/></svg>",
-  },
-  {
-    id: 'global_rose',
-    title: 'Rose Global Mobility',
-    url: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23e11d48'/><circle cx='50' cy='50' r='28' stroke='%23ffffff' stroke-width='6' fill='none'/><ellipse cx='50' cy='50' rx='14' ry='28' stroke='%23ffffff' stroke-width='4' fill='none'/><line x1='22' y1='50' x2='78' y2='50' stroke='%23ffffff' stroke-width='4'/></svg>",
-  },
-  {
-    id: 'metro_violet',
-    title: 'Violet Tech Transit',
-    url: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%237c3aed'/><circle cx='50' cy='30' r='10' fill='%23ffffff'/><circle cx='30' cy='70' r='10' fill='%23ffffff'/><circle cx='70' cy='70' r='10' fill='%23ffffff'/><line x1='50' y1='30' x2='30' y2='70' stroke='%23ffffff' stroke-width='4'/><line x1='50' y1='30' x2='70' y2='70' stroke='%23ffffff' stroke-width='4'/><line x1='30' y1='70' x2='70' y2='70' stroke='%23ffffff' stroke-width='4'/></svg>",
-  },
-  {
-    id: 'cyan_logistics',
-    title: 'Cyan Freight & Logistics',
-    url: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%230891b2'/><path d='M20 35h45v30H20z' fill='%23ffffff'/><path d='M65 45l15 5v15H65z' fill='%23ffffff' opacity='0.8'/><circle cx='35' cy='70' r='6' fill='%23ffffff'/><circle cx='70' cy='70' r='6' fill='%23ffffff'/></svg>",
-  },
+  { id: 'transit_blue', title: 'Blue Bus Transit', url: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%232563eb'/><path d='M25 32h50c3 0 5 2 5 5v26c0 3-2 5-5 5H25c-3 0-5-2-5-5V37c0-3 2-5 5-5z' fill='%23ffffff' opacity='0.9'/><rect x='28' y='37' width='20' height='14' rx='3' fill='%232563eb'/><rect x='52' y='37' width='20' height='14' rx='3' fill='%232563eb'/><circle cx='35' cy='74' r='7' fill='%23ffffff'/><circle cx='65' cy='74' r='7' fill='%23ffffff'/></svg>" },
+  { id: 'city_emerald', title: 'Emerald City Corp', url: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23059669'/><path d='M28 24h44v56H28z' fill='%23ffffff'/><rect x='36' y='34' width='9' height='9' rx='2' fill='%23059669'/><rect x='55' y='34' width='9' height='9' rx='2' fill='%23059669'/><rect x='36' y='49' width='9' height='9' rx='2' fill='%23059669'/><rect x='55' y='49' width='9' height='9' rx='2' fill='%23059669'/></svg>" },
+  { id: 'shield_indigo', title: 'Indigo Security Fleet', url: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%234f46e5'/><path d='M50 20 L75 30 V55 C75 70 50 82 50 82 C50 82 25 70 25 55 V30 Z' fill='%23ffffff'/></svg>" },
+  { id: 'express_amber', title: 'Amber Express Fleet', url: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23d97706'/><path d='M55 20 L25 55 H45 L40 80 L75 45 H55 Z' fill='%23ffffff'/></svg>" },
+  { id: 'global_rose', title: 'Rose Global Mobility', url: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23e11d48'/><circle cx='50' cy='50' r='28' stroke='%23ffffff' stroke-width='6' fill='none'/><ellipse cx='50' cy='50' rx='14' ry='28' stroke='%23ffffff' stroke-width='4' fill='none'/><line x1='22' y1='50' x2='78' y2='50' stroke='%23ffffff' stroke-width='4'/></svg>" },
+  { id: 'metro_violet', title: 'Violet Tech Transit', url: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%237c3aed'/><circle cx='50' cy='30' r='10' fill='%23ffffff'/><circle cx='30' cy='70' r='10' fill='%23ffffff'/><circle cx='70' cy='70' r='10' fill='%23ffffff'/><line x1='50' y1='30' x2='30' y2='70' stroke='%23ffffff' stroke-width='4'/><line x1='50' y1='30' x2='70' y2='70' stroke='%23ffffff' stroke-width='4'/><line x1='30' y1='70' x2='70' y2='70' stroke='%23ffffff' stroke-width='4'/></svg>" },
+  { id: 'cyan_logistics', title: 'Cyan Freight & Logistics', url: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%230891b2'/><path d='M20 35h45v30H20z' fill='%23ffffff'/><path d='M65 45l15 5v15H65z' fill='%23ffffff' opacity='0.8'/><circle cx='35' cy='70' r='6' fill='%23ffffff'/><circle cx='70' cy='70' r='6' fill='%23ffffff'/></svg>" },
 ];
 
 export const getPlanTranslation = (plan, t) => {
@@ -401,16 +374,6 @@ export const OnboardTenantPage = () => {
     toast.success(t('superadmin.onboard.toast_image_selected', 'Image selected! It will be uploaded upon submitting the form.'));
   };
 
-  const handleSelectPresetAvatar = (avatarUrl) => {
-    if (logoPreview && logoPreview.startsWith('blob:')) {
-      URL.revokeObjectURL(logoPreview);
-    }
-    setLogoFile(null);
-    setLogoPreview('');
-    if (fileInputRef.current) fileInputRef.current.value = '';
-    setFormData((prev) => ({ ...prev, logoUrl: avatarUrl }));
-  };
-
   const handleRemoveLogo = () => {
     if (logoPreview && logoPreview.startsWith('blob:')) {
       URL.revokeObjectURL(logoPreview);
@@ -579,6 +542,7 @@ export const OnboardTenantPage = () => {
         },
         invoice: data?.invoice || null,
         paymentMode: formData.paymentMode,
+        emailDelivery: data?.emailDelivery || null,
       });
     } catch (err) {
       console.error('Failed to create organization:', err);
@@ -667,11 +631,10 @@ export const OnboardTenantPage = () => {
             </p>
           </div>
 
-          {/* Logo Upload & Avatar Picker Section */}
+          {/* Logo Upload Section */}
           <div className="p-4 bg-slate-50 dark:bg-zinc-800/50 rounded-xl border border-slate-200 dark:border-zinc-700 space-y-4">
             <div className="flex items-center justify-between">
               <label className="block text-xs font-bold text-slate-800 dark:text-zinc-200">{t('superadmin.onboard.logo_label', 'Company Logo / Profile Avatar')}</label>
-              <span className="text-[10px] text-slate-400 font-medium">{t('superadmin.onboard.logo_hint', 'Select custom image or preset avatar')}</span>
             </div>
 
             <div className="flex flex-wrap items-center gap-4">
@@ -735,32 +698,6 @@ export const OnboardTenantPage = () => {
               </div>
             </div>
 
-            {/* Quick Pick Preset Avatars */}
-            <div className="pt-3 border-t border-slate-200/70 dark:border-zinc-700/70 space-y-2">
-              <div className="text-[11px] font-bold text-slate-700 dark:text-zinc-300">
-                {t('superadmin.onboard.preset_avatar_label', 'Quick Select Preset Avatar:')}
-              </div>
-              <div className="flex items-center gap-2.5 overflow-x-auto pb-1">
-                {PRESET_AVATARS.map((avatar) => {
-                  const isSelected = !logoFile && formData.logoUrl === avatar.url;
-                  return (
-                    <button
-                      key={avatar.id}
-                      type="button"
-                      onClick={() => handleSelectPresetAvatar(avatar.url)}
-                      title={t('superadmin.onboard.avatar_' + avatar.id, avatar.title)}
-                      className={`w-9 h-9 rounded-xl border-2 transition-all shrink-0 overflow-hidden flex items-center justify-center ${
-                        isSelected
-                          ? 'border-blue-600 ring-2 ring-blue-400/50 scale-105 shadow-sm'
-                          : 'border-slate-200 dark:border-zinc-700 hover:border-blue-300 opacity-80 hover:opacity-100'
-                      }`}
-                    >
-                      <img src={avatar.url} alt={t('superadmin.onboard.avatar_' + avatar.id, avatar.title)} className="w-full h-full object-cover" />
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1635,6 +1572,20 @@ export const OnboardTenantPage = () => {
                   : `${formData.name} ${t('superadmin.onboard.tenant_added_desc', 'has been successfully added to the platform.')}`}
               </p>
             </div>
+
+            {successModalData.emailDelivery && (
+              <div className={`rounded-xl border px-4 py-3 text-xs font-semibold ${
+                successModalData.emailDelivery.sent
+                  ? 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300'
+                  : 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300'
+              }`}>
+                {successModalData.emailDelivery.sent
+                  ? `Credentials email sent to ${successModalData.emailDelivery.recipient}.`
+                  : successModalData.emailDelivery.queued
+                    ? `Tenant created. Credentials email to ${successModalData.emailDelivery.recipient} is queued for automatic retry.`
+                    : `Tenant created, but credentials email could not be dispatched. Please copy and share the credentials securely.`}
+              </div>
+            )}
 
             <div className="bg-slate-50 dark:bg-zinc-900/60 p-4 rounded-xl border border-slate-200 dark:border-zinc-800 space-y-2.5 text-xs">
               <div className="flex justify-between items-center py-1 border-b border-slate-200/60 dark:border-zinc-800">

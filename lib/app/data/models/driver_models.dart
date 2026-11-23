@@ -79,6 +79,8 @@ class DriverProfileData {
   final String? joinedAt;
   final String? avatarUrl;
   final bool? documentsVerified;
+  final bool? verified;
+  final bool? kycRejected;
 
   DriverProfileData({
     this.id,
@@ -98,10 +100,24 @@ class DriverProfileData {
     this.joinedAt,
     this.avatarUrl,
     this.documentsVerified,
+    this.verified,
+    this.kycRejected,
   });
 
   factory DriverProfileData.fromJson(Map<String, dynamic>? json) {
     if (json == null) return DriverProfileData();
+    final rawDocsVerified = json['documents_verified'] ?? json['documentsVerified'];
+    final bool? docsVerified = rawDocsVerified != null
+        ? (rawDocsVerified == true || rawDocsVerified == 1 || rawDocsVerified.toString() == 'true')
+        : (json['verified'] != null
+            ? (json['verified'] == true || json['verified'] == 1 || json['verified'].toString() == 'true')
+            : null);
+    final isVerified = docsVerified ?? (json['is_verified'] == true || json['is_verified'] == 1 || json['is_verified']?.toString() == 'true');
+    final isKycRej = json['kyc_rejected'] == true ||
+        json['kycRejected'] == true ||
+        json['kyc_rejected'] == 1 ||
+        json['kyc_rejected']?.toString() == 'true';
+
     return DriverProfileData(
       id: json['id']?.toString(),
       name: json['name']?.toString() ?? json['full_name']?.toString(),
@@ -123,9 +139,9 @@ class DriverProfileData {
           : null,
       joinedAt: json['joined_at']?.toString(),
       avatarUrl: json['avatar_url']?.toString() ?? json['avatar']?.toString(),
-      documentsVerified: json['documents_verified'] == true ||
-          json['verified'] == true ||
-          json['is_verified'] == true,
+      documentsVerified: isVerified,
+      verified: isVerified,
+      kycRejected: isKycRej,
     );
   }
 
@@ -419,6 +435,142 @@ class ActiveRouteInfo {
   }
 }
 
+class DriverSlotModel {
+  final int? id;
+  final String? slotCode;
+  final String? shiftType;
+  final String? shiftTypeLabel;
+  final String? status;
+  final bool isInProgress;
+  final bool isCompleted;
+  final String? busNumber;
+  final String? vehicleModel;
+  final String? routeName;
+  final String? routeCode;
+  final String? startPoint;
+  final String? endPoint;
+  final String? timeWindow;
+  final String? formattedStartTime;
+  final String? formattedEndTime;
+  final String? duration;
+  final dynamic distanceKm;
+
+  DriverSlotModel({
+    this.id,
+    this.slotCode,
+    this.shiftType,
+    this.shiftTypeLabel,
+    this.status,
+    this.isInProgress = false,
+    this.isCompleted = false,
+    this.busNumber,
+    this.vehicleModel,
+    this.routeName,
+    this.routeCode,
+    this.startPoint,
+    this.endPoint,
+    this.timeWindow,
+    this.formattedStartTime,
+    this.formattedEndTime,
+    this.duration,
+    this.distanceKm,
+  });
+
+  factory DriverSlotModel.fromJson(Map<String, dynamic>? json) {
+    if (json == null) return DriverSlotModel();
+    final rawStatus = (json['rawStatus'] ?? json['status'] ?? '').toString().toLowerCase();
+    final inProg = json['isInProgress'] == true || rawStatus == 'in_progress' || rawStatus == 'in transit';
+    final comp = json['isCompleted'] == true || rawStatus == 'completed';
+
+    return DriverSlotModel(
+      id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? ''),
+      slotCode: json['slot_code']?.toString() ?? json['slotCode']?.toString(),
+      shiftType: json['shift_type']?.toString() ?? json['shiftType']?.toString(),
+      shiftTypeLabel: json['shift_type_label']?.toString() ?? json['shiftTypeLabel']?.toString(),
+      status: json['status']?.toString(),
+      isInProgress: inProg,
+      isCompleted: comp,
+      busNumber: json['bus_number']?.toString() ?? json['busNumber']?.toString(),
+      vehicleModel: json['vehicle_model']?.toString() ?? json['vehicleModel']?.toString(),
+      routeName: json['route_name']?.toString() ?? json['routeName']?.toString(),
+      routeCode: json['route_code']?.toString() ?? json['routeCode']?.toString(),
+      startPoint: json['start_point']?.toString() ?? json['startPoint']?.toString(),
+      endPoint: json['end_point']?.toString() ?? json['endPoint']?.toString(),
+      timeWindow: json['time_window']?.toString() ?? json['timeWindow']?.toString(),
+      formattedStartTime: json['formatted_start_time']?.toString() ?? json['formattedStartTime']?.toString() ?? json['start_time']?.toString(),
+      formattedEndTime: json['formatted_end_time']?.toString() ?? json['formattedEndTime']?.toString() ?? json['end_time']?.toString(),
+      duration: json['duration']?.toString(),
+      distanceKm: json['distance_km'] ?? json['distanceKm'],
+    );
+  }
+}
+
+class DriverVehicleModel {
+  final String? busNumber;
+  final String? plateNumber;
+  final String? model;
+  final String? vehicleType;
+  final dynamic capacity;
+  final String? code;
+  final DriverDepotModel? depot;
+  final DriverFleetModel? fleet;
+
+  DriverVehicleModel({
+    this.busNumber,
+    this.plateNumber,
+    this.model,
+    this.vehicleType,
+    this.capacity,
+    this.code,
+    this.depot,
+    this.fleet,
+  });
+
+  factory DriverVehicleModel.fromJson(Map<String, dynamic>? json) {
+    if (json == null) return DriverVehicleModel();
+    return DriverVehicleModel(
+      busNumber: json['bus_number']?.toString() ?? json['busNumber']?.toString() ?? json['registration_number']?.toString(),
+      plateNumber: json['plate_number']?.toString() ?? json['registration_number']?.toString(),
+      model: json['model']?.toString(),
+      vehicleType: json['vehicle_type']?.toString() ?? json['type']?.toString(),
+      capacity: json['capacity'],
+      code: json['code']?.toString(),
+      depot: json['depot'] is Map ? DriverDepotModel.fromJson(Map<String, dynamic>.from(json['depot'])) : null,
+      fleet: json['fleet'] is Map ? DriverFleetModel.fromJson(Map<String, dynamic>.from(json['fleet'])) : null,
+    );
+  }
+}
+
+class DriverDepotModel {
+  final String? name;
+  final String? code;
+
+  DriverDepotModel({this.name, this.code});
+
+  factory DriverDepotModel.fromJson(Map<String, dynamic>? json) {
+    if (json == null) return DriverDepotModel();
+    return DriverDepotModel(
+      name: json['name']?.toString(),
+      code: json['code']?.toString(),
+    );
+  }
+}
+
+class DriverFleetModel {
+  final String? name;
+  final String? code;
+
+  DriverFleetModel({this.name, this.code});
+
+  factory DriverFleetModel.fromJson(Map<String, dynamic>? json) {
+    if (json == null) return DriverFleetModel();
+    return DriverFleetModel(
+      name: json['name']?.toString(),
+      code: json['code']?.toString(),
+    );
+  }
+}
+
 class DriverActiveRouteData {
   final String? tripId;
   final ActiveRouteInfo? route;
@@ -448,6 +600,20 @@ class DriverActiveRouteData {
   final String? nextStopEta;
   final List<RouteStopDetail> stops;
 
+  // Additional nested rich fields from activeRoute & shift slots
+  final List<DriverSlotModel> todaySlots;
+  final DriverSlotModel? selectedSlot;
+  final DriverSlotModel? slot;
+  final DriverVehicleModel? assignedBus;
+  final DriverVehicleModel? vehicle;
+  final DriverDepotModel? depot;
+  final DriverFleetModel? fleet;
+  final String? startedAtFormatted;
+  final String? endedAtFormatted;
+  final String? duration;
+  final dynamic coveredKm;
+  final String? tripCode;
+
   DriverActiveRouteData({
     this.tripId,
     this.route,
@@ -474,6 +640,18 @@ class DriverActiveRouteData {
     this.nextStop,
     this.nextStopEta,
     this.stops = const [],
+    this.todaySlots = const [],
+    this.selectedSlot,
+    this.slot,
+    this.assignedBus,
+    this.vehicle,
+    this.depot,
+    this.fleet,
+    this.startedAtFormatted,
+    this.endedAtFormatted,
+    this.duration,
+    this.coveredKm,
+    this.tripCode,
   });
 
   factory DriverActiveRouteData.fromJson(Map<String, dynamic>? json) {
@@ -502,6 +680,55 @@ class DriverActiveRouteData {
       );
     }
 
+    final slotsList = json['todaySlots'] is List
+        ? (json['todaySlots'] as List)
+            .map((e) => DriverSlotModel.fromJson(Map<String, dynamic>.from(e)))
+            .toList()
+        : <DriverSlotModel>[];
+
+    DriverSlotModel? selSlot;
+    if (json['selectedSlot'] is Map) {
+      selSlot = DriverSlotModel.fromJson(Map<String, dynamic>.from(json['selectedSlot']));
+    }
+
+    DriverSlotModel? slotObj;
+    if (src['slot'] is Map) {
+      slotObj = DriverSlotModel.fromJson(Map<String, dynamic>.from(src['slot']));
+    } else if (selSlot != null) {
+      slotObj = selSlot;
+    }
+
+    DriverVehicleModel? vehObj;
+    if (src['vehicle'] is Map) {
+      vehObj = DriverVehicleModel.fromJson(Map<String, dynamic>.from(src['vehicle']));
+    } else if (json['assignedBus'] is Map) {
+      vehObj = DriverVehicleModel.fromJson(Map<String, dynamic>.from(json['assignedBus']));
+    }
+
+    DriverDepotModel? depotObj;
+    if (src['depot'] is Map) {
+      depotObj = DriverDepotModel.fromJson(Map<String, dynamic>.from(src['depot']));
+    } else if (json['depot'] is Map) {
+      depotObj = DriverDepotModel.fromJson(Map<String, dynamic>.from(json['depot']));
+    } else if (vehObj?.depot != null) {
+      depotObj = vehObj!.depot;
+    }
+
+    DriverFleetModel? fleetObj;
+    if (src['fleet'] is Map) {
+      fleetObj = DriverFleetModel.fromJson(Map<String, dynamic>.from(src['fleet']));
+    } else if (json['fleet'] is Map) {
+      fleetObj = DriverFleetModel.fromJson(Map<String, dynamic>.from(json['fleet']));
+    } else if (vehObj?.fleet != null) {
+      fleetObj = vehObj!.fleet;
+    }
+
+    final tripInfo = src['trip'] is Map ? src['trip'] as Map : null;
+    final tripCodeVal = tripInfo?['trip_code']?.toString() ??
+        tripInfo?['code']?.toString() ??
+        src['tripCode']?.toString() ??
+        (src['id'] != null ? 'TRIP-${src['id']}' : null);
+
     return DriverActiveRouteData(
       tripId: src['tripId']?.toString() ?? src['trip_id']?.toString() ?? src['id']?.toString(),
       route: routeObj,
@@ -512,50 +739,76 @@ class DriverActiveRouteData {
       passengersOnboard: src['passengers_onboard'] != null
           ? (src['passengers_onboard'] as num).toInt()
           : 0,
-      routeName: src['routeName']?.toString() ?? routeObj?.name,
-      routeNumber: src['routeNumber']?.toString() ?? routeObj?.routeNumber,
-      busNumber: src['busNumber']?.toString() ?? src['bus_number']?.toString(),
-      vehicleCode: src['vehicleCode']?.toString() ?? src['vehicle_code']?.toString(),
-      vehicleType: src['vehicleType']?.toString() ?? src['vehicle_type']?.toString(),
-      status: src['status']?.toString(),
-      rawStatus: src['rawStatus']?.toString() ?? src['raw_status']?.toString(),
+      routeName: src['routeName']?.toString() ?? routeObj?.name ?? slotObj?.routeName,
+      routeNumber: src['routeNumber']?.toString() ?? routeObj?.routeNumber ?? slotObj?.routeCode,
+      busNumber: src['busNumber']?.toString() ?? src['bus_number']?.toString() ?? slotObj?.busNumber ?? vehObj?.busNumber,
+      vehicleCode: src['vehicleCode']?.toString() ?? src['vehicle_code']?.toString() ?? vehObj?.code,
+      vehicleType: src['vehicleType']?.toString() ?? src['vehicle_type']?.toString() ?? vehObj?.vehicleType,
+      status: src['status']?.toString() ?? slotObj?.status,
+      rawStatus: src['rawStatus']?.toString() ?? src['raw_status']?.toString() ?? slotObj?.status,
       batteryState: src['batteryState']?.toString(),
       fuelLevel: src['fuelLevel']?.toString(),
       routeType: src['routeType']?.toString() ?? src['route_type']?.toString(),
       frequency: src['frequency']?.toString(),
       passengersEstimate: src['passengersEstimate']?.toString() ?? src['passengers_estimate']?.toString(),
-      departureTime: src['departureTime']?.toString() ?? src['start_time']?.toString(),
-      endTime: src['endTime']?.toString() ?? src['end_time']?.toString(),
-      totalDistance: src['totalDistance']?.toString() ?? src['distance']?.toString(),
-      origin: src['origin']?.toString() ?? src['from_stop']?.toString(),
-      destination: src['destination']?.toString() ?? src['to_stop']?.toString(),
+      departureTime: src['departureTime']?.toString() ?? src['start_time']?.toString() ?? slotObj?.formattedStartTime,
+      endTime: src['endTime']?.toString() ?? src['end_time']?.toString() ?? slotObj?.formattedEndTime,
+      totalDistance: src['totalDistance']?.toString() ?? src['distance']?.toString() ?? (slotObj?.distanceKm != null ? '${slotObj!.distanceKm} km' : null),
+      origin: src['origin']?.toString() ?? src['from_stop']?.toString() ?? slotObj?.startPoint,
+      destination: src['destination']?.toString() ?? src['to_stop']?.toString() ?? slotObj?.endPoint,
       nextStop: src['nextStop']?.toString() ?? src['next_stop']?.toString(),
       nextStopEta: src['nextStopEta']?.toString() ?? src['next_stop_eta']?.toString(),
       stops: stopsList,
+      todaySlots: slotsList,
+      selectedSlot: selSlot,
+      slot: slotObj,
+      assignedBus: vehObj,
+      vehicle: vehObj,
+      depot: depotObj,
+      fleet: fleetObj,
+      startedAtFormatted: src['started_at_formatted']?.toString() ?? src['started_at']?.toString() ?? slotObj?.formattedStartTime,
+      endedAtFormatted: src['ended_at_formatted']?.toString() ?? src['ended_at']?.toString() ?? slotObj?.formattedEndTime,
+      duration: src['duration']?.toString() ?? slotObj?.duration,
+      coveredKm: src['covered_km'] ?? src['distance_km'] ?? slotObj?.distanceKm,
+      tripCode: tripCodeVal,
     );
   }
 }
 
 class DriverTripItem {
   final String? id;
+  final String? tripCode;
   final String? routeName;
   final String? routeNumber;
-  final String? vehicleRegNumber;
+  final String? origin;
+  final String? destination;
+  final String? busNumber;
+  final String? vehicleModel;
+  final String? vehiclePlateNumber;
   final String? status;
-  final String? startTime;
-  final String? endTime;
-  final double distanceKm;
+  final String? startedAt;
+  final String? endedAt;
+  final dynamic distanceKm;
+  final dynamic coveredKm;
+  final String? duration;
   final int passengersCounted;
 
   DriverTripItem({
     this.id,
+    this.tripCode,
     this.routeName,
     this.routeNumber,
-    this.vehicleRegNumber,
+    this.origin,
+    this.destination,
+    this.busNumber,
+    this.vehicleModel,
+    this.vehiclePlateNumber,
     this.status,
-    this.startTime,
-    this.endTime,
-    this.distanceKm = 0.0,
+    this.startedAt,
+    this.endedAt,
+    this.distanceKm,
+    this.coveredKm,
+    this.duration,
     this.passengersCounted = 0,
   });
 
@@ -563,15 +816,30 @@ class DriverTripItem {
     if (json == null) return DriverTripItem();
     final routeMap = json['route'] is Map ? json['route'] as Map : null;
     final vehMap = json['vehicle'] is Map ? json['vehicle'] as Map : null;
+    final rawTripCode = json['code']?.toString() ??
+        json['trip_code']?.toString() ??
+        (json['id'] != null ? 'TRIP-${json['id'].toString().padLeft(4, '0')}' : null);
+
     return DriverTripItem(
       id: json['id']?.toString(),
+      tripCode: rawTripCode,
       routeName: routeMap?['name']?.toString() ?? json['route_name']?.toString(),
-      routeNumber: routeMap?['route_number']?.toString() ?? json['route_number']?.toString(),
-      vehicleRegNumber: vehMap?['registration_number']?.toString() ?? json['registration_number']?.toString(),
+      routeNumber: routeMap?['route_number']?.toString() ?? routeMap?['code']?.toString() ?? json['route_number']?.toString(),
+      origin: json['origin']?.toString() ?? routeMap?['start_point']?.toString() ?? routeMap?['from_stop']?.toString(),
+      destination: json['destination']?.toString() ?? routeMap?['end_point']?.toString() ?? routeMap?['to_stop']?.toString(),
+      busNumber: vehMap?['bus_number']?.toString() ??
+          vehMap?['registration_number']?.toString() ??
+          vehMap?['code']?.toString() ??
+          json['bus_number']?.toString() ??
+          (json['vehicle_id'] != null ? 'Bus #${json['vehicle_id']}' : null),
+      vehicleModel: vehMap?['model']?.toString() ?? vehMap?['vehicle_type']?.toString() ?? vehMap?['plate_number']?.toString() ?? json['vehicle_model']?.toString(),
+      vehiclePlateNumber: vehMap?['plate_number']?.toString() ?? vehMap?['registration_number']?.toString() ?? vehMap?['bus_number']?.toString(),
       status: json['status']?.toString() ?? 'completed',
-      startTime: json['start_time']?.toString(),
-      endTime: json['end_time']?.toString(),
-      distanceKm: json['distance_km'] != null ? (json['distance_km'] as num).toDouble() : 0.0,
+      startedAt: json['started_at']?.toString() ?? json['start_time']?.toString() ?? json['createdAt']?.toString(),
+      endedAt: json['ended_at']?.toString() ?? json['end_time']?.toString(),
+      distanceKm: json['distance_km'] ?? routeMap?['distance_km'] ?? json['distance'],
+      coveredKm: json['covered_km'] ?? json['distance_km'] ?? routeMap?['distance_km'] ?? json['distance'],
+      duration: json['duration']?.toString(),
       passengersCounted: json['passengers_counted'] != null ? (json['passengers_counted'] as num).toInt() : 0,
     );
   }
@@ -592,25 +860,74 @@ class DriverTripHistoryData {
     this.pageSize = 20,
   });
 
-  factory DriverTripHistoryData.fromJson(Map<String, dynamic>? json) {
-    if (json == null) return DriverTripHistoryData();
+  factory DriverTripHistoryData.fromDynamic(
+    dynamic data, {
+    int fallbackPage = 1,
+    int fallbackLimit = 20,
+    Map<String, dynamic>? meta,
+  }) {
+    if (data == null) return DriverTripHistoryData();
+
     List<DriverTripItem> items = [];
-    if (json['rows'] is List) {
-      items = (json['rows'] as List)
+    int? count;
+    int? totalPages;
+    int? currentPage;
+    int? pageSize;
+
+    if (data is List) {
+      items = data
+          .whereType<Map>()
           .map((e) => DriverTripItem.fromJson(Map<String, dynamic>.from(e)))
           .toList();
-    } else if (json['items'] is List) {
-      items = (json['items'] as List)
-          .map((e) => DriverTripItem.fromJson(Map<String, dynamic>.from(e)))
-          .toList();
+      count = items.length;
+    } else if (data is Map) {
+      final map = Map<String, dynamic>.from(data);
+      final rawList = map['rows'] ?? map['items'] ?? map['trips'] ?? map['data'];
+      if (rawList is List) {
+        items = rawList
+            .whereType<Map>()
+            .map((e) => DriverTripItem.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
+      }
+      if (map['count'] is num) count = (map['count'] as num).toInt();
+      if (map['total'] is num) count = (map['total'] as num).toInt();
+      if (map['totalItems'] is num) count = (map['totalItems'] as num).toInt();
+      if (map['totalPages'] is num) totalPages = (map['totalPages'] as num).toInt();
+      if (map['total_pages'] is num) totalPages = (map['total_pages'] as num).toInt();
+      if (map['currentPage'] is num) currentPage = (map['currentPage'] as num).toInt();
+      if (map['current_page'] is num) currentPage = (map['current_page'] as num).toInt();
+      if (map['page'] is num) currentPage = (map['page'] as num).toInt();
+      if (map['pageSize'] is num) pageSize = (map['pageSize'] as num).toInt();
+      if (map['page_size'] is num) pageSize = (map['page_size'] as num).toInt();
+      if (map['limit'] is num) pageSize = (map['limit'] as num).toInt();
     }
+
+    final pagination = meta?['pagination'] is Map ? meta!['pagination'] as Map : null;
+    if (pagination != null) {
+      if (pagination['total'] is num) count = (pagination['total'] as num).toInt();
+      if (pagination['totalPages'] is num) totalPages = (pagination['totalPages'] as num).toInt();
+      if (pagination['total_pages'] is num) totalPages = (pagination['total_pages'] as num).toInt();
+      if (pagination['page'] is num) currentPage = (pagination['page'] as num).toInt();
+      if (pagination['limit'] is num) pageSize = (pagination['limit'] as num).toInt();
+    }
+
+    final finalCount = count ?? items.length;
+    final finalPageSize = pageSize ?? fallbackLimit;
+    final calculatedPages = finalPageSize > 0 ? (finalCount / finalPageSize).ceil() : 1;
+    final finalTotalPages = totalPages ?? (calculatedPages > 0 ? calculatedPages : 1);
+    final finalCurrentPage = currentPage ?? fallbackPage;
+
     return DriverTripHistoryData(
       rows: items,
-      count: json['count'] != null ? (json['count'] as num).toInt() : items.length,
-      totalPages: json['totalPages'] != null ? (json['totalPages'] as num).toInt() : 1,
-      currentPage: json['currentPage'] != null ? (json['currentPage'] as num).toInt() : 1,
-      pageSize: json['pageSize'] != null ? (json['pageSize'] as num).toInt() : 20,
+      count: finalCount,
+      totalPages: finalTotalPages > 0 ? finalTotalPages : 1,
+      currentPage: finalCurrentPage > 0 ? finalCurrentPage : 1,
+      pageSize: finalPageSize > 0 ? finalPageSize : 20,
     );
+  }
+
+  factory DriverTripHistoryData.fromJson(Map<String, dynamic>? json) {
+    return DriverTripHistoryData.fromDynamic(json);
   }
 }
 
@@ -756,12 +1073,26 @@ class DriverIncidentItem {
   final String? hospitalName;
   final String? policeStationName;
   final bool ambulanceAssigned;
+  final String? ambulanceTiming;
+  final bool policeNotified;
+  final bool towingRequested;
+  final String? weatherConditions;
+  final String? roadType;
+  final String? trafficDisruptionLevel;
+  final String? contactPreference;
+  final bool contactedDriver;
+  final String? contactNotes;
+  final String? recoveredAt;
+  final String? resolverName;
+  final String? resolverEmail;
+  final String? resolutionNotes;
   final double? latitude;
   final double? longitude;
   final String? locationName;
   final String? immediateAction;
   final String? contactNumber;
   final List<String> affectedParties;
+  final List<DriverIncidentActivityLog> activityLogs;
 
   DriverIncidentItem({
     this.id,
@@ -783,12 +1114,26 @@ class DriverIncidentItem {
     this.hospitalName,
     this.policeStationName,
     this.ambulanceAssigned = false,
+    this.ambulanceTiming,
+    this.policeNotified = false,
+    this.towingRequested = false,
+    this.weatherConditions,
+    this.roadType,
+    this.trafficDisruptionLevel,
+    this.contactPreference,
+    this.contactedDriver = false,
+    this.contactNotes,
+    this.recoveredAt,
+    this.resolverName,
+    this.resolverEmail,
+    this.resolutionNotes,
     this.latitude,
     this.longitude,
     this.locationName,
     this.immediateAction,
     this.contactNumber,
     this.affectedParties = const [],
+    this.activityLogs = const [],
   });
 
   List<String> get photos => mediaUrls;
@@ -893,6 +1238,32 @@ class DriverIncidentItem {
       return str == 'true' || str == '1' || str == 'yes';
     }
 
+    // 8. Activity logs
+    List<DriverIncidentActivityLog> logs = [];
+    final rawLogs = json['activityLogs'] ?? json['activity_logs'];
+    if (rawLogs is List) {
+      logs = rawLogs
+          .whereType<Map>()
+          .map((e) => DriverIncidentActivityLog.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+    }
+
+    // 9. Resolver details
+    String? resName;
+    String? resEmail;
+    if (json['resolver'] is Map) {
+      resName = json['resolver']['name']?.toString();
+      resEmail = json['resolver']['email']?.toString();
+    } else if (json['resolver'] is String) {
+      resName = json['resolver'] as String;
+    }
+    resName ??= json['resolver_name']?.toString() ?? json['resolverName']?.toString();
+
+    final resNotes = json['resolution_notes']?.toString() ??
+        json['resolutionNotes']?.toString() ??
+        json['resolution']?.toString() ??
+        json['admin_notes']?.toString();
+
     return DriverIncidentItem(
       id: json['id']?.toString(),
       title: json['title']?.toString() ?? incType ?? 'Incident Report',
@@ -909,10 +1280,7 @@ class DriverIncidentItem {
       location: loc,
       mediaUrls: media,
       videoUrls: vids,
-      resolution: json['resolution']?.toString() ??
-          json['resolution_notes']?.toString() ??
-          json['resolutionNotes']?.toString() ??
-          json['admin_notes']?.toString(),
+      resolution: resNotes,
       reportedAt: json['reported_at']?.toString() ??
           json['reportedAt']?.toString() ??
           json['createdAt']?.toString() ??
@@ -927,14 +1295,118 @@ class DriverIncidentItem {
       hospitalName: json['hospital_name']?.toString() ?? json['hospitalName']?.toString(),
       policeStationName: json['police_station_name']?.toString() ?? json['policeStationName']?.toString(),
       ambulanceAssigned: toBool(json['ambulance_assigned'] ?? json['ambulanceAssigned']),
+      ambulanceTiming: json['ambulance_timing']?.toString() ?? json['ambulanceTiming']?.toString(),
+      policeNotified: toBool(json['police_notified'] ?? json['policeNotified']),
+      towingRequested: toBool(json['towing_requested'] ?? json['towingRequested']),
+      weatherConditions: json['weather_conditions']?.toString() ?? json['weatherConditions']?.toString(),
+      roadType: json['road_type']?.toString() ?? json['roadType']?.toString(),
+      trafficDisruptionLevel: json['traffic_disruption_level']?.toString() ?? json['trafficDisruptionLevel']?.toString(),
+      contactPreference: json['contact_preference']?.toString() ?? json['contactPreference']?.toString(),
+      contactedDriver: toBool(json['contacted_driver'] ?? json['contactedDriver']),
+      contactNotes: json['contact_notes']?.toString() ?? json['contactNotes']?.toString(),
+      recoveredAt: json['recovered_at']?.toString() ?? json['recoveredAt']?.toString(),
+      resolverName: resName,
+      resolverEmail: resEmail,
+      resolutionNotes: resNotes,
       latitude: latVal ?? loc?.lat,
       longitude: lngVal ?? loc?.lng,
       locationName: locName ?? loc?.address,
       immediateAction: json['immediate_action']?.toString() ?? json['immediateAction']?.toString(),
       contactNumber: json['contact_number']?.toString() ?? json['contactNumber']?.toString(),
       affectedParties: affected,
+      activityLogs: logs,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'title': title,
+    'incidentType': incidentType,
+    'description': description,
+    'severity': severity,
+    'status': status,
+    'ticketNumber': ticketNumber,
+    'location': location?.toJson(),
+    'photos': mediaUrls,
+    'videos': videoUrls,
+    'resolution': resolution,
+    'reportedAt': reportedAt,
+    'resolvedAt': resolvedAt,
+    'landmark': landmark,
+    'deadCasualty': deadCasualty,
+    'injuredCount': injuredCount,
+    'hospitalName': hospitalName,
+    'policeStationName': policeStationName,
+    'ambulanceAssigned': ambulanceAssigned,
+    'ambulanceTiming': ambulanceTiming,
+    'policeNotified': policeNotified,
+    'towingRequested': towingRequested,
+    'weatherConditions': weatherConditions,
+    'roadType': roadType,
+    'trafficDisruptionLevel': trafficDisruptionLevel,
+    'contactPreference': contactPreference,
+    'contactedDriver': contactedDriver,
+    'contactNotes': contactNotes,
+    'recoveredAt': recoveredAt,
+    'resolverName': resolverName,
+    'resolverEmail': resolverEmail,
+    'resolutionNotes': resolutionNotes,
+    'latitude': latitude,
+    'longitude': longitude,
+    'locationName': locationName,
+    'immediateAction': immediateAction,
+    'contactNumber': contactNumber,
+    'affectedParties': affectedParties,
+    'activityLogs': activityLogs.map((e) => e.toJson()).toList(),
+  };
+}
+
+class DriverIncidentActivityLog {
+  final String? id;
+  final String? description;
+  final String? actorName;
+  final String? actorRole;
+  final String? oldStatus;
+  final String? newStatus;
+  final String? notes;
+  final String? createdAt;
+
+  DriverIncidentActivityLog({
+    this.id,
+    this.description,
+    this.actorName,
+    this.actorRole,
+    this.oldStatus,
+    this.newStatus,
+    this.notes,
+    this.createdAt,
+  });
+
+  factory DriverIncidentActivityLog.fromJson(Map<String, dynamic>? json) {
+    if (json == null) return DriverIncidentActivityLog();
+    final props = json['properties'] is Map ? json['properties'] as Map : null;
+    return DriverIncidentActivityLog(
+      id: json['id']?.toString(),
+      description: json['description']?.toString() ?? props?['action']?.toString() ?? 'Action Logged',
+      actorName: json['actor_name']?.toString() ?? json['causer_name']?.toString() ?? json['userName']?.toString() ?? 'System Operator',
+      actorRole: json['actor_role']?.toString() ?? json['causer_role']?.toString() ?? json['userRole']?.toString() ?? 'Staff',
+      oldStatus: props?['old_status']?.toString(),
+      newStatus: props?['new_status']?.toString(),
+      notes: props?['notes']?.toString() ?? props?['contact_notes']?.toString() ?? props?['resolution_notes']?.toString(),
+      createdAt: json['createdAt']?.toString() ?? json['created_at']?.toString() ?? json['timestamp']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'description': description,
+    'actor_name': actorName,
+    'actor_role': actorRole,
+    'old_status': oldStatus,
+    'new_status': newStatus,
+    'notes': notes,
+    'createdAt': createdAt,
+  };
 }
 
 class DriverDutyStatusResult {

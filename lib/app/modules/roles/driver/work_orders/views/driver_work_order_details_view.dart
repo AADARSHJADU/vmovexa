@@ -289,7 +289,7 @@ class DriverWorkOrderDetailsView extends GetView<DriverWorkOrderDetailsControlle
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        tech.certLevel.isNotEmpty ? tech.certLevel : 'Central Field Technician',
+                        tech.certLevel.isNotEmpty ? tech.certLevel : 'central_field_tech'.tr,
                         style: const TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 11,
@@ -400,7 +400,7 @@ class DriverWorkOrderDetailsView extends GetView<DriverWorkOrderDetailsControlle
           ),
           const SizedBox(height: 4),
           Text(
-            order.description.isNotEmpty ? order.description : 'No description provided.',
+            order.description.isNotEmpty ? order.description : 'no_description_provided'.tr,
             style: const TextStyle(
               color: Colors.white,
               fontSize: 12,

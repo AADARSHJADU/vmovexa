@@ -8,7 +8,7 @@ import { uploadFile, resolveFileUrl } from '../../api/services/upload.service';
 import Breadcrumb from '../../components/ui/Breadcrumb';
 
 export const AdminAccountSettingsPage = () => {
-  const { t } = useTranslation();
+  const { t, languages, changeLanguage } = useTranslation();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const { user, updateProfile, fetchMe } = useAuth();
@@ -21,7 +21,7 @@ export const AdminAccountSettingsPage = () => {
     email: user?.email || '',
     phone: user?.phone || '',
     timezone: user?.timezone || 'Asia/Kolkata',
-    language_id: user?.language_id || 1,
+    language: user?.language?.code || user?.settings?.locale || 'en',
   });
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export const AdminAccountSettingsPage = () => {
       email: user?.email || '',
       phone: user?.phone || '',
       timezone: user?.timezone || 'Asia/Kolkata',
-      language_id: user?.language_id || 1,
+      language: user?.language?.code || user?.settings?.locale || 'en',
     });
   }, [user]);
 
@@ -102,6 +102,7 @@ export const AdminAccountSettingsPage = () => {
           name: formData.name,
           phone: formData.phone,
           timezone: formData.timezone,
+          language: formData.language,
         }),
         {
           loading: 'Saving profile settings...',
@@ -109,6 +110,7 @@ export const AdminAccountSettingsPage = () => {
           error: (err) => err?.message || 'Failed to save settings',
         }
       );
+      await changeLanguage(formData.language, { persist: false });
       if (fetchMe) await fetchMe();
       navigate('/admin/profile');
     } catch {
@@ -134,7 +136,7 @@ export const AdminAccountSettingsPage = () => {
         <div>
           <Breadcrumb
             items={[
-              { label: t('nav.admin') || 'Dashboard', path: '/admin/dashboard' },
+              { label: t('ag.admin.admin_operations', 'Admin Operations'), path: '/admin/dashboard' },
               { label: t('admin.profile.title') || 'Admin Profile', path: '/admin/profile' },
               { label: t('admin.account.title') }
             ]}
@@ -273,12 +275,15 @@ export const AdminAccountSettingsPage = () => {
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1.5">{t('admin.account.lang_label')}</label>
               <select
-                value={formData.language_id}
-                onChange={(e) => setFormData({ ...formData, language_id: Number(e.target.value) })}
+                value={formData.language}
+                onChange={(e) => setFormData({ ...formData, language: e.target.value })}
                 className="w-full px-3.5 py-2.5 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:border-blue-500"
               >
-                <option value={1}>{t('admin.account.lang_en')}</option>
-                <option value={2}>{t('admin.account.lang_hi')}</option>
+                {languages.filter((language) => language.is_active !== false).map((language) => (
+                  <option key={language.code} value={language.code}>
+                    {language.native_name || language.name} ({language.code})
+                  </option>
+                ))}
               </select>
             </div>
           </div>

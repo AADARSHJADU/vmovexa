@@ -33,6 +33,8 @@ import '../modules/roles/driver/work_orders/bindings/driver_work_orders_binding.
 import '../modules/roles/driver/work_orders/views/driver_work_orders_view.dart';
 import '../modules/roles/driver/work_orders/views/driver_create_work_order_view.dart';
 import '../modules/roles/driver/work_orders/views/driver_work_order_details_view.dart';
+import '../modules/roles/driver/trips/binding/driver_completed_trips_binding.dart';
+import '../modules/roles/driver/trips/view/driver_completed_trips_view.dart';
 import '../modules/roles/finance/finance_dashboard/bindings/finance_dashboard_bindings.dart';
 import '../modules/roles/finance/finance_dashboard/view/finance_dashboard_view.dart';
 import '../modules/roles/finance/finance_profile/help-support/bindings/finance_help_support_binding.dart';
@@ -916,6 +918,12 @@ class AppPages {
       name: Routes.DRIVER_WORK_ORDER_DETAILS,
       page: () => const DriverWorkOrderDetailsView(),
       binding: DriverWorkOrderDetailsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DRIVER_COMPLETED_TRIPS,
+      page: () => const DriverCompletedTripsView(),
+      binding: DriverCompletedTripsBinding(),
       transition: Transition.rightToLeft,
     ),
 

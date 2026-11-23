@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { FleetIcons } from '../../components/FleetIcons';
@@ -10,6 +10,12 @@ import { useAdminDepot } from '../../hooks/admin/useAdminDepot';
 import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from '../../hooks/useTranslation';
 import { ActionDropdown } from '../../components/ui/ActionDropdown';
+
+const FALLBACK_STATUS_OPTIONS = [
+  { value: 'operational', label: 'Operational', count: 0 },
+  { value: 'maintenance', label: 'Maintenance', count: 0 },
+  { value: 'closed', label: 'Closed', count: 0 },
+];
 
 export const AdminDepotsPage = () => {
   const { t } = useTranslation();
@@ -83,15 +89,22 @@ export const AdminDepotsPage = () => {
   }, [canView, currentPage, pageSize, debouncedSearch, statusFilter, loadDepots]);
 
   const rawDepotsList = Array.isArray(depots) ? depots : (depots?.items || depots?.rows || []);
-  const depotsList = rawDepotsList.filter((dep) => {
-    if (statusFilter === 'all') return true;
-    return (dep.status || 'operational') === statusFilter;
-  });
+  const depotsList = rawDepotsList;
+  const derivedStatusOptions = Array.from(new Set(rawDepotsList.map((depot) => depot.status).filter(Boolean))).map((status) => ({
+        value: status,
+        label: status.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase()),
+        count: rawDepotsList.filter((depot) => depot.status === status).length,
+      }));
+  const statusOptions = Array.isArray(pagination?.filterOptions?.statuses)
+    ? pagination.filterOptions.statuses
+    : (derivedStatusOptions.length > 0 ? derivedStatusOptions : FALLBACK_STATUS_OPTIONS);
 
   // Calculate Stat Metrics
-  const totalDepotsCount = pagination?.total ?? rawDepotsList.length;
-  const operationalCount = rawDepotsList.filter((d) => (d.status || 'operational') === 'operational').length;
-  const totalEvChargers = rawDepotsList.reduce((acc, d) => acc + Number(d.ev_chargers ?? d.evChargers ?? 0), 0);
+  const totalDepotsCount = pagination?.summary?.total ?? pagination?.total ?? rawDepotsList.length;
+  const operationalCount = pagination?.summary?.operational
+    ?? rawDepotsList.filter((d) => (d.status || 'operational') === 'operational').length;
+  const totalEvChargers = pagination?.summary?.evChargers
+    ?? rawDepotsList.reduce((acc, d) => acc + Number(d.ev_chargers ?? d.evChargers ?? 0), 0);
 
   const openCreateModal = () => {
     setSelectedDepot(null);
@@ -214,7 +227,7 @@ export const AdminDepotsPage = () => {
         <div>
           <Breadcrumb
             items={[
-              { label: isFleetPortal ? t('ag.admin.admindepotspage.fleet_operator', 'Fleet Operator') : t('ag.admin.admindepotspage.admin_operations', 'Admin Operations'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
+              { label: isFleetPortal ? t('roles.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
               { label: t('admin.depots.title') },
             ]}
             className="mb-2"
@@ -279,12 +292,18 @@ export const AdminDepotsPage = () => {
           {/* Status Filter */}
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setCurrentPage(1);
+            }}
             className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:ring-2 focus:ring-slate-300 focus:outline-none"
           >
             <option value="all">{t('admin.depots.filter_all_status')}</option>
-            <option value="operational">{t('admin.depots.filter_operational_only')}</option>
-            <option value="closed">{t('admin.depots.filter_closed_only')}</option>
+            {statusOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label} ({option.count})
+              </option>
+            ))}
           </select>
         </div>
 
@@ -666,8 +685,9 @@ export const AdminDepotsPage = () => {
                   onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                   className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-slate-500"
                 >
-                  <option value="operational">{t('admin.depots.stat_operational')}</option>
-                  <option value="closed">{t('admin.depots.status_closed_renovation')}</option>
+                  {statusOptions.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
                 </select>
               </div>
 

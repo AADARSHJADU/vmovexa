@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/modules/roles/driver/profile/driver_documents/view/upload_doc_stepper.dart' show UploadDocStepper;
+import 'package:vmovexa/app/theme/app_theme.dart';
 
 import '../../../../technician/hardware_configuration/views/shared_widgets.dart';
 import '../controller/upload_document_controller.dart';
@@ -83,10 +84,16 @@ class DocumentSubmittedView extends GetView<UploadDocumentController> {
           child: Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: kPurple.withValues(alpha: 0.12),
+              gradient: AppTheme.primaryGradient,
               shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.gradientBlue.withValues(alpha: 0.3),
+                  blurRadius: 4,
+                ),
+              ],
             ),
-            child: const Icon(Icons.info_outline, color: kPurple, size: 18),
+            child: const Icon(Icons.info_outline, color: Colors.white, size: 18),
           ),
         ),
       ],
@@ -133,7 +140,7 @@ class DocumentSubmittedView extends GetView<UploadDocumentController> {
             child: Container(
               width: 5,
               height: 5,
-              decoration: const BoxDecoration(color: kPurple, shape: BoxShape.circle),
+              decoration: const BoxDecoration(color: AppTheme.gradientPink, shape: BoxShape.circle),
             ),
           ),
         )
@@ -153,8 +160,11 @@ class DocumentSubmittedView extends GetView<UploadDocumentController> {
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: kPurple.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(9)),
-                  child: Icon(controller.documentIcon, color: kPurple, size: 16),
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(9),
+                  ),
+                  child: Icon(controller.documentIcon, color: Colors.white, size: 16),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -197,7 +207,10 @@ class DocumentSubmittedView extends GetView<UploadDocumentController> {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Row(
         children: [
-          Icon(icon, color: kPurple, size: 15),
+          ShaderMask(
+            shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+            child: Icon(icon, color: Colors.white, size: 15),
+          ),
           const SizedBox(width: 8),
           Text(label, style: const TextStyle(color: Colors.white54, fontSize: 12)),
           const SizedBox(width: 12),
@@ -263,8 +276,15 @@ class DocumentSubmittedView extends GetView<UploadDocumentController> {
               width: double.infinity,
               height: 50,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [kPurple, kIndigo]),
+                gradient: AppTheme.primaryGradient,
                 borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.gradientBlue.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
               alignment: Alignment.center,
               child: Row(

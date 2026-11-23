@@ -321,7 +321,7 @@ export const DriverReportIncidentPage = () => {
         <div>
           <Breadcrumb
             items={[
-              { label: t('ag.driver.driverreportincidentpage.driver', 'Driver'), path: '/driver/dashboard' },
+              { label: t('roles.driver', 'Driver'), path: '/driver/dashboard' },
               { label: t('ag.driver.driverreportincidentpage.incidents', 'Incidents'), path: '/driver/incidents' },
               { label: t('ag.driver.driverreportincidentpage.report_incident', 'Report Incident') },
             ]}

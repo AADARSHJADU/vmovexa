@@ -137,35 +137,191 @@ export const SuperTransactionsPage = () => {
     }
   };
 
-  const handleExportLedgerCSV = () => {
-    if (!transactions || transactions.length === 0) {
-      toast.error(t('ag.superadmin.supertransactionspage.no_transactions_available_to_export', 'No transactions available to export.'));
-      return;
-    }
-    const headers = 'Transaction Code,Organization,Plan,Base Amount (INR),Tax Amount (INR),Total Amount (INR),Payment Rail,Reference,Status,Date\n';
-    const rows = transactions.map((t) => [
-      t.code,
-      `"${t.organization?.name || 'Platform Tenant'}"`,
-      `"${t.plan?.name || 'SaaS Plan'}"`,
-      t.invoice?.subtotal || t.amount,
-      t.invoice?.tax_amount || 0,
-      t.amount,
-      t.method || 'card',
-      `"${t.gateway_ref || t.gateway_order_id || 'N/A'}"`,
-      t.status || 'success',
-      t.created_at ? new Date(t.created_at).toISOString().split('T')[0] : 'N/A',
-    ].join(',')).join('\n');
+  const [exportingCsv, setExportingCsv] = useState(false);
 
-    const blob = new Blob([headers + rows], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `vmovexa_transactions_ledger_${Date.now()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    toast.success(t('ag.superadmin.supertransactionspage.master_transaction_ledger_exported_t', 'Master Transaction Ledger exported to CSV!'));
+  const handleExportLedgerCSV = async () => {
+    if (exportingCsv) return;
+    setExportingCsv(true);
+    const toastId = toast.loading('Preparing complete transactions CSV...');
+    try {
+      // Fetch ALL matching transactions across pages so Excel includes every record, not just the current page
+      let allRows = [];
+      let pageNum = 1;
+      let totalPages = 1;
+      do {
+        const res = await billingService.getTransactions({
+          page: pageNum,
+          limit: 500,
+          search: txSearch,
+          status: txStatusFilter,
+          gateway: txRailFilter,
+        });
+        const items = res?.rows || (Array.isArray(res) ? res : []);
+        allRows = allRows.concat(items);
+        totalPages = res?.meta?.totalPages || 1;
+        pageNum += 1;
+      } while (pageNum <= totalPages && pageNum <= 20);
+
+      if (allRows.length === 0) {
+        toast.dismiss(toastId);
+        toast.error(t('ag.superadmin.supertransactionspage.no_transactions_available_to_export', 'No transactions available to export.'));
+        return;
+      }
+
+      const csvEscape = (val) => {
+        if (val === null || val === undefined) return '""';
+        const str = String(val).replace(/\r?\n/g, ' ').replace(/"/g, '""');
+        return `"${str}"`;
+      };
+
+      const fmtDateTime = (val) => {
+        if (!val) return '';
+        const d = new Date(val);
+        if (Number.isNaN(d.getTime())) return '';
+        return d.toLocaleString('en-IN', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true,
+        });
+      };
+
+      const fmtDateOnly = (val) => {
+        if (!val) return '';
+        const d = new Date(val);
+        if (Number.isNaN(d.getTime())) return '';
+        return d.toLocaleDateString('en-IN', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        });
+      };
+
+      const headers = [
+        'Transaction Code',
+        'Invoice Code',
+        'Invoice Status',
+        'Payer Type',
+        'Organization / Client Name',
+        'Organization / Campaign Code',
+        'GSTIN',
+        'City',
+        'State',
+        'Plan / Campaign',
+        'Plan Code',
+        'Purpose',
+        'SAC / HSN Code',
+        'Currency',
+        'Base Amount (INR)',
+        'CGST (INR)',
+        'SGST (INR)',
+        'IGST (INR)',
+        'Total Tax (INR)',
+        'Total Amount (INR)',
+        'GST Type',
+        'Payment Mode',
+        'Payment Method / Rail',
+        'Payment Gateway',
+        'Bank Name',
+        'UTR / Reference Number',
+        'Gateway Order ID',
+        'Cheque Number',
+        'Cheque Date',
+        'Collected By',
+        'Collected At',
+        'Date of Payment',
+        'Invoice Issued Date',
+        'Record Created Date',
+        'Subscription Status',
+        'Subscription Period Start',
+        'Subscription Period End',
+        'Status',
+        'Remarks / Notes',
+      ];
+
+      const rows = allRows.map((tx) => {
+        const orgName =
+          tx.campaign?.client_company ||
+          tx.campaign?.client_name ||
+          tx.organization?.name ||
+          '';
+        const entityCode = tx.campaign?.code || tx.organization?.code || '';
+        const gstin = tx.invoice?.gstin || tx.organization?.gstin || tx.campaign?.client_gstin || '';
+        const city = tx.organization?.city || tx.campaign?.client_city || '';
+        const state = tx.invoice?.place_of_supply || tx.organization?.state || tx.campaign?.client_state || '';
+        const planOrCamp = tx.campaign?.title
+          ? `DOOH: ${tx.campaign.title}`
+          : (tx.plan?.name || '');
+        const sacCode = tx.purpose === 'ad_spend' || tx.purpose === 'psa_spend' ? '998363' : (tx.purpose === 'saas_subscription' ? '997331' : '');
+        const paymentDate = tx.paid_at || tx.invoice?.paid_at || null;
+        const refNumber = tx.utr_number || tx.reference_number || tx.gateway_ref || tx.transaction_id || '';
+        const methodDisplay = tx.payment_mode === 'offline'
+          ? (tx.offline_method || tx.method || '')
+          : (tx.method || tx.offline_method || '');
+
+        return [
+          tx.code || '',
+          tx.invoice?.code || '',
+          tx.invoice?.status || '',
+          tx.payer_type || '',
+          orgName,
+          entityCode,
+          gstin,
+          city,
+          state,
+          planOrCamp,
+          tx.plan?.code || '',
+          tx.purpose || '',
+          sacCode,
+          tx.currency || 'INR',
+          tx.invoice?.subtotal != null ? tx.invoice.subtotal : (tx.amount ?? ''),
+          tx.invoice ? (tx.invoice.cgst ?? 0) : '',
+          tx.invoice ? (tx.invoice.sgst ?? 0) : '',
+          tx.invoice ? (tx.invoice.igst ?? 0) : '',
+          tx.invoice ? (tx.invoice.tax_amount ?? 0) : '',
+          tx.amount ?? '',
+          tx.invoice?.gst_type || '',
+          tx.payment_mode || '',
+          methodDisplay,
+          tx.gateway_name || '',
+          tx.bank_name || '',
+          refNumber,
+          tx.gateway_order_id || '',
+          tx.cheque_number || '',
+          fmtDateOnly(tx.cheque_date),
+          tx.collected_by_name || '',
+          fmtDateTime(tx.collected_at),
+          fmtDateTime(paymentDate),
+          fmtDateOnly(tx.invoice?.issued_at),
+          fmtDateTime(tx.created_at),
+          tx.subscription?.status || '',
+          fmtDateOnly(tx.subscription?.current_period_start),
+          fmtDateOnly(tx.subscription?.current_period_end),
+          tx.status || '',
+          tx.remarks || '',
+        ].map(csvEscape).join(',');
+      });
+
+      const csvContent = `\uFEFF${headers.map(csvEscape).join(',')}\r\n${rows.join('\r\n')}`;
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `vmovexa_transactions_ledger_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.dismiss(toastId);
+      toast.success(t('ag.superadmin.supertransactionspage.master_transaction_ledger_exported_t', 'Master Transaction Ledger exported to CSV!'));
+    } catch (err) {
+      toast.dismiss(toastId);
+      toast.error(err?.message || 'Failed to export transaction ledger.');
+    } finally {
+      setExportingCsv(false);
+    }
   };
 
   const handlePrintInvoice = (id) => {
@@ -461,11 +617,12 @@ export const SuperTransactionsPage = () => {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:self-start xl:self-auto shrink-0">
           <button
             type="button"
+            disabled={exportingCsv}
             onClick={handleExportLedgerCSV}
-            className="w-full sm:w-auto px-4 py-2.5 bg-slate-900 dark:bg-zinc-800 hover:bg-slate-800 dark:hover:bg-zinc-700 text-white text-xs font-bold rounded-xl shadow-xs border border-transparent dark:border-zinc-700 transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap active:scale-[0.98]"
+            className="w-full sm:w-auto px-4 py-2.5 bg-slate-900 dark:bg-zinc-800 hover:bg-slate-800 dark:hover:bg-zinc-700 text-white text-xs font-bold rounded-xl shadow-xs border border-transparent dark:border-zinc-700 transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap active:scale-[0.98] disabled:opacity-50"
           >
             <FleetIcons.Document className="w-4 h-4 shrink-0" />
-            <span>{t('transactions.export_csv', 'Export Ledger (CSV)')}</span>
+            <span>{exportingCsv ? 'Exporting...' : t('transactions.export_csv', 'Export Ledger (CSV)')}</span>
           </button>
 
           <RefreshButton
@@ -510,7 +667,6 @@ export const SuperTransactionsPage = () => {
               className="w-full sm:w-44 px-3 py-2 border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-slate-700 dark:text-zinc-200 rounded-xl text-xs font-medium cursor-pointer focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
             >
               <option value="">{t('transactions.all_rails', 'All Rails')}</option>
-              <option value="stripe">{t('transactions.rail_stripe', 'Stripe')}</option>
               <option value="razorpay">{t('transactions.rail_razorpay', 'Razorpay')}</option>
               <option value="bank_wire">{t('transactions.rail_bank_wire', 'Bank Wire (RTGS)')}</option>
             </select>

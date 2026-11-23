@@ -222,7 +222,7 @@ class DriverCreateWorkOrderView extends GetView<DriverCreateWorkOrderController>
                     ),
                   ),
                   child: Text(
-                    cat,
+                    _getCategoryLabel(cat),
                     style: TextStyle(
                       color: isSelected ? Colors.white : AppColors.textSecondary,
                       fontSize: 11,
@@ -276,7 +276,7 @@ class DriverCreateWorkOrderView extends GetView<DriverCreateWorkOrderController>
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          opt['label']!,
+                          _getUrgencyLabel(opt['value']!, opt['label']!),
                           style: TextStyle(
                             color: isSelected ? Colors.white : AppColors.textPrimary,
                             fontSize: 12,
@@ -378,5 +378,41 @@ class DriverCreateWorkOrderView extends GetView<DriverCreateWorkOrderController>
         ),
       ],
     );
+  }
+
+  String _getCategoryLabel(String cat) {
+    switch (cat) {
+      case 'Engine / Mechanical':
+        return 'wo_cat_engine_mech'.tr;
+      case 'Brakes / Steering':
+        return 'wo_cat_brakes_steering'.tr;
+      case 'Electrical / Battery':
+        return 'wo_cat_electrical_battery'.tr;
+      case 'Tires / Suspension':
+        return 'wo_cat_tires_suspension'.tr;
+      case 'HVAC / AC System':
+        return 'wo_cat_hvac_ac'.tr;
+      case 'Fare Validator / Display Unit':
+        return 'wo_cat_fare_validator'.tr;
+      case 'Other General Maintenance':
+        return 'wo_cat_other_maintenance'.tr;
+      default:
+        return cat;
+    }
+  }
+
+  String _getUrgencyLabel(String value, String fallback) {
+    switch (value) {
+      case 'critical':
+        return 'wo_urgency_critical'.tr;
+      case 'high':
+        return 'wo_urgency_high'.tr;
+      case 'normal':
+        return 'wo_urgency_normal'.tr;
+      case 'low':
+        return 'wo_urgency_low'.tr;
+      default:
+        return fallback;
+    }
   }
 }

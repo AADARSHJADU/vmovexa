@@ -9,7 +9,7 @@ export const DriverPasswordUpdatedPage = () => {
     <div className="w-full max-w-md mx-auto py-12 space-y-6 animate-in fade-in zoom-in-95 duration-200 text-center">
       <Breadcrumb
         items={[
-          { label: t('ag.driver.driverpasswordupdatedpage.driver', 'Driver'), path: '/driver/dashboard' },
+          { label: t('roles.driver', 'Driver'), path: '/driver/dashboard' },
           { label: t('ag.driver.driverpasswordupdatedpage.profile', 'Profile'), path: '/driver/profile' },
           { label: t('ag.driver.driverpasswordupdatedpage.password_updated', 'Password Updated') },
         ]}

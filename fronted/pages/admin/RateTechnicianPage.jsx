@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { FleetIcons } from '../../components/FleetIcons';
@@ -54,6 +54,7 @@ export const RateTechnicianPage = () => {
 
   useEffect(() => {
     if (id) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(true);
       loadWorkOrderDetail(id)
         .then((res) => {
@@ -165,7 +166,7 @@ export const RateTechnicianPage = () => {
       <div className="w-full space-y-6">
         <Breadcrumb
           items={[
-            { label: isDriverPortal ? t('ag.admin.ratetechnicianpage.driver', 'Driver') : isFleetPortal ? t('ag.admin.ratetechnicianpage.fleet_operator', 'Fleet Operator') : t('ag.admin.ratetechnicianpage.organization_admin', 'Organization Admin'), path: isDriverPortal ? '/driver/dashboard' : isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
+            { label: isDriverPortal ? t('roles.driver', 'Driver') : isFleetPortal ? t('roles.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), path: isDriverPortal ? '/driver/dashboard' : isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
             { label: isDriverPortal ? t('ag.admin.ratetechnicianpage.work_orders', 'Work Orders') : t('ag.admin.ratetechnicianpage.technician_requests', 'Technician Requests'), path: basePath },
             { label: reqNo, path: `${basePath}/${id}` },
             { label: t('ag.admin.ratetechnicianpage.rate_technician', 'Rate Technician') },
@@ -200,7 +201,7 @@ export const RateTechnicianPage = () => {
       <div className="w-full space-y-6">
         <Breadcrumb
           items={[
-            { label: isDriverPortal ? t('ag.admin.ratetechnicianpage.driver', 'Driver') : isFleetPortal ? t('ag.admin.ratetechnicianpage.fleet_operator', 'Fleet Operator') : t('ag.admin.ratetechnicianpage.organization_admin', 'Organization Admin'), path: isDriverPortal ? '/driver/dashboard' : isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
+            { label: isDriverPortal ? t('roles.driver', 'Driver') : isFleetPortal ? t('roles.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), path: isDriverPortal ? '/driver/dashboard' : isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
             { label: isDriverPortal ? t('ag.admin.ratetechnicianpage.work_orders', 'Work Orders') : t('ag.admin.ratetechnicianpage.technician_requests', 'Technician Requests'), path: basePath },
             { label: reqNo, path: `${basePath}/${id}` },
             { label: t('ag.admin.ratetechnicianpage.rate_technician', 'Rate Technician') },
@@ -236,7 +237,7 @@ export const RateTechnicianPage = () => {
       <div className="w-full space-y-6">
         <Breadcrumb
           items={[
-            { label: isDriverPortal ? t('ag.admin.ratetechnicianpage.driver', 'Driver') : isFleetPortal ? t('ag.admin.ratetechnicianpage.fleet_operator', 'Fleet Operator') : t('ag.admin.ratetechnicianpage.organization_admin', 'Organization Admin'), path: isDriverPortal ? '/driver/dashboard' : isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
+            { label: isDriverPortal ? t('roles.driver', 'Driver') : isFleetPortal ? t('roles.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), path: isDriverPortal ? '/driver/dashboard' : isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
             { label: isDriverPortal ? t('ag.admin.ratetechnicianpage.work_orders', 'Work Orders') : t('ag.admin.ratetechnicianpage.technician_requests', 'Technician Requests'), path: basePath },
             { label: reqNo, path: `${basePath}/${id}` },
             { label: t('ag.admin.ratetechnicianpage.rating_already_submitted', 'Rating Already Submitted') },
@@ -275,7 +276,7 @@ export const RateTechnicianPage = () => {
       {/* 1. Global Standard Breadcrumb */}
       <Breadcrumb
         items={[
-          { label: isDriverPortal ? t('ag.admin.ratetechnicianpage.driver', 'Driver') : isFleetPortal ? t('ag.admin.ratetechnicianpage.fleet_operator', 'Fleet Operator') : t('ag.admin.ratetechnicianpage.organization_admin', 'Organization Admin'), path: isDriverPortal ? '/driver/dashboard' : isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
+          { label: isDriverPortal ? t('roles.driver', 'Driver') : isFleetPortal ? t('roles.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), path: isDriverPortal ? '/driver/dashboard' : isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
           { label: isDriverPortal ? t('ag.admin.ratetechnicianpage.work_orders', 'Work Orders') : t('ag.admin.ratetechnicianpage.technician_requests', 'Technician Requests'), path: basePath },
           { label: reqNo, path: `${basePath}/${id}` },
           { label: t('admin.tech_requests.rate_technician_btn') },

@@ -18,27 +18,25 @@ export const SetupCompletePage = () => {
 
   return (
     <div className="w-full space-y-6 pb-20">
-      {/* 1. Global Standard Breadcrumb Navigation */}
-      <Breadcrumb
-        items={[
-          { label: t('ag.fleet.setupcompletepage.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
-          { label: t('ag.fleet.setupcompletepage.vehicles', 'Vehicles'), path: '/fleet-operator/vehicles' },
-          { label: t('fleet.setup.config_complete') },
-        ]}
-        className="mb-2"
-      />
-
-      {/* Header Banner */}
-      <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm transition-colors">
+      {/* 1. Header & Breadcrumb */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('fleet.setup.config_complete')}</h1>
-          <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">{t('fleet.setup.verified_desc')}</p>
+          <Breadcrumb
+            items={[
+              { label: t('roles.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
+              { label: t('fleet.vehicles.title', 'Vehicles & Displays'), path: '/fleet-operator/vehicles' },
+              { label: t('fleet.setup.config_complete', 'Setup Complete') },
+            ]}
+            className="mb-2"
+          />
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('fleet.setup.config_complete')}</h1>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">{t('fleet.setup.verified_desc')}</p>
         </div>
 
         <button 
           type="button"
           onClick={() => navigate('/fleet-operator/vehicles')}
-          className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 text-xs font-bold text-slate-700 dark:text-zinc-300 transition-colors flex items-center justify-center gap-1.5"
+          className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 text-xs font-bold text-slate-700 dark:text-zinc-300 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
         >
           <FleetIcons.ArrowLeft className="w-3.5 h-3.5" />
           <span>{t('fleet.setup.vehicles_list')}</span>

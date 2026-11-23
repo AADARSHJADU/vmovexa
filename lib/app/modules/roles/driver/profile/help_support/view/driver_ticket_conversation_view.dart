@@ -202,7 +202,7 @@ class DriverTicketConversationView extends GetView<DriverTicketConversationContr
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  'PRIORITY: ${ticket.priority.toUpperCase()}',
+                  '${'priority'.tr.toUpperCase()}: ${ticket.priority.toUpperCase()}',
                   style: TextStyle(
                     color: ticket.priorityColor,
                     fontSize: 9.5,
@@ -312,9 +312,9 @@ class DriverTicketConversationView extends GetView<DriverTicketConversationContr
                               color: Colors.blueAccent.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(3),
                             ),
-                            child: const Text(
-                              'NOC / TECH',
-                              style: TextStyle(color: Colors.blueAccent, fontSize: 8, fontWeight: FontWeight.bold),
+                            child: Text(
+                              'noc_tech_support'.tr,
+                              style: const TextStyle(color: Colors.blueAccent, fontSize: 8, fontWeight: FontWeight.bold),
                             ),
                           ),
                         ],
@@ -388,7 +388,7 @@ class DriverTicketConversationView extends GetView<DriverTicketConversationContr
                         const Icon(Icons.insert_drive_file_outlined, color: Colors.white70, size: 24),
                         const SizedBox(height: 4),
                         Text(
-                          att.fileName ?? 'file',
+                          att.fileName ?? 'file_label'.tr,
                           style: const TextStyle(color: Colors.white70, fontSize: 8),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

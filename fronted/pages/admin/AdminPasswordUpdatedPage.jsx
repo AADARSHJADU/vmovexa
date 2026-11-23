@@ -12,7 +12,7 @@ export const AdminPasswordUpdatedPage = () => {
         <div>
           <Breadcrumb
             items={[
-              { label: t('nav.admin') || 'Dashboard', path: '/admin/dashboard' },
+              { label: t('ag.admin.admin_operations', 'Admin Operations'), path: '/admin/dashboard' },
               { label: t('admin.profile.title') || 'Admin Profile', path: '/admin/profile' },
               { label: t('admin.password.updated_title') }
             ]}

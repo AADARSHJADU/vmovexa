@@ -31,7 +31,7 @@ export const ScheduleSlotPage = () => {
   const isFleetPortal = location.pathname.startsWith('/fleet-operator');
   const basePath = isFleetPortal ? '/fleet-operator/slots' : '/admin/slots';
   const dashboardLink = isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard';
-  const portalName = isFleetPortal ? 'Fleet Operator' : 'Admin';
+  const portalName = isFleetPortal ? t('roles.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations');
 
   const { createSlot, updateSlot, getSlotById, checkConflict, saving } = useVehicleSlot();
 
@@ -166,10 +166,12 @@ export const ScheduleSlotPage = () => {
           .filter((v) => v && v.id);
 
         const directBuses = Array.isArray(directVehiclesRes) ? directVehiclesRes : directVehiclesRes?.items || directVehiclesRes?.rows || [];
+        const fleetVehicleIds = new Set(vehicles.map((v) => String(v.id)));
 
         const mergedMap = new Map();
         for (const b of [...assignmentBuses, ...directBuses]) {
           if (b && b.id) {
+            if (isFleetPortal && !fleetVehicleIds.has(String(b.id))) continue;
             const st = String(b.status || '').toLowerCase().trim();
             if (st !== 'pending_approval' && st !== 'pending' && st !== 'rejected') {
               mergedMap.set(String(b.id), b);
@@ -202,7 +204,7 @@ export const ScheduleSlotPage = () => {
 
     loadRouteVehicles();
     return () => { mounted = false; };
-  }, [formData.route_id, isEditMode, vehicles]);
+  }, [formData.route_id, isEditMode, isFleetPortal, vehicles]);
 
   // Real-time conflict validation
   useEffect(() => {
@@ -299,6 +301,7 @@ export const ScheduleSlotPage = () => {
     const errors = {};
     if (!formData.vehicle_id) errors.vehicle_id = 'Please select a vehicle.';
     if (!formData.route_id) errors.route_id = 'Please select a transit route corridor.';
+    if (isFleetPortal && !formData.driver_id) errors.driver_id = 'Please select an assigned driver.';
     if (!formData.start_time) errors.start_time = 'Start time is required.';
     if (!formData.end_time) errors.end_time = 'End time is required.';
     if (formData.start_time && formData.end_time && formData.start_time >= formData.end_time) {
@@ -515,20 +518,31 @@ export const ScheduleSlotPage = () => {
             {/* 3. Driver Selector (THIRD) */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                {t('ag.fleet.scheduleslotpage.assigned_driver', 'Assigned Driver')} <span className="text-slate-400 font-normal">({t('common.optional')})</span>
+                {t('ag.fleet.scheduleslotpage.assigned_driver', 'Assigned Driver')}{' '}
+                {isFleetPortal ? <span className="text-rose-500">*</span> : <span className="text-slate-400 font-normal">({t('common.optional')})</span>}
               </label>
               <select
                 value={formData.driver_id}
                 onChange={(e) => handleFieldChange('driver_id', e.target.value)}
-                className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800/60 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-all font-medium"
+                required={isFleetPortal}
+                className={`w-full h-11 px-3.5 rounded-xl border bg-slate-50 dark:bg-zinc-800/60 text-xs text-slate-900 dark:text-white focus:outline-none transition-all font-medium ${
+                  fieldErrors.driver_id
+                    ? 'border-rose-400 focus:border-rose-500'
+                    : 'border-slate-200 dark:border-zinc-700 focus:border-blue-500'
+                }`}
               >
-                <option value="">{t('fleet.slots.auto_driver')}</option>
+                <option value="">{isFleetPortal ? t('fleet.slots.select_driver', 'Select assigned driver...') : t('fleet.slots.auto_driver')}</option>
                 {drivers.map((d) => (
                   <option key={d.id} value={d.id}>
                     {d.name} {d.phone ? `(${d.phone})` : ''}
                   </option>
                 ))}
               </select>
+              {fieldErrors.driver_id && (
+                <p className="text-[11px] font-semibold text-rose-600 flex items-center gap-1 mt-1">
+                  <FleetIcons.Alert className="w-3.5 h-3.5 text-rose-500 shrink-0" /> {fieldErrors.driver_id}
+                </p>
+              )}
             </div>
           </div>
 
@@ -674,8 +688,8 @@ export const ScheduleSlotPage = () => {
                 onClick={() => setDaysPreset('ALL')}
                 className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
                   formData.operating_days === 'ALL'
-                    ? 'bg-slate-900 dark:bg-white text-white dark:text-zinc-900'
-                    : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200'
+                    ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xs'
+                    : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700'
                 }`}
               >
                 {t('ag.fleet.scheduleslotpage.all_7_days', 'All 7 Days')}
@@ -685,8 +699,8 @@ export const ScheduleSlotPage = () => {
                 onClick={() => setDaysPreset('WEEKDAYS')}
                 className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
                   formData.operating_days === 'Mon,Tue,Wed,Thu,Fri'
-                    ? 'bg-slate-900 dark:bg-white text-white dark:text-zinc-900'
-                    : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200'
+                    ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xs'
+                    : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700'
                 }`}
               >
                 {t('ag.fleet.scheduleslotpage.mon_fri', 'Mon - Fri')}
@@ -696,8 +710,8 @@ export const ScheduleSlotPage = () => {
                 onClick={() => setDaysPreset('WEEKENDS')}
                 className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
                   formData.operating_days === 'Sat,Sun'
-                    ? 'bg-slate-900 dark:bg-white text-white dark:text-zinc-900'
-                    : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200'
+                    ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xs'
+                    : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700'
                 }`}
               >
                 {t('ag.fleet.scheduleslotpage.weekends', 'Weekends')}

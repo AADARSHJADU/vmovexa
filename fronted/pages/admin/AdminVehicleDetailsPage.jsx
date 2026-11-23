@@ -216,11 +216,11 @@ export const AdminVehicleDetailsPage = () => {
   return (
     <div className="w-full space-y-6 pb-24">
       {/* 1. Breadcrumb Header Banner */}
-      <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm">
+      <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
         <div>
           <Breadcrumb
             items={[
-              { label: t('nav.dashboard') || 'Dashboard', to: dashboardLink },
+              { label: isFleetPortal ? t('roles.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), to: dashboardLink },
               { label: t('admin.vehicles.title'), to: basePath },
               { label: busNum }
             ]}

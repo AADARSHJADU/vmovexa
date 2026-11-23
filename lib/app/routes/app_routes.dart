@@ -143,6 +143,7 @@ abstract class Routes {
   static const DRIVER_WORK_ORDERS = '/driver-work-orders';
   static const DRIVER_CREATE_WORK_ORDER = '/driver-create-work-order';
   static const DRIVER_WORK_ORDER_DETAILS = '/driver-work-order-details';
+  static const DRIVER_COMPLETED_TRIPS = '/driver-completed-trips';
 
   //Finance flow routes
   static const FINANCE_DASHBOARD = '/finance-dashboard';

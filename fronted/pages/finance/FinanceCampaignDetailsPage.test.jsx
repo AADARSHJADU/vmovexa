@@ -112,9 +112,5 @@ describe('FinanceCampaignDetailsPage', () => {
     expect(screen.getByText('₹75,000')).toBeInTheDocument();
     expect(screen.getByText('₹13,500')).toBeInTheDocument();
     expect(screen.getByText('UTR9988776655')).toBeInTheDocument();
-
-    // QR Code
-    expect(screen.getByText('QR-TEST-1')).toBeInTheDocument();
-    expect(screen.getByText('Scans: 42')).toBeInTheDocument();
   });
 });

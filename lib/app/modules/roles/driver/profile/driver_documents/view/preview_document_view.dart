@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/data/constants/api_constants.dart';
 import 'package:vmovexa/app/modules/roles/driver/profile/driver_documents/view/upload_doc_stepper.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 
 import '../../../../technician/hardware_configuration/views/shared_widgets.dart';
 import '../controller/upload_document_controller.dart';
@@ -104,10 +105,16 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
           child: Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: kPurple.withValues(alpha: 0.12),
+              gradient: AppTheme.primaryGradient,
               shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.gradientBlue.withValues(alpha: 0.3),
+                  blurRadius: 4,
+                ),
+              ],
             ),
-            child: const Icon(Icons.info_outline, color: kPurple, size: 18),
+            child: const Icon(Icons.info_outline, color: Colors.white, size: 18),
           ),
         ),
       ],
@@ -131,8 +138,11 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: kPurple.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(9)),
-                  child: Icon(controller.documentIcon, color: kPurple, size: 16),
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(9),
+                  ),
+                  child: Icon(controller.documentIcon, color: Colors.white, size: 16),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -234,7 +244,7 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
                                     ),
                                   ),
                                   const SizedBox(height: 3),
-                                  const Text('PDF Document • Stored securely', style: TextStyle(color: Colors.white38, fontSize: 10)),
+                                  Text('pdf_stored_securely'.tr, style: const TextStyle(color: Colors.white38, fontSize: 10)),
                                 ],
                               )
                             : ClipRRect(
@@ -246,7 +256,7 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
                                   fit: BoxFit.contain,
                                   loadingBuilder: (context, child, loadingProgress) {
                                     if (loadingProgress == null) return child;
-                                    return const Center(child: CircularProgressIndicator(color: kPurple, strokeWidth: 2));
+                                    return const Center(child: CircularProgressIndicator(color: AppTheme.gradientBlue, strokeWidth: 2));
                                   },
                                   errorBuilder: (context, error, stackTrace) {
                                     return Column(
@@ -398,7 +408,10 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
-          Icon(icon, color: kPurple, size: 15),
+          ShaderMask(
+            shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+            child: Icon(icon, color: Colors.white, size: 15),
+          ),
           const SizedBox(width: 8),
           Text(label, style: const TextStyle(color: Colors.white54, fontSize: 12)),
           const SizedBox(width: 12),
@@ -425,18 +438,21 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
       decoration: BoxDecoration(
         color: kFieldBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: kPurple.withValues(alpha: 0.25)),
+        border: Border.all(color: AppTheme.gradientBlue.withValues(alpha: 0.25)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.info_outline, color: kPurple, size: 16),
+          ShaderMask(
+            shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+            child: const Icon(Icons.info_outline, color: Colors.white, size: 16),
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('tips'.tr, style: const TextStyle(color: kPurple, fontSize: 12.5, fontWeight: FontWeight.w700)),
+                Text('tips'.tr, style: const TextStyle(color: AppTheme.gradientBlue, fontSize: 12.5, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 6),
                 Text('• ${'tip_details_visible'.tr}', style: const TextStyle(color: Colors.white54, fontSize: 11)),
                 const SizedBox(height: 3),
@@ -500,15 +516,15 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
                     decoration: BoxDecoration(
                       color: kFieldBg,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: kPurple.withValues(alpha: 0.5)),
+                      border: Border.all(color: AppTheme.gradientBlue.withValues(alpha: 0.5)),
                     ),
                     alignment: Alignment.center,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.edit_outlined, color: kPurple, size: 15),
+                        const Icon(Icons.edit_outlined, color: AppTheme.gradientBlue, size: 15),
                         const SizedBox(width: 6),
-                        Text('replace_document'.tr, style: const TextStyle(color: kPurple, fontSize: 12.5, fontWeight: FontWeight.w700)),
+                        Text('replace_document'.tr, style: const TextStyle(color: AppTheme.gradientBlue, fontSize: 12.5, fontWeight: FontWeight.w700)),
                       ],
                     ),
                   ),
@@ -559,15 +575,15 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
                   decoration: BoxDecoration(
                     color: kFieldBg,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: kPurple.withValues(alpha: 0.5)),
+                    border: Border.all(color: AppTheme.gradientBlue.withValues(alpha: 0.5)),
                   ),
                   alignment: Alignment.center,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.edit_outlined, color: kPurple, size: 15),
+                      const Icon(Icons.edit_outlined, color: AppTheme.gradientBlue, size: 15),
                       const SizedBox(width: 6),
-                      Text('retake_replace'.tr, style: const TextStyle(color: kPurple, fontSize: 12.5, fontWeight: FontWeight.w700)),
+                      Text('retake_replace'.tr, style: const TextStyle(color: AppTheme.gradientBlue, fontSize: 12.5, fontWeight: FontWeight.w700)),
                     ],
                   ),
                 ),
@@ -580,8 +596,15 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
                 child: Container(
                   height: 50,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(colors: [kPurple, kBlue]),
+                    gradient: AppTheme.primaryGradient,
                     borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.gradientBlue.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
                   ),
                   alignment: Alignment.center,
                   child: controller.isSubmitting.value

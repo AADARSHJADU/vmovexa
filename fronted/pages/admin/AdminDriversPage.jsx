@@ -123,12 +123,13 @@ export const AdminDriversPage = () => {
   const { drivers, pagination, loading, loadDrivers, verifyDriverDocuments, updateDriver, updateDriverStatus, deleteDriver, approveDriver, rejectDriver } = useAdminDriver();
   const { can } = useAuth();
 
-  // RBAC permission gates (always true for Admin portal)
+  // This page is shared by tenant admins and fleet operators. Gate every
+  // action by the user's effective RBAC permission, not by the portal URL.
   const canCreate  = can('drivers.create');
   const canUpdate  = can('drivers.update');
   const canDelete  = can('drivers.delete');
   const canView    = can('drivers.view');
-  const canApprove = !isFleetPortal;
+  const canApprove = can('drivers.approve');
   const canAssign  = can('drivers.assign');
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -370,7 +371,7 @@ export const AdminDriversPage = () => {
         <div>
           <Breadcrumb
             items={[
-              { label: isFleetPortal ? t('ag.admin.admindriverspage.fleet_operator', 'Fleet Operator') : 'Admin', path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
+              { label: isFleetPortal ? t('ag.admin.admindriverspage.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
               { label: t('ag.admin.admindriverspage.drivers', 'Drivers') },
             ]}
             className="mb-2"
@@ -392,7 +393,7 @@ export const AdminDriversPage = () => {
           {canCreate && (
             <Link
               to={`${basePath}/add`}
-              className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 flex-1 sm:flex-initial"
+              className="px-4 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 flex-1 sm:flex-initial"
             >
               <FleetIcons.Plus className="w-4 h-4" />
               <span>{t('admin.drivers.add_driver') || 'Add Driver'}</span>
@@ -443,7 +444,7 @@ export const AdminDriversPage = () => {
               }}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer ${
                 activeTab === tab.key
-                  ? 'bg-slate-900 dark:bg-white text-white dark:text-zinc-900 shadow-sm'
+                  ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-sm'
                   : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800'
               }`}
             >

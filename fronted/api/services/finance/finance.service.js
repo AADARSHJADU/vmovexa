@@ -18,6 +18,17 @@ export const financeService = {
   getSubscription: (id) => call(apiClient.get(ENDPOINTS.FINANCE.SUBSCRIPTION(id))),
   getInvoices: (params) => callPaginated(apiClient.get(ENDPOINTS.FINANCE.INVOICES, { params })),
   getInvoice: (id) => call(apiClient.get(ENDPOINTS.FINANCE.INVOICE(id))),
+  getInvoiceHtml: async (id, params = {}) => {
+    try {
+      const res = await apiClient.get(ENDPOINTS.BILLING.INVOICE_HTML(id), {
+        params,
+        responseType: 'text',
+      });
+      return typeof res.data === 'string' ? res.data : String(res.data || '');
+    } catch (err) {
+      throw normalizeError(err);
+    }
+  },
   generateInvoice: (data) => call(apiClient.post(ENDPOINTS.FINANCE.INVOICES, data)),
   markInvoicePaid: (id, data) => call(apiClient.post(ENDPOINTS.FINANCE.MARK_INVOICE_PAID(id), data)),
   getPayments: (params) => callPaginated(apiClient.get(ENDPOINTS.FINANCE.PAYMENTS, { params })),

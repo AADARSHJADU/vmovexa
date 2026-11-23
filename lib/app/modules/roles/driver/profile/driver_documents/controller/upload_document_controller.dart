@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 
 import 'package:vmovexa/app/data/services/driver_service.dart';
 import 'package:vmovexa/app/routes/app_routes.dart';
@@ -90,7 +91,7 @@ class UploadDocumentController extends GetxController {
         await _processPickedFile(photo.path);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Camera error: $e', backgroundColor: const Color(0xFF15151F), colorText: Colors.redAccent);
+      Get.snackbar('common.error'.tr, '${'camera_error'.tr}: $e', backgroundColor: const Color(0xFF15151F), colorText: Colors.redAccent);
     }
   }
 
@@ -101,7 +102,7 @@ class UploadDocumentController extends GetxController {
         await _processPickedFile(image.path);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Gallery error: $e', backgroundColor: const Color(0xFF15151F), colorText: Colors.redAccent);
+      Get.snackbar('common.error'.tr, '${'gallery_error'.tr}: $e', backgroundColor: const Color(0xFF15151F), colorText: Colors.redAccent);
     }
   }
 
@@ -151,8 +152,8 @@ class UploadDocumentController extends GetxController {
             const SizedBox(height: 16),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.camera_alt_outlined, color: Color(0xFF8B5CF6)),
-              title: const Text('Take a photo', style: TextStyle(color: Colors.white)),
+              leading: const Icon(Icons.camera_alt_outlined, color: AppTheme.gradientPink),
+              title: Text('take_photo'.tr, style: const TextStyle(color: Colors.white)),
               onTap: () {
                 Get.back();
                 onPickFromCamera();
@@ -161,7 +162,7 @@ class UploadDocumentController extends GetxController {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.photo_library_outlined, color: Color(0xFF38BDF8)),
-              title: const Text('Choose from gallery', style: TextStyle(color: Colors.white)),
+              title: Text('choose_from_gallery'.tr, style: const TextStyle(color: Colors.white)),
               onTap: () {
                 Get.back();
                 onPickFromGallery();
@@ -184,7 +185,7 @@ class UploadDocumentController extends GetxController {
 
   Future<void> onSubmitDocument() async {
     if (filePath.value.isEmpty && remoteUrl.value.isEmpty) {
-      Get.snackbar('Missing File', 'Please select a document image first.', backgroundColor: const Color(0xFF15151F), colorText: Colors.white);
+      Get.snackbar('missing_file'.tr, 'select_doc_first'.tr, backgroundColor: const Color(0xFF15151F), colorText: Colors.white);
       return;
     }
 
@@ -287,13 +288,13 @@ class UploadDocumentController extends GetxController {
     Get.dialog(
       AlertDialog(
         backgroundColor: const Color(0xFF15151F),
-        title: const Text('Document Guidelines', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text('doc_guidelines'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         content: const Text(
           'Make sure all 4 corners of the document are clearly visible, text is sharply focused, and there is no light glare. Verification typically takes 24 - 48 hours.',
           style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Got it', style: TextStyle(color: Color(0xFFB042FF)))),
+          TextButton(onPressed: () => Get.back(), child: Text('got_it'.tr, style: const TextStyle(color: AppTheme.gradientBlue))),
         ],
       ),
     );
@@ -339,19 +340,19 @@ class UploadDocumentController extends GetxController {
       AlertDialog(
         backgroundColor: const Color(0xFF15151F),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: const Text('Remove Document', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text('remove_document'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         content: Text(
           'Are you sure you want to remove "$documentTitle"? You can re-upload it at any time.',
           style: const TextStyle(color: Colors.white70, fontSize: 13),
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel', style: TextStyle(color: Colors.white54))),
+          TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr, style: const TextStyle(color: Colors.white54))),
           TextButton(
             onPressed: () async {
               Get.back(); // close dialog
               final res = await _driverService.deleteDocument(id);
               if (res.success) {
-                Get.snackbar('Deleted', 'Document removed successfully.', backgroundColor: const Color(0xFF15151F), colorText: Colors.white);
+                Get.snackbar('deleted'.tr, 'doc_deleted_success'.tr, backgroundColor: const Color(0xFF15151F), colorText: Colors.white);
                 if (Get.isRegistered<DriverDocumentsController>()) {
                   await DriverDocumentsController.to.fetchDocuments();
                 }
@@ -360,10 +361,10 @@ class UploadDocumentController extends GetxController {
                 }
                 Get.back(); // exit preview
               } else {
-                Get.snackbar('Error', res.message ?? 'Failed to delete document', backgroundColor: const Color(0xFF15151F), colorText: Colors.redAccent);
+                Get.snackbar('common.error'.tr, res.message ?? 'Failed to delete document', backgroundColor: const Color(0xFF15151F), colorText: Colors.redAccent);
               }
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.redAccent)),
+            child: Text('delete'.tr, style: const TextStyle(color: Colors.redAccent)),
           ),
         ],
       ),

@@ -364,7 +364,7 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
             ),
           ),
 
-          // Reset Filters Button
+          /*// Reset Filters Button
           if (ctrl.isFilterActive) ...[
             const SizedBox(width: 8),
             GestureDetector(
@@ -390,7 +390,7 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
                 ),
               ),
             ),
-          ],
+          ],*/
         ],
       );
     });

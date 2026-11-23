@@ -18,9 +18,8 @@ export const OtpVerification = () => {
   const [otpCode, setOtpCode] = useState('');
 
   // Extract navigation context from location.state
-  const { name = '', email = '', identifier = '', password = '', purpose = 'registration', devCode: initialDevCode = null } = location.state || {};
+  const { name = '', email = '', identifier = '', password = '', purpose = 'registration' } = location.state || {};
   const targetEmail = (email || identifier || '').trim();
-  const [devCode, setDevCode] = useState(initialDevCode);
 
   const handleVerify = async (codeToVerify = otpCode) => {
     const code = codeToVerify || otpCode;
@@ -76,10 +75,8 @@ export const OtpVerification = () => {
     }
     setResending(true);
     try {
-      const res = await requestSignupOtp({ name: name || 'Tenant Admin', email: targetEmail });
-      if (res?.data?.devCode) setDevCode(res.data.devCode);
-      const devMsg = res?.data?.devCode ? ` (Dev OTP: ${res.data.devCode})` : '';
-      toast.success(`Fresh OTP code sent to ${targetEmail}${devMsg}`);
+      await requestSignupOtp({ name: name || 'Tenant Admin', email: targetEmail });
+      toast.success(`Fresh OTP code sent to ${targetEmail}`);
     } catch (err) {
       toast.error(err?.message || 'Failed to resend OTP code.');
     } finally {
@@ -111,12 +108,6 @@ export const OtpVerification = () => {
           {t('ag.shared.otpverification.enter_the_6_digit_code_sent_to', 'Enter the 6-digit code sent to')} <strong className="text-slate-200">{targetEmail || 'your email'}</strong>
         </p>
 
-        {devCode && (
-          <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 font-mono text-xs font-bold">
-            <span>{t('auth.dev_testing_code', 'Dev Testing Code:')}</span>
-            <span className="text-amber-300 font-black tracking-widest">{devCode}</span>
-          </div>
-        )}
       </div>
 
       <div className="w-full space-y-4">

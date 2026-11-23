@@ -82,16 +82,16 @@ export const DriverNotificationSettingsPage = () => {
   return (
     <div className="w-full space-y-6 pb-20 animate-in fade-in duration-200">
       {/* Header */}
-      <div>
-        <Breadcrumb
-          items={[
-            { label: t('ag.driver.drivernotificationsettingspage.driver', 'Driver'), path: '/driver/dashboard' },
-            { label: t('ag.driver.drivernotificationsettingspage.profile', 'Profile'), path: '/driver/profile' },
-            { label: t('ag.driver.drivernotificationsettingspage.notification_settings', 'Notification Settings') },
-          ]}
-          className="mb-2"
-        />
-        <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+        <div>
+          <Breadcrumb
+            items={[
+              { label: t('roles.driver', 'Driver'), path: '/driver/dashboard' },
+              { label: t('ag.driver.drivernotificationsettingspage.profile', 'Profile'), path: '/driver/profile' },
+              { label: t('ag.driver.drivernotificationsettingspage.notification_settings', 'Notification Settings') },
+            ]}
+            className="mb-2"
+          />
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -103,19 +103,19 @@ export const DriverNotificationSettingsPage = () => {
             </button>
             <div>
               <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('driver.notifications.title')}</h1>
-              <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium mt-0.5">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
                 {t('driver.notifications.subtitle')}
               </p>
             </div>
           </div>
-
-          <Link
-            to="/driver/profile"
-            className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition-all self-start sm:self-auto text-center"
-          >
-            {t('ag.driver.drivernotificationsettingspage.done', 'Done')}
-          </Link>
         </div>
+
+        <Link
+          to="/driver/profile"
+          className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition-all self-start sm:self-auto text-center"
+        >
+          {t('ag.driver.drivernotificationsettingspage.done', 'Done')}
+        </Link>
       </div>
 
       {/* 5 Channels Settings Card */}

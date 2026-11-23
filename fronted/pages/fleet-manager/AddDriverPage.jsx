@@ -95,18 +95,17 @@ export const AddDriverPage = () => {
 
   return (
     <div className="w-full space-y-6 pb-20 animate-in fade-in duration-200">
-      {/* 1. Breadcrumb Header Banner */}
-      <div>
-        <Breadcrumb
-          items={[
-            { label: t('ag.fleet.adddriverpage.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
-            { label: t('ag.fleet.adddriverpage.drivers', 'Drivers'), path: '/fleet-operator/drivers' },
-            { label: t('ag.fleet.adddriverpage.add_driver', 'Add Driver') },
-          ]}
-          className="mb-2"
-        />
-
-        <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm">
+      {/* 1. Header & Breadcrumb */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+        <div>
+          <Breadcrumb
+            items={[
+              { label: t('roles.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
+              { label: t('fleet.drivers.title', 'Drivers'), path: '/fleet-operator/drivers' },
+              { label: t('fleet.drivers.add_new_title', 'Add Driver') },
+            ]}
+            className="mb-2"
+          />
           <div className="flex items-center gap-3">
             <button 
               type="button"
@@ -118,19 +117,19 @@ export const AddDriverPage = () => {
             </button>
             <div>
               <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('fleet.drivers.add_new_title')}</h1>
-              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
                 {t('ag.fleet.adddriverpage.register_verified_driver_credentials_transpo', 'Register verified driver credentials, transport licensing details, and emergency emergency contacts.')}
               </p>
             </div>
           </div>
+        </div>
 
-          <div className="flex items-center gap-3 shrink-0 self-end sm:self-auto w-full sm:w-auto">
-            <button 
-              type="button"
-              onClick={() => navigate('/fleet-operator/drivers')}
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-bold transition-all cursor-pointer text-center"
-            >{t('common.cancel')}</button>
-          </div>
+        <div className="flex items-center gap-2.5 w-full sm:w-auto">
+          <button 
+            type="button"
+            onClick={() => navigate('/fleet-operator/drivers')}
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-bold transition-all cursor-pointer text-center"
+          >{t('common.cancel')}</button>
         </div>
       </div>
 

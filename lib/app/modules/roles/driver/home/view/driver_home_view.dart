@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/data/models/driver_models.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import '../controller/driver_home_controller.dart';
 
 class DriverHomeView extends GetView<DriverHomeController> {
@@ -24,9 +25,9 @@ class DriverHomeView extends GetView<DriverHomeController> {
           () => controller.isLoading.value &&
                   controller.shiftSchedules.isEmpty &&
                   !controller.hasActiveRoute
-              ? const Center(child: CircularProgressIndicator(color: kPurple))
+              ? const Center(child: CircularProgressIndicator(color: AppTheme.gradientBlue))
               : RefreshIndicator(
-                  color: kPurple,
+                  color: AppTheme.gradientBlue,
                   backgroundColor: kCardBg,
                   onRefresh: controller.onRefresh,
                   child: ListView(
@@ -131,7 +132,7 @@ class DriverHomeView extends GetView<DriverHomeController> {
                         child: Container(
                           padding: const EdgeInsets.all(4),
                           decoration: const BoxDecoration(
-                            color: kPurple,
+                            gradient: AppTheme.primaryGradient,
                             shape: BoxShape.circle,
                           ),
                           constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
@@ -166,7 +167,7 @@ class DriverHomeView extends GetView<DriverHomeController> {
             children: [
               Expanded(
                 child: Text(
-                  '${'good_morning'.tr}, ${controller.driverName.value}!',
+                  '${'good_morning'.tr} ${controller.driverName.value}!',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -1078,9 +1079,7 @@ class DriverHomeView extends GetView<DriverHomeController> {
                           decoration: BoxDecoration(
                             gradient: isLocked
                                 ? null
-                                : const LinearGradient(
-                                    colors: [Color(0xFF1C68FD), Color(0xFFDA29F4)],
-                                  ),
+                                : AppTheme.primaryGradient,
                             color: isLocked ? Colors.amber.withOpacity(0.15) : null,
                             borderRadius: BorderRadius.circular(10),
                           ),

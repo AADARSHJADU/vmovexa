@@ -18,7 +18,7 @@ export const RolePolicyPage = ({
   searchPlaceholder = 'Search clauses, regulatory rules or policies...',
   fallbackSections = [],
 }) => {
-  const { t, currentLanguage } = useTranslation();
+  const { t } = useTranslation();
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const { loadPage, getPage, status } = useContent();
@@ -29,25 +29,35 @@ export const RolePolicyPage = ({
 
   const page = getPage(type, roleCode);
   const isLoading = status === 'loading' && !page;
-  const preferLocalizedFallback = currentLanguage !== 'en' && fallbackSections.length > 0;
-  const displayTitle = preferLocalizedFallback ? titleFallback : (page?.title || titleFallback);
-  const displaySubtitle = preferLocalizedFallback ? subtitleFallback : (page?.summary || subtitleFallback);
+  const displayTitle = page?.title || titleFallback;
+  const displaySubtitle = page?.summary || subtitleFallback;
 
   // Normalize sections from JSON array or string, with fallback support
   const sections = useMemo(() => {
-    if (!preferLocalizedFallback && page?.sections) {
-      if (Array.isArray(page.sections) && page.sections.length > 0) return page.sections;
-      if (typeof page.sections === 'string') {
+    let raw = [];
+    if (page?.sections) {
+      if (Array.isArray(page.sections) && page.sections.length > 0) {
+        raw = page.sections;
+      } else if (typeof page.sections === 'string') {
         try {
           const parsed = JSON.parse(page.sections);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          if (Array.isArray(parsed) && parsed.length > 0) raw = parsed;
         } catch {
-          // Ignore malformed dynamic sections and use the localized fallback.
+          // Ignore malformed dynamic sections
         }
       }
     }
-    return Array.isArray(fallbackSections) ? fallbackSections : [];
-  }, [page, fallbackSections, preferLocalizedFallback]);
+    if (raw.length === 0 && Array.isArray(fallbackSections)) {
+      raw = fallbackSections;
+    }
+    return raw.filter((s) => {
+      const title = String(s.title || s.question || '');
+      const content = String(s.content || s.answer || '');
+      if (title.startsWith('Section Heading') && title.length > 30) return false;
+      if (content.startsWith('Section Heading') && content.length > 30) return false;
+      return true;
+    });
+  }, [page, fallbackSections]);
 
   // Search filter
   const filteredSections = useMemo(() => {
@@ -62,7 +72,7 @@ export const RolePolicyPage = ({
 
   const getBreadcrumbs = () => {
     const path = location.pathname;
-    let portal = { label: t('roles.admin', 'Admin'), to: '/admin/dashboard', icon: FleetIcons.Dashboard };
+    let portal = { label: t('ag.admin.admin_operations', 'Admin Operations'), to: '/admin/dashboard', icon: FleetIcons.Dashboard };
     if (path.startsWith('/superadmin')) {
       portal = { label: t('roles.superadmin', 'Super Admin'), to: '/superadmin/dashboard', icon: FleetIcons.Dashboard };
     } else if (path.startsWith('/fleet-operator') || path.startsWith('/fleet-manager')) {
@@ -85,26 +95,26 @@ export const RolePolicyPage = ({
   };
 
   return (
-    <div className="w-full space-y-6 animate-in fade-in duration-200 print:p-0">
+    <div className="w-full min-w-0 space-y-6 animate-in fade-in duration-200 print:p-0">
       {/* Standard Reusable Breadcrumb */}
       <div className="print:hidden">
         <Breadcrumb items={getBreadcrumbs()} />
       </div>
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4 print:border-b-2 print:border-slate-800">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4 print:border-b-2 print:border-slate-800 min-w-0">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 min-w-0">
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight break-words [overflow-wrap:anywhere]">
               {displayTitle}
             </h1>
             {page?.version && (
-              <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 rounded-full border border-slate-200 dark:border-zinc-800 print:hidden">
+              <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 rounded-full border border-slate-200 dark:border-zinc-800 print:hidden shrink-0">
                 v{page.version}.0
               </span>
             )}
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1 break-words [overflow-wrap:anywhere]">
             {displaySubtitle}
           </p>
         </div>
@@ -144,7 +154,7 @@ export const RolePolicyPage = ({
           ))}
         </div>
       ) : sections.length > 0 ? (
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-3">
+        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-3 min-w-0 overflow-hidden">
           {filteredSections.length > 0 ? (
             filteredSections.map((sec, idx) => {
               const itemTitle = sec.title || sec.question || `Section ${idx + 1}`;
@@ -153,13 +163,13 @@ export const RolePolicyPage = ({
                 <details
                   key={sec.id || `sec-${idx}`}
                   open
-                  className="group p-4 bg-slate-50 dark:bg-zinc-800/60 rounded-xl border border-slate-100 dark:border-zinc-800 open:bg-white dark:open:bg-zinc-800/90 open:border-slate-200 dark:open:border-zinc-700 transition-all"
+                  className="group p-4 bg-slate-50 dark:bg-zinc-800/60 rounded-xl border border-slate-100 dark:border-zinc-800 open:bg-white dark:open:bg-zinc-800/90 open:border-slate-200 dark:open:border-zinc-700 transition-all min-w-0 overflow-hidden"
                 >
-                  <summary className="text-xs font-bold text-slate-900 dark:text-white cursor-pointer list-none flex items-center justify-between select-none">
-                    <span>{itemTitle}</span>
-                    <FleetIcons.ChevronDown className="w-4 h-4 text-slate-400 dark:text-zinc-500 group-open:rotate-180 transition-transform print:hidden" />
+                  <summary className="min-w-0 text-xs font-bold text-slate-900 dark:text-white cursor-pointer list-none flex items-start justify-between gap-3 select-none">
+                    <span className="min-w-0 flex-1 whitespace-normal break-words [overflow-wrap:anywhere]">{itemTitle}</span>
+                    <FleetIcons.ChevronDown className="w-4 h-4 shrink-0 text-slate-400 dark:text-zinc-500 group-open:rotate-180 transition-transform print:hidden mt-0.5" />
                   </summary>
-                  <p className="text-xs text-slate-600 dark:text-zinc-300 font-medium mt-2.5 pt-2 border-t border-slate-100 dark:border-zinc-800 leading-relaxed whitespace-pre-line">
+                  <p className="min-w-0 text-xs text-slate-600 dark:text-zinc-300 font-medium mt-2.5 pt-2 border-t border-slate-100 dark:border-zinc-800 leading-relaxed whitespace-pre-line break-words [overflow-wrap:anywhere]">
                     {itemContent}
                   </p>
                 </details>
@@ -180,9 +190,9 @@ export const RolePolicyPage = ({
           )}
         </div>
       ) : page?.body_html ? (
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm">
+        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm min-w-0 overflow-hidden">
           <div
-            className="prose prose-sm max-w-none text-slate-700 dark:text-zinc-300 text-xs leading-relaxed"
+            className="prose prose-sm max-w-none text-slate-700 dark:text-zinc-300 text-xs leading-relaxed break-words [overflow-wrap:anywhere]"
             dangerouslySetInnerHTML={{ __html: page.body_html }}
           />
         </div>

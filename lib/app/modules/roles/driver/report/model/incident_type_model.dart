@@ -13,6 +13,27 @@ enum IncidentType {
 }
 
 extension IncidentTypeX on IncidentType {
+  String get apiValue {
+    switch (this) {
+      case IncidentType.accident:
+        return 'Accident';
+      case IncidentType.breakdown:
+        return 'Breakdown';
+      case IncidentType.roadCondition:
+        return 'Road Condition';
+      case IncidentType.trafficIssue:
+        return 'Traffic Issue';
+      case IncidentType.passengerIssue:
+        return 'Passenger Issue';
+      case IncidentType.infrastructure:
+        return 'Infrastructure';
+      case IncidentType.safetyConcern:
+        return 'Safety Concern';
+      case IncidentType.other:
+        return 'Other';
+    }
+  }
+
   String get label {
     switch (this) {
       case IncidentType.accident:
@@ -80,6 +101,21 @@ extension IncidentTypeX on IncidentType {
 enum AffectedParty { passengers, driver, vehicle, infrastructure, other }
 
 extension AffectedPartyX on AffectedParty {
+  String get apiValue {
+    switch (this) {
+      case AffectedParty.passengers:
+        return 'Passengers';
+      case AffectedParty.driver:
+        return 'Driver';
+      case AffectedParty.vehicle:
+        return 'Vehicle';
+      case AffectedParty.infrastructure:
+        return 'Infrastructure';
+      case AffectedParty.other:
+        return 'Other';
+    }
+  }
+
   String get label {
     switch (this) {
       case AffectedParty.passengers:
@@ -94,6 +130,7 @@ extension AffectedPartyX on AffectedParty {
         return 'affected_other'.tr;
     }
   }
+
 
   IconData get icon {
     switch (this) {
@@ -114,6 +151,19 @@ extension AffectedPartyX on AffectedParty {
 enum IncidentSeverity { low, medium, high, critical }
 
 extension IncidentSeverityX on IncidentSeverity {
+  String get apiValue {
+    switch (this) {
+      case IncidentSeverity.low:
+        return 'Low';
+      case IncidentSeverity.medium:
+        return 'Medium';
+      case IncidentSeverity.high:
+        return 'High';
+      case IncidentSeverity.critical:
+        return 'Critical';
+    }
+  }
+
   String get label {
     switch (this) {
       case IncidentSeverity.low:

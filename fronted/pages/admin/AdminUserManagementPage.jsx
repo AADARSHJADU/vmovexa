@@ -1,9 +1,10 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { FleetIcons } from '../../components/FleetIcons';
 import { Pagination } from '../../components/ui/Pagination';
 import { Breadcrumb } from '../../components/ui/Breadcrumb';
+import { RefreshButton } from '../../components/ui/RefreshButton';
 import { ActionDropdown } from '../../components/ui/ActionDropdown';
 import { useAdminUser } from '../../hooks/admin/useAdminUser';
 import { useAdminRole } from '../../hooks/admin/useAdminRole';
@@ -25,7 +26,6 @@ export const AdminUserManagementPage = () => {
   const canDeleteUser = can('users.delete');
   const {
     users,
-    pagination,
     loading,
     loadUsers,
     updateStatus,
@@ -211,7 +211,7 @@ export const AdminUserManagementPage = () => {
         <div>
           <Breadcrumb
             items={[
-              { label: t('ag.admin.adminusermanagementpage.tenant_admin', 'Tenant Admin'), path: '/admin/dashboard' },
+              { label: t('ag.admin.admin_operations', 'Admin Operations'), path: '/admin/dashboard' },
               { label: t('admin.users.users_and_team') },
             ]}
             className="mb-2"
@@ -230,13 +230,10 @@ export const AdminUserManagementPage = () => {
         </div>
 
         <div className="flex items-center gap-2.5 self-start sm:self-auto">
-          <Link
-            to="/admin/activity"
-            className="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
-          >
-            <FleetIcons.Clock className="w-4 h-4 text-slate-500" />
-            <span>{t('admin.users.activity_logs')}</span>
-          </Link>
+          <RefreshButton
+            onClick={() => loadUsers()}
+            loading={loading}
+          />
         </div>
       </div>
 

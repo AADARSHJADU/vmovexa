@@ -388,11 +388,11 @@ export const AdminAddDriverPage = () => {
   useEffect(() => {
     if (!canAccessForm) return;
     loadDepots().catch(() => {});
-    if (canViewVehicles) {
+    if (!isFleetPortal && canViewVehicles) {
       loadVehicles({ exclude_status: 'pending_approval,pending,rejected', limit: 100 }).catch(() => {});
     }
     loadFleetOperators({ limit: 100 }).catch(() => {});
-  }, [canAccessForm, canViewVehicles, loadDepots, loadVehicles, loadFleetOperators]);
+  }, [canAccessForm, canViewVehicles, isFleetPortal, loadDepots, loadVehicles, loadFleetOperators]);
 
   // Handle queryFleetId pre-selection
   useEffect(() => {
@@ -778,9 +778,9 @@ export const AdminAddDriverPage = () => {
       clientErrors.emergencyContact = "Emergency phone cannot be the same as driver's mobile phone.";
     }
 
-    // 14. Fleet Operator (Required for Admin when creating driver)
+    // 14. Fleet (Required for Admin when creating driver)
     if (!isFleetPortal && !isEditMode && !formData.fleetId) {
-      clientErrors.fleetId = 'Please select which Fleet Operator this driver belongs to.';
+      clientErrors.fleetId = 'Please select which Fleet this driver belongs to.';
     }
 
     // 15. Depot
@@ -890,8 +890,10 @@ export const AdminAddDriverPage = () => {
       aadhaarVerified: formData.aadhaarVerified,
       depot: effectiveDepot ? Number(effectiveDepot) : null,
       depotId: effectiveDepot ? Number(effectiveDepot) : null,
-      assignedBus: formData.assignedBus ? Number(formData.assignedBus) : null,
-      assignedBusId: formData.assignedBus ? Number(formData.assignedBus) : null,
+      ...(!isFleetPortal ? {
+        assignedBus: formData.assignedBus ? Number(formData.assignedBus) : null,
+        assignedBusId: formData.assignedBus ? Number(formData.assignedBus) : null,
+      } : {}),
       activeShift: formData.activeShift,
       joiningDate: formData.joiningDate || null,
       experienceYears: formData.experienceYears || null,
@@ -1015,12 +1017,12 @@ export const AdminAddDriverPage = () => {
 
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-200 pb-20">
-      {/* 1. Breadcrumb Banner & Action Header */}
-      <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm min-w-0">
+      {/* 1. Header */}
+      <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4 min-w-0">
         <div className="min-w-0">
           <Breadcrumb
             items={[
-              { label: isFleetPortal ? t('ag.admin.adminadddriverpage.fleet_operator', 'Fleet Operator') : 'Admin', path: dashboardLink },
+              { label: isFleetPortal ? t('roles.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), path: dashboardLink },
               { label: t('ag.admin.adminadddriverpage.drivers', 'Drivers'), path: basePath },
               { label: isEditMode ? t('ag.admin.adminadddriverpage.edit_driver', 'Edit Driver') : t('ag.admin.adminadddriverpage.add_driver', 'Add Driver') },
             ]}
@@ -1141,7 +1143,7 @@ export const AdminAddDriverPage = () => {
             <div className="text-[11px] text-slate-500 dark:text-zinc-400">
               {isFleetPortal
                 ? t('ag.admin.adminadddriverpage.driver_will_be_registered_under_your', 'Driver will be registered under your fleet profile')
-                : t('ag.admin.adminadddriverpage.select_which_fleet_operator_fleet_co', 'Select which Fleet Operator / Fleet company this driver is registered under')}
+                : t('ag.admin.adminadddriverpage.select_which_fleet_operator_fleet_co', 'Select which Fleet this driver is registered under')}
             </div>
           </div>
         </div>
@@ -1163,7 +1165,7 @@ export const AdminAddDriverPage = () => {
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-slate-700 dark:text-zinc-300 whitespace-nowrap">
-                  {t('ag.admin.adminadddriverpage.fleet_operator', 'Fleet / Operator')} <span className="text-rose-500">*</span>:
+                  {t('ag.admin.adminadddriverpage.fleet', 'Fleet')} <span className="text-rose-500">*</span>:
                 </span>
                 <select
                   value={formData.fleetId}
@@ -1174,7 +1176,7 @@ export const AdminAddDriverPage = () => {
                       : 'border-slate-200 dark:border-zinc-700 bg-slate-50 focus:border-blue-500 focus:bg-white'
                   }`}
                 >
-                  <option value="">{t('admin.drivers.select_fleet_operator') || 'Select Fleet Operator...'}</option>
+                  <option value="">{t('admin.drivers.select_fleet') || 'Select Fleet...'}</option>
                   {fleetOperatorsList.map((f) => (
                     <option key={f.id} value={f.id}>
                       {f.name} {f.code ? `(${f.code})` : ''} {f.organization?.name ? `— ${f.organization.name}` : ''}
@@ -1780,11 +1782,11 @@ export const AdminAddDriverPage = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {/* Fleet Operator / Fleet */}
+            {/* Fleet */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                  {t('ag.admin.adminadddriverpage.fleet_operator', 'Fleet / Operator')} <span className="text-rose-500">*</span>
+                  {t('ag.admin.adminadddriverpage.fleet', 'Fleet')} <span className="text-rose-500">*</span>
                 </label>
                 {isFleetPortal ? (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 inline-flex items-center gap-1">
@@ -1812,7 +1814,7 @@ export const AdminAddDriverPage = () => {
                       : 'border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800/70 focus:border-blue-500 focus:bg-white dark:focus:bg-zinc-900'
                   }`}
                 >
-                  <option value="">{t('admin.drivers.select_fleet_operator') || 'Select Fleet Operator...'}</option>
+                  <option value="">{t('admin.drivers.select_fleet') || 'Select Fleet...'}</option>
                   {fleetOperatorsList.map((f) => (
                     <option key={f.id} value={f.id}>
                       {f.name} {f.code ? `(${f.code})` : ''} {f.organization?.name ? `— ${f.organization.name}` : ''}
@@ -1876,8 +1878,8 @@ export const AdminAddDriverPage = () => {
               )}
             </div>
 
-            {/* Assigned Bus (Optional) */}
-            <div className="space-y-1.5">
+            {/* Assigned Bus (Optional) — bus allocation is managed separately in the Fleet Operator portal. */}
+            {!isFleetPortal && <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700 dark:text-zinc-300">{t('admin.drivers.assigned_bus') || 'Assigned Bus (Optional)'}</label>
               <select
                 value={formData.assignedBus}
@@ -1907,7 +1909,7 @@ export const AdminAddDriverPage = () => {
                   <option key={v.id} value={v.id}>{v.busNumber || v.bus_number || `Bus #${v.id}`} — {v.vehicleType || v.vehicle_type || 'Bus'}</option>
                 ))}
               </select>
-            </div>
+            </div>}
 
             {/* Joining Date */}
             <div className="space-y-1.5">

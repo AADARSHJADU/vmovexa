@@ -179,16 +179,16 @@ export const FleetDetailsPage = () => {
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-200 pb-16">
       {/* Top Breadcrumb & Header Action Bar */}
-      <div>
-        <Breadcrumb
-          items={[
-            { label: t('ag.fleet.fleetdetailspage.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
-            { label: t('ag.fleet.fleetdetailspage.fleet_operators', 'Fleet Operators'), path: '/fleet-operator/fleets' },
-            { label: fleet.name || `Fleet #${fleet.id}` },
-          ]}
-          className="mb-2"
-        />
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+        <div>
+          <Breadcrumb
+            items={[
+              { label: t('roles.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
+              { label: t('fleet.fleets.title', 'Fleet Directory'), path: '/fleet-operator/fleets' },
+              { label: fleet.name || `Fleet #${fleet.id}` },
+            ]}
+            className="mb-2"
+          />
           <div className="flex items-center gap-3">
             <Link
               to="/fleet-operator/fleets"
@@ -217,6 +217,7 @@ export const FleetDetailsPage = () => {
               </p>
             </div>
           </div>
+        </div>
 
           <div className="flex flex-wrap items-center gap-2">
             {/* Admin Approval / Rejection buttons */}

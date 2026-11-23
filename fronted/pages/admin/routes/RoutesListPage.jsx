@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../../hooks/useAuth';
@@ -36,7 +36,8 @@ export const RoutesListPage = () => {
   const canCreate = can('routes.create');
   const canUpdate = can('routes.update');
   const canDelete = can('routes.delete');
-  const canApprove = !isFleetPortal && can('routes.approve');
+  // Approval is an explicit RBAC capability for both admin and fleet portals.
+  const canApprove = can('routes.approve');
 
   // Filters & State
   const [activeTab, setActiveTab] = useState('ALL'); // 'ALL', 'active', 'pending_approval', 'rejected'
@@ -64,7 +65,7 @@ export const RoutesListPage = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  const fetchData = React.useCallback(async () => {
+  const fetchData = useCallback(async () => {
     try {
       const params = {
         page,
@@ -238,7 +239,7 @@ export const RoutesListPage = () => {
         <div>
           <Breadcrumb
             items={[
-              { label: isFleetPortal ? t('ag.admin.routeslistpage.fleet', 'Fleet') : 'Admin', to: dashboardLink },
+              { label: isFleetPortal ? t('roles.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), to: dashboardLink },
               { label: t('ag.admin.routeslistpage.routes', 'Routes') },
             ]}
             className="mb-2"

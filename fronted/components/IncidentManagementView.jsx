@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from '../hooks/useTranslation';
@@ -86,7 +87,7 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
   // Report Incident Modal State
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [submittingReport, setSubmittingReport] = useState(false);
-  const [resourcesLoading, setResourcesLoading] = useState(false);
+  const [, setResourcesLoading] = useState(false);
   const [vehiclesList, setVehiclesList] = useState([]);
   const [driversList, setDriversList] = useState([]);
   const [organizationsList, setOrganizationsList] = useState([]);
@@ -136,6 +137,7 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
   }, [canView, loadIncidents, isSuperAdmin]);
 
   // Fetch vehicles, drivers and organizations for the report modal
+  // eslint-disable-next-line no-unused-vars
   const openReportModal = async () => {
     setIsReportModalOpen(true);
     setResourcesLoading(true);
@@ -567,12 +569,12 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
               label: roleScope === 'superadmin'
                 ? t('roles.superadmin', 'Super Admin')
                 : roleScope === 'admin'
-                  ? t('roles.admin', 'Admin')
+                  ? t('ag.admin.admin_operations', 'Admin Operations')
                   : t('roles.fleet_operator', 'Fleet Operator'),
               to: dashboardBasePath,
             },
             {
-              label: t('incident.incidents_command', 'Incidents Command'),
+              label: t('incident.title', 'Incidents'),
               to: incidentsBasePath,
             },
             {
@@ -1301,37 +1303,30 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
   // RENDER MAIN LIST VIEW SECTION
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-200 pb-20">
-      {/* Standard Reusable Breadcrumb */}
-      <Breadcrumb
-        items={[
-          {
-            label: roleScope === 'superadmin'
-              ? t('roles.superadmin', 'Super Admin')
-              : roleScope === 'fleet'
-              ? t('roles.fleet_operator', 'Fleet Operator')
-              : t('roles.admin', 'Admin'),
-            to: roleScope === 'superadmin' ? '/superadmin/dashboard' : roleScope === 'fleet' ? '/fleet-operator/dashboard' : '/admin/dashboard',
-          },
-          {
-            label: t('incident.cmd_center_title', 'Emergency Incidents Command Center'),
-          },
-        ]}
-      />
-
-      {/* Header Bar */}
-      <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-              {roleTitle} {t('ag.shared.incidentmanagementview.control_room', 'Control Room')}
-            </span>
-          </div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1 flex items-center gap-2">
-            <FleetIcons.Alert className="w-6 h-6 text-red-500" />
-            <span>{t('incident.cmd_center_title', 'Emergency Incidents Command Center')}</span>
+          <Breadcrumb
+            items={[
+              {
+                label: roleScope === 'superadmin'
+                  ? t('roles.superadmin', 'Super Admin')
+                  : roleScope === 'fleet'
+                  ? t('roles.fleet_operator', 'Fleet Operator')
+                  : t('ag.admin.admin_operations', 'Admin Operations'),
+                to: roleScope === 'superadmin' ? '/superadmin/dashboard' : roleScope === 'fleet' ? '/fleet-operator/dashboard' : '/admin/dashboard',
+              },
+              {
+                label: t('incident.title', 'Incidents'),
+              },
+            ]}
+            className="mb-2"
+          />
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+            {t('incident.title', 'Incidents')}
           </h1>
-          <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium mt-0.5">
-            {t('incident.cmd_center_desc', 'Real-time incident dispatch, driver contact tracking, roadside recovery, and Super Admin resolution')}
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
+            {t('incident.cmd_center_desc', 'Real-time incident dispatch, driver contact tracking, and roadside recovery')}
           </p>
         </div>
 
@@ -1341,20 +1336,20 @@ export const IncidentManagementView = ({ roleTitle = 'Fleet Manager', roleScope 
             loading={loading}
           />
 
-          {/* REPORT INCIDENT BUTTON (Links directly to dedicated full-page wizard) */}
-          <Link
-            to={
-              roleScope === 'superadmin'
-                ? '/superadmin/incident-report'
-                : roleScope === 'admin'
-                ? '/admin/incident-report'
-                : '/fleet-operator/incident-report'
-            }
-            className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-black rounded-xl transition-all shadow-sm flex items-center gap-2"
-          >
-            <FleetIcons.Alert className="w-4 h-4 text-white" />
-            <span>{t('incident.report_incident_btn', '+ Report Incident')}</span>
-          </Link>
+          {/* REPORT INCIDENT BUTTON (hidden on Super Admin portal) */}
+          {roleScope !== 'superadmin' && (
+            <Link
+              to={
+                roleScope === 'admin'
+                  ? '/admin/incident-report'
+                  : '/fleet-operator/incident-report'
+              }
+              className="px-4 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2"
+            >
+              <FleetIcons.Plus className="w-4 h-4 text-white" />
+              <span>{t('incident.report_incident_title', 'Report Incident')}</span>
+            </Link>
+          )}
         </div>
       </div>
 

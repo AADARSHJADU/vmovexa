@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 
 import '../../../../technician/hardware_configuration/views/shared_widgets.dart';
 
@@ -39,11 +40,20 @@ class UploadDocStepper extends StatelessWidget {
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: (isActive || isCompleted) ? kPurple : kFieldBg,
+                        gradient: (isActive || isCompleted) ? AppTheme.primaryGradient : null,
+                        color: (isActive || isCompleted) ? null : kFieldBg,
                         border: Border.all(
-                          color: isActive ? kPurple : (isCompleted ? kPurple : Colors.white24),
+                          color: isActive ? Colors.transparent : (isCompleted ? Colors.transparent : Colors.white24),
                           width: isActive ? 2.5 : 1,
                         ),
+                        boxShadow: isActive
+                            ? [
+                                BoxShadow(
+                                  color: AppTheme.gradientBlue.withValues(alpha: 0.4),
+                                  blurRadius: 8,
+                                ),
+                              ]
+                            : null,
                       ),
                       child: isCompleted
                           ? const Icon(Icons.check, color: Colors.white, size: 15)
@@ -59,9 +69,9 @@ class UploadDocStepper extends StatelessWidget {
                       stepLabels[index],
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: isActive ? kPurple : (isCompleted ? Colors.white54 : Colors.white38),
+                        color: isActive ? Colors.white : (isCompleted ? Colors.white70 : Colors.white38),
                         fontSize: 9.5,
-                        fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                        fontWeight: isActive ? FontWeight.w800 : FontWeight.w500,
                       ),
                     ),
                   ],
@@ -72,7 +82,7 @@ class UploadDocStepper extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 18),
                   child: SizedBox(
                     width: 20,
-                    child: Divider(color: isCompleted ? kPurple : Colors.white24, thickness: 1.5),
+                    child: Divider(color: isCompleted ? AppTheme.gradientBlue : Colors.white24, thickness: 1.5),
                   ),
                 ),
             ],

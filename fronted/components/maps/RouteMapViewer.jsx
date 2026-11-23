@@ -26,6 +26,7 @@ export const RouteMapViewer = ({
   stops = [],
   polyline = null,
   height = '420px',
+  showLegend = true,
   interactive = true,
   showControls = true,
   editMode = false,        // NEW — enable drag + click-to-place
@@ -584,7 +585,7 @@ export const RouteMapViewer = ({
       )}
 
       {/* Map Legend */}
-      {hasPoints && (
+      {showLegend && hasPoints && (
         <div className="absolute bottom-3 left-3 z-20 flex items-center gap-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-md text-[11px]">
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />

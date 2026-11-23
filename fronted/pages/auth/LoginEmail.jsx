@@ -31,7 +31,6 @@ export const LoginEmail = () => {
             identifier: result.identifier,
             email: result.identifier,
             purpose: 'login',
-            devCode: result.devCode,
           },
         });
         return;

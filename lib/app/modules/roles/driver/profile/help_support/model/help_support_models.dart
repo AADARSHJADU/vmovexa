@@ -85,7 +85,7 @@ class DriverGuideItem {
         return const Color(0xFFFFA726);
       case 'document':
       default:
-        return const Color(0xFFB042FF);
+        return const Color(0xFF1C68FD);
     }
   }
 }

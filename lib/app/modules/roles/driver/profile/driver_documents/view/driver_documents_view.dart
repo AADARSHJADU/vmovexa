@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/modules/roles/driver/profile/driver_documents/model/document_requirement_model.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
+import '../../../../finance/subscriptions/view/shared_tab_widgets.dart';
+import '../../../../technician/hardware_configuration/views/shared_widgets.dart';
 import '../controller/driver_documents_controller.dart';
 
 class DriverDocumentsView extends GetView<DriverDocumentsController> {
@@ -9,8 +12,6 @@ class DriverDocumentsView extends GetView<DriverDocumentsController> {
   static const Color kBg = Color(0xFF0B0B14);
   static const Color kCardBg = Color(0xFF15151F);
   static const Color kFieldBg = Color(0xFF1B1B27);
-  static const Color kPurple = Color(0xFFB042FF);
-  static const Color kIndigo = Color(0xFF6366F1);
   static const Color kBorder = Color(0x14FFFFFF);
 
   @override
@@ -20,9 +21,9 @@ class DriverDocumentsView extends GetView<DriverDocumentsController> {
       body: SafeArea(
         child: Obx(
           () => controller.isLoading.value && controller.documents.isEmpty
-              ? const Center(child: CircularProgressIndicator(color: kPurple))
+              ? const Center(child: CircularProgressIndicator(color: AppTheme.gradientBlue))
               : RefreshIndicator(
-                  color: kPurple,
+                  color: AppTheme.gradientBlue,
                   backgroundColor: kCardBg,
                   onRefresh: controller.onRefresh,
                   child: ListView(
@@ -94,10 +95,16 @@ class DriverDocumentsView extends GetView<DriverDocumentsController> {
           child: Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: kPurple.withValues(alpha: 0.12),
+              gradient: AppTheme.primaryGradient,
               shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.gradientBlue.withValues(alpha: 0.3),
+                  blurRadius: 4,
+                ),
+              ],
             ),
-            child: const Icon(Icons.info_outline, color: kPurple, size: 18),
+            child: const Icon(Icons.info_outline, color: Colors.white, size: 18),
           ),
         ),
       ],
@@ -282,7 +289,7 @@ class DriverDocumentsView extends GetView<DriverDocumentsController> {
           final totalCount = controller.documents.length;
           return Text(
             '$uploadedCount / $totalCount ${'attached_fraction'.tr}',
-            style: const TextStyle(color: kPurple, fontSize: 11, fontWeight: FontWeight.w600),
+            style: const TextStyle(color: AppTheme.gradientBlue, fontSize: 11, fontWeight: FontWeight.w600),
           );
         }),
       ],
@@ -317,12 +324,15 @@ class DriverDocumentsView extends GetView<DriverDocumentsController> {
       decoration: BoxDecoration(
         color: kFieldBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: kPurple.withValues(alpha: 0.2)),
+        border: Border.all(color: AppTheme.gradientBlue.withValues(alpha: 0.25)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.check_circle_outline, color: kPurple, size: 15),
+          ShaderMask(
+            shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+            child: const Icon(Icons.check_circle_outline, color: Colors.white, size: 15),
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Column(
@@ -356,7 +366,7 @@ class _DocumentCard extends StatelessWidget {
 
   static const Color kCardBg = DriverDocumentsView.kCardBg;
   static const Color kFieldBg = DriverDocumentsView.kFieldBg;
-  static const Color kPurple = DriverDocumentsView.kPurple;
+  // static  Color kPurple = DriverDocumentsView.kPurple;
   static const Color kBorder = DriverDocumentsView.kBorder;
 
   @override
@@ -545,16 +555,22 @@ class _DocumentCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
-                      color: kPurple.withValues(alpha: 0.15),
+                      gradient: AppTheme.primaryGradient,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: kPurple.withValues(alpha: 0.4)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.gradientBlue.withValues(alpha: 0.25),
+                          blurRadius: 4,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.file_upload_outlined, color: kPurple, size: 13),
+                        const Icon(Icons.file_upload_outlined, color: Colors.white, size: 13),
                         const SizedBox(width: 4),
-                        Text('${'upload_action'.tr} ${'document_status'.tr.split(' ')[0]}', style: const TextStyle(color: kPurple, fontSize: 10.5, fontWeight: FontWeight.bold)),
+                        Text('${'upload_action'.tr} ${'document_status'.tr.split(' ')[0]}', style: const TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),

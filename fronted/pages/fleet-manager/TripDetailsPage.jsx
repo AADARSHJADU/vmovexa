@@ -110,30 +110,21 @@ export const TripDetailsPage = () => {
 
   return (
     <div className="w-full space-y-6 pb-24">
-      {/* 1. Global Standard Breadcrumb Navigation */}
-      <Breadcrumb
-        items={[
-          { label: t('ag.fleet.tripdetailspage.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
-          { label: t('ag.fleet.tripdetailspage.trip_history', 'Trip History'), path: '/fleet-operator/trips' },
-          { label: tripCode },
-        ]}
-        className="mb-2"
-      />
-
       {/* Header Banner */}
-      <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm transition-colors">
-        <div className="flex items-center gap-3">
-          <button 
-            type="button"
-            onClick={() => navigate('/fleet-operator/trips')} 
-            className="p-2.5 rounded-xl border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors shrink-0 cursor-pointer"
-            title={t('fleet.trip_details.back_trips')}
-          >
-            <FleetIcons.ArrowLeft className="w-4 h-4" />
-          </button>
-          <div className="min-w-0">
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight flex flex-wrap items-center gap-2">
-              <span>{t('fleet.trip_details.title')}</span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+        <div>
+          <Breadcrumb
+            items={[
+              { label: t('roles.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
+              { label: t('fleet.trips.title', 'Trips & Dispatch'), path: '/fleet-operator/trips' },
+              { label: tripCode },
+            ]}
+            className="mb-2"
+          />
+          <div className="flex items-center gap-3">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight flex flex-wrap items-center gap-2">
+                <span>{t('fleet.trip_details.title')}</span>
               <span className={`px-2.5 py-0.5 rounded-full border text-xs font-bold flex items-center gap-1.5 shrink-0 ${
                 trip.status === 'in_progress' ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800' :
                 trip.status === 'completed' ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800' :
@@ -150,6 +141,7 @@ export const TripDetailsPage = () => {
             </p>
           </div>
         </div>
+      </div>
 
         <div className="flex items-center gap-2.5 w-full sm:w-auto">
           <button 
@@ -457,15 +449,6 @@ export const TripDetailsPage = () => {
 
       {/* 5. Bottom Action Bar */}
       <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 transition-colors">
-        <button
-          type="button"
-          onClick={() => navigate('/fleet-operator/trips')}
-          className="w-full sm:w-auto px-6 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
-        >
-          <FleetIcons.ArrowLeft className="w-3.5 h-3.5" />
-          <span>{t('fleet.trips.view_full_history')}</span>
-        </button>
-
         <div className="flex items-center gap-3 w-full sm:w-auto">
           {trip.status !== 'completed' ? (
             <button

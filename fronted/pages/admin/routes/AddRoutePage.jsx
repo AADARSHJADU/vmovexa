@@ -21,6 +21,7 @@ export const AddRoutePage = () => {
   const isEditing = Boolean(id);
   const isFleetPortal = (location.pathname.startsWith('/fleet-operator') || location.pathname.startsWith('/fleet-operator'));
   const basePath = isFleetPortal ? '/fleet-operator/routes' : '/admin/routes';
+  const dashboardLink = isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard';
 
   const canCreate = can('routes.create');
   const canUpdate = can('routes.update');
@@ -447,7 +448,7 @@ export const AddRoutePage = () => {
         <div>
           <Breadcrumb
             items={[
-              { label: isFleetPortal ? t('ag.admin.addroutepage.fleet', 'Fleet') : 'Admin', to: basePath },
+              { label: isFleetPortal ? t('roles.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), to: dashboardLink },
               { label: t('ag.admin.addroutepage.routes', 'Routes'), to: basePath },
               { label: isEditing ? t('ag.admin.addroutepage.edit_route', 'Edit Route') : t('ag.admin.addroutepage.add_route', 'Add Route') },
             ]}
@@ -902,6 +903,7 @@ export const AddRoutePage = () => {
                 stops={stops}
                 polyline={polyline}
                 height="450px"
+                showLegend={!isFleetPortal}
                 editMode
                 onStartChange={handleMapStartChange}
                 onEndChange={handleMapEndChange}

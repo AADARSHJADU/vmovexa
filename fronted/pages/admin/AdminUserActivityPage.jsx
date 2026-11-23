@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import { FleetIcons } from '../../components/FleetIcons';
 import { Pagination } from '../../components/ui/Pagination';
@@ -244,11 +243,11 @@ export const AdminUserActivityPage = () => {
     return (
       <div className="w-full space-y-6 animate-in fade-in duration-200 pb-20">
         {/* Header with Breadcrumb and Action Controls */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-5 rounded-2xl shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
           <div>
             <Breadcrumb
               items={[
-                { label: t('ag.admin.adminuseractivitypage.dashboard', 'Dashboard'), to: '/admin/dashboard' },
+                { label: t('ag.admin.admin_operations', 'Admin Operations'), to: '/admin/dashboard' },
                 { label: t('ag.admin.adminuseractivitypage.activity_logs', 'Activity Logs'), to: '/admin/activity', onClick: (e) => { e.preventDefault(); setSelectedLog(null); } },
                 { label: `Log #${selectedLog.id}` },
               ]}
@@ -454,11 +453,11 @@ export const AdminUserActivityPage = () => {
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-200 pb-20">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-5 rounded-2xl shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
         <div>
           <Breadcrumb
             items={[
-              { label: t('ag.admin.adminuseractivitypage.dashboard', 'Dashboard'), to: '/admin/dashboard' },
+              { label: t('ag.admin.admin_operations', 'Admin Operations'), to: '/admin/dashboard' },
               { label: t('ag.admin.adminuseractivitypage.team_staff', 'Team & Staff'), to: '/admin/users' },
               { label: t('ag.admin.adminuseractivitypage.activity_logs', 'Activity Logs') }
             ]}
@@ -467,7 +466,7 @@ export const AdminUserActivityPage = () => {
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
             {t('ag.admin.adminuseractivitypage.activity_logs', 'Activity Logs')}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
             {t('ag.admin.adminuseractivitypage.view_team_activity_logs_user_actions_and_sys', 'View team activity logs, user actions, and system events')}
           </p>
         </div>
@@ -676,7 +675,7 @@ export const AdminUserActivityPage = () => {
             <table className="w-full min-w-[640px] text-left text-xs text-slate-700 dark:text-zinc-300">
               <thead className="bg-slate-50 dark:bg-zinc-800/80 border-b border-slate-200 dark:border-zinc-800 text-slate-500 dark:text-zinc-400 font-bold uppercase text-[10px]">
                 <tr>
-                  <th className="py-3 px-4">{t('admin.activity.th_id_level')}</th>
+                  <th className="py-3 px-4">{t('admin.activity.th_level', 'Level')}</th>
                   <th className="py-3 px-4">{t('admin.activity.th_category')}</th>
                   <th className="py-3 px-4">{t('admin.activity.th_action')}</th>
                   <th className="py-3 px-4">{t('admin.activity.th_user')}</th>
@@ -692,12 +691,9 @@ export const AdminUserActivityPage = () => {
                     className="hover:bg-slate-50/60 dark:hover:bg-zinc-800/50 cursor-pointer transition-colors"
                   >
                     <td className="py-3.5 px-4 font-mono">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-blue-600 dark:text-blue-400">#{log.id}</span>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${getSeverityBadge(log.severity)}`}>
-                          {log.severity || 'INFO'}
-                        </span>
-                      </div>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded border inline-block ${getSeverityBadge(log.severity)}`}>
+                        {log.severity || 'INFO'}
+                      </span>
                     </td>
                     <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-white">
                       {log.category || log.log_name || 'System'}
@@ -746,9 +742,6 @@ export const AdminUserActivityPage = () => {
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-zinc-800 pb-2.5">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-mono text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-900">
-                    #{log.id}
-                  </span>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${getSeverityBadge(log.severity)}`}>
                     {log.severity || 'INFO'}
                   </span>

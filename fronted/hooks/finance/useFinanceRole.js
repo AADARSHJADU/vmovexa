@@ -26,6 +26,7 @@ import {
   fetchFinanceSubscriptionsThunk,
   fetchFinanceInvoicesThunk,
   fetchFinanceInvoiceByIdThunk,
+  fetchFinanceInvoiceHtmlThunk,
   generateFinanceInvoiceThunk,
   markFinanceInvoicePaidThunk,
   fetchFinancePaymentsThunk,
@@ -112,6 +113,7 @@ export const useFinanceRole = () => {
   const loadSubscriptions = useCallback((params) => dispatch(fetchFinanceSubscriptionsThunk(params)).unwrap(), [dispatch]);
   const loadInvoices = useCallback((params) => dispatch(fetchFinanceInvoicesThunk(params)).unwrap(), [dispatch]);
   const loadInvoice = useCallback((id) => dispatch(fetchFinanceInvoiceByIdThunk(id)).unwrap(), [dispatch]);
+  const loadInvoiceHtml = useCallback((id, params = {}) => dispatch(fetchFinanceInvoiceHtmlThunk({ id, params })).unwrap(), [dispatch]);
   const generateInvoice = useCallback((data) => dispatch(generateFinanceInvoiceThunk(data)).unwrap(), [dispatch]);
   const markInvoicePaid = useCallback((id, data) => dispatch(markFinanceInvoicePaidThunk({ id, data })).unwrap(), [dispatch]);
 
@@ -145,7 +147,7 @@ export const useFinanceRole = () => {
     payments, paymentsPagination, currentPayment,
     campaignPayments, campaignPaymentsPagination, campaignPaymentsCounts, campaignPaymentsSummary, currentCampaignPayment, reconciliationSummary, reconciliationTransactions,
     gstSummary, gstr1Json, settings, status, reportSummary,
-    loadKpis, loadSubscriptions, loadInvoices, loadInvoice, generateInvoice, markInvoicePaid,
+    loadKpis, loadSubscriptions, loadInvoices, loadInvoice, loadInvoiceHtml, generateInvoice, markInvoicePaid,
     loadPayments, loadPayment, sendPaymentReminder,
     loadCampaignPayments, loadCampaignPayment, shareCampaignPaymentLink, recordManualPayment, resetCurrentCampaignPayment,
     loadReconciliationSummary, loadReconciliationTransactions, autoMatchReconciliation, finalizeReconciliation,

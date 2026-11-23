@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAdminVehicle } from '../../hooks/admin/useAdminVehicle';
 import { useAdminDepot } from '../../hooks/admin/useAdminDepot';
-import { useAdminDriver } from '../../hooks/admin/useAdminDriver';
 import { useAdminRoute } from '../../hooks/admin/useAdminRoute';
 import { useAdminFleetOperator } from '../../hooks/admin/useAdminFleetOperator';
 import { uploadFile, resolveFileUrl } from '../../api/services/upload.service';
@@ -12,6 +11,15 @@ import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from '../../hooks/useTranslation';
 import Breadcrumb from '../../components/ui/Breadcrumb';
 import { FleetIcons } from '../../components/FleetIcons';
+
+const getFleetOperatorDepotId = (operator) => (
+  operator?.fleetOperatorProfile?.depot_id
+  || operator?.fleetOperatorProfile?.depotId
+  || operator?.depot_id
+  || operator?.depotId
+  || operator?.depot?.id
+  || ''
+);
 
 export const AddVehiclePage = () => {
   const { t } = useTranslation();
@@ -30,14 +38,12 @@ export const AddVehiclePage = () => {
   const canUpdate = can('vehicles.update');
   const canAccessForm = isEditMode ? canUpdate : canCreate;
 
-  const { createVehicle, updateVehicle, loadVehicles, assignGps, assignDriver } = useAdminVehicle();
+  const { createVehicle, updateVehicle, assignGps } = useAdminVehicle();
   const { depots, loadDepots } = useAdminDepot();
-  const { drivers, loadDrivers } = useAdminDriver();
   const { routes, loadRoutes } = useAdminRoute();
   const { fleetOperators, loadFleetOperators } = useAdminFleetOperator();
 
   const depotsList = Array.isArray(depots) ? depots : (depots?.items || depots?.rows || []);
-  const driversList = Array.isArray(drivers) ? drivers : (drivers?.items || drivers?.rows || []);
   const routesList = Array.isArray(routes) ? routes : (routes?.items || routes?.rows || []);
   const fleetOperatorsList = Array.isArray(fleetOperators) ? fleetOperators : (fleetOperators?.items || fleetOperators?.rows || []);
 
@@ -84,11 +90,15 @@ export const AddVehiclePage = () => {
     source: '',
     destination: '',
     gpsDeviceId: '',
-    assignedDriverId: '',
     status: isFleetPortal ? 'pending_approval' : 'Active',
     depotId: '',
   });
 
+  const depotFleetOperators = formData.depotId
+    ? fleetOperatorsList.filter(
+        (operator) => String(getFleetOperatorDepotId(operator)) === String(formData.depotId)
+      )
+    : [];
   // Display Screen Configuration Counters
   const [displayScreens, setDisplayScreens] = useState({
     leftSide: 2,
@@ -110,18 +120,19 @@ export const AddVehiclePage = () => {
 
   useEffect(() => {
     loadDepots().catch(() => {});
-    loadDrivers().catch(() => {});
     loadRoutes({ limit: 100, status: 'active' }).catch(() => {});
     loadFleetOperators({ limit: 100 }).catch(() => {});
-  }, [loadDepots, loadDrivers, loadRoutes, loadFleetOperators]);
+  }, [loadDepots, loadRoutes, loadFleetOperators]);
 
   useEffect(() => {
     if (!isEditMode && queryFleetId) {
       const matched = fleetOperatorsList.find((f) => String(f.id) === String(queryFleetId));
+      const matchedDepotId = getFleetOperatorDepotId(matched);
       setFormData((prev) => ({
         ...prev,
         fleetId: String(queryFleetId),
         fleetName: matched ? matched.name : prev.fleetName,
+        ...(matchedDepotId ? { depotId: String(matchedDepotId) } : {}),
       }));
     } else if (!isEditMode && isFleetPortal) {
       const fleetId = myFleet?.id ? String(myFleet.id) : (user?.id ? String(user.id) : '');
@@ -156,7 +167,6 @@ export const AddVehiclePage = () => {
               source: found.source || (found.route?.start_point) || '',
               destination: found.destination || (found.route?.end_point) || '',
               gpsDeviceId: found.edgeDevice?.box_id || found.edgeDevice?.serial_number || found.gps_device_id || (found.edge_device_id ? String(found.edge_device_id) : ''),
-              assignedDriverId: found.assigned_driver_id ? String(found.assigned_driver_id) : (found.driver?.id ? String(found.driver.id) : ''),
               status: (found.status === 'offline' || found.status === 'Inactive') ? 'Inactive' : 'Active',
               depotId: found.depot_id ? String(found.depot_id) : '',
             });
@@ -227,18 +237,42 @@ export const AddVehiclePage = () => {
 
   const handleFleetChange = (val) => {
     const foundOpr = fleetOperatorsList.find((f) => String(f.id) === String(val));
-    const autoDepotId = foundOpr?.depot_id || foundOpr?.depot?.id || '';
     setFormData((prev) => ({
       ...prev,
       fleetId: val,
       fleetName: foundOpr ? foundOpr.name : '',
-      ...(autoDepotId ? { depotId: String(autoDepotId) } : {}),
     }));
     if (fieldErrors.fleetId) {
       setFieldErrors((prev) => {
         const next = { ...prev };
         delete next.fleetId;
-        if (autoDepotId) delete next.depotId;
+        if (Object.keys(next).length === 0) setFormError(null);
+        return next;
+      });
+    }
+  };
+
+  const handleDepotChange = (val) => {
+    setFormData((prev) => {
+      const selectedOperator = fleetOperatorsList.find(
+        (operator) => String(operator.id) === String(prev.fleetId)
+      );
+      const selectedOperatorDepotId = getFleetOperatorDepotId(selectedOperator);
+      const canKeepFleet = val
+        && selectedOperator
+        && String(selectedOperatorDepotId) === String(val);
+
+      return {
+        ...prev,
+        depotId: val,
+        ...(canKeepFleet ? {} : { fleetId: '', fleetName: '' }),
+      };
+    });
+
+    if (fieldErrors.depotId) {
+      setFieldErrors((prev) => {
+        const next = { ...prev };
+        delete next.depotId;
         if (Object.keys(next).length === 0) setFormError(null);
         return next;
       });
@@ -460,7 +494,6 @@ export const AddVehiclePage = () => {
         fuel_type: formData.fuelType,
         fleet_id: formData.fleetId || (isFleetPortal ? (myFleet?.id || user?.id) : null),
         depot_id: formData.depotId ? Number(formData.depotId) : (isFleetPortal && rawDepotId ? Number(rawDepotId) : null),
-        assigned_driver_id: formData.assignedDriverId ? Number(formData.assignedDriverId) : null,
         assigned_route: formData.assignedRoute || null,
         route_id: formData.routeId ? Number(formData.routeId) : null,
         source: formData.source || null,
@@ -503,9 +536,6 @@ export const AddVehiclePage = () => {
       if (targetId) {
         if (formData.gpsDeviceId) {
           await assignGps(targetId, formData.gpsDeviceId).catch(() => {});
-        }
-        if (formData.assignedDriverId) {
-          await assignDriver(targetId, formData.assignedDriverId).catch(() => {});
         }
       }
 
@@ -576,12 +606,12 @@ export const AddVehiclePage = () => {
 
   return (
     <div className="w-full space-y-6 pb-20">
-      {/* 1. Full-Width Breadcrumb Banner */}
-      <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm">
+      {/* 1. Full-Width Header */}
+      <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
         <div>
           <Breadcrumb
             items={[
-              { label: t('nav.dashboard') || 'Dashboard', to: dashboardLink },
+              { label: isFleetPortal ? t('roles.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), to: dashboardLink },
               { label: t('ag.admin.addvehiclepage.vehicles', 'Vehicles'), to: basePath },
               { label: isEditMode ? t('admin.vehicles.edit_vehicle') : t('admin.vehicles.add_vehicle') }
             ]}
@@ -678,21 +708,38 @@ export const AddVehiclePage = () => {
         
         {/* Section 1: Vehicle Specifications Card */}
         <div className="p-6 md:p-8 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm space-y-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-zinc-800">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 flex items-center justify-center font-bold text-sm">
-                <FleetIcons.Bus className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          <div className="space-y-5 pb-5 border-b border-slate-100 dark:border-zinc-800">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-blue-200 bg-blue-50 text-blue-600 shadow-sm dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-400">
+                <FleetIcons.Bus className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                <h2 className="text-base font-black uppercase tracking-wide text-slate-900 dark:text-white">
                   {t('ag.admin.addvehiclepage.1_vehicle_details', '1. Vehicle Details')}
                 </h2>
-                <p className="text-xs text-slate-500 dark:text-zinc-400">{t('admin.vehicles.registration_section_desc')}</p>
+                <p className="mt-0.5 text-xs leading-relaxed text-slate-500 dark:text-zinc-400">{t('admin.vehicles.registration_section_desc')}</p>
               </div>
             </div>
 
-            {/* Parent Fleet & Depot Selectors */}
-            {isFleetPortal ? (
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 shadow-inner shadow-slate-100/60 dark:border-zinc-700 dark:bg-zinc-800/40 dark:shadow-none md:p-5">
+              <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-zinc-200">
+                    {t('admin.vehicles.assignment_details', 'Assignment Details')}
+                  </h3>
+                  <p className="mt-0.5 text-[11px] text-slate-500 dark:text-zinc-400">
+                    {t('admin.vehicles.assignment_flow_hint_without_driver', 'Select the depot and fleet operator for this vehicle.')}
+                  </p>
+                </div>
+                {!isFleetPortal && (
+                  <span className="w-fit rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[10px] font-bold text-blue-700 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-300">
+                    {t('admin.vehicles.assignment_flow_without_driver', 'Depot → Fleet')}
+                  </span>
+                )}
+              </div>
+
+              {/* Parent Fleet & Depot Selectors */}
+              {isFleetPortal ? (
               <div className="flex flex-wrap items-center gap-2.5">
                 {/* Auto-Assigned Fleet Badge */}
                 <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 shadow-xs">
@@ -718,66 +765,76 @@ export const AddVehiclePage = () => {
                   </span>
                 </div>
               </div>
-            ) : (
+              ) : (
               /* Admin: Interactive Selectors */
-              <div className="flex flex-wrap items-start gap-4">
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                      {t('ag.admin.addvehiclepage.operator', 'Operator')} <span className="text-red-500">*</span>:
-                    </span>
-                    <select
-                      value={formData.fleetId}
-                      onChange={(e) => handleFleetChange(e.target.value)}
-                      className={`h-9 px-3 rounded-xl border text-xs font-bold text-slate-900 dark:text-white dark:bg-zinc-800 focus:outline-none transition-all ${
-                        fieldErrors.fleetId
-                          ? 'border-rose-400 bg-rose-50/30 focus:border-rose-500'
-                          : 'border-slate-200 dark:border-zinc-700 bg-slate-50 focus:border-blue-500 focus:bg-white'
-                      }`}
-                    >
-                      <option value="">{t('admin.vehicles.select_operator_placeholder')}</option>
-                      {fleetOperatorsList.map((f) => (
-                        <option key={f.id} value={f.id}>
-                          {f.name} {f.code ? `(${f.code})` : ''}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  {fieldErrors.fleetId && (
-                    <p className="text-[10px] font-semibold text-rose-600 flex items-center gap-1">
-                      <FleetIcons.Alert className="w-3 h-3 text-rose-500 shrink-0" /> {fieldErrors.fleetId}
+              <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="flex min-w-0 flex-col gap-2">
+                  <label className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-zinc-300">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-black text-white shadow-sm">1</span>
+                    <span>{t('ag.admin.addvehiclepage.depot', 'Depot')} <span className="text-red-500">*</span></span>
+                  </label>
+                  <select
+                    value={formData.depotId}
+                    onChange={(e) => handleDepotChange(e.target.value)}
+                    className={`h-11 w-full min-w-0 rounded-xl border bg-white px-3.5 text-xs font-bold text-slate-900 shadow-sm transition-all focus:outline-none focus:ring-2 dark:bg-zinc-900 dark:text-white ${
+                      fieldErrors.depotId
+                        ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/15'
+                        : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/15 dark:border-zinc-700'
+                    }`}
+                  >
+                    <option value="">{t('admin.vehicles.select_depot_placeholder')}</option>
+                    {depotsList.map((d) => (
+                      <option key={d.id} value={d.id}>{d.name ?? d.code ?? d.id}</option>
+                    ))}
+                  </select>
+                  {fieldErrors.depotId && (
+                    <p className="flex items-center gap-1 text-[10px] font-semibold text-rose-600">
+                      <FleetIcons.Alert className="h-3 w-3 shrink-0 text-rose-500" /> {fieldErrors.depotId}
                     </p>
                   )}
                 </div>
 
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                      {t('ag.admin.addvehiclepage.depot', 'Depot')} <span className="text-red-500">*</span>:
-                    </span>
-                    <select
-                      value={formData.depotId}
-                      onChange={(e) => handleFieldChange('depotId', e.target.value)}
-                      className={`h-9 px-3 rounded-xl border text-xs font-bold text-slate-900 dark:text-white dark:bg-zinc-800 focus:outline-none transition-all ${
-                        fieldErrors.depotId
-                          ? 'border-rose-400 bg-rose-50/30 focus:border-rose-500'
-                          : 'border-slate-200 dark:border-zinc-700 bg-slate-50 focus:border-blue-500 focus:bg-white'
-                      }`}
-                    >
-                      <option value="">{t('admin.vehicles.select_depot_placeholder')}</option>
-                      {depotsList.map((d) => (
-                        <option key={d.id} value={d.id}>{d.name ?? d.code ?? d.id}</option>
-                      ))}
-                    </select>
-                  </div>
-                  {fieldErrors.depotId && (
-                    <p className="text-[10px] font-semibold text-rose-600 flex items-center gap-1">
-                      <FleetIcons.Alert className="w-3 h-3 text-rose-500 shrink-0" /> {fieldErrors.depotId}
+                <div className="flex min-w-0 flex-col gap-2">
+                  <label className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-zinc-300">
+                    <span className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-black shadow-sm ${formData.depotId ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-500 dark:bg-zinc-700 dark:text-zinc-400'}`}>2</span>
+                    <span>{t('ag.admin.addvehiclepage.operator', 'Operator')} <span className="text-red-500">*</span></span>
+                  </label>
+                  <select
+                    value={formData.fleetId}
+                    onChange={(e) => handleFleetChange(e.target.value)}
+                    disabled={!formData.depotId}
+                    className={`h-11 w-full min-w-0 rounded-xl border bg-white px-3.5 text-xs font-bold text-slate-900 shadow-sm transition-all focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none dark:bg-zinc-900 dark:text-white dark:disabled:border-zinc-700 dark:disabled:bg-zinc-800/60 dark:disabled:text-zinc-500 ${
+                      fieldErrors.fleetId
+                        ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/15'
+                        : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/15 dark:border-zinc-700'
+                    }`}
+                  >
+                    <option value="">
+                      {formData.depotId
+                        ? t('admin.vehicles.select_operator_placeholder')
+                        : t('admin.vehicles.select_depot_first', 'Select depot first...')}
+                    </option>
+                    {formData.depotId && depotFleetOperators.length === 0 && (
+                      <option value="" disabled>
+                        {t('admin.vehicles.no_operators_for_depot', 'No fleet operators found in this depot')}
+                      </option>
+                    )}
+                    {depotFleetOperators.map((f) => (
+                      <option key={f.id} value={f.id}>
+                        {f.name} {f.code ? `(${f.code})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                  {fieldErrors.fleetId && (
+                    <p className="flex items-center gap-1 text-[10px] font-semibold text-rose-600">
+                      <FleetIcons.Alert className="h-3 w-3 shrink-0 text-rose-500" /> {fieldErrors.fleetId}
                     </p>
                   )}
                 </div>
+
               </div>
-            )}
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -1330,56 +1387,13 @@ export const AddVehiclePage = () => {
           </div>
         </div>
 
-        {/* Section 5: Driver Assignment Card */}
-        <div className="p-6 md:p-8 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm space-y-5">
-          <div className="pb-4 border-b border-slate-100 dark:border-zinc-800">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
-              <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                {t('ag.admin.addvehiclepage.5_driver_assignment', '5. Driver Assignment')}
-              </h2>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">
-              {t('ag.admin.addvehiclepage.link_an_active_driver_to_this_vehicle', 'Link an active driver to this vehicle.')}
-            </p>
-          </div>
-
-          <div className="max-w-md">
-            {/* Assigned Driver Selector */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700 dark:text-zinc-300">{t('admin.vehicles.driver_section')}</label>
-              <select
-                value={formData.assignedDriverId}
-                onChange={(e) => handleFieldChange('assignedDriverId', e.target.value)}
-                className={`w-full h-11 px-3.5 rounded-xl border text-xs font-bold text-slate-900 dark:text-white dark:bg-zinc-800 focus:outline-none transition-all ${
-                  fieldErrors.assignedDriverId
-                    ? 'border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-1 focus:ring-rose-500'
-                    : 'border-slate-200 dark:border-zinc-700 bg-slate-50 focus:border-blue-500 focus:bg-white dark:focus:bg-zinc-800'
-                }`}
-              >
-                <option value="">{t('admin.vehicles.no_driver_assigned')}</option>
-                {driversList.map((dr) => (
-                  <option key={dr.id} value={dr.id}>
-                    {dr.name} ({dr.license_number || dr.code || `ID #${dr.id}`})
-                  </option>
-                ))}
-              </select>
-              {fieldErrors.assignedDriverId && (
-                <p className="text-[11px] font-semibold text-rose-600 flex items-center gap-1 mt-1">
-                  <FleetIcons.Alert className="w-3.5 h-3.5 text-rose-500 shrink-0" /> {fieldErrors.assignedDriverId}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Section 6: Vehicle Status Card */}
+        {/* Section 5: Vehicle Status Card */}
         <div className="p-6 md:p-8 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm space-y-4">
           <div className="pb-4 border-b border-slate-100 dark:border-zinc-800">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-amber-600"></span>
               <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                {t('ag.admin.addvehiclepage.6_status', '6. Status')}
+                {t('admin.vehicles.5_status', '5. Status')}
               </h2>
             </div>
             <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">

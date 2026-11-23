@@ -30,7 +30,7 @@ class DriverDrawer extends StatelessWidget {
         ? Get.find<DriverHomeController>()
         : null;
 
-    final isVerified = homeCtrl?.isDocumentsVerified.value ?? true;
+    final currentRoute = Get.currentRoute;
 
     return Drawer(
       backgroundColor: kDrawerBg,
@@ -99,12 +99,13 @@ class DriverDrawer extends StatelessWidget {
                   // --- SECTION 1: OVERVIEW ---
                   _buildSectionHeader('overview_caps'.tr),
                   Obx(() {
-                    final isSelected = (dashboardCtrl?.selectedNavIndex.value ?? 0) == 0;
+                    final isSelected = currentRoute == Routes.DRIVER_DASHBOARD &&
+                        ((dashboardCtrl?.selectedNavIndex.value ?? 0) == 0 || dashboardCtrl == null);
                     return _buildNavItem(
                       icon: Icons.dashboard_rounded,
-                      title: 'dashboard'.tr,
+                      title: 'overview_dashboard'.tr,
                       isSelected: isSelected,
-                      iconColor: const Color(0xFF8B5CF6),
+                      iconColor: AppTheme.gradientBlue,
                       onTap: () {
                         Navigator.of(context).pop();
                         if (dashboardCtrl != null) {
@@ -120,42 +121,15 @@ class DriverDrawer extends StatelessWidget {
 
                   // --- SECTION 2: DISPATCH & ROUTES ---
                   _buildSectionHeader('dispatch_routes_caps'.tr),
-                  _buildNavItem(
-                    icon: Icons.folder_shared_outlined,
-                    title: 'documents_stat'.tr,
-                    iconColor: const Color(0xFF38BDF8),
-                    badgeWidget: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: isVerified
-                            ? const Color(0xFF10B981).withValues(alpha: 0.15)
-                            : const Color(0xFFF59E0B).withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(
-                          color: isVerified
-                              ? const Color(0xFF10B981).withValues(alpha: 0.3)
-                              : const Color(0xFFF59E0B).withValues(alpha: 0.3),
-                        ),
-                      ),
-                      child: Text(
-                        isVerified ? 'verified'.tr : 'pending'.tr,
-                        style: TextStyle(
-                          color: isVerified ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      Get.toNamed(Routes.DRIVER_DOCUMENT);
-                    },
-                  ),
+
+                  // 2.1 My Routes
                   Obx(() {
-                    final isSelected = (dashboardCtrl?.selectedNavIndex.value ?? -1) == 1;
+                    final isSelected = currentRoute == Routes.MY_ROUTE ||
+                        (currentRoute == Routes.DRIVER_DASHBOARD &&
+                            (dashboardCtrl?.selectedNavIndex.value ?? -1) == 1);
                     return _buildNavItem(
-                      icon: Icons.directions_bus_rounded,
-                      title: 'routes'.tr,
+                      icon: Icons.alt_route_rounded,
+                      title: 'my_routes'.tr,
                       iconColor: const Color(0xFF6366F1),
                       isSelected: isSelected,
                       onTap: () {
@@ -168,8 +142,24 @@ class DriverDrawer extends StatelessWidget {
                       },
                     );
                   }),
+
+                  // 2.2 Completed Trips
+                  _buildNavItem(
+                    icon: Icons.fact_check_outlined,
+                    title: 'completed_trips_drawer'.tr,
+                    iconColor: const Color(0xFF10B981),
+                    isSelected: currentRoute == Routes.DRIVER_COMPLETED_TRIPS,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      Get.toNamed(Routes.DRIVER_COMPLETED_TRIPS);
+                    },
+                  ),
+
+                  // 2.3 Shift Schedules
                   Obx(() {
-                    final isSelected = (dashboardCtrl?.selectedNavIndex.value ?? -1) == 2;
+                    final isSelected = currentRoute == Routes.DRIVER_SCHEDULE ||
+                        (currentRoute == Routes.DRIVER_DASHBOARD &&
+                            (dashboardCtrl?.selectedNavIndex.value ?? -1) == 2);
                     return _buildNavItem(
                       icon: Icons.calendar_month_rounded,
                       title: 'shift_schedules'.tr,
@@ -185,10 +175,15 @@ class DriverDrawer extends StatelessWidget {
                       },
                     );
                   }),
+
+                  // 2.4 Fleet Work Orders
                   _buildNavItem(
                     icon: Icons.engineering_rounded,
                     title: 'fleet_work_orders'.tr,
                     iconColor: const Color(0xFFF59E0B),
+                    isSelected: currentRoute == Routes.DRIVER_WORK_ORDERS ||
+                        currentRoute == Routes.DRIVER_CREATE_WORK_ORDER ||
+                        currentRoute == Routes.DRIVER_WORK_ORDER_DETAILS,
                     badgeWidget: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
@@ -209,10 +204,13 @@ class DriverDrawer extends StatelessWidget {
                       Get.toNamed(Routes.DRIVER_WORK_ORDERS);
                     },
                   ),
+
+                  // 2.5 Report Incident
                   _buildNavItem(
                     icon: Icons.warning_amber_rounded,
                     title: 'report_incident'.tr,
                     iconColor: const Color(0xFFF43F5E),
+                    isSelected: currentRoute == Routes.DRIVER_REPORT_INCIDENT,
                     badgeWidget: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
@@ -234,12 +232,17 @@ class DriverDrawer extends StatelessWidget {
                       Get.toNamed(Routes.DRIVER_REPORT_INCIDENT);
                     },
                   ),
+
+                  // 2.6 Incidents Log
                   Obx(() {
-                    final isSelected = (dashboardCtrl?.selectedNavIndex.value ?? -1) == 3;
+                    final isSelected = currentRoute == Routes.DRIVER_INCIDENTS_LIST ||
+                        currentRoute == Routes.DRIVER_INCIDENT_DETAILS ||
+                        (currentRoute == Routes.DRIVER_DASHBOARD &&
+                            (dashboardCtrl?.selectedNavIndex.value ?? -1) == 3);
                     return _buildNavItem(
                       icon: Icons.assignment_outlined,
                       title: 'incidents_log'.tr,
-                      iconColor: const Color(0xFFA855F7),
+                      iconColor: AppTheme.gradientPink,
                       isSelected: isSelected,
                       onTap: () {
                         Navigator.of(context).pop();
@@ -252,21 +255,62 @@ class DriverDrawer extends StatelessWidget {
                     );
                   }),
 
+                  // 2.7 Driver Documents
+                  Obx(() {
+                    final isDocVerified = homeCtrl?.isDocumentsVerified.value ?? true;
+                    return _buildNavItem(
+                      icon: Icons.folder_shared_outlined,
+                      title: 'driver_documents'.tr,
+                      iconColor: const Color(0xFF38BDF8),
+                      isSelected: currentRoute == Routes.DRIVER_DOCUMENT,
+                      badgeWidget: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: isDocVerified
+                              ? const Color(0xFF10B981).withValues(alpha: 0.15)
+                              : const Color(0xFFF59E0B).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(
+                            color: isDocVerified
+                                ? const Color(0xFF10B981).withValues(alpha: 0.3)
+                                : const Color(0xFFF59E0B).withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Text(
+                          isDocVerified ? 'verified'.tr : 'pending'.tr,
+                          style: TextStyle(
+                            color: isDocVerified ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        Get.toNamed(Routes.DRIVER_DOCUMENT);
+                      },
+                    );
+                  }),
+
                   const SizedBox(height: 16),
 
                   // --- SECTION 3: ALERTS & ACCOUNT ---
                   _buildSectionHeader('alerts_account_caps'.tr),
+
+                  // 3.1 Alerts & Notifications
                   Obx(() {
                     final unread = homeCtrl?.notificationCount.value ?? 0;
+                    final isSelected = currentRoute == Routes.DRIVER_NOTIFICATION;
                     return _buildNavItem(
                       icon: Icons.notifications_active_outlined,
-                      title: 'alerts_messages'.tr,
+                      title: 'alerts_notifications'.tr,
                       iconColor: const Color(0xFFFBBF24),
+                      isSelected: isSelected,
                       badgeWidget: unread > 0
                           ? Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: kPurple,
+                                gradient: AppTheme.primaryGradient,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
@@ -285,11 +329,15 @@ class DriverDrawer extends StatelessWidget {
                       },
                     );
                   }),
+
+                  // 3.2 Driver Profile
                   Obx(() {
-                    final isSelected = (dashboardCtrl?.selectedNavIndex.value ?? -1) == 4;
+                    final isSelected = currentRoute == Routes.DRIVER_PROFILE ||
+                        (currentRoute == Routes.DRIVER_DASHBOARD &&
+                            (dashboardCtrl?.selectedNavIndex.value ?? -1) == 4);
                     return _buildNavItem(
                       icon: Icons.person_outline_rounded,
-                      title: 'profile'.tr,
+                      title: 'driver_profile'.tr,
                       iconColor: const Color(0xFF10B981),
                       isSelected: isSelected,
                       onTap: () {
@@ -302,46 +350,61 @@ class DriverDrawer extends StatelessWidget {
                       },
                     );
                   }),
+
+                  // 3.3 Account Settings
                   _buildNavItem(
                     icon: Icons.settings_outlined,
                     title: 'account_settings'.tr,
                     iconColor: Colors.white70,
+                    isSelected: currentRoute == Routes.ACCOUNT_SETTINGS,
                     onTap: () {
                       Navigator.of(context).pop();
                       Get.toNamed(Routes.ACCOUNT_SETTINGS);
                     },
                   ),
+
+                  // 3.4 Change Language
                   _buildNavItem(
                     icon: Icons.language_rounded,
                     title: 'change_language'.tr,
                     iconColor: const Color(0xFF60A5FA),
+                    isSelected: false,
                     onTap: () {
                       Navigator.of(context).pop();
                       LanguageSelectorSheet.show(context);
                     },
                   ),
+
+                  // 3.5 Help & Documentation
                   _buildNavItem(
                     icon: Icons.help_outline_rounded,
-                    title: 'help_support'.tr,
+                    title: 'help_documentation'.tr,
                     iconColor: Colors.white70,
+                    isSelected: currentRoute == Routes.DRIVER_HELP_SUPPORT,
                     onTap: () {
                       Navigator.of(context).pop();
                       Get.toNamed(Routes.DRIVER_HELP_SUPPORT);
                     },
                   ),
+
+                  // 3.6 Privacy Policy
                   _buildNavItem(
                     icon: Icons.shield_outlined,
                     title: 'privacy_policy'.tr,
                     iconColor: Colors.white70,
+                    isSelected: currentRoute == Routes.PRIVACY_POLICY,
                     onTap: () {
                       Navigator.of(context).pop();
                       Get.toNamed(Routes.PRIVACY_POLICY);
                     },
                   ),
+
+                  // 3.7 Terms & Conditions
                   _buildNavItem(
                     icon: Icons.article_outlined,
                     title: 'terms_conditions'.tr,
                     iconColor: Colors.white70,
+                    isSelected: currentRoute == Routes.TERMS_CONDITIONS,
                     onTap: () {
                       Navigator.of(context).pop();
                       Get.toNamed(Routes.TERMS_CONDITIONS);
@@ -377,9 +440,7 @@ class DriverDrawer extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF8B5CF6), Color(0xFF6366F1)],
-                        ),
+                        gradient: AppTheme.primaryGradient,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.bolt, color: Colors.white, size: 18),
@@ -407,7 +468,7 @@ class DriverDrawer extends StatelessWidget {
                 child: Text(
                   'driver'.tr,
                   style: const TextStyle(
-                    color: Color(0xFFB042FF),
+                    color: AppTheme.gradientBlue,
                     fontSize: 9.5,
                     fontWeight: FontWeight.bold,
                   ),
@@ -465,9 +526,9 @@ class DriverDrawer extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: avatarUrl.isEmpty
-                    ? const LinearGradient(colors: [Color(0xFF8B5CF6), Color(0xFF6366F1)])
+                    ? AppTheme.primaryGradient
                     : null,
-                border: Border.all(color: const Color(0xFF8B5CF6), width: 1.5),
+                border: Border.all(color: AppTheme.gradientBlue, width: 1.5),
               ),
               child: ClipOval(
                 child: avatarUrl.isNotEmpty
@@ -554,7 +615,7 @@ class DriverDrawer extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Badge: $badgeId',
+                    '${'badge_label'.tr} $badgeId',
                     style: const TextStyle(
                       color: Color(0xFF818CF8),
                       fontSize: 9.5,
@@ -617,12 +678,15 @@ class DriverDrawer extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 2.5),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        gradient: isSelected
-            ? const LinearGradient(
-                colors: [Color(0xFF8B5CF6), Color(0xFF6366F1)],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              )
+        gradient: isSelected ? AppTheme.primaryGradient : null,
+        boxShadow: isSelected
+            ? [
+                BoxShadow(
+                  color: const Color(0xFF1C68FD).withValues(alpha: 0.35),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                ),
+              ]
             : null,
       ),
       child: ListTile(

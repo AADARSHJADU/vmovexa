@@ -78,18 +78,16 @@ export const TripsPage = () => {
 
   return (
     <div className="w-full space-y-4 sm:space-y-6 pb-20">
-      {/* 1. Global Standard Breadcrumb Navigation */}
-      <Breadcrumb
-        items={[
-          { label: t('ag.fleet.tripspage.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
-          { label: t('ag.fleet.tripspage.trips_route_logs', 'Trips & Route Logs') },
-        ]}
-        className="mb-1 sm:mb-2"
-      />
-
       {/* Header Banner */}
-      <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm transition-colors">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
         <div>
+          <Breadcrumb
+            items={[
+              { label: t('roles.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
+              { label: t('fleet.trips.title', 'Trips & Dispatch') },
+            ]}
+            className="mb-2"
+          />
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
               {t('fleet.trips.trips_dispatch_title')}
@@ -98,7 +96,7 @@ export const TripsPage = () => {
               {totalItems} {t('ag.fleet.tripspage.recorded', 'Recorded')}
             </span>
           </div>
-          <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
             {t('ag.fleet.tripspage.live_voyage_telematics_origin_to_destination', 'Live voyage telematics, origin-to-destination corridors, stops completed, and speed logs.')}
           </p>
         </div>

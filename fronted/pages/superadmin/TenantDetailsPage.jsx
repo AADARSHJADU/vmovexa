@@ -8,6 +8,7 @@ import { useOrganization } from '../../hooks/superadmin/useOrganization';
 import { useAuth } from '../../hooks/useAuth';
 import { superOrganizationService } from '../../api/services/superadmin/organization.service';
 import { getMediaUrl } from '../../utils/media';
+import { copyToClipboard } from '../../utils/clipboard';
 import toast from 'react-hot-toast';
 
 const isActive = (status) => String(status || '').toLowerCase() === 'active';
@@ -184,8 +185,12 @@ export const TenantDetailsPage = ({ org: orgProp = null, onClose = null }) => {
   };
 
   const handleToggleStatus = async () => {
-    // If tenant has not paid yet, re-activating restores to 'approved', not bypassing paywall to 'active'
-    const newStatus = isSuspended ? (isPaid ? 'active' : 'approved') : 'suspended';
+    if (!active && !isSuspended) {
+      toast.error(t('tenants.invalid_suspend_transition', 'Only an active tenant can be suspended.'));
+      return;
+    }
+    // The backend validates the subscription before restoring a suspended tenant.
+    const newStatus = isSuspended ? 'active' : 'suspended';
     try {
       await toast.promise(
         updateStatus(tenant.id, newStatus).then(() => loadOrganization(orgId)),
@@ -203,7 +208,7 @@ export const TenantDetailsPage = ({ org: orgProp = null, onClose = null }) => {
   const handleApprove = async () => {
     try {
       await toast.promise(
-        superOrganizationService.approveOrganization(tenant.id, { activateTrial: false, planId: 1 }).then(() => loadOrganization(orgId)),
+        superOrganizationService.approveOrganization(tenant.id, { activateTrial: false }).then(() => loadOrganization(orgId)),
         {
           loading: 'Approving application…',
           success: 'Tenant approved & awaiting plan subscription!',
@@ -298,15 +303,16 @@ export const TenantDetailsPage = ({ org: orgProp = null, onClose = null }) => {
     }
   };
 
-  const handleCopyNewPassword = (pwd) => {
+  const handleCopyNewPassword = async (pwd) => {
     if (!pwd) return;
-    navigator.clipboard.writeText(pwd).then(() => {
+    const copied = await copyToClipboard(pwd);
+    if (copied) {
       setCopiedPassword(true);
       toast.success(t('ag.superadmin.tenantdetailspage.password_copied_to_clipboard', 'Password copied to clipboard!'));
       setTimeout(() => setCopiedPassword(false), 3000);
-    }).catch(() => {
+    } else {
       toast.error(t('ag.superadmin.tenantdetailspage.failed_to_copy_password', 'Failed to copy password.'));
-    });
+    }
   };
 
   // Loading State Skeleton — only shown when no orgProp was given and we are still fetching
@@ -466,17 +472,8 @@ export const TenantDetailsPage = ({ org: orgProp = null, onClose = null }) => {
         </div>
       )}
 
-      {/* Top Bar with Back Button & Breadcrumbs */}
+      {/* Top Bar with Breadcrumbs */}
       <div className="flex items-center gap-3 flex-wrap">
-        <button
-          type="button"
-          onClick={handleClose}
-          className="p-2 rounded-xl border border-slate-200 dark:border-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-200 text-xs font-bold transition-all inline-flex items-center gap-2 shadow-xs cursor-pointer"
-        >
-          <FleetIcons.ArrowLeft className="w-3.5 h-3.5" />
-          <span>{isFinance ? t('ag.superadmin.tenantdetailspage.back_to_subscriptions', 'Back to Subscriptions') : t('ag.superadmin.tenantdetailspage.back_to_tenants', 'Back to Tenants')}</span>
-        </button>
-        <span className="text-slate-300 dark:text-zinc-700">|</span>
         <nav aria-label={t('common.breadcrumb', 'Breadcrumb')} className="flex items-center gap-1.5 sm:gap-2 text-xs font-semibold text-slate-500 dark:text-zinc-400 flex-wrap">
           <button
             type="button"
@@ -511,9 +508,9 @@ export const TenantDetailsPage = ({ org: orgProp = null, onClose = null }) => {
 
           {/* Logo / Avatar */}
           <div className="w-12 h-12 sm:w-13 sm:h-13 rounded-2xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 overflow-hidden shrink-0 shadow-sm relative flex items-center justify-center">
-            {(tenant.logo_url || tenant.logoUrl || tenant.logo) ? (
+            {(tenant.logo_url || tenant.logoUrl || tenant.logo || tenant.primaryAdmin?.avatar_url || tenant.users?.[0]?.avatar_url) ? (
               <img
-                src={getMediaUrl(tenant.logo_url || tenant.logoUrl || tenant.logo)}
+                src={getMediaUrl(tenant.logo_url || tenant.logoUrl || tenant.logo || tenant.primaryAdmin?.avatar_url || tenant.users?.[0]?.avatar_url)}
                 alt={tenant.name}
                 className="w-full h-full object-cover"
                 onError={(e) => {
@@ -525,7 +522,7 @@ export const TenantDetailsPage = ({ org: orgProp = null, onClose = null }) => {
             ) : null}
             <div
               className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-700 items-center justify-center font-black text-white text-base sm:text-lg shadow-inner"
-              style={{ display: (tenant.logo_url || tenant.logoUrl || tenant.logo) ? 'none' : 'flex' }}
+              style={{ display: (tenant.logo_url || tenant.logoUrl || tenant.logo || tenant.primaryAdmin?.avatar_url || tenant.users?.[0]?.avatar_url) ? 'none' : 'flex' }}
             >
               {tenant.name?.charAt(0)?.toUpperCase() || 'T'}
             </div>
@@ -588,8 +585,8 @@ export const TenantDetailsPage = ({ org: orgProp = null, onClose = null }) => {
               ) : null}
             </div>
 
-            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-zinc-400 font-medium truncate" title={`${[tenant.city, tenant.state].filter(Boolean).join(', ') || '—'} · Edge Agent ${tenant.edge_agent_version || tenant.edgeAgentVersion || 'v2.4-arm64'}`}>
-              {[tenant.city, tenant.state].filter(Boolean).join(', ') || '—'} · <span className="font-mono text-[10px] sm:text-xs text-slate-400 dark:text-zinc-500">{t('ag.superadmin.tenantdetailspage.edge_agent', 'Edge Agent')} {tenant.edge_agent_version || tenant.edgeAgentVersion || 'v2.4-arm64'}</span>
+            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-zinc-400 font-medium truncate" title={[tenant.city, tenant.state].filter(Boolean).join(', ') || '—'}>
+              {[tenant.city, tenant.state].filter(Boolean).join(', ') || '—'}
             </p>
           </div>
         </div>
@@ -652,22 +649,22 @@ export const TenantDetailsPage = ({ org: orgProp = null, onClose = null }) => {
                 onClick={handleToggleStatus}
                 className="w-full sm:w-auto px-3 sm:px-4 py-2.5 text-xs font-bold rounded-xl border transition-colors text-center cursor-pointer bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 flex items-center justify-center gap-1.5 active:scale-98 shadow-2xs"
               >
-                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-                <span className="truncate">{t('tenants.reactivate_btn', 'Re-activate')}</span>
+                <FleetIcons.Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span className="truncate">{t('tenants.reactivate_btn', 'Re-activate Tenant')}</span>
               </button>
             )
-          ) : (
+          ) : active ? (
             canSuspend && (
               <button
                 type="button"
                 onClick={handleToggleStatus}
                 className="w-full sm:w-auto px-3 sm:px-4 py-2.5 text-xs font-bold rounded-xl border transition-colors text-center cursor-pointer bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800 hover:bg-red-100 flex items-center justify-center gap-1.5 active:scale-98 shadow-2xs"
               >
-                <span className="w-2 h-2 rounded-full bg-red-500 shrink-0"></span>
-                <span className="truncate">{t('tenants.freeze_btn', 'Freeze / Suspend Tenant')}</span>
+                <FleetIcons.Stop className="w-3.5 h-3.5 text-red-600 dark:text-red-400 shrink-0" />
+                <span className="truncate">{t('tenants.freeze_btn', 'Suspend Tenant')}</span>
               </button>
             )
-          )}
+          ) : null}
 
           {/* Reset password button */}
           <button
@@ -1365,9 +1362,13 @@ export const TenantDetailsPage = ({ org: orgProp = null, onClose = null }) => {
                             <span>{inv.code}</span>
                             <button
                               type="button"
-                              onClick={() => {
-                                navigator.clipboard.writeText(inv.code);
-                                toast.success(t('ag.superadmin.tenantdetailspage.invoice_copied', 'Invoice # copied!'));
+                              onClick={async () => {
+                                const copied = await copyToClipboard(inv.code);
+                                if (copied) {
+                                  toast.success(t('ag.superadmin.tenantdetailspage.invoice_copied', 'Invoice # copied!'));
+                                } else {
+                                  toast.error(t('common.copy_failed', 'Failed to copy.'));
+                                }
                               }}
                               title={t('superadmin.tenant_details.title_copy_invoice', 'Copy Invoice ID')}
                               className="text-slate-400 hover:text-blue-600 text-[10px] cursor-pointer"

@@ -1,174 +1,118 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'package:vmovexa/app/data/models/driver_models.dart';
 import 'package:vmovexa/app/data/services/driver_service.dart';
-import '../model/assigned_route_model.dart';
+import 'package:vmovexa/app/routes/app_routes.dart';
 
 class MyRouteController extends GetxController {
   DriverService get _driverService => DriverService.to;
 
-  // ---------------- Loading ----------------
-  final RxBool isLoading = false.obs;
+  // ---------------- Tab State ----------------
+  final RxString activeTab = 'active'.obs; // 'active' | 'completed'
 
-  // ---------------- Route state ----------------
-  final Rxn<AssignedRoute> route = Rxn<AssignedRoute>();
+  // ---------------- Loading States ----------------
+  final RxBool isLoadingActive = false.obs;
+  final RxBool isLoadingCompleted = false.obs;
+  final RxBool isActionLoading = false.obs;
+  final RxBool isRefreshing = false.obs;
+
+  // ---------------- Active Route / Cockpit State ----------------
   final Rxn<DriverActiveRouteData> rawActiveRoute = Rxn<DriverActiveRouteData>();
+  final Rxn<DriverProfileData> profile = Rxn<DriverProfileData>();
+  final RxList<DriverSlotModel> todaySlots = <DriverSlotModel>[].obs;
+  final RxnInt selectedSlotId = RxnInt();
+  final RxBool showTechDetails = false.obs;
 
-  final RxBool isRouteStarted = false.obs;
-  final RxBool isStarting = false.obs;
+  // ---------------- Completed Trips State ----------------
+  final RxList<DriverTripItem> completedTrips = <DriverTripItem>[].obs;
+  final RxInt totalCompleted = 0.obs;
+  final RxInt currentPage = 1.obs;
+  final RxInt pageSize = 6.obs;
+  final RxInt totalPages = 1.obs;
+  final RxString searchQuery = ''.obs;
+  final TextEditingController searchController = TextEditingController();
+  Timer? _searchDebounceTimer;
+  final Rxn<DriverTripItem> selectedTripDetails = Rxn<DriverTripItem>();
 
   @override
   void onInit() {
     super.onInit();
-    fetchRoute();
+    fetchInitialData();
   }
 
-  Future<void> fetchRoute() async {
-    isLoading.value = true;
+  @override
+  void onClose() {
+    _searchDebounceTimer?.cancel();
+    searchController.dispose();
+    super.onClose();
+  }
+
+  Future<void> fetchInitialData() async {
+    isLoadingActive.value = true;
     try {
-      // 1. Try fetching currently active route from API
-      final activeResponse = await _driverService.getActiveRoute();
-      if (activeResponse.success && activeResponse.data != null && (activeResponse.data?.route != null || activeResponse.data?.routeName != null)) {
-        rawActiveRoute.value = activeResponse.data;
-        isRouteStarted.value = (activeResponse.data?.rawStatus == 'in_progress');
-        await _mapActiveRouteToAssigned(activeResponse.data!);
-        return;
-      }
-
-      // 2. Fallback to today's assigned schedule route from API
-      final scheduleResponse = await _driverService.getTodaySchedule();
-      if (scheduleResponse.success && scheduleResponse.data != null) {
-        final sched = scheduleResponse.data!;
-        if (sched.assignedRoute != null) {
-          await _mapScheduleToAssigned(sched);
-          return;
-        }
-      }
-
-      // 3. No route assigned on backend
-      route.value = null;
-      isRouteStarted.value = false;
-    } catch (e) {
-      debugPrint('MyRouteController fetchRoute error: $e');
-      route.value = null;
+      await Future.wait([
+        fetchActiveRoute(slotId: selectedSlotId.value),
+        loadProfile(),
+        fetchCompletedTrips(),
+      ]);
     } finally {
-      isLoading.value = false;
+      isLoadingActive.value = false;
     }
   }
 
-  Future<void> _mapActiveRouteToAssigned(DriverActiveRouteData active) async {
-    final stopsList = active.stops.map((s) {
-      RouteStopType type = RouteStopType.stop;
-      final stType = (s.type ?? '').toLowerCase();
-      if (stType == 'start' || s.order == 1) {
-        type = RouteStopType.start;
-      } else if (stType == 'end' || s.order == active.stops.length) {
-        type = RouteStopType.end;
-      }
-      return RouteStop(
-        name: s.name ?? 'Stop',
-        time: s.eta ?? '--:--',
-        distanceKm: double.tryParse((s.distance ?? '').replaceAll(RegExp(r'[^\d.]'), '')) ?? 0.0,
-        type: type,
-      );
-    }).toList();
-
-    final fromName = active.origin ?? (stopsList.isNotEmpty ? stopsList.first.name : 'Origin');
-    final toName = active.destination ?? (stopsList.isNotEmpty ? stopsList.last.name : 'Destination');
-
-    String busNo = active.busNumber ?? 'Assigned Vehicle';
-    String busModel = active.vehicleType ?? 'Transit Bus';
-    if (busNo == 'Assigned Vehicle') {
-      final profileRes = await _driverService.getProfile();
-      if (profileRes.success && profileRes.data?.assignedVehicle != null) {
-        final v = profileRes.data!.assignedVehicle!;
-        busNo = v.registrationNumber ?? busNo;
-        busModel = '${v.make ?? ""} ${v.model ?? ""}'.trim();
-        if (busModel.isEmpty) busModel = 'Transit Bus';
-      }
-    }
-
-    final double totalDist = double.tryParse((active.totalDistance ?? '').replaceAll(RegExp(r'[^\d.]'), '')) ?? 0.0;
-    final rName = active.routeName ?? active.route?.name ?? (active.routeNumber != null ? 'Route ${active.routeNumber}' : 'Active Route');
-
-    final bool isDuty = active.rawStatus == 'in_progress' ||
-        (active.status?.toLowerCase().contains('progress') == true) ||
-        (active.status?.toLowerCase().contains('duty') == true);
-
-    route.value = AssignedRoute(
-      routeName: rName,
-      fromDepot: fromName,
-      toDepot: toName,
-      busNumber: busNo,
-      isOnDuty: isDuty,
-      startTime: active.departureTime ?? (active.tripStartedAt != null ? _formatTime(active.tripStartedAt!) : '--:--'),
-      endTime: active.endTime ?? 'Ongoing',
-      totalDistanceKm: totalDist,
-      stops: stopsList,
-      routeType: active.routeType ?? 'Intracity Transit',
-      frequency: active.frequency ?? 'Every 15 mins',
-      passengersEstimate: active.passengersEstimate ?? '${active.passengersOnboard} Onboard',
-      vehicleId: active.vehicleCode ?? active.tripId ?? 'Active Trip',
-      busType: busModel,
-    );
+  // ---------------- KYC Verification Check ----------------
+  bool get isDocumentsVerified {
+    final p = profile.value;
+    if (p == null) return true;
+    final isDocVerified = p.documentsVerified ?? p.verified ?? true;
+    final isStatusValid = p.status != 'pending_approval' &&
+        p.status != 'compliance_blocked' &&
+        p.status != 'rejected';
+    final isKycOk = p.kycRejected != true;
+    return isDocVerified && isStatusValid && isKycOk;
   }
 
-  Future<void> _mapScheduleToAssigned(DriverScheduleData sched) async {
-    final r = sched.assignedRoute!;
-    final stopsList = [
-      RouteStop(
-        name: r.fromStop ?? 'Start Stop',
-        time: sched.shift?.startTime ?? '--:--',
-        distanceKm: 0.0,
-        type: RouteStopType.start,
-      ),
-      RouteStop(
-        name: r.toStop ?? 'End Stop',
-        time: sched.shift?.endTime ?? '--:--',
-        distanceKm: 0.0,
-        type: RouteStopType.end,
-      ),
-    ];
-
-    String busNo = 'Scheduled Bus';
-    String busModel = 'Standard Transit';
-    final profileRes = await _driverService.getProfile();
-    if (profileRes.success && profileRes.data?.assignedVehicle != null) {
-      final v = profileRes.data!.assignedVehicle!;
-      busNo = v.registrationNumber ?? busNo;
-      busModel = '${v.make ?? ""} ${v.model ?? ""}'.trim();
-      if (busModel.isEmpty) busModel = 'Standard Transit';
+  // ---------------- Active Route Computed Status ----------------
+  DriverSlotModel? get currentSlot {
+    if (selectedSlotId.value != null && todaySlots.isNotEmpty) {
+      final found = todaySlots.firstWhereOrNull((s) => s.id == selectedSlotId.value);
+      if (found != null) return found;
     }
-
-    route.value = AssignedRoute(
-      routeName: r.name ?? (r.routeNumber != null ? 'Route ${r.routeNumber}' : 'Scheduled Route'),
-      fromDepot: r.fromStop ?? 'Depot',
-      toDepot: r.toStop ?? 'Destination',
-      busNumber: busNo,
-      isOnDuty: false,
-      startTime: sched.shift?.startTime ?? '--:--',
-      endTime: sched.shift?.endTime ?? '--:--',
-      totalDistanceKm: 0.0,
-      stops: stopsList,
-      routeType: 'Scheduled Service',
-      frequency: 'Every Day',
-      passengersEstimate: '--',
-      vehicleId: sched.date ?? 'Today',
-      busType: busModel,
-    );
+    return rawActiveRoute.value?.selectedSlot ?? rawActiveRoute.value?.slot;
   }
 
-  String _formatTime(String raw) {
-    try {
-      final dt = DateTime.parse(raw).toLocal();
-      final hour12 = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
-      final minute = dt.minute.toString().padLeft(2, '0');
-      final period = dt.hour >= 12 ? 'PM' : 'AM';
-      return '$hour12:$minute $period';
-    } catch (_) {
-      return raw;
-    }
+  bool get isTripInProgress {
+    final slot = currentSlot;
+    final rawStatus = (rawActiveRoute.value?.rawStatus ??
+            rawActiveRoute.value?.status ??
+            slot?.status ??
+            '')
+        .toLowerCase();
+    return rawStatus == 'in_progress' ||
+        rawStatus == 'in transit' ||
+        slot?.isInProgress == true;
+  }
+
+  bool get isTripCompleted {
+    final slot = currentSlot;
+    final rawStatus = (rawActiveRoute.value?.rawStatus ??
+            rawActiveRoute.value?.status ??
+            slot?.status ??
+            '')
+        .toLowerCase();
+    return rawStatus == 'completed' || slot?.isCompleted == true;
+  }
+
+  bool get hasNoAssignments {
+    final r = rawActiveRoute.value;
+    final slot = currentSlot;
+    final hasBus = (r?.busNumber != null && r!.busNumber!.isNotEmpty) ||
+        (r?.vehicle?.busNumber != null && r!.vehicle!.busNumber!.isNotEmpty) ||
+        (slot?.busNumber != null && slot!.busNumber!.isNotEmpty);
+    final hasRoute = (r?.routeName != null && r!.routeName!.isNotEmpty) ||
+        (slot?.routeName != null && slot!.routeName!.isNotEmpty);
+    return !hasBus && !hasRoute && slot == null && todaySlots.isEmpty;
   }
 
   int? get currentTripId {
@@ -177,96 +121,233 @@ class MyRouteController extends GetxController {
     return null;
   }
 
-  Future<void> onRefresh() async {
-    await fetchRoute();
+  // ---------------- Load Profile ----------------
+  Future<void> loadProfile() async {
+    try {
+      final res = await _driverService.getProfile();
+      if (res.success && res.data != null) {
+        profile.value = res.data;
+      }
+    } catch (e) {
+      debugPrint('MyRouteController loadProfile error: $e');
+    }
   }
 
-  // ---------------- Actions ----------------
-  Future<void> onStartRoute() async {
-    if (isRouteStarted.value) {
+  // ---------------- Fetch Active Route ----------------
+  Future<void> fetchActiveRoute({int? slotId}) async {
+    try {
+      final res = await _driverService.getActiveRoute(slotId: slotId);
+      if (res.success && res.data != null) {
+        rawActiveRoute.value = res.data;
+        if (res.data!.todaySlots.isNotEmpty) {
+          todaySlots.assignAll(res.data!.todaySlots);
+        }
+        if (slotId != null) {
+          selectedSlotId.value = slotId;
+        } else if (res.data!.selectedSlot?.id != null) {
+          selectedSlotId.value = res.data!.selectedSlot!.id;
+        } else if (todaySlots.isNotEmpty && selectedSlotId.value == null) {
+          selectedSlotId.value = todaySlots.first.id;
+        }
+      }
+    } catch (e) {
+      debugPrint('MyRouteController fetchActiveRoute error: $e');
+    }
+  }
+
+  // ---------------- Select Slot from Timetable Switcher ----------------
+  Future<void> selectSlot(DriverSlotModel slot) async {
+    if (slot.id == null || slot.id == selectedSlotId.value) return;
+    selectedSlotId.value = slot.id;
+    isLoadingActive.value = true;
+    try {
+      await fetchActiveRoute(slotId: slot.id);
+    } finally {
+      isLoadingActive.value = false;
+    }
+  }
+
+  // ---------------- Toggle Tech Details ----------------
+  void toggleTechDetails() {
+    showTechDetails.value = !showTechDetails.value;
+  }
+
+  // ---------------- Start Trip Action ----------------
+  Future<void> onStartTrip({bool forceNew = false}) async {
+    if (!isDocumentsVerified) {
       Get.snackbar(
-        'Already Running',
-        'This route is already in progress.',
+        'driver_routes.kyc_verification_required'.tr,
+        'driver_routes.kyc_verification_msg'.tr,
         backgroundColor: const Color(0xFF15151F),
-        colorText: Colors.white,
+        colorText: Colors.amberAccent,
         snackPosition: SnackPosition.BOTTOM,
       );
       return;
     }
 
-    isStarting.value = true;
+    isActionLoading.value = true;
     try {
-      // 1. Call POST /api/v1/me/driver/trip/start
-      final tripRes = await _driverService.startTrip(forceNew: true);
-      // 2. Set duty status to on_duty
+      final activeSlotId = selectedSlotId.value ?? (currentSlot?.id);
+      final tripRes = await _driverService.startTrip(
+        slotId: activeSlotId,
+        forceNew: forceNew,
+      );
       await _driverService.updateDutyStatus(status: 'on_duty');
 
-      isRouteStarted.value = true;
       Get.snackbar(
-        'Route Started',
-        tripRes.message ?? 'Trip started successfully! Duty status is On Duty.',
+        'driver_routes.live_in_transit'.tr,
+        tripRes.message ?? 'Trip started! You are now live on route.',
         backgroundColor: const Color(0xFF15151F),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
-      await fetchRoute();
+
+      await Future.wait([
+        fetchActiveRoute(slotId: activeSlotId),
+        loadProfile(),
+      ]);
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'Could not start route: $e',
+        'common.error'.tr,
+        e.toString(),
         backgroundColor: const Color(0xFF15151F),
         colorText: Colors.redAccent,
         snackPosition: SnackPosition.BOTTOM,
       );
     } finally {
-      isStarting.value = false;
+      isActionLoading.value = false;
     }
   }
 
-  Future<void> onEndRoute() async {
-    isStarting.value = true;
+  // ---------------- End Trip Action ----------------
+  Future<void> onEndTrip() async {
+    isActionLoading.value = true;
     try {
-      // 1. Call POST /api/v1/me/driver/trip/end
+      final activeSlotId = selectedSlotId.value ?? (currentSlot?.id);
       final endRes = await _driverService.endTrip(
         tripId: currentTripId,
-        coveredKm: route.value?.totalDistanceKm,
+        slotId: activeSlotId,
+        coveredKm: rawActiveRoute.value?.coveredKm is num
+            ? (rawActiveRoute.value!.coveredKm as num)
+            : null,
       );
-      // 2. Set duty status to off_duty
       await _driverService.updateDutyStatus(status: 'off_duty');
 
-      isRouteStarted.value = false;
       Get.snackbar(
-        'Trip Ended',
-        endRes.message ?? 'Trip completed successfully! Duty status is Off Duty.',
+        'driver_routes.shift_run_completed'.tr,
+        endRes.message ?? 'Trip completed successfully and archived to your log!',
         backgroundColor: const Color(0xFF15151F),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
-      await fetchRoute();
+
+      await Future.wait([
+        fetchActiveRoute(slotId: activeSlotId),
+        loadProfile(),
+        if (activeTab.value == 'completed') fetchCompletedTrips(),
+      ]);
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'Could not end route: $e',
+        'common.error'.tr,
+        e.toString(),
         backgroundColor: const Color(0xFF15151F),
         colorText: Colors.redAccent,
         snackPosition: SnackPosition.BOTTOM,
       );
     } finally {
-      isStarting.value = false;
+      isActionLoading.value = false;
     }
   }
 
-  void onViewOnMap() {
-    Get.snackbar(
-      'Live Map',
-      'Displaying GPS coordinates for ${route.value?.routeName ?? "Route"}',
-      backgroundColor: const Color(0xFF15151F),
-      colorText: Colors.white,
-      snackPosition: SnackPosition.BOTTOM,
-    );
+  // ---------------- Completed Trips (Tab 2) ----------------
+  Future<void> fetchCompletedTrips() async {
+    isLoadingCompleted.value = true;
+    try {
+      final res = await _driverService.getTrips(
+        page: currentPage.value,
+        limit: pageSize.value,
+        status: 'completed',
+        search: searchQuery.value.trim().isNotEmpty ? searchQuery.value.trim() : null,
+      );
+      if (res.success && res.data != null) {
+        completedTrips.assignAll(res.data!.rows);
+        totalCompleted.value = res.data!.count;
+        totalPages.value = res.data!.totalPages > 0 ? res.data!.totalPages : 1;
+        currentPage.value = res.data!.currentPage;
+      }
+    } catch (e) {
+      debugPrint('MyRouteController fetchCompletedTrips error: $e');
+    } finally {
+      isLoadingCompleted.value = false;
+    }
   }
 
-  void onOpenFilterSheet() {}
+  void onSearchChanged(String val) {
+    searchQuery.value = val;
+    _searchDebounceTimer?.cancel();
+    _searchDebounceTimer = Timer(const Duration(milliseconds: 300), () {
+      currentPage.value = 1;
+      fetchCompletedTrips();
+    });
+  }
 
-  void onBackPressed() => Get.back();
+  void clearSearch() {
+    searchController.clear();
+    searchQuery.value = '';
+    currentPage.value = 1;
+    fetchCompletedTrips();
+  }
+
+  void changePage(int page) {
+    if (page < 1 || page > totalPages.value || page == currentPage.value) return;
+    currentPage.value = page;
+    fetchCompletedTrips();
+  }
+
+  void openTripDetails(DriverTripItem trip) {
+    selectedTripDetails.value = trip;
+  }
+
+  void closeTripDetails() {
+    selectedTripDetails.value = null;
+  }
+
+  // ---------------- Tab Switching ----------------
+  void switchTab(String tab) {
+    if (activeTab.value == tab) return;
+    activeTab.value = tab;
+    if (tab == 'completed') {
+      fetchCompletedTrips();
+    }
+  }
+
+  // ---------------- Refresh ----------------
+  Future<void> onRefresh() async {
+    isRefreshing.value = true;
+    try {
+      if (activeTab.value == 'active') {
+        await Future.wait([
+          fetchActiveRoute(slotId: selectedSlotId.value),
+          loadProfile(),
+        ]);
+      } else {
+        await fetchCompletedTrips();
+      }
+    } finally {
+      isRefreshing.value = false;
+    }
+  }
+
+  // ---------------- Navigation ----------------
+  void navigateToSchedule() {
+    Get.toNamed(Routes.DRIVER_SCHEDULE);
+  }
+
+  void navigateToDocuments() {
+    Get.toNamed(Routes.DRIVER_DOCUMENT);
+  }
+
+  void onBackPressed() {
+    Get.back();
+  }
 }

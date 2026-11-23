@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { QRCodeSVG } from 'qrcode.react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useFinanceRole } from '../../hooks/finance/useFinanceRole';
 import { FleetIcons } from '../../components/FleetIcons';
@@ -664,35 +663,6 @@ export const FinanceCampaignDetailsPage = () => {
           )}
         </div>
       </section>
-
-      {/* QR Code Tracking Section (if present in DB) */}
-      {(activeCamp.qrCodes || []).length > 0 && (
-        <section className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 shadow-2xs space-y-4">
-          <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-            <FleetIcons.QrCode className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-            <span>Transit QR Code Tracking</span>
-          </h2>
-          <div className="grid sm:grid-cols-2 gap-4">
-            {activeCamp.qrCodes.map((qr) => {
-              const qrUrl = qr.target_url || `${typeof window !== 'undefined' ? window.location.origin : ''}/api/v1/qr/${qr.code}`;
-              return (
-                <div key={qr.id || qr.code} className="p-4 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800/60 flex items-center gap-4">
-                  <div className="p-2 bg-white rounded-xl shadow-xs shrink-0">
-                    <QRCodeSVG value={qrUrl} size={80} level="M" />
-                  </div>
-                  <div className="min-w-0 space-y-1 text-xs">
-                    <p className="font-mono font-bold text-slate-900 dark:text-white">{qr.code}</p>
-                    <p className="text-[11px] text-slate-500 dark:text-zinc-400 truncate">{qrUrl}</p>
-                    <p className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400">
-                      Scans: {qr.scan_count || 0}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
 
       {/* Share Modal */}
       {showShareModal && (

@@ -101,7 +101,7 @@ export const AdminNotificationSettingsPage = () => {
         <div>
           <Breadcrumb
             items={[
-              { label: t('nav.admin') || 'Admin', path: '/admin/dashboard' },
+              { label: t('ag.admin.admin_operations', 'Admin Operations'), path: '/admin/dashboard' },
               { label: t('admin.profile.title') || 'Profile', path: '/admin/profile' },
               { label: t('admin.notifications.settings_title') }
             ]}

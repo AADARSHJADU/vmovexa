@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:vmovexa/app/modules/roles/driver/profile/model/driver_document.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 
 import 'package:vmovexa/app/routes/app_routes.dart';
 import 'package:vmovexa/app/data/constants/api_constants.dart';
@@ -262,14 +263,14 @@ class DriverProfileController extends GetxController {
               contentPadding: EdgeInsets.zero,
               leading: Container(
                 padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF8B5CF6).withValues(alpha: 0.15),
+                decoration: const BoxDecoration(
+                  gradient: AppTheme.primaryGradient,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.camera_alt_outlined, color: Color(0xFF8B5CF6), size: 22),
+                child: const Icon(Icons.camera_alt_outlined, color: Colors.white, size: 22),
               ),
-              title: const Text('Take a photo', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-              subtitle: const Text('Open camera to capture new photo', style: TextStyle(color: Colors.white38, fontSize: 11)),
+              title: Text('take_photo'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+              subtitle: Text('open_camera_capture'.tr, style: const TextStyle(color: Colors.white38, fontSize: 11)),
               onTap: () {
                 Get.back();
                 _pickAndUploadAvatar(ImageSource.camera);
@@ -286,8 +287,8 @@ class DriverProfileController extends GetxController {
                 ),
                 child: const Icon(Icons.photo_library_outlined, color: Color(0xFF38BDF8), size: 22),
               ),
-              title: const Text('Choose from gallery', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-              subtitle: const Text('Select photo from local device files', style: TextStyle(color: Colors.white38, fontSize: 11)),
+              title: Text('choose_from_gallery'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+              subtitle: Text('select_photo_device'.tr, style: const TextStyle(color: Colors.white38, fontSize: 11)),
               onTap: () {
                 Get.back();
                 _pickAndUploadAvatar(ImageSource.gallery);
@@ -434,7 +435,7 @@ class DriverProfileController extends GetxController {
       AlertDialog(
         backgroundColor: const Color(0xFF15151F),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: const Text('Driver Information', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+        title: Text('driver_info'.tr, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -451,18 +452,25 @@ class DriverProfileController extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Close', style: TextStyle(color: Colors.white54)),
+            child: Text('close'.tr, style: const TextStyle(color: Colors.white54)),
           ),
-          ElevatedButton(
-            onPressed: () {
-              Get.back();
-              Get.toNamed(Routes.ACCOUNT_SETTINGS);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFB042FF),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: AppTheme.primaryGradient,
+              borderRadius: BorderRadius.circular(8),
             ),
-            child: const Text('Edit Profile', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: ElevatedButton(
+              onPressed: () {
+                Get.back();
+                Get.toNamed(Routes.ACCOUNT_SETTINGS);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: Text('edit_profile'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
           ),
         ],
       ),
@@ -536,15 +544,15 @@ class DriverProfileController extends GetxController {
       AlertDialog(
         backgroundColor: const Color(0xFF15151F),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: const Text('Log Out', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
-        content: const Text(
-          'Are you sure you want to log out of your driver account?',
-          style: TextStyle(color: Colors.white60, fontSize: 13),
+        title: Text('logout_from_portal'.tr, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
+        content: Text(
+          'logout_driver_confirm_msg'.tr,
+          style: const TextStyle(color: Colors.white60, fontSize: 13),
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white54)),
           ),
           TextButton(
             onPressed: () async {
@@ -554,7 +562,7 @@ class DriverProfileController extends GetxController {
               }
               Get.offAllNamed(Routes.LOGIN);
             },
-            child: const Text('Log Out', style: TextStyle(color: Color(0xFFFF4D4D), fontWeight: FontWeight.w700)),
+            child: Text('yes_logout'.tr, style: const TextStyle(color: Color(0xFFFF4D4D), fontWeight: FontWeight.w700)),
           ),
         ],
       ),

@@ -344,7 +344,7 @@ export const GlobalUsersPage = () => {
           onClick={() => handleRoleFilterChange('All')}
           className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 border cursor-pointer ${
             roleFilter === 'All'
-              ? 'bg-slate-900 text-white border-slate-900 shadow-sm dark:bg-white dark:text-slate-900'
+              ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white border-transparent shadow-sm shadow-indigo-500/25'
               : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 dark:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-700'
           }`}
         >

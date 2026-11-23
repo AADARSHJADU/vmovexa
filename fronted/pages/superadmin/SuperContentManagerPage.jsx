@@ -37,7 +37,7 @@ export const SuperContentManagerPage = () => {
   const [activeRole, setActiveRole] = useState('GLOBAL');
   const [currentId, setCurrentId] = useState(null);
   const [, setStatus] = useState('published');
-  const [version, setVersion] = useState(1);
+  const [, setVersion] = useState(1);
   const [saving, setSaving] = useState(false);
 
   // Common Form Fields
@@ -56,7 +56,6 @@ export const SuperContentManagerPage = () => {
     badge: 'Helpdesk 24/7',
     title: 'support@vmovexa.com / 1800-VMOVEXA',
     description: 'Direct assistance for platform operations, device pairing, and dispatch.',
-    ctaText: 'Open Priority Ticket',
   });
   const [helpGuides, setHelpGuides] = useState([
     { title: 'User Guide', desc: 'Step-by-step instructions', icon: 'Document', docUrl: '' },
@@ -541,10 +540,6 @@ export const SuperContentManagerPage = () => {
             </span>
           )}
 
-          <span className="text-xs font-semibold px-3 py-1 rounded-full border bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/50">
-            ● {t('superadmin.content_manager.live_badge', 'Live v{version}.0', { version })}
-          </span>
-
           <button
             onClick={handlePublish}
             disabled={saving}
@@ -589,32 +584,39 @@ export const SuperContentManagerPage = () => {
         </div>
 
         {/* Role Selector */}
-        <div className="flex items-center gap-2">
-          <label className="text-xs font-semibold text-slate-500 dark:text-zinc-400 whitespace-nowrap">
-            {t('superadmin.content_manager.lbl_target_role', 'Target Role Portal:')}
-          </label>
-          <select
-            value={activeRole}
-            onChange={(e) => { resetPendingFiles(); setActiveRole(e.target.value); }}
-            className="px-3 py-2 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-blue-500"
-          >
-            {ROLES.map((r) => (
-              <option key={r.code} value={r.code}>
-                {r.label}
-              </option>
-            ))}
-          </select>
+        <div className="flex flex-col items-end gap-1">
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-semibold text-slate-500 dark:text-zinc-400 whitespace-nowrap">
+              {t('superadmin.content_manager.lbl_target_role', 'Target Role Portal:')}
+            </label>
+            <select
+              value={activeRole}
+              onChange={(e) => { resetPendingFiles(); setActiveRole(e.target.value); }}
+              className="px-3 py-2 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-blue-500"
+            >
+              {ROLES.map((r) => (
+                <option key={r.code} value={r.code}>
+                  {r.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <p className="max-w-sm text-right text-[10px] font-medium text-slate-400 dark:text-zinc-500">
+            {activeRole === 'GLOBAL'
+              ? t('superadmin.content_manager.global_scope_hint', 'Platform default used when a portal has no published role-specific override.')
+              : t('superadmin.content_manager.role_scope_hint', 'This role-specific document overrides the Global platform default for this portal.')}
+          </p>
         </div>
       </div>
 
       {/* Main Grid: Left Editor & Right Live Preview */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-w-0">
         {/* ========================================================================= */}
         {/* LEFT COLUMN: EDITOR FORM */}
         {/* ========================================================================= */}
-        <div className="lg:col-span-7 space-y-5">
+        <div className="lg:col-span-7 space-y-5 min-w-0">
           {/* Metadata Card */}
-          <div className="bg-white dark:bg-[#11141d] border border-slate-200 dark:border-zinc-800 rounded-2xl p-5 shadow-xs space-y-4">
+          <div className="bg-white dark:bg-[#11141d] border border-slate-200 dark:border-zinc-800 rounded-2xl p-5 shadow-xs space-y-4 min-w-0">
             <div className="flex items-center justify-between">
               <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
                 {activeType === 'help' ? t('superadmin.content_manager.help_doc_details', 'Help & Documentation Details') : t('superadmin.content_manager.doc_details', 'Document Details')} ({activeRoleName})
@@ -653,7 +655,7 @@ export const SuperContentManagerPage = () => {
           {/* HELP & VIDEO STUDIO (when activeType === 'help') */}
           {/* ========================================================================= */}
           {activeType === 'help' ? (
-            <div className="bg-white dark:bg-[#11141d] border border-slate-200 dark:border-zinc-800 rounded-2xl p-5 shadow-xs space-y-4">
+            <div className="bg-white dark:bg-[#11141d] border border-slate-200 dark:border-zinc-800 rounded-2xl p-5 shadow-xs space-y-4 min-w-0">
               {/* Studio Sub-Navigation Tabs */}
               <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3 flex-wrap gap-2">
                 <div>
@@ -747,18 +749,6 @@ export const SuperContentManagerPage = () => {
                       />
                     </div>
 
-                    <div className="sm:col-span-2">
-                      <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
-                        {t('ag.superadmin.supercontentmanagerpage.button_label_cta', 'Button Label (CTA)')}
-                      </label>
-                      <input
-                        type="text"
-                        value={helpContact.ctaText || ''}
-                        onChange={(e) => setHelpContact({ ...helpContact, ctaText: e.target.value })}
-                        placeholder={t('superadmin.content_manager.ph_cta_ticket', 'e.g. Open Support Ticket')}
-                        className="mt-1 w-full px-3 py-2 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:border-blue-500"
-                      />
-                    </div>
                   </div>
                 </div>
               )}
@@ -770,7 +760,7 @@ export const SuperContentManagerPage = () => {
                     {helpGuides.map((guide, idx) => (
                       <div
                         key={idx}
-                        className="p-3.5 bg-slate-50 dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-800 rounded-xl space-y-2.5"
+                        className="p-3.5 bg-slate-50 dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-800 rounded-xl space-y-2.5 min-w-0 overflow-hidden"
                       >
                         <div className="flex items-center justify-between">
                           <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">
@@ -787,25 +777,25 @@ export const SuperContentManagerPage = () => {
                           </select>
                         </div>
 
-                        <div>
+                        <div className="min-w-0">
                           <label className="text-[10px] font-semibold text-slate-500 dark:text-zinc-400">{t('superadmin.content_manager.lbl_title', 'Title')}</label>
                           <input
                             type="text"
                             value={guide.title}
                             onChange={(e) => handleUpdateGuide(idx, 'title', e.target.value)}
                             placeholder={t('superadmin.content_manager.ph_driver_handbook', 'e.g. Driver Handbook')}
-                            className="mt-0.5 w-full px-2.5 py-1.5 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-lg text-xs font-semibold text-slate-900 dark:text-white focus:outline-none"
+                            className="mt-0.5 w-full px-2.5 py-1.5 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-lg text-xs font-semibold text-slate-900 dark:text-white focus:outline-none min-w-0"
                           />
                         </div>
 
-                        <div>
+                        <div className="min-w-0">
                           <label className="text-[10px] font-semibold text-slate-500 dark:text-zinc-400">{t('superadmin.content_manager.lbl_subtitle', 'Subtitle')}</label>
                           <input
                             type="text"
                             value={guide.desc}
                             onChange={(e) => handleUpdateGuide(idx, 'desc', e.target.value)}
                             placeholder={t('superadmin.content_manager.ph_sop_route', 'e.g. SOP & Route regulations')}
-                            className="mt-0.5 w-full px-2.5 py-1.5 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-lg text-[11px] font-medium text-slate-700 dark:text-zinc-300 focus:outline-none"
+                            className="mt-0.5 w-full px-2.5 py-1.5 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-lg text-[11px] font-medium text-slate-700 dark:text-zinc-300 focus:outline-none min-w-0"
                           />
                         </div>
 
@@ -955,7 +945,7 @@ export const SuperContentManagerPage = () => {
                     {helpFaqs.map((faq, idx) => (
                       <div
                         key={idx}
-                        className="p-3.5 bg-slate-50 dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-800 rounded-xl space-y-2 relative"
+                        className="p-3.5 bg-slate-50 dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-800 rounded-xl space-y-2 relative min-w-0 overflow-hidden"
                       >
                         <div className="flex items-center justify-between">
                           <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">
@@ -971,25 +961,25 @@ export const SuperContentManagerPage = () => {
                           </button>
                         </div>
 
-                        <div>
+                        <div className="min-w-0">
                           <label className="text-[10px] font-semibold text-slate-500 dark:text-zinc-400">{t('superadmin.content_manager.lbl_question', 'Question')}</label>
                           <input
                             type="text"
                             value={faq.q}
                             onChange={(e) => handleUpdateFaq(idx, 'q', e.target.value)}
                             placeholder={t('superadmin.content_manager.ph_question', 'e.g. What should I do in case of vehicle breakdown?')}
-                            className="mt-0.5 w-full px-2.5 py-1.5 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-lg text-xs font-semibold text-slate-900 dark:text-white focus:outline-none"
+                            className="mt-0.5 w-full px-2.5 py-1.5 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-lg text-xs font-semibold text-slate-900 dark:text-white focus:outline-none min-w-0"
                           />
                         </div>
 
-                        <div>
+                        <div className="min-w-0">
                           <label className="text-[10px] font-semibold text-slate-500 dark:text-zinc-400">{t('superadmin.content_manager.lbl_answer_solution', 'Answer / Solution')}</label>
                           <textarea
                             rows={2}
                             value={faq.a}
                             onChange={(e) => handleUpdateFaq(idx, 'a', e.target.value)}
                             placeholder={t('superadmin.content_manager.ph_answer_steps', 'Detailed resolution steps...')}
-                            className="mt-0.5 w-full px-2.5 py-1.5 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-lg text-xs font-medium text-slate-800 dark:text-zinc-200 focus:outline-none leading-relaxed"
+                            className="mt-0.5 w-full px-2.5 py-1.5 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-lg text-xs font-medium text-slate-800 dark:text-zinc-200 focus:outline-none leading-relaxed min-w-0 break-words [overflow-wrap:anywhere]"
                           />
                         </div>
                       </div>
@@ -1080,7 +1070,7 @@ export const SuperContentManagerPage = () => {
                       {helpVideoAcademy.videos.map((vid, idx) => (
                         <div
                           key={vid.id || idx}
-                          className="p-3.5 bg-slate-50 dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-800 rounded-xl space-y-2.5 relative"
+                          className="p-3.5 bg-slate-50 dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-800 rounded-xl space-y-2.5 relative min-w-0 overflow-hidden"
                         >
                           <div className="flex items-center justify-between">
                             <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">
@@ -1261,7 +1251,7 @@ export const SuperContentManagerPage = () => {
             </div>
           ) : (
             /* TERMS & PRIVACY Q&A REPEATER */
-            <div className="bg-white dark:bg-[#11141d] border border-slate-200 dark:border-zinc-800 rounded-2xl p-5 shadow-xs space-y-4">
+            <div className="bg-white dark:bg-[#11141d] border border-slate-200 dark:border-zinc-800 rounded-2xl p-5 shadow-xs space-y-4 min-w-0">
               <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3">
                 <div>
                   <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
@@ -1282,11 +1272,11 @@ export const SuperContentManagerPage = () => {
               </div>
 
               {/* List of Section Cards */}
-              <div className="space-y-4">
+              <div className="space-y-4 min-w-0">
                 {sections.map((sec, idx) => (
                   <div
                     key={sec.id || idx}
-                    className="p-4 bg-slate-50 dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-800 rounded-xl space-y-3 relative group transition-all"
+                    className="p-4 bg-slate-50 dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-800 rounded-xl space-y-3 relative group transition-all min-w-0 overflow-hidden"
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-bold text-slate-500 dark:text-zinc-400 tracking-wider">
@@ -1323,7 +1313,7 @@ export const SuperContentManagerPage = () => {
                       </div>
                     </div>
 
-                    <div>
+                    <div className="min-w-0">
                       <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                         {t('ag.superadmin.supercontentmanagerpage.section_heading', 'Section Heading')}
                       </label>
@@ -1332,11 +1322,11 @@ export const SuperContentManagerPage = () => {
                         value={sec.title}
                         onChange={(e) => handleUpdateSection(idx, 'title', e.target.value)}
                         placeholder={`e.g. ${idx + 1}. Operational Guidelines`}
-                        className="mt-1 w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-lg text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-blue-500"
+                        className="mt-1 w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-lg text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 min-w-0"
                       />
                     </div>
 
-                    <div>
+                    <div className="min-w-0">
                       <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                         {t('ag.superadmin.supercontentmanagerpage.policy_clause_details', 'Policy Clause Details')}
                       </label>
@@ -1345,7 +1335,7 @@ export const SuperContentManagerPage = () => {
                         value={sec.content}
                         onChange={(e) => handleUpdateSection(idx, 'content', e.target.value)}
                         placeholder={t('superadmin.content_manager.ph_full_policy_details', 'Enter the full description or policy details...')}
-                        className="mt-1 w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-lg text-xs font-medium text-slate-800 dark:text-zinc-200 focus:outline-none focus:border-blue-500 leading-relaxed"
+                        className="mt-1 w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-lg text-xs font-medium text-slate-800 dark:text-zinc-200 focus:outline-none focus:border-blue-500 leading-relaxed min-w-0 break-words [overflow-wrap:anywhere]"
                       />
                     </div>
                   </div>
@@ -1366,28 +1356,28 @@ export const SuperContentManagerPage = () => {
         {/* ========================================================================= */}
         {/* RIGHT COLUMN: REALISTIC LIVE PREVIEW */}
         {/* ========================================================================= */}
-        <div className="lg:col-span-5 space-y-4">
-          <div className="sticky top-6">
-            <div className="bg-slate-900 dark:bg-zinc-950 text-white rounded-t-2xl px-5 py-3 flex items-center justify-between border-t border-x border-slate-800 dark:border-zinc-800">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                <span className="text-xs font-bold tracking-wide">{t('superadmin.content_manager.live_portal_preview', 'Live Portal Preview')}</span>
+        <div className="lg:col-span-5 space-y-4 min-w-0">
+          <div className="sticky top-6 min-w-0">
+            <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white rounded-t-2xl px-5 py-3 flex items-center justify-between shadow-sm min-w-0">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="w-2 h-2 rounded-full bg-emerald-300 animate-ping shrink-0" />
+                <span className="text-xs font-bold tracking-wide truncate">{t('superadmin.content_manager.live_portal_preview', 'Live Portal Preview')}</span>
               </div>
-              <span className="text-[11px] text-slate-400 font-semibold">
+              <span className="text-[11px] text-white/90 font-semibold truncate shrink-0 ml-2">
                 {activeRoleName}
               </span>
             </div>
 
-            <div className="bg-slate-100 dark:bg-[#151923] border border-slate-200 dark:border-zinc-800 border-t-0 rounded-b-2xl p-4 sm:p-5 space-y-4 max-h-[85vh] overflow-y-auto no-scrollbar">
+            <div className="bg-slate-100 dark:bg-[#151923] border border-slate-200 dark:border-zinc-800 border-t-0 rounded-b-2xl p-4 sm:p-5 space-y-4 max-h-[85vh] overflow-y-auto overflow-x-hidden no-scrollbar min-w-0">
               {activeType === 'help' ? (
-                <div className="space-y-4">
+                <div className="space-y-4 min-w-0">
                   {/* Header preview */}
-                  <div className="border-b border-slate-200 dark:border-zinc-800 pb-3 flex items-start justify-between gap-2">
-                    <div>
-                      <h3 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight leading-snug">
+                  <div className="border-b border-slate-200 dark:border-zinc-800 pb-3 flex items-start justify-between gap-2 min-w-0">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight leading-snug break-words [overflow-wrap:anywhere]">
                         {title || 'Help & Documentation'}
                       </h3>
-                      <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium mt-0.5">
+                      <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium mt-0.5 break-words [overflow-wrap:anywhere]">
                         {summary || 'Knowledge base, emergency hotlines and tutorials'}
                       </p>
                     </div>
@@ -1395,47 +1385,47 @@ export const SuperContentManagerPage = () => {
 
                   {/* Contact Hero Banner Preview */}
                   {helpContact.theme === 'red' ? (
-                    <div className="p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 rounded-xl space-y-1.5 text-rose-950 dark:text-rose-200">
+                    <div className="p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 rounded-xl space-y-1.5 text-rose-950 dark:text-rose-200 min-w-0 overflow-hidden">
                       <div className="flex items-center justify-between">
-                        <span className="text-[9px] font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400">
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400 break-words [overflow-wrap:anywhere]">
                           {helpContact.badge || 'Transit Emergency SOS'}
                         </span>
                       </div>
-                      <div className="text-xs font-bold text-rose-900 dark:text-rose-100">
+                      <div className="text-xs font-bold text-rose-900 dark:text-rose-100 break-words [overflow-wrap:anywhere]">
                         {helpContact.title || '1800-VMOVEXA'}
                       </div>
-                      <p className="text-[10px] text-rose-800 dark:text-rose-300">
+                      <p className="text-[10px] text-rose-800 dark:text-rose-300 break-words [overflow-wrap:anywhere]">
                         {helpContact.description || 'Direct emergency dispatch line.'}
                       </p>
                     </div>
                   ) : helpContact.theme === 'blue' ? (
-                    <div className="p-3.5 bg-blue-600 text-white rounded-xl space-y-1.5 shadow-xs">
-                      <span className="text-[9px] font-bold uppercase tracking-wider text-blue-200">
+                    <div className="p-3.5 bg-blue-600 text-white rounded-xl space-y-1.5 shadow-xs min-w-0 overflow-hidden">
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-blue-200 break-words [overflow-wrap:anywhere]">
                         {helpContact.badge || 'Dedicated Desk'}
                       </span>
-                      <div className="text-xs font-bold">
+                      <div className="text-xs font-bold break-words [overflow-wrap:anywhere]">
                         {helpContact.title || '+91 98765 43210'}
                       </div>
-                      <p className="text-[10px] text-blue-100">
+                      <p className="text-[10px] text-blue-100 break-words [overflow-wrap:anywhere]">
                         {helpContact.description || 'Support specialist hotline.'}
                       </p>
                     </div>
                   ) : (
-                    <div className="p-3.5 bg-slate-900 dark:bg-zinc-900 text-white rounded-xl space-y-1.5 shadow-xs">
-                      <span className="text-[9px] font-bold uppercase tracking-wider text-blue-400">
+                    <div className="p-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white rounded-xl space-y-1.5 shadow-sm min-w-0 overflow-hidden">
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-white/80 break-words [overflow-wrap:anywhere]">
                         {helpContact.badge || 'Support Desk: 24/7'}
                       </span>
-                      <div className="text-xs font-bold">
+                      <div className="text-xs font-bold break-words [overflow-wrap:anywhere]">
                         {helpContact.title || 'Support Desk'}
                       </div>
-                      <p className="text-[10px] text-slate-300">
+                      <p className="text-[10px] text-slate-300 break-words [overflow-wrap:anywhere]">
                         {helpContact.description || '24/7 assistance for platform operations.'}
                       </p>
                     </div>
                   )}
 
                   {/* 3 Quick Action Tiles Preview */}
-                  <div className="grid grid-cols-3 gap-1.5">
+                  <div className="grid grid-cols-3 gap-1.5 min-w-0">
                     {[
                       { icon: '💬', label: t('ag.superadmin.supercontentmanagerpage.faqs', 'FAQs') },
                       { icon: '📖', label: t('ag.superadmin.supercontentmanagerpage.guides', 'Guides') },
@@ -1444,20 +1434,20 @@ export const SuperContentManagerPage = () => {
                       <div
                         key={t.label}
                         onClick={() => t.label === 'Videos' && setShowPreviewVideoModal(true)}
-                        className="p-2 bg-white dark:bg-zinc-900 rounded-xl border border-slate-200 dark:border-zinc-800 text-center hover:border-blue-500 cursor-pointer transition-all"
+                        className="p-2 bg-white dark:bg-zinc-900 rounded-xl border border-slate-200 dark:border-zinc-800 text-center hover:border-blue-500 cursor-pointer transition-all min-w-0 overflow-hidden"
                       >
                         <span className="text-sm">{t.icon}</span>
-                        <span className="text-[9px] font-semibold text-slate-800 dark:text-zinc-200 block mt-0.5">{t.label}</span>
+                        <span className="text-[9px] font-semibold text-slate-800 dark:text-zinc-200 block mt-0.5 truncate">{t.label}</span>
                       </div>
                     ))}
                   </div>
 
                   {/* 4 Guides Cards Preview */}
-                  <div className="space-y-1.5">
+                  <div className="space-y-1.5 min-w-0">
                     <div className="text-[10px] font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
                       {t('ag.superadmin.supercontentmanagerpage.standard_operating_procedures', 'Standard Operating Procedures (')}{helpGuides.length})
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-2 min-w-0">
                       {helpGuides.map((g, i) => (
                         <div
                           key={i}
@@ -1466,11 +1456,11 @@ export const SuperContentManagerPage = () => {
                             if (url) window.open(url, '_blank', 'noopener,noreferrer');
                             else toast.error(`No PDF document attached to "${g.title}"`);
                           }}
-                          className="p-2.5 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl space-y-0.5 cursor-pointer hover:border-blue-500 transition-all"
+                          className="p-2.5 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl space-y-0.5 cursor-pointer hover:border-blue-500 transition-all min-w-0 overflow-hidden"
                         >
-                          <div className="text-[11px] font-bold text-slate-900 dark:text-white truncate">{g.title}</div>
-                          <div className="text-[9px] text-slate-500 dark:text-zinc-400 line-clamp-1">{g.desc}</div>
-                          <div className="text-[9px] font-semibold text-blue-600 dark:text-blue-400 pt-1">
+                          <div className="text-[11px] font-bold text-slate-900 dark:text-white truncate break-words [overflow-wrap:anywhere]">{g.title}</div>
+                          <div className="text-[9px] text-slate-500 dark:text-zinc-400 line-clamp-1 break-words [overflow-wrap:anywhere]">{g.desc}</div>
+                          <div className="text-[9px] font-semibold text-blue-600 dark:text-blue-400 pt-1 truncate">
                             {g.docUrl ? t('ag.superadmin.supercontentmanagerpage.download_sop', '📥 Download SOP →') : t('ag.superadmin.supercontentmanagerpage.read_sop', 'Read SOP →')}
                           </div>
                         </div>
@@ -1479,14 +1469,14 @@ export const SuperContentManagerPage = () => {
                   </div>
 
                   {/* FAQs Accordion Preview */}
-                  <div className="space-y-2">
+                  <div className="space-y-2 min-w-0">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
                         {t('ag.superadmin.supercontentmanagerpage.faqs_preview', 'FAQs Preview (')}{filteredPreviewFaqs.length})
                       </span>
                     </div>
 
-                    <div className="relative">
+                    <div className="relative min-w-0">
                       <FleetIcons.Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                       <input
                         type="text"
@@ -1497,14 +1487,14 @@ export const SuperContentManagerPage = () => {
                       />
                     </div>
 
-                    <div className="space-y-1.5">
+                    <div className="space-y-1.5 min-w-0">
                       {filteredPreviewFaqs.map((f, i) => (
-                        <details key={i} open className="p-2 bg-white dark:bg-zinc-900 rounded-lg border border-slate-200 dark:border-zinc-800">
-                          <summary className="text-[10px] font-bold text-slate-900 dark:text-white cursor-pointer list-none flex items-center justify-between">
-                            <span>{f.q || `FAQ ${i + 1}`}</span>
-                            <FleetIcons.ChevronDown className="w-3 h-3 text-slate-400" />
+                        <details key={i} open className="p-2 bg-white dark:bg-zinc-900 rounded-lg border border-slate-200 dark:border-zinc-800 min-w-0 overflow-hidden">
+                          <summary className="text-[10px] font-bold text-slate-900 dark:text-white cursor-pointer list-none flex items-start justify-between gap-2 min-w-0">
+                            <span className="min-w-0 flex-1 whitespace-normal break-words [overflow-wrap:anywhere]">{f.q || `FAQ ${i + 1}`}</span>
+                            <FleetIcons.ChevronDown className="w-3 h-3 text-slate-400 shrink-0 mt-0.5" />
                           </summary>
-                          <p className="text-[9px] text-slate-600 dark:text-zinc-300 mt-1 pt-1 border-t border-slate-100 dark:border-zinc-800 whitespace-pre-line leading-relaxed">
+                          <p className="min-w-0 text-[9px] text-slate-600 dark:text-zinc-300 mt-1 pt-1 border-t border-slate-100 dark:border-zinc-800 whitespace-pre-line leading-relaxed break-words [overflow-wrap:anywhere]">
                             {f.a || 'Answer will appear here...'}
                           </p>
                         </details>
@@ -1513,33 +1503,33 @@ export const SuperContentManagerPage = () => {
                   </div>
 
                   {/* Video Modal Trigger Test Button */}
-                  <div className="pt-2 border-t border-slate-200 dark:border-zinc-800">
+                  <div className="pt-2 border-t border-slate-200 dark:border-zinc-800 min-w-0">
                     <button
                       type="button"
                       onClick={() => setShowPreviewVideoModal(true)}
-                      className="w-full py-2 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                      className="w-full py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:via-indigo-500 hover:to-purple-500 text-white rounded-xl text-xs font-semibold shadow-sm shadow-indigo-500/25 flex items-center justify-center gap-1.5 cursor-pointer transition-all"
                     >
-                      <span>{t('ag.superadmin.supercontentmanagerpage.test_video_academy_modal', '🎥 Test Video Academy Modal (')}{helpVideoAcademy.videos.length} {t('ag.superadmin.supercontentmanagerpage.videos', 'videos)')}</span>
+                      <span className="truncate">{t('ag.superadmin.supercontentmanagerpage.test_video_academy_modal', '🎥 Test Video Academy Modal (')}{helpVideoAcademy.videos.length} {t('ag.superadmin.supercontentmanagerpage.videos', 'videos)')}</span>
                     </button>
                   </div>
                 </div>
               ) : (
                 /* TERMS & PRIVACY PREVIEW */
-                <div className="space-y-4">
+                <div className="space-y-4 min-w-0">
                   {/* Header preview */}
-                  <div className="border-b border-slate-200 dark:border-zinc-800 pb-3 flex items-start justify-between gap-2">
-                    <div>
-                      <h3 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight leading-snug">
+                  <div className="border-b border-slate-200 dark:border-zinc-800 pb-3 flex items-start justify-between gap-2 min-w-0">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight leading-snug break-words [overflow-wrap:anywhere]">
                         {title || 'Document Title'}
                       </h3>
-                      <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium mt-0.5">
+                      <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium mt-0.5 break-words [overflow-wrap:anywhere]">
                         {summary || 'Policy summary...'}
                       </p>
                     </div>
                   </div>
 
                   {/* Search input preview */}
-                  <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-2.5 shadow-2xs">
+                  <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-2.5 shadow-2xs min-w-0">
                     <div className="relative">
                       <FleetIcons.Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                       <input
@@ -1553,21 +1543,21 @@ export const SuperContentManagerPage = () => {
                   </div>
 
                   {/* Accordions preview */}
-                  <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-3 shadow-2xs space-y-2">
+                  <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-3 shadow-2xs space-y-2 min-w-0 overflow-hidden">
                     {filteredPreviewSections.length > 0 ? (
                       filteredPreviewSections.map((sec, idx) => (
                         <details
                           key={sec.id || idx}
                           open
-                          className="group p-2.5 bg-slate-50 dark:bg-zinc-800/60 rounded-lg border border-slate-100 dark:border-zinc-800 transition-all"
+                          className="group p-2.5 bg-slate-50 dark:bg-zinc-800/60 rounded-lg border border-slate-100 dark:border-zinc-800 transition-all min-w-0 overflow-hidden"
                         >
-                          <summary className="text-[11px] font-bold text-slate-900 dark:text-white cursor-pointer list-none flex items-center justify-between">
-                            <span>{sec.title || `Section ${idx + 1}`}</span>
-                            <span className="text-slate-400 text-[10px] group-open:rotate-180 transition-transform">
+                          <summary className="text-[11px] font-bold text-slate-900 dark:text-white cursor-pointer list-none flex items-start justify-between gap-2 min-w-0">
+                            <span className="min-w-0 flex-1 whitespace-normal break-words [overflow-wrap:anywhere]">{sec.title || `Section ${idx + 1}`}</span>
+                            <span className="text-slate-400 text-[10px] group-open:rotate-180 transition-transform shrink-0 mt-0.5">
                               ▼
                             </span>
                           </summary>
-                          <p className="text-[10px] text-slate-600 dark:text-zinc-300 font-medium mt-1.5 pt-1.5 border-t border-slate-100 dark:border-zinc-800 leading-relaxed whitespace-pre-line">
+                          <p className="min-w-0 text-[10px] text-slate-600 dark:text-zinc-300 font-medium mt-1.5 pt-1.5 border-t border-slate-100 dark:border-zinc-800 leading-relaxed whitespace-pre-line break-words [overflow-wrap:anywhere]">
                             {sec.content || 'Clause text will appear here...'}
                           </p>
                         </details>

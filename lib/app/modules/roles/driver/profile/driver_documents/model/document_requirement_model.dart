@@ -24,7 +24,7 @@ extension DocumentReqStatusX on DocumentReqStatus {
       case DocumentReqStatus.underReview:
         return const Color(0xFFF59E0B);
       case DocumentReqStatus.notUploaded:
-        return const Color(0xFFB042FF);
+        return const Color(0xFF1C68FD);
       case DocumentReqStatus.rejected:
         return const Color(0xFFEF4444);
     }

@@ -137,12 +137,12 @@ export const AssignGpsPage = () => {
 
   return (
     <div className="w-full space-y-6 pb-24 animate-in fade-in duration-200">
-      {/* 1. Top Header Banner */}
-      <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm">
+      {/* 1. Top Header */}
+      <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
         <div>
           <Breadcrumb
             items={[
-              { label: isFleetPortal ? t('ag.admin.assigngpspage.fleet_operator', 'Fleet Operator') : t('ag.admin.assigngpspage.tenant_admin', 'Tenant Admin'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
+              { label: isFleetPortal ? t('ag.admin.assigngpspage.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
               { label: t('ag.admin.assigngpspage.edge_devices', 'Edge Devices'), path: basePath },
               { label: boxId, path: `${basePath}/${id}` },
               { label: t('ag.admin.assigngpspage.assign_vehicle', 'Assign Vehicle') },

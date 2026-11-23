@@ -48,7 +48,7 @@ export const AdminSupportHistoryPage = () => {
         <div>
           <Breadcrumb
             items={[
-              { label: t('ag.admin.adminsupporthistorypage.dashboard', 'Dashboard'), to: '/admin/dashboard' },
+              { label: t('ag.admin.admin_operations', 'Admin Operations'), to: '/admin/dashboard' },
               { label: t('nav.help_support') || 'Help & Support', path: '/admin/help' },
               { label: t('admin.support.title') }
             ]}

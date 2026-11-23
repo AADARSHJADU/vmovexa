@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { FleetIcons } from '../../components/FleetIcons.jsx';
@@ -12,8 +12,6 @@ export const SuperNotificationsPage = () => {
   const { t } = useTranslation();
   const {
     notifications = [],
-    unreadCount = 0,
-    status,
     loadNotifications,
     markRead,
     markAllRead,
@@ -215,7 +213,7 @@ export const SuperNotificationsPage = () => {
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleSearchChange}
             placeholder={t('notifications.search_alerts_ph', 'Search alerts by title or description...')}
             className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700/60 rounded-xl text-xs font-medium text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           />
@@ -323,38 +321,6 @@ export const SuperNotificationsPage = () => {
                         {item.body}
                       </p>
                     )}
-
-                    {(() => {
-                      let meta = item.data;
-                      if (typeof meta === 'string') {
-                        try { meta = JSON.parse(meta); } catch (_) { meta = {}; }
-                      }
-                      const actionUrl = meta?.action_url || (item.event_key?.startsWith('support_') ? '/superadmin/help/desk' : null);
-                      const actionText = meta?.action_text || (item.event_key?.startsWith('support_') ? t('ag.superadmin.supernotificationspage.open_support_desk', 'Open Support Desk') : t('ag.superadmin.supernotificationspage.view_details', 'View Details'));
-                      if (!actionUrl) return null;
-                      return (
-                        <div className="mt-2.5">
-                          <Link
-                            to={actionUrl}
-                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-                          >
-                            <span>{actionText}</span>
-                            <FleetIcons.ArrowRight className="w-3.5 h-3.5" />
-                          </Link>
-                        </div>
-                      );
-                    })()}
-
-                    <div className="flex items-center gap-3 mt-2 text-xs font-semibold text-slate-400 dark:text-zinc-500">
-                      <span className="uppercase tracking-wider text-[10px] px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400">
-                        {t('ag.superadmin.supernotificationspage.channel', 'Channel:')} {item.channel || 'in_app'}
-                      </span>
-                      {item.event_key && (
-                        <span className="font-mono text-[10px] text-slate-500 dark:text-zinc-400">
-                          {t('ag.superadmin.supernotificationspage.event', 'event:')} {item.event_key}
-                        </span>
-                      )}
-                    </div>
                   </div>
 
                   {/* Item Actions */}

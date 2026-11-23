@@ -131,33 +131,36 @@ export const FleetsPage = () => {
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-200 pb-20">
       {/* Header */}
-      <div>
-        <Breadcrumb
-          items={[
-            { label: t('ag.fleet.fleetspage.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
-            { label: t('ag.fleet.fleetspage.fleet_operators', 'Fleet Operators') },
-          ]}
-          className="mb-2"
-        />
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-              {t('ag.fleet.fleetspage.fleet_operators_management', 'Fleet Operators Management')}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
-              {t('ag.fleet.fleetspage.depot_managers_responsible_for_vehicle_regis', 'Depot managers responsible for vehicle registration, GPS linkage, and driver shift scheduling')}
-            </p>
-          </div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+        <div>
+          <Breadcrumb
+            items={[
+              { label: t('roles.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
+              { label: t('fleet.fleets.title', 'Fleet Directory') },
+            ]}
+            className="mb-2"
+          />
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+            {t('ag.fleet.fleetspage.fleet_operators_management', 'Fleet Operators Management')}
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
+            {t('ag.fleet.fleetspage.depot_managers_responsible_for_vehicle_regis', 'Depot managers responsible for vehicle registration, GPS linkage, and driver shift scheduling')}
+          </p>
+        </div>
 
-          <div className="flex items-center gap-3 w-full sm:w-auto shrink-0">
-            <RefreshButton onClick={refreshList} loading={loading} />
-            {canCreate && (
-              <Link
-                to="/fleet-operator/fleets/add"
-                className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 w-full sm:w-auto cursor-pointer"
-              >
-                <FleetIcons.Plus className="w-4 h-4" />
-                <span>{t('fleet.fleets.add_operator')}</span>
+        <div className="flex items-center gap-3 w-full sm:w-auto shrink-0">
+          <RefreshButton onClick={refreshList} loading={loading} />
+          {canCreate && (
+            <Link
+              to="/fleet-operator/fleets/add"
+              className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 w-full sm:w-auto cursor-pointer"
+            >
+              <FleetIcons.Plus className="w-4 h-4" />
+              <span>{t('fleet.fleets.add_operator')}</span>
+            </Link>
+          )}
+        </div>
+      </div>
               </Link>
             )}
           </div>

@@ -147,7 +147,7 @@ export const FleetOperatorsPage = () => {
         <div>
           <Breadcrumb
             items={[
-              { label: isFleetPortal ? t('ag.admin.fleetoperatorspage.fleet_operator', 'Fleet Operator') : t('ag.admin.fleetoperatorspage.tenant_admin', 'Tenant Admin'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
+              { label: isFleetPortal ? t('ag.admin.fleetoperatorspage.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
               { label: t('ag.admin.fleetoperatorspage.fleet_operators', 'Fleet Operators') },
             ]}
             className="mb-2"
@@ -245,13 +245,13 @@ export const FleetOperatorsPage = () => {
             <table className="w-full min-w-[700px] text-left text-xs text-slate-700 dark:text-zinc-300">
               <thead className="bg-slate-50 dark:bg-zinc-800/60 border-b border-slate-200 dark:border-zinc-800 text-slate-500 dark:text-zinc-400 font-bold uppercase tracking-wider text-[10px]">
                 <tr>
-                  <th className="py-3 px-4">{t('admin.fleet_operators.col_operator') || 'Operator'}</th>
-                  <th className="py-3 px-4">{t('admin.fleet_operators.col_designation') || 'Designation'}</th>
-                  <th className="py-3 px-4">{t('admin.fleet_operators.col_depot') || 'Assigned Depot'}</th>
-                  <th className="py-3 px-4">{t('admin.fleet_operators.col_scope') || 'Vehicle Scope'}</th>
-                  <th className="py-3 px-4">{t('admin.fleet_operators.col_drivers') || 'Drivers'}</th>
-                  <th className="py-3 px-4">{t('admin.fleet_operators.col_status') || 'Status'}</th>
-                  <th className="py-3 px-4 text-right">{t('admin.fleet_operators.col_actions') || 'Actions'}</th>
+                  <th className="py-3 px-4 w-[28%]">{t('admin.fleet_operators.col_operator') || 'Operator'}</th>
+                  <th className="py-3 px-4 w-[18%]">{t('admin.fleet_operators.col_designation') || 'Designation'}</th>
+                  <th className="py-3 px-4 w-[18%]">{t('admin.fleet_operators.col_depot') || 'Assigned Depot'}</th>
+                  <th className="py-3 px-4 w-[14%] whitespace-nowrap">{t('admin.fleet_operators.col_scope') || 'Vehicle Scope'}</th>
+                  <th className="py-3 px-4 w-[12%] whitespace-nowrap">{t('admin.fleet_operators.col_drivers') || 'Drivers'}</th>
+                  <th className="py-3 px-4 w-[8%] whitespace-nowrap">{t('admin.fleet_operators.col_status') || 'Status'}</th>
+                  <th className="py-3 px-4 text-right w-[4%] whitespace-nowrap">{t('admin.fleet_operators.col_actions') || 'Actions'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-zinc-800 font-medium">
@@ -268,8 +268,8 @@ export const FleetOperatorsPage = () => {
 
                   return (
                     <tr key={opr.id} className="hover:bg-slate-50/60 dark:hover:bg-zinc-800/40 transition-colors">
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-3">
+                      <td className="py-3.5 px-4 max-w-[220px]">
+                        <div className="flex items-center gap-3 min-w-0">
                           <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 flex items-center justify-center font-bold text-slate-700 dark:text-zinc-300 overflow-hidden text-xs shrink-0">
                             {avatar ? (
                               <img src={resolveFileUrl(avatar)} alt="" className="w-full h-full object-cover" />
@@ -277,35 +277,39 @@ export const FleetOperatorsPage = () => {
                               opr.name ? opr.name.charAt(0).toUpperCase() : 'O'
                             )}
                           </div>
-                          <div>
-                            <div className="font-bold text-slate-900 dark:text-white">{opr.name}</div>
-                            <div className="text-[10px] text-slate-400 dark:text-zinc-500 font-mono">{code} · {opr.email}</div>
+                          <div className="min-w-0 flex-1">
+                            <div className="font-bold text-slate-900 dark:text-white truncate" title={opr.name}>{opr.name}</div>
+                            <div className="text-[10px] text-slate-400 dark:text-zinc-500 font-mono truncate" title={`${code} · ${opr.email}`}>{code} · {opr.email}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="py-3.5 px-4 text-slate-600 dark:text-zinc-400 font-medium">{designation}</td>
-                      <td className="py-3.5 px-4 font-bold text-slate-800 dark:text-zinc-200">{depot}</td>
-                      <td className="py-3.5 px-4 font-bold text-blue-700 dark:text-blue-400">
+                      <td className="py-3.5 px-4 text-slate-600 dark:text-zinc-400 font-medium max-w-[180px]">
+                        <div className="truncate" title={designation}>{designation}</div>
+                      </td>
+                      <td className="py-3.5 px-4 font-bold text-slate-800 dark:text-zinc-200 max-w-[180px]">
+                        <div className="truncate" title={depot}>{depot}</div>
+                      </td>
+                      <td className="py-3.5 px-4 font-bold text-blue-700 dark:text-blue-400 whitespace-nowrap">
                         <Link
                           to={`${basePath}/${opr.id}?tab=vehicles`}
                           className="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline transition-colors"
                           title={`View ${currentBuses} vehicles (Quota: ${maxBuses}) assigned to ${opr.name}`}
                         >
-                          <FleetIcons.Bus className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
+                          <FleetIcons.Bus className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 shrink-0" />
                           <span>{currentBuses} / {maxBuses} {t('ag.admin.fleetoperatorspage.buses', 'Buses')}</span>
                         </Link>
                       </td>
-                      <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-white">
+                      <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-white whitespace-nowrap">
                         <Link
                           to={isFleetPortal ? '/fleet-operator/drivers' : '/admin/drivers'}
                           className="inline-flex items-center gap-1.5 hover:text-emerald-600 dark:hover:text-emerald-400 hover:underline transition-colors"
                           title={`View enrolled drivers (Quota: ${maxDrivers})`}
                         >
-                          <FleetIcons.Driver className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
+                          <FleetIcons.Driver className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 shrink-0" />
                           <span>{currentDrivers} / {maxDrivers} {t('ag.admin.fleetoperatorspage.drivers', 'Drivers')}</span>
                         </Link>
                       </td>
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         <span
                           className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase border ${
                             status === 'active'
@@ -316,7 +320,7 @@ export const FleetOperatorsPage = () => {
                           {status}
                         </span>
                       </td>
-                      <td className="py-3.5 px-4 text-right">
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end">
                           <ActionDropdown buttonTitle={`${t('ag.admin.fleetoperatorspage.actions_for', 'Actions for') + ' '}${opr.name}`}>
                             {({ close }) => (
@@ -450,9 +454,9 @@ export const FleetOperatorsPage = () => {
               const designation = opr.clearance || opr.designation || 'Fleet Operator';
 
               return (
-                <div key={opr.id} className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm space-y-4 hover:shadow-md transition-shadow">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
+                <div key={opr.id} className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm space-y-4 hover:shadow-md transition-shadow overflow-hidden">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
                       <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 flex items-center justify-center font-bold text-slate-700 dark:text-zinc-300 overflow-hidden text-sm shrink-0">
                         {avatar ? (
                           <img src={resolveFileUrl(avatar)} alt="" className="w-full h-full object-cover" />
@@ -460,13 +464,13 @@ export const FleetOperatorsPage = () => {
                           opr.name ? opr.name.charAt(0).toUpperCase() : 'O'
                         )}
                       </div>
-                      <div>
-                        <h3 className="text-base font-bold text-slate-900 dark:text-white">{opr.name}</h3>
-                        <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-mono">{code} · {opr.email}</p>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-base font-bold text-slate-900 dark:text-white truncate" title={opr.name}>{opr.name}</h3>
+                        <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-mono truncate" title={`${code} · ${opr.email}`}>{code} · {opr.email}</p>
                       </div>
                     </div>
                     <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase border ${
+                      className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase border ${
                         status === 'active'
                           ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/60'
                           : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/60'
@@ -477,26 +481,26 @@ export const FleetOperatorsPage = () => {
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 p-3 bg-slate-50 dark:bg-zinc-800/50 rounded-xl border border-slate-100 dark:border-zinc-800 text-xs">
-                    <div>
-                      <span className="text-slate-400 dark:text-zinc-500 text-[10px]">{t('admin.fleet_operators.depot_base') || 'Depot Base:'}</span>
-                      <div className="font-bold text-slate-900 dark:text-white">{depot}</div>
-                      <div className="text-[10px] text-slate-500 dark:text-zinc-400">{designation}</div>
+                    <div className="min-w-0">
+                      <span className="text-slate-400 dark:text-zinc-500 text-[10px] block truncate">{t('admin.fleet_operators.depot_base') || 'Depot Base:'}</span>
+                      <div className="font-bold text-slate-900 dark:text-white truncate" title={depot}>{depot}</div>
+                      <div className="text-[10px] text-slate-500 dark:text-zinc-400 truncate" title={designation}>{designation}</div>
                     </div>
-                    <div>
-                      <span className="text-slate-400 dark:text-zinc-500 text-[10px]">{t('admin.fleet_operators.scope') || 'Scope:'}</span>
-                      <div>
+                    <div className="min-w-0">
+                      <span className="text-slate-400 dark:text-zinc-500 text-[10px] block truncate">{t('admin.fleet_operators.scope') || 'Scope:'}</span>
+                      <div className="truncate">
                         <Link
                           to={`${basePath}/${opr.id}?tab=vehicles`}
-                          className="font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline inline-flex items-center gap-1 transition-colors"
+                          className="font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline inline-flex items-center gap-1 transition-colors truncate max-w-full"
                           title={`View ${currentBuses} vehicles (Quota: ${maxBuses}) assigned to ${opr.name}`}
                         >
-                          <FleetIcons.Bus className="w-3 h-3 text-blue-500 dark:text-blue-400" />
-                          <span>{currentBuses} / {maxBuses} {t('ag.admin.fleetoperatorspage.buses', 'Buses')}</span>
+                          <FleetIcons.Bus className="w-3 text-blue-500 dark:text-blue-400 shrink-0" />
+                          <span className="truncate">{currentBuses} / {maxBuses} {t('ag.admin.fleetoperatorspage.buses', 'Buses')}</span>
                         </Link>
                       </div>
-                      <div className="text-[10px] text-slate-600 dark:text-zinc-400 font-bold flex items-center gap-1">
-                        <FleetIcons.Driver className="w-3 h-3 text-emerald-500 dark:text-emerald-400" />
-                        <span>{currentDrivers} / {maxDrivers} {t('ag.admin.fleetoperatorspage.drivers', 'Drivers')}</span>
+                      <div className="text-[10px] text-slate-600 dark:text-zinc-400 font-bold flex items-center gap-1 truncate" title={`${currentDrivers} / ${maxDrivers} Drivers`}>
+                        <FleetIcons.Driver className="w-3 h-3 text-emerald-500 dark:text-emerald-400 shrink-0" />
+                        <span className="truncate">{currentDrivers} / {maxDrivers} {t('ag.admin.fleetoperatorspage.drivers', 'Drivers')}</span>
                       </div>
                     </div>
                   </div>

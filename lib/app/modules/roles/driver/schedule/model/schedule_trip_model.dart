@@ -25,7 +25,7 @@ extension ScheduleTripStatusX on ScheduleTripStatus {
       case ScheduleTripStatus.scheduled:
         return const Color(0xFF3F7BF5);
       case ScheduleTripStatus.completed:
-        return const Color(0xFFB042FF);
+        return const Color(0xFF10B981);
     }
   }
 }

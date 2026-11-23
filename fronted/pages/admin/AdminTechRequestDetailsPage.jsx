@@ -278,12 +278,12 @@ export const AdminTechRequestDetailsPage = () => {
 
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-200 pb-16 min-w-0 max-w-full overflow-hidden">
-      {/* 1. Breadcrumb Navigation & Action Header */}
-      <div className="w-full p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm min-w-0 overflow-hidden">
+      {/* 1. Header */}
+      <div className="w-full border-b border-slate-200 dark:border-zinc-800 pb-4 min-w-0 overflow-hidden">
         <Breadcrumb
           items={[
             {
-              label: isDriverPortal ? 'Driver' : isFleetPortal ? 'Fleet Operator' : 'Tenant Admin',
+              label: isDriverPortal ? 'Driver' : isFleetPortal ? 'Fleet Operator' : t('ag.admin.admin_operations', 'Admin Operations'),
               path: isDriverPortal ? '/driver/dashboard' : isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard',
             },
             {

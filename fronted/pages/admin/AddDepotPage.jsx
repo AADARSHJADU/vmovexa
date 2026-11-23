@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { FleetIcons } from '../../components/FleetIcons';
@@ -26,6 +26,9 @@ const AVAILABLE_AMENITIES = [
   'Automated Washing Station',
   'Solar PV Rooftop Generation',
 ];
+
+const PHONE_DIGITS_PATTERN = /^\d{10,15}$/;
+const sanitizePhone = (value = '') => String(value).replace(/\D/g, '').slice(0, 15);
 
 export const AddDepotPage = () => {
   const { t } = useTranslation();
@@ -164,8 +167,8 @@ export const AddDepotPage = () => {
             assignedOperatorId: dep.assigned_operator_id ?? dep.assignedOperatorId ?? dep.assignedOperator?.id ?? '',
             contactPerson: dep.contact_person ?? dep.contactPerson ?? '',
             email: dep.email || '',
-            contactPhone: dep.contact_phone ?? dep.contactPhone ?? '',
-            emergencyPhone: dep.emergency_phone ?? dep.emergencyPhone ?? '',
+            contactPhone: sanitizePhone(dep.contact_phone ?? dep.contactPhone ?? ''),
+            emergencyPhone: sanitizePhone(dep.emergency_phone ?? dep.emergencyPhone ?? ''),
             operatingHours: dep.operating_hours ?? dep.operatingHours ?? '24x7',
           });
 
@@ -228,6 +231,14 @@ export const AddDepotPage = () => {
     }
     if (!formData.address.trim()) {
       toast.error(t('ag.admin.adddepotpage.depot_address_is_required', 'Depot Address is required.'));
+      return;
+    }
+    if (formData.contactPhone && !PHONE_DIGITS_PATTERN.test(formData.contactPhone)) {
+      toast.error(t('admin.depots.invalid_contact_phone', 'Phone Number must contain 10 to 15 digits only.'));
+      return;
+    }
+    if (formData.emergencyPhone && !PHONE_DIGITS_PATTERN.test(formData.emergencyPhone)) {
+      toast.error(t('admin.depots.invalid_emergency_phone', 'Emergency Phone must contain 10 to 15 digits only.'));
       return;
     }
 
@@ -320,7 +331,7 @@ export const AddDepotPage = () => {
         <div>
           <Breadcrumb
             items={[
-              { label: isFleetPortal ? t('ag.admin.adddepotpage.fleet_operator', 'Fleet Operator') : t('ag.admin.adddepotpage.admin_operations', 'Admin Operations'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
+              { label: isFleetPortal ? t('roles.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
               { label: t('admin.depots.title'), path: basePath },
               { label: isEditMode ? t('admin.depots.edit_depot') : t('admin.depots.add_depot') },
             ]}
@@ -655,9 +666,13 @@ export const AddDepotPage = () => {
               <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1.5">{t('common.phone_number')}</label>
               <input
                 type="tel"
-                placeholder="+91 98200 00000"
+                inputMode="numeric"
+                pattern="[0-9]{10,15}"
+                minLength={10}
+                maxLength={15}
+                placeholder="919820000000"
                 value={formData.contactPhone}
-                onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, contactPhone: sanitizePhone(e.target.value) })}
                 className="w-full px-3.5 py-2.5 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-xs"
               />
             </div>
@@ -666,9 +681,13 @@ export const AddDepotPage = () => {
               <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1.5">{t('admin.depots.emergency_phone_label')}</label>
               <input
                 type="tel"
-                placeholder="+91 98200 99999"
+                inputMode="numeric"
+                pattern="[0-9]{10,15}"
+                minLength={10}
+                maxLength={15}
+                placeholder="919820099999"
                 value={formData.emergencyPhone}
-                onChange={(e) => setFormData({ ...formData, emergencyPhone: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, emergencyPhone: sanitizePhone(e.target.value) })}
                 className="w-full px-3.5 py-2.5 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-xs"
               />
             </div>

@@ -5,6 +5,7 @@ class ApiResponseModel<T> {
   final String? error;
   final List<dynamic>? errors;
   final int? statusCode;
+  final Map<String, dynamic>? meta;
 
   ApiResponseModel({
     required this.success,
@@ -13,6 +14,7 @@ class ApiResponseModel<T> {
     this.error,
     this.errors,
     this.statusCode,
+    this.meta,
   });
 
   factory ApiResponseModel.fromJson(
@@ -29,6 +31,9 @@ class ApiResponseModel<T> {
       error: json['error']?.toString(),
       errors: json['errors'] is List ? json['errors'] as List<dynamic> : null,
       statusCode: statusCode,
+      meta: json['meta'] is Map<String, dynamic>
+          ? json['meta'] as Map<String, dynamic>
+          : (json['meta'] is Map ? Map<String, dynamic>.from(json['meta'] as Map) : null),
     );
   }
 
@@ -37,6 +42,7 @@ class ApiResponseModel<T> {
     String? error,
     List<dynamic>? errors,
     int? statusCode,
+    Map<String, dynamic>? meta,
   }) {
     return ApiResponseModel<T>(
       success: false,
@@ -44,6 +50,7 @@ class ApiResponseModel<T> {
       error: error,
       errors: errors,
       statusCode: statusCode,
+      meta: meta,
     );
   }
 

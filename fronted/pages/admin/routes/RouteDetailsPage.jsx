@@ -225,7 +225,7 @@ export const RouteDetailsPage = () => {
         <div>
           <Breadcrumb
             items={[
-              { label: isFleetPortal ? t('ag.admin.routedetailspage.fleet_operator', 'Fleet Operator') : t('ag.admin.routedetailspage.tenant_admin', 'Tenant Admin'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
+              { label: isFleetPortal ? t('ag.admin.routedetailspage.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
               { label: t('ag.admin.routedetailspage.transit_routes', 'Transit Routes'), path: basePath },
               { label: r.name },
             ]}

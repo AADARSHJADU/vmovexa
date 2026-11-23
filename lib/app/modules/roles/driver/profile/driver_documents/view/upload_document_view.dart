@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/modules/roles/driver/profile/driver_documents/view/upload_doc_stepper.dart' show UploadDocStepper;
+import 'package:vmovexa/app/theme/app_theme.dart';
 import '../../../../technician/hardware_configuration/views/shared_widgets.dart';
 import '../controller/upload_document_controller.dart';
 
@@ -32,8 +33,17 @@ class UploadDocumentView extends GetView<UploadDocumentController> {
                     children: [
                       Container(
                         padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(color: kPurple.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
-                        child: Icon(controller.documentIcon, color: kPurple, size: 20),
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.primaryGradient,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.gradientBlue.withValues(alpha: 0.25),
+                              blurRadius: 6,
+                            ),
+                          ],
+                        ),
+                        child: Icon(controller.documentIcon, color: Colors.white, size: 20),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -98,10 +108,16 @@ class UploadDocumentView extends GetView<UploadDocumentController> {
           child: Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: kPurple.withValues(alpha: 0.12),
+              gradient: AppTheme.primaryGradient,
               shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.gradientBlue.withValues(alpha: 0.3),
+                  blurRadius: 4,
+                ),
+              ],
             ),
-            child: const Icon(Icons.info_outline, color: kPurple, size: 18),
+            child: const Icon(Icons.info_outline, color: Colors.white, size: 18),
           ),
         ),
       ],
@@ -115,18 +131,21 @@ class UploadDocumentView extends GetView<UploadDocumentController> {
       decoration: BoxDecoration(
         color: kFieldBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: kPurple.withValues(alpha: 0.25)),
+        border: Border.all(color: AppTheme.gradientBlue.withValues(alpha: 0.25)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.info_outline, color: kPurple, size: 16),
+          ShaderMask(
+            shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+            child: const Icon(Icons.info_outline, color: Colors.white, size: 16),
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('tips'.tr, style: const TextStyle(color: kPurple, fontSize: 12.5, fontWeight: FontWeight.w700)),
+                Text('tips'.tr, style: const TextStyle(color: AppTheme.gradientBlue, fontSize: 12.5, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 6),
                 Text('• ${'tip_details_visible'.tr}', style: const TextStyle(color: Colors.white54, fontSize: 11)),
                 const SizedBox(height: 3),
@@ -161,14 +180,14 @@ class _PickOptionCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: kCardBg,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: kPurple.withValues(alpha: 0.35)),
+          border: Border.all(color: AppTheme.gradientBlue.withValues(alpha: 0.25)),
         ),
         child: Column(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: kPurple.withValues(alpha: 0.15), shape: BoxShape.circle),
-              child: Icon(icon, color: kPurple, size: 24),
+              decoration: const BoxDecoration(gradient: AppTheme.primaryGradient, shape: BoxShape.circle),
+              child: Icon(icon, color: Colors.white, size: 24),
             ),
             const SizedBox(height: 10),
             Text(label, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),

@@ -127,8 +127,6 @@ import { DriverReportIncidentPage } from '../pages/driver/DriverReportIncidentPa
 import { DriverIncidentsListPage } from '../pages/driver/DriverIncidentsListPage';
 import { DriverIncidentDetailsPage } from '../pages/driver/DriverIncidentDetailsPage';
 import { DriverIncidentSuccessPage } from '../pages/driver/DriverIncidentSuccessPage';
-import { DriverWorkOrdersPage } from '../pages/driver/DriverWorkOrdersPage';
-import { DriverWorkOrderDetailPage } from '../pages/driver/DriverWorkOrderDetailPage';
 import { DriverCreateWorkOrderPage } from '../pages/driver/DriverCreateWorkOrderPage';
 import { DriverDocumentsPage } from '../pages/driver/DriverDocumentsPage';
 import { DriverUploadDocumentPage } from '../pages/driver/DriverUploadDocumentPage';
@@ -437,7 +435,7 @@ const fleetManagerNavLinks = [
   { isHeader: true, label: 'Fleet & Telematics' },
   { label: 'Transit Routes', path: '/fleet-operator/routes', iconSvg: Icons.Trips, permission: 'fleet.routes.view' },
   { label: 'Vehicles & Displays', path: '/fleet-operator/vehicles', iconSvg: Icons.Vehicles, permission: 'fleet.vehicles.view' },
-  { label: 'Drivers & Staff', path: '/fleet-operator/drivers', iconSvg: Icons.Drivers, permission: 'fleet.drivers.view' },
+  { label: 'Drivers', path: '/fleet-operator/drivers', iconSvg: Icons.Drivers, permission: 'fleet.drivers.view' },
   { label: 'Vehicle Slots & Timetable', path: '/fleet-operator/slots', iconSvg: Icons.Slots, permission: 'fleet.slots.view' },
   { label: 'Edge Devices', path: '/fleet-operator/edge-devices', iconSvg: Icons.EdgeDevice, permission: 'fleet.devices.view' },
   { label: 'Live Telematics', path: '/fleet-operator/tracking', iconSvg: Icons.Tracking, permission: 'fleet.tracking.view' },
@@ -448,7 +446,6 @@ const fleetManagerNavLinks = [
 
   { isHeader: true, label: 'Analytics & Alerts' },
   { label: 'Analytics & Reports', path: '/fleet-operator/reports', iconSvg: Icons.Reports, permission: 'fleet.reports.view' },
-  { label: 'Activity Logs', path: '/fleet-operator/activity', iconSvg: Icons.Trips, permission: 'fleet.activity.view' },
   { label: 'Alerts & Events', path: '/fleet-operator/notifications', iconSvg: Icons.Notifications },
 
   { isHeader: true, label: 'Account & Support' },
@@ -543,7 +540,7 @@ const driverNavLinks = [
   { label: 'Driver Documents', path: '/driver/documents', iconSvg: Icons.Fleets, permission: 'driver.documents.view' },
 
   { isHeader: true, label: 'Alerts & Account' },
-  { label: 'Operational Alerts', path: '/driver/notifications', iconSvg: Icons.Notifications },
+  { label: 'Alerts & Notifications', path: '/driver/notifications', iconSvg: Icons.Notifications },
   { label: 'Driver Profile', path: '/driver/profile', iconSvg: Icons.Profile },
   { label: 'Account Settings', path: '/driver/settings', iconSvg: Icons.Terms },
   { label: 'Help & Documentation', path: '/driver/help', iconSvg: Icons.Help },
@@ -679,7 +676,7 @@ const adminNavLinks = [
   { label: 'Alerts & Messages', path: '/admin/notifications', iconSvg: Icons.Notifications },
 
   { isHeader: true, label: 'Finance & Billing' },
-  { label: 'SaaS Subscription & Quotas', path: '/admin/billing', iconSvg: Icons.Reports, permission: 'admin.billing.view' },
+  { label: 'Subscription', path: '/admin/billing', iconSvg: Icons.Reports, permission: 'admin.billing.view' },
 
   { isHeader: true, label: 'Settings & Legal' },
   { label: 'Profile', path: '/admin/profile', iconSvg: Icons.Profile },

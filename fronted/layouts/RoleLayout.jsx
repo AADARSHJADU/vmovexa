@@ -10,6 +10,7 @@ import { RefreshButton } from '../components/ui/RefreshButton';
 import { useAuth } from '../hooks/useAuth';
 import billingService from '../api/services/billing.service';
 import { storage } from '../utils/storage';
+import { copyToClipboard } from '../utils/clipboard';
 import { resolveFileUrl } from '../api/services/upload.service';
 import { useNotifications } from '../hooks/shared/useNotifications';
 import toast from 'react-hot-toast';
@@ -38,8 +39,9 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
     localStorage.setItem('vmovexa_sidebar_collapsed', isCollapsed);
   }, [isCollapsed]);
 
-  const { notifications = [] } = useNotifications();
+  useNotifications();
   const { user, logout, fetchMe, hasPermission, isImpersonating, impersonationTarget, stopImpersonation } = useAuth();
+  const enrollmentNo = user?.enrollment_no || user?.enrollmentNo;
 
   const superWorkOrders = useAppSelector((state) => state.superTechnician?.workOrders || []);
   const adminWorkOrders = useAppSelector((state) => state.adminTechnicianRequest?.workOrders || []);
@@ -164,7 +166,7 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
       'Fleet Management': t('nav.fleets', 'Fleet Management'),
       'Fleet Operator': t('nav.fleet_operator', 'Fleet Operator'),
       'Fleet Operators': t('nav.fleet_operator', 'Fleet Operator'),
-      'Drivers & Staff': t('nav.drivers', 'Drivers & Staff'),
+      'Drivers & Staff': t('nav.drivers', 'Drivers'),
       'Drivers': t('nav.drivers', 'Drivers'),
       'GPS / Edge Units': t('nav.gps', 'GPS Assignments'),
       'GPS Assignments': t('nav.gps_assignments', 'GPS Assignments'),
@@ -184,6 +186,7 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
       'Alerts & Messages': t('common.alerts', 'Alerts & Messages'),
       'Critical Alerts': t('nav.critical_alerts', 'Critical Alerts'),
       'Operational Alerts': t('nav.operational_alerts', 'Operational Alerts'),
+      'Alerts & Notifications': t('nav.alerts_notifications', 'Alerts & Notifications'),
       'Financial Alerts': t('nav.financial_alerts', 'Financial Alerts'),
       'Hardware Configuration': t('nav.hardware_config', 'Hardware Configuration'),
       'Hardware Status': t('nav.hardware_status', 'Hardware Status'),
@@ -215,7 +218,8 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
       'Govt Agencies': t('nav.govt_agencies', 'Govt Agencies'),
       'Finance Officers': t('nav.finance_officers', 'Finance Officers'),
       'Subscription Plans': t('nav.subscription_plans', 'Subscription Plans'),
-      'SaaS Subscription & Quotas': t('nav.saas_subscription___quotas', 'SaaS Subscription & Quotas'),
+      'Subscription': t('nav.subscription', 'Subscription'),
+      'SaaS Subscription & Quotas': t('nav.subscription', 'Subscription'),
       'Transactions': t('nav.transactions', 'Transactions'),
       'Create New Campaign': t('campaigns.create_new', 'Create New Campaign'),
       'Campaign Analytics': t('nav.campaign_analytics', 'Campaign Analytics'),
@@ -365,7 +369,10 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
     return () => window.cancelAnimationFrame(frameId);
   }, [location.pathname, mobileMenuOpen, filteredNavLinks]);
 
-  const isPendingApproval = user?.status === 'pending_approval';
+  const organizationStatus = user?.organization?.status || user?.org?.status;
+  const isRejected = user?.status === 'rejected' || organizationStatus === 'rejected';
+  const isPendingApproval =
+    user?.status === 'pending_approval' || organizationStatus === 'pending_approval' || isRejected;
   const isAwaitingSubscription = user?.status === 'awaiting_subscription';
   const sub = user?.organization?.subscription;
   const currentPeriodEnd = sub?.current_period_end ? new Date(sub.current_period_end) : null;
@@ -396,7 +403,9 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
               refreshToken: checkRes.tokens.refreshToken,
             });
           }
-        } catch (_) {}
+        } catch {
+          // Continue with the regular session refresh when billing status is unavailable.
+        }
       }
 
       const refreshed = await fetchMe();
@@ -407,6 +416,8 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
       } else if (currentStatus === 'awaiting_subscription') {
         toast.success(t('layout.approved_choose_plan', 'Approved! Please choose your subscription plan.'));
         navigate('/admin/subscription', { replace: true });
+      } else if (currentStatus === 'rejected') {
+        toast.error(t('admin.onboard.application_rejected_open_notifications', 'Application rejected. Open Alerts & Messages to read the Super Admin notification.'));
       } else {
         toast(t('layout.still_under_review', 'Your application is still under review by Super Admin.'), { icon: '⏳' });
       }
@@ -430,10 +441,20 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
           error: t('layout.session_restored', 'Restored Super Admin session.'),
         }
       );
-    } catch (_) {
+    } catch {
       navigate('/superadmin/tenants');
     } finally {
       setExitingImpersonation(false);
+    }
+  };
+
+  const handleCopyEnrollmentNo = async () => {
+    if (!enrollmentNo) return;
+    const copied = await copyToClipboard(enrollmentNo);
+    if (copied) {
+      toast.success(t('common.enrollment_copied', 'Enrollment number copied!'));
+    } else {
+      toast.error(t('common.copy_failed', 'Could not copy enrollment number.'));
     }
   };
 
@@ -544,7 +565,9 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
             const isActive = (location.pathname === link.path || isPrefixActive) && !hasMoreSpecificMatch;
             const translatedLabel = getNavLabel(link.label);
 
-            if (isNavDisabled) {
+            const isRejectionNotificationLink = isRejected && link.path === '/admin/notifications';
+
+            if (isNavDisabled && !isRejectionNotificationLink) {
               return (
                 <div
                   key={link.id ? `nav-d-${link.id}` : `${link.path || 'nav-d'}-${index}`}
@@ -752,7 +775,9 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
                 const isActive = (location.pathname === link.path || isPrefixActive) && !hasMoreSpecificMatch;
                 const translatedLabel = getNavLabel(link.label);
 
-                if (isNavDisabled) {
+                const isRejectionNotificationLink = isRejected && link.path === '/admin/notifications';
+
+                if (isNavDisabled && !isRejectionNotificationLink) {
                   return (
                     <div
                       key={link.id ? `mob-d-${link.id}` : `${link.path || 'mob-d'}-${index}`}
@@ -878,7 +903,7 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
               {isTenantLocked && (
                 <span className="ml-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 flex items-center gap-1.5 shadow-sm">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                  <span>{isPendingApproval ? t('ag.driver.driverdashboard.approval_pending', 'Approval Pending') : isSubscriptionExpired ? t('layout.subscription_expired', 'Subscription Expired') : t('layout.subscription_required', 'Subscription Required')}</span>
+                  <span>{isRejected ? t('common.rejected', 'Application Rejected') : isPendingApproval ? t('ag.driver.driverdashboard.approval_pending', 'Approval Pending') : isSubscriptionExpired ? t('layout.subscription_expired', 'Subscription Expired') : t('layout.subscription_required', 'Subscription Required')}</span>
                 </span>
               )}
             </div>
@@ -922,51 +947,67 @@ export const RoleLayout = ({ roleTitle, navLinks = [], disabledNav = false }) =>
               )}
             </button>
 
-            {/* Profile Link */}
-            <Link 
-              to={
-                isTenantLocked
-                  ? (isPendingApproval ? '/admin/pending-approval' : '/admin/subscription')
-                  : roleTitle === 'Super Admin'
-                  ? '/superadmin/profile'
-                  : roleTitle === 'Organization Admin' || roleTitle === 'Admin'
-                  ? '/admin/profile'
-                  : (roleTitle === 'Government Authority' || roleTitle === 'Government Agency' || (roleTitle || '').toLowerCase().includes('government'))
-                  ? '/government/profile'
-                  : roleTitle === 'Advertiser' 
-                  ? '/advertiser/profile' 
-                  : roleTitle === 'Technician'
-                  ? '/technician/profile'
-                  : roleTitle === 'Driver'
-                  ? '/driver/profile'
-                  : roleTitle === 'Finance' || roleTitle === 'Finance Officer'
-                  ? '/finance/profile'
-                  : '/fleet-operator/profile'
-              } 
-              className="flex items-center gap-2.5 pl-2 group"
-            >
-              <img
-                src={
-                  (user?.avatar_url || user?.avatarUrl)
-                    ? resolveFileUrl(user.avatar_url || user.avatarUrl)
-                    : `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || roleTitle)}&background=0f172a&color=ffffff`
+            {/* Profile summary — only the avatar navigates to the profile. */}
+            <div className="flex items-center gap-2.5 pl-2">
+              <Link
+                to={
+                  isTenantLocked
+                    ? (isPendingApproval ? '/admin/pending-approval' : '/admin/subscription')
+                    : roleTitle === 'Super Admin'
+                    ? '/superadmin/profile'
+                    : roleTitle === 'Organization Admin' || roleTitle === 'Admin'
+                    ? '/admin/profile'
+                    : (roleTitle === 'Government Authority' || roleTitle === 'Government Agency' || (roleTitle || '').toLowerCase().includes('government'))
+                    ? '/government/profile'
+                    : roleTitle === 'Advertiser'
+                    ? '/advertiser/profile'
+                    : roleTitle === 'Technician'
+                    ? '/technician/profile'
+                    : roleTitle === 'Driver'
+                    ? '/driver/profile'
+                    : roleTitle === 'Finance' || roleTitle === 'Finance Officer'
+                    ? '/finance/profile'
+                    : '/fleet-operator/profile'
                 }
-                onError={(e) => {
-                  e.currentTarget.onerror = null;
-                  e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || roleTitle)}&background=0f172a&color=ffffff`;
-                }}
-                alt={user?.name || roleTitle}
-                className="w-9 h-9 rounded-xl object-cover border border-slate-200 dark:border-zinc-800 shadow-sm shrink-0 group-hover:ring-2 group-hover:ring-slate-300 dark:group-hover:ring-zinc-700 transition-all bg-slate-100 dark:bg-zinc-800"
-              />
+                className="group shrink-0 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                aria-label={t('common.open_profile', 'Open profile')}
+                title={t('common.open_profile', 'Open profile')}
+              >
+                <img
+                  src={
+                    (user?.avatar_url || user?.avatarUrl)
+                      ? resolveFileUrl(user.avatar_url || user.avatarUrl)
+                      : `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || roleTitle)}&background=0f172a&color=ffffff`
+                  }
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || roleTitle)}&background=0f172a&color=ffffff`;
+                  }}
+                  alt={user?.name || roleTitle}
+                  className="w-9 h-9 rounded-xl object-cover border border-slate-200 dark:border-zinc-800 shadow-sm group-hover:ring-2 group-hover:ring-slate-300 dark:group-hover:ring-zinc-700 transition-all bg-slate-100 dark:bg-zinc-800"
+                />
+              </Link>
               <div className="hidden lg:block text-left">
-                <div className="text-xs font-bold leading-tight text-slate-900 dark:text-zinc-100 group-hover:text-slate-700 dark:group-hover:text-zinc-300 transition-colors">
+                <div className="text-xs font-bold leading-tight text-slate-900 dark:text-zinc-100">
                   {user?.name || user?.fullName || roleTitle || t('superadmin.users.th_user', 'User')}
                 </div>
                 <div className="text-[10px] text-slate-500 dark:text-zinc-400 leading-tight font-medium">
                   {isTenantLocked ? (user?.organization?.name || user?.org?.name || t('superadmin.tenant_details.badge_pending_verification', 'Pending Verification')) : (user?.organization?.name || user?.org?.name || t(`roles.${roleTitle.toLowerCase().replace(/[^a-z0-9]/g, '_')}`, roleTitle))}
                 </div>
+                {enrollmentNo && (
+                  <button
+                    type="button"
+                    onClick={handleCopyEnrollmentNo}
+                    className="group/copy inline-flex items-center gap-1 text-[9px] text-slate-400 hover:text-blue-600 dark:text-zinc-500 dark:hover:text-blue-400 leading-tight font-mono font-semibold tracking-tight transition-colors cursor-copy focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 rounded"
+                    title={`${t('common.copy', 'Copy')} ${t('common.enrollment_id', 'Enrollment ID')}: ${enrollmentNo}`}
+                    aria-label={`${t('common.copy', 'Copy')} ${t('common.enrollment_id', 'Enrollment ID')} ${enrollmentNo}`}
+                  >
+                    <span>{enrollmentNo}</span>
+                    <FleetIcons.Copy className="w-2.5 h-2.5 opacity-60 group-hover/copy:opacity-100" />
+                  </button>
+                )}
               </div>
-            </Link>
+            </div>
           </div>
         </header>
         

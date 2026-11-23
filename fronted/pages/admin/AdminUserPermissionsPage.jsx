@@ -38,7 +38,7 @@ export const AdminUserPermissionsPage = () => {
       {/* Breadcrumb Navigation with URL ID */}
       <Breadcrumb
         items={[
-          { label: t('nav.admin') || 'Tenant Admin', path: '/admin/dashboard' },
+          { label: t('ag.admin.admin_operations', 'Admin Operations'), path: '/admin/dashboard' },
           { label: t('admin.users.users_and_team') || 'Users & Team', path: '/admin/users' },
           { label: `${t('admin.users.permissions_for') || 'Permissions'} (${userName})` },
         ]}

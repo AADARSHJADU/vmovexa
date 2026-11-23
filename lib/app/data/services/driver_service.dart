@@ -90,9 +90,13 @@ class DriverService extends GetxService {
   }
 
   /// 4. GET /me/driver/active-route — Currently active route
-  Future<ApiResponseModel<DriverActiveRouteData>> getActiveRoute() async {
+  Future<ApiResponseModel<DriverActiveRouteData>> getActiveRoute({int? slotId}) async {
+    final query = <String, String>{
+      if (slotId != null && slotId > 0) 'slotId': slotId.toString(),
+    };
     return _http.get<DriverActiveRouteData>(
       ApiConstants.driverActiveRoute,
+      queryParams: query.isNotEmpty ? query : null,
       requiresAuth: true,
       create: (data) {
         if (data is Map) {
@@ -156,6 +160,8 @@ class DriverService extends GetxService {
     int page = 1,
     int limit = 20,
     String? status,
+    String? search,
+    String? period,
     String? dateFrom,
     String? dateTo,
   }) async {
@@ -163,21 +169,51 @@ class DriverService extends GetxService {
       'page': page,
       'limit': limit,
       if (status != null && status.isNotEmpty) 'status': status,
+      if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
+      if (period != null && period.isNotEmpty && period != 'all') 'period': period,
       if (dateFrom != null && dateFrom.isNotEmpty) 'date_from': dateFrom,
       if (dateTo != null && dateTo.isNotEmpty) 'date_to': dateTo,
     };
 
-    return _http.get<DriverTripHistoryData>(
+    final res = await _http.get<DriverTripHistoryData>(
       ApiConstants.driverTrips,
       queryParams: queryParams,
       requiresAuth: true,
-      create: (data) {
-        if (data is Map) {
-          return DriverTripHistoryData.fromJson(Map<String, dynamic>.from(data));
-        }
-        return DriverTripHistoryData();
-      },
+      create: (data) => DriverTripHistoryData.fromDynamic(
+        data,
+        fallbackPage: page,
+        fallbackLimit: limit,
+      ),
     );
+
+    // If meta pagination is returned by backend, ensure it syncs with data
+    if (res.success && res.data != null && res.meta != null) {
+      final pagination = res.meta?['pagination'] is Map ? res.meta!['pagination'] as Map : null;
+      if (pagination != null) {
+        final total = pagination['total'] is num ? (pagination['total'] as num).toInt() : res.data!.count;
+        final totalP = pagination['totalPages'] is num ? (pagination['totalPages'] as num).toInt() : res.data!.totalPages;
+        final curP = pagination['page'] is num ? (pagination['page'] as num).toInt() : res.data!.currentPage;
+        final pSize = pagination['limit'] is num ? (pagination['limit'] as num).toInt() : res.data!.pageSize;
+
+        return ApiResponseModel<DriverTripHistoryData>(
+          success: res.success,
+          message: res.message,
+          data: DriverTripHistoryData(
+            rows: res.data!.rows,
+            count: total,
+            totalPages: totalP > 0 ? totalP : 1,
+            currentPage: curP > 0 ? curP : 1,
+            pageSize: pSize > 0 ? pSize : limit,
+          ),
+          error: res.error,
+          errors: res.errors,
+          statusCode: res.statusCode,
+          meta: res.meta,
+        );
+      }
+    }
+
+    return res;
   }
 
   /// 6. GET /me/driver/documents — List uploaded documents
@@ -345,10 +381,10 @@ class DriverService extends GetxService {
 
   /// 12. POST /me/driver/incidents — Report a new incident
   Future<ApiResponseModel<DriverIncidentItem>> reportIncident({
-    String? incidentType,
+    required String incidentType,
     String? title,
     String? description,
-    String? severity, // low, medium, high, critical
+    String? severity, // Low, Medium, High, Critical
     dynamic location, // string or Map with lat/lng/address
     String? landmark,
     double? latitude,
@@ -372,10 +408,10 @@ class DriverService extends GetxService {
     String? roadType,
     String? trafficDisruptionLevel,
   }) async {
-    final effectiveType = incidentType ?? title ?? 'Vehicle Incident';
-    final effectivePhotos = (photos != null && photos.isNotEmpty)
+    final photoList = (photos != null && photos.isNotEmpty)
         ? photos
         : (mediaUrls ?? <String>[]);
+    final videoList = videos ?? <String>[];
 
     String? locString;
     double? lat = latitude;
@@ -392,40 +428,47 @@ class DriverService extends GetxService {
     }
 
     final body = <String, dynamic>{
-      'incidentType': effectiveType,
-      if (title != null && title.isNotEmpty) 'title': title,
-      if (description != null && description.isNotEmpty) 'description': description,
-      if (severity != null && severity.isNotEmpty) 'severity': severity,
-      if (locString != null && locString.isNotEmpty) 'location': locString,
-      if (landmark != null && landmark.isNotEmpty) 'landmark': landmark,
+      'incidentType': incidentType,
+      'description': description ?? '',
+      'location': locString ?? '',
+      'landmark': landmark ?? '',
+      'severity': severity ?? 'Low',
+      'affectedParties': affectedParties ?? ['Driver'],
+      'immediateAction': immediateAction ?? '',
+      'contactPreference': contactPreference ?? 'Yes',
+      'contactNumber': contactNumber ?? '',
+      'photos': photoList,
+      'photosCount': photoList.length,
+      'videos': videoList,
+      'videosCount': videoList.length,
+      'deadCasualty': deadCasualty ?? 0,
+      'injuredCount': injuredCount ?? 0,
+      'hospitalName': hospitalName ?? '',
+      'ambulanceAssigned': ambulanceAssigned ?? false,
+      'ambulanceTiming': ambulanceTiming ?? '',
+      'policeNotified': policeNotified ?? false,
+      'policeStationName': policeStationName ?? '',
+      'towingRequested': towingRequested ?? false,
+      'weatherConditions': weatherConditions ?? 'Clear',
+      'roadType': roadType ?? 'City Street',
+      'trafficDisruptionLevel': trafficDisruptionLevel ?? 'none',
       'latitude': ?lat,
       'longitude': ?lng,
-      if (effectivePhotos.isNotEmpty) 'photos': effectivePhotos,
-      if (videos != null && videos.isNotEmpty) 'videos': videos,
-      if (affectedParties != null && affectedParties.isNotEmpty) 'affectedParties': affectedParties,
-      if (immediateAction != null && immediateAction.isNotEmpty) 'immediateAction': immediateAction,
-      if (contactPreference != null && contactPreference.isNotEmpty) 'contactPreference': contactPreference,
-      if (contactNumber != null && contactNumber.isNotEmpty) 'contactNumber': contactNumber,
-      'deadCasualty': ?deadCasualty,
-      'injuredCount': ?injuredCount,
-      if (hospitalName != null && hospitalName.isNotEmpty) 'hospitalName': hospitalName,
-      'ambulanceAssigned': ?ambulanceAssigned,
-      if (ambulanceTiming != null && ambulanceTiming.isNotEmpty) 'ambulanceTiming': ambulanceTiming,
-      'policeNotified': ?policeNotified,
-      if (policeStationName != null && policeStationName.isNotEmpty) 'policeStationName': policeStationName,
-      'towingRequested': ?towingRequested,
-      if (weatherConditions != null && weatherConditions.isNotEmpty) 'weatherConditions': weatherConditions,
-      if (roadType != null && roadType.isNotEmpty) 'roadType': roadType,
-      if (trafficDisruptionLevel != null && trafficDisruptionLevel.isNotEmpty) 'trafficDisruptionLevel': trafficDisruptionLevel,
     };
+
+    debugPrint('🚀 [DriverService.reportIncident] Sending payload: $body');
 
     return _http.post<DriverIncidentItem>(
       ApiConstants.driverIncidents,
       body: body,
       requiresAuth: true,
       create: (data) {
+        debugPrint('🔍 [DriverService.reportIncident] Server response data: $data');
         if (data is Map) {
-          return DriverIncidentItem.fromJson(Map<String, dynamic>.from(data));
+          final target = (data['incident'] is Map)
+              ? Map<String, dynamic>.from(data['incident'] as Map)
+              : Map<String, dynamic>.from(data);
+          return DriverIncidentItem.fromJson(target);
         }
         return DriverIncidentItem();
       },

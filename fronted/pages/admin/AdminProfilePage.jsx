@@ -1,9 +1,8 @@
-import React, { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { FleetIcons } from '../../components/FleetIcons';
 import { useAuth } from '../../hooks/useAuth';
-import { useAdminDashboard } from '../../hooks/admin/useAdminDashboard';
 import { uploadFile, resolveFileUrl } from '../../api/services/upload.service';
 import { Breadcrumb } from '../../components/ui/Breadcrumb';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -13,12 +12,7 @@ export const AdminProfilePage = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const { user, updateProfile, fetchMe, logout } = useAuth();
-  const { kpis, loadKpis } = useAdminDashboard();
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-
-  useEffect(() => {
-    loadKpis().catch(() => {});
-  }, [loadKpis]);
 
   const orgName = user?.organization?.name || user?.org?.name || '';
   const rawAvatarUrl = user?.avatar_url || user?.avatarUrl || user?.avatar;
@@ -104,7 +98,7 @@ export const AdminProfilePage = () => {
         <div>
           <Breadcrumb
             items={[
-              { label: t('nav.admin') || 'Admin', path: '/admin/dashboard' },
+              { label: t('ag.admin.admin_operations', 'Admin Operations'), path: '/admin/dashboard' },
               { label: t('admin.profile.title') }
             ]}
             className="mb-2"
@@ -117,7 +111,7 @@ export const AdminProfilePage = () => {
 
         <Link
           to="/admin/settings"
-          className="px-4 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-slate-900 text-xs font-bold rounded-xl shadow-sm transition-all self-start sm:self-auto flex items-center gap-1.5 cursor-pointer"
+          className="px-4 py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white text-xs font-bold rounded-xl shadow-sm transition-all self-start sm:self-auto flex items-center gap-1.5 cursor-pointer"
         >
           <FleetIcons.Settings className="w-4 h-4" />
           <span>{t('admin.profile.edit_profile')}</span>
@@ -183,36 +177,6 @@ export const AdminProfilePage = () => {
                 {t('admin.profile.remove_photo')}
               </button>
             )}
-          </div>
-        </div>
-      </div>
-
-      {/* 4 Stat Strip — Dynamic from Real KPI Endpoint */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-4 shadow-sm">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">{t('admin.profile.total_buses')}</span>
-          <div className="text-xl font-black text-slate-900 dark:text-white mt-1">
-            {kpis?.totalBuses !== undefined ? `${kpis.totalBuses} Buses` : '—'}
-          </div>
-        </div>
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-4 shadow-sm">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">{t('admin.profile.active_screens')}</span>
-          <div className="text-xl font-black text-blue-700 dark:text-blue-400 mt-1">
-            {kpis?.activeDisplays !== undefined ? `${kpis.activeDisplays} Screens` : '—'}
-          </div>
-        </div>
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-4 shadow-sm">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">{t('admin.profile.ad_revenue_share')}</span>
-          <div className="text-xl font-black text-emerald-700 dark:text-emerald-400 mt-1">
-            {kpis?.tenantMonthlyRevenueShare !== undefined
-              ? `₹ ${Number(kpis.tenantMonthlyRevenueShare || 0).toLocaleString('en-IN')}`
-              : '₹ 0'}
-          </div>
-        </div>
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-4 shadow-sm">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">{t('admin.profile.total_drivers')}</span>
-          <div className="text-xl font-black text-purple-700 dark:text-purple-400 mt-1">
-            {kpis?.totalDrivers !== undefined ? `${kpis.totalDrivers} Drivers` : '—'}
           </div>
         </div>
       </div>

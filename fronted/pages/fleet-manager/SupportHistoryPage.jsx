@@ -65,30 +65,30 @@ export const SupportHistoryPage = () => {
 
   return (
     <div className="w-full space-y-6 pb-20">
-      {/* 1. Global Standard Breadcrumb Navigation */}
-      <Breadcrumb
-        items={[
-          { label: t('ag.fleet.supporthistorypage.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
-          { label: t('ag.fleet.supporthistorypage.helpdesk', 'Helpdesk'), path: '/fleet-operator/help' },
-          { label: t('ag.fleet.supporthistorypage.support_history', 'Support History') },
-        ]}
-        className="mb-2"
-      />
-
       {/* Header Banner */}
-      <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm transition-colors">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => navigate('/fleet-operator/help')}
-            className="p-2.5 rounded-xl border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
-            title={t('fleet.support.back_helpdesk')}
-          >
-            <FleetIcons.ArrowLeft className="w-4 h-4" />
-          </button>
-          <div>
-            <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('fleet.support.title')}</h1>
-            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">{t('fleet.support.subtitle')}</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+        <div>
+          <Breadcrumb
+            items={[
+              { label: t('roles.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
+              { label: t('common.help_support', 'Help & Documentation'), path: '/fleet-operator/help' },
+              { label: t('fleet.support.history_title', 'Support History') },
+            ]}
+            className="mb-2"
+          />
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => navigate('/fleet-operator/help')}
+              className="p-2.5 rounded-xl border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
+              title={t('fleet.support.back_helpdesk')}
+            >
+              <FleetIcons.ArrowLeft className="w-4 h-4" />
+            </button>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('fleet.support.title')}</h1>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-0.5">{t('fleet.support.subtitle')}</p>
+            </div>
           </div>
         </div>
 

@@ -10,8 +10,14 @@ export function AdminAccessGate() {
   const orgStatus = org?.status;
   const sub = org?.subscription;
 
-  // Tenant is pending approval if either user or their organization is in pending_approval
-  const isPendingApproval = status === 'pending_approval' || orgStatus === 'pending_approval';
+  // Rejected tenants remain authenticated, but must go back through the same
+  // locked onboarding screen as a newly-created tenant. The rejection itself
+  // is communicated through the notification system.
+  const isApprovalLocked =
+    status === 'pending_approval' ||
+    status === 'rejected' ||
+    orgStatus === 'pending_approval' ||
+    orgStatus === 'rejected';
 
   // Tenant is awaiting subscription/payment if user is awaiting or organization is approved/awaiting_subscription
   const isAwaitingSubscription =
@@ -30,9 +36,15 @@ export function AdminAccessGate() {
   );
 
   const isPendingApprovalRoute = location.pathname === '/admin/pending-approval';
+  const isNotificationsRoute = location.pathname === '/admin/notifications';
   const isSubscriptionRoute = location.pathname === '/admin/subscription';
 
-  if (isPendingApproval && !isPendingApprovalRoute) {
+  // Rejected tenants may read the Super Admin message, but operational pages
+  // stay locked behind the onboarding gate.
+  const canReadRejectionNotification =
+    (status === 'rejected' || orgStatus === 'rejected') && isNotificationsRoute;
+
+  if (isApprovalLocked && !isPendingApprovalRoute && !canReadRejectionNotification) {
     return <Navigate to="/admin/pending-approval" replace />;
   }
 
@@ -45,7 +57,7 @@ export function AdminAccessGate() {
   }
 
   // If already approved, bounce away from pending-approval route
-  if (!isPendingApproval && isPendingApprovalRoute) {
+  if (!isApprovalLocked && isPendingApprovalRoute) {
     return <Navigate to="/admin/dashboard" replace />;
   }
 

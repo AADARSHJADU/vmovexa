@@ -46,7 +46,6 @@ export const PaymentsListPage = () => {
     if (activeTab === 'paid') params.status = 'success';
     else if (activeTab === 'pending') params.status = 'pending,created';
     else if (activeTab === 'failed') params.status = 'failed';
-    else if (activeTab === 'refunded') params.status = 'refunded';
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== '') params[key] = value;
     });
@@ -75,12 +74,37 @@ export const PaymentsListPage = () => {
   };
 
   const stats = paymentsPagination?.stats || {};
+  const filterOptions = paymentsPagination?.filterOptions || {};
+
+  const dynamicPayerOptions = useMemo(() => {
+    const values = Array.isArray(filterOptions.payerTypes) ? [...filterOptions.payerTypes] : [];
+    if (filters.payerType && !values.includes(filters.payerType)) values.push(filters.payerType);
+    return values.map((val) => [val, formatPayerLabel(val, t)]);
+  }, [filterOptions.payerTypes, filters.payerType, t]);
+
+  const dynamicPurposeOptions = useMemo(() => {
+    const values = Array.isArray(filterOptions.purposes) ? [...filterOptions.purposes] : [];
+    if (filters.purpose && !values.includes(filters.purpose)) values.push(filters.purpose);
+    return values.map((val) => [val, formatPurposeLabel(val, t)]);
+  }, [filterOptions.purposes, filters.purpose, t]);
+
+  const dynamicMethodOptions = useMemo(() => {
+    const values = Array.isArray(filterOptions.methods) ? [...filterOptions.methods] : [];
+    if (filters.method && !values.includes(filters.method)) values.push(filters.method);
+    return values.map((val) => [val, formatMethodLabel(val)]);
+  }, [filterOptions.methods, filters.method]);
+
+  const dynamicChannelOptions = useMemo(() => {
+    const values = Array.isArray(filterOptions.paymentModes) ? [...filterOptions.paymentModes] : [];
+    if (filters.paymentMode && !values.includes(filters.paymentMode)) values.push(filters.paymentMode);
+    return values.map((val) => [val, formatChannelLabel(val, t)]);
+  }, [filterOptions.paymentModes, filters.paymentMode, t]);
+
   const filterTabs = [
     { id: 'all', label: t('common.all', 'All'), count: stats.all ?? (activeTab === 'all' ? totalItems : 0) },
     { id: 'paid', label: t('common.paid', 'Paid'), count: stats.successful ?? (activeTab === 'paid' ? totalItems : 0) },
     { id: 'pending', label: t('common.pending', 'Pending'), count: stats.pending ?? (activeTab === 'pending' ? totalItems : 0) },
     { id: 'failed', label: t('common.failed', 'Failed'), count: stats.failed ?? (activeTab === 'failed' ? totalItems : 0) },
-    { id: 'refunded', label: t('common.refunded', 'Refunded'), count: stats.refunded ?? (activeTab === 'refunded' ? totalItems : 0) },
   ];
 
   const activeFilterCount = Object.values(filters).filter((value) => value !== '').length;
@@ -210,28 +234,28 @@ export const PaymentsListPage = () => {
               label={t('finance.payments.filter_payer_type', 'Payer type')}
               value={filters.payerType}
               onChange={(value) => updateFilter('payerType', value)}
-              options={PAYERS.map(p => [p[0], t(p[1], p[2])])}
+              options={dynamicPayerOptions}
               allLabel={t('common.all', 'All')}
             />
             <FilterSelect
               label={t('finance.payments.filter_purpose', 'Purpose')}
               value={filters.purpose}
               onChange={(value) => updateFilter('purpose', value)}
-              options={PURPOSES.map(p => [p[0], t(p[1], p[2])])}
+              options={dynamicPurposeOptions}
               allLabel={t('common.all', 'All')}
             />
             <FilterSelect
               label={t('finance.payments.filter_method', 'Payment method')}
               value={filters.method}
               onChange={(value) => updateFilter('method', value)}
-              options={METHODS}
+              options={dynamicMethodOptions}
               allLabel={t('common.all', 'All')}
             />
             <FilterSelect
               label={t('finance.payments.filter_channel', 'Channel')}
               value={filters.paymentMode}
               onChange={(value) => updateFilter('paymentMode', value)}
-              options={[['online', t('finance.channels.online', 'Online')], ['offline', t('finance.channels.offline', 'Offline')]]}
+              options={dynamicChannelOptions}
               allLabel={t('common.all', 'All')}
             />
             <FilterInput
@@ -295,12 +319,27 @@ export const PaymentsListPage = () => {
                 {currentPayments.map((pay) => {
                   const formattedDate = pay.paid_at
                     ? new Date(pay.paid_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
-                    : (pay.created_at ? new Date(pay.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—');
+                    : '—';
+                  const clientName =
+                    pay.invoice?.customer_name ||
+                    pay.campaign?.client_name ||
+                    pay.campaign?.client_company ||
+                    pay.organization?.name ||
+                    pay.customer_name ||
+                    '—';
+                  const metaLine = [pay.payer_type, pay.purpose]
+                    .filter(Boolean)
+                    .map((val) => String(val).replace(/_/g, ' '))
+                    .join(' · ');
+                  const displayMethod =
+                    pay.payment_mode === 'offline'
+                      ? (pay.offline_method || pay.method || null)
+                      : (pay.method || pay.offline_method || null);
 
                   return (
                     <tr key={pay.id} className="hover:bg-slate-50/70 dark:hover:bg-zinc-800/50 transition-colors">
                       <td className="py-3.5 px-4 font-mono font-bold text-slate-900 dark:text-white">
-                        {pay.code || pay.gateway_ref || pay.gateway_payment_id || pay.txn_ref || `PAY-${pay.id}`}
+                        {pay.code || pay.utr_number || pay.reference_number || pay.gateway_ref || '—'}
                       </td>
                       <td className="py-3.5 px-4">
                         {pay.invoice ? (
@@ -310,7 +349,7 @@ export const PaymentsListPage = () => {
                           >
                             {pay.invoice.code}
                           </Link>
-                        ) : pay.campaign ? (
+                        ) : pay.campaign?.code ? (
                           <span className="font-mono text-xs font-semibold text-slate-700 dark:text-zinc-300">
                             {pay.campaign.code}
                           </span>
@@ -319,23 +358,22 @@ export const PaymentsListPage = () => {
                         )}
                       </td>
                       <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-white">
-                        <div>{pay.invoice?.customer_name || pay.campaign?.client_name || pay.campaign?.client_company || pay.customer_name || t('finance.campaign_payments.client_fallback', 'Client')}</div>
-                        <div className="mt-0.5 text-[10px] font-medium text-slate-400 dark:text-zinc-500 uppercase tracking-wide">
-                          {String(pay.payer_type || 'tenant').replace(/_/g, ' ')} · {String(pay.purpose || 'settlement').replace(/_/g, ' ')}
-                        </div>
-                      </td>
-                      <td className="py-3.5 px-4 font-black text-slate-900 dark:text-white font-mono text-sm">
-                        <div>₹{Number(pay.amount || 0).toLocaleString('en-IN')}</div>
-                        {pay.invoice && (
-                          <div className="mt-0.5 text-[10px] font-medium text-slate-400 dark:text-zinc-500 whitespace-nowrap">
-                            {t('ag.finance.paymentslistpage.base', 'Base ₹')}{Number(pay.invoice.subtotal || 0).toLocaleString('en-IN')} {t('ag.finance.paymentslistpage.tax', '· Tax ₹')}{Number(pay.invoice.tax_amount || 0).toLocaleString('en-IN')}
+                        <div>{clientName}</div>
+                        {metaLine && (
+                          <div className="mt-0.5 text-[10px] font-medium text-slate-400 dark:text-zinc-500 uppercase tracking-wide">
+                            {metaLine}
                           </div>
                         )}
                       </td>
+                      <td className="py-3.5 px-4 font-black text-slate-900 dark:text-white font-mono text-sm">
+                        <div>{pay.amount != null ? `₹${Number(pay.amount).toLocaleString('en-IN')}` : '—'}</div>
+                      </td>
                       <td className="py-3.5 px-4 text-slate-600 dark:text-zinc-400">{formattedDate}</td>
                       <td className="py-3.5 px-4 text-slate-600 dark:text-zinc-400 capitalize">
-                        <div>{String(pay.method || pay.offline_method || t('finance.payments.not_recorded', 'Not recorded')).replace(/_/g, ' ')}</div>
-                        <div className="text-[10px] text-slate-400 dark:text-zinc-500 uppercase">{pay.payment_mode || 'online'}</div>
+                        <div>{displayMethod ? String(displayMethod).replace(/_/g, ' ') : '—'}</div>
+                        {pay.payment_mode && (
+                          <div className="text-[10px] text-slate-400 dark:text-zinc-500 uppercase">{pay.payment_mode}</div>
+                        )}
                       </td>
                       <td className="py-3.5 px-4">
                         <span className={`px-2 py-0.5 rounded-md font-bold text-[11px] border ${getStatusBadge(pay.status)}`}>
@@ -381,8 +419,22 @@ export const PaymentsListPage = () => {
             {currentPayments.map((pay) => {
               const formattedDate = pay.paid_at
                 ? new Date(pay.paid_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
-                : (pay.created_at ? new Date(pay.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—');
-              const clientName = pay.invoice?.customer_name || pay.campaign?.client_name || pay.campaign?.client_company || pay.customer_name || t('finance.campaign_payments.client_fallback', 'Client');
+                : '—';
+              const clientName =
+                pay.invoice?.customer_name ||
+                pay.campaign?.client_name ||
+                pay.campaign?.client_company ||
+                pay.organization?.name ||
+                pay.customer_name ||
+                '—';
+              const metaLine = [pay.payer_type, pay.purpose]
+                .filter(Boolean)
+                .map((val) => String(val).replace(/_/g, ' '))
+                .join(' · ');
+              const displayMethod =
+                pay.payment_mode === 'offline'
+                  ? (pay.offline_method || pay.method || null)
+                  : (pay.method || pay.offline_method || null);
 
               return (
                 <div
@@ -393,10 +445,12 @@ export const PaymentsListPage = () => {
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
                         <span className="font-mono text-xs font-bold text-blue-700 dark:text-blue-400">
-                          {pay.code || pay.gateway_ref || pay.gateway_payment_id || pay.txn_ref || `PAY-${pay.id}`}
+                          {pay.code || pay.utr_number || pay.reference_number || pay.gateway_ref || '—'}
                         </span>
                         <h3 className="text-sm font-bold text-slate-900 dark:text-white mt-0.5 truncate">{clientName}</h3>
-                        <p className="text-[10px] uppercase tracking-wide text-slate-400 dark:text-zinc-500 mt-1">{String(pay.payer_type || 'tenant').replace(/_/g, ' ')} · {String(pay.purpose || 'settlement').replace(/_/g, ' ')}</p>
+                        {metaLine && (
+                          <p className="text-[10px] uppercase tracking-wide text-slate-400 dark:text-zinc-500 mt-1">{metaLine}</p>
+                        )}
                       </div>
                       <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-md border shrink-0 ${getStatusBadge(pay.status)}`}>
                         {getStatusText(pay.status)}
@@ -406,14 +460,10 @@ export const PaymentsListPage = () => {
                     <div className="mt-4 p-3 bg-slate-50 dark:bg-zinc-800/70 rounded-xl border border-slate-100 dark:border-zinc-700 space-y-1.5 text-xs">
                       <div className="flex justify-between items-center">
                         <span className="text-slate-400 dark:text-zinc-500">{t('finance.campaign_payments.total_amount')}</span>
-                        <span className="font-black text-slate-900 dark:text-white font-mono text-sm">₹{Number(pay.amount || 0).toLocaleString('en-IN')}</span>
+                        <span className="font-black text-slate-900 dark:text-white font-mono text-sm">
+                          {pay.amount != null ? `₹${Number(pay.amount).toLocaleString('en-IN')}` : '—'}
+                        </span>
                       </div>
-                      {pay.invoice && (
-                        <div className="flex justify-between items-center gap-3 text-[11px]">
-                          <span className="text-slate-400 dark:text-zinc-500">{t('ag.finance.paymentslistpage.saved_breakdown', 'Saved breakdown')}</span>
-                          <span className="font-mono text-right text-slate-600 dark:text-zinc-300">{t('ag.finance.paymentslistpage.base', 'Base ₹')}{Number(pay.invoice.subtotal || 0).toLocaleString('en-IN')} {t('ag.finance.paymentslistpage.tax_2', '+ Tax ₹')}{Number(pay.invoice.tax_amount || 0).toLocaleString('en-IN')}</span>
-                        </div>
-                      )}
                       <div className="flex justify-between items-center">
                         <span className="text-slate-400 dark:text-zinc-500">{t('finance.payments.settlement_date')}:</span>
                         <span className="font-medium text-slate-700 dark:text-zinc-300">{formattedDate}</span>
@@ -421,7 +471,8 @@ export const PaymentsListPage = () => {
                       <div className="flex justify-between items-center">
                         <span className="text-slate-400 dark:text-zinc-500">{t('finance.payments.method_channel')}:</span>
                         <span className="font-semibold text-slate-800 dark:text-zinc-200 capitalize">
-                          {String(pay.method || pay.offline_method || t('finance.payments.not_recorded', 'Not recorded')).replace(/_/g, ' ')}
+                          {displayMethod ? String(displayMethod).replace(/_/g, ' ') : '—'}
+                          {pay.payment_mode ? ` (${pay.payment_mode})` : ''}
                         </span>
                       </div>
                       {pay.invoice ? (
@@ -431,7 +482,7 @@ export const PaymentsListPage = () => {
                             {pay.invoice.code}
                           </Link>
                         </div>
-                      ) : pay.campaign ? (
+                      ) : pay.campaign?.code ? (
                         <div className="flex justify-between items-center">
                           <span className="text-slate-400 dark:text-zinc-500">{t('finance.payments.campaign_code')}</span>
                           <span className="font-mono font-semibold text-slate-700 dark:text-zinc-300">{pay.campaign.code}</span>
@@ -476,23 +527,58 @@ export const PaymentsListPage = () => {
   );
 };
 
-const PAYERS = [
-  ['tenant', 'finance.payers.tenant', 'Fleet operator'],
-  ['advertiser', 'finance.payers.advertiser', 'Advertiser'],
-  ['government', 'finance.payers.government', 'Government'],
-  ['platform', 'finance.payers.platform', 'Platform'],
-];
+const titleCase = (str) =>
+  String(str || '')
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (ch) => ch.toUpperCase());
 
-const PURPOSES = [
-  ['saas_subscription', 'finance.purposes.saas', 'SaaS subscription'],
-  ['ad_spend', 'finance.purposes.ad_spend', 'Advertising campaign'],
-  ['psa_spend', 'finance.purposes.psa_spend', 'Government / PSA campaign'],
-  ['payout', 'finance.purposes.payout', 'Payout'],
-  ['wallet_topup', 'finance.purposes.wallet_topup', 'Wallet top-up'],
-  ['refund', 'finance.purposes.refund', 'Refund'],
-];
+const formatPayerLabel = (val, t) => {
+  const key = String(val || '').toLowerCase();
+  if (key === 'tenant') return t('finance.payers.tenant', 'Tenant Admin');
+  if (key === 'advertiser') return t('finance.payers.advertiser', 'Advertiser');
+  if (key === 'government') return t('finance.payers.government', 'Government');
+  if (key === 'platform') return t('finance.payers.platform', 'Platform');
+  return titleCase(val);
+};
 
-const METHODS = [['razorpay', 'Razorpay'], ['stripe', 'Stripe'], ['upi', 'UPI'], ['card', 'Card'], ['netbanking', 'Net banking'], ['bank_wire', 'Bank wire'], ['bank_transfer', 'Bank transfer'], ['neft', 'NEFT'], ['rtgs', 'RTGS'], ['imps', 'IMPS'], ['cheque', 'Cheque'], ['cash', 'Cash']];
+const formatPurposeLabel = (val, t) => {
+  const key = String(val || '').toLowerCase();
+  if (key === 'saas_subscription') return t('finance.purposes.saas', 'SaaS subscription');
+  if (key === 'ad_spend') return t('finance.purposes.ad_spend', 'Advertising campaign');
+  if (key === 'psa_spend') return t('finance.purposes.psa_spend', 'Government / PSA campaign');
+  if (key === 'payout') return t('finance.purposes.payout', 'Payout');
+  if (key === 'wallet_topup') return t('finance.purposes.wallet_topup', 'Wallet top-up');
+  if (key === 'refund') return t('finance.purposes.refund', 'Refund');
+  return titleCase(val);
+};
+
+const METHOD_DISPLAY_MAP = {
+  razorpay: 'Razorpay',
+  upi: 'UPI',
+  upi_manual: 'UPI (Manual)',
+  card: 'Card',
+  netbanking: 'Net banking',
+  bank_wire: 'Bank wire',
+  bank_transfer: 'Bank transfer',
+  neft: 'NEFT',
+  rtgs: 'RTGS',
+  imps: 'IMPS',
+  cheque: 'Cheque',
+  demand_draft: 'Demand draft',
+  cash: 'Cash',
+};
+
+const formatMethodLabel = (val) => {
+  const key = String(val || '').toLowerCase();
+  return METHOD_DISPLAY_MAP[key] || titleCase(val);
+};
+
+const formatChannelLabel = (val, t) => {
+  const key = String(val || '').toLowerCase();
+  if (key === 'online') return t('finance.channels.online', 'Online');
+  if (key === 'offline') return t('finance.channels.offline', 'Offline');
+  return titleCase(val);
+};
 
 const fieldClassName = 'w-full rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-xs font-semibold text-slate-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-indigo-300';
 

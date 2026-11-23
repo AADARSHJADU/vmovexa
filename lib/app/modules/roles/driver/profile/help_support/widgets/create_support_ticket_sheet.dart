@@ -362,12 +362,12 @@ class _CreateSupportTicketSheetState extends State<CreateSupportTicketSheet> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.camera_alt_outlined, color: AppTheme.gradientBlue, size: 20),
-                        tooltip: 'Camera',
+                        tooltip: 'camera_tooltip'.tr,
                         onPressed: () => _pickAttachment(ImageSource.camera),
                       ),
                       IconButton(
                         icon: const Icon(Icons.image_outlined, color: AppTheme.gradientPink, size: 20),
-                        tooltip: 'Gallery',
+                        tooltip: 'gallery_tooltip'.tr,
                         onPressed: () => _pickAttachment(ImageSource.gallery),
                       ),
                     ],

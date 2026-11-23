@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/modules/roles/driver/report/controller/report_incident_controller.dart';
@@ -13,7 +12,6 @@ class IncidentDetailsView extends GetView<ReportIncidentController> {
   static const Color kFieldBg = Color(0xFF1B1B27);
   static const Color kPurple = Color(0xFFB042FF);
   static const Color kIndigo = Color(0xFF6A5CFF);
-  static const Color kBlue = Color(0xFF3F7BF5);
   static const Color kBorder = Color(0x14FFFFFF);
 
   @override
@@ -28,7 +26,7 @@ class IncidentDetailsView extends GetView<ReportIncidentController> {
               child: Column(
                 children: [
                   _buildHeader(),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 16),
                   _buildStepper(),
                 ],
               ),
@@ -38,27 +36,20 @@ class IncidentDetailsView extends GetView<ReportIncidentController> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 children: [
-                  _buildSectionLabel('select_incident_type_num'.tr, required: true),
-                  const SizedBox(height: 10),
+                  _buildSectionHeader(
+                    title: 'driver_incident.step_1_title'.tr,
+                    subtitle: 'driver_incident.step_1_sub'.tr,
+                  ),
+                  const SizedBox(height: 12),
                   _buildIncidentTypeGrid(),
                   const SizedBox(height: 20),
-                  _buildSectionLabel('incident_description_num'.tr, required: true),
+                  _buildSectionLabel('defect_description'.tr, required: true),
                   const SizedBox(height: 10),
                   _buildDescriptionField(),
                   const SizedBox(height: 20),
-                  _buildSectionLabel('incident_location_num'.tr, required: true),
-                  const SizedBox(height: 10),
-                  _buildLocationRow(),
-                  const SizedBox(height: 20),
-                  _buildSectionLabel('date_time_num'.tr, required: true),
-                  const SizedBox(height: 10),
-                  _buildDateTimeRow(context),
-                  const SizedBox(height: 20),
-                  _buildSectionLabel('add_photos_optional_num'.tr, required: false),
-                  const SizedBox(height: 10),
-                  _buildPhotosRow(),
-                  const SizedBox(height: 8),
-                  Text('upload_photos_max5'.tr, style: const TextStyle(color: Colors.white38, fontSize: 11)),
+                  _buildContextSelectorsRow(),
+                  const SizedBox(height: 16),
+                  _buildDateTimeCard(),
                 ],
               ),
             ),
@@ -75,83 +66,156 @@ class IncidentDetailsView extends GetView<ReportIncidentController> {
       children: [
         GestureDetector(
           onTap: controller.onCancel,
-          child: const Icon(Icons.arrow_back, color: Colors.white),
+          child: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: kFieldBg,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+            ),
+            child: const Icon(Icons.arrow_back, color: Colors.white, size: 18),
+          ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('report_incident'.tr, style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700)),
+              Text(
+                'report_incident'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800),
+              ),
               const SizedBox(height: 2),
-              Text('help_keep_ops_safe'.tr, style: const TextStyle(color: Colors.white54, fontSize: 11.5)),
+              Text(
+                'driver_incident.hero_desc'.tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: Colors.white54, fontSize: 11),
+              ),
             ],
           ),
         ),
-        const Icon(Icons.assignment_outlined, color: kPurple, size: 20),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEF4444).withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.3)),
+          ),
+          child: Text(
+            '${'driver_incident.step_indicator'.tr} 1 ${'driver_incident.of_4'.tr}',
+            style: const TextStyle(color: Color(0xFFF87171), fontSize: 11, fontWeight: FontWeight.w700),
+          ),
+        ),
       ],
     );
   }
 
-  // ---------------- Stepper (4 steps: Location removed) ----------------
+  // ---------------- 4-Step Stepper Bar ----------------
   Widget _buildStepper() {
     return Obx(
-      () => Row(
-        children: List.generate(controller.stepLabels.length, (index) {
-          final stepNumber = index + 1;
-          final isActive = stepNumber == controller.currentStep.value;
-          final isCompleted = stepNumber < controller.currentStep.value;
-          final isLast = stepNumber == controller.stepLabels.length;
+      () => Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: kCardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        ),
+        child: Row(
+          children: List.generate(controller.stepLabels.length, (index) {
+            final stepNumber = index + 1;
+            final isActive = stepNumber == controller.currentStep.value;
+            final isCompleted = stepNumber < controller.currentStep.value;
+            final isLast = stepNumber == controller.stepLabels.length;
 
-          return Expanded(
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 28,
-                        height: 28,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: (isActive || isCompleted) ? const LinearGradient(colors: [kIndigo, kPurple]) : null,
-                          color: (isActive || isCompleted) ? null : kFieldBg,
-                          border: Border.all(color: isActive ? kPurple : (isCompleted ? Colors.transparent : Colors.white24), width: isActive ? 2 : 1),
+            return Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 28,
+                          height: 28,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: (isActive || isCompleted) ? AppTheme.primaryGradient : null,
+                            color: (isActive || isCompleted) ? null : kFieldBg,
+                            border: Border.all(
+                              color: isActive ? Colors.transparent : (isCompleted ? Colors.transparent : Colors.white24),
+                              width: isActive ? 2 : 1,
+                            ),
+                            boxShadow: isActive
+                                ? [
+                                    BoxShadow(
+                                      color: AppTheme.gradientBlue.withValues(alpha: 0.4),
+                                      blurRadius: 8,
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                          child: isCompleted
+                              ? const Icon(Icons.check, color: Colors.white, size: 14)
+                              : Text(
+                                  '$stepNumber',
+                                  style: TextStyle(
+                                    color: isActive ? Colors.white : Colors.white38,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
                         ),
-                        child: isCompleted
-                            ? const Icon(Icons.check, color: Colors.white, size: 14)
-                            : Text(
-                                '$stepNumber',
-                                style: TextStyle(color: isActive ? Colors.white : Colors.white38, fontSize: 12, fontWeight: FontWeight.w700),
-                              ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        controller.stepLabels[index],
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: isActive ? kPurple : Colors.white38,
-                          fontSize: 9,
-                          fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                        const SizedBox(height: 6),
+                        Text(
+                          controller.stepLabels[index],
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: isActive ? Colors.white : (isCompleted ? Colors.white70 : Colors.white38),
+                            fontSize: 9.5,
+                            fontWeight: isActive ? FontWeight.w800 : FontWeight.w500,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (!isLast)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 18),
-                    child: SizedBox(
-                      width: 14,
-                      child: Divider(color: isCompleted ? kPurple : Colors.white24, thickness: 1.5),
+                      ],
                     ),
                   ),
-              ],
-            ),
-          );
-        }),
+                  if (!isLast)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: SizedBox(
+                        width: 10,
+                        child: Divider(
+                          color: isCompleted ? AppTheme.gradientBlue : Colors.white12,
+                          thickness: 1.5,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            );
+          }),
+        ),
       ),
+    );
+  }
+
+  Widget _buildSectionHeader({required String title, required String subtitle}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w800),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          subtitle,
+          style: const TextStyle(color: Colors.white54, fontSize: 11),
+        ),
+      ],
     );
   }
 
@@ -159,13 +223,13 @@ class IncidentDetailsView extends GetView<ReportIncidentController> {
     return RichText(
       text: TextSpan(
         text: text,
-        style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w700),
+        style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700),
         children: required ? const [TextSpan(text: ' *', style: TextStyle(color: Color(0xFFFF4D4D)))] : [],
       ),
     );
   }
 
-  // ---------------- Incident type grid ----------------
+  // ---------------- Incident type grid (8 Categories) ----------------
   Widget _buildIncidentTypeGrid() {
     return Obx(() {
       final selectedType = controller.selectedIncidentType.value;
@@ -180,58 +244,14 @@ class IncidentDetailsView extends GetView<ReportIncidentController> {
             itemCount: IncidentType.values.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 4,
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
               childAspectRatio: 0.72,
             ),
             itemBuilder: (context, index) {
               final type = IncidentType.values[index];
-
               final isSelected = selectedType == type;
 
-              return _IncidentTypeCard(
-                // key: ValueKey(type),
-                type: type,
-                isSelected: isSelected,
-                onTap: () {
-                  controller.selectIncidentType(type);
-                },
-              );
-            },
-          ),
-
-          if (error != null && error.isNotEmpty) ...[
-            const SizedBox(height: 6),
-            Text(
-              error,
-              style: const TextStyle(
-                color: Color(0xFFFF4D4D),
-                fontSize: 10.5,
-              ),
-            ),
-          ],
-        ],
-      );
-    });
-  }
-  /*Widget _buildIncidentTypeGrid() {
-    return Obx(
-      () => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: IncidentType.values.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
-              childAspectRatio: 0.72,
-            ),
-            itemBuilder: (context, index) {
-              final type = IncidentType.values[index];
-              final isSelected = controller.selectedIncidentType.value == type;
               return _IncidentTypeCard(
                 type: type,
                 isSelected: isSelected,
@@ -239,210 +259,235 @@ class IncidentDetailsView extends GetView<ReportIncidentController> {
               );
             },
           ),
-          if (controller.incidentTypeError.value != null) ...[
+          if (error != null && error.isNotEmpty) ...[
             const SizedBox(height: 6),
-            Text(controller.incidentTypeError.value!, style: const TextStyle(color: Color(0xFFFF4D4D), fontSize: 10.5)),
+            Text(
+              error,
+              style: const TextStyle(color: Color(0xFFFF4D4D), fontSize: 10.5),
+            ),
           ],
         ],
-      ),
-    );
-  }*/
+      );
+    });
+  }
 
-  // ---------------- Description field ----------------
+  // ---------------- Description Field ----------------
   Widget _buildDescriptionField() {
     return Obx(
-      () => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: kFieldBg,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: controller.descriptionError.value != null ? const Color(0xFFFF4D4D) : Colors.white.withOpacity(0.08),
-              ),
-            ),
-            child: TextField(
+      () => Container(
+        decoration: BoxDecoration(
+          color: kCardBg,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: controller.descriptionError.value != null ? const Color(0xFFFF4D4D) : Colors.white.withValues(alpha: 0.08),
+          ),
+        ),
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            TextField(
               controller: controller.descriptionCtrl,
-              maxLines: 3,
+              maxLines: 4,
               maxLength: ReportIncidentController.descriptionMaxLen,
-              style: const TextStyle(color: Colors.white, fontSize: 13),
+              style: const TextStyle(color: Colors.white, fontSize: 12.5),
               decoration: InputDecoration(
+                hintText: 'brief_desc_hint'.tr,
+                hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.35), fontSize: 12),
                 border: InputBorder.none,
                 counterText: '',
-                isDense: true,
-                contentPadding: const EdgeInsets.all(12),
-                hintText: 'brief_desc_hint'.tr,
-                hintStyle: const TextStyle(color: Colors.white30, fontSize: 12.5),
-                prefixIcon: const Padding(
-                  padding: EdgeInsets.only(bottom: 40),
-                  child: Icon(Icons.description_outlined, color: Colors.white24, size: 16),
-                ),
+                contentPadding: EdgeInsets.zero,
               ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text(
+                  '${controller.descriptionLen.value}/${ReportIncidentController.descriptionMaxLen}',
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 10),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ---------------- Weather & Road Type Row ----------------
+  Widget _buildContextSelectorsRow() {
+    return Row(
+      children: [
+        // Weather Conditions Dropdown
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (controller.descriptionError.value != null)
-                Expanded(
-                  child: Text(controller.descriptionError.value!, style: const TextStyle(color: Color(0xFFFF4D4D), fontSize: 10.5)),
-                )
-              else
-                const SizedBox(),
-              Text('${controller.descriptionLen.value}/${ReportIncidentController.descriptionMaxLen}', style: const TextStyle(color: Colors.white24, fontSize: 10)),
+              _buildSectionLabel('driver_incident.weather_conditions'.tr, required: false),
+              const SizedBox(height: 8),
+              Obx(
+                () => Container(
+                  height: 48,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: kCardBg,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: controller.weatherConditions.value,
+                      isExpanded: true,
+                      dropdownColor: const Color(0xFF1B1B27),
+                      icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white54, size: 20),
+                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                      items: controller.weatherOptions.map((opt) {
+                        return DropdownMenuItem<String>(
+                          value: opt,
+                          child: Text(
+                            _getWeatherLabel(opt),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (val) {
+                        if (val != null) controller.weatherConditions.value = val;
+                      },
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
+        ),
+        const SizedBox(width: 10),
+        // Road Type Dropdown
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSectionLabel('driver_incident.road_type'.tr, required: false),
+              const SizedBox(height: 8),
+              Obx(
+                () => Container(
+                  height: 48,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: kCardBg,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: controller.roadType.value,
+                      isExpanded: true,
+                      dropdownColor: const Color(0xFF1B1B27),
+                      icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white54, size: 20),
+                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                      items: controller.roadTypeOptions.map((opt) {
+                        return DropdownMenuItem<String>(
+                          value: opt,
+                          child: Text(
+                            _getRoadTypeLabel(opt),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (val) {
+                        if (val != null) controller.roadType.value = val;
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _getWeatherLabel(String key) {
+    switch (key) {
+      case 'Heavy Rain':
+        return 'driver_incident.weather_rain'.tr;
+      case 'Fog / Smog':
+        return 'driver_incident.weather_fog'.tr;
+      case 'Night / Dark':
+        return 'driver_incident.weather_night'.tr;
+      case 'Storm / Wind':
+        return 'driver_incident.weather_storm'.tr;
+      case 'Clear':
+      default:
+        return 'driver_incident.weather_clear'.tr;
+    }
+  }
+
+  String _getRoadTypeLabel(String key) {
+    switch (key) {
+      case 'Express Highway':
+        return 'driver_incident.road_highway'.tr;
+      case 'Flyover Bridge':
+        return 'driver_incident.road_bridge'.tr;
+      case 'Bus Stop Bay':
+        return 'driver_incident.road_bus_bay'.tr;
+      case 'Depot Junction':
+        return 'driver_incident.road_depot'.tr;
+      case 'City Street':
+      default:
+        return 'driver_incident.road_city_street'.tr;
+    }
+  }
+
+  // ---------------- Date & Time Card ----------------
+  Widget _buildDateTimeCard() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: kCardBg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: const Color(0xFF2563EB).withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.schedule_rounded, color: Color(0xFF60A5FA), size: 18),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'date_time_num'.tr,
+                  style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 2),
+                Obx(
+                  () => Text(
+                    controller.incidentDateTimeCombined,
+                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.06),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text('live_lock'.tr, style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold)),
+          ),
         ],
-      ),
-    );
-  }
-
-  // ---------------- Location field (editable) ----------------
-  Widget _buildLocationRow() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: kFieldBg,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
-      ),
-      child: TextField(
-        controller: controller.locationCtrl,
-        style: const TextStyle(color: Colors.white, fontSize: 12.5),
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          isDense: true,
-          contentPadding: const EdgeInsets.symmetric(vertical: 13),
-          hintText: 'enter_location_hint'.tr,
-          hintStyle: const TextStyle(color: Colors.white30, fontSize: 12.5),
-          prefixIcon: const Icon(Icons.location_on_outlined, color: kPurple, size: 17),
-        ),
-      ),
-    );
-  }
-
-  // ---------------- Date & Time row (tap date -> calendar, tap time -> clock) ----------------
-  Widget _buildDateTimeRow(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      decoration: BoxDecoration(
-        color: kFieldBg,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
-      ),
-      child: Obx(
-        () => Row(
-          children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: () => controller.onPickDate(context),
-                behavior: HitTestBehavior.opaque,
-                child: Row(
-                  children: [
-                    const Icon(Icons.calendar_today_outlined, color: kPurple, size: 15),
-                    const SizedBox(width: 6),
-                    Flexible(
-                      child: Text(
-                        controller.incidentDateText,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Colors.white, fontSize: 12.5),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: GestureDetector(
-                onTap: () => controller.onPickTime(context),
-                behavior: HitTestBehavior.opaque,
-                child: Row(
-                  children: [
-                    const Icon(Icons.access_time, color: kPurple, size: 15),
-                    const SizedBox(width: 6),
-                    Flexible(
-                      child: Text(
-                        controller.incidentTimeText,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Colors.white, fontSize: 12.5),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ---------------- Photos row ----------------
-  Widget _buildPhotosRow() {
-    return Obx(
-      () => SizedBox(
-        height: 78,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          children: [
-            GestureDetector(
-              onTap: controller.onUploadPhoto,
-              child: Container(
-                width: 78,
-                height: 78,
-                decoration: BoxDecoration(
-                  color: kFieldBg,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: kPurple.withOpacity(0.5), style: BorderStyle.solid),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.cloud_upload_outlined, color: kPurple, size: 20),
-                    const SizedBox(height: 4),
-                    Text('upload_photo'.tr, textAlign: TextAlign.center, style: const TextStyle(color: kPurple, fontSize: 9, fontWeight: FontWeight.w600)),
-                  ],
-                ),
-              ),
-            ),
-            ...controller.photoPaths.map(
-              (path) => Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: Stack(
-                  children: [
-                    Container(
-                      width: 78,
-                      height: 78,
-                      decoration: BoxDecoration(
-                        color: Colors.white10,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: File(path).existsSync()
-                          ? Image.file(File(path), width: 78, height: 78, fit: BoxFit.cover)
-                          : const Icon(Icons.image_outlined, color: Colors.white24, size: 24),
-                    ),
-                    Positioned(
-                      top: 4,
-                      right: 4,
-                      child: GestureDetector(
-                        onTap: () => controller.onRemovePhoto(path),
-                        child: Container(
-                          padding: const EdgeInsets.all(3),
-                          decoration: const BoxDecoration(color: Colors.black87, shape: BoxShape.circle),
-                          child: const Icon(Icons.close, color: Colors.white, size: 12),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -454,7 +499,7 @@ class IncidentDetailsView extends GetView<ReportIncidentController> {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
       decoration: BoxDecoration(
         color: kBg,
-        border: Border(top: BorderSide(color: Colors.white.withOpacity(0.06))),
+        border: Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.06))),
       ),
       child: Row(
         children: [
@@ -462,19 +507,19 @@ class IncidentDetailsView extends GetView<ReportIncidentController> {
             child: GestureDetector(
               onTap: controller.onCancel,
               child: Container(
-                height: 50,
+                height: 48,
                 decoration: BoxDecoration(
                   color: kFieldBg,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white.withOpacity(0.1)),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
                 ),
                 alignment: Alignment.center,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.arrow_back, color: Colors.white70, size: 16),
+                    const Icon(Icons.close, color: Colors.white70, size: 16),
                     const SizedBox(width: 6),
-                    Text('cancel'.tr, style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w700)),
+                    Text('cancel'.tr, style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w700)),
                   ],
                 ),
               ),
@@ -486,18 +531,26 @@ class IncidentDetailsView extends GetView<ReportIncidentController> {
             child: GestureDetector(
               onTap: controller.onStep1NextPressed,
               child: Container(
-                height: 50,
+                height: 48,
                 decoration: BoxDecoration(
-                  gradient:AppTheme.primaryGradient,
+                  gradient: AppTheme.primaryGradient,
                   borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.gradientBlue.withValues(alpha: 0.35),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
                 ),
                 alignment: Alignment.center,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('next'.tr, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
-                    const SizedBox(width: 6),
-                    const Icon(Icons.arrow_forward, color: Colors.white, size: 16),
+                    Text(
+                      'driver_incident.next_location_media'.tr,
+                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w800),
+                    ),
                   ],
                 ),
               ),
@@ -519,7 +572,6 @@ class _IncidentTypeCard extends StatelessWidget {
 
   const _IncidentTypeCard({required this.type, required this.isSelected, required this.onTap});
 
-  static const Color kPurple = IncidentDetailsView.kPurple;
   static const Color kFieldBg = IncidentDetailsView.kFieldBg;
 
   @override
@@ -529,21 +581,46 @@ class _IncidentTypeCard extends StatelessWidget {
       child: Stack(
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
             decoration: BoxDecoration(
-              color: kFieldBg,
+              color: isSelected ? const Color(0xFF1E1E2F) : kFieldBg,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: isSelected ? kPurple : Colors.white.withOpacity(0.08), width: isSelected ? 1.5 : 1),
+              border: Border.all(
+                color: isSelected ? AppTheme.gradientBlue : Colors.white.withValues(alpha: 0.08),
+                width: isSelected ? 1.5 : 1,
+              ),
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(
+                        color: AppTheme.gradientBlue.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                      ),
+                    ]
+                  : null,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(type.icon, color: isSelected ? kPurple : Colors.white54, size: 22),
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    gradient: isSelected ? AppTheme.primaryGradient : null,
+                    color: isSelected ? null : Colors.white.withValues(alpha: 0.05),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(type.icon, color: isSelected ? Colors.white : Colors.white54, size: 20),
+                ),
                 const SizedBox(height: 6),
                 Text(
                   type.label,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: isSelected ? Colors.white : Colors.white70, fontSize: 10, fontWeight: FontWeight.w700),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : Colors.white70,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -558,12 +635,15 @@ class _IncidentTypeCard extends StatelessWidget {
           ),
           if (isSelected)
             Positioned(
-              top: 6,
-              right: 6,
+              top: 5,
+              right: 5,
               child: Container(
                 padding: const EdgeInsets.all(2),
-                decoration: const BoxDecoration(color: kPurple, shape: BoxShape.circle),
-                child: const Icon(Icons.check, color: Colors.white, size: 10),
+                decoration: const BoxDecoration(
+                  gradient: AppTheme.primaryGradient,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.check, color: Colors.white, size: 9),
               ),
             ),
         ],

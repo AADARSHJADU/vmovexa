@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks.js';
 import {
   selectSuperCampaigns,
+  selectSuperCampaignsPagination,
   selectSuperApprovals,
   selectSuperSelectedCampaign,
   fetchCampaignsThunk,
@@ -15,6 +16,7 @@ import {
 export const useSuperCampaign = () => {
   const dispatch = useAppDispatch();
   const campaigns = useAppSelector(selectSuperCampaigns);
+  const campaignsPagination = useAppSelector(selectSuperCampaignsPagination);
   const approvals = useAppSelector(selectSuperApprovals);
   const selectedCampaign = useAppSelector(selectSuperSelectedCampaign);
 
@@ -27,6 +29,7 @@ export const useSuperCampaign = () => {
 
   return {
     campaigns,
+    campaignsPagination,
     approvals,
     selectedCampaign,
     loadCampaigns,

@@ -163,22 +163,21 @@ export const EditGpsPage = () => {
 
   return (
     <div className="w-full space-y-6 pb-20 animate-in fade-in duration-200">
-      {/* 1. Breadcrumb & Actions Header Banner */}
-      <div>
-        <Breadcrumb
-          items={[
-            { label: t('ag.fleet.editgpspage.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
-            { label: t('ag.fleet.editgpspage.hardware_telematics', 'Hardware Telematics'), path: '/fleet-operator/gps' },
-            { label: formData.code || 'Edit GPS Device' },
-          ]}
-          className="mb-2"
-        />
-
-        <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm">
+      {/* 1. Header & Breadcrumb */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+        <div>
+          <Breadcrumb
+            items={[
+              { label: t('roles.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
+              { label: t('fleet.gps.title', 'Edge Devices'), path: '/fleet-operator/edge-devices' },
+              { label: formData.code || 'Edit Edge Device' },
+            ]}
+            className="mb-2"
+          />
           <div className="flex items-center gap-3">
             <button 
               type="button"
-              onClick={() => navigate('/fleet-operator/gps')} 
+              onClick={() => navigate('/fleet-operator/edge-devices')} 
               className="p-2.5 rounded-xl border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer shrink-0"
               title={t('fleet.gps.back_gps')}
             >
@@ -188,35 +187,35 @@ export const EditGpsPage = () => {
               <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                 {t('ag.fleet.editgpspage.edit_gps_device', 'Edit GPS Device')} <span className="font-mono text-blue-600 dark:text-blue-400">({formData.code})</span>
               </h1>
-              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
                 {t('ag.fleet.editgpspage.update_device_telemetry_config_hardware_iden', 'Update device telemetry config, hardware identity, or photo.')}
               </p>
             </div>
           </div>
+        </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              onClick={handleDelete}
-              className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950/40 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <FleetIcons.Trash className="w-4 h-4 text-red-600 dark:text-red-400" />
-              <span>{t('fleet.gps.delete_device')}</span>
-            </button>
-            <button 
-              type="button"
-              onClick={() => navigate('/fleet-operator/gps')}
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-bold transition-all cursor-pointer"
-            >{t('common.cancel')}</button>
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-md shadow-blue-500/20 flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <FleetIcons.Check className="w-4 h-4 text-white" />
-              <span>{t('fleet.gps.update_device')}</span>
-            </button>
-          </div>
+        <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950/40 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+          >
+            <FleetIcons.Trash className="w-4 h-4 text-red-600 dark:text-red-400" />
+            <span>{t('fleet.gps.delete_device')}</span>
+          </button>
+          <button 
+            type="button"
+            onClick={() => navigate('/fleet-operator/edge-devices')}
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-bold transition-all cursor-pointer"
+          >{t('common.cancel')}</button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <FleetIcons.Check className="w-4 h-4 text-white" />
+            <span>{t('fleet.gps.update_device')}</span>
+          </button>
         </div>
       </div>
 

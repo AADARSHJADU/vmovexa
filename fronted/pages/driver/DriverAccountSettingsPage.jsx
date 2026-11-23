@@ -10,7 +10,7 @@ import { resolveFileUrl, uploadFile } from '../../api/services/upload.service';
 import Breadcrumb from '../../components/ui/Breadcrumb';
 
 export const DriverAccountSettingsPage = () => {
-  const { t } = useTranslation();
+  const { t, languages } = useTranslation();
   const { user, updateProfile, fetchMe } = useAuth();
   const { profile, activeRoute, loadProfile, loadActiveRoute } = useDriverApp();
   const fileInputRef = useRef(null);
@@ -170,16 +170,16 @@ export const DriverAccountSettingsPage = () => {
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-200 pb-20">
       {/* Header */}
-      <div>
-        <Breadcrumb
-          items={[
-            { label: t('ag.driver.driveraccountsettingspage.driver', 'Driver'), path: '/driver/dashboard' },
-            { label: t('ag.driver.driveraccountsettingspage.profile', 'Profile'), path: '/driver/profile' },
-            { label: t('ag.driver.driveraccountsettingspage.account_settings', 'Account Settings') },
-          ]}
-          className="mb-2"
-        />
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+        <div>
+          <Breadcrumb
+            items={[
+              { label: t('roles.driver', 'Driver'), path: '/driver/dashboard' },
+              { label: t('ag.driver.driveraccountsettingspage.profile', 'Profile'), path: '/driver/profile' },
+              { label: t('ag.driver.driveraccountsettingspage.account_settings', 'Account Settings') },
+            ]}
+            className="mb-2"
+          />
           <div className="flex items-center gap-3">
             <Link
               to="/driver/profile"
@@ -195,14 +195,14 @@ export const DriverAccountSettingsPage = () => {
               </p>
             </div>
           </div>
-
-          <Link
-            to="/driver/profile"
-            className="px-4 py-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-bold rounded-xl transition-colors self-start sm:self-auto"
-          >
-            {t('ag.driver.driveraccountsettingspage.view_profile', 'View Profile')}
-          </Link>
         </div>
+
+        <Link
+          to="/driver/profile"
+          className="px-4 py-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-bold rounded-xl transition-colors self-start sm:self-auto"
+        >
+          {t('ag.driver.driveraccountsettingspage.view_profile', 'View Profile')}
+        </Link>
       </div>
 
       {savedSuccess && (
@@ -372,11 +372,11 @@ export const DriverAccountSettingsPage = () => {
                 onChange={(e) => setFormData({ ...formData, language: e.target.value })}
                 className="w-full px-3.5 py-2.5 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-600"
               >
-                <option value="en">{t('common.lang_en')}</option>
-                <option value="hi">{t('common.lang_hi')}</option>
-                <option value="mr">{t('common.lang_mr')}</option>
-                <option value="kn">{t('common.lang_kn')}</option>
-                <option value="te">{t('common.lang_te')}</option>
+                {languages.filter((language) => language.is_active !== false).map((language) => (
+                  <option key={language.code} value={language.code}>
+                    {language.native_name || language.name} ({language.code})
+                  </option>
+                ))}
               </select>
             </div>
 

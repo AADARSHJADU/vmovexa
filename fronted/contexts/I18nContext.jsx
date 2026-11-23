@@ -3,12 +3,18 @@
  * API calls now go through i18nService (not directly via apiClient).
  * Pattern: Context → i18nService → apiClient → backend.
  */
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { i18nService } from '../api/services/i18n.service.js';
 import { LOCAL_TRANSLATIONS } from '../constants/translations.js';
+import { useAuth } from '../hooks/useAuth.js';
 
 
 const I18nContext = createContext(null);
+
+const containsUnexpectedEnglishScript = (value) => {
+  if (typeof value !== 'string') return false;
+  return /[\u0900-\u0D7F]|à¤|à¥|à²|à³|à°|à±|à®|à¯|à´|àµ|àª|à«|à¦|à§|à¨|à©/u.test(value);
+};
 
 // Fallback starter languages while API loads
 const DEFAULT_LANGUAGES = [
@@ -45,8 +51,10 @@ const getInitialLanguage = () => {
 };
 
 export const I18nProvider = ({ children }) => {
+  const { user, updateProfile } = useAuth();
   // Initial language: English ('en') is primary default
   const [currentLanguage, setCurrentLanguage] = useState(getInitialLanguage);
+  const pendingLanguageRef = useRef(null);
 
   const [languages, setLanguages]     = useState(DEFAULT_LANGUAGES);
   const [translations, setTranslations] = useState(() => LOCAL_TRANSLATIONS[getInitialLanguage()] || {});
@@ -69,7 +77,13 @@ export const I18nProvider = ({ children }) => {
       setLoading(true);
       const localFallback = LOCAL_TRANSLATIONS[langCode] || {};
       const data = await i18nService.getBundle(langCode);
-      const merged = { ...localFallback, ...(data?.keys || {}) };
+      const remoteKeys = data?.keys || {};
+      const safeRemoteKeys = langCode === 'en'
+        ? Object.fromEntries(
+            Object.entries(remoteKeys).filter(([, value]) => !containsUnexpectedEnglishScript(value))
+          )
+        : remoteKeys;
+      const merged = { ...localFallback, ...safeRemoteKeys };
       setTranslations(merged);
       const dir = data?.direction || 'ltr';
       document.documentElement.dir  = dir;
@@ -85,21 +99,58 @@ export const I18nProvider = ({ children }) => {
 
   // Bootstrap on mount
   useEffect(() => {
-    fetchLanguages();
-    fetchBundle(currentLanguage);
+    const bootstrapTimer = window.setTimeout(() => {
+      fetchLanguages();
+      fetchBundle(currentLanguage);
+    }, 0);
+    return () => window.clearTimeout(bootstrapTimer);
   }, [fetchLanguages, fetchBundle, currentLanguage]);
 
-  // Switch active language
-  const changeLanguage = useCallback((langCode) => {
-    if (!langCode || langCode === currentLanguage) return;
+  const applyLanguage = useCallback((langCode, markUserSelected = true) => {
+    if (!langCode) return;
     setCurrentLanguage(langCode);
     localStorage.setItem('vmovexa_lang', langCode);
-    localStorage.setItem('vmovexa_lang_user_selected', 'true');
+    if (markUserSelected) {
+      localStorage.setItem('vmovexa_lang_user_selected', 'true');
+    }
     if (LOCAL_TRANSLATIONS[langCode]) {
       setTranslations((prev) => ({ ...prev, ...LOCAL_TRANSLATIONS[langCode] }));
     }
-    fetchBundle(langCode);
-  }, [currentLanguage, fetchBundle]);
+  }, []);
+
+  // The authenticated user's DB preference is authoritative on every portal.
+  const savedUserLanguage = user?.language?.code
+    || user?.settings?.locale
+    || languages.find((language) => Number(language.id) === Number(user?.language_id))?.code;
+
+  useEffect(() => {
+    if (!user?.id || pendingLanguageRef.current || !savedUserLanguage) return;
+    if (savedUserLanguage !== currentLanguage) {
+      const syncTimer = window.setTimeout(() => applyLanguage(savedUserLanguage, false), 0);
+      return () => window.clearTimeout(syncTimer);
+    }
+    return undefined;
+  }, [user?.id, savedUserLanguage, currentLanguage, applyLanguage]);
+
+  // Header selections are persisted to DB. Settings pages may pass
+  // { persist: false } after their own profile update to avoid a duplicate call.
+  const changeLanguage = useCallback(async (langCode, { persist = true } = {}) => {
+    if (!langCode) return;
+    const previousLanguage = currentLanguage;
+    applyLanguage(langCode);
+
+    if (!persist || !user?.id || langCode === savedUserLanguage) return;
+
+    pendingLanguageRef.current = langCode;
+    try {
+      await updateProfile({ language: langCode });
+    } catch (error) {
+      applyLanguage(previousLanguage);
+      throw error;
+    } finally {
+      pendingLanguageRef.current = null;
+    }
+  }, [applyLanguage, currentLanguage, savedUserLanguage, updateProfile, user?.id]);
 
   // t('key', 'Fallback text', { param: value })
   const t = useCallback((key, defaultText = '', params = {}) => {
@@ -142,6 +193,8 @@ export const I18nProvider = ({ children }) => {
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 };
 
+// The provider and its matching hook intentionally share this context module.
+// eslint-disable-next-line react-refresh/only-export-components
 export const useTranslation = () => {
   const context = useContext(I18nContext);
   if (!context) {

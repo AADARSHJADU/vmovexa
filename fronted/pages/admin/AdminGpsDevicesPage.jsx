@@ -177,25 +177,25 @@ export const AdminGpsDevicesPage = () => {
 
   return (
     <div className="w-full space-y-6 pb-16" ref={dropdownRef}>
-      {/* 1. Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm">
+      {/* 1. Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
         <div>
           <Breadcrumb
             items={[
-              { label: isFleetPortal ? t('ag.admin.admingpsdevicespage.fleet_operator', 'Fleet Operator') : t('ag.admin.admingpsdevicespage.tenant_admin', 'Tenant Admin'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
+              { label: isFleetPortal ? t('ag.admin.admingpsdevicespage.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
               { label: t('admin.gps.title') },
             ]}
             className="mb-2"
           />
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1 flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
             <span>{t('admin.gps.title')}</span>
           </h1>
-          <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">
             {t('admin.gps.subtitle')}
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex items-center gap-2.5 w-full sm:w-auto">
           <RefreshButton
             onClick={() => {
               setIsRefreshing(true);
@@ -303,7 +303,7 @@ export const AdminGpsDevicesPage = () => {
                 }}
                 className={`px-3 py-1.5 rounded-lg transition-all shrink-0 cursor-pointer ${
                   activeTab === tab.id
-                    ? 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm'
+                    ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-sm'
                     : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >

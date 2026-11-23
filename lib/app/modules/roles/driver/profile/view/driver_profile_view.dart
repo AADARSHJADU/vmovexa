@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/data/constants/api_constants.dart';
 import 'package:vmovexa/app/modules/roles/driver/profile/controller/driver_profile_controller.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 
 import '../model/driver_document.dart';
 
@@ -11,9 +12,6 @@ class DriverProfileView extends GetView<DriverProfileController> {
   static const Color kBg = Color(0xFF0B0B14);
   static const Color kCardBg = Color(0xFF15151F);
   static const Color kFieldBg = Color(0xFF1B1B27);
-  static const Color kPurple = Color(0xFFB042FF);
-  static const Color kIndigo = Color(0xFF6A5CFF);
-  static const Color kBlue = Color(0xFF3F7BF5);
   static const Color kBorder = Color(0x14FFFFFF);
 
   @override
@@ -23,9 +21,9 @@ class DriverProfileView extends GetView<DriverProfileController> {
       body: SafeArea(
         child: Obx(
               () => controller.isLoading.value && controller.documents.isEmpty
-              ? const Center(child: CircularProgressIndicator(color: kPurple))
+              ? const Center(child: CircularProgressIndicator(color: AppTheme.gradientBlue))
               : RefreshIndicator(
-            color: kPurple,
+            color: AppTheme.gradientBlue,
             backgroundColor: kCardBg,
             onRefresh: controller.onRefresh,
             child: ListView(
@@ -35,8 +33,8 @@ class DriverProfileView extends GetView<DriverProfileController> {
                 _buildHeader(),
                 const SizedBox(height: 16),
                 _buildIdentityCard(),
-                const SizedBox(height: 14),
-                _buildStatsRow(),
+                // const SizedBox(height: 14),
+                // _buildStatsRow(),
                 const SizedBox(height: 20),
                 _buildSectionTitle('account_caps'.tr),
                 const SizedBox(height: 10),
@@ -100,9 +98,9 @@ class DriverProfileView extends GetView<DriverProfileController> {
                       width: 60,
                       height: 60,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(colors: [kPurple, kIndigo]),
+                        gradient: AppTheme.primaryGradient,
                         shape: BoxShape.circle,
-                        border: Border.all(color: kPurple.withValues(alpha: 0.5), width: 1.5),
+                        border: Border.all(color: AppTheme.gradientBlue.withValues(alpha: 0.5), width: 1.5),
                       ),
                       child: isUploading
                           ? const Center(
@@ -134,7 +132,7 @@ class DriverProfileView extends GetView<DriverProfileController> {
                       child: Container(
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: kPurple,
+                          gradient: AppTheme.primaryGradient,
                           shape: BoxShape.circle,
                           border: Border.all(color: kCardBg, width: 2),
                         ),
@@ -170,7 +168,10 @@ class DriverProfileView extends GetView<DriverProfileController> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.business_outlined, color: kPurple, size: 15),
+                  ShaderMask(
+                    shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+                    child: const Icon(Icons.business_outlined, color: Colors.white, size: 15),
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Obx(
@@ -179,7 +180,7 @@ class DriverProfileView extends GetView<DriverProfileController> {
                         children: [
                           Text(controller.companyName.value, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
                           const SizedBox(height: 2),
-                          Text('${'driver'.tr} ID: ${controller.driverId.value}', style: const TextStyle(color: Colors.white38, fontSize: 10.5)),
+                          Text('${'driver'.tr} ${'id_label'.tr}: ${controller.driverId.value}', style: const TextStyle(color: Colors.white38, fontSize: 10.5)),
                         ],
                       ),
                     ),
@@ -365,7 +366,10 @@ class _StatPill extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Icon(icon, color: DriverProfileView.kPurple, size: 16),
+            ShaderMask(
+              shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+              child: Icon(icon, color: Colors.white, size: 16),
+            ),
             const SizedBox(height: 6),
             Text(count, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w800)),
             const SizedBox(height: 2),
@@ -406,10 +410,17 @@ class _MenuRow extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(9),
               decoration: BoxDecoration(
-                color: DriverProfileView.kPurple.withValues(alpha: 0.12),
+                gradient: AppTheme.primaryGradient,
                 borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.gradientBlue.withValues(alpha: 0.25),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              child: Icon(icon, color: DriverProfileView.kPurple, size: 17),
+              child: Icon(icon, color: Colors.white, size: 17),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -450,10 +461,17 @@ class _DocumentRow extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(9),
               decoration: BoxDecoration(
-                color: DriverProfileView.kPurple.withValues(alpha: 0.12),
+                gradient: AppTheme.primaryGradient,
                 borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.gradientBlue.withValues(alpha: 0.25),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              child: Icon(document.icon, color: DriverProfileView.kPurple, size: 16),
+              child: Icon(document.icon, color: Colors.white, size: 16),
             ),
             const SizedBox(width: 12),
             Expanded(

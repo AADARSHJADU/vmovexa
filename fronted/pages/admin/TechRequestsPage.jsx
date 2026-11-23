@@ -114,7 +114,7 @@ export const TechRequestsPage = () => {
           <Breadcrumb
             items={[
               {
-                label: isDriverPortal ? t('ag.admin.techrequestspage.driver', 'Driver') : isFleetPortal ? t('ag.admin.techrequestspage.fleet_operator', 'Fleet Operator') : t('ag.admin.techrequestspage.tenant_admin', 'Tenant Admin'),
+                label: isDriverPortal ? t('roles.driver', 'Driver') : isFleetPortal ? t('roles.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'),
                 path: isDriverPortal ? '/driver/dashboard' : isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard',
               },
               { label: isDriverPortal ? t('ag.admin.techrequestspage.work_orders', 'Work Orders') : t('ag.admin.techrequestspage.technician_requests', 'Technician Requests') },

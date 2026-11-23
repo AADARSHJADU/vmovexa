@@ -1,10 +1,10 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { FleetIcons } from '../../components/FleetIcons';
+import { Breadcrumb } from '../../components/ui/Breadcrumb';
 import { useSupport } from '../../hooks/shared/useSupport';
-import { useAuth } from '../../hooks/useAuth';
 
 const CATEGORIES = [
   'General',
@@ -27,41 +27,48 @@ export const CreateSupportTicketPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
   const { createTicket, uploadFile } = useSupport();
 
   // Detect portal base path & role title from location
   const path = location.pathname;
-  let roleTitle = 'Organization Admin';
+  let dashboardPath = '/admin/dashboard';
+  let portalLabel = t('ag.admin.admin_operations', 'Admin Operations');
   let helpPath = '/admin/help';
   let historyPath = '/admin/help/history';
 
   if (path.startsWith('/fleet-operator') || path.startsWith('/fleet-manager')) {
-    roleTitle = 'Fleet Operator';
+    dashboardPath = '/fleet-operator/dashboard';
+    portalLabel = t('nav.fleet_operator', 'Fleet Operator');
     helpPath = '/fleet-operator/help';
     historyPath = '/fleet-operator/help/history';
   } else if (path.startsWith('/driver')) {
-    roleTitle = 'Driver Console';
+    dashboardPath = '/driver/dashboard';
+    portalLabel = t('nav.driver_portal', 'Driver Portal');
     helpPath = '/driver/help';
     historyPath = '/driver/help/history';
   } else if (path.startsWith('/superadmin')) {
-    roleTitle = 'SuperAdmin Console';
+    dashboardPath = '/superadmin/dashboard';
+    portalLabel = 'Super Admin';
     helpPath = '/superadmin/help';
     historyPath = '/superadmin/help/history';
   } else if (path.startsWith('/government')) {
-    roleTitle = 'Government Desk';
+    dashboardPath = '/government/dashboard';
+    portalLabel = 'Government';
     helpPath = '/government/help';
     historyPath = '/government/help/history';
   } else if (path.startsWith('/advertiser')) {
-    roleTitle = 'Advertiser Console';
+    dashboardPath = '/advertiser/dashboard';
+    portalLabel = 'Advertiser';
     helpPath = '/advertiser/help';
     historyPath = '/advertiser/help/history';
   } else if (path.startsWith('/technician')) {
-    roleTitle = 'Technician Pool';
+    dashboardPath = '/technician/dashboard';
+    portalLabel = 'Technician';
     helpPath = '/technician/help';
     historyPath = '/technician/help/history';
   } else if (path.startsWith('/finance')) {
-    roleTitle = 'Finance Portal';
+    dashboardPath = '/finance/dashboard';
+    portalLabel = 'Finance';
     helpPath = '/finance/help';
     historyPath = '/finance/help/history';
   }
@@ -125,7 +132,7 @@ export const CreateSupportTicketPage = () => {
         error: (err) => err?.message || 'Failed to raise support ticket',
       });
       navigate(historyPath);
-    } catch (_) {
+    } catch {
       /* handled */
     } finally {
       setSubmitting(false);
@@ -135,25 +142,20 @@ export const CreateSupportTicketPage = () => {
   return (
     <div className="w-full space-y-6 pb-16 animate-in fade-in duration-200">
       {/* 1. Breadcrumb Navigation Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
         <div>
-          <div className="flex items-center gap-2 text-xs text-slate-500 font-medium mb-1">
-            <Link to={helpPath} className="hover:text-slate-900 transition-colors">
-              {t('ag.shared.createsupportticketpage.console', 'Console')}
-            </Link>
-            <span>/</span>
-            <span className="text-slate-700 font-semibold">{roleTitle}</span>
-            <span>/</span>
-            <Link to={helpPath} className="hover:text-slate-900 transition-colors">
-              {t('ag.shared.createsupportticketpage.help_and_support', 'Help & Support')}
-            </Link>
-            <span>/</span>
-            <span className="text-blue-600 font-bold">{t('ag.shared.createsupportticketpage.raise_support_ticket', 'Raise Support Ticket')}</span>
-          </div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+          <Breadcrumb
+            items={[
+              { label: portalLabel, path: dashboardPath },
+              { label: t('ag.shared.createsupportticketpage.help_and_support', 'Help & Support'), path: helpPath },
+              { label: t('ag.shared.createsupportticketpage.raise_support_ticket', 'Raise Support Ticket') },
+            ]}
+            className="mb-2"
+          />
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
             {t('ag.shared.createsupportticketpage.raise_support_ticket', 'Raise Support Ticket')}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-0.5">
             {t('ag.shared.createsupportticketpage.submit_a_formal_query_or_operational_request', 'Submit a formal query or operational request to VMOVEXA Central Support Desk')}
           </p>
         </div>

@@ -483,7 +483,7 @@ export const AuthorizeGovernmentPage = () => {
           createAgency(createPayload),
           {
             loading: 'Creating government agency...',
-            success: 'Government agency registered successfully!',
+            success: 'Government agency registered! Login credentials sent to the officer\'s email.',
             error: (err) => err?.message || 'Failed to register government agency.',
           }
         );

@@ -9,7 +9,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { resolveFileUrl, uploadFile } from '../../api/services/upload.service';
 
 export const AccountSettingsPage = () => {
-  const { t } = useTranslation();
+  const { t, languages } = useTranslation();
   const navigate = useNavigate();
   const { user, updateProfile, fetchMe } = useAuth();
 
@@ -114,38 +114,38 @@ export const AccountSettingsPage = () => {
 
   return (
     <div className="w-full space-y-6 pb-20">
-      {/* 1. Global Standard Breadcrumb Navigation */}
-      <Breadcrumb
-        items={[
-          { label: t('ag.fleet.accountsettingspage.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
-          { label: t('ag.fleet.accountsettingspage.profile', 'Profile'), path: '/fleet-operator/profile' },
-          { label: t('ag.fleet.accountsettingspage.account_settings', 'Account Settings') },
-        ]}
-        className="mb-2"
-      />
-
-      {/* Header Banner */}
-      <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm transition-colors">
-        <div className="flex items-center gap-3">
-          <button 
-            type="button"
-            onClick={() => navigate('/fleet-operator/profile')} 
-            className="p-2.5 rounded-xl border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
-            title={t('common.back_to_profile')}
-          >
-            <FleetIcons.ArrowLeft className="w-4 h-4" />
-          </button>
-          <div>
-            <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('fleet.profile.account_settings')}</h1>
-            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">{t('fleet.account.subtitle')}</p>
+      {/* 1. Header & Breadcrumb */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+        <div>
+          <Breadcrumb
+            items={[
+              { label: t('roles.fleet_operator', 'Fleet Operator'), path: '/fleet-operator/dashboard' },
+              { label: t('roles.operator_profile', 'Operator Profile'), path: '/fleet-operator/profile' },
+              { label: t('fleet.profile.account_settings', 'Account Settings') },
+            ]}
+            className="mb-2"
+          />
+          <div className="flex items-center gap-3">
+            <button 
+              type="button"
+              onClick={() => navigate('/fleet-operator/profile')} 
+              className="p-2.5 rounded-xl border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
+              title={t('common.back_to_profile')}
+            >
+              <FleetIcons.ArrowLeft className="w-4 h-4" />
+            </button>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('fleet.profile.account_settings')}</h1>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 font-medium mt-1">{t('fleet.account.subtitle')}</p>
+            </div>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+        <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
           <button
             type="button"
             onClick={() => navigate('/fleet-operator/profile')}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-bold transition-all text-center"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-bold transition-all text-center cursor-pointer"
           >
             {t('ag.fleet.accountsettingspage.cancel', 'Cancel')}
           </button>
@@ -323,12 +323,11 @@ export const AccountSettingsPage = () => {
                 onChange={(e) => setFormData({ ...formData, language: e.target.value })}
                 className="w-full h-11 px-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:border-blue-500"
               >
-                <option value="en">{t('common.lang_en')}</option>
-                <option value="hi">{t('common.lang_hi')}</option>
-                <option value="kn">{t('common.lang_kn')}</option>
-                <option value="mr">{t('common.lang_mr')}</option>
-                <option value="te">{t('common.lang_te')}</option>
-                <option value="ta">{t('common.lang_ta')}</option>
+                {languages.filter((language) => language.is_active !== false).map((language) => (
+                  <option key={language.code} value={language.code}>
+                    {language.native_name || language.name} ({language.code})
+                  </option>
+                ))}
               </select>
             </div>
 

@@ -129,7 +129,7 @@ export const DriverUploadDocumentPage = () => {
         <div>
           <Breadcrumb
             items={[
-              { label: t('ag.driver.driveruploaddocumentpage.driver', 'Driver'), path: '/driver/dashboard' },
+              { label: t('roles.driver', 'Driver'), path: '/driver/dashboard' },
               { label: t('ag.driver.driveruploaddocumentpage.documents', 'Documents'), path: '/driver/documents' },
               { label: t('ag.driver.driveruploaddocumentpage.upload_document', 'Upload Document') },
             ]}

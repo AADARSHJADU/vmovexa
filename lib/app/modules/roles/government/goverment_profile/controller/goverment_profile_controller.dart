@@ -19,7 +19,7 @@ class GovernmentProfileController extends GetxController {
   final RxInt selectedNavIndex = 0.obs;
 
   // 3 Dynamic Stats matching Web
-  final RxInt campaignsCount = 0.obs;
+  final RxInt campaignsCount = 0.obs; 
   final RxInt broadcastsCount = 0.obs;
   final RxInt monitoredUnitsCount = 0.obs;
 

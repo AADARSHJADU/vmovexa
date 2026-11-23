@@ -203,7 +203,7 @@ export const SuperGoogleApisPage = () => {
             type="button"
             disabled={saving}
             onClick={handleSave}
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90 active:scale-95 text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:via-indigo-500 hover:to-purple-500 text-white active:scale-95 text-xs font-bold rounded-xl shadow-md shadow-indigo-500/25 transition-all cursor-pointer disabled:opacity-50"
           >
             {saving ? (
               <>

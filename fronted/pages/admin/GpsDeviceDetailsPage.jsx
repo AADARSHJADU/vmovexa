@@ -118,12 +118,12 @@ export const GpsDeviceDetailsPage = () => {
 
   return (
     <div className="w-full space-y-6 pb-24 animate-in fade-in duration-200">
-      {/* 1. Top Header Banner */}
-      <div className="w-full p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* 1. Top Header */}
+      <div className="w-full border-b border-slate-200 dark:border-zinc-800 pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <Breadcrumb
             items={[
-              { label: isFleetPortal ? t('ag.admin.gpsdevicedetailspage.fleet_operator', 'Fleet Operator') : t('ag.admin.gpsdevicedetailspage.tenant_admin', 'Tenant Admin'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
+              { label: isFleetPortal ? t('ag.admin.gpsdevicedetailspage.fleet_operator', 'Fleet Operator') : t('ag.admin.admin_operations', 'Admin Operations'), path: isFleetPortal ? '/fleet-operator/dashboard' : '/admin/dashboard' },
               { label: t('admin.gps.title'), path: basePath },
               { label: boxId },
             ]}

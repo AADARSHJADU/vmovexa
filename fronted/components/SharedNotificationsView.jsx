@@ -41,6 +41,7 @@ export const SharedNotificationsView = ({
     if (dashboardPath.includes('finance')) return 'Finance';
     if (dashboardPath.includes('government')) return 'Government';
     if (dashboardPath.includes('advertiser')) return 'Advertiser';
+    if (dashboardPath.includes('admin')) return t('ag.admin.admin_operations', 'Admin Operations');
     return 'Tenant Admin';
   }, [dashboardPath]);
 

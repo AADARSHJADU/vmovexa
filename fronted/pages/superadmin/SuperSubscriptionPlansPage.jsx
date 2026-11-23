@@ -535,7 +535,7 @@ export const SuperSubscriptionPlansPage = ({ isAddMode = false, isEditMode = fal
 
               {/* Core Details Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* {t('superadmin.sub_plans.plan_tier_name', 'Plan Tier Name *')}/}
+                {/* Plan Tier Name */}
                 <div>
                   <label className="text-xs font-bold text-slate-700 dark:text-zinc-300 block mb-1">
                     {t('superadmin.sub_plans.plan_tier_name', 'Plan Tier Name *')}
@@ -612,7 +612,7 @@ export const SuperSubscriptionPlansPage = ({ isAddMode = false, isEditMode = fal
                   <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-1">{t('superadmin.sub_plans.badge_hint', 'Highlighted tag badge shown on tenant pricing cards')}</p>
                 </div>
 
-                {/* {t('superadmin.sub_plans.plan_availability', 'Plan Availability')} Switch */}
+                {/* Plan Availability Switch */}
                 <div>
                   <label className="text-xs font-bold text-slate-700 dark:text-zinc-300 block mb-1">
                     {t('superadmin.sub_plans.plan_availability', 'Plan Availability')}
@@ -993,11 +993,6 @@ export const SuperSubscriptionPlansPage = ({ isAddMode = false, isEditMode = fal
                             </optgroup>
                             <optgroup label={t('superadmin.sub_plans.optgroup_commercial_items', '── Commercial Line Items (Taxable) ──')}>
                               <option value="FEE_BASE_PLAN">{t('superadmin.sub_plans.base_license_fee', 'Base Subscription / License Fee')}</option>
-                              <option value="FEE_AIRTIME_BROADCAST">{t('superadmin.sub_plans.transit_screen_airtime', 'Transit Screen Airtime Broadcast')}</option>
-                              <option value="FEE_HARDWARE_RENTAL">{t('superadmin.sub_plans.gps_screen_rental', 'GPS & Screen Hardware Rental')}</option>
-                              <option value="FEE_TELEMETRY_DATA">{t('superadmin.sub_plans.iot_sim_data', '4G IoT Telemetry & SIM Data')}</option>
-                              <option value="FEE_ONBOARDING_SETUP">{t('superadmin.sub_plans.onboarding_setup_charge', 'Onboarding & Setup Charge')}</option>
-                              <option value="FEE_CREATIVE_DESIGN">{t('superadmin.sub_plans.creative_review_transcoding', 'Creative Review & Transcoding')}</option>
                             </optgroup>
                             <optgroup label={t('superadmin.sub_plans.optgroup_custom', '── Custom ──')}>
                               <option value="CUSTOM">{t('superadmin.sub_plans.custom_key_item', 'Custom Key / Custom Item')}</option>

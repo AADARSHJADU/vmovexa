@@ -106,7 +106,12 @@ class DriverHomeController extends GetxController {
       final profile = response.data!;
       driverName.value = profile.name ?? driverName.value;
       isOnDuty.value = profile.isOnDuty;
-      isDocumentsVerified.value = profile.documentsVerified ?? true;
+      final isDocVerified = profile.documentsVerified ?? profile.verified ?? true;
+      final isStatusBlocked = ['pending_approval', 'compliance_blocked', 'rejected']
+          .contains((profile.status ?? '').toLowerCase());
+      final isKycBlocked = profile.kycRejected == true;
+      // Authoritative verification flag matching Admin Panel (DriverDashboard.jsx)
+      isDocumentsVerified.value = isDocVerified && !isStatusBlocked && !isKycBlocked;
       if (profile.assignedVehicle != null) {
         busNumber.value = profile.assignedVehicle!.displayName;
       }
@@ -350,7 +355,7 @@ class DriverHomeController extends GetxController {
         title: 'kyc_documents',
         subtitle: 'license_compliance',
         icon: 'assets/icons/advertiser_ic/layers.svg',
-        color: const Color(0xFFB042FF),
+        color: const Color(0xFF1C68FD),
         route: Routes.DRIVER_DOCUMENT,
         requiresVerification: false,
       ),

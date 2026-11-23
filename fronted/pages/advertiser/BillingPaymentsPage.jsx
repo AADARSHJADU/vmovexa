@@ -1,8 +1,7 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useTranslation } from '../../hooks/useTranslation';
-import { useAuth } from '../../hooks/useAuth';
 import { useAdvertiserRole } from '../../hooks/advertiser/useAdvertiserRole';
 import { useGovernmentRole } from '../../hooks/government/useGovernmentRole';
 import { storage } from '../../utils/storage';
@@ -13,11 +12,11 @@ import { ViewModeToggle } from '../../components/ui/ViewModeToggle';
 import { Breadcrumb } from '../../components/ui/Breadcrumb';
 import { Pagination } from '../../components/ui/Pagination';
 import billingService from '../../api/services/billing.service';
-import { InvoiceDownloadButton } from '../../components/billing/InvoiceDownloadButton';
 
 export const BillingPaymentsPage = ({ ownerType = 'advertiser', showTransactions, showPendingCard }) => {
   const { t } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
   const isGov = ownerType === 'government' || location.pathname.includes('/government');
   const shouldShowTransactions = showTransactions !== undefined ? showTransactions : !isGov;
   const shouldShowPendingCard = showPendingCard !== undefined ? showPendingCard : !isGov;
@@ -25,7 +24,6 @@ export const BillingPaymentsPage = ({ ownerType = 'advertiser', showTransactions
   const basePath = isSuperAdmin
     ? (isGov ? '/superadmin/government' : '/superadmin/advertiser')
     : (isGov ? '/government' : '/advertiser');
-  const { user } = useAuth();
   const {
     campaigns: advCampaigns,
     loadCampaigns: loadAdvCampaigns,
@@ -70,6 +68,52 @@ export const BillingPaymentsPage = ({ ownerType = 'advertiser', showTransactions
   const [txPage, setTxPage] = useState(1);
   const [txPageSize, setTxPageSize] = useState(10);
 
+  // 3-dot Action Menu State (viewport-anchored so overflow-x-auto never clips it)
+  const [openMenu, setOpenMenu] = useState(null);
+
+  useEffect(() => {
+    if (!openMenu) return;
+    const handleOutside = (e) => {
+      if (!e.target.closest('[data-billing-actions-menu]')) {
+        setOpenMenu(null);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setOpenMenu(null);
+    };
+    const handleScrollOrResize = () => setOpenMenu(null);
+    document.addEventListener('mousedown', handleOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('scroll', handleScrollOrResize, true);
+    window.addEventListener('resize', handleScrollOrResize);
+    return () => {
+      document.removeEventListener('mousedown', handleOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('scroll', handleScrollOrResize, true);
+      window.removeEventListener('resize', handleScrollOrResize);
+    };
+  }, [openMenu]);
+
+  const handleToggleMenu = (e, inv, detailsUrl) => {
+    e.stopPropagation();
+    if (openMenu?.id === inv.id) {
+      setOpenMenu(null);
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const menuHeight = detailsUrl ? 132 : 92;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const openUp = spaceBelow < menuHeight + 16;
+    setOpenMenu({
+      id: inv.id,
+      inv,
+      detailsUrl,
+      top: openUp ? rect.top - 6 : rect.bottom + 6,
+      right: Math.max(12, window.innerWidth - rect.right),
+      openUp,
+    });
+  };
+
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
@@ -98,7 +142,7 @@ export const BillingPaymentsPage = ({ ownerType = 'advertiser', showTransactions
       return rtkCampaigns.map((c) => {
         let breakdown = c.payment_breakdown || {};
         if (typeof breakdown === 'string') {
-          try { breakdown = JSON.parse(breakdown); } catch (_) { breakdown = {}; }
+          try { breakdown = JSON.parse(breakdown); } catch { breakdown = {}; }
         }
         const baseBudget = breakdown.baseAmount != null ? Number(breakdown.baseAmount) : Number(c.budget || 0);
         const gstAmount = breakdown.gstAmount != null ? Number(breakdown.gstAmount) : (breakdown.items ? 0 : Math.round(baseBudget * 0.18));
@@ -266,7 +310,7 @@ export const BillingPaymentsPage = ({ ownerType = 'advertiser', showTransactions
     });
 
     return list;
-  }, [rtkInvoices, campaigns, approvedCampaigns]);
+  }, [rtkInvoices, campaigns, approvedCampaigns, isGov]);
 
   // Filtered & Paginated Invoices
   const filteredInvoices = useMemo(() => {
@@ -298,7 +342,7 @@ export const BillingPaymentsPage = ({ ownerType = 'advertiser', showTransactions
   // Transactions list from Redux
   const transactions = useMemo(() => {
     if (Array.isArray(rtkTransactions) && rtkTransactions.length > 0) {
-      let list = rtkTransactions;
+      let list;
       if (isGov) {
         const govCodes = new Set(
           campaigns
@@ -356,9 +400,13 @@ export const BillingPaymentsPage = ({ ownerType = 'advertiser', showTransactions
 
   const handleOpenInvoice = async (inv, autoPrint = false) => {
     const invId = typeof inv === 'object' ? (inv.numericId || inv.poReference || inv.campCode || inv.id) : inv;
+    const invCode = typeof inv === 'object' ? (inv.id || '') : '';
     try {
       await billingService.openInvoice(invId, { print: autoPrint });
-    } catch (err) {
+      if (autoPrint) {
+        toast.success(`Opening ${invCode || 'invoice'} print dialog...`, { id: `inv-${invId}`, duration: 2500 });
+      }
+    } catch {
       const matchedCamp = typeof inv === 'object' && inv.matchedCamp
         ? inv.matchedCamp
         : campaigns.find(c =>
@@ -666,68 +714,21 @@ export const BillingPaymentsPage = ({ ownerType = 'advertiser', showTransactions
                         )}
                       </td>
                       <td className="py-3 px-4 text-right whitespace-nowrap">
-                        <div className="flex items-center justify-end gap-2">
-                          {isPending ? (
-                            <>
-                              {detailsUrl && (
-                                <Link
-                                  to={detailsUrl}
-                                  className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold shadow-xs active:scale-[0.99] transition-all flex items-center gap-1.5 cursor-pointer"
-                                  title={t('advertiser.billing.open_campaign_billing', 'Pay or View Details')}
-                                >
-                                  <FleetIcons.Eye className="w-3.5 h-3.5 text-white" />
-                                  <span>{t('advertiser_billing.view_details', 'View Details')}</span>
-                                </Link>
-                              )}
-                              <button
-                                type="button"
-                                onClick={() => handleOpenInvoice(inv, false)}
-                                className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-slate-50 dark:hover:bg-zinc-800 text-[11px] font-bold text-slate-700 dark:text-zinc-200 shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
-                                title={t('advertiser.billing.view_invoice', 'View Tax Invoice')}
-                              >
-                                <FleetIcons.FileText className="w-3.5 h-3.5 text-blue-500" />
-                                <span>{t('advertiser.billing.btn_tax_invoice', 'Tax Invoice')}</span>
-                              </button>
-                              <InvoiceDownloadButton
-                                invoice={inv}
-                                invoiceId={inv.numericId || inv.poReference || inv.campCode || inv.id}
-                                variant="compact"
-                                color="outline"
-                                label="Download PDF"
-                                directPrint={true}
-                              />
-                            </>
-                          ) : (
-                            <>
-                              {detailsUrl && (
-                                <Link
-                                  to={detailsUrl}
-                                  className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-slate-50 dark:hover:bg-zinc-800 text-[11px] font-bold text-slate-700 dark:text-zinc-200 shadow-xs transition-colors flex items-center gap-1 cursor-pointer"
-                                  title={t('advertiser.billing.open_details')}
-                                >
-                                  <FleetIcons.Eye className="w-3.5 h-3.5 text-slate-500 dark:text-zinc-400" />
-                                  <span>{t('advertiser.billing.details', 'Details')}</span>
-                                </Link>
-                              )}
-                              <button
-                                type="button"
-                                onClick={() => handleOpenInvoice(inv, false)}
-                                className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-slate-50 dark:hover:bg-zinc-800 text-[11px] font-bold text-slate-700 dark:text-zinc-200 shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
-                                title={t('advertiser.billing.view_invoice', 'View Certified Tax Invoice')}
-                              >
-                                <FleetIcons.FileText className="w-3.5 h-3.5 text-blue-500" />
-                                <span>{t('advertiser.billing.btn_tax_invoice', 'Tax Invoice')}</span>
-                              </button>
-                              <InvoiceDownloadButton
-                                invoice={inv}
-                                invoiceId={inv.numericId || inv.poReference || inv.campCode || inv.id}
-                                variant="compact"
-                                color="outline"
-                                label="Download PDF"
-                                directPrint={true}
-                              />
-                            </>
-                          )}
+                        <div className="inline-flex items-center justify-end" data-billing-actions-menu>
+                          <button
+                            type="button"
+                            onClick={(e) => handleToggleMenu(e, inv, detailsUrl)}
+                            title={t('common.actions', 'Actions')}
+                            aria-label={t('common.actions', 'Actions')}
+                            aria-expanded={openMenu?.id === inv.id}
+                            className={`p-1.5 rounded-lg border transition-colors inline-flex items-center justify-center cursor-pointer ${
+                              openMenu?.id === inv.id
+                                ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/50 dark:text-blue-400 dark:border-blue-800'
+                                : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-zinc-700 border-slate-200 dark:border-zinc-700'
+                            }`}
+                          >
+                            <FleetIcons.MoreVertical className="w-4 h-4" />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -737,6 +738,66 @@ export const BillingPaymentsPage = ({ ownerType = 'advertiser', showTransactions
             </table>
           )}
         </div>
+
+        {/* Fixed 3-dot Action Dropdown (never clipped by table overflow) */}
+        {openMenu && (
+          <div
+            data-billing-actions-menu
+            style={{
+              position: 'fixed',
+              top: openMenu.top,
+              right: openMenu.right,
+              transform: openMenu.openUp ? 'translateY(-100%)' : 'none',
+            }}
+            className="w-48 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 shadow-xl py-1 z-50 text-left animate-in fade-in zoom-in-95 duration-100"
+          >
+            {openMenu.detailsUrl && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const target = openMenu.detailsUrl;
+                  setOpenMenu(null);
+                  navigate(target);
+                }}
+                className="w-full px-3 py-2 text-xs font-semibold text-slate-700 dark:text-zinc-200 hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/40 dark:hover:text-blue-300 flex items-center gap-2.5 transition-colors cursor-pointer"
+              >
+                <FleetIcons.Eye className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
+                <span>
+                  {openMenu.inv?.isPaid
+                    ? t('advertiser.billing.details', 'View Details')
+                    : t('advertiser_billing.view_details', 'View Details')}
+                </span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                const targetInv = openMenu.inv;
+                setOpenMenu(null);
+                handleOpenInvoice(targetInv, false);
+              }}
+              className="w-full px-3 py-2 text-xs font-semibold text-slate-700 dark:text-zinc-200 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-zinc-800 dark:hover:text-white flex items-center gap-2.5 transition-colors cursor-pointer"
+            >
+              <FleetIcons.FileText className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+              <span>{t('advertiser.billing.btn_tax_invoice', 'Tax Invoice')}</span>
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                const targetInv = openMenu.inv;
+                setOpenMenu(null);
+                handleOpenInvoice(targetInv, true);
+              }}
+              className="w-full px-3 py-2 text-xs font-semibold text-slate-700 dark:text-zinc-200 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-zinc-800 dark:hover:text-white flex items-center gap-2.5 transition-colors cursor-pointer"
+            >
+              <FleetIcons.Download className="w-3.5 h-3.5 text-slate-500 dark:text-zinc-400 shrink-0" />
+              <span>{t('common.download_pdf', 'Download PDF')}</span>
+            </button>
+          </div>
+        )}
 
         {/* Global Pagination for Invoices */}
         <Pagination

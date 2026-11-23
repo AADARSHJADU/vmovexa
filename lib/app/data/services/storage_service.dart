@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
+import '../models/driver_models.dart';
 
 class StorageService extends GetxService {
   static StorageService get to => Get.find<StorageService>();
@@ -152,6 +153,40 @@ class StorageService extends GetxService {
   // Clear government campaign draft
   Future<void> clearGovCampaignDraft() async {
     await _prefs.remove(_keyGovCampaignDraft);
+  }
+
+  static const String _keyLocalIncidents = 'vmovexa_local_driver_incidents';
+
+  /// Save or update a locally reported driver incident
+  Future<void> saveLocalIncident(DriverIncidentItem incident) async {
+    try {
+      final list = getLocalIncidents();
+      list.removeWhere((item) =>
+        (item.id != null && incident.id != null && item.id == incident.id) ||
+        (item.ticketNumber != null && incident.ticketNumber != null && item.ticketNumber == incident.ticketNumber)
+      );
+      list.insert(0, incident);
+      if (list.length > 50) list.removeRange(50, list.length);
+      final jsonList = list.map((e) => e.toJson()).toList();
+      await _prefs.setString(_keyLocalIncidents, jsonEncode(jsonList));
+    } catch (_) {}
+  }
+
+  /// Retrieve locally saved driver incidents
+  List<DriverIncidentItem> getLocalIncidents() {
+    try {
+      final raw = _prefs.getString(_keyLocalIncidents);
+      if (raw != null && raw.isNotEmpty) {
+        final decoded = jsonDecode(raw);
+        if (decoded is List) {
+          return decoded
+              .whereType<Map>()
+              .map((e) => DriverIncidentItem.fromJson(Map<String, dynamic>.from(e)))
+              .toList();
+        }
+      }
+    } catch (_) {}
+    return [];
   }
 
   // Clear session on logout

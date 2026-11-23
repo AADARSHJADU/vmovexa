@@ -12,7 +12,7 @@ export const loginThunk = createAsyncThunk(
     try {
       const { data } = await authService.login(email, password);
       if (data && data.mfaRequired) {
-        return { mfaRequired: true, identifier: data.identifier, devCode: data.devCode };
+        return { mfaRequired: true, identifier: data.identifier };
       }
       return { user: data.user, permissions: data.permissions || [] };
     } catch (err) {
@@ -207,6 +207,18 @@ export const resetPasswordThunk = createAsyncThunk(
     try {
       const { data, message } = await authService.resetPassword(payload);
       return { data, message };
+    } catch (err) {
+      return rejectWithValue(err);
+    }
+  }
+);
+
+export const changePasswordThunk = createAsyncThunk(
+  'auth/changePassword',
+  async ({ currentPassword, newPassword }, { rejectWithValue }) => {
+    try {
+      const res = await authService.changePassword(currentPassword, newPassword);
+      return res;
     } catch (err) {
       return rejectWithValue(err);
     }

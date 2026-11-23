@@ -48,11 +48,10 @@ export const Signup = () => {
 
     try {
       const tid = toast.loading('Sending verification OTP code to your email...');
-      const res = await requestSignupOtp({ name: form.name.trim(), email: form.email.trim().toLowerCase() });
+      await requestSignupOtp({ name: form.name.trim(), email: form.email.trim().toLowerCase() });
       toast.dismiss(tid);
 
-      const devCodeMsg = res?.data?.devCode ? ` (Dev OTP: ${res.data.devCode})` : '';
-      toast.success(`Verification OTP sent to ${form.email}${devCodeMsg}`, { duration: 6000 });
+      toast.success(`Verification OTP sent to ${form.email}`, { duration: 6000 });
 
       // Redirect to OTP verification screen with form context
       navigate('/verify-otp', {
@@ -61,7 +60,6 @@ export const Signup = () => {
           email: form.email.trim().toLowerCase(),
           password: form.password,
           purpose: 'registration',
-          devCode: res?.data?.devCode,
         },
       });
     } catch (err) {

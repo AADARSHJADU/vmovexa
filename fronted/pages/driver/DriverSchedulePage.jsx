@@ -292,7 +292,7 @@ export const DriverSchedulePage = () => {
         <div>
           <Breadcrumb
             items={[
-              { label: t('ag.driver.driverschedulepage.driver', 'Driver'), path: '/driver/dashboard' },
+              { label: t('roles.driver', 'Driver'), path: '/driver/dashboard' },
               { label: t('ag.driver.driverschedulepage.shift_schedule', 'Shift Schedule') },
             ]}
             className="mb-2"

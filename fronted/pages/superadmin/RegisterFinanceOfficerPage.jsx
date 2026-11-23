@@ -500,7 +500,7 @@ export const RegisterFinanceOfficerPage = () => {
           registerFinanceOfficer(createPayload),
           {
             loading: t("superadmin.assignment_finance.enrolling_finance_officer_dispatching_credentials", "Enrolling finance officer & dispatching credentials..."),
-            success: t("superadmin.assignment_finance.finance_officer_enrolled_successfully_credentials_dispatched_to_background_cron_queue", "Finance Officer enrolled successfully! Credentials dispatched to background cron queue."),
+            success: t("superadmin.assignment_finance.finance_officer_enrolled_successfully_credentials_dispatched_to_background_cron_queue", "Finance Officer enrolled successfully! Login credentials sent to the officer's email."),
             error: (err) => err?.message || t("superadmin.assignment_finance.failed_to_register_finance_officer", "Failed to register finance officer."),
           }
         );
