@@ -7,7 +7,7 @@ import '../../profile/controllers/profile_controller.dart';
 class FleetOpDashboardBinding extends Bindings {
   @override
   void dependencies() {
-    Get.put<FleetOpDashboardController>(FleetOpDashboardController());
+    Get.put<FleetOpDashboardController>(FleetOpDashboardController(), permanent: true);
     Get.lazyPut<VehicleListController>(() => VehicleListController(), fenix: true);
     Get.lazyPut<DriverStaffController>(() => DriverStaffController(), fenix: true);
     Get.lazyPut<FleetOpProfileController>(() => FleetOpProfileController(), fenix: true);

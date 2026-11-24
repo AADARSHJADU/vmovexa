@@ -248,10 +248,20 @@ class FleetService extends GetxService {
   }
 
   /// GET /vehicles/:id
-  Future<ApiResponseModel<dynamic>> getVehicle(String id) async {
-    return _http.get(
+  Future<ApiResponseModel<VehicleItemModel>> getVehicle(String id) async {
+    return _http.get<VehicleItemModel>(
       ApiConstants.vehicleOne(id),
       requiresAuth: true,
+      create: (data) {
+        if (data is Map) {
+          final map = Map<String, dynamic>.from(data);
+          if (map['vehicle'] is Map) {
+            return VehicleItemModel.fromJson(Map<String, dynamic>.from(map['vehicle']));
+          }
+          return VehicleItemModel.fromJson(map);
+        }
+        return VehicleItemModel.fromJson({});
+      },
     );
   }
 
@@ -331,6 +341,10 @@ class FleetService extends GetxService {
           return (data['rows'] as List).map((item) => RouteItemModel.fromJson(Map<String, dynamic>.from(item))).toList();
         } else if (data is Map && data['items'] is List) {
           return (data['items'] as List).map((item) => RouteItemModel.fromJson(Map<String, dynamic>.from(item))).toList();
+        } else if (data is Map && data['routes'] is List) {
+          return (data['routes'] as List).map((item) => RouteItemModel.fromJson(Map<String, dynamic>.from(item))).toList();
+        } else if (data is Map && data['data'] is List) {
+          return (data['data'] as List).map((item) => RouteItemModel.fromJson(Map<String, dynamic>.from(item))).toList();
         }
         return <RouteItemModel>[];
       },
@@ -588,6 +602,16 @@ class FleetService extends GetxService {
           return (data['rows'] as List).map((item) => DriverItemModel.fromJson(Map<String, dynamic>.from(item))).toList();
         } else if (data is Map && data['items'] is List) {
           return (data['items'] as List).map((item) => DriverItemModel.fromJson(Map<String, dynamic>.from(item))).toList();
+        } else if (data is Map && data['drivers'] is List) {
+          return (data['drivers'] as List).map((item) => DriverItemModel.fromJson(Map<String, dynamic>.from(item))).toList();
+        } else if (data is Map && data['data'] is List) {
+          return (data['data'] as List).map((item) => DriverItemModel.fromJson(Map<String, dynamic>.from(item))).toList();
+        } else if (data is Map && data['data'] is Map && data['data']['rows'] is List) {
+          return (data['data']['rows'] as List).map((item) => DriverItemModel.fromJson(Map<String, dynamic>.from(item))).toList();
+        } else if (data is Map && data['data'] is Map && data['data']['items'] is List) {
+          return (data['data']['items'] as List).map((item) => DriverItemModel.fromJson(Map<String, dynamic>.from(item))).toList();
+        } else if (data is Map && data['data'] is Map && data['data']['drivers'] is List) {
+          return (data['data']['drivers'] as List).map((item) => DriverItemModel.fromJson(Map<String, dynamic>.from(item))).toList();
         }
         return <DriverItemModel>[];
       },
@@ -859,7 +883,7 @@ class FleetService extends GetxService {
 
   // ==================== GPS / EDGE TRACKING DEVICES ====================
 
-  /// GET /gps-devices
+  /// GET /edge-devices (primary) or /gps-devices (fallback)
   Future<ApiResponseModel<List<GpsDeviceModel>>> getGpsDevices({
     int page = 1,
     int limit = 50,
@@ -873,34 +897,74 @@ class FleetService extends GetxService {
       if (status.isNotEmpty && status.toLowerCase() != 'all') 'status': status,
     };
 
-    return _http.get<List<GpsDeviceModel>>(
+    List<GpsDeviceModel> parseList(dynamic data) {
+      if (data is List) {
+        return data
+            .whereType<Map>()
+            .map((item) => GpsDeviceModel.fromJson(Map<String, dynamic>.from(item)))
+            .toList();
+      } else if (data is Map && data['rows'] is List) {
+        return (data['rows'] as List)
+            .whereType<Map>()
+            .map((item) => GpsDeviceModel.fromJson(Map<String, dynamic>.from(item)))
+            .toList();
+      } else if (data is Map && data['items'] is List) {
+        return (data['items'] as List)
+            .whereType<Map>()
+            .map((item) => GpsDeviceModel.fromJson(Map<String, dynamic>.from(item)))
+            .toList();
+      } else if (data is Map && data['devices'] is List) {
+        return (data['devices'] as List)
+            .whereType<Map>()
+            .map((item) => GpsDeviceModel.fromJson(Map<String, dynamic>.from(item)))
+            .toList();
+      } else if (data is Map && data['edge_devices'] is List) {
+        return (data['edge_devices'] as List)
+            .whereType<Map>()
+            .map((item) => GpsDeviceModel.fromJson(Map<String, dynamic>.from(item)))
+            .toList();
+      }
+      return <GpsDeviceModel>[];
+    }
+
+    // Try edge-devices first (matching web frontend fleetGpsService.getGpsDevices)
+    final res = await _http.get<List<GpsDeviceModel>>(
+      ApiConstants.edgeDevices,
+      queryParams: queryParams,
+      requiresAuth: true,
+      create: parseList,
+    );
+
+    if (res.success && res.data != null && res.data!.isNotEmpty) {
+      return res;
+    }
+
+    // Fallback to gps-devices if edge-devices returned empty or failed
+    final fallbackRes = await _http.get<List<GpsDeviceModel>>(
       ApiConstants.gpsDevices,
       queryParams: queryParams,
       requiresAuth: true,
-      create: (data) {
-        if (data is List) {
-          return data
-              .whereType<Map>()
-              .map((item) => GpsDeviceModel.fromJson(Map<String, dynamic>.from(item)))
-              .toList();
-        } else if (data is Map && data['rows'] is List) {
-          return (data['rows'] as List)
-              .whereType<Map>()
-              .map((item) => GpsDeviceModel.fromJson(Map<String, dynamic>.from(item)))
-              .toList();
-        } else if (data is Map && data['items'] is List) {
-          return (data['items'] as List)
-              .whereType<Map>()
-              .map((item) => GpsDeviceModel.fromJson(Map<String, dynamic>.from(item)))
-              .toList();
-        }
-        return <GpsDeviceModel>[];
-      },
+      create: parseList,
     );
+
+    if (fallbackRes.success && fallbackRes.data != null && fallbackRes.data!.isNotEmpty) {
+      return fallbackRes;
+    }
+
+    return res.success ? res : fallbackRes;
   }
 
-  /// GET /gps-devices/:id
+  /// GET /edge-devices/:id or /gps-devices/:id
   Future<ApiResponseModel<GpsDeviceModel>> getGpsDevice(String id) async {
+    final res = await _http.get<GpsDeviceModel>(
+      ApiConstants.edgeDeviceOne(id),
+      requiresAuth: true,
+      create: (data) => GpsDeviceModel.fromJson(
+        data is Map ? Map<String, dynamic>.from(data) : {},
+      ),
+    );
+    if (res.success && res.data != null) return res;
+
     return _http.get<GpsDeviceModel>(
       ApiConstants.gpsDeviceOne(id),
       requiresAuth: true,
@@ -910,8 +974,15 @@ class FleetService extends GetxService {
     );
   }
 
-  /// POST /gps-devices
+  /// POST /edge-devices or /gps-devices
   Future<ApiResponseModel<dynamic>> createGpsDevice(Map<String, dynamic> data) async {
+    final res = await _http.post(
+      ApiConstants.edgeDevices,
+      body: data,
+      requiresAuth: true,
+    );
+    if (res.success) return res;
+
     return _http.post(
       ApiConstants.gpsDevices,
       body: data,
@@ -919,8 +990,15 @@ class FleetService extends GetxService {
     );
   }
 
-  /// PATCH /gps-devices/:id
+  /// PATCH /edge-devices/:id or /gps-devices/:id
   Future<ApiResponseModel<dynamic>> updateGpsDevice(String id, Map<String, dynamic> data) async {
+    final res = await _http.patch(
+      ApiConstants.edgeDeviceOne(id),
+      body: data,
+      requiresAuth: true,
+    );
+    if (res.success) return res;
+
     return _http.patch(
       ApiConstants.gpsDeviceOne(id),
       body: data,
@@ -928,8 +1006,15 @@ class FleetService extends GetxService {
     );
   }
 
-  /// POST /gps-devices/:id/assign
+  /// POST /edge-devices/:id/assign or /gps-devices/:id/assign
   Future<ApiResponseModel<dynamic>> assignGpsVehicle(String id, dynamic vehicleId) async {
+    final res = await _http.post(
+      ApiConstants.edgeDeviceAssign(id),
+      body: {'vehicleId': vehicleId},
+      requiresAuth: true,
+    );
+    if (res.success) return res;
+
     return _http.post(
       ApiConstants.gpsDeviceAssign(id),
       body: {'vehicleId': vehicleId},
@@ -937,16 +1022,46 @@ class FleetService extends GetxService {
     );
   }
 
-  /// POST /gps-devices/:id/approve
+  /// POST /edge-devices/:id/reboot
+  Future<ApiResponseModel<dynamic>> rebootEdgeDevice(String id) async {
+    return _http.post(
+      ApiConstants.edgeDeviceReboot(id),
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /edge-devices/:id/connectivity-tests
+  Future<ApiResponseModel<dynamic>> testEdgeDeviceConnectivity(String id) async {
+    return _http.post(
+      ApiConstants.edgeDeviceConnectivityTests(id),
+      requiresAuth: true,
+    );
+  }
+
+  /// POST /gps-devices/:id/approve or /edge-devices/:id/toggle
   Future<ApiResponseModel<dynamic>> approveGpsDevice(String id) async {
+    final res = await _http.patch(
+      ApiConstants.edgeDeviceToggle(id),
+      body: {'isActive': true},
+      requiresAuth: true,
+    );
+    if (res.success) return res;
+
     return _http.post(
       ApiConstants.gpsDeviceApprove(id),
       requiresAuth: true,
     );
   }
 
-  /// POST /gps-devices/:id/reject
+  /// POST /gps-devices/:id/reject or /edge-devices/:id/toggle
   Future<ApiResponseModel<dynamic>> rejectGpsDevice(String id, String reason) async {
+    final res = await _http.patch(
+      ApiConstants.edgeDeviceToggle(id),
+      body: {'isActive': false, 'reason': reason},
+      requiresAuth: true,
+    );
+    if (res.success) return res;
+
     return _http.post(
       ApiConstants.gpsDeviceReject(id),
       body: {'reason': reason},
@@ -954,8 +1069,14 @@ class FleetService extends GetxService {
     );
   }
 
-  /// DELETE /gps-devices/:id
+  /// DELETE /edge-devices/:id or /gps-devices/:id
   Future<ApiResponseModel<dynamic>> deleteGpsDevice(String id) async {
+    final res = await _http.delete(
+      ApiConstants.edgeDeviceOne(id),
+      requiresAuth: true,
+    );
+    if (res.success) return res;
+
     return _http.delete(
       ApiConstants.gpsDeviceOne(id),
       requiresAuth: true,

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:get/get.dart';
 import '../../../../../data/models/fleet_models.dart';
 import '../../../../../data/models/work_order_model.dart';
@@ -90,7 +89,12 @@ class CreateTechnicianRequestController extends GetxController {
     try {
       final vRes = await FleetService.to.getVehicles(limit: 100);
       if (vRes.success && vRes.data != null && vRes.data!.isNotEmpty) {
-        vehiclesList.assignAll(vRes.data!);
+        // Exclude unapproved / pending vehicles from repair requests
+        final approved = vRes.data!.where((v) {
+          final s = v.status.trim().toLowerCase();
+          return s != 'pending' && s != 'pending_approval';
+        }).toList();
+        vehiclesList.assignAll(approved.isNotEmpty ? approved : vRes.data!);
       } else {
         vehiclesList.assignAll(_getMockVehicles());
       }

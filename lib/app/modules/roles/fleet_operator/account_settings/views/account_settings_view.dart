@@ -76,13 +76,13 @@ class AccountSettingsView extends StatelessWidget {
                     const SizedBox(height: 24),
 
                     // Preferences Section
-                    _buildSectionHeader(
+                    /*_buildSectionHeader(
                       "assets/icons/fleet_operator_icons/appPreferenceA.svg",
                       'preferences'.tr,
                     ),
                     const SizedBox(height: 12),
                     _buildPreferencesCard(controller),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 24),*/
 
                     // // Security Section
                     // _buildSectionHeader(

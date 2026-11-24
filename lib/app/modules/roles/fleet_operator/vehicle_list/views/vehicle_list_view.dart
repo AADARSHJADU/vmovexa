@@ -51,12 +51,14 @@ class VehicleListController extends GetxController {
           (v.fleetName ?? '').toLowerCase().contains(query);
 
       bool matchesTab = true;
-      if (tab == 'On Route') {
+      if (tab == 'Pending Approval') {
+        matchesTab = v.status.toLowerCase() == 'pending_approval' || v.status.toLowerCase() == 'pending';
+      } else if (tab == 'On Route') {
         matchesTab = v.status.toLowerCase() == 'on_route' || v.status.toLowerCase() == 'active' || v.status.toLowerCase() == 'moving';
       } else if (tab == 'In Depot') {
         matchesTab = v.status.toLowerCase() == 'in_depot' || v.status.toLowerCase() == 'idle';
       } else if (tab == 'Maintenance') {
-        matchesTab = v.status.toLowerCase() == 'maintenance' || v.status.toLowerCase() == 'offline';
+        matchesTab = v.status.toLowerCase() == 'maintenance' || v.status.toLowerCase() == 'offline' || v.status.toLowerCase() == 'rejected';
       } else if (tab == 'Electric EV') {
         matchesTab = v.fuelType.toLowerCase() == 'electric';
       }
@@ -282,6 +284,7 @@ class VehicleListView extends StatelessWidget {
               () => Row(
                 children: [
                   {'key': 'All', 'label': 'all'.tr},
+                  {'key': 'Pending Approval', 'label': 'pending_approval'.tr},
                   {'key': 'On Route', 'label': 'on_route_status'.tr},
                   {'key': 'In Depot', 'label': 'in_depot_status'.tr},
                   {'key': 'Maintenance', 'label': 'maintenance_status'.tr},

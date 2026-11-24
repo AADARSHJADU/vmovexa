@@ -6,19 +6,39 @@ import '../../../../../data/services/fleet_service.dart';
 import '../../../../../data/services/http_client_service.dart';
 
 class DriverModel {
+  final String? id;
   final String name;
   final String empId;
   final String dlNo;
   final String dlExpiry;
   final String status;
+  final String? avatarUrl;
+  final String? phone;
+  final String? assignedBusId;
+  final String? assignedVehicleReg;
 
   DriverModel({
+    this.id,
     required this.name,
     required this.empId,
     required this.dlNo,
     required this.dlExpiry,
     required this.status,
+    this.avatarUrl,
+    this.phone,
+    this.assignedBusId,
+    this.assignedVehicleReg,
   });
+
+  bool get isAssigned {
+    final s = status.toLowerCase();
+    if (s == 'assigned' || s == 'on_duty' || s == 'on duty') return true;
+    if (assignedBusId != null && assignedBusId!.trim().isNotEmpty && assignedBusId != '0') return true;
+    if (assignedVehicleReg != null && assignedVehicleReg!.trim().isNotEmpty) return true;
+    return false;
+  }
+
+  bool get isAvailable => !isAssigned;
 }
 
 class ShiftPreset {

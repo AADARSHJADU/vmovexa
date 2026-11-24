@@ -12,19 +12,29 @@ class SplashController extends GetxController {
   }
 
   Future<void> _handleNavigation() async {
-    await Future.delayed(const Duration(milliseconds: 2000));
+    await Future.delayed(const Duration(milliseconds: 1500));
 
     if (Get.isRegistered<StorageService>() && StorageService.to.isLoggedIn()) {
+      final savedUser = StorageService.to.getUser();
+
       try {
-        final meRes = await AuthService.to.getMe();
+        final meRes = await AuthService.to.getMe().timeout(const Duration(seconds: 4));
         if (meRes.success && meRes.data != null) {
           final user = meRes.data!;
+          await StorageService.to.saveUser(user);
           LoginController.currentRole = user.displayRole;
           Get.offNamed(user.dashboardRoute);
           return;
         }
       } catch (_) {
-        // Fallback to onboarding if session verification fails
+        // If /auth/me timed out or temporary network issue, proceed with cached user session
+      }
+
+      // If user profile is already saved locally, don't kick them out to onboarding!
+      if (savedUser != null) {
+        LoginController.currentRole = savedUser.displayRole;
+        Get.offNamed(savedUser.dashboardRoute);
+        return;
       }
     }
 

@@ -23,7 +23,7 @@ class ApiConstants {
   static void setBaseUrl(String url) {
     baseUrl = url;
   }
-///
+  ///
   // Fleet Operator Endpoints
   static const String dashboardKpis = '/dashboard/admin/kpis';
   static const String liveSummary = '/dashboard/live-summary';

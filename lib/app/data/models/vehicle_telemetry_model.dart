@@ -61,40 +61,53 @@ class VehicleTelemetryModel {
   });
 
   factory VehicleTelemetryModel.fromJson(Map<String, dynamic> json) {
+    final vMap = json['vehicle'] is Map ? Map<String, dynamic>.from(json['vehicle']) : <String, dynamic>{};
+
     List<TelemetryPositionModel> posList = [];
-    if (json['positions'] is List) {
-      posList = (json['positions'] as List)
+    final rawPositions = json['positions'] ?? vMap['positions'];
+    if (rawPositions is List) {
+      posList = rawPositions
           .whereType<Map>()
           .map((p) => TelemetryPositionModel.fromJson(Map<String, dynamic>.from(p)))
           .where((p) => p.lat != 0.0 && p.lng != 0.0)
           .toList();
     }
 
-    final latVal = (json['latitude'] ?? json['lat']);
-    final lngVal = (json['longitude'] ?? json['lng']);
+    final latVal = (json['latitude'] ?? json['lat'] ?? vMap['latitude'] ?? vMap['lat'] ?? vMap['last_latitude']);
+    final lngVal = (json['longitude'] ?? json['lng'] ?? vMap['longitude'] ?? vMap['lng'] ?? vMap['last_longitude']);
 
     return VehicleTelemetryModel(
-      vehicleId: json['vehicle_id']?.toString() ?? json['vehicleId']?.toString() ?? json['id']?.toString() ?? '',
+      vehicleId: json['vehicle_id']?.toString() ??
+          json['vehicleId']?.toString() ??
+          json['id']?.toString() ??
+          vMap['id']?.toString() ??
+          '',
       latitude: latVal != null ? double.tryParse(latVal.toString()) : null,
       longitude: lngVal != null ? double.tryParse(lngVal.toString()) : null,
-      speedKmh: (json['speed_kmh'] ?? json['speed']) != null
-          ? double.tryParse((json['speed_kmh'] ?? json['speed']).toString())
+      speedKmh: (json['speed_kmh'] ?? json['speed'] ?? vMap['last_speed'] ?? vMap['speed']) != null
+          ? double.tryParse((json['speed_kmh'] ?? json['speed'] ?? vMap['last_speed'] ?? vMap['speed']).toString())
           : null,
-      ignitionStatus: json['ignition_status']?.toString() ?? json['ignition']?.toString() ?? 'ON',
-      batterySocPct: (json['battery_soc_pct'] ?? json['battery'] ?? json['battery_level']) != null
-          ? int.tryParse((json['battery_soc_pct'] ?? json['battery'] ?? json['battery_level']).toString())
+      ignitionStatus: json['ignition_status']?.toString() ??
+          json['ignition']?.toString() ??
+          vMap['ignition_status']?.toString() ??
+          'ON',
+      batterySocPct: (json['battery_soc_pct'] ?? json['battery'] ?? json['battery_level'] ?? vMap['battery_level']) != null
+          ? int.tryParse((json['battery_soc_pct'] ?? json['battery'] ?? json['battery_level'] ?? vMap['battery_level']).toString())
           : null,
-      odometerKm: (json['odometer_km'] ?? json['odometer']) != null
-          ? double.tryParse((json['odometer_km'] ?? json['odometer']).toString())
+      odometerKm: (json['odometer_km'] ?? json['odometer'] ?? vMap['total_distance']) != null
+          ? double.tryParse((json['odometer_km'] ?? json['odometer'] ?? vMap['total_distance']).toString())
           : null,
-      heading: (json['heading'] ?? json['bearing']) != null
-          ? int.tryParse((json['heading'] ?? json['bearing']).toString())
+      heading: (json['heading'] ?? json['bearing'] ?? vMap['heading']) != null
+          ? int.tryParse((json['heading'] ?? json['bearing'] ?? vMap['heading']).toString())
           : null,
-      satellites: (json['satellites'] ?? json['sat_count']) != null
-          ? int.tryParse((json['satellites'] ?? json['sat_count']).toString())
+      satellites: (json['satellites'] ?? json['sat_count'] ?? vMap['satellites']) != null
+          ? int.tryParse((json['satellites'] ?? json['sat_count'] ?? vMap['satellites']).toString())
           : null,
       positions: posList,
-      updatedAt: json['updated_at']?.toString() ?? json['updatedAt']?.toString() ?? json['at']?.toString(),
+      updatedAt: json['updated_at']?.toString() ??
+          json['updatedAt']?.toString() ??
+          json['at']?.toString() ??
+          vMap['updatedAt']?.toString(),
     );
   }
 }

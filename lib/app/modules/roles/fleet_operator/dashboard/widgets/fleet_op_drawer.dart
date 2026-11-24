@@ -12,7 +12,9 @@ class FleetOpDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<FleetOpDashboardController>();
+    final controller = Get.isRegistered<FleetOpDashboardController>()
+        ? Get.find<FleetOpDashboardController>()
+        : Get.put(FleetOpDashboardController(), permanent: true);
 
     return Drawer(
       backgroundColor: const Color(0xFF0A0C14),

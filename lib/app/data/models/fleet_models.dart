@@ -41,7 +41,12 @@ class FleetKpisModel {
   static int _toInt(dynamic val) {
     if (val == null) return 0;
     if (val is int) return val;
-    return int.tryParse(val.toString()) ?? 0;
+    final str = val.toString().trim();
+    final match = RegExp(r'\d+').firstMatch(str);
+    if (match != null) {
+      return int.tryParse(match.group(0)!) ?? 0;
+    }
+    return int.tryParse(str) ?? 0;
   }
 }
 
@@ -91,7 +96,12 @@ class FleetItemModel {
   static int _toInt(dynamic val) {
     if (val == null) return 0;
     if (val is int) return val;
-    return int.tryParse(val.toString()) ?? 0;
+    final str = val.toString().trim();
+    final match = RegExp(r'\d+').firstMatch(str);
+    if (match != null) {
+      return int.tryParse(match.group(0)!) ?? 0;
+    }
+    return int.tryParse(str) ?? 0;
   }
 }
 
@@ -290,7 +300,11 @@ class VehicleItemModel {
       organizationId: json['organization_id'] ?? json['organizationId'] ?? json['organization']?['id'] ?? json['fleet']?['organization_id'],
       organizationName: json['organization_name'] ?? json['organization']?['name'] ?? json['fleet']?['organization']?['name'],
       assignedDriverId: json['assigned_driver_id'] ?? json['driver_id'] ?? json['driver']?['id'],
-      assignedDriverName: json['assigned_driver_name'] ?? json['driver']?['name'],
+      assignedDriverName: json['assigned_driver_name']?.toString() ??
+          json['assignedDriverName']?.toString() ??
+          json['driver']?['name']?.toString() ??
+          json['driver']?['full_name']?.toString() ??
+          json['driver']?['user']?['name']?.toString(),
       routeId: json['route_id'] ?? json['routeId'] ?? json['route']?['id'],
       assignedRoute: json['assigned_route'] ?? json['route']?['name'],
       source: json['source']?.toString() ?? json['route']?['start_point']?.toString() ?? '',
@@ -305,7 +319,16 @@ class VehicleItemModel {
       photos: photoList,
       speedKmh: (json['speed_kmh'] ?? json['speed'] ?? json['last_speed']) != null ? double.tryParse((json['speed_kmh'] ?? json['speed'] ?? json['last_speed']).toString()) : null,
       batterySocPct: (json['battery_soc_pct'] ?? json['battery_level'] ?? json['battery']) != null ? int.tryParse((json['battery_soc_pct'] ?? json['battery_level'] ?? json['battery']).toString()) : null,
-      driverPhone: json['driver_phone']?.toString() ?? json['driver']?['phone']?.toString(),
+      driverPhone: json['driver_phone']?.toString() ??
+          json['driverPhone']?.toString() ??
+          json['driver']?['phone']?.toString() ??
+          json['driver']?['phoneNumber']?.toString() ??
+          json['driver']?['phone_number']?.toString() ??
+          json['driver']?['mobile']?.toString() ??
+          json['driver']?['contact_number']?.toString() ??
+          json['driver']?['contactNumber']?.toString() ??
+          json['driver']?['user']?['phone']?.toString() ??
+          json['driver']?['user']?['mobile']?.toString(),
       driverEmpId: json['driver_emp_id']?.toString() ?? json['driver']?['emp_id']?.toString() ?? json['driver']?['badge_id']?.toString(),
       routePolyline: json['polyline']?.toString() ?? json['route']?['polyline']?.toString(),
       routeDistanceKm: (json['route_distance_km'] ?? json['route']?['distance_km'] ?? json['distance_km']) != null
@@ -335,7 +358,12 @@ class VehicleItemModel {
   static int _toInt(dynamic val) {
     if (val == null) return 0;
     if (val is int) return val;
-    return int.tryParse(val.toString()) ?? 0;
+    final str = val.toString().trim();
+    final match = RegExp(r'\d+').firstMatch(str);
+    if (match != null) {
+      return int.tryParse(match.group(0)!) ?? 0;
+    }
+    return int.tryParse(str) ?? 0;
   }
 }
 
@@ -691,7 +719,12 @@ class DepotItemModel {
   static int _toInt(dynamic val) {
     if (val == null) return 0;
     if (val is int) return val;
-    return int.tryParse(val.toString()) ?? 0;
+    final str = val.toString().trim();
+    final match = RegExp(r'\d+').firstMatch(str);
+    if (match != null) {
+      return int.tryParse(match.group(0)!) ?? 0;
+    }
+    return int.tryParse(str) ?? 0;
   }
 }
 
@@ -872,7 +905,12 @@ class FleetDetailModel {
   static int _toInt(dynamic val) {
     if (val == null) return 0;
     if (val is int) return val;
-    return int.tryParse(val.toString()) ?? 0;
+    final str = val.toString().trim();
+    final match = RegExp(r'\d+').firstMatch(str);
+    if (match != null) {
+      return int.tryParse(match.group(0)!) ?? 0;
+    }
+    return int.tryParse(str) ?? 0;
   }
 }
 

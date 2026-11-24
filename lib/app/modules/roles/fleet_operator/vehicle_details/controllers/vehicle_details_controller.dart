@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../../routes/app_routes.dart';
 import '../../../../../data/models/fleet_models.dart';
 import '../../../../../data/services/fleet_service.dart';
@@ -9,6 +10,11 @@ class VehicleDetailsController extends GetxController {
   final RxBool isLoading = true.obs;
   final RxBool isDeleting = false.obs;
   String? vehicleId;
+
+  // Resolved Driver Details
+  final RxnString resolvedDriverPhone = RxnString();
+  final RxnString resolvedDriverName = RxnString();
+  final RxnString resolvedDriverEmpId = RxnString();
 
   // Convenient Getters for UI
   String get registrationNumber => vehicle.value?.registrationNumber ?? 'N/A';
@@ -28,7 +34,12 @@ class VehicleDetailsController extends GetxController {
   String get assignedRoute => vehicle.value?.assignedRoute ?? 'Route 101: Indiranagar - Majestic';
   String get source => (vehicle.value?.source != null && vehicle.value!.source!.isNotEmpty) ? vehicle.value!.source! : 'Indiranagar Central';
   String get destination => (vehicle.value?.destination != null && vehicle.value!.destination!.isNotEmpty) ? vehicle.value!.destination! : 'Kempegowda Bus Station';
-  String get driverName => vehicle.value?.assignedDriverName ?? 'No Driver Assigned';
+  String get driverName =>
+      resolvedDriverName.value ?? vehicle.value?.assignedDriverName ?? 'No Driver Assigned';
+  String? get driverPhone =>
+      resolvedDriverPhone.value ?? vehicle.value?.driverPhone;
+  String? get driverEmpId =>
+      resolvedDriverEmpId.value ?? vehicle.value?.driverEmpId;
   String get gpsDeviceId => vehicle.value?.gpsDeviceId ?? 'GPS-TRK-00123';
   double? get speedKmh => vehicle.value?.speedKmh;
   int? get batterySocPct => vehicle.value?.batterySocPct;
@@ -62,6 +73,8 @@ class VehicleDetailsController extends GetxController {
       final mapArgs = Map<String, dynamic>.from(args);
       if (mapArgs['vehicle'] is VehicleItemModel) {
         vehicle.value = mapArgs['vehicle'] as VehicleItemModel;
+      } else if (mapArgs['vehicle'] is Map) {
+        vehicle.value = VehicleItemModel.fromJson(Map<String, dynamic>.from(mapArgs['vehicle']));
       }
       vehicleId = (mapArgs['vehicleId'] ?? mapArgs['id'])?.toString();
       loadVehicleDetails();
@@ -83,12 +96,76 @@ class VehicleDetailsController extends GetxController {
     try {
       final res = await FleetService.to.getVehicle(vehicleId!);
       if (res.success && res.data != null) {
-        vehicle.value = res.data;
+        if (res.data is VehicleItemModel) {
+          vehicle.value = res.data;
+        } else if (res.data is Map) {
+          final map = Map<String, dynamic>.from(res.data as dynamic);
+          if (map['vehicle'] is Map) {
+            vehicle.value = VehicleItemModel.fromJson(Map<String, dynamic>.from(map['vehicle']));
+          } else {
+            vehicle.value = VehicleItemModel.fromJson(map);
+          }
+        }
+      }
+
+      final v = vehicle.value;
+      if (v != null) {
+        if (v.driverPhone != null && v.driverPhone!.isNotEmpty) {
+          resolvedDriverPhone.value = v.driverPhone;
+        }
+        if (v.assignedDriverName != null && v.assignedDriverName!.isNotEmpty) {
+          resolvedDriverName.value = v.assignedDriverName;
+        }
+        if (v.driverEmpId != null && v.driverEmpId!.isNotEmpty) {
+          resolvedDriverEmpId.value = v.driverEmpId;
+        }
+
+        final dId = v.assignedDriverId?.toString();
+        if ((resolvedDriverPhone.value == null || resolvedDriverPhone.value!.isEmpty) &&
+            dId != null &&
+            dId.isNotEmpty) {
+          _fetchDriverDetails(dId);
+        }
       }
     } catch (e) {
       debugPrint('Error loading vehicle details: $e');
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> _fetchDriverDetails(String dId) async {
+    try {
+      final dRes = await FleetService.to.getDriver(dId);
+      if (dRes.success && dRes.data != null) {
+        if (dRes.data is DriverItemModel) {
+          final d = dRes.data as DriverItemModel;
+          if (d.phone.isNotEmpty) resolvedDriverPhone.value = d.phone;
+          if (d.name.isNotEmpty) resolvedDriverName.value = d.name;
+          if (d.empId.isNotEmpty) resolvedDriverEmpId.value = d.empId;
+        } else if (dRes.data is Map) {
+          final map = Map<String, dynamic>.from(dRes.data as dynamic);
+          final dObj = map['driver'] is Map ? map['driver'] : (map['data'] is Map ? map['data'] : map);
+          final phone = dObj['phone']?.toString() ??
+              dObj['phoneNumber']?.toString() ??
+              dObj['phone_number']?.toString() ??
+              dObj['mobile']?.toString() ??
+              dObj['contact_number']?.toString() ??
+              dObj['user']?['phone']?.toString();
+          final name = dObj['name']?.toString() ??
+              dObj['full_name']?.toString() ??
+              dObj['user']?['name']?.toString();
+          final emp = dObj['emp_id']?.toString() ??
+              dObj['badge_id']?.toString() ??
+              dObj['code']?.toString();
+
+          if (phone != null && phone.isNotEmpty) resolvedDriverPhone.value = phone;
+          if (name != null && name.isNotEmpty) resolvedDriverName.value = name;
+          if (emp != null && emp.isNotEmpty) resolvedDriverEmpId.value = emp;
+        }
+      }
+    } catch (_) {
+      // Non-critical fallback
     }
   }
 
@@ -196,14 +273,49 @@ class VehicleDetailsController extends GetxController {
     });
   }
 
-  void callDriver() {
-    // Get.snackbar(
-    //   'calling_driver'.tr,
-    //   'dialing_driver_msg'.tr,
-    //   snackPosition: SnackPosition.BOTTOM,
-    //   backgroundColor: const Color(0xFF6366F1),
-    //   colorText: Colors.white,
-    //   margin: const EdgeInsets.all(16),
-    // );
+  Future<void> callDriver() async {
+    // If phone is missing, try to fetch driver if ID is present
+    if ((driverPhone == null || driverPhone!.trim().isEmpty) &&
+        vehicle.value?.assignedDriverId != null) {
+      await _fetchDriverDetails(vehicle.value!.assignedDriverId.toString());
+    }
+
+    final rawPhone = driverPhone ?? '';
+    final cleanPhone = rawPhone.replaceAll(RegExp(r'[^\d+]'), '');
+
+    if (cleanPhone.isEmpty) {
+      Get.snackbar(
+        'driver'.tr,
+        'driver_contact_not_available'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFFEF4444),
+        colorText: Colors.white,
+        icon: const Icon(Icons.phone_disabled_rounded, color: Colors.white),
+        margin: const EdgeInsets.all(16),
+      );
+      return;
+    }
+
+    final uri = Uri.parse('tel:$cleanPhone');
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri);
+      } else {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    } catch (_) {
+      try {
+        await launchUrl(uri);
+      } catch (e) {
+        Get.snackbar(
+          'calling_driver'.tr,
+          'dialing_driver_msg'.tr,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color(0xFF6366F1),
+          colorText: Colors.white,
+          margin: const EdgeInsets.all(16),
+        );
+      }
+    }
   }
 }

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import '../../../../../data/constants/api_constants.dart';
 import '../../../../../theme/app_colors.dart';
 import '../../../../../widgets/custom_back_button.dart';
@@ -792,6 +794,10 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
         ),
         const SizedBox(height: 14),
 
+        // Interactive GPS Map Box
+        _buildInteractiveMapBox(),
+        const SizedBox(height: 14),
+
         // Landmark & Coords Container
         Container(
           padding: const EdgeInsets.all(14),
@@ -832,6 +838,14 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                         TextField(
                           controller: controller.reportLatitudeCtrl,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          onChanged: (val) {
+                            final lat = double.tryParse(val.trim());
+                            if (lat != null) {
+                              controller.reportLatitude.value = lat;
+                              final lng = controller.reportLongitude.value ?? 75.8577;
+                              controller.moveMapTo(lat, lng);
+                            }
+                          },
                           style: const TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace'),
                           decoration: InputDecoration(
                             hintText: 'e.g. 22.7196',
@@ -855,6 +869,14 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                         TextField(
                           controller: controller.reportLongitudeCtrl,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          onChanged: (val) {
+                            final lng = double.tryParse(val.trim());
+                            if (lng != null) {
+                              controller.reportLongitude.value = lng;
+                              final lat = controller.reportLatitude.value ?? 22.7196;
+                              controller.moveMapTo(lat, lng);
+                            }
+                          },
                           style: const TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace'),
                           decoration: InputDecoration(
                             hintText: 'e.g. 75.8577',
@@ -975,6 +997,246 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
           ],
         ),
       ],
+    );
+  }
+
+  // ==========================================
+  // STEP 2: INTERACTIVE GPS MAP COMPONENT
+  // ==========================================
+
+  Widget _buildInteractiveMapBox() {
+    return Obx(() {
+      final lat = controller.reportLatitude.value ?? 22.7196;
+      final lng = controller.reportLongitude.value ?? 75.8577;
+      final hasCoords = controller.reportLatitude.value != null && controller.reportLongitude.value != null;
+
+      return Container(
+        height: 250,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.cardBorder),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          children: [
+            FlutterMap(
+              mapController: controller.mapController,
+              options: MapOptions(
+                initialCenter: LatLng(lat, lng),
+                initialZoom: 14.5,
+                minZoom: 3.0,
+                maxZoom: 18.0,
+                onTap: (tapPosition, point) {
+                  controller.setLocationFromCoordinates(point.latitude, point.longitude);
+                },
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.vmovexa.app',
+                ),
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: LatLng(lat, lng),
+                      width: 52,
+                      height: 52,
+                      child: GestureDetector(
+                        onTap: () => controller.moveMapTo(lat, lng),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: const Color(0xFFEF4444).withValues(alpha: 0.25),
+                              ),
+                            ),
+                            Container(
+                              width: 34,
+                              height: 34,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFEF4444),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white, width: 2.5),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.45),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.warning_amber_rounded,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+
+            // Top-Left Badge: Coordinates / Hint
+            Positioned(
+              top: 10,
+              left: 10,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0F172A).withValues(alpha: 0.88),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.cardBorder),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      blurRadius: 6,
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      hasCoords ? Icons.location_on_rounded : Icons.touch_app_rounded,
+                      color: hasCoords ? const Color(0xFFEF4444) : const Color(0xFF60A5FA),
+                      size: 14,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      hasCoords
+                          ? 'Lat: ${lat.toStringAsFixed(5)}, Lng: ${lng.toStringAsFixed(5)}'
+                          : 'tap_map_to_set_location'.tr,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Top-Right Controls: Recenter, Zoom In, Zoom Out
+            Positioned(
+              top: 10,
+              right: 10,
+              child: Column(
+                children: [
+                  _buildMapControlButton(
+                    icon: Icons.my_location_rounded,
+                    tooltip: 'Recenter to pin',
+                    onTap: () => controller.recenterMapToPin(),
+                  ),
+                  const SizedBox(height: 6),
+                  _buildMapControlButton(
+                    icon: Icons.add_rounded,
+                    tooltip: 'Zoom In',
+                    onTap: () => controller.zoomInMap(),
+                  ),
+                  const SizedBox(height: 6),
+                  _buildMapControlButton(
+                    icon: Icons.remove_rounded,
+                    tooltip: 'Zoom Out',
+                    onTap: () => controller.zoomOutMap(),
+                  ),
+                ],
+              ),
+            ),
+
+            // Reverse Geocoding Status
+            if (controller.isReverseGeocoding.value)
+              Positioned(
+                bottom: 10,
+                left: 10,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F172A).withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.5)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF60A5FA)),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Fetching address...',
+                        style: TextStyle(color: Colors.grey.shade300, fontSize: 10, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+            // Bottom-Right Hint
+            if (!controller.isReverseGeocoding.value)
+              Positioned(
+                bottom: 8,
+                right: 10,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F172A).withValues(alpha: 0.75),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.touch_app_outlined, color: Colors.white70, size: 11),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Tap map to set pin',
+                        style: TextStyle(color: Colors.grey.shade300, fontSize: 9.5),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildMapControlButton({
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: const Color(0xFF0F172A).withValues(alpha: 0.9),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: AppColors.cardBorder),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.25),
+              blurRadius: 4,
+            ),
+          ],
+        ),
+        child: Icon(icon, size: 16, color: Colors.white),
+      ),
     );
   }
 

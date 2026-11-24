@@ -37,7 +37,7 @@ class AssignGpsView extends GetView<AssignGpsController> {
     return Column(
       children: [
         // Top Bar
-        _buildTopBar('assign_gps_to_vehicle'.tr),
+        _buildTopBar('Assign Edge Device & GPS'),
 
         Expanded(
           child: SingleChildScrollView(
@@ -50,20 +50,20 @@ class AssignGpsView extends GetView<AssignGpsController> {
                 const SizedBox(height: 16),
 
                 // 2. Search Field
-                _buildSearchField('search_vehicles_hint'.tr),
+                _buildSearchField('Search fleet buses by number, model, depot...'),
                 const SizedBox(height: 14),
 
                 // 3. Vehicle Selection Header
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'select_vehicle_to_bind'.tr,
-                      style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                    const Text(
+                      'Select Bus for Edge Box Installation',
+                      style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                     Obx(() {
                       return Text(
-                        '${controller.filteredVehicles.length} ${'vehicles_available'.tr}',
+                        '${controller.filteredVehicles.length} buses',
                         style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                       );
                     }),
@@ -140,7 +140,7 @@ class AssignGpsView extends GetView<AssignGpsController> {
                       style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      '${d.vendor} ${d.model} • IMEI: ${d.imei}',
+                      '${d.model} • MAC: ${d.displayMacOrImei}',
                       style: const TextStyle(color: AppColors.textMuted, fontSize: 11, fontFamily: 'monospace'),
                     ),
                   ],
@@ -243,6 +243,8 @@ class AssignGpsView extends GetView<AssignGpsController> {
         itemBuilder: (context, index) {
           final v = list[index];
           final isSelected = selectedId == v.id.toString();
+          final isCurrentlyBound = controller.device.value?.vehicleId?.toString() == v.id.toString() ||
+              controller.device.value?.vehicle?.id?.toString() == v.id.toString();
 
           return InkWell(
             onTap: () => controller.selectVehicle(v),
@@ -250,10 +252,18 @@ class AssignGpsView extends GetView<AssignGpsController> {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFF1E293B) : AppColors.cardBg,
+                color: isSelected
+                    ? const Color(0xFF1E293B)
+                    : isCurrentlyBound
+                        ? const Color(0xFF0284C7).withValues(alpha: 0.08)
+                        : AppColors.cardBg,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: isSelected ? const Color(0xFF6366F1) : AppColors.cardBorder,
+                  color: isSelected
+                      ? const Color(0xFF6366F1)
+                      : isCurrentlyBound
+                          ? const Color(0xFF0284C7).withValues(alpha: 0.35)
+                          : AppColors.cardBorder,
                   width: isSelected ? 1.8 : 1.2,
                 ),
               ),
@@ -264,12 +274,18 @@ class AssignGpsView extends GetView<AssignGpsController> {
                     decoration: BoxDecoration(
                       color: isSelected
                           ? const Color(0xFF6366F1).withValues(alpha: 0.2)
-                          : const Color(0xFF0F172A),
+                          : isCurrentlyBound
+                              ? const Color(0xFF0284C7).withValues(alpha: 0.2)
+                              : const Color(0xFF0F172A),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
                       Icons.directions_bus_rounded,
-                      color: isSelected ? const Color(0xFF818CF8) : AppColors.textSecondary,
+                      color: isSelected
+                          ? const Color(0xFF818CF8)
+                          : isCurrentlyBound
+                              ? const Color(0xFF38BDF8)
+                              : AppColors.textSecondary,
                       size: 20,
                     ),
                   ),
@@ -278,21 +294,43 @@ class AssignGpsView extends GetView<AssignGpsController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          v.busNumber,
-                          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                v.busNumber,
+                                style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (isCurrentlyBound) ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF0284C7).withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.4)),
+                                ),
+                                child: const Text(
+                                  'Current Bus',
+                                  style: TextStyle(color: Color(0xFF38BDF8), fontSize: 9, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${v.model} • Depot: ${v.depotName?.isNotEmpty == true ? v.depotName : 'Main'}',
+                          '${v.model}${v.depotName?.isNotEmpty == true ? ' • Depot: ${v.depotName}' : ''}',
                           style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                         ),
                       ],
                     ),
                   ),
                   Container(
-                    width: 20,
-                    height: 20,
+                    width: 22,
+                    height: 22,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
@@ -302,7 +340,7 @@ class AssignGpsView extends GetView<AssignGpsController> {
                       color: isSelected ? const Color(0xFF6366F1) : Colors.transparent,
                     ),
                     child: isSelected
-                        ? const Icon(Icons.check, size: 12, color: Colors.white)
+                        ? const Icon(Icons.check, size: 14, color: Colors.white)
                         : null,
                   ),
                 ],
@@ -317,6 +355,73 @@ class AssignGpsView extends GetView<AssignGpsController> {
   Widget _buildAssignSubmitButton() {
     return Obx(() {
       final isSubmitting = controller.isSubmitting.value;
+      final isAssigned = controller.device.value?.isAssigned == true;
+
+      if (isAssigned) {
+        return Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: SizedBox(
+                height: 50,
+                child: OutlinedButton.icon(
+                  onPressed: isSubmitting ? null : controller.handleUnassign,
+                  icon: const Icon(Icons.link_off_rounded, size: 16),
+                  label: const Text('Unbind Bus', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.redAccent,
+                    side: const BorderSide(color: Colors.redAccent, width: 1.2),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              flex: 3,
+              child: Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  gradient: AppTheme.primaryGradient,
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF9333EA).withValues(alpha: 0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton(
+                  onPressed: isSubmitting ? null : controller.handleAssign,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  ),
+                  child: isSubmitting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.link_rounded, color: Colors.white, size: 16),
+                            SizedBox(width: 6),
+                            Text(
+                              'Reassign Bus',
+                              style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                ),
+              ),
+            ),
+          ],
+        );
+      }
 
       return Container(
         width: double.infinity,
@@ -345,14 +450,14 @@ class AssignGpsView extends GetView<AssignGpsController> {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2.2, color: Colors.white),
                 )
-              : Row(
+              : const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.link_rounded, color: Colors.white, size: 18),
-                    const SizedBox(width: 8),
+                    Icon(Icons.link_rounded, color: Colors.white, size: 18),
+                    SizedBox(width: 8),
                     Text(
-                      'assign_gps_tracker_cta'.tr,
-                      style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                      'Assign Edge Device & GPS to Bus',
+                      style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -415,11 +520,6 @@ class AssignGpsView extends GetView<AssignGpsController> {
                       'available_gps_devices'.tr,
                       style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                     ),
-                    TextButton.icon(
-                      onPressed: controller.goToAddGps,
-                      icon: const Icon(Icons.add, size: 14, color: Color(0xFF818CF8)),
-                      label: Text('add_new_gps'.tr, style: const TextStyle(color: Color(0xFF818CF8), fontSize: 12)),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -463,18 +563,8 @@ class AssignGpsView extends GetView<AssignGpsController> {
             borderRadius: BorderRadius.circular(14),
             border: Border.all(color: AppColors.cardBorder),
           ),
-          child: Column(
-            children: [
-              Text('no_gps_in_inventory'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
-              const SizedBox(height: 10),
-              CustomButton(
-                text: 'register_gps_device'.tr,
-                prefixIcon: const Icon(Icons.add, size: 14, color: Colors.white),
-                onTap: controller.goToAddGps,
-                width: 200,
-                height: 40,
-              ),
-            ],
+          child: Center(
+            child: Text('no_gps_in_inventory'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
           ),
         );
       }

@@ -32,6 +32,7 @@ class VehicleSlotsController extends GetxController {
   final RxInt eveningPeakCount = 0.obs;
 
   // Auxiliary dropdown lists
+  final RxBool isLoadingResources = false.obs;
   final RxList<Map<String, dynamic>> vehicles = <Map<String, dynamic>>[].obs;
   final RxList<Map<String, dynamic>> routes = <Map<String, dynamic>>[].obs;
   final RxList<Map<String, dynamic>> drivers = <Map<String, dynamic>>[].obs;
@@ -193,12 +194,24 @@ class VehicleSlotsController extends GetxController {
 
   /// Load resources for schedule modal (Vehicles, Routes, Drivers)
   Future<void> loadFormResources() async {
+    isLoadingResources.value = true;
     try {
       final vRes = await _fleetService.getVehicles(limit: 100);
       if (vRes.success && vRes.data != null) {
-        vehicles.assignAll(vRes.data!.map((v) => {
-          'id': v.id,
-          'label': v.registrationNumber,
+        final activeVehicles = vRes.data!.where((v) {
+          final s = v.status.trim().toLowerCase();
+          return s != 'pending_approval' && s != 'pending' && s != 'rejected';
+        }).toList();
+        vehicles.assignAll((activeVehicles.isNotEmpty ? activeVehicles : vRes.data!).map((v) => {
+          'id': v.id.toString(),
+          'label': v.registrationNumber.isNotEmpty
+              ? (v.busNumber.isNotEmpty ? '${v.registrationNumber} (${v.busNumber})' : v.registrationNumber)
+              : (v.busNumber.isNotEmpty ? v.busNumber : 'Bus #${v.id}'),
+          'bus_number': v.busNumber,
+          'registration_number': v.registrationNumber,
+          'assigned_driver_id': v.assignedDriverId?.toString(),
+          'model': v.model,
+          'route_id': v.routeId?.toString(),
         }).toList());
       }
     } catch (_) {}
@@ -209,6 +222,8 @@ class VehicleSlotsController extends GetxController {
         routes.assignAll(rRes.data!.map((r) => {
           'id': r.id.toString(),
           'label': r.code.isNotEmpty ? '[${r.code}] ${r.name}' : r.name,
+          'name': r.name,
+          'code': r.code,
         }).toList());
       }
     } catch (_) {}
@@ -217,11 +232,17 @@ class VehicleSlotsController extends GetxController {
       final dRes = await _fleetService.getDrivers(limit: 100);
       if (dRes.success && dRes.data != null) {
         drivers.assignAll(dRes.data!.map((d) => {
-          'id': d.id,
-          'label': d.name,
+          'id': d.id.toString(),
+          'label': d.phone.isNotEmpty ? '${d.name} (${d.phone})' : d.name,
+          'name': d.name,
+          'phone': d.phone,
+          'assigned_bus_id': d.assignedBusId?.toString(),
+          'assigned_vehicle_reg': d.assignedVehicleReg,
         }).toList());
       }
-    } catch (_) {}
+    } catch (_) {} finally {
+      isLoadingResources.value = false;
+    }
   }
 
   /// Real-time collision detection engine (POST /api/v1/vehicle-slots/check-conflict)

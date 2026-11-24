@@ -1,10 +1,8 @@
-import 'package:vmovexa/app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../theme/app_colors.dart';
 import '../../../../../theme/app_theme.dart';
 import '../../../../../widgets/custom_back_button.dart';
-import '../../../../../data/constants/api_constants.dart';
 import '../../../../../data/models/gps_device_model.dart';
 import '../controllers/gps_list_controller.dart';
 
@@ -32,19 +30,19 @@ class GpsListView extends GetView<GpsListController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // 1. Stat Cards Banner (4 Metrics)
-                      _buildStatsGrid(),
+                      // 1. 3 Stat KPI Cards (Total Edge Units, Assigned to Bus, Spare Units)
+                      _buildStatsBanner(),
                       const SizedBox(height: 16),
 
                       // 2. Search & View Mode Switcher
                       _buildSearchAndToolbar(),
                       const SizedBox(height: 12),
 
-                      // 3. Status Filter Tabs
+                      // 3. Status Filter Tabs (All, Assigned, Spare)
                       _buildFilterTabs(),
                       const SizedBox(height: 16),
 
-                      // 4. Main List / Grid Display
+                      // 4. Main Device List / Grid Display
                       _buildDeviceList(),
                       const SizedBox(height: 30),
                     ],
@@ -70,13 +68,13 @@ class GpsListView extends GetView<GpsListController> {
         children: [
           const CustomBackButton(),
           const SizedBox(width: 8),
-          Expanded(
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'gps_telematics_units'.tr,
-                  style: const TextStyle(
+                  'Edge & GPS IoT Devices',
+                  style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -84,56 +82,25 @@ class GpsListView extends GetView<GpsListController> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  'iot_hardware_binding'.tr,
-                  style: const TextStyle(
+                  'Edge computing hardware and onboard telematics directory',
+                  style: TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 11,
                   ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 22),
+          OutlinedButton.icon(
             onPressed: controller.fetchDevices,
-            tooltip: 'refresh'.tr,
-          ),
-          Container(
-            decoration: BoxDecoration(
-              gradient: AppTheme.primaryGradient,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF9333EA).withValues(alpha: 0.25),
-                  blurRadius: 10,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: controller.goToAdd,
-                borderRadius: BorderRadius.circular(10),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.add_rounded, color: Colors.white, size: 16),
-                      const SizedBox(width: 4),
-                      Text(
-                        'register'.tr,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            icon: const Icon(Icons.refresh_rounded, size: 14, color: Colors.white70),
+            label: const Text('Refresh', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              side: const BorderSide(color: AppColors.cardBorder, width: 1.2),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              backgroundColor: AppColors.cardBg,
             ),
           ),
         ],
@@ -141,71 +108,89 @@ class GpsListView extends GetView<GpsListController> {
     );
   }
 
-  // --- 4 Stat Metric Cards ---
-  Widget _buildStatsGrid() {
-    return Obx(() {
-      return GridView.count(
-        crossAxisCount: 2,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        childAspectRatio: 1.8,
-        children: [
-          _buildStatCard(
-            title: 'total_units'.tr,
-            value: controller.totalCount.toString(),
-            icon: Icons.memory_rounded,
-            iconColor: const Color(0xFF3B82F6),
-            bgColor: const Color(0xFF1E293B),
-          ),
-          _buildStatCard(
-            title: 'available_active'.tr,
-            value: controller.availableCount.toString(),
-            icon: Icons.check_circle_outline_rounded,
-            iconColor: const Color(0xFF10B981),
-            bgColor: const Color(0xFF1E293B),
-            valueColor: const Color(0xFF10B981),
-          ),
-          _buildStatCard(
-            title: 'pending'.tr,
-            value: controller.pendingCount.toString(),
-            icon: Icons.pending_actions_rounded,
-            iconColor: Colors.amberAccent,
-            bgColor: const Color(0xFF1E293B),
-            valueColor: Colors.amberAccent,
-          ),
-          _buildStatCard(
-            title: 'bound_to_vehicle'.tr,
-            value: controller.assignedCount.toString(),
-            icon: Icons.directions_bus_rounded,
-            iconColor: const Color(0xFF818CF8),
-            bgColor: const Color(0xFF1E293B),
-            valueColor: const Color(0xFF818CF8),
-          ),
-        ],
-      );
-    });
+  // --- 3 Stat KPI Cards (Total Edge Units, Assigned to Bus, Spare Units) ---
+  Widget _buildStatsBanner() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isNarrow = constraints.maxWidth < 360;
+        return Obx(() {
+          // Explicitly touch controller.devices so GetX registers reactive dependency immediately
+          final devList = controller.devices;
+          final total = devList.length;
+          final assigned = devList.where((g) => g.isAssigned).length;
+          final spare = devList.where((g) => !g.isAssigned).length;
+
+          return Row(
+            children: [
+              // Card 1: Total Edge Devices
+              Expanded(
+                child: _buildStatCard(
+                  title: 'TOTAL EDGE DEVICES',
+                  value: total.toString(),
+                  sub: 'Edge boxes allocated to your fleet',
+                  icon: Icons.memory_rounded,
+                  iconColor: const Color(0xFF38BDF8),
+                  bgTint: const Color(0xFF0284C7).withValues(alpha: 0.12),
+                  borderColor: const Color(0xFF0284C7).withValues(alpha: 0.3),
+                  isNarrow: isNarrow,
+                ),
+              ),
+              const SizedBox(width: 8),
+
+              // Card 2: Connected to Buses
+              Expanded(
+                child: _buildStatCard(
+                  title: 'CONNECTED TO BUSES',
+                  value: assigned.toString(),
+                  sub: 'Active buses with live edge & GPS link',
+                  icon: Icons.directions_bus_rounded,
+                  iconColor: const Color(0xFF10B981),
+                  bgTint: const Color(0xFF10B981).withValues(alpha: 0.12),
+                  borderColor: const Color(0xFF10B981).withValues(alpha: 0.3),
+                  isNarrow: isNarrow,
+                ),
+              ),
+              const SizedBox(width: 8),
+
+              // Card 3: Available (Spare)
+              Expanded(
+                child: _buildStatCard(
+                  title: 'AVAILABLE (SPARE)',
+                  value: spare.toString(),
+                  sub: 'Spare edge hardware ready for bus installation',
+                  icon: Icons.sync_rounded,
+                  iconColor: const Color(0xFFF59E0B),
+                  bgTint: const Color(0xFFF59E0B).withValues(alpha: 0.12),
+                  borderColor: const Color(0xFFF59E0B).withValues(alpha: 0.3),
+                  isNarrow: isNarrow,
+                ),
+              ),
+            ],
+          );
+        });
+      },
+    );
   }
 
   Widget _buildStatCard({
     required String title,
     required String value,
+    required String sub,
     required IconData icon,
     required Color iconColor,
-    required Color bgColor,
-    Color valueColor = Colors.white,
+    required Color bgTint,
+    required Color borderColor,
+    bool isNarrow = false,
   }) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.symmetric(horizontal: isNarrow ? 8 : 10, vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        border: Border.all(color: borderColor, width: 1.2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -217,28 +202,38 @@ class GpsListView extends GetView<GpsListController> {
                     color: AppColors.textMuted,
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
+                    letterSpacing: 0.3,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               Container(
-                padding: const EdgeInsets.all(6),
+                padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: 0.15),
+                  color: bgTint,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(icon, color: iconColor, size: 16),
+                child: Icon(icon, color: iconColor, size: 14),
               ),
             ],
           ),
+          const SizedBox(height: 4),
           Text(
             value,
             style: TextStyle(
-              color: valueColor,
-              fontSize: 20,
+              color: iconColor,
+              fontSize: 18,
               fontWeight: FontWeight.w900,
             ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            sub,
+            style: const TextStyle(
+              color: Color(0xFF64748B),
+              fontSize: 9,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -261,13 +256,13 @@ class GpsListView extends GetView<GpsListController> {
             child: TextField(
               controller: controller.searchController,
               style: const TextStyle(color: Colors.white, fontSize: 13),
-              decoration: InputDecoration(
-                icon: const Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 18),
-                hintText: 'search_devices_hint'.tr,
-                hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+              decoration: const InputDecoration(
+                icon: Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 18),
+                hintText: 'Search by Box ID, MAC, Bus, Fleet, Org...',
+                hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 12),
                 border: InputBorder.none,
                 isDense: true,
-                contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                contentPadding: EdgeInsets.symmetric(vertical: 12),
               ),
             ),
           ),
@@ -316,9 +311,13 @@ class GpsListView extends GetView<GpsListController> {
     );
   }
 
-  // --- 5 Status Filter Tabs with Counts ---
+  // --- Filter Tabs (Matching Web Admin: All Edge Units, Assigned to Bus, Spare Units) ---
   Widget _buildFilterTabs() {
-    final tabs = ['All', 'Available', 'Assigned', 'Pending', 'Rejected'];
+    final tabs = [
+      {'id': 'All', 'label': 'All Edge Units'},
+      {'id': 'Assigned', 'label': 'Assigned to Bus'},
+      {'id': 'Spare', 'label': 'Spare Units'},
+    ];
 
     return SizedBox(
       height: 36,
@@ -327,14 +326,15 @@ class GpsListView extends GetView<GpsListController> {
         itemCount: tabs.length,
         separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
-          final tab = tabs[index];
+          final tabId = tabs[index]['id']!;
+          final tabLabel = tabs[index]['label']!;
 
           return Obx(() {
-            final isSelected = controller.activeTab.value == tab;
-            final count = controller.countForTab(tab);
+            final isSelected = controller.activeTab.value == tabId;
+            final count = controller.countForTab(tabId);
 
             return InkWell(
-              onTap: () => controller.setActiveTab(tab),
+              onTap: () => controller.setActiveTab(tabId),
               borderRadius: BorderRadius.circular(10),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -360,75 +360,7 @@ class GpsListView extends GetView<GpsListController> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      tab,
-                      style: TextStyle(
-                        color: isSelected ? Colors.white : AppColors.textSecondary,
-                        fontSize: 12,
-                        fontWeight:
-                        isSelected ? FontWeight.bold : FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Container(
-                      padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? Colors.white.withValues(alpha: 0.25)
-                            : const Color(0xFF0F172A),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        count.toString(),
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : AppColors.textMuted,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          });
-        },
-      ),
-    );
-  }
-/*  Widget _buildFilterTabs() {
-    final tabs = ['All', 'Available', 'Assigned', 'Pending', 'Rejected'];
-
-    return Obx(() {
-      return SizedBox(
-        height: 36,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          itemCount: tabs.length,
-          separatorBuilder: (_, _) => const SizedBox(width: 8),
-          itemBuilder: (context, index) {
-            final tab = tabs[index];
-            final isSelected = controller.activeTab.value == tab;
-            final count = controller.countForTab(tab);
-
-            return InkWell(
-              onTap: () => controller.setActiveTab(tab),
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFF6366F1) : AppColors.cardBg,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: isSelected ? const Color(0xFF818CF8) : AppColors.cardBorder,
-                    width: 1.2,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      tab,
+                      tabLabel,
                       style: TextStyle(
                         color: isSelected ? Colors.white : AppColors.textSecondary,
                         fontSize: 12,
@@ -457,11 +389,11 @@ class GpsListView extends GetView<GpsListController> {
                 ),
               ),
             );
-          },
-        ),
-      );
-    });
-  }*/
+          });
+        },
+      ),
+    );
+  }
 
   // --- Main Device List / Grid Display ---
   Widget _buildDeviceList() {
@@ -486,23 +418,19 @@ class GpsListView extends GetView<GpsListController> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: list.length,
-          separatorBuilder: (_, _) => const SizedBox(height: 10),
+          separatorBuilder: (_, _) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
-            return _buildTableItem(list[index]);
+            return _buildEdgeDeviceRow(list[index]);
           },
         );
       } else {
-        return GridView.builder(
+        return ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 1,
-            mainAxisSpacing: 12,
-            mainAxisExtent: 210,
-          ),
           itemCount: list.length,
+          separatorBuilder: (_, _) => const SizedBox(height: 14),
           itemBuilder: (context, index) {
-            return _buildGridCard(list[index]);
+            return _buildEdgeDeviceCard(list[index]);
           },
         );
       }
@@ -513,7 +441,7 @@ class GpsListView extends GetView<GpsListController> {
   Widget _buildEmptyState() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 48),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(16),
@@ -523,79 +451,79 @@ class GpsListView extends GetView<GpsListController> {
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              color: Color(0xFF1E293B),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0284C7).withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.memory_rounded, color: AppColors.textMuted, size: 36),
+            child: const Icon(Icons.memory_rounded, color: Color(0xFF38BDF8), size: 36),
           ),
-          const SizedBox(height: 14),
-          Text(
-            'no_gps_trackers_found'.tr,
-            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          const SizedBox(height: 16),
+          const Text(
+            'No Edge Devices Found',
+            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 6),
           Text(
             controller.searchQuery.isNotEmpty
-                ? 'No hardware units match your search query.'
-                : 'no_gps_sub'.tr,
+                ? 'No bus or Edge Device matched your filter criteria.'
+                : 'No Edge Devices currently available in this category.',
             style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
             textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          CustomButton(
-            text: 'register'.tr,
-            prefixIcon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
-            onTap: controller.goToAdd,
-            width: 220,
-            height: 42,
           ),
         ],
       ),
     );
   }
 
-  // --- Table / Compact Row View ---
-  Widget _buildTableItem(GpsDeviceModel g) {
-    final photoUrl = ApiConstants.resolveFileUrl(g.imageUrl);
+  // --- 1. Edge Device Row (Table / List Mode) ---
+  Widget _buildEdgeDeviceRow(GpsDeviceModel g) {
+    final isAssigned = g.isAssigned;
+    final busLabel = g.vehicle != null && g.vehicle!.busNumber.isNotEmpty
+        ? g.vehicle!.busNumber
+        : (g.vehicleId != null ? 'Bus #${g.vehicleId}' : null);
 
     return InkWell(
       onTap: () => controller.goToDetails(g),
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isAssigned
+                ? const Color(0xFF10B981).withValues(alpha: 0.3)
+                : AppColors.cardBorder,
+            width: 1.2,
+          ),
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Top Row: Box ID, Status badge & Assignment badge
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Device Icon / Image
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: photoUrl.isNotEmpty
-                      ? Image.network(
-                          photoUrl,
-                          width: 44,
-                          height: 44,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) => _buildFallbackDeviceIcon(),
-                        )
-                      : _buildFallbackDeviceIcon(),
+                // Edge Device Box Icon
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0284C7).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.4)),
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.memory_rounded, color: Color(0xFF38BDF8), size: 22),
+                  ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
 
-                // Main Info
+                // Box ID & Hardware Model
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Flexible(
                             child: Text(
@@ -604,44 +532,33 @@ class GpsListView extends GetView<GpsListController> {
                                 color: Colors.white,
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          _buildStatusBadge(g.status),
-                        ],
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        '${g.vendor} ${g.model}'.trim(),
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 12,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Icon(Icons.fingerprint_rounded, size: 12, color: AppColors.textMuted),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              'IMEI: ${g.imei.isNotEmpty ? g.imei : '—'}',
-                              style: const TextStyle(
-                                color: AppColors.textMuted,
-                                fontSize: 11,
                                 fontFamily: 'monospace',
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                          const SizedBox(width: 6),
+                          _buildOnlineStatusBadge(g.status),
                         ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${g.model} • MAC: ${g.displayMacOrImei}',
+                        style: const TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 11,
+                          fontFamily: 'monospace',
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
                 ),
 
-                // Action Menu Icon
+                // Assignment badge
+                _buildAssignmentBadge(isAssigned),
+
+                const SizedBox(width: 4),
                 IconButton(
                   icon: const Icon(Icons.more_vert_rounded, color: Colors.white70, size: 20),
                   onPressed: () => _showActionSheet(g),
@@ -653,46 +570,107 @@ class GpsListView extends GetView<GpsListController> {
 
             const SizedBox(height: 10),
             const Divider(height: 1, color: AppColors.cardBorder),
+            const SizedBox(height: 10),
+
+            // Middle Section: Assigned Vehicle Context
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: BoxDecoration(
+                color: isAssigned
+                    ? const Color(0xFF10B981).withValues(alpha: 0.08)
+                    : const Color(0xFF0F172A),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: isAssigned
+                      ? const Color(0xFF10B981).withValues(alpha: 0.25)
+                      : const Color(0xFF334155),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.directions_bus_rounded,
+                    size: 16,
+                    color: isAssigned ? const Color(0xFF10B981) : Colors.amberAccent,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        InkWell(
+                          onTap: isAssigned && (g.vehicleId != null || g.vehicle != null)
+                              ? () => controller.goToVehicleDetails(g.vehicleId ?? g.vehicle?.id)
+                              : null,
+                          child: Text(
+                            isAssigned
+                                ? (busLabel ?? 'Bound Vehicle')
+                                : 'Spare Unit (Ready for Installation)',
+                            style: TextStyle(
+                              color: isAssigned ? Colors.white : Colors.amberAccent,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              decoration: isAssigned ? TextDecoration.underline : null,
+                              decorationColor: Colors.white38,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (isAssigned && g.vehicle != null && g.vehicle!.model.isNotEmpty)
+                          Text(
+                            '${g.vehicle!.model}${g.vehicle!.depotName.isNotEmpty ? ' • ${g.vehicle!.depotName}' : ''}',
+                            style: const TextStyle(
+                              color: AppColors.textMuted,
+                              fontSize: 10,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                      ],
+                    ),
+                  ),
+                  if (isAssigned)
+                    TextButton(
+                      onPressed: () => controller.handleUnlink(g),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: const Text(
+                        'Unlink',
+                        style: TextStyle(color: Colors.amberAccent, fontSize: 11, fontWeight: FontWeight.bold),
+                      ),
+                    )
+                  else
+                    ElevatedButton(
+                      onPressed: () => controller.goToAssign(g),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF6366F1),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                      ),
+                      child: const Text('Assign', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                    ),
+                ],
+              ),
+            ),
+
             const SizedBox(height: 8),
 
-            // Bottom row: Bound Vehicle & SIM network
+            // Footer strip: SIM, Storage & Agent Version
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Vehicle
-                Expanded(
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.directions_bus_rounded,
-                        size: 13,
-                        color: g.isAssigned ? const Color(0xFF60A5FA) : AppColors.textMuted,
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          g.vehicle != null && g.vehicle!.busNumber.isNotEmpty
-                              ? g.vehicle!.busNumber
-                              : (g.vehicleId != null ? 'Bus #${g.vehicleId}' : 'Unassigned (In Stock)'),
-                          style: TextStyle(
-                            color: g.isAssigned ? const Color(0xFF93C5FD) : AppColors.textMuted,
-                            fontSize: 11,
-                            fontWeight: g.isAssigned ? FontWeight.w600 : FontWeight.normal,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // SIM line
                 Row(
                   children: [
-                    const Icon(Icons.sim_card_outlined, size: 13, color: AppColors.textMuted),
+                    const Icon(Icons.sim_card_outlined, size: 12, color: AppColors.textMuted),
                     const SizedBox(width: 4),
                     Text(
-                      g.sim.isNotEmpty ? g.sim : 'No SIM',
+                      g.sim.isNotEmpty ? g.sim : (g.network.isNotEmpty ? g.network : '4G LTE IoT'),
                       style: const TextStyle(
                         color: AppColors.textMuted,
                         fontSize: 11,
@@ -701,6 +679,25 @@ class GpsListView extends GetView<GpsListController> {
                     ),
                   ],
                 ),
+                Row(
+                  children: [
+                    const Icon(Icons.sd_storage_outlined, size: 12, color: AppColors.textMuted),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${g.storageUsedGb}/${g.storageTotalGb} GB',
+                      style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'v${g.agentVersion}',
+                      style: const TextStyle(
+                        color: Color(0xFF818CF8),
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ],
@@ -709,240 +706,448 @@ class GpsListView extends GetView<GpsListController> {
     );
   }
 
-  // --- Grid Card View ---
-  Widget _buildGridCard(GpsDeviceModel g) {
-    final photoUrl = ApiConstants.resolveFileUrl(g.imageUrl);
+  // --- 2. Edge Device Card (Grid Mode - Matching Web Admin Grid Cards) ---
+  Widget _buildEdgeDeviceCard(GpsDeviceModel g) {
+    final isAssigned = g.isAssigned;
+    final busLabel = g.vehicle != null && g.vehicle!.busNumber.isNotEmpty
+        ? g.vehicle!.busNumber
+        : (g.vehicleId != null ? 'Bus #${g.vehicleId}' : null);
 
-    return InkWell(
-      onTap: () => controller.goToDetails(g),
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+    final orgName = g.vehicle?.orgName.isNotEmpty == true ? g.vehicle!.orgName : 'Tenant Organization';
+    final fleetName = g.vehicle?.fleetName.isNotEmpty == true ? g.vehicle!.fleetName : (isAssigned ? 'General Fleet' : '—');
+    final depotName = g.vehicle?.depotName;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: isAssigned ? const Color(0xFF10B981).withValues(alpha: 0.35) : AppColors.cardBorder,
+          width: 1.2,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // Header Row
-            Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: photoUrl.isNotEmpty
-                      ? Image.network(
-                          photoUrl,
-                          width: 44,
-                          height: 44,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) => _buildFallbackDeviceIcon(),
-                        )
-                      : _buildFallbackDeviceIcon(),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1. Card Header: Bus & Status
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: isAssigned
+                      ? const Color(0xFF3B82F6).withValues(alpha: 0.15)
+                      : const Color(0xFF1E293B),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isAssigned
+                        ? const Color(0xFF3B82F6).withValues(alpha: 0.4)
+                        : const Color(0xFF334155),
+                  ),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        g.displayCode,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
+                child: Center(
+                  child: Icon(
+                    Icons.directions_bus_rounded,
+                    color: isAssigned ? const Color(0xFF60A5FA) : const Color(0xFF94A3B8),
+                    size: 22,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    InkWell(
+                      onTap: isAssigned && (g.vehicleId != null || g.vehicle != null)
+                          ? () => controller.goToVehicleDetails(g.vehicleId ?? g.vehicle?.id)
+                          : null,
+                      child: Text(
+                        isAssigned ? (busLabel ?? 'Bound Vehicle') : 'Unassigned to any bus',
+                        style: TextStyle(
+                          color: isAssigned ? Colors.white : const Color(0xFF94A3B8),
+                          fontSize: 15,
                           fontWeight: FontWeight.bold,
+                          fontStyle: isAssigned ? FontStyle.normal : FontStyle.italic,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
-                      Text(
-                        '${g.vendor} ${g.model}'.trim(),
-                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      g.vehicle?.model.isNotEmpty == true
+                          ? g.vehicle!.model
+                          : (isAssigned ? 'Linked Fleet Vehicle' : 'Spare Edge Hardware'),
+                      style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              _buildAssignmentBadge(isAssigned),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // 2. Tenant, Fleet & Depot Context Block (matching web light blue container)
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0284C7).withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.2)),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'TENANT ORG',
+                      style: TextStyle(
+                        color: Color(0xFF38BDF8),
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    Flexible(
+                      child: Text(
+                        orgName,
+                        style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                         overflow: TextOverflow.ellipsis,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                _buildStatusBadge(g.status),
-                const SizedBox(width: 4),
-                IconButton(
-                  icon: const Icon(Icons.more_vert_rounded, color: Colors.white70, size: 20),
-                  onPressed: () => _showActionSheet(g),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'FLEET',
+                      style: TextStyle(
+                        color: Color(0xFF38BDF8),
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    Flexible(
+                      child: Text(
+                        fleetName,
+                        style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-
-            // Parameters 2x2 grid
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xFF0F172A),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFF1E293B)),
-              ),
-              child: Column(
-                children: [
+                if (depotName != null && depotName.isNotEmpty) ...[
+                  const SizedBox(height: 6),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: _buildParamSnippet('IMEI', g.imei.isNotEmpty ? g.imei : '—', isMono: true),
+                      const Text(
+                        'DEPOT',
+                        style: TextStyle(
+                          color: Color(0xFF94A3B8),
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
                       ),
-                      Expanded(
-                        child: _buildParamSnippet('S/N', g.serialNumber.isNotEmpty ? g.serialNumber : 'N/A', isMono: true),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildParamSnippet('SIM LINE', g.sim.isNotEmpty ? g.sim : 'Unassigned', isMono: true),
-                      ),
-                      Expanded(
-                        child: _buildParamSnippet(
-                          'ASSIGNED BUS',
-                          g.vehicle?.busNumber.isNotEmpty == true
-                              ? g.vehicle!.busNumber
-                              : (g.vehicleId != null ? 'Bus #${g.vehicleId}' : 'In Stock'),
-                          highlight: g.isAssigned,
+                      Flexible(
+                        child: Text(
+                          depotName,
+                          style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 11),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
                   ),
                 ],
-              ),
+              ],
             ),
+          ),
+          const SizedBox(height: 10),
 
-            // Footer action strip
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // 3. Hardware Specs Box (matching web card hardware specs)
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0F172A),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF1E293B)),
+            ),
+            child: Column(
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(Icons.signal_cellular_alt_rounded, size: 14, color: Color(0xFF10B981)),
-                    const SizedBox(width: 4),
-                    Text(
-                      g.networkType.isNotEmpty ? g.networkType : '4G LTE',
-                      style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                    const Text('BOX ID', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          g.displayCode,
+                          style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                        ),
+                        const SizedBox(width: 6),
+                        _buildOnlineStatusBadge(g.status),
+                      ],
                     ),
                   ],
                 ),
-                InkWell(
-                  onTap: () => controller.goToDetails(g),
-                  child: const Row(
-                    children: [
-                      Text(
-                        'View Details',
-                        style: TextStyle(
-                          color: Color(0xFF818CF8),
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('MAC / IMEI', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                    Text(
+                      g.displayMacOrImei,
+                      style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 11, fontFamily: 'monospace'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('MODEL', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                    Text(
+                      '${g.model} (v${g.agentVersion})',
+                      style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 11),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('SIM / 4G', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                    Text(
+                      g.sim.isNotEmpty ? g.sim : (g.network.isNotEmpty ? g.network : '4G IoT'),
+                      style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 11),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Divider(height: 1, color: Color(0xFF1E293B)),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('CONNECTED GPS', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold)),
+                    Row(
+                      children: [
+                        const Icon(Icons.gps_fixed_rounded, color: Colors.amberAccent, size: 12),
+                        const SizedBox(width: 4),
+                        Text(
+                          isAssigned ? 'Streaming Telemetry' : 'Receiver Linked',
+                          style: const TextStyle(color: Colors.amberAccent, fontSize: 11, fontWeight: FontWeight.bold),
                         ),
-                      ),
-                      SizedBox(width: 2),
-                      Icon(Icons.arrow_forward_ios_rounded, size: 10, color: Color(0xFF818CF8)),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),
+          ),
+          const SizedBox(height: 14),
+
+          // 4. Card Footer Action Controls (matching web grid card footer)
+          Row(
+            children: [
+              if (isAssigned) ...[
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => controller.goToAssign(g),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1E293B),
+                      foregroundColor: const Color(0xFF93C5FD),
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        side: const BorderSide(color: Color(0xFF334155)),
+                      ),
+                    ),
+                    child: const Text('Reassign Bus', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: () => controller.handleUnlink(g),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber.withValues(alpha: 0.15),
+                    foregroundColor: Colors.amberAccent,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      side: const BorderSide(color: Colors.amber),
+                    ),
+                  ),
+                  child: const Text('Unlink', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.map_rounded, color: Color(0xFF34D399), size: 18),
+                    onPressed: () => controller.goToLiveTracking(g.vehicleId ?? g.vehicle?.id, g.vehicle?.busNumber),
+                    tooltip: 'Live Track',
+                    padding: const EdgeInsets.all(8),
+                    constraints: const BoxConstraints(),
+                  ),
+                ),
+              ] else ...[
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: AppTheme.primaryGradient,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: () => controller.goToAssign(g),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      child: const Text('Assign to Bus', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ),
+              ],
+              const SizedBox(width: 8),
+              IconButton(
+                icon: const Icon(Icons.more_vert_rounded, color: Colors.white70, size: 20),
+                onPressed: () => _showActionSheet(g),
+                padding: const EdgeInsets.all(6),
+                constraints: const BoxConstraints(),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- Status & Badges ---
+  Widget _buildOnlineStatusBadge(String status) {
+    final s = status.toLowerCase();
+    final isOnline = s == 'online' || s == 'active';
+    final isMaint = s == 'maintenance';
+
+    if (isOnline) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+        decoration: BoxDecoration(
+          color: const Color(0xFF10B981).withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(radius: 3, backgroundColor: Color(0xFF10B981)),
+            SizedBox(width: 4),
+            Text(
+              'Online',
+              style: TextStyle(color: Color(0xFF34D399), fontSize: 9, fontWeight: FontWeight.bold),
+            ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildParamSnippet(String label, String val, {bool isMono = false, bool highlight = false}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(color: Color(0xFF64748B), fontSize: 9, fontWeight: FontWeight.bold),
+      );
+    } else if (isMaint) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+        decoration: BoxDecoration(
+          color: Colors.amber.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
         ),
-        const SizedBox(height: 1),
-        Text(
-          val,
-          style: TextStyle(
-            color: highlight ? const Color(0xFF93C5FD) : Colors.white,
-            fontSize: 11,
-            fontFamily: isMono ? 'monospace' : null,
-            fontWeight: highlight ? FontWeight.bold : FontWeight.w500,
-          ),
-          overflow: TextOverflow.ellipsis,
+        child: const Text(
+          'Maintenance',
+          style: TextStyle(color: Colors.amberAccent, fontSize: 9, fontWeight: FontWeight.bold),
         ),
-      ],
-    );
-  }
-
-  Widget _buildFallbackDeviceIcon() {
+      );
+    }
     return Container(
-      width: 44,
-      height: 44,
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
       decoration: BoxDecoration(
         color: const Color(0xFF1E293B),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(6),
         border: Border.all(color: const Color(0xFF334155)),
       ),
-      child: const Center(
-        child: Icon(Icons.memory_rounded, color: Colors.amberAccent, size: 22),
+      child: const Text(
+        'Standby',
+        style: TextStyle(color: Color(0xFF94A3B8), fontSize: 9, fontWeight: FontWeight.bold),
       ),
     );
   }
 
-  // --- Status Badge ---
-  Widget _buildStatusBadge(String status) {
-    final s = status.toLowerCase();
-    Color bg = const Color(0xFF1E293B);
-    Color fg = const Color(0xFF94A3B8);
-    Color border = const Color(0xFF334155);
-    String label = status.toUpperCase();
-
-    if (s == 'available' || s == 'online') {
-      bg = const Color(0xFF10B981).withValues(alpha: 0.15);
-      fg = const Color(0xFF34D399);
-      border = const Color(0xFF10B981).withValues(alpha: 0.4);
-      label = 'AVAILABLE';
-    } else if (s == 'assigned') {
-      bg = const Color(0xFF3B82F6).withValues(alpha: 0.15);
-      fg = const Color(0xFF60A5FA);
-      border = const Color(0xFF3B82F6).withValues(alpha: 0.4);
-      label = 'ASSIGNED';
-    } else if (s == 'pending_approval') {
-      bg = Colors.amber.withValues(alpha: 0.15);
-      fg = Colors.amberAccent;
-      border = Colors.amber.withValues(alpha: 0.4);
-      label = 'PENDING';
-    } else if (s == 'rejected') {
-      bg = Colors.redAccent.withValues(alpha: 0.15);
-      fg = Colors.redAccent;
-      border = Colors.redAccent.withValues(alpha: 0.4);
-      label = 'REJECTED';
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: border, width: 1),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: fg,
-          fontSize: 9,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 0.5,
+  Widget _buildAssignmentBadge(bool isAssigned) {
+    if (isAssigned) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: const Color(0xFF10B981).withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
         ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.check_circle_outline_rounded, color: Color(0xFF34D399), size: 12),
+            SizedBox(width: 4),
+            Text(
+              'Assigned',
+              style: TextStyle(color: Color(0xFF34D399), fontSize: 10, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      );
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: Colors.amber.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
+      ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.inventory_2_outlined, color: Colors.amberAccent, size: 12),
+          SizedBox(width: 4),
+          Text(
+            'Spare Unit',
+            style: TextStyle(color: Colors.amberAccent, fontSize: 10, fontWeight: FontWeight.bold),
+          ),
+        ],
       ),
     );
   }
 
-  // --- Action BottomSheet (Matching Admin Actions) ---
+  // --- Action Sheet (Matching Web Frontend Admin Options) ---
   void _showActionSheet(GpsDeviceModel g) {
     Get.bottomSheet(
       Container(
@@ -957,121 +1162,99 @@ class GpsListView extends GetView<GpsListController> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF334155),
-                    borderRadius: BorderRadius.circular(2),
+              // Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        g.displayCode,
+                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        '${g.model} • MAC: ${g.displayMacOrImei}',
+                        style: const TextStyle(color: AppColors.textMuted, fontSize: 11, fontFamily: 'monospace'),
+                      ),
+                    ],
                   ),
-                ),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded, color: Colors.white70),
+                    onPressed: () => Get.back(),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          g.displayCode,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '${g.vendor} ${g.model}',
-                          style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
-                        ),
-                      ],
-                    ),
-                    _buildStatusBadge(g.status),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Divider(height: 1, color: Color(0xFF1E293B)),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
+              const Divider(height: 1, color: Color(0xFF262A36)),
+              const SizedBox(height: 10),
 
-              // View Details
-              _buildSheetActionItem(
-                icon: Icons.visibility_rounded,
-                color: const Color(0xFF818CF8),
-                title: 'view_device_details'.tr,
-                subtitle: 'hw_specs_pairing_desc'.tr,
+              // 1. View Details
+              _buildSheetAction(
+                icon: Icons.visibility_outlined,
+                iconColor: const Color(0xFF818CF8),
+                title: 'View Device Details',
                 onTap: () {
                   Get.back();
                   controller.goToDetails(g);
                 },
               ),
 
-              // Edit Config
-              _buildSheetActionItem(
-                icon: Icons.edit_rounded,
-                color: const Color(0xFF60A5FA),
-                title: 'edit_device_config'.tr,
-                subtitle: 'update_imei_mounting_desc'.tr,
-                onTap: () {
-                  Get.back();
-                  controller.goToEdit(g);
-                },
-              ),
+              // 1b. View Bus Profile (if vehicle assigned)
+              if (g.isAssigned && (g.vehicleId != null || g.vehicle != null))
+                _buildSheetAction(
+                  icon: Icons.directions_bus_rounded,
+                  iconColor: const Color(0xFF60A5FA),
+                  title: 'View Bus Profile',
+                  onTap: () {
+                    Get.back();
+                    controller.goToVehicleDetails(g.vehicleId ?? g.vehicle?.id);
+                  },
+                ),
 
-              // Assign to Bus Vehicle
-              _buildSheetActionItem(
+              // 1c. Live Telematics Track (if vehicle assigned)
+              if (g.isAssigned && (g.vehicleId != null || g.vehicle != null))
+                _buildSheetAction(
+                  icon: Icons.map_rounded,
+                  iconColor: const Color(0xFF34D399),
+                  title: 'Live Telematics Track',
+                  onTap: () {
+                    Get.back();
+                    controller.goToLiveTracking(g.vehicleId ?? g.vehicle?.id, g.vehicle?.busNumber);
+                  },
+                ),
+
+              // 2. Assign / Reassign
+              _buildSheetAction(
                 icon: Icons.directions_bus_rounded,
-                color: Colors.amberAccent,
-                title: g.isAssigned ? 'reassign_unassign_bus'.tr : 'assign_to_bus_vehicle'.tr,
-                subtitle: g.isAssigned
-                    ? '${'currently_assigned_label'.tr} ${g.vehicle?.busNumber ?? 'Bus #${g.vehicleId}'}'
-                    : 'bind_hw_tracker_desc'.tr,
+                iconColor: const Color(0xFF38BDF8),
+                title: g.isAssigned ? 'Reassign to Another Bus' : 'Assign to Bus',
                 onTap: () {
                   Get.back();
                   controller.goToAssign(g);
                 },
               ),
 
-              // Approve (if pending)
-              if (g.isPending)
-                _buildSheetActionItem(
-                  icon: Icons.check_circle_rounded,
-                  color: const Color(0xFF10B981),
-                  title: 'approve_device'.tr,
-                  subtitle: 'verify_activate_telematics_desc'.tr,
+              // 3. Unlink (if assigned)
+              if (g.isAssigned)
+                _buildSheetAction(
+                  icon: Icons.link_off_rounded,
+                  iconColor: Colors.amberAccent,
+                  title: 'Unlink from Vehicle',
                   onTap: () {
                     Get.back();
-                    controller.handleApprove(g);
+                    controller.handleUnlink(g);
                   },
                 ),
 
-              // Reject (if pending)
-              if (g.isPending)
-                _buildSheetActionItem(
-                  icon: Icons.cancel_rounded,
-                  color: Colors.redAccent,
-                  title: 'reject_device'.tr,
-                  subtitle: 'send_rejection_feedback_desc'.tr,
-                  onTap: () {
-                    Get.back();
-                    controller.showRejectDialog(g);
-                  },
-                ),
-
-              // Delete Device
-              _buildSheetActionItem(
-                icon: Icons.delete_outline_rounded,
-                color: Colors.redAccent,
-                title: 'delete_hardware_record'.tr,
-                subtitle: g.isAssigned ? 'cannot_delete_while_assigned_desc'.tr : 'permanently_remove_inventory_desc'.tr,
-                isDestructive: true,
+              // 4. Reboot Device
+              _buildSheetAction(
+                icon: Icons.restart_alt_rounded,
+                iconColor: const Color(0xFF34D399),
+                title: 'Reboot Edge Device Hardware',
                 onTap: () {
                   Get.back();
-                  controller.handleDelete(g);
+                  controller.handleReboot(g);
                 },
               ),
             ],
@@ -1082,38 +1265,30 @@ class GpsListView extends GetView<GpsListController> {
     );
   }
 
-  Widget _buildSheetActionItem({
+  Widget _buildSheetAction({
     required IconData icon,
-    required Color color,
+    required Color iconColor,
     required String title,
-    required String subtitle,
     required VoidCallback onTap,
-    bool isDestructive = false,
   }) {
-    return ListTile(
+    return InkWell(
       onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(10),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        child: Row(
+          children: [
+            Icon(icon, color: iconColor, size: 20),
+            const SizedBox(width: 14),
+            Text(
+              title,
+              style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+            ),
+            const Spacer(),
+            const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.textMuted, size: 12),
+          ],
         ),
-        child: Icon(icon, color: color, size: 20),
       ),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: isDestructive ? Colors.redAccent : Colors.white,
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      subtitle: Text(
-        subtitle,
-        style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
-      ),
-      trailing: const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.textMuted, size: 12),
     );
   }
 }
