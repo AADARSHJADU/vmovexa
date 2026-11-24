@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/modules/roles/driver/profile/driver_documents/model/document_requirement_model.dart';
 import 'package:vmovexa/app/theme/app_theme.dart';
-import '../../../../finance/subscriptions/view/shared_tab_widgets.dart';
 import '../../../../technician/hardware_configuration/views/shared_widgets.dart';
 import '../controller/driver_documents_controller.dart';
 

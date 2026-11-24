@@ -168,10 +168,7 @@ class FinanceDrawerWidget extends StatelessWidget {
                     label: 'campaign_payments'.tr,
                     onTap: () {
                       Navigator.pop(context);
-                      _switchTab(2);
-                      if (Get.isRegistered<FinancePaymentsController>()) {
-                        Get.find<FinancePaymentsController>().selectedTab.value = 1;
-                      }
+                      Get.toNamed(Routes.FINANCE_CAMPAIGN_PAYMENTS);
                     },
                   ),
                   _buildMenuItem(

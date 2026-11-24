@@ -1,17 +1,16 @@
+import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:vmovexa/app/data/models/fleet_models.dart';
 import 'package:vmovexa/app/data/services/finance_service.dart';
+import 'package:vmovexa/app/data/services/fleet_service.dart';
+import 'package:vmovexa/app/data/services/http_client_service.dart';
 import '../../controller/subscriptions_controller.dart';
-
-class PresetAvatar {
-  final String id;
-  final String title;
-  final Color color;
-  final IconData icon;
-  const PresetAvatar(this.id, this.title, this.color, this.icon);
-}
+import '../../model/subscription_model.dart';
 
 class SubscriptionPlanItem {
   final dynamic id;
@@ -19,7 +18,6 @@ class SubscriptionPlanItem {
   final double monthlyPrice;
   final int busesLimit;
   final int depotsLimit;
-  final int adRevenueShareRate;
 
   SubscriptionPlanItem({
     required this.id,
@@ -27,7 +25,6 @@ class SubscriptionPlanItem {
     required this.monthlyPrice,
     required this.busesLimit,
     required this.depotsLimit,
-    required this.adRevenueShareRate,
   });
 
   factory SubscriptionPlanItem.fromJson(Map<String, dynamic> json) {
@@ -38,7 +35,6 @@ class SubscriptionPlanItem {
       monthlyPrice: double.tryParse(json['monthly_price']?.toString() ?? '') ?? 25000.0,
       busesLimit: int.tryParse(json['buses_limit']?.toString() ?? '') ?? 25,
       depotsLimit: int.tryParse(features['depots_limit']?.toString() ?? json['depots_limit']?.toString() ?? '') ?? 2,
-      adRevenueShareRate: int.tryParse(json['ad_revenue_share_rate']?.toString() ?? '') ?? 65,
     );
   }
 }
@@ -47,6 +43,8 @@ class OnboardTenantController extends GetxController {
   // Stepper state (1 to 4)
   final RxInt currentStep = 1.obs;
   final RxBool isSubmitting = false.obs;
+  final RxBool isEditMode = false.obs;
+  String? editingTenantId;
 
   // ---------------- STEP 1: Company Info ----------------
   final nameCtrl = TextEditingController();
@@ -57,17 +55,20 @@ class OnboardTenantController extends GetxController {
   final gstinCtrl = TextEditingController();
 
   final RxString selectedState = 'Maharashtra'.obs;
-  final RxString selectedAvatarId = 'transit_blue'.obs;
 
-  static const List<PresetAvatar> presetAvatars = [
-    PresetAvatar('transit_blue', 'Blue Bus Transit', Color(0xFF2563EB), Icons.directions_bus),
-    PresetAvatar('city_emerald', 'Emerald City Corp', Color(0xFF059669), Icons.location_city),
-    PresetAvatar('shield_indigo', 'Indigo Security Fleet', Color(0xFF4F46E5), Icons.security),
-    PresetAvatar('express_amber', 'Amber Express Fleet', Color(0xFFD97706), Icons.flash_on),
-    PresetAvatar('global_rose', 'Rose Global Mobility', Color(0xFFE11D48), Icons.public),
-    PresetAvatar('metro_violet', 'Violet Tech Transit', Color(0xFF7C3AED), Icons.subway),
-    PresetAvatar('cyan_logistics', 'Cyan Freight & Logistics', Color(0xFF0891B2), Icons.local_shipping),
-  ];
+  // Logo / Image Upload
+  final Rxn<File> logoFile = Rxn<File>();
+  final RxString logoPreviewUrl = ''.obs;
+  final RxBool isUploadingLogo = false.obs;
+
+  // Google Places Autocomplete for Office Address
+  final RxList<GooglePlaceItemModel> placesPredictions = <GooglePlaceItemModel>[].obs;
+  final RxBool isSearchingPlaces = false.obs;
+  final RxBool showPlacesDropdown = false.obs;
+  final Rxn<double> latitude = Rxn<double>();
+  final Rxn<double> longitude = Rxn<double>();
+  final RxString placeId = ''.obs;
+  Timer? _placesDebounceTimer;
 
   static const List<String> indianStatesAndUts = [
     'Andaman and Nicobar Islands',
@@ -139,8 +140,96 @@ class OnboardTenantController extends GetxController {
     fetchPlans();
   }
 
+  void initForEdit(dynamic sub, [Map<String, dynamic>? orgDetails]) {
+    isEditMode.value = true;
+    currentStep.value = 1;
+
+    String cName = '';
+    String cCity = '';
+    String cState = 'Maharashtra';
+    String cCin = '';
+    String cGstin = '';
+    String cLogo = '';
+    String aName = '';
+    String aEmail = '';
+    String aPhone = '';
+    String tId = '';
+    String? pId;
+
+    if (sub is Subscription) {
+      tId = sub.id;
+      cName = sub.companyName;
+      cCity = sub.city;
+      cState = sub.state.isNotEmpty ? sub.state : 'Maharashtra';
+      cCin = sub.cin;
+      cGstin = sub.gstin;
+      cLogo = sub.logoUrl ?? '';
+      aName = sub.adminName;
+      aEmail = sub.adminEmail;
+      aPhone = sub.adminPhone.replaceAll('+91', '').trim();
+      pId = sub.planId;
+    } else if (sub is Map) {
+      tId = (sub['id'] ?? '').toString();
+      cName = (sub['name'] ?? '').toString();
+      cCity = (sub['city'] ?? '').toString();
+      cState = (sub['state'] ?? 'Maharashtra').toString();
+      cCin = (sub['cin'] ?? '').toString();
+      cGstin = (sub['gstin'] ?? '').toString();
+      cLogo = (sub['logo_url'] ?? sub['logoUrl'] ?? '').toString();
+      pId = sub['plan_id']?.toString();
+    }
+
+    editingTenantId = tId;
+    nameCtrl.text = cName;
+    cityCtrl.text = cCity;
+    selectedState.value = indianStatesAndUts.contains(cState) ? cState : 'Maharashtra';
+    cinCtrl.text = cCin;
+    gstinCtrl.text = cGstin;
+    logoPreviewUrl.value = cLogo;
+    adminNameCtrl.text = aName;
+    adminEmailCtrl.text = aEmail;
+    adminPhoneCtrl.text = aPhone;
+    acceptContract.value = true;
+
+    if (orgDetails != null && orgDetails.isNotEmpty) {
+      if (orgDetails['office_address'] != null) {
+        officeAddressCtrl.text = orgDetails['office_address'].toString();
+      } else if (orgDetails['officeAddress'] != null) {
+        officeAddressCtrl.text = orgDetails['officeAddress'].toString();
+      }
+      if (orgDetails['pincode'] != null) {
+        pincodeCtrl.text = orgDetails['pincode'].toString();
+      }
+      if (orgDetails['latitude'] != null) {
+        latitude.value = double.tryParse(orgDetails['latitude'].toString());
+      }
+      if (orgDetails['longitude'] != null) {
+        longitude.value = double.tryParse(orgDetails['longitude'].toString());
+      }
+      if (pId == null && orgDetails['plan_id'] != null) {
+        pId = orgDetails['plan_id'].toString();
+      }
+      final admin = orgDetails['primaryAdmin'] ??
+          orgDetails['admin'] ??
+          (orgDetails['users'] is List && (orgDetails['users'] as List).isNotEmpty ? orgDetails['users'][0] : null);
+      if (admin is Map) {
+        if (adminNameCtrl.text.isEmpty && admin['name'] != null) adminNameCtrl.text = admin['name'].toString();
+        if (adminEmailCtrl.text.isEmpty && admin['email'] != null) adminEmailCtrl.text = admin['email'].toString();
+        if (adminPhoneCtrl.text.isEmpty && admin['phone'] != null) {
+          adminPhoneCtrl.text = admin['phone'].toString().replaceAll('+91', '').trim();
+        }
+      }
+    }
+
+    if (pId != null && plans.isNotEmpty) {
+      final matched = plans.firstWhereOrNull((p) => p.id.toString() == pId);
+      if (matched != null) selectedPlan.value = matched;
+    }
+  }
+
   @override
   void onClose() {
+    _placesDebounceTimer?.cancel();
     nameCtrl.dispose();
     cityCtrl.dispose();
     officeAddressCtrl.dispose();
@@ -156,6 +245,119 @@ class OnboardTenantController extends GetxController {
     super.onClose();
   }
 
+  // ---------------- Logo / Image Upload Methods ----------------
+  Future<void> pickLogo(ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+      if (picked == null) return;
+
+      final file = File(picked.path);
+      final sizeInBytes = await file.length();
+      if (sizeInBytes > 5 * 1024 * 1024) {
+        _showError('image_size_exceeds'.tr);
+        return;
+      }
+
+      logoFile.value = file;
+      logoPreviewUrl.value = picked.path;
+      Get.snackbar(
+        'success'.tr,
+        'image_selected_ready'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFF10B981),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
+    } catch (e) {
+      _showError('Failed to pick image: $e');
+    }
+  }
+
+  void removeLogo() {
+    logoFile.value = null;
+    logoPreviewUrl.value = '';
+  }
+
+  // ---------------- Google Places Autocomplete ----------------
+  void onAddressSearchChanged(String text) {
+    if (_placesDebounceTimer?.isActive ?? false) _placesDebounceTimer?.cancel();
+
+    if (text.trim().length < 2) {
+      placesPredictions.clear();
+      showPlacesDropdown.value = false;
+      return;
+    }
+
+    _placesDebounceTimer = Timer(const Duration(milliseconds: 350), () async {
+      isSearchingPlaces.value = true;
+      try {
+        final res = await FleetService.to.searchGooglePlaces(text.trim());
+        if (res.success && res.data != null) {
+          placesPredictions.assignAll(res.data!);
+          showPlacesDropdown.value = placesPredictions.isNotEmpty;
+        } else {
+          placesPredictions.clear();
+          showPlacesDropdown.value = false;
+        }
+      } catch (_) {
+        placesPredictions.clear();
+        showPlacesDropdown.value = false;
+      } finally {
+        isSearchingPlaces.value = false;
+      }
+    });
+  }
+
+  void selectPlace(GooglePlaceItemModel place) {
+    final name = place.name;
+    final address = place.formattedAddress.isNotEmpty ? place.formattedAddress : name;
+
+    officeAddressCtrl.text = address;
+
+    if (place.city != null && place.city!.isNotEmpty) {
+      cityCtrl.text = place.city!;
+    }
+
+    if (place.state != null && place.state!.isNotEmpty) {
+      final stateQuery = place.state!.toLowerCase();
+      final matched = indianStatesAndUts.firstWhereOrNull(
+        (s) => s.toLowerCase() == stateQuery || stateQuery.contains(s.toLowerCase()),
+      );
+      if (matched != null) {
+        selectedState.value = matched;
+      }
+    }
+
+    if (place.pincode != null && place.pincode!.isNotEmpty) {
+      final cleanPin = place.pincode!.replaceAll(RegExp(r'\D'), '');
+      if (cleanPin.isNotEmpty) {
+        pincodeCtrl.text = cleanPin.substring(0, min(6, cleanPin.length));
+      }
+    }
+
+    if (place.latitude != null) latitude.value = place.latitude;
+    if (place.longitude != null) longitude.value = place.longitude;
+    placeId.value = place.placeId ?? place.id;
+
+    showPlacesDropdown.value = false;
+    placesPredictions.clear();
+  }
+
+  void clearAddress() {
+    officeAddressCtrl.clear();
+    latitude.value = null;
+    longitude.value = null;
+    placeId.value = '';
+    showPlacesDropdown.value = false;
+    placesPredictions.clear();
+  }
+
   // ---------------- Plans Fetching ----------------
   Future<void> fetchPlans() async {
     loadingPlans.value = true;
@@ -168,6 +370,8 @@ class OnboardTenantController extends GetxController {
           raw = raw['items'];
         } else if (raw is Map && raw.containsKey('rows')) {
           raw = raw['rows'];
+        } else if (raw is Map && raw.containsKey('data')) {
+          raw = raw['data'];
         }
 
         if (raw is List && raw.isNotEmpty) {
@@ -198,62 +402,62 @@ class OnboardTenantController extends GetxController {
     adminPasswordCtrl.text = generated;
   }
 
-  // ---------------- Stepper Navigation ----------------
+  // ---------------- Stepper Navigation & Validations ----------------
   void nextStep() {
     if (currentStep.value == 1) {
       if (nameCtrl.text.trim().isEmpty) {
-        _showError('Company Name is required');
+        _showError('err_company_name_req'.tr);
         return;
       }
       if (cityCtrl.text.trim().isEmpty) {
-        _showError('City is required');
+        _showError('err_city_req'.tr);
         return;
       }
       if (pincodeCtrl.text.trim().isNotEmpty && pincodeCtrl.text.trim().length != 6) {
-        _showError('Pincode must be exactly 6 digits');
+        _showError('err_pincode_invalid'.tr);
         return;
       }
       if (cinCtrl.text.trim().isNotEmpty && cinCtrl.text.trim().length != 21) {
-        _showError('CIN must be 21 characters');
+        _showError('err_cin_invalid'.tr);
         return;
       }
       if (gstinCtrl.text.trim().isNotEmpty && gstinCtrl.text.trim().length != 15) {
-        _showError('GSTIN must be 15 characters');
+        _showError('err_gstin_invalid'.tr);
         return;
       }
       currentStep.value = 2;
     } else if (currentStep.value == 2) {
       if (adminNameCtrl.text.trim().isEmpty) {
-        _showError('Admin Full Name is required');
+        _showError('err_admin_name_req'.tr);
         return;
       }
       final email = adminEmailCtrl.text.trim();
       if (email.isEmpty || !GetUtils.isEmail(email)) {
-        _showError('Enter a valid Admin Email address');
+        _showError('err_admin_email_invalid'.tr);
         return;
       }
       final phone = adminPhoneCtrl.text.trim();
       if (phone.isEmpty || phone.length != 10) {
-        _showError('Enter a valid 10-digit mobile number');
+        _showError('err_admin_phone_invalid'.tr);
         return;
       }
       if (adminPasswordCtrl.text.isEmpty || adminPasswordCtrl.text.length < 8) {
-        _showError('Password must be at least 8 characters');
+        _showError('err_password_min'.tr);
         return;
       }
       currentStep.value = 3;
     } else if (currentStep.value == 3) {
       if (selectedPlan.value == null) {
-        _showError('Please select a subscription plan tier');
+        _showError('err_select_plan'.tr);
         return;
       }
       if (paymentMode.value == 'offline') {
         if (bankNameCtrl.text.trim().isEmpty) {
-          _showError('Bank name is required for offline settlement');
+          _showError('err_bank_name_req'.tr);
           return;
         }
         if (bankRefCtrl.text.trim().isEmpty) {
-          _showError('Bank reference / UTR is required');
+          _showError('err_bank_ref_req'.tr);
           return;
         }
       }
@@ -275,7 +479,7 @@ class OnboardTenantController extends GetxController {
 
   void _showError(String msg) {
     Get.snackbar(
-      'Validation Error',
+      'validation_error'.tr,
       msg,
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.redAccent,
@@ -286,7 +490,7 @@ class OnboardTenantController extends GetxController {
   // ---------------- Final Submission ----------------
   Future<void> submitTenant() async {
     if (!acceptContract.value) {
-      _showError('Please confirm the declaration checkbox to proceed');
+      _showError('err_accept_contract'.tr);
       return;
     }
 
@@ -295,37 +499,91 @@ class OnboardTenantController extends GetxController {
     final formattedDate =
         '${pDate.year}-${pDate.month.toString().padLeft(2, '0')}-${pDate.day.toString().padLeft(2, '0')}';
 
-    final payload = <String, dynamic>{
-      'name': nameCtrl.text.trim(),
-      'logoUrl': selectedAvatarId.value,
-      'state': selectedState.value,
-      'city': cityCtrl.text.trim(),
-      if (cinCtrl.text.trim().isNotEmpty) 'cin': cinCtrl.text.trim().toUpperCase(),
-      if (gstinCtrl.text.trim().isNotEmpty) 'gstin': gstinCtrl.text.trim().toUpperCase(),
-      if (officeAddressCtrl.text.trim().isNotEmpty) 'officeAddress': officeAddressCtrl.text.trim(),
-      if (pincodeCtrl.text.trim().isNotEmpty) 'pincode': pincodeCtrl.text.trim(),
-      'adminName': adminNameCtrl.text.trim(),
-      'adminEmail': adminEmailCtrl.text.trim(),
-      'adminPhone': adminPhoneCtrl.text.trim(),
-      'adminPassword': adminPasswordCtrl.text.trim(),
-      'planId': plan?.id,
-      'paymentMode': paymentMode.value,
-      'busesCount': plan?.busesLimit ?? 25,
-      'busesQuota': plan?.busesLimit ?? 25,
-      'depotsCount': plan?.depotsLimit ?? 2,
-      'depotsQuota': plan?.depotsLimit ?? 2,
-      'adRevenueShareRate': plan?.adRevenueShareRate ?? 65,
-      if (paymentMode.value == 'offline') ...{
-        'bankName': bankNameCtrl.text.trim(),
-        'bankRef': bankRefCtrl.text.trim(),
-        'amount': plan?.monthlyPrice ?? 25000,
-        'paymentDate': formattedDate,
-      },
-      'created_by_role': 'ROLE-FINANCE-OFFICER',
-    };
-
     isSubmitting.value = true;
     try {
+      String? finalLogoUrl;
+
+      // 1. Upload logo if file is selected
+      if (logoFile.value != null) {
+        isUploadingLogo.value = true;
+        try {
+          final uploadRes = await HttpClientService.to.uploadFile(
+            filePath: logoFile.value!.path,
+            purpose: 'logos',
+          );
+          if (uploadRes.success && uploadRes.data != null) {
+            finalLogoUrl = uploadRes.data!['url']?.toString() ??
+                uploadRes.data!['file_url']?.toString() ??
+                uploadRes.data!['logo_url']?.toString() ??
+                uploadRes.data!['path']?.toString();
+          }
+        } catch (_) {} finally {
+          isUploadingLogo.value = false;
+        }
+      }
+
+      // 2. Build payload matching Admin Panel exactly
+      final payload = <String, dynamic>{
+        'name': nameCtrl.text.trim(),
+        if (finalLogoUrl != null && finalLogoUrl.isNotEmpty) ...{
+          'logoUrl': finalLogoUrl,
+          'logo_url': finalLogoUrl,
+        },
+        'state': selectedState.value,
+        'city': cityCtrl.text.trim(),
+        if (cinCtrl.text.trim().isNotEmpty) 'cin': cinCtrl.text.trim().toUpperCase(),
+        if (gstinCtrl.text.trim().isNotEmpty) 'gstin': gstinCtrl.text.trim().toUpperCase(),
+        if (officeAddressCtrl.text.trim().isNotEmpty) ...{
+          'officeAddress': officeAddressCtrl.text.trim(),
+          'office_address': officeAddressCtrl.text.trim(),
+        },
+        if (pincodeCtrl.text.trim().isNotEmpty) 'pincode': pincodeCtrl.text.trim(),
+        if (latitude.value != null) 'latitude': latitude.value,
+        if (longitude.value != null) 'longitude': longitude.value,
+        if (placeId.value.isNotEmpty) ...{
+          'placeId': placeId.value,
+          'place_id': placeId.value,
+        },
+        'adminName': adminNameCtrl.text.trim(),
+        'adminEmail': adminEmailCtrl.text.trim(),
+        'adminPhone': adminPhoneCtrl.text.trim(),
+        'adminPassword': adminPasswordCtrl.text.trim(),
+        'planId': plan?.id,
+        'paymentMode': paymentMode.value,
+        'busesCount': plan?.busesLimit ?? 25,
+        'busesQuota': plan?.busesLimit ?? 25,
+        'depotsCount': plan?.depotsLimit ?? 2,
+        'depotsQuota': plan?.depotsLimit ?? 2,
+        if (paymentMode.value == 'offline') ...{
+          'bankName': bankNameCtrl.text.trim(),
+          'bankRef': bankRefCtrl.text.trim(),
+          'amount': plan?.monthlyPrice ?? 25000,
+          'paymentDate': formattedDate,
+        },
+        'created_by_role': 'ROLE-FINANCE-OFFICER',
+      };
+
+      if (isEditMode.value && editingTenantId != null && editingTenantId!.isNotEmpty) {
+        final res = await HttpClientService.to
+            .patch('/organizations/$editingTenantId', body: payload);
+        if (res.success) {
+          Get.snackbar(
+            'success'.tr,
+            'tenant_updated_success'.tr,
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color(0xFF10B981),
+            colorText: Colors.white,
+          );
+          if (Get.isRegistered<SubscriptionsController>()) {
+            Get.find<SubscriptionsController>().fetchSubscriptions();
+          }
+          Get.back(result: true);
+        } else {
+          _showError((res.message != null && res.message!.isNotEmpty) ? res.message! : 'err_update_tenant_failed'.tr);
+        }
+        return;
+      }
+
       final res = await FinanceService.to.createOrganization(payload);
       if (res.success) {
         final data = res.data ?? {};
@@ -342,7 +600,7 @@ class OnboardTenantController extends GetxController {
           Get.find<SubscriptionsController>().fetchSubscriptions();
         }
       } else {
-        _showError((res.message != null && res.message!.isNotEmpty) ? res.message! : 'Failed to create tenant organization');
+        _showError((res.message != null && res.message!.isNotEmpty) ? res.message! : 'err_create_tenant_failed'.tr);
       }
     } catch (e) {
       _showError(e.toString());
@@ -360,8 +618,8 @@ class OnboardTenantController extends GetxController {
           'Password: ${d['adminPassword']}';
       Clipboard.setData(ClipboardData(text: text));
       Get.snackbar(
-        'Copied!',
-        'Tenant credentials copied to clipboard',
+        'copied'.tr,
+        'credentials_copied_clipboard'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF10B981),
         colorText: Colors.white,

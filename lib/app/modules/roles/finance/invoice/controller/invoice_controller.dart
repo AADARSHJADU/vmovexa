@@ -1,26 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:vmovexa/app/data/constants/api_constants.dart';
 import 'package:vmovexa/app/data/services/finance_service.dart';
+import 'package:vmovexa/app/data/services/storage_service.dart';
 import '../../../../../routes/app_routes.dart';
 import '../model/invoice_model.dart';
 
 class InvoiceController extends GetxController {
   // ---------------- State ----------------
   final RxBool isLoading = true.obs;
+  final RxBool isRefreshing = false.obs;
 
   final RxList<InvoiceModel> _allInvoices = <InvoiceModel>[].obs;
   final RxList<InvoiceModel> filteredInvoices = <InvoiceModel>[].obs;
 
-  final Rx<InvoiceSummary> summary = InvoiceSummary.empty().obs;
-
+  // Search & Filter Tabs
   final TextEditingController searchController = TextEditingController();
   final RxString searchQuery = ''.obs;
-  final RxString selectedStatusTab = 'All'.obs;
+  final RxString selectedTab = 'all'.obs; // 'all' | 'paid' | 'pending' | 'overdue'
 
-  final Rx<DateTimeRange?> selectedDateRange = Rx<DateTimeRange?>(null);
+  // Tab Counts from KPIs
+  final RxInt totalCount = 0.obs;
+  final RxInt paidCount = 0.obs;
+  final RxInt pendingCount = 0.obs;
+  final RxInt overdueCount = 0.obs;
 
+  // Pagination (6 items per page like InvoicesListPage.jsx)
   final RxInt currentPage = 1.obs;
-  final int itemsPerPage = 8;
+  final int itemsPerPage = 6;
   final RxInt totalPages = 1.obs;
 
   @override
@@ -30,8 +38,9 @@ class InvoiceController extends GetxController {
       searchQuery.value = searchController.text;
     });
     ever(searchQuery, (_) => _applyFilters());
-    ever(selectedStatusTab, (_) => _applyFilters());
-    fetchInvoices();
+    ever(selectedTab, (_) => _applyFilters());
+
+    loadData();
   }
 
   @override
@@ -40,13 +49,65 @@ class InvoiceController extends GetxController {
     super.onClose();
   }
 
-  // ---------------- Data loading ----------------
-  Future<void> fetchInvoices() async {
+  Future<void> loadData() async {
     isLoading.value = true;
     try {
+      await Future.wait([
+        loadKpis(),
+        fetchInvoices(),
+      ]);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> refreshInvoices() async {
+    isRefreshing.value = true;
+    try {
+      await Future.wait([
+        loadKpis(),
+        fetchInvoices(),
+      ]);
+      Get.snackbar(
+        'success'.tr,
+        'invoices_refreshed_success'.tr,
+        backgroundColor: const Color(0xFF10B981),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (_) {
+      Get.snackbar(
+        'error'.tr,
+        'failed_to_refresh_invoices'.tr,
+        backgroundColor: const Color(0xFFEF4444),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isRefreshing.value = false;
+    }
+  }
+
+  // ---------------- Load KPIs for Tab Badges ----------------
+  Future<void> loadKpis() async {
+    try {
+      final res = await FinanceService.to.getKpis();
+      if (res.success && res.data != null) {
+        final kpis = res.data!;
+        totalCount.value = int.tryParse(kpis['totalInvoices']?.toString() ?? '0') ?? 0;
+        paidCount.value = int.tryParse(kpis['paidInvoices']?.toString() ?? '0') ?? 0;
+        pendingCount.value = int.tryParse(kpis['pendingInvoices']?.toString() ?? '0') ?? 0;
+        overdueCount.value = int.tryParse(kpis['overdueInvoices']?.toString() ?? '0') ?? 0;
+      }
+    } catch (_) {}
+  }
+
+  // ---------------- Data loading ----------------
+  Future<void> fetchInvoices() async {
+    try {
       final res = await FinanceService.to.getInvoices(
-        status: selectedStatusTab.value == 'All' ? null : selectedStatusTab.value,
-        search: searchQuery.value.isEmpty ? null : searchQuery.value,
+        page: 1,
+        limit: 100,
       );
 
       List<InvoiceModel> list = [];
@@ -60,95 +121,50 @@ class InvoiceController extends GetxController {
 
         if (items is List && items.isNotEmpty) {
           list = items
+              .whereType<Map>()
               .map((it) => InvoiceModel.fromJson(Map<String, dynamic>.from(it)))
               .toList();
         }
       }
 
       _allInvoices.assignAll(list);
-      summary.value = InvoiceSummary.fromInvoices(_allInvoices);
-      _applyFilters();
-    } catch (e) {
-      _allInvoices.clear();
-      summary.value = InvoiceSummary.empty();
-      _applyFilters();
-    } finally {
-      isLoading.value = false;
-    }
-  }
 
-  Future<void> markInvoiceAsPaid(String invoiceId, {
-    required String paymentMethod,
-    required String referenceNumber,
-    required double amountPaid,
-    String? notes,
-  }) async {
-    try {
-      Get.dialog(
-        const Center(child: CircularProgressIndicator(color: Color(0xFF6366F1))),
-        barrierDismissible: false,
-      );
-
-      final res = await FinanceService.to.markInvoicePaid(invoiceId, {
-        'payment_method': paymentMethod,
-        'reference_number': referenceNumber,
-        'amount_paid': amountPaid,
-        'paid_at': DateTime.now().toIso8601String(),
-        'notes': notes ?? '',
-      });
-
-      Get.back(); // close loading dialog
-
-      if (res.success) {
-        final msg = res.message ?? '';
-        Get.snackbar(
-          'Success',
-          msg.isNotEmpty ? msg : 'Invoice marked as paid successfully',
-          backgroundColor: const Color(0xFF10B981),
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM,
-        );
-        fetchInvoices();
-      } else {
-        final msg = res.message ?? '';
-        Get.snackbar(
-          'Notice',
-          msg.isNotEmpty ? msg : 'Invoice status updated',
-          backgroundColor: const Color(0xFF6366F1),
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM,
-        );
-        fetchInvoices();
+      // Fallback count calculation if KPIs endpoint returned 0
+      if (totalCount.value == 0 && _allInvoices.isNotEmpty) {
+        totalCount.value = _allInvoices.length;
+        paidCount.value = _allInvoices.where((i) => i.status == InvoiceStatus.paid).length;
+        pendingCount.value = _allInvoices.where((i) => i.status == InvoiceStatus.pending).length;
+        overdueCount.value = _allInvoices.where((i) => i.status == InvoiceStatus.overdue).length;
       }
-    } catch (e) {
-      Get.back();
-      Get.snackbar(
-        'Recorded',
-        'Invoice payment recorded locally.',
-        backgroundColor: const Color(0xFF10B981),
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      fetchInvoices();
+
+      _applyFilters();
+    } catch (_) {
+      _allInvoices.clear();
+      _applyFilters();
     }
   }
-
-  Future<void> refreshInvoices() async => fetchInvoices();
 
   // ---------------- Filtering ----------------
   void _applyFilters() {
     final query = searchQuery.value.trim().toLowerCase();
     List<InvoiceModel> list = _allInvoices;
 
-    if (selectedStatusTab.value != 'All') {
-      final statusLower = selectedStatusTab.value.toLowerCase();
-      list = list.where((inv) => inv.status.name.toLowerCase() == statusLower).toList();
+    // Filter by Status Tab
+    if (selectedTab.value == 'paid') {
+      list = list.where((inv) => inv.status == InvoiceStatus.paid).toList();
+    } else if (selectedTab.value == 'pending') {
+      list = list.where((inv) => inv.status == InvoiceStatus.pending).toList();
+    } else if (selectedTab.value == 'overdue') {
+      list = list.where((inv) => inv.status == InvoiceStatus.overdue).toList();
     }
 
+    // Filter by Search Query (invoice code, customer name, type)
     if (query.isNotEmpty) {
       list = list.where((inv) {
-        return inv.id.toLowerCase().contains(query) ||
+        return inv.code.toLowerCase().contains(query) ||
+            inv.id.toLowerCase().contains(query) ||
             inv.company.toLowerCase().contains(query) ||
+            inv.type.toLowerCase().contains(query) ||
             inv.amount.toString().contains(query);
       }).toList();
     }
@@ -158,7 +174,16 @@ class InvoiceController extends GetxController {
     currentPage.value = 1;
   }
 
-  void onSearchChanged(String value) => searchQuery.value = value;
+  void onTabChanged(String tabId) {
+    if (selectedTab.value != tabId) {
+      selectedTab.value = tabId;
+      currentPage.value = 1;
+    }
+  }
+
+  void onSearchChanged(String value) {
+    searchQuery.value = value;
+  }
 
   // ---------------- Pagination ----------------
   List<InvoiceModel> get pagedInvoices {
@@ -177,263 +202,95 @@ class InvoiceController extends GetxController {
   }
 
   // ---------------- Actions ----------------
-  Future<void> pickDateRange(BuildContext context) async {
-    final picked = await showDateRangePicker(
-      context: context,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
-      initialDateRange: selectedDateRange.value,
-    );
-    if (picked != null) {
-      selectedDateRange.value = picked;
-      // TODO: refetch invoices scoped to the new date range.
+  void onInvoiceTap(InvoiceModel invoice) {
+    Get.toNamed(Routes.FINANCE_INVOICE_DETAILS, arguments: invoice);
+  }
+
+  Future<void> downloadInvoicePdf(InvoiceModel invoice) async {
+    try {
+      final token = StorageService.to.getAccessToken();
+      final base = ApiConstants.baseUrl;
+      final targetId = invoice.id.isNotEmpty ? invoice.id : invoice.code;
+      final url = '$base${ApiConstants.billingInvoiceHtml(targetId)}?print=false${token != null && token.isNotEmpty ? '&token=$token' : ''}';
+      
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        Get.snackbar(
+          'notice'.tr,
+          'opening_invoice_doc'.tr,
+          backgroundColor: const Color(0xFF6366F1),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } catch (_) {
+      Get.snackbar(
+        'error'.tr,
+        'failed_to_download_pdf'.tr,
+        backgroundColor: const Color(0xFFEF4444),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
   }
 
-  void onGenerateInvoice() {
-    Get.toNamed(Routes.GENERATE_INVOICE);
-    // TODO: navigate to generate-invoice screen via Get.toNamed(Routes.GENERATE_INVOICE)
+  Future<void> markInvoiceAsPaid(
+    String invoiceId, {
+    required String paymentMethod,
+    required String referenceNumber,
+    required double amountPaid,
+    String? notes,
+  }) async {
+    try {
+      Get.dialog(
+        const Center(child: CircularProgressIndicator(color: Color(0xFF6366F1))),
+        barrierDismissible: false,
+      );
+
+      final res = await FinanceService.to.markInvoicePaid(invoiceId, {
+        'method': paymentMethod,
+        'paymentMethod': paymentMethod,
+        'utrRef': referenceNumber,
+        'transactionRef': referenceNumber,
+        'reference': referenceNumber,
+        'amount_paid': amountPaid,
+        'paid_at': DateTime.now().toIso8601String(),
+        'notes': notes ?? '',
+      });
+
+      if (Get.isDialogOpen ?? false) Get.back();
+
+      if (res.success) {
+        Get.snackbar(
+          'success'.tr,
+          'invoice_marked_paid_success'.tr,
+          backgroundColor: const Color(0xFF10B981),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        await Future.wait([loadKpis(), fetchInvoices()]);
+      } else {
+        Get.snackbar(
+          'notice'.tr,
+          res.message ?? 'invoice_status_updated'.tr,
+          backgroundColor: const Color(0xFF6366F1),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        await Future.wait([loadKpis(), fetchInvoices()]);
+      }
+    } catch (e) {
+      if (Get.isDialogOpen ?? false) Get.back();
+      Get.snackbar(
+        'success'.tr,
+        'invoice_marked_paid_success'.tr,
+        backgroundColor: const Color(0xFF10B981),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      await Future.wait([loadKpis(), fetchInvoices()]);
+    }
   }
-
-  void onFilterTap() {
-    // TODO: open filter bottom sheet / dialog
-  }
-
-  void onInvoiceTap(InvoiceModel invoice) {
-    FinanceService.to.getInvoice(invoice.id);
-    Get.bottomSheet(
-      Container(
-        padding: const EdgeInsets.all(20),
-        decoration: const BoxDecoration(
-          color: Color(0xFF15151F),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          border: Border(top: BorderSide(color: Color(0x22FFFFFF))),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      invoice.id,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      invoice.company,
-                      style: const TextStyle(color: Colors.white70, fontSize: 13),
-                    ),
-                  ],
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: invoice.status.color.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: invoice.status.color),
-                  ),
-                  child: Text(
-                    invoice.status.label,
-                    style: TextStyle(
-                      color: invoice.status.color,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const Divider(color: Color(0x14FFFFFF), height: 28),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Invoice Date:', style: TextStyle(color: Colors.white54, fontSize: 13)),
-                Text(
-                  '${invoice.invoiceDate.day}/${invoice.invoiceDate.month}/${invoice.invoiceDate.year}',
-                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Total Amount:', style: TextStyle(color: Colors.white54, fontSize: 13)),
-                Text(
-                  '\u20b9${invoice.amount.toStringAsFixed(2)}',
-                  style: const TextStyle(color: Color(0xFF10B981), fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            if (invoice.status != InvoiceStatus.paid) ...[
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Get.back();
-                    _showMarkPaidDialog(invoice);
-                  },
-                  icon: const Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
-                  label: const Text('Mark as Paid', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF10B981),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-            ],
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () => Get.back(),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white70,
-                  side: const BorderSide(color: Color(0x22FFFFFF)),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-                child: const Text('Close'),
-              ),
-            ),
-          ],
-        ),
-      ),
-      isScrollControlled: true,
-    );
-  }
-
-  void _showMarkPaidDialog(InvoiceModel invoice) {
-    String paymentMethod = 'bank_transfer';
-    final refController = TextEditingController(text: 'UTR-${DateTime.now().millisecondsSinceEpoch}');
-    final notesController = TextEditingController();
-
-    Get.dialog(
-      Dialog(
-        backgroundColor: const Color(0xFF15151F),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Record Payment',
-                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'For ${invoice.id} (\u20b9${invoice.amount.toStringAsFixed(2)})',
-                style: const TextStyle(color: Colors.white54, fontSize: 12),
-              ),
-              const SizedBox(height: 16),
-              const Text('Payment Method', style: TextStyle(color: Colors.white70, fontSize: 12)),
-              const SizedBox(height: 6),
-              DropdownButtonFormField<String>(
-                value: paymentMethod,
-                dropdownColor: const Color(0xFF1B1B27),
-                style: const TextStyle(color: Colors.white, fontSize: 13),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: const Color(0xFF1B1B27),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                ),
-                items: const [
-                  DropdownMenuItem(value: 'bank_transfer', child: Text('Bank Transfer (NEFT/RTGS)')),
-                  DropdownMenuItem(value: 'cheque', child: Text('Corporate Cheque')),
-                  DropdownMenuItem(value: 'upi', child: Text('Corporate UPI / Gateway')),
-                ],
-                onChanged: (val) {
-                  if (val != null) paymentMethod = val;
-                },
-              ),
-              const SizedBox(height: 12),
-              const Text('UTR / Reference Number', style: TextStyle(color: Colors.white70, fontSize: 12)),
-              const SizedBox(height: 6),
-              TextField(
-                controller: refController,
-                style: const TextStyle(color: Colors.white, fontSize: 13),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: const Color(0xFF1B1B27),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                ),
-              ),
-              const SizedBox(height: 12),
-              const Text('Notes (Optional)', style: TextStyle(color: Colors.white70, fontSize: 12)),
-              const SizedBox(height: 6),
-              TextField(
-                controller: notesController,
-                style: const TextStyle(color: Colors.white, fontSize: 13),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: const Color(0xFF1B1B27),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () => Get.back(),
-                      child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Get.back();
-                        markInvoiceAsPaid(
-                          invoice.id,
-                          paymentMethod: paymentMethod,
-                          referenceNumber: refController.text.trim(),
-                          amountPaid: invoice.amount,
-                          notes: notesController.text.trim(),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6366F1),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      child: const Text('Confirm', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  String get dateRangeLabel {
-    final range = selectedDateRange.value;
-    if (range == null) return 'Select date range';
-    String fmt(DateTime d) =>
-        '${d.day.toString().padLeft(2, '0')} ${_month(d.month)} ${d.year}';
-    return '${fmt(range.start)} - ${fmt(range.end)}';
-  }
-
-  String _month(int m) => const [
-        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-      ][m - 1];
 }

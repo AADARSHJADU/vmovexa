@@ -47,9 +47,15 @@ import '../modules/roles/finance/finance_profile/edit_profile/bindings/finance_e
 import '../modules/roles/finance/finance_profile/edit_profile/view/finance_edit_profile_view.dart';
 import '../modules/roles/finance/finance_profile/setting/bindings/finance_settings_binding.dart';
 import '../modules/roles/finance/finance_profile/setting/view/finance_settings_view.dart' show FinanceSettingsView;
+import '../modules/roles/finance/campaign_payments/bindings/campaign_payments_binding.dart';
+import '../modules/roles/finance/campaign_payments/campaign_payment_details/binding/campaign_payment_details_binding.dart';
+import '../modules/roles/finance/campaign_payments/campaign_payment_details/view/campaign_payment_details_view.dart';
+import '../modules/roles/finance/campaign_payments/view/campaign_payments_view.dart';
 import '../modules/roles/finance/invoice/bindings/invoice_binding.dart';
 import '../modules/roles/finance/invoice/generate_invoice/bindings/generate_invoice_binding.dart';
 import '../modules/roles/finance/invoice/generate_invoice/view/generate_invoice_view.dart';
+import '../modules/roles/finance/invoice/invoice_details/binding/invoice_details_binding.dart';
+import '../modules/roles/finance/invoice/invoice_details/view/invoice_details_view.dart';
 import '../modules/roles/finance/invoice/view/invoice_view.dart';
 import '../modules/roles/finance/payment_detail/bindings/payment_detail_binding.dart';
 import '../modules/roles/finance/payment_detail/view/payment_detail_view.dart';
@@ -950,6 +956,24 @@ class AppPages {
       name: Routes.FINANCE_INVOICE,
       page: () => const InvoiceView(),
       binding: InvoiceBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.FINANCE_INVOICE_DETAILS,
+      page: () => const InvoiceDetailsView(),
+      binding: InvoiceDetailsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.FINANCE_CAMPAIGN_PAYMENTS,
+      page: () => const CampaignPaymentsView(),
+      binding: CampaignPaymentsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.FINANCE_CAMPAIGN_PAYMENT_DETAILS,
+      page: () => const CampaignPaymentDetailsView(),
+      binding: CampaignPaymentDetailsBinding(),
       transition: Transition.rightToLeft,
     ),
     GetPage(

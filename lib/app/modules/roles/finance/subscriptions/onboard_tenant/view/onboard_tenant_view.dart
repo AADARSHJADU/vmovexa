@@ -1,18 +1,18 @@
-import 'package:vmovexa/app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controller/onboard_tenant_controller.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:vmovexa/app/theme/app_theme.dart';
+
+import '../controller/onboard_tenant_controller.dart';
 
 class OnboardTenantView extends GetView<OnboardTenantController> {
   const OnboardTenantView({super.key});
 
-  static const Color kDarkBg = Color(0xFF0F172A);
-  static const Color kCardBg = Color(0xFF1E293B);
-  static const Color kBorder = Color(0xFF334155);
-  static const Color kFieldBg = Color(0xFF0F172A);
-  static const Color kPrimaryBlue = Color(0xFF2563EB);
-  static const Color kPrimaryIndigo = Color(0xFF6366F1);
+  static const Color kDarkBg = Color(0xFF0F0F17);
+  static const Color kCardBg = Color(0xFF161623);
+  static const Color kBorder = Color(0x1FFFFFFF);
+  static const Color kFieldBg = Color(0xFF10101C);
   static const Color kGreen = Color(0xFF10B981);
   static const Color kAmber = Color(0xFFF59E0B);
 
@@ -88,25 +88,32 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
           ),
         ),
         const SizedBox(width: 12),
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Add New Tenant',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.2,
+              Obx(
+                () => Text(
+                  controller.isEditMode.value ? 'edit_tenant_title'.tr : 'onboard_add_new_tenant'.tr,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.2,
+                  ),
                 ),
               ),
-              SizedBox(height: 2),
-              Text(
-                'Register organization, plan & admin account',
-                style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11.5),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              const SizedBox(height: 2),
+              Obx(
+                () => Text(
+                  controller.isEditMode.value ? 'edit_tenant_subtitle'.tr : 'onboard_page_subtitle'.tr,
+                  style: const TextStyle(
+                    color: Color(0xFF94A3B8),
+                    fontSize: 11.5,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
@@ -115,14 +122,16 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
           () => Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color: kPrimaryIndigo.withValues(alpha: 0.15),
+              color: const Color(0xFF1C68FD).withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: kPrimaryIndigo.withValues(alpha: 0.3)),
+              border: Border.all(
+                color: const Color(0xFF1C68FD).withValues(alpha: 0.3),
+              ),
             ),
             child: Text(
-              'Step ${controller.currentStep.value} of 4',
+              '${'step'.tr} ${controller.currentStep.value} ${'of'.tr} 4',
               style: const TextStyle(
-                color: Color(0xFF818CF8),
+                color: Color(0xFF93C5FD),
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
               ),
@@ -136,10 +145,26 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
   // ---------------- 4-Step Stepper Bar ----------------
   Widget _buildStepperBar() {
     final steps = [
-      {'step': 1, 'title': 'Company Info', 'desc': 'Name & Location'},
-      {'step': 2, 'title': 'Admin Account', 'desc': 'User & Password'},
-      {'step': 3, 'title': 'Plan & Billing', 'desc': 'Plan & Payment'},
-      {'step': 4, 'title': 'Review & Save', 'desc': 'Confirm Details'},
+      {
+        'step': 1,
+        'title': 'onboard_step1_title'.tr,
+        'desc': 'onboard_step1_desc'.tr,
+      },
+      {
+        'step': 2,
+        'title': 'onboard_step2_title'.tr,
+        'desc': 'onboard_step2_desc'.tr,
+      },
+      {
+        'step': 3,
+        'title': 'onboard_step3_title'.tr,
+        'desc': 'onboard_step3_desc'.tr,
+      },
+      {
+        'step': 4,
+        'title': 'onboard_step4_title'.tr,
+        'desc': 'onboard_step4_desc'.tr,
+      },
     ];
 
     return Obx(
@@ -152,69 +177,73 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
         ),
         child: Row(
           children: steps.map((s) {
-            final int stepNum = s['step'] as int;
+            final stepNum = s['step'] as int;
             final isCurrent = controller.currentStep.value == stepNum;
             final isPassed = controller.currentStep.value > stepNum;
-
-            Color bgColor = Colors.transparent;
-            Color textColor = const Color(0xFF94A3B8);
-            if (isCurrent) {
-              bgColor = kPrimaryIndigo;
-              textColor = Colors.white;
-            } else if (isPassed) {
-              bgColor = kGreen.withValues(alpha: 0.15);
-              textColor = kGreen;
-            }
 
             return Expanded(
               child: GestureDetector(
                 onTap: () => controller.goToStep(stepNum),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 6,
+                    horizontal: 2,
+                  ),
                   decoration: BoxDecoration(
-                    // color: bgColor,
                     gradient: isCurrent ? AppTheme.primaryGradient : null,
-                    color: !isCurrent
-                        ? (isPassed
-                        ? kGreen.withValues(alpha: 0.15)
-                        : Colors.transparent)
-                        : null,
+                    color: isPassed
+                        ? kGreen.withValues(alpha: 0.18)
+                        : (isCurrent ? null : Colors.transparent),
                     borderRadius: BorderRadius.circular(10),
+                    border: isPassed
+                        ? Border.all(color: kGreen.withValues(alpha: 0.4))
+                        : null,
                   ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        width: 20,
-                        height: 20,
+                        width: 18,
+                        height: 18,
                         decoration: BoxDecoration(
-                          color: isCurrent
-                              ? Colors.white
-                              : isPassed
-                                  ? kGreen
-                                  : const Color(0xFF334155),
+                          color: isPassed
+                              ? kGreen
+                              : (isCurrent
+                                    ? Colors.white
+                                    : const Color(0xFF334155)),
                           shape: BoxShape.circle,
                         ),
                         alignment: Alignment.center,
-                        child: Text(
-                          isPassed ? '✓' : '$stepNum',
-                          style: TextStyle(
-                            color: isCurrent
-                                ? kPrimaryIndigo
-                                : isPassed
-                                    ? Colors.white
-                                    : const Color(0xFF94A3B8),
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
+                        child: isPassed
+                            ? const Icon(
+                                Icons.check,
+                                size: 12,
+                                color: Colors.white,
+                              )
+                            : Text(
+                                '$stepNum',
+                                style: TextStyle(
+                                  color: isCurrent
+                                      ? const Color(0xFF1C68FD)
+                                      : Colors.white70,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         s['title'] as String,
                         style: TextStyle(
-                          color: textColor,
+                          color: isCurrent
+                              ? Colors.white
+                              : (isPassed
+                                    ? const Color(0xFF6EE7B7)
+                                    : const Color(0xFF94A3B8)),
                           fontSize: 10,
-                          fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w500,
+                          fontWeight: isCurrent
+                              ? FontWeight.w800
+                              : FontWeight.w600,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -232,191 +261,560 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
   }
 
   // =========================================================================
-  // STEP 1: COMPANY INFO
+  // STEP 1: COMPANY INFO (With Logo Upload & Google Places Autocomplete)
   // =========================================================================
   Widget _buildStep1CompanyInfo(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       children: [
-        _buildSectionHeader('1. Organization Details', 'Company profile, avatar, location, and legal tax numbers'),
+        _buildSectionHeader(
+          'onboard_sec1_title'.tr,
+          'onboard_sec1_subtitle'.tr,
+        ),
         const SizedBox(height: 14),
 
-        // Company Avatar / Profile Selector
-        _buildAvatarSelector(),
+        // Company Logo Upload Box (Matching OnboardTenantPage.jsx)
+        _buildLogoUploadBox(context),
         const SizedBox(height: 16),
 
         // Company Name *
         _buildInputField(
-          label: 'Company / Organization Name *',
+          label: 'onboard_company_name_label'.tr,
           controller: controller.nameCtrl,
-          placeholder: 'e.g. City Bus Services Pvt Ltd',
+          placeholder: 'ph_company_name'.tr,
           icon: Icons.business_outlined,
         ),
         const SizedBox(height: 14),
 
-        // State / UT Dropdown *
-        _buildLabel('State / Union Territory *'),
-        const SizedBox(height: 6),
-        Obx(
-          () => Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: kFieldBg,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: kBorder),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: controller.selectedState.value,
-                dropdownColor: kCardBg,
-                icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF94A3B8)),
-                isExpanded: true,
-                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
-                items: OnboardTenantController.indianStatesAndUts.map((st) {
-                  return DropdownMenuItem<String>(
-                    value: st,
-                    child: Text(st),
-                  );
-                }).toList(),
-                onChanged: (val) {
-                  if (val != null) controller.selectedState.value = val;
-                },
-              ),
-            ),
-          ),
-        ),
+        // Office Address (Google Places Autocomplete)
+        _buildGooglePlacesAddressField(context),
         const SizedBox(height: 14),
 
-        // City * & Pincode Row
+        // City * & State / UT Dropdown
         Row(
           children: [
             Expanded(
               flex: 3,
               child: _buildInputField(
-                label: 'City *',
+                label: 'city_label'.tr,
                 controller: controller.cityCtrl,
-                placeholder: 'e.g. Mumbai',
+                placeholder: 'ph_city'.tr,
                 icon: Icons.location_city_outlined,
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
+              flex: 4,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildLabel('state_label'.tr),
+                  const SizedBox(height: 6),
+                  Obx(
+                    () => Container(
+                      height: 48,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        color: kFieldBg,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: kBorder),
+                      ),
+                      alignment: Alignment.center,
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: controller.selectedState.value,
+                          dropdownColor: kCardBg,
+                          icon: const Icon(
+                            Icons.arrow_drop_down,
+                            color: Color(0xFF94A3B8),
+                          ),
+                          isExpanded: true,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          items: OnboardTenantController.indianStatesAndUts.map(
+                            (st) {
+                              return DropdownMenuItem<String>(
+                                value: st,
+                                child: Text(
+                                  st,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              );
+                            },
+                          ).toList(),
+                          onChanged: (val) {
+                            if (val != null)
+                              controller.selectedState.value = val;
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+
+        // Pincode & CIN Row
+        Row(
+          children: [
+            Expanded(
               flex: 2,
               child: _buildInputField(
-                label: 'Pincode (6 Digits)',
+                label: 'pincode_label'.tr,
                 controller: controller.pincodeCtrl,
-                placeholder: '400001',
+                placeholder: 'ph_pincode'.tr,
                 keyboardType: TextInputType.number,
                 maxLength: 6,
               ),
             ),
-          ],
-        ),
-        const SizedBox(height: 14),
-
-        // CIN & GSTIN Row
-        Row(
-          children: [
+            const SizedBox(width: 12),
             Expanded(
+              flex: 3,
               child: _buildInputField(
-                label: 'CIN (Optional, 21 Chars)',
+                label: 'cin_label'.tr,
                 controller: controller.cinCtrl,
-                placeholder: 'U60200MH2021PTC109921',
+                placeholder: 'ph_cin'.tr,
                 maxLength: 21,
                 capitalization: TextCapitalization.characters,
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildInputField(
-                label: 'GSTIN (Optional, 15 Chars)',
-                controller: controller.gstinCtrl,
-                placeholder: '27AAACM1234F1Z8',
-                maxLength: 15,
-                capitalization: TextCapitalization.characters,
-              ),
-            ),
           ],
         ),
         const SizedBox(height: 14),
 
-        // Office Address
+        // GSTIN (15 Digits - Optional)
         _buildInputField(
-          label: 'Office Registered Address',
-          controller: controller.officeAddressCtrl,
-          placeholder: 'Complete physical address, depot or headquarters...',
-          icon: Icons.pin_drop_outlined,
-          maxLines: 2,
+          label: 'gstin_label'.tr,
+          controller: controller.gstinCtrl,
+          placeholder: 'ph_gstin'.tr,
+          maxLength: 15,
+          capitalization: TextCapitalization.characters,
         ),
         const SizedBox(height: 20),
 
         // Next Button
         _buildBottomBar(
-          nextText: 'Next Step: Admin Account →',
+          nextText: '${'btn_next_admin'.tr} →',
           onNext: controller.nextStep,
         ),
       ],
     );
   }
 
-  // Avatar Selector Widget
-  Widget _buildAvatarSelector() {
+  // ---------------- Logo Upload Box ----------------
+  Widget _buildLogoUploadBox(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: kCardBg,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: kBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'COMPANY PROFILE AVATAR',
-            style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.w700),
+          Text(
+            'company_logo_label'.tr.toUpperCase(),
+            style: const TextStyle(
+              color: Color(0xFF64748B),
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+            ),
           ),
-          const SizedBox(height: 8),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: OnboardTenantController.presetAvatars.map((av) {
-                return Obx(() {
-                  final isSelected = controller.selectedAvatarId.value == av.id;
-                  return GestureDetector(
-                    onTap: () => controller.selectedAvatarId.value = av.id,
-                    child: Container(
-                      margin: const EdgeInsets.only(right: 10),
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: av.color.withValues(alpha: isSelected ? 0.25 : 0.1),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: isSelected ? av.color : Colors.transparent,
-                          width: 2,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(av.icon, color: av.color, size: 18),
-                          const SizedBox(width: 6),
-                          Text(
-                            av.title,
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : const Color(0xFF94A3B8),
-                              fontSize: 11,
-                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              // Avatar / Image Preview
+              Obx(() {
+                final file = controller.logoFile.value;
+                return Container(
+                  width: 58,
+                  height: 58,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10101C),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.15),
+                    ),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: file != null
+                      ? Image.file(file, fit: BoxFit.cover)
+                      : Center(
+                          child: Container(
+                            width: double.infinity,
+                            height: double.infinity,
+                            decoration: const BoxDecoration(
+                              gradient: AppTheme.primaryGradient,
+                            ),
+                            child: Center(
+                              child: Text(
+                                controller.nameCtrl.text.isNotEmpty
+                                    ? controller.nameCtrl.text[0].toUpperCase()
+                                    : '🏢',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                );
+              }),
+              const SizedBox(width: 14),
+
+              // Action buttons & info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        // Upload / Change button with AppTheme.primaryGradient
+                        GestureDetector(
+                          onTap: () => _showImageSourcePicker(context),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 7,
+                            ),
+                            decoration: BoxDecoration(
+                              gradient: AppTheme.primaryGradient,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(
+                                    0xFF1C68FD,
+                                  ).withValues(alpha: 0.3),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.add_photo_alternate_outlined,
+                                  color: Colors.white,
+                                  size: 14,
+                                ),
+                                const SizedBox(width: 5),
+                                Obx(
+                                  () => Text(
+                                    controller.logoFile.value != null
+                                        ? 'change_image'.tr
+                                        : 'select_image'.tr,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+
+                        // Remove Logo Button
+                        Obx(() {
+                          if (controller.logoFile.value == null)
+                            return const SizedBox.shrink();
+                          return GestureDetector(
+                            onTap: controller.removeLogo,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0x1EEF4444),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: const Color(
+                                    0xFFEF4444,
+                                  ).withValues(alpha: 0.4),
+                                ),
+                              ),
+                              child: Text(
+                                'remove_logo'.tr,
+                                style: const TextStyle(
+                                  color: Color(0xFFEF4444),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
+                      ],
                     ),
-                  );
-                });
-              }).toList(),
-            ),
+                    const SizedBox(height: 6),
+                    Obx(() {
+                      final f = controller.logoFile.value;
+                      if (f != null) {
+                        return Text(
+                          'ready_to_upload'.tr,
+                          style: const TextStyle(
+                            color: Color(0xFF10B981),
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        );
+                      }
+                      return Text(
+                        'logo_allowed_types'.tr,
+                        style: const TextStyle(
+                          color: Color(0xFF64748B),
+                          fontSize: 10,
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
+    );
+  }
+
+  void _showImageSourcePicker(BuildContext context) {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
+          color: Color(0xFF1A1A2A),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'select_image_source'.tr,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 14),
+            ListTile(
+              leading: const Icon(
+                Icons.photo_library,
+                color: Color(0xFF60A5FA),
+              ),
+              title: Text(
+                'gallery'.tr,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              onTap: () {
+                Get.back();
+                controller.pickLogo(ImageSource.gallery);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt, color: Color(0xFF60A5FA)),
+              title: Text(
+                'camera'.tr,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              onTap: () {
+                Get.back();
+                controller.pickLogo(ImageSource.camera);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ---------------- Google Places Autocomplete Address Field ----------------
+  Widget _buildGooglePlacesAddressField(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildLabel('office_address_label'.tr),
+            Obx(() {
+              if (controller.latitude.value != null &&
+                  controller.longitude.value != null) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0x1E60A5FA),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: const Color(0xFF60A5FA).withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Text(
+                    'GPS: ${controller.latitude.value!.toStringAsFixed(4)}, ${controller.longitude.value!.toStringAsFixed(4)}',
+                    style: const TextStyle(
+                      color: Color(0xFF93C5FD),
+                      fontSize: 9.5,
+                      fontFamily: 'monospace',
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            }),
+          ],
+        ),
+        const SizedBox(height: 6),
+
+        // Search Input Field
+        Container(
+          decoration: BoxDecoration(
+            color: kFieldBg,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: kBorder),
+          ),
+          child: Column(
+            children: [
+              TextField(
+                controller: controller.officeAddressCtrl,
+                onChanged: controller.onAddressSearchChanged,
+                maxLines: 2,
+                minLines: 1,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'ph_office_address'.tr,
+                  hintStyle: const TextStyle(
+                    color: Color(0xFF64748B),
+                    fontSize: 12,
+                  ),
+                  prefixIcon: const Icon(
+                    Icons.location_on_outlined,
+                    color: Color(0xFF94A3B8),
+                    size: 18,
+                  ),
+                  suffixIcon: Obx(() {
+                    if (controller.isSearchingPlaces.value) {
+                      return const Padding(
+                        padding: EdgeInsets.all(12),
+                        child: SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Color(0xFF1C68FD),
+                          ),
+                        ),
+                      );
+                    }
+                    if (controller.officeAddressCtrl.text.isNotEmpty) {
+                      return IconButton(
+                        icon: const Icon(
+                          Icons.close,
+                          color: Colors.white54,
+                          size: 16,
+                        ),
+                        onPressed: controller.clearAddress,
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  }),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 12,
+                  ),
+                ),
+              ),
+
+              // Predictions Dropdown List
+              Obx(() {
+                if (!controller.showPlacesDropdown.value ||
+                    controller.placesPredictions.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+
+                return Container(
+                  constraints: const BoxConstraints(maxHeight: 200),
+                  decoration: const BoxDecoration(
+                    border: Border(top: BorderSide(color: kBorder)),
+                    color: Color(0xFF141422),
+                  ),
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: controller.placesPredictions.length,
+                    separatorBuilder: (_, __) => Divider(
+                      color: Colors.white.withValues(alpha: 0.05),
+                      height: 1,
+                    ),
+                    itemBuilder: (context, idx) {
+                      final place = controller.placesPredictions[idx];
+                      return ListTile(
+                        dense: true,
+                        leading: const Icon(
+                          Icons.place,
+                          color: Color(0xFF1C68FD),
+                          size: 16,
+                        ),
+                        title: Text(
+                          place.name,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        subtitle: Text(
+                          place.formattedAddress,
+                          style: const TextStyle(
+                            color: Color(0xFF94A3B8),
+                            fontSize: 11,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        onTap: () => controller.selectPlace(place),
+                      );
+                    },
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'address_hint'.tr,
+          style: const TextStyle(color: Color(0xFF64748B), fontSize: 10),
+        ),
+      ],
     );
   }
 
@@ -427,30 +825,33 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       children: [
-        _buildSectionHeader('2. Primary Admin Account', 'Create the initial administrator user who will log in to manage this company'),
+        _buildSectionHeader(
+          'onboard_sec2_title'.tr,
+          'onboard_sec2_subtitle'.tr,
+        ),
         const SizedBox(height: 14),
 
         // Admin Full Name *
         _buildInputField(
-          label: 'Admin Full Name *',
+          label: 'admin_name_label'.tr,
           controller: controller.adminNameCtrl,
-          placeholder: 'e.g. Ramesh Kulkarni',
+          placeholder: 'ph_admin_name'.tr,
           icon: Icons.person_outline,
         ),
         const SizedBox(height: 14),
 
         // Admin Email (Login ID) *
         _buildInputField(
-          label: 'Admin Email (Login ID) *',
+          label: 'admin_email_label'.tr,
           controller: controller.adminEmailCtrl,
-          placeholder: 'e.g. admin@citybus.com',
+          placeholder: 'ph_admin_email'.tr,
           icon: Icons.email_outlined,
           keyboardType: TextInputType.emailAddress,
         ),
         const SizedBox(height: 14),
 
         // Mobile Phone (10 Digits) *
-        _buildLabel('Mobile Phone (10 Digits) *'),
+        _buildLabel('admin_phone_label'.tr),
         const SizedBox(height: 6),
         Container(
           height: 48,
@@ -470,7 +871,11 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
                 alignment: Alignment.center,
                 child: const Text(
                   '+91',
-                  style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13, fontWeight: FontWeight.w700),
+                  style: TextStyle(
+                    color: Color(0xFF94A3B8),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
               Expanded(
@@ -478,11 +883,18 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
                   controller: controller.adminPhoneCtrl,
                   keyboardType: TextInputType.phone,
                   maxLength: 10,
-                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
                   decoration: const InputDecoration(
                     counterText: '',
                     hintText: '9820012345',
-                    hintStyle: TextStyle(color: Color(0xFF64748B), fontSize: 12),
+                    hintStyle: TextStyle(
+                      color: Color(0xFF64748B),
+                      fontSize: 12,
+                    ),
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(horizontal: 12),
                   ),
@@ -497,13 +909,13 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _buildLabel('Password *'),
+            _buildLabel('password_label'.tr),
             GestureDetector(
               onTap: controller.generateRandomPassword,
-              child: const Text(
-                'Generate Strong Password',
-                style: TextStyle(
-                  color: Color(0xFF818CF8),
+              child: Text(
+                'auto_generate_password'.tr,
+                style: const TextStyle(
+                  color: Color(0xFF93C5FD),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   decoration: TextDecoration.underline,
@@ -531,12 +943,21 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
                 fontWeight: FontWeight.w700,
               ),
               decoration: InputDecoration(
-                hintText: 'Set password',
-                hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 12),
-                prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF94A3B8), size: 18),
+                hintText: 'ph_password'.tr,
+                hintStyle: const TextStyle(
+                  color: Color(0xFF64748B),
+                  fontSize: 12,
+                ),
+                prefixIcon: const Icon(
+                  Icons.lock_outline,
+                  color: Color(0xFF94A3B8),
+                  size: 18,
+                ),
                 suffixIcon: IconButton(
                   icon: Icon(
-                    controller.showPassword.value ? Icons.visibility_off : Icons.visibility,
+                    controller.showPassword.value
+                        ? Icons.visibility_off
+                        : Icons.visibility,
                     color: Colors.white54,
                     size: 18,
                   ),
@@ -549,15 +970,15 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
           ),
         ),
         const SizedBox(height: 6),
-        const Text(
-          'Min 8 chars: 1 uppercase (A-Z), 1 number (0-9), 1 special (!@#\$)',
-          style: TextStyle(color: Color(0xFF64748B), fontSize: 10.5),
+        Text(
+          'password_hint'.tr,
+          style: const TextStyle(color: Color(0xFF64748B), fontSize: 10.5),
         ),
         const SizedBox(height: 24),
 
         // Navigation Buttons
         _buildBottomBar(
-          nextText: 'Next Step: Plan & Payment →',
+          nextText: '${'btn_next_plan'.tr} →',
           onNext: controller.nextStep,
           onBack: controller.prevStep,
         ),
@@ -566,28 +987,39 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
   }
 
   // =========================================================================
-  // STEP 3: PLAN & BILLING
+  // STEP 3: PLAN & BILLING (Locked Quotas, No Dummy Fields)
   // =========================================================================
   Widget _buildStep3PlanAndBilling(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       children: [
-        _buildSectionHeader('3. Subscription Plan & Payment Details', 'Select plan tier and payment mode (GST included in plan price)'),
+        _buildSectionHeader(
+          'onboard_sec3_title'.tr,
+          'onboard_sec3_subtitle'.tr,
+        ),
         const SizedBox(height: 14),
 
         // Plan Selection Cards
-        _buildLabel('Select Plan Tier *'),
+        _buildLabel('select_plan_tier_label'.tr),
         const SizedBox(height: 8),
         Obx(() {
           if (controller.loadingPlans.value) {
-            return const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator(color: kPrimaryIndigo)));
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: CircularProgressIndicator(color: Color(0xFF1C68FD)),
+              ),
+            );
           }
 
           if (controller.plans.isEmpty) {
             return Container(
               padding: const EdgeInsets.symmetric(vertical: 24),
               alignment: Alignment.center,
-              child: const Text('No subscription plans available', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
+              child: Text(
+                'no_plans_available'.tr,
+                style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+              ),
             );
           }
 
@@ -600,10 +1032,18 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
                   margin: const EdgeInsets.only(bottom: 10),
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: isSelected ? kPrimaryIndigo.withValues(alpha: 0.12) : kCardBg,
-                    borderRadius: BorderRadius.circular(12),
+                    gradient: isSelected
+                        ? LinearGradient(
+                            colors: [
+                              const Color(0xFF1C68FD).withValues(alpha: 0.18),
+                              const Color(0xFFDA29F4).withValues(alpha: 0.18),
+                            ],
+                          )
+                        : null,
+                    color: isSelected ? null : kCardBg,
+                    borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: isSelected ? kPrimaryIndigo : kBorder,
+                      color: isSelected ? const Color(0xFF1C68FD) : kBorder,
                       width: isSelected ? 1.8 : 1,
                     ),
                   ),
@@ -615,7 +1055,9 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: isSelected ? kPrimaryIndigo : const Color(0xFF64748B),
+                            color: isSelected
+                                ? const Color(0xFF1C68FD)
+                                : const Color(0xFF64748B),
                             width: 2,
                           ),
                         ),
@@ -626,7 +1068,7 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
                                 height: 10,
                                 decoration: const BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: kPrimaryIndigo,
+                                  gradient: AppTheme.primaryGradient,
                                 ),
                               )
                             : null,
@@ -646,8 +1088,11 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              '${p.busesLimit} Buses • ${p.depotsLimit} Depots • ${p.adRevenueShareRate}% Ad Rev Share',
-                              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+                              '${p.busesLimit} ${'buses'.tr} • ${p.depotsLimit} ${'depots'.tr}',
+                              style: const TextStyle(
+                                color: Color(0xFF94A3B8),
+                                fontSize: 11,
+                              ),
                             ),
                           ],
                         ),
@@ -663,9 +1108,12 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
                               fontWeight: FontWeight.w800,
                             ),
                           ),
-                          const Text(
-                            '/mo (GST incl.)',
-                            style: TextStyle(color: Color(0xFF64748B), fontSize: 9.5),
+                          Text(
+                            'gst_included_label'.tr,
+                            style: const TextStyle(
+                              color: Color(0xFF64748B),
+                              fontSize: 9.5,
+                            ),
                           ),
                         ],
                       ),
@@ -678,7 +1126,7 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
         }),
         const SizedBox(height: 14),
 
-        // Locked Quota Specifications
+        // Locked Quota Specifications (Only 2 Cards: Buses Quota & Depots Limit, NO Dummy Fields)
         Obx(() {
           final p = controller.selectedPlan.value;
           return Container(
@@ -694,25 +1142,62 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'PLAN QUOTA SPECIFICATIONS',
-                      style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.w700),
-                    ),
                     Text(
-                      'Locked to ${p?.name ?? 'Plan'}',
-                      style: const TextStyle(color: Color(0xFF818CF8), fontSize: 10, fontWeight: FontWeight.w600),
+                      'plan_tier_quota_specs'.tr.toUpperCase(),
+                      style: const TextStyle(
+                        color: Color(0xFF64748B),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0x1E1C68FD),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        'locked_by_tier'.tr,
+                        style: const TextStyle(
+                          color: Color(0xFF93C5FD),
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    _buildQuotaBox('Buses Quota', '${p?.busesLimit ?? 25} Buses'),
+                    Expanded(
+                      child: _buildQuotaBox(
+                        'buses_quota_label'.tr,
+                        '${p?.busesLimit ?? 25} ${'buses'.tr}',
+                        'included_fleet_cap'.tr,
+                      ),
+                    ),
                     const SizedBox(width: 8),
-                    _buildQuotaBox('Depots Limit', '${p?.depotsLimit ?? 2} Depots'),
-                    const SizedBox(width: 8),
-                    _buildQuotaBox('Ad Rev Share', '${p?.adRevenueShareRate ?? 65}%', color: kGreen),
+                    Expanded(
+                      child: _buildQuotaBox(
+                        'depots_limit_label'.tr,
+                        '${p?.depotsLimit ?? 2} ${'depots'.tr}',
+                        'included_terminal_cap'.tr,
+                      ),
+                    ),
                   ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'quota_auto_bound_note'.tr,
+                  style: const TextStyle(
+                    color: Color(0xFF64748B),
+                    fontSize: 9.5,
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
               ],
             ),
@@ -721,7 +1206,7 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
         const SizedBox(height: 16),
 
         // Payment Mode Selector (Offline vs Online)
-        _buildLabel('Payment Mode *'),
+        _buildLabel('payment_mode_label'.tr),
         const SizedBox(height: 8),
         Obx(
           () => Row(
@@ -737,7 +1222,9 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
                           : kCardBg,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: controller.paymentMode.value == 'offline' ? kGreen : kBorder,
+                        color: controller.paymentMode.value == 'offline'
+                            ? kGreen
+                            : kBorder,
                       ),
                     ),
                     child: Column(
@@ -745,20 +1232,37 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.account_balance_outlined,
-                                color: controller.paymentMode.value == 'offline' ? kGreen : const Color(0xFF94A3B8),
-                                size: 16),
+                            Icon(
+                              Icons.account_balance_outlined,
+                              color: controller.paymentMode.value == 'offline'
+                                  ? kGreen
+                                  : const Color(0xFF94A3B8),
+                              size: 16,
+                            ),
                             const SizedBox(width: 6),
-                            const Text(
-                              'Offline Transfer',
-                              style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
+                            Expanded(
+                              child: Text(
+                                'payment_mode_offline'.tr,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          'Cheque / Bank UTR Instant record',
-                          style: TextStyle(color: Color(0xFF94A3B8), fontSize: 10),
+                        Text(
+                          'payment_mode_offline_desc'.tr,
+                          style: const TextStyle(
+                            color: Color(0xFF94A3B8),
+                            fontSize: 9.5,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -773,11 +1277,13 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: controller.paymentMode.value == 'online'
-                          ? kPrimaryIndigo.withValues(alpha: 0.15)
+                          ? const Color(0xFF1C68FD).withValues(alpha: 0.15)
                           : kCardBg,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: controller.paymentMode.value == 'online' ? kPrimaryIndigo : kBorder,
+                        color: controller.paymentMode.value == 'online'
+                            ? const Color(0xFF1C68FD)
+                            : kBorder,
                       ),
                     ),
                     child: Column(
@@ -785,20 +1291,37 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.payment_outlined,
-                                color: controller.paymentMode.value == 'online' ? kPrimaryIndigo : const Color(0xFF94A3B8),
-                                size: 16),
+                            Icon(
+                              Icons.credit_card_outlined,
+                              color: controller.paymentMode.value == 'online'
+                                  ? const Color(0xFF60A5FA)
+                                  : const Color(0xFF94A3B8),
+                              size: 16,
+                            ),
                             const SizedBox(width: 6),
-                            const Text(
-                              'Online Checkout',
-                              style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
+                            Expanded(
+                              child: Text(
+                                'payment_mode_online'.tr,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          'Client completes payment online',
-                          style: TextStyle(color: Color(0xFF94A3B8), fontSize: 10),
+                        Text(
+                          'payment_mode_online_desc'.tr,
+                          style: const TextStyle(
+                            color: Color(0xFF94A3B8),
+                            fontSize: 9.5,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -808,9 +1331,9 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
             ],
           ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 16),
 
-        // Offline Bank Transfer Fields (if offline)
+        // Offline Bank Transfer Fields (Only when Offline)
         Obx(() {
           if (controller.paymentMode.value != 'offline') {
             return const SizedBox.shrink();
@@ -819,40 +1342,161 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
           return Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: kCardBg,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: kBorder),
+              color: kGreen.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: kGreen.withValues(alpha: 0.25)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'BANK SETTLEMENT DETAILS',
-                  style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.w700),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.receipt_long_outlined,
+                      color: kGreen,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'payment_record_details'.tr,
+                      style: const TextStyle(
+                        color: Color(0xFF6EE7B7),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
+
+                // Bank Name
                 _buildInputField(
-                  label: 'Bank Name *',
+                  label: 'bank_name_label'.tr,
                   controller: controller.bankNameCtrl,
-                  placeholder: 'State Bank of India / HDFC Bank',
+                  placeholder: 'ph_bank_name'.tr,
                   icon: Icons.account_balance,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
+
+                // Bank Reference / UTR
                 _buildInputField(
-                  label: 'Bank Reference / UTR Number *',
+                  label: 'bank_ref_label'.tr,
                   controller: controller.bankRefCtrl,
-                  placeholder: 'e.g. UTR1234567890',
-                  icon: Icons.receipt_outlined,
+                  placeholder: 'ph_bank_ref'.tr,
+                  icon: Icons.numbers,
+                  capitalization: TextCapitalization.characters,
+                ),
+                const SizedBox(height: 12),
+
+                // Amount Paid (Read-Only Auto-Locked to Plan)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildLabel('amount_paid_label'.tr),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            'fixed_from_plan'.tr,
+                            style: const TextStyle(
+                              color: Color(0xFF94A3B8),
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      height: 48,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0D0D17),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: kBorder),
+                      ),
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '₹ ${controller.selectedPlan.value?.monthlyPrice.toStringAsFixed(0) ?? '25000'}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // Payment Date
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildLabel('payment_date_label'.tr),
+                    const SizedBox(height: 6),
+                    GestureDetector(
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: controller.paymentDate.value,
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime.now(),
+                        );
+                        if (picked != null)
+                          controller.paymentDate.value = picked;
+                      },
+                      child: Container(
+                        height: 48,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: kFieldBg,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: kBorder),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              DateFormat(
+                                'yyyy-MM-dd',
+                              ).format(controller.paymentDate.value),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const Icon(
+                              Icons.calendar_today,
+                              color: Color(0xFF94A3B8),
+                              size: 16,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           );
         }),
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
 
         // Navigation Buttons
         _buildBottomBar(
-          nextText: 'Next Step: Review & Confirm →',
+          nextText: '${'btn_next_review'.tr} →',
           onNext: controller.nextStep,
           onBack: controller.prevStep,
         ),
@@ -860,30 +1504,40 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
     );
   }
 
-  Widget _buildQuotaBox(String label, String value, {Color? color}) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: kFieldBg,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: kBorder),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 9)),
-            const SizedBox(height: 2),
-            Text(
-              value,
-              style: TextStyle(
-                color: color ?? Colors.white,
-                fontSize: 11.5,
-                fontWeight: FontWeight.w700,
-              ),
+  Widget _buildQuotaBox(String label, String value, String sub) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: const Color(0xFF10101C),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: kBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label.toUpperCase(),
+            style: const TextStyle(
+              color: Color(0xFF64748B),
+              fontSize: 9.5,
+              fontWeight: FontWeight.w700,
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            sub,
+            style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 9.5),
+          ),
+        ],
       ),
     );
   }
@@ -895,46 +1549,82 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       children: [
-        _buildSectionHeader('4. Review All Details & Create Tenant', 'Please verify organization info, admin credentials, and subscription plan before final submission'),
+        _buildSectionHeader(
+          'onboard_sec4_title'.tr,
+          'onboard_sec4_subtitle'.tr,
+        ),
         const SizedBox(height: 14),
 
         // Review 1: Organization Details
         _buildReviewCard(
-          title: '1. Organization & Identity',
+          title: 'review_sec1_title'.tr,
           onEdit: () => controller.goToStep(1),
           children: [
-            _buildReviewRow('Company Name', controller.nameCtrl.text.trim()),
-            _buildReviewRow('Location', '${controller.cityCtrl.text.trim()}, ${controller.selectedState.value}'),
+            _buildReviewRow(
+              'lbl_company_name'.tr,
+              controller.nameCtrl.text.trim(),
+            ),
+            _buildReviewRow(
+              'lbl_location'.tr,
+              '${controller.cityCtrl.text.trim()}, ${controller.selectedState.value}',
+            ),
             if (controller.pincodeCtrl.text.isNotEmpty)
-              _buildReviewRow('Pincode', controller.pincodeCtrl.text.trim()),
+              _buildReviewRow(
+                'lbl_pincode'.tr,
+                controller.pincodeCtrl.text.trim(),
+              ),
             if (controller.cinCtrl.text.isNotEmpty)
-              _buildReviewRow('CIN', controller.cinCtrl.text.trim()),
+              _buildReviewRow('lbl_cin'.tr, controller.cinCtrl.text.trim()),
             if (controller.gstinCtrl.text.isNotEmpty)
-              _buildReviewRow('GSTIN', controller.gstinCtrl.text.trim()),
+              _buildReviewRow('lbl_gstin'.tr, controller.gstinCtrl.text.trim()),
+            if (controller.latitude.value != null &&
+                controller.longitude.value != null)
+              _buildReviewRow(
+                'lbl_gps'.tr,
+                '${controller.latitude.value!.toStringAsFixed(4)}, ${controller.longitude.value!.toStringAsFixed(4)}',
+              ),
             if (controller.officeAddressCtrl.text.isNotEmpty)
-              _buildReviewRow('Office Address', controller.officeAddressCtrl.text.trim()),
+              _buildReviewRow(
+                'lbl_office_address'.tr,
+                controller.officeAddressCtrl.text.trim(),
+              ),
           ],
         ),
         const SizedBox(height: 12),
 
         // Review 2: Admin Account
         _buildReviewCard(
-          title: '2. Primary Admin Account',
+          title: 'review_sec2_title'.tr,
           onEdit: () => controller.goToStep(2),
           children: [
-            _buildReviewRow('Admin Name', controller.adminNameCtrl.text.trim()),
-            _buildReviewRow('Admin Email', controller.adminEmailCtrl.text.trim()),
-            _buildReviewRow('Mobile Phone', '+91 ${controller.adminPhoneCtrl.text.trim()}'),
             _buildReviewRow(
-              'Password',
-              controller.showReviewPassword.value
-                  ? controller.adminPasswordCtrl.text.trim()
-                  : '••••••••••••',
-              trailing: GestureDetector(
-                onTap: () => controller.showReviewPassword.toggle(),
-                child: Text(
-                  controller.showReviewPassword.value ? 'Hide' : 'Show',
-                  style: const TextStyle(color: Color(0xFF818CF8), fontSize: 11, fontWeight: FontWeight.w700),
+              'lbl_admin_name'.tr,
+              controller.adminNameCtrl.text.trim(),
+            ),
+            _buildReviewRow(
+              'lbl_login_email'.tr,
+              controller.adminEmailCtrl.text.trim(),
+            ),
+            _buildReviewRow(
+              'lbl_mobile_phone'.tr,
+              '+91 ${controller.adminPhoneCtrl.text.trim()}',
+            ),
+            Obx(
+              () => _buildReviewRow(
+                'lbl_temp_password'.tr,
+                controller.showReviewPassword.value
+                    ? controller.adminPasswordCtrl.text.trim()
+                    : '••••••••••••',
+                trailing: GestureDetector(
+                  onTap: () => controller.showReviewPassword.toggle(),
+                  child: Text(
+                    controller.showReviewPassword.value ? 'hide'.tr : 'show'.tr,
+                    style: const TextStyle(
+                      color: Color(0xFF93C5FD),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -944,17 +1634,48 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
 
         // Review 3: Plan & Payment
         _buildReviewCard(
-          title: '3. Subscription & Billing',
+          title: 'review_sec3_title'.tr,
           onEdit: () => controller.goToStep(3),
           children: [
-            _buildReviewRow('Plan Tier', controller.selectedPlan.value?.name ?? 'Standard'),
-            _buildReviewRow('Monthly Amount', '₹${controller.selectedPlan.value?.monthlyPrice.toStringAsFixed(0) ?? '25000'} (GST Incl.)'),
-            _buildReviewRow('Buses Quota', '${controller.selectedPlan.value?.busesLimit ?? 25} Buses'),
-            _buildReviewRow('Depots Limit', '${controller.selectedPlan.value?.depotsLimit ?? 2} Depots'),
-            _buildReviewRow('Payment Mode', controller.paymentMode.value == 'offline' ? 'Offline Bank Transfer' : 'Online Checkout'),
+            _buildReviewRow(
+              'lbl_selected_tier'.tr,
+              controller.selectedPlan.value?.name ?? 'Standard',
+            ),
+            _buildReviewRow(
+              'lbl_plan_rate'.tr,
+              '₹${controller.selectedPlan.value?.monthlyPrice.toStringAsFixed(0) ?? '25000'} ${'per_month'.tr}',
+            ),
+            _buildReviewRow(
+              'lbl_buses_quota'.tr,
+              '${controller.selectedPlan.value?.busesLimit ?? 25} ${'buses'.tr}',
+            ),
+            _buildReviewRow(
+              'lbl_depots_limit'.tr,
+              '${controller.selectedPlan.value?.depotsLimit ?? 2} ${'depots'.tr}',
+            ),
+            _buildReviewRow(
+              'lbl_payment_mode'.tr,
+              controller.paymentMode.value == 'offline'
+                  ? 'offline_bank_settlement'.tr
+                  : 'online_client_checkout'.tr,
+            ),
             if (controller.paymentMode.value == 'offline') ...[
-              _buildReviewRow('Bank Name', controller.bankNameCtrl.text.trim()),
-              _buildReviewRow('Bank UTR / Ref', controller.bankRefCtrl.text.trim()),
+              _buildReviewRow(
+                'lbl_settlement_bank'.tr,
+                controller.bankNameCtrl.text.trim(),
+              ),
+              _buildReviewRow(
+                'lbl_utr_ref'.tr,
+                controller.bankRefCtrl.text.trim(),
+              ),
+              _buildReviewRow(
+                'lbl_amount_paid'.tr,
+                '₹ ${controller.selectedPlan.value?.monthlyPrice.toStringAsFixed(0) ?? '25000'}',
+              ),
+              _buildReviewRow(
+                'lbl_payment_date'.tr,
+                DateFormat('yyyy-MM-dd').format(controller.paymentDate.value),
+              ),
             ],
           ],
         ),
@@ -968,7 +1689,9 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
               color: kCardBg,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: controller.acceptContract.value ? kPrimaryIndigo : kBorder,
+                color: controller.acceptContract.value
+                    ? const Color(0xFF1C68FD)
+                    : kBorder,
               ),
             ),
             child: Row(
@@ -976,15 +1699,20 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
               children: [
                 Checkbox(
                   value: controller.acceptContract.value,
-                  activeColor: kPrimaryIndigo,
-                  onChanged: (val) => controller.acceptContract.value = val ?? false,
+                  activeColor: const Color(0xFF1C68FD),
+                  onChanged: (val) =>
+                      controller.acceptContract.value = val ?? false,
                 ),
-                const Expanded(
+                Expanded(
                   child: Padding(
-                    padding: EdgeInsets.only(top: 6),
+                    padding: const EdgeInsets.only(top: 6),
                     child: Text(
-                      'I confirm that all provided tenant details, admin credentials, and subscription payment records are accurate and approved for onboarding.',
-                      style: TextStyle(color: Colors.white70, fontSize: 11.5, height: 1.4),
+                      'contract_confirm_label'.tr,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 11.5,
+                        height: 1.4,
+                      ),
                     ),
                   ),
                 ),
@@ -994,7 +1722,7 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
         ),
         const SizedBox(height: 20),
 
-        // Final Submit Button
+        // Final Submit Button with AppTheme.primaryGradient
         Obx(
           () => Row(
             children: [
@@ -1009,9 +1737,13 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
                       border: Border.all(color: kBorder),
                     ),
                     alignment: Alignment.center,
-                    child: const Text(
-                      '← Back',
-                      style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600),
+                    child: Text(
+                      '← ${'back'.tr}',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -1020,35 +1752,59 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
               Expanded(
                 flex: 2,
                 child: GestureDetector(
-                  onTap: controller.isSubmitting.value ? null : controller.submitTenant,
+                  onTap:
+                      (controller.isSubmitting.value ||
+                          !controller.acceptContract.value)
+                      ? null
+                      : controller.submitTenant,
                   child: Container(
                     height: 48,
                     decoration: BoxDecoration(
-                      gradient: AppTheme.primaryGradient,
+                      gradient: controller.acceptContract.value
+                          ? AppTheme.primaryGradient
+                          : null,
+                      color: controller.acceptContract.value
+                          ? null
+                          : const Color(0xFF1E2235),
                       borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: kPrimaryIndigo.withValues(alpha: 0.35),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+                      boxShadow: controller.acceptContract.value
+                          ? [
+                              BoxShadow(
+                                color: const Color(
+                                  0xFF1C68FD,
+                                ).withValues(alpha: 0.35),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ]
+                          : null,
                     ),
                     alignment: Alignment.center,
                     child: controller.isSubmitting.value
                         ? const SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.2),
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.2,
+                            ),
                           )
-                        : const Row(
+                        : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
-                              SizedBox(width: 8),
-                              Text(
-                                'Create Tenant Account',
-                                style: TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w700),
+                              // const Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
+                              // const SizedBox(width: 8),
+                              Obx(
+                                () => Text(
+                                  controller.isEditMode.value
+                                      ? 'btn_save_changes_tenant'.tr
+                                      : 'btn_complete_onboarding'.tr,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -1062,7 +1818,11 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
     );
   }
 
-  Widget _buildReviewCard({required String title, required VoidCallback onEdit, required List<Widget> children}) {
+  Widget _buildReviewCard({
+    required String title,
+    required VoidCallback onEdit,
+    required List<Widget> children,
+  }) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -1078,17 +1838,29 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
             children: [
               Text(
                 title.toUpperCase(),
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 10.5, fontWeight: FontWeight.w800),
+                style: const TextStyle(
+                  color: Color(0xFF64748B),
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
               GestureDetector(
                 onTap: onEdit,
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.edit_outlined, color: Color(0xFF818CF8), size: 12),
-                    SizedBox(width: 4),
+                    const Icon(
+                      Icons.edit_outlined,
+                      color: Color(0xFF93C5FD),
+                      size: 12,
+                    ),
+                    const SizedBox(width: 4),
                     Text(
-                      'Edit',
-                      style: TextStyle(color: Color(0xFF818CF8), fontSize: 11, fontWeight: FontWeight.w700),
+                      'edit'.tr,
+                      style: const TextStyle(
+                        color: Color(0xFF93C5FD),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ],
                 ),
@@ -1108,42 +1880,71 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(label, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11.5)),
+          Text(
+            label,
+            style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11.5),
+          ),
           const SizedBox(width: 12),
-          if (trailing != null) ...[
-            Row(
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text(value, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
-                const SizedBox(width: 8),
-                trailing,
+                Flexible(
+                  child: Text(
+                    value,
+                    textAlign: TextAlign.right,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: trailing != null
+                          ? FontWeight.w600
+                          : FontWeight.w700,
+                    ),
+                  ),
+                ),
+                if (trailing != null) ...[const SizedBox(width: 8), trailing],
               ],
             ),
-          ] else
-            Expanded(
-              child: Text(
-                value,
-                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
-                textAlign: TextAlign.right,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
+          ),
         ],
       ),
     );
   }
+  // Widget _buildReviewRow(String label, String value, {Widget? trailing}) {
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(vertical: 4),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //       children: [
+  //         Text(label, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11.5)),
+  //         if (trailing != null)
+  //           Row(
+  //             children: [
+  //               Text(value, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
+  //               const SizedBox(width: 8),
+  //               trailing,
+  //             ],
+  //           )
+  //         else
+  //           Text(value, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700)),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   // =========================================================================
-  // SUCCESS MODAL DIALOG
+  // SUCCESS MODAL
   // =========================================================================
   Widget _buildSuccessModal() {
     final d = controller.successModalData.value!;
     return Container(
-      color: Colors.black87,
+      color: Colors.black.withValues(alpha: 0.75),
       alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.all(24),
       child: Container(
         padding: const EdgeInsets.all(22),
         decoration: BoxDecoration(
@@ -1164,13 +1965,17 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
               child: const Icon(Icons.check_circle, color: kGreen, size: 32),
             ),
             const SizedBox(height: 12),
-            const Text(
-              'Tenant Account Provisioned!',
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800),
+            Text(
+              'tenant_onboarded_success_title'.tr,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
-              '${d['orgName']} has been created under ${d['planName']}',
+              '${d['orgName']} (${d['planName']})',
               style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11.5),
               textAlign: TextAlign.center,
             ),
@@ -1187,21 +1992,55 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('PRIMARY ADMIN LOGIN CREDENTIALS', style: TextStyle(color: Color(0xFF64748B), fontSize: 9.5, fontWeight: FontWeight.w700)),
+                  Text(
+                    'primary_admin_credentials_heading'.tr.toUpperCase(),
+                    style: const TextStyle(
+                      color: Color(0xFF64748B),
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Email:', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
-                      Text('${d['adminEmail']}', style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w700)),
+                      Text(
+                        'lbl_login_email'.tr,
+                        style: const TextStyle(
+                          color: Color(0xFF94A3B8),
+                          fontSize: 11,
+                        ),
+                      ),
+                      Text(
+                        '${d['adminEmail']}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Password:', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
-                      Text('${d['adminPassword']}', style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 11.5, fontFamily: 'monospace', fontWeight: FontWeight.w700)),
+                      Text(
+                        'password_label'.tr,
+                        style: const TextStyle(
+                          color: Color(0xFF94A3B8),
+                          fontSize: 11,
+                        ),
+                      ),
+                      Text(
+                        '${d['adminPassword']}',
+                        style: const TextStyle(
+                          color: Color(0xFF60A5FA),
+                          fontSize: 11.5,
+                          fontFamily: 'monospace',
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -1215,7 +2054,10 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
                   child: OutlinedButton.icon(
                     onPressed: controller.copyCredentials,
                     icon: const Icon(Icons.copy, size: 14),
-                    label: const Text('Copy Info', style: TextStyle(fontSize: 11.5)),
+                    label: Text(
+                      'copy_info'.tr,
+                      style: const TextStyle(fontSize: 11.5),
+                    ),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.white,
                       side: const BorderSide(color: kBorder),
@@ -1225,13 +2067,29 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: CustomButton(
-                    text: 'Done / View',
+                  child: GestureDetector(
                     onTap: () {
                       controller.successModalData.value = null;
                       Get.back();
                     },
-                    height: 42,
+                    child: Container(
+                      height: 42,
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.primaryGradient,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      alignment: Alignment.center,
+                      child: Center(
+                        child: Text(
+                          'done_view'.tr,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -1251,7 +2109,12 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
       children: [
         Text(
           title.toUpperCase(),
-          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w800, letterSpacing: 0.3),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 13,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.3,
+          ),
         ),
         const SizedBox(height: 3),
         Text(
@@ -1265,7 +2128,11 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
   Widget _buildLabel(String text) {
     return Text(
       text,
-      style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 11.5, fontWeight: FontWeight.w600),
+      style: const TextStyle(
+        color: Color(0xFFCBD5E1),
+        fontSize: 11.5,
+        fontWeight: FontWeight.w600,
+      ),
     );
   }
 
@@ -1296,14 +2163,26 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
             maxLength: maxLength,
             textCapitalization: capitalization,
             maxLines: maxLines,
-            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
             decoration: InputDecoration(
               counterText: '',
               hintText: placeholder,
-              hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 12),
-              prefixIcon: icon != null ? Icon(icon, color: const Color(0xFF94A3B8), size: 18) : null,
+              hintStyle: const TextStyle(
+                color: Color(0xFF64748B),
+                fontSize: 12,
+              ),
+              prefixIcon: icon != null
+                  ? Icon(icon, color: const Color(0xFF94A3B8), size: 18)
+                  : null,
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 12,
+              ),
             ),
           ),
         ),
@@ -1323,16 +2202,20 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
             child: GestureDetector(
               onTap: onBack,
               child: Container(
-                height: 46,
+                height: 48,
                 decoration: BoxDecoration(
                   color: kCardBg,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: kBorder),
                 ),
                 alignment: Alignment.center,
-                child: const Text(
-                  '← Back',
-                  style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600),
+                child: Text(
+                  '← ${'back'.tr}',
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -1340,17 +2223,17 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
           const SizedBox(width: 12),
         ],
         Expanded(
-          flex: 2,
+          flex: onBack != null ? 2 : 1,
           child: GestureDetector(
             onTap: onNext,
             child: Container(
-              height: 46,
+              height: 48,
               decoration: BoxDecoration(
                 gradient: AppTheme.primaryGradient,
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: [
                   BoxShadow(
-                    color: kPrimaryIndigo.withValues(alpha: 0.35),
+                    color: const Color(0xFF1C68FD).withValues(alpha: 0.35),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),
@@ -1359,7 +2242,11 @@ class OnboardTenantView extends GetView<OnboardTenantController> {
               alignment: Alignment.center,
               child: Text(
                 nextText,
-                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),

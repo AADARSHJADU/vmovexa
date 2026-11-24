@@ -4,11 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:vmovexa/app/modules/roles/finance/invoice/controller/invoice_controller.dart';
 import 'package:vmovexa/app/modules/roles/finance/invoice/model/invoice_model.dart';
 import 'package:vmovexa/app/modules/roles/finance/invoice/view/invoice_list_item.dart';
-import 'package:vmovexa/app/modules/roles/finance/invoice/view/summary_stat_card.dart';
+import 'package:vmovexa/app/theme/app_colors.dart';
 import 'package:vmovexa/app/theme/app_theme.dart';
-
-import '../../../../../theme/app_colors.dart';
-
 
 class InvoiceView extends GetView<InvoiceController> {
   const InvoiceView({super.key});
@@ -28,21 +25,17 @@ class InvoiceView extends GetView<InvoiceController> {
             color: AppColors.primaryButtonBlue,
             backgroundColor: AppColors.cardBg,
             onRefresh: controller.refreshInvoices,
-    
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
               children: [
-                _buildAppBar(),
+                _buildHeader(),
                 const SizedBox(height: 16),
-                _buildSummaryCard(context),
-                const SizedBox(height: 16),
-                _buildInvoiceListHeader(context),
+                _buildStatusTabs(),
                 const SizedBox(height: 12),
                 _buildSearchBar(),
-                const SizedBox(height: 12),
-                _buildStatusTabs(),
                 const SizedBox(height: 16),
-                _buildTableHeader(),
+                _buildListHeader(),
+                const SizedBox(height: 10),
                 _buildInvoiceList(),
                 const SizedBox(height: 12),
                 _buildPagination(),
@@ -54,8 +47,8 @@ class InvoiceView extends GetView<InvoiceController> {
     );
   }
 
-  // ---------------- App Bar (Mirroring InvoicesListPage.jsx) ----------------
-  Widget _buildAppBar() {
+  // ---------------- Header (Exact Parity with InvoicesListPage.jsx) ----------------
+  Widget _buildHeader() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -65,6 +58,12 @@ class InvoiceView extends GetView<InvoiceController> {
               'finance_portal_breadcrumb'.tr,
               style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
             ),
+            const SizedBox(width: 4),
+            const Text(
+              '›',
+              style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+            ),
+            const SizedBox(width: 4),
             Text(
               'tax_invoices'.tr,
               style: const TextStyle(
@@ -74,11 +73,17 @@ class InvoiceView extends GetView<InvoiceController> {
               ),
             ),
             const Spacer(),
-            IconButton(
-              onPressed: controller.refreshInvoices,
-              icon: const Icon(Icons.refresh, color: Colors.white70, size: 18),
-              tooltip: 'refresh_invoices'.tr,
-            ),
+            Obx(() => IconButton(
+                  onPressed: controller.isRefreshing.value ? null : controller.refreshInvoices,
+                  icon: controller.isRefreshing.value
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
+                        )
+                      : const Icon(Icons.refresh, color: Colors.white70, size: 18),
+                  tooltip: 'refresh_invoices'.tr,
+                )),
           ],
         ),
         const SizedBox(height: 2),
@@ -103,193 +108,31 @@ class InvoiceView extends GetView<InvoiceController> {
     );
   }
 
-  // ---------------- Summary Card ----------------
-  Widget _buildSummaryCard(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                'invoice_summary'.tr,
-                style: GoogleFonts.raleway(
-                  color: AppColors.textPrimary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(width: 6),
-              const Icon(Icons.info_outline, color: AppColors.textMuted, size: 14),
-              const Spacer(),
-            ],
-          ),
-          const SizedBox(height: 12),
-          InkWell(
-            onTap: () => controller.pickDateRange(context),
-            borderRadius: BorderRadius.circular(8),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: AppColors.inputBg,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.inputBorder),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.calendar_today_outlined,
-                      color: AppColors.textSecondary, size: 14),
-                  const SizedBox(width: 8),
-                  Obx(() => Text(
-                        controller.dateRangeLabel,
-                        style: GoogleFonts.raleway(
-                          color: AppColors.textPrimary,
-                          fontSize: 12,
-                        ),
-                      )),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.keyboard_arrow_down,
-                      color: AppColors.textSecondary, size: 16),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Obx(() {
-            final s = controller.summary.value;
-            return Row(
-              children: [
-                Expanded(
-                  child: SummaryStatCard(
-                    icon: Icons.description_outlined,
-                    iconColor: AppColors.primaryButtonBlue,
-                    label: 'total_invoices'.tr,
-                    value: '${s.totalInvoices}',
-                  ),
-                ),
-                Expanded(
-                  child: SummaryStatCard(
-                    icon: Icons.check_circle,
-                    iconColor: AppColors.accentGreen,
-                    label: 'paid_invoices'.tr,
-                    value: '${s.paidCount}',
-                    amountLabel: '₹${_formatCompact(s.paidAmount)}',
-                    amountColor: AppColors.accentGreen,
-                  ),
-                ),
-                Expanded(
-                  child: SummaryStatCard(
-                    icon: Icons.access_time_rounded,
-                    iconColor: const Color(0xFFF59E0B),
-                    label: 'pending_invoices'.tr,
-                    value: '${s.pendingCount}',
-                    amountLabel: '₹${_formatCompact(s.pendingAmount)}',
-                    amountColor: const Color(0xFFF59E0B),
-                  ),
-                ),
-                Expanded(
-                  child: SummaryStatCard(
-                    icon: Icons.cancel,
-                    iconColor: const Color(0xFFEF4444),
-                    label: 'overdue_invoices'.tr,
-                    value: '${s.overdueCount}',
-                    amountLabel: '₹${_formatCompact(s.overdueAmount)}',
-                    amountColor: const Color(0xFFEF4444),
-                  ),
-                ),
-              ],
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
-  String _formatCompact(double amount) {
-    final s = amount.toStringAsFixed(0);
-    final buffer = StringBuffer();
-    final digits = s.split('').reversed.toList();
-    for (int i = 0; i < digits.length; i++) {
-      buffer.write(digits[i]);
-      final pos = i + 1;
-      if (pos == 3 || (pos > 3 && (pos - 3) % 2 == 0)) {
-        if (i != digits.length - 1) buffer.write(',');
-      }
-    }
-    return buffer.toString().split('').reversed.join();
-  }
-
-  // ---------------- List Header ----------------
-  Widget _buildInvoiceListHeader(BuildContext context) {
-    return Row(
-      children: [
-        Obx(() => Text(
-              '${'all_invoices'.tr} (${controller.filteredInvoices.length})',
-              style: GoogleFonts.raleway(
-                color: AppColors.textPrimary,
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-              ),
-            )),
-      ],
-    );
-  }
-
-  // ---------------- Search ----------------
-  Widget _buildSearchBar() {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.inputBg,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.inputBorder),
-      ),
-      child: TextField(
-        controller: controller.searchController,
-        onChanged: controller.onSearchChanged,
-        style: GoogleFonts.raleway(color: AppColors.textPrimary, fontSize: 13),
-        decoration: InputDecoration(
-          hintText: 'search_invoices_hint'.tr,
-          hintStyle: GoogleFonts.raleway(
-            color: AppColors.textMuted,
-            fontSize: 13,
-          ),
-          prefixIcon: const Icon(Icons.search, color: AppColors.textMuted, size: 18),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 14),
-        ),
-      ),
-    );
-  }
-
-  // ---------------- Status Tabs ----------------
+  // ---------------- Status Filter Tabs (All, Paid, Pending, Overdue) ----------------
   Widget _buildStatusTabs() {
-    final tabs = [
-      {'key': 'All', 'label': 'all_tab'.tr},
-      {'key': 'Paid', 'label': 'paid_tab'.tr},
-      {'key': 'Pending', 'label': 'pending_tab'.tr},
-      {'key': 'Overdue', 'label': 'overdue_tab'.tr},
-    ];
     return Obx(() {
+      final tabs = [
+        {'id': 'all', 'label': 'all_tab'.tr, 'count': controller.totalCount.value},
+        {'id': 'paid', 'label': 'paid_tab'.tr, 'count': controller.paidCount.value},
+        {'id': 'pending', 'label': 'pending_tab'.tr, 'count': controller.pendingCount.value},
+        {'id': 'overdue', 'label': 'overdue_tab'.tr, 'count': controller.overdueCount.value},
+      ];
+
       return SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
           children: tabs.map((tab) {
-            final tabKey = tab['key']!;
-            final tabLabel = tab['label']!;
-            final isSelected = controller.selectedStatusTab.value == tabKey;
+            final tabId = tab['id'] as String;
+            final label = tab['label'] as String;
+            final count = tab['count'] as int;
+            final isSelected = controller.selectedTab.value == tabId;
+
             return Padding(
               padding: const EdgeInsets.only(right: 8),
               child: GestureDetector(
-                onTap: () => controller.selectedStatusTab.value = tabKey,
+                onTap: () => controller.onTabChanged(tabId),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                   decoration: BoxDecoration(
                     gradient: isSelected ? AppTheme.primaryGradient : null,
                     color: isSelected ? null : AppColors.cardBg,
@@ -307,13 +150,36 @@ class InvoiceView extends GetView<InvoiceController> {
                           ]
                         : null,
                   ),
-                  child: Text(
-                    tabLabel,
-                    style: GoogleFonts.raleway(
-                      color: isSelected ? Colors.white : AppColors.textSecondary,
-                      fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        label,
+                        style: GoogleFonts.raleway(
+                          color: isSelected ? Colors.white : AppColors.textSecondary,
+                          fontSize: 12,
+                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? Colors.white.withValues(alpha: 0.25)
+                              : const Color(0x33FFFFFF),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          '$count',
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : AppColors.textMuted,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -324,50 +190,108 @@ class InvoiceView extends GetView<InvoiceController> {
     });
   }
 
-  // ---------------- Table Header ----------------
-  Widget _buildTableHeader() {
-    TextStyle style = GoogleFonts.raleway(
-      color: AppColors.textMuted,
-      fontSize: 11,
-      fontWeight: FontWeight.w600,
-    );
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Row(
-        children: [
-          const SizedBox(width: 48),
-          Expanded(flex: 3, child: Text('invoice_id_col'.tr, style: style)),
-          Expanded(flex: 2, child: Text('invoice_date_col'.tr, style: style)),
-          Expanded(flex: 2, child: Text('amount_col'.tr, style: style)),
-          Expanded(flex: 2, child: Text('status_col'.tr, style: style)),
-          const SizedBox(width: 18),
-        ],
+  // ---------------- Search Bar ----------------
+  Widget _buildSearchBar() {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.inputBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.inputBorder),
+      ),
+      child: TextField(
+        controller: controller.searchController,
+        onChanged: controller.onSearchChanged,
+        style: GoogleFonts.raleway(color: AppColors.textPrimary, fontSize: 13),
+        decoration: InputDecoration(
+          hintText: 'search_invoices_hint'.tr,
+          hintStyle: GoogleFonts.raleway(
+            color: AppColors.textMuted,
+            fontSize: 12.5,
+          ),
+          prefixIcon: const Icon(Icons.search, color: AppColors.textMuted, size: 18),
+          suffixIcon: Obx(() {
+            if (controller.searchQuery.value.isNotEmpty) {
+              return IconButton(
+                onPressed: () {
+                  controller.searchController.clear();
+                  controller.onSearchChanged('');
+                },
+                icon: const Icon(Icons.clear, color: AppColors.textMuted, size: 16),
+              );
+            }
+            return const SizedBox.shrink();
+          }),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+        ),
       ),
     );
   }
 
-  // ---------------- Invoice List ----------------
+  // ---------------- List Header ----------------
+  Widget _buildListHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Obx(() => Text(
+              '${'invoices_count_title'.tr} (${controller.filteredInvoices.length})',
+              style: GoogleFonts.raleway(
+                color: AppColors.textPrimary,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
+            )),
+      ],
+    );
+  }
+
+  // ---------------- Invoice List / Empty State ----------------
   Widget _buildInvoiceList() {
     return Obx(() {
       final items = controller.pagedInvoices;
       if (items.isEmpty) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 32),
-          child: Center(
-            child: Text(
-              'no_invoices_found'.tr,
-              style: GoogleFonts.raleway(color: AppColors.textMuted),
-            ),
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+          decoration: BoxDecoration(
+            color: AppColors.cardBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.cardBorder),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.receipt_long_outlined, size: 42, color: AppColors.textMuted),
+              const SizedBox(height: 10),
+              Text(
+                'no_invoices_found'.tr,
+                style: GoogleFonts.raleway(
+                  color: AppColors.textPrimary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'no_invoices_sub'.tr,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.raleway(
+                  color: AppColors.textMuted,
+                  fontSize: 12,
+                ),
+              ),
+            ],
           ),
         );
       }
+
       return Column(
-        children: items
-            .map((InvoiceModel inv) => InvoiceListItem(
-                  invoice: inv,
-                  onTap: () => controller.onInvoiceTap(inv),
-                ))
-            .toList(),
+        children: items.map((InvoiceModel inv) {
+          return InvoiceListItem(
+            invoice: inv,
+            onTap: () => controller.onInvoiceTap(inv),
+            onDownloadPdf: () => controller.downloadInvoicePdf(inv),
+          );
+        }).toList(),
       );
     });
   }
@@ -375,8 +299,10 @@ class InvoiceView extends GetView<InvoiceController> {
   // ---------------- Pagination ----------------
   Widget _buildPagination() {
     return Obx(() {
+      if (controller.totalPages.value <= 1) return const SizedBox.shrink();
+
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -408,15 +334,15 @@ class InvoiceView extends GetView<InvoiceController> {
                   : null,
               style: TextButton.styleFrom(
                 foregroundColor: controller.currentPage.value < controller.totalPages.value
-                    ? AppColors.textLink
+                    ? const Color(0xFF60A5FA)
                     : AppColors.textMuted,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('next'.tr, style: GoogleFonts.raleway(fontSize: 12,color: AppColors.accentPurple)),
+                  Text('next'.tr, style: GoogleFonts.raleway(fontSize: 12)),
                   const SizedBox(width: 2),
-                  const Icon(Icons.chevron_right, size: 16,color: AppColors.accentPurple),
+                  const Icon(Icons.chevron_right, size: 16),
                 ],
               ),
             ),

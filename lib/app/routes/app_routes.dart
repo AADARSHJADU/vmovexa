@@ -150,6 +150,9 @@ abstract class Routes {
   static const FINANCE_SUBSCRIPTIONS = '/subscriptions';
   static const FINANCE_ONBOARD_TENANT = '/finance/subscriptions/onboard';
   static const FINANCE_INVOICE = '/finance-invoice';
+  static const FINANCE_INVOICE_DETAILS = '/finance-invoice-details';
+  static const FINANCE_CAMPAIGN_PAYMENTS = '/finance-campaign-payments';
+  static const FINANCE_CAMPAIGN_PAYMENT_DETAILS = '/finance-campaign-payment-details';
   static const GENERATE_INVOICE = '/generate-invoice';
   static const PAYMENT_DETAIL = '/payment-detail';
   static const REVENUE_REPORTING = '/revenue-reporting';
