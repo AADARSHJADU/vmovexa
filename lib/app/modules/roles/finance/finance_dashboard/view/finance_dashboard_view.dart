@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../theme/app_colors.dart';
+import '../../../../../theme/app_theme.dart';
 import '../../widgets/finance_drawer_widget.dart';
 import '../controller/finance_dashboard_controller.dart';
 import '../../home/view/finance_home_view.dart';
@@ -51,7 +52,7 @@ class FinanceDashboardView extends GetView<FinanceDashboardController> {
             onTap: controller.onNavItemTapped,
             backgroundColor: AppColors.cardBg,
             type: BottomNavigationBarType.fixed,
-            selectedItemColor: const Color(0xFF6366F1),
+            selectedItemColor: AppTheme.gradientBlue,
             unselectedItemColor: AppColors.textMuted,
             selectedFontSize: 11,
             unselectedFontSize: 11,

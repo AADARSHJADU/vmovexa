@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:vmovexa/app/data/services/storage_service.dart';
 import 'package:vmovexa/app/routes/app_routes.dart';
 import 'package:vmovexa/app/theme/app_colors.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import 'package:vmovexa/app/widgets/language_selector_sheet.dart';
 import '../finance_dashboard/controller/finance_dashboard_controller.dart';
 import '../payments/controller/finance_payments_controller.dart';
@@ -56,15 +57,21 @@ class FinanceDrawerWidget extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  CircleAvatar(
-                    radius: 24,
-                    backgroundColor: kPrimaryIndigo,
-                    child: Text(
-                      initial,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: AppTheme.primaryGradient,
+                    ),
+                    child: Center(
+                      child: Text(
+                        initial,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -100,18 +107,15 @@ class FinanceDrawerWidget extends StatelessWidget {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: kPrimaryIndigo.withValues(alpha: 0.2),
+                            gradient: AppTheme.primaryGradient,
                             borderRadius: BorderRadius.circular(6),
-                            border: Border.all(
-                              color: kPrimaryIndigo.withValues(alpha: 0.4),
-                            ),
                           ),
                           child: Text(
                             userRole,
                             style: const TextStyle(
-                              color: Color(0xFF818CF8),
+                              color: Colors.white,
                               fontSize: 10,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w800,
                               letterSpacing: 0.5,
                             ),
                           ),
