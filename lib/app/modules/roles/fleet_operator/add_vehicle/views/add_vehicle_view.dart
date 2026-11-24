@@ -542,7 +542,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
               Text(
                 isUploaded && doc.name.isNotEmpty ? doc.name : title,
                 textAlign: TextAlign.center,
-                maxLines: 2,
+                maxLines: 3,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
               ),
@@ -552,6 +552,41 @@ class AddVehicleView extends GetView<AddVehicleController> {
                   style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
                 )
               else if (isUploaded)
+                GestureDetector(
+                  onTap: () => _showDocumentPreviewDialog(
+                    context,
+                    doc.url,
+                    isUploaded && doc.name.isNotEmpty ? doc.name : title,
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF10B981).withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.5)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.visibility_rounded, color: Color(0xFF10B981), size: 12),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            'view_document'.tr,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Color(0xFF10B981),
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              /*else if (isUploaded)
                 GestureDetector(
                   onTap: () => _showDocumentPreviewDialog(context, doc.url, isUploaded && doc.name.isNotEmpty ? doc.name : title),
                   child: Container(
@@ -577,7 +612,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
                       ],
                     ),
                   ),
-                )
+                )*/
               else
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

@@ -18,7 +18,7 @@ class ApiConstants {
     return 'http://192.168.1.21:4000/api/v1';
   }
 
-  static String baseUrl = defaultBaseUrl;
+  static String baseUrl = "https://hotpink-llama-677284.hostingersite.com/api/v1";
 
   static void setBaseUrl(String url) {
     baseUrl = url;
