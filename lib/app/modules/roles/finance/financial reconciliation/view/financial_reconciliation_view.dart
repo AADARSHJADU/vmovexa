@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:vmovexa/app/widgets/custom_button.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import '../controller/financial_reconciliation_controller.dart';
 import '../model/financial_reconciliation_model.dart';
 import 'start_reconciliation_view.dart';
-import 'reconciliation_completed_view.dart';
 
 const Color kBgColor = Color(0xFF0C0C14);
 const Color kCardBg = Color(0xFF13131F);
@@ -23,8 +22,6 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
           switch (controller.currentScreenIndex.value) {
             case 1:
               return const StartReconciliationView();
-            case 2:
-              return const ReconciliationCompletedView();
             case 0:
             default:
               return _buildDashboard(context);
@@ -51,7 +48,7 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 4 Summary KPI Cards
+                  // 4 Summary KPI Cards matching Admin Panel 1:1
                   _buildKpiGrid(summary),
                   const SizedBox(height: 18),
 
@@ -95,7 +92,7 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'bank_reconciliation'.tr,
+                  'reconciliation'.tr,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -104,9 +101,9 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
                   ),
                 ),
                 const SizedBox(height: 2),
-                const Text(
-                  'Reconcile corporate bank accounts, gateway escrow & ledgers',
-                  style: TextStyle(color: Colors.white54, fontSize: 11),
+                Text(
+                  'reconcile_corporate_sub'.tr,
+                  style: const TextStyle(color: Colors.white54, fontSize: 11),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -121,75 +118,108 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               minimumSize: const Size(36, 36),
             ),
-            tooltip: 'Refresh',
+            tooltip: 'refresh'.tr,
           ),
-          // const SizedBox(width: 8),
-          // CustomButton(
-          //   text: 'Start Wizard',
-          //   onTap: () => controller.startWizardForAccount(null),
-          //   isGradient: true,
-          //   height: 38,
-          //   width: 124,
-          //   prefixIcon: const Icon(Icons.analytics_outlined, color: Colors.white, size: 15),
-          // ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () => controller.startWizardForAccount(null),
+            child: Container(
+              height: 36,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                gradient: AppTheme.primaryGradient,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 15),
+                  const SizedBox(width: 6),
+                  Text(
+                    'start_recon_wizard'.tr,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
   // ==========================================
-  // 4 SUMMARY KPI CARDS
+  // 4 SUMMARY KPI CARDS MATCHING ADMIN PANEL 1:1
   // ==========================================
   Widget _buildKpiGrid(ReconciliationSummaryModel summary) {
-    return GridView.count(
-      crossAxisCount: 2,
-      crossAxisSpacing: 10,
-      mainAxisSpacing: 10,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 1.45,
-      children: [
-        _buildKpiCard(
-          label: 'TOTAL\nTRANSACTIONS',
-          value: '${summary.totalTransactions}',
-          sub: 'Across all accounts',
-          valColor: const Color(0xFF818CF8),
-          icon: Icons.receipt_long_outlined,
-          iconBg: const Color(0xFF312E81).withValues(alpha: 0.4),
-          iconColor: const Color(0xFFA5B4FC),
-        ),
-        _buildKpiCard(
-          label: 'MATCHED FEEDS',
-          value: '${summary.matched}',
-          sub: 'Verified with bank feeds',
-          valColor: const Color(0xFF34D399),
-          icon: Icons.check_circle_outline_rounded,
-          iconBg: const Color(0xFF064E3B).withValues(alpha: 0.4),
-          iconColor: const Color(0xFF6EE7B7),
-        ),
-        _buildKpiCard(
-          label: 'REQUIRES REVIEW',
-          value: '${summary.unmatched}',
-          sub: 'Discrepancies / audit',
-          valColor: const Color(0xFFFB7185),
-          icon: Icons.warning_amber_rounded,
-          iconBg: const Color(0xFF881337).withValues(alpha: 0.4),
-          iconColor: const Color(0xFFFDA4AF),
-        ),
-        _buildKpiCard(
-          label: 'IN PROGRESS',
-          value: '${summary.inProgress}',
-          sub: 'Gateway clearance',
-          valColor: const Color(0xFFFBBF24),
-          icon: Icons.sync_rounded,
-          iconBg: const Color(0xFF78350F).withValues(alpha: 0.4),
-          iconColor: const Color(0xFFFDE68A),
-        ),
-      ],
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      final cardWidth = (constraints.maxWidth - 10) / 2;
+      return Wrap(
+        spacing: 10,
+        runSpacing: 10,
+        children: [
+          // 1. Total Transactions
+          _buildKpiCard(
+            width: cardWidth,
+            label: 'total_transactions'.tr.toUpperCase(),
+            value: '${summary.totalTransactions}',
+            sub: 'recorded_across_accounts'.tr,
+            valColor: const Color(0xFF818CF8),
+            icon: Icons.receipt_long_outlined,
+            iconBg: const Color(0xFF312E81).withValues(alpha: 0.4),
+            iconColor: const Color(0xFFA5B4FC),
+          ),
+          // 2. Matched Feeds
+          _buildKpiCard(
+            width: cardWidth,
+            label: 'matched_feeds'.tr.toUpperCase(),
+            value: '${summary.matched}',
+            sub: 'auto_matched_bank'.tr,
+            valColor: const Color(0xFF34D399),
+            icon: Icons.check_circle_outline_rounded,
+            iconBg: const Color(0xFF064E3B).withValues(alpha: 0.4),
+            iconColor: const Color(0xFF6EE7B7),
+          ),
+          // 3. Requires Review
+          _buildKpiCard(
+            width: cardWidth,
+            label: 'requires_review'.tr.toUpperCase(),
+            value: '${summary.unmatched}',
+            sub: 'requires_audit'.tr,
+            valColor: const Color(0xFFFB7185),
+            icon: Icons.warning_amber_rounded,
+            iconBg: const Color(0xFF881337).withValues(alpha: 0.4),
+            iconColor: const Color(0xFFFDA4AF),
+          ),
+          // 4. In Progress
+          _buildKpiCard(
+            width: cardWidth,
+            label: 'in_progress'.tr.toUpperCase(),
+            value: '${summary.inProgress}',
+            sub: 'pending_bank_clearance'.tr,
+            valColor: const Color(0xFFFBBF24),
+            icon: Icons.sync_rounded,
+            iconBg: const Color(0xFF78350F).withValues(alpha: 0.4),
+            iconColor: const Color(0xFFFDE68A),
+          ),
+        ],
+      );
+    });
   }
 
   Widget _buildKpiCard({
+    required double width,
     required String label,
     required String value,
     required String sub,
@@ -199,6 +229,7 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
     required Color iconColor,
   }) {
     return Container(
+      width: width,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: kCardBg,
@@ -207,14 +238,22 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                label,
-                style: const TextStyle(color: Colors.white38, fontSize: 9.5, fontWeight: FontWeight.bold),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    color: Colors.white38,
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               Container(
                 padding: const EdgeInsets.all(5),
@@ -226,6 +265,7 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
               ),
             ],
           ),
+          const SizedBox(height: 8),
           Text(
             value,
             style: TextStyle(
@@ -235,6 +275,7 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
               fontFamily: 'monospace',
             ),
           ),
+          const SizedBox(height: 4),
           Text(
             sub,
             style: const TextStyle(color: Colors.white38, fontSize: 10),
@@ -262,85 +303,53 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Section Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'ledger_accounts_roster'.tr.toUpperCase(),
-                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 0.8),
-                  ),
-                  const SizedBox(height: 2),
-                  const Text(
-                    'Corporate banks, gateway escrow,and\npayoutledgers',
-                    style: TextStyle(color: Colors.white38, fontSize: 11),
-                  ),
-                ],
-              ),
-
-            ],
-          ),
-          // const SizedBox(height: 5),
-          // Row(
-          //   children: [
-          //     Obx(() => Container(
-          //       decoration: BoxDecoration(
-          //         color: kInputBg,
-          //         borderRadius: BorderRadius.circular(10),
-          //         border: Border.all(color: kBorderColor),
-          //       ),
-          //       child: Row(
-          //         mainAxisSize: MainAxisSize.min,
-          //         children: [
-          //           IconButton(
-          //             icon: Icon(
-          //               Icons.table_rows_rounded,
-          //               size: 16,
-          //               color: controller.viewMode.value == 'table' ? Colors.white : Colors.white38,
-          //             ),
-          //             onPressed: () => controller.viewMode.value = 'table',
-          //             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-          //             padding: EdgeInsets.zero,
-          //           ),
-          //
-          //         ],
-          //       ),
-          //     )),
-          //     IconButton(
-          //       icon: Icon(
-          //         Icons.grid_view_rounded,
-          //         size: 16,
-          //         color: controller.viewMode.value == 'card' ? Colors.white : Colors.white38,
-          //       ),
-          //       onPressed: () => controller.viewMode.value = 'card',
-          //       constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-          //       padding: EdgeInsets.zero,
-          //     ),
-          //   ],
-          // ),
-          const SizedBox(height: 14),
-
-          // Search Box
-          TextField(
-            onChanged: (val) {
-              controller.accountSearch.value = val;
-              controller.currentPage.value = 1;
-            },
-            style: const TextStyle(color: Colors.white, fontSize: 13),
-            decoration: InputDecoration(
-              hintText: 'Search accounts by name, number, category...',
-              hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
-              prefixIcon: const Icon(Icons.search_rounded, color: Colors.white38, size: 18),
-              filled: true,
-              fillColor: kInputBg,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF28283E))),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF60A5FA))),
+          Text(
+            'ledger_accounts_roster'.tr.toUpperCase(),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.8,
             ),
           ),
+          const SizedBox(height: 2),
+          Text(
+            'ledger_accounts_sub'.tr,
+            style: const TextStyle(color: Colors.white38, fontSize: 11),
+          ),
+          const SizedBox(height: 14),
+
+          // Search Box with clear button
+          Obx(() {
+            final searchVal = controller.accountSearch.value;
+            return TextField(
+              onChanged: (val) {
+                controller.accountSearch.value = val;
+                controller.currentPage.value = 1;
+              },
+              style: const TextStyle(color: Colors.white, fontSize: 13),
+              decoration: InputDecoration(
+                hintText: 'search_accounts_ph'.tr,
+                hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
+                prefixIcon: const Icon(Icons.search_rounded, color: Colors.white38, size: 18),
+                suffixIcon: searchVal.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear_rounded, color: Colors.white38, size: 16),
+                        onPressed: () {
+                          controller.accountSearch.value = '';
+                          controller.currentPage.value = 1;
+                        },
+                      )
+                    : null,
+                filled: true,
+                fillColor: kInputBg,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF28283E))),
+                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF60A5FA))),
+              ),
+            );
+          }),
           const SizedBox(height: 14),
 
           // Accounts List
@@ -350,19 +359,18 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
               return Container(
                 padding: const EdgeInsets.symmetric(vertical: 36),
                 alignment: Alignment.center,
-                child: const Text('No matching ledger accounts found', style: TextStyle(color: Colors.white38, fontSize: 12)),
+                child: Text(
+                  controller.accountSearch.value.isNotEmpty
+                      ? 'no_matching_accounts'.tr
+                      : 'no_accounts_configured'.tr,
+                  style: const TextStyle(color: Colors.white38, fontSize: 12),
+                ),
               );
             }
 
-            if (controller.viewMode.value == 'table') {
-              return Column(
-                children: accounts.map((acc) => _buildAccountCard(acc)).toList(),
-              );
-            } else {
-              return Column(
-                children: accounts.map((acc) => _buildAccountCard(acc)).toList(),
-              );
-            }
+            return Column(
+              children: accounts.map((acc) => _buildAccountCard(acc)).toList(),
+            );
           }),
 
           const SizedBox(height: 12),
@@ -374,107 +382,7 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
     );
   }
 
-  // Row Item for Table-like layout
-  Widget _buildAccountRow(ReconciliationAccountModel acc) {
-    final isReconciled = acc.status.toLowerCase() == 'reconciled';
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: kInputBg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFF28283E)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      acc.name,
-                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '${acc.category} · ${acc.accountNumber}',
-                      style: const TextStyle(color: Colors.white54, fontSize: 11, fontFamily: 'monospace'),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: isReconciled
-                      ? const Color(0xFF064E3B).withValues(alpha: 0.5)
-                      : const Color(0xFF78350F).withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    color: isReconciled
-                        ? const Color(0xFF10B981).withValues(alpha: 0.4)
-                        : const Color(0xFFF59E0B).withValues(alpha: 0.4),
-                  ),
-                ),
-                child: Text(
-                  '● ${acc.status}',
-                  style: TextStyle(
-                    color: isReconciled ? const Color(0xFF34D399) : const Color(0xFFFBBF24),
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Ledger Balance', style: TextStyle(color: Colors.white38, fontSize: 10)),
-                  Text(
-                    acc.ledgerBalance,
-                    style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w900, fontFamily: 'monospace'),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Text(
-                    'Txns: ${acc.totalTxns} | M: ${acc.matched} | U: ${acc.unmatched}',
-                    style: const TextStyle(color: Colors.white54, fontSize: 10.5),
-                  ),
-                  const SizedBox(width: 10),
-                  CustomButton(
-                    text: 'Reconcile',
-                    onTap: () => controller.startWizardForAccount(acc),
-                    isGradient: true,
-                    height: 32,
-                    width: 95,
-                    prefixIcon: const Icon(Icons.sync_alt_rounded, color: Colors.white, size: 13),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Card View item
+  // Account Card matching Admin Panel 1:1 with primaryGradient action
   Widget _buildAccountCard(ReconciliationAccountModel acc) {
     final isReconciled = acc.status.toLowerCase() == 'reconciled';
 
@@ -510,6 +418,11 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
                       ? const Color(0xFF064E3B).withValues(alpha: 0.5)
                       : const Color(0xFF78350F).withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: isReconciled
+                        ? const Color(0xFF10B981).withValues(alpha: 0.4)
+                        : const Color(0xFFF59E0B).withValues(alpha: 0.4),
+                  ),
                 ),
                 child: Text(
                   '● ${acc.status}',
@@ -527,6 +440,7 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
             acc.name,
             style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
           ),
+          const SizedBox(height: 2),
           Text(
             acc.accountNumber,
             style: const TextStyle(color: Colors.white38, fontSize: 11, fontFamily: 'monospace'),
@@ -541,9 +455,9 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildStatColumn('TOTAL TXNS', '${acc.totalTxns}', Colors.white),
-                _buildStatColumn('MATCHED', '${acc.matched}', const Color(0xFF34D399)),
-                _buildStatColumn('UNMATCHED', '${acc.unmatched}', const Color(0xFFFB7185)),
+                _buildStatColumn('txns'.tr.toUpperCase(), '${acc.totalTxns}', Colors.white),
+                _buildStatColumn('matched'.tr.toUpperCase(), '${acc.matched}', const Color(0xFF34D399)),
+                _buildStatColumn('unmatched'.tr.toUpperCase(), '${acc.unmatched}', const Color(0xFFFB7185)),
               ],
             ),
           ),
@@ -554,20 +468,54 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('LEDGER BALANCE', style: TextStyle(color: Colors.white38, fontSize: 9)),
+                  Text(
+                    'ledger_balance'.tr.toUpperCase(),
+                    style: const TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 2),
                   Text(
                     acc.ledgerBalance,
-                    style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w900, fontFamily: 'monospace'),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900,
+                      fontFamily: 'monospace',
+                    ),
                   ),
                 ],
               ),
-              CustomButton(
-                text: 'Reconcile',
+              GestureDetector(
                 onTap: () => controller.startWizardForAccount(acc),
-                isGradient: true,
-                height: 36,
-                width: 110,
-                prefixIcon: const Icon(Icons.sync_alt_rounded, color: Colors.white, size: 14),
+                child: Container(
+                  height: 34,
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'reconcile'.tr,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.chevron_right_rounded, color: Colors.white, size: 16),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
@@ -579,9 +527,15 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
   Widget _buildStatColumn(String label, String value, Color color) {
     return Column(
       children: [
-        Text(label, style: const TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold)),
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 2),
-        Text(value, style: TextStyle(color: color, fontSize: 13, fontWeight: FontWeight.bold, fontFamily: 'monospace')),
+        Text(
+          value,
+          style: TextStyle(color: color, fontSize: 13, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+        ),
       ],
     );
   }
@@ -590,12 +544,13 @@ class FinancialReconciliationView extends GetView<FinancialReconciliationControl
   Widget _buildPagination() {
     final total = controller.totalPages;
     final current = controller.currentPage.value;
+    final count = controller.filteredAccounts.length;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Page $current of $total (${controller.filteredAccounts.length} accounts)',
+          'Page $current of $total ($count accounts)',
           style: const TextStyle(color: Colors.white38, fontSize: 11),
         ),
         Row(

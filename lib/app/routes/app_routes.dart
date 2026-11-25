@@ -156,6 +156,7 @@ abstract class Routes {
   static const GENERATE_INVOICE = '/generate-invoice';
   static const PAYMENT_DETAIL = '/payment-detail';
   static const REVENUE_REPORTING = '/revenue-reporting';
+  static const REPORT_DETAILS = '/report-details';
   static const GST_MANAGEMENT = '/gst-management';
   static const FINANCIAL_RECONCILIATION = '/financial-reconciliation';
   static const FINANCE_PAYMENTS = '/finance-payments';
@@ -166,6 +167,7 @@ abstract class Routes {
   static const FINANCE_SETTINGS = '/finance-settings';
   static const FINANCE_NOTIFICATION_SETTINGS = '/finance-notification-settings';
   static const FINANCE_HELP_SUPPORT = '/finance-help-support';
+  static const FINANCE_RAISE_TICKET = '/finance-raise-ticket';
 }
 
 

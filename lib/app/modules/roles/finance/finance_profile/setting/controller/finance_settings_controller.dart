@@ -1,190 +1,397 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:vmovexa/app/data/services/auth_service.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:vmovexa/app/data/services/finance_service.dart';
-import 'package:vmovexa/app/data/services/storage_service.dart';
-import 'package:vmovexa/app/routes/app_routes.dart';
-import '../../model/profile_settings_models.dart';
+import 'package:vmovexa/app/data/services/http_client_service.dart';
+import '../model/finance_settings_model.dart';
 
 class FinanceSettingsController extends GetxController {
-  // ---------------- Identity header ----------------
-  final RxString fullName = 'Finance Manager'.obs;
-  final RxString roleLabel = 'Finance Officer'.obs;
-  final RxString email = ''.obs;
-  final RxString phone = ''.obs;
-  final RxString initials = 'FM'.obs;
+  final ImagePicker _picker = ImagePicker();
 
-  // ---------------- Preferences (shown as trailing text in the list) ----------------
-  final RxString language = 'English'.obs;
-  final RxString timeZone = 'IST (UTC +05:30)'.obs;
-  final RxString theme = 'Dark'.obs;
-  final RxString appVersion = 'v1.4.0'.obs;
+  // Active Tab Index (0: Corporate Info, 1: Bank Account, 2: Terms & Logo, 3: Signatory Profile)
+  final RxInt activeTabIndex = 0.obs;
 
-  // ---------------- Corporate Finance Settings ----------------
-  final RxMap<String, dynamic> corporateSettings = <String, dynamic>{}.obs;
-
-  // ---------------- Sections ----------------
-  final RxList<SettingsMenuItem> accountItems = <SettingsMenuItem>[].obs;
-  final RxList<SettingsMenuItem> preferenceItems = <SettingsMenuItem>[].obs;
-  final RxList<SettingsMenuItem> appItems = <SettingsMenuItem>[].obs;
-
+  // Loading States
   final RxBool isLoading = false.obs;
+  final RxBool isSaving = false.obs;
+  final RxBool isUploadingLogo = false.obs;
+  final RxBool isUploadingSignature = false.obs;
+  final RxBool isUploadingSeal = false.obs;
+
+  // Tab 1: Corporate Info
+  final TextEditingController companyNameController = TextEditingController();
+  final TextEditingController tradeNameController = TextEditingController();
+  final TextEditingController gstinController = TextEditingController();
+  final TextEditingController panController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController websiteController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
+
+  // Tab 2: Bank Account
+  final TextEditingController bankNameController = TextEditingController();
+  final TextEditingController accountNameController = TextEditingController();
+  final TextEditingController accountNumberController = TextEditingController();
+  final TextEditingController ifscCodeController = TextEditingController();
+  final TextEditingController branchController = TextEditingController();
+  final TextEditingController upiIdController = TextEditingController();
+
+  // Tab 3: Terms & Logo
+  final TextEditingController logoUrlController = TextEditingController();
+  final TextEditingController termsAndConditionsController = TextEditingController();
+  final TextEditingController footerNoteController = TextEditingController();
+  final RxString logoUrl = ''.obs;
+
+  // Tab 4: Signatory Profile
+  final TextEditingController signatoryNameController = TextEditingController();
+  final TextEditingController signatoryDesignationController = TextEditingController();
+  final TextEditingController signatoryEmpIdController = TextEditingController();
+  final TextEditingController signatoryEmailController = TextEditingController();
+  final TextEditingController signatoryPhoneController = TextEditingController();
+  final RxString signatorySignatureUrl = ''.obs;
+  final RxString signatorySealUrl = ''.obs;
 
   @override
   void onInit() {
     super.onInit();
-    _loadUserHeader();
-    _buildMenus();
-    fetchCorporateSettings();
+    loadSettings();
   }
 
-  void _loadUserHeader() {
-    try {
-      if (Get.isRegistered<StorageService>()) {
-        final u = StorageService.to.getUser();
-        if (u != null) {
-          if (u.name != null && u.name!.isNotEmpty) fullName.value = u.name!;
-          if (u.email != null && u.email!.isNotEmpty) email.value = u.email!;
-          if (u.phone != null && u.phone!.isNotEmpty) phone.value = u.phone!;
-          if (u.role != null && u.role!.isNotEmpty) {
-            roleLabel.value = u.role!.replaceAll('ROLE-', '').replaceAll('-', ' ');
-          }
-          if (fullName.value.isNotEmpty) initials.value = fullName.value[0].toUpperCase();
-        }
-      }
-    } catch (_) {}
+  @override
+  void onClose() {
+    companyNameController.dispose();
+    tradeNameController.dispose();
+    gstinController.dispose();
+    panController.dispose();
+    emailController.dispose();
+    phoneController.dispose();
+    websiteController.dispose();
+    addressController.dispose();
+
+    bankNameController.dispose();
+    accountNameController.dispose();
+    accountNumberController.dispose();
+    ifscCodeController.dispose();
+    branchController.dispose();
+    upiIdController.dispose();
+
+    logoUrlController.dispose();
+    termsAndConditionsController.dispose();
+    footerNoteController.dispose();
+
+    signatoryNameController.dispose();
+    signatoryDesignationController.dispose();
+    signatoryEmpIdController.dispose();
+    signatoryEmailController.dispose();
+    signatoryPhoneController.dispose();
+    super.onClose();
   }
 
-  Future<void> fetchCorporateSettings() async {
+  // ==========================================
+  // API: Load Settings
+  // ==========================================
+  Future<void> loadSettings() async {
     isLoading.value = true;
     try {
-      if (Get.isRegistered<FinanceService>()) {
-        final res = await FinanceService.to.getSettings();
-        if (res.success && res.data != null && res.data!.isNotEmpty) {
-          corporateSettings.assignAll(res.data!);
-        }
+      final res = await FinanceService.to.getSettings();
+      FinanceSettingsModel model;
+      if (res.success && res.data != null && res.data!.isNotEmpty) {
+        model = FinanceSettingsModel.fromJson(res.data!);
+      } else {
+        model = FinanceSettingsModel.defaults();
       }
-    } catch (_) {} finally {
+      _populateFromModel(model);
+    } catch (_) {
+      _populateFromModel(FinanceSettingsModel.defaults());
+    } finally {
       isLoading.value = false;
     }
   }
 
-  /// PUT /api/v1/finance/settings
-  Future<bool> updateCorporateSettings(Map<String, dynamic> data) async {
+  void _populateFromModel(FinanceSettingsModel m) {
+    companyNameController.text = m.companyName;
+    tradeNameController.text = m.tradeName;
+    gstinController.text = m.gstin;
+    panController.text = m.pan;
+    emailController.text = m.email;
+    phoneController.text = m.phone;
+    websiteController.text = m.website;
+    addressController.text = m.address;
+
+    bankNameController.text = m.bankName;
+    accountNameController.text = m.accountName;
+    accountNumberController.text = m.accountNumber;
+    ifscCodeController.text = m.ifscCode;
+    branchController.text = m.branch;
+    upiIdController.text = m.upiId;
+
+    logoUrlController.text = m.logoUrl;
+    logoUrl.value = m.logoUrl;
+    termsAndConditionsController.text = m.termsAndConditions;
+    footerNoteController.text = m.footerNote;
+
+    signatoryNameController.text = m.signatoryName;
+    signatoryDesignationController.text = m.signatoryDesignation;
+    signatoryEmpIdController.text = m.signatoryEmpId;
+    signatoryEmailController.text = m.signatoryEmail;
+    signatoryPhoneController.text = m.signatoryPhone;
+    signatorySignatureUrl.value = m.signatorySignatureUrl;
+    signatorySealUrl.value = m.signatorySealUrl;
+  }
+
+  // ==========================================
+  // Image Upload: Logo
+  // ==========================================
+  Future<void> pickAndUploadLogo() async {
     try {
-      if (Get.isRegistered<FinanceService>()) {
-        final res = await FinanceService.to.updateSettings(data);
-        if (res.success) {
-          await fetchCorporateSettings();
+      final XFile? file = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+      );
+      if (file == null) {
+        return;
+      }
+
+      isUploadingLogo.value = true;
+      final res = await HttpClientService.to.uploadFile(
+        filePath: file.path,
+        purpose: 'branding',
+      );
+
+      if (res.success && res.data != null) {
+        final url = (res.data!['url'] ?? res.data!['file_url'] ?? res.data!['path'] ?? '').toString();
+        if (url.isNotEmpty) {
+          logoUrl.value = url;
+          logoUrlController.text = url;
+          await FinanceService.to.updateSettings({'logoUrl': url});
           Get.snackbar(
-            'Settings Saved',
-            'Corporate finance settings updated successfully.',
+            'invoice_branding'.tr,
+            'logo_updated_success'.tr,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM,
           );
-          return true;
         }
+      } else {
+        Get.snackbar(
+          'invoice_branding'.tr,
+          (res.message != null && res.message!.isNotEmpty) ? res.message! : 'upload_failed_err'.tr,
+          backgroundColor: const Color(0xFFEF4444),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
       }
+    } catch (_) {
+      Get.snackbar(
+        'invoice_branding'.tr,
+        'upload_failed_err'.tr,
+        backgroundColor: const Color(0xFFEF4444),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isUploadingLogo.value = false;
+    }
+  }
+
+  Future<void> removeLogo() async {
+    logoUrl.value = '';
+    logoUrlController.text = '';
+    try {
+      await FinanceService.to.updateSettings({'logoUrl': ''});
     } catch (_) {}
-    return false;
   }
 
-  void _buildMenus() {
-    accountItems.assignAll([
-      SettingsMenuItem(
-        id: 'profile_information',
-        icon: Icons.person_outline,
-        title: 'Profile Information',
-        subtitle: 'View and update your personal information',
-        route: Routes.FINANCE_PROFILE,
-      ),
-      SettingsMenuItem(
-        id: 'change_password',
-        icon: Icons.lock_outline,
-        title: 'Change Password',
-        subtitle: 'Update your account password',
-        route: Routes.CHANGE_PASSWORD,
-      ),
-    ]);
+  // ==========================================
+  // Image Upload: Signature
+  // ==========================================
+  Future<void> pickAndUploadSignature() async {
+    try {
+      final XFile? file = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+      );
+      if (file == null) {
+        return;
+      }
 
-    preferenceItems.assignAll([
-      SettingsMenuItem(
-        id: 'notification_preferences',
-        icon: Icons.notifications_none_rounded,
-        title: 'Notification Preferences',
-        subtitle: 'Manage email and in-app notification settings',
-        route: Routes.FINANCE_NOTIFICATION_SETTINGS,
-      ),
-    ]);
+      isUploadingSignature.value = true;
+      final res = await HttpClientService.to.uploadFile(
+        filePath: file.path,
+        purpose: 'signatures',
+      );
 
-    appItems.assignAll([
-      SettingsMenuItem(
-        id: 'about',
-        icon: Icons.info_outline,
-        title: 'About VMOVEXA',
-        subtitle: 'App version and information',
-        trailingText: appVersion.value,
-        route: '/about',
-      ),
-      SettingsMenuItem(
-        id: 'help_support',
-        icon: Icons.headset_mic_outlined,
-        title: 'Help & Support',
-        subtitle: 'Get help and contact support',
-        route: Routes.FINANCE_HELP_SUPPORT,
-      ),
-      SettingsMenuItem(
-        id: 'logout',
-        icon: Icons.logout,
-        title: 'Logout',
-        subtitle: 'Sign out from your account',
-        isDanger: true,
-        route: '',
-      ),
-    ]);
-  }
-
-  // ---------------- Actions ----------------
-  void onBackPressed() => Get.back();
-
-  void onHeaderTap() => Get.toNamed(Routes.FINANCE_PROFILE);
-
-  void onMenuItemTap(SettingsMenuItem item) {
-    if (item.id == 'logout') {
-      onLogout();
-      return;
-    }
-    if (item.route.isNotEmpty) {
-      Get.toNamed(item.route);
+      if (res.success && res.data != null) {
+        final url = (res.data!['url'] ?? res.data!['file_url'] ?? res.data!['path'] ?? '').toString();
+        if (url.isNotEmpty) {
+          signatorySignatureUrl.value = url;
+          await FinanceService.to.updateSettings({'signatorySignatureUrl': url});
+          Get.snackbar(
+            'authorized_signer'.tr,
+            'signature_updated_success'.tr,
+            backgroundColor: const Color(0xFF10B981),
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+          );
+        }
+      } else {
+        Get.snackbar(
+          'authorized_signer'.tr,
+          (res.message != null && res.message!.isNotEmpty) ? res.message! : 'upload_failed_err'.tr,
+          backgroundColor: const Color(0xFFEF4444),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } catch (_) {
+      Get.snackbar(
+        'authorized_signer'.tr,
+        'upload_failed_err'.tr,
+        backgroundColor: const Color(0xFFEF4444),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isUploadingSignature.value = false;
     }
   }
 
-  void onLogout() {
-    Get.dialog(
-      AlertDialog(
-        backgroundColor: const Color(0xFF15151F),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: const Text('Log Out', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
-        content: const Text('Are you sure you want to log out of your account?', style: TextStyle(color: Colors.white60, fontSize: 13)),
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel', style: TextStyle(color: Colors.white54))),
-          TextButton(
-            onPressed: () async {
-              Get.back();
-              try {
-                if (Get.isRegistered<AuthService>()) {
-                  await AuthService.to.logout();
-                } else if (Get.isRegistered<StorageService>()) {
-                  await StorageService.to.clearAuth();
-                }
-              } catch (_) {}
-              Get.offAllNamed(Routes.LOGIN);
-            },
-            child: const Text('Log Out', style: TextStyle(color: Color(0xFFFF4D4D), fontWeight: FontWeight.w700)),
-          ),
-        ],
-      ),
-    );
+  Future<void> removeSignature() async {
+    signatorySignatureUrl.value = '';
+    try {
+      await FinanceService.to.updateSettings({'signatorySignatureUrl': ''});
+    } catch (_) {}
+  }
+
+  // ==========================================
+  // Image Upload: Seal / Stamp
+  // ==========================================
+  Future<void> pickAndUploadSeal() async {
+    try {
+      final XFile? file = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+      );
+      if (file == null) {
+        return;
+      }
+
+      isUploadingSeal.value = true;
+      final res = await HttpClientService.to.uploadFile(
+        filePath: file.path,
+        purpose: 'stamps',
+      );
+
+      if (res.success && res.data != null) {
+        final url = (res.data!['url'] ?? res.data!['file_url'] ?? res.data!['path'] ?? '').toString();
+        if (url.isNotEmpty) {
+          signatorySealUrl.value = url;
+          await FinanceService.to.updateSettings({'signatorySealUrl': url});
+          Get.snackbar(
+            'authorized_signer'.tr,
+            'seal_updated_success'.tr,
+            backgroundColor: const Color(0xFF10B981),
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+          );
+        }
+      } else {
+        Get.snackbar(
+          'authorized_signer'.tr,
+          (res.message != null && res.message!.isNotEmpty) ? res.message! : 'upload_failed_err'.tr,
+          backgroundColor: const Color(0xFFEF4444),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } catch (_) {
+      Get.snackbar(
+        'authorized_signer'.tr,
+        'upload_failed_err'.tr,
+        backgroundColor: const Color(0xFFEF4444),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isUploadingSeal.value = false;
+    }
+  }
+
+  Future<void> removeSeal() async {
+    signatorySealUrl.value = '';
+    try {
+      await FinanceService.to.updateSettings({'signatorySealUrl': ''});
+    } catch (_) {}
+  }
+
+  // ==========================================
+  // API: Save Settings & Update Invoices
+  // ==========================================
+  Future<void> saveSettings() async {
+    isSaving.value = true;
+    try {
+      final payload = {
+        'companyName': companyNameController.text.trim(),
+        'tradeName': tradeNameController.text.trim(),
+        'gstin': gstinController.text.trim().toUpperCase(),
+        'pan': panController.text.trim().toUpperCase(),
+        'email': emailController.text.trim(),
+        'phone': phoneController.text.trim(),
+        'website': websiteController.text.trim(),
+        'address': addressController.text.trim(),
+        'bankName': bankNameController.text.trim(),
+        'accountName': accountNameController.text.trim(),
+        'accountNumber': accountNumberController.text.trim(),
+        'ifscCode': ifscCodeController.text.trim().toUpperCase(),
+        'branch': branchController.text.trim(),
+        'upiId': upiIdController.text.trim(),
+        'logoUrl': logoUrlController.text.trim().isNotEmpty
+            ? logoUrlController.text.trim()
+            : logoUrl.value,
+        'termsAndConditions': termsAndConditionsController.text.trim(),
+        'footerNote': footerNoteController.text.trim(),
+        'signatoryName': signatoryNameController.text.trim(),
+        'signatoryDesignation': signatoryDesignationController.text.trim(),
+        'signatoryEmpId': signatoryEmpIdController.text.trim(),
+        'signatoryEmail': signatoryEmailController.text.trim(),
+        'signatoryPhone': signatoryPhoneController.text.trim(),
+        'signatorySignatureUrl': signatorySignatureUrl.value,
+        'signatorySealUrl': signatorySealUrl.value,
+      };
+
+      final res = await FinanceService.to.updateSettings(payload);
+      if (res.success) {
+        Get.snackbar(
+          'finance_settings'.tr,
+          'settings_saved_success'.tr,
+          backgroundColor: const Color(0xFF10B981),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        await loadSettings();
+      } else {
+        Get.snackbar(
+          'finance_settings'.tr,
+          (res.message != null && res.message!.isNotEmpty) ? res.message! : 'settings_save_failed'.tr,
+          backgroundColor: const Color(0xFFEF4444),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } catch (_) {
+      Get.snackbar(
+        'finance_settings'.tr,
+        'settings_save_failed'.tr,
+        backgroundColor: const Color(0xFFEF4444),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
+  void onBackPressed() {
+    Get.back();
   }
 }

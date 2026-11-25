@@ -1,124 +1,116 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-/// Payment status for payment details
-enum PaymentStatus { paid, pending, overdue }
+/// Payment status kind for UI themes
+enum PaymentStatusKind { paid, pending, failed, refunded, other }
 
-extension PaymentStatusX on PaymentStatus {
-  String get label {
-    switch (this) {
-      case PaymentStatus.paid:
-        return 'Payment Successful';
-      case PaymentStatus.pending:
-        return 'Awaiting Settlement';
-      case PaymentStatus.overdue:
-        return 'Transaction Failed';
-    }
-  }
-
+extension PaymentStatusKindX on PaymentStatusKind {
   Color get color {
     switch (this) {
-      case PaymentStatus.paid:
-        return const Color(0xFF10B981); // emerald green
-      case PaymentStatus.pending:
-        return const Color(0xFFF59E0B); // amber
-      case PaymentStatus.overdue:
-        return const Color(0xFFEF4444); // red
+      case PaymentStatusKind.paid:
+        return const Color(0xFF10B981); // Emerald
+      case PaymentStatusKind.pending:
+        return const Color(0xFFF59E0B); // Amber
+      case PaymentStatusKind.failed:
+        return const Color(0xFFEF4444); // Red
+      case PaymentStatusKind.refunded:
+        return const Color(0xFF8B5CF6); // Violet
+      case PaymentStatusKind.other:
+        return const Color(0xFF64748B); // Slate
     }
   }
 
   Color get bgColor {
-    switch (this) {
-      case PaymentStatus.paid:
-        return const Color(0xFF064E3B).withOpacity(0.35);
-      case PaymentStatus.pending:
-        return const Color(0xFF78350F).withOpacity(0.35);
-      case PaymentStatus.overdue:
-        return const Color(0xFF7F1D1D).withOpacity(0.35);
-    }
+    return color.withValues(alpha: 0.12);
   }
 
   Color get borderColor {
-    switch (this) {
-      case PaymentStatus.paid:
-        return const Color(0xFF059669).withOpacity(0.4);
-      case PaymentStatus.pending:
-        return const Color(0xFFD97706).withOpacity(0.4);
-      case PaymentStatus.overdue:
-        return const Color(0xFFDC2626).withOpacity(0.4);
-    }
-  }
-
-  IconData get icon {
-    switch (this) {
-      case PaymentStatus.paid:
-        return Icons.check_circle_rounded;
-      case PaymentStatus.pending:
-        return Icons.hourglass_top_rounded;
-      case PaymentStatus.overdue:
-        return Icons.error_outline_rounded;
-    }
+    return color.withValues(alpha: 0.35);
   }
 }
 
-/// Timeline event model
-class TimelineEvent {
-  final String title;
-  final String desc;
-  final String date;
-  final bool isCompleted;
+/// A real timestamp entry for Section 7: Recorded Timestamps
+class PersistedTimestampEntry {
+  final String label;
+  final String value;
 
-  const TimelineEvent({
-    required this.title,
-    required this.desc,
-    required this.date,
-    required this.isCompleted,
+  const PersistedTimestampEntry({
+    required this.label,
+    required this.value,
   });
 }
 
-/// Comprehensive Payment Detail Model matching Admin Panel 1:1
+/// Comprehensive Payment Detail Model with ZERO dummy/mock fields
+/// Matches Admin Panel `PaymentDetailsPage.jsx` exactly.
 class PaymentDetailModel {
   final String id;
   final String code;
   final double amount;
   final String currency;
-  final PaymentStatus status;
-  final String statusRaw;
+  final String rawStatus;
+  final PaymentStatusKind statusKind;
   final String purpose;
-  final String paymentMethod;
-  final String gatewayName;
+  final String readablePurpose;
+  final String paymentMode; // 'online' | 'offline'
+  final bool isOffline;
+  final String? rawMethod;
+  final String readableMethod;
+  final String? gatewayName;
   final String paymentRef;
-  final String orderRef;
+  final String? orderRef;
   final String payerType;
+  final String readablePayerType;
   final String clientType;
-  final DateTime? paidAt;
-  final DateTime? createdAt;
-  final DateTime? dueDate;
+  final String readableClientType;
 
-  // Itemized Tax Breakdown
-  final double subtotal;
+  // Real Dates
+  final DateTime? createdAt;
+  final DateTime? paidAt;
+  final DateTime? collectedAt;
+  final DateTime? chequeDate;
+
+  // Section 3: Itemized Tax Breakdown
+  final double? subtotal;
   final double cgstAmount;
   final double sgstAmount;
+  final double igstAmount;
   final double taxAmount;
   final double totalAmount;
 
-  // Invoice Details
+  // Section 3: Linked Invoice Details
   final String? invoiceId;
   final String? invoiceCode;
   final String? invoiceStatus;
+  final DateTime? invoiceIssuedAt;
+  final DateTime? invoicePaidAt;
 
-  // Payer / Client Profile
-  final String clientName;
-  final String clientCompany;
-  final String clientPhone;
-  final String clientEmail;
-  final String fullAddress;
-  final String clientCity;
-  final String clientState;
-  final String clientPincode;
+  // Section 4: Offline Settlement Details
+  final String? bankName;
+  final String? branchName;
+  final String? accountHolder;
+  final String? utrNumber;
+  final String? referenceNumber;
+  final String? chequeNumber;
+  final String? collectorName;
+  final String? remarks;
+  final String? proofUrl;
 
-  // Associated Campaign Details
+  // Section 5: Payer & Entity Profile (Real DB Fields)
+  final String? clientName;
+  final String? clientCompany;
+  final String? clientPhone;
+  final String? clientEmail;
+  final String? clientGstin;
+  final String? fullAddress;
+  final String? clientCity;
+  final String? clientState;
+  final String? clientPincode;
+  final String? locationLine;
+
+  // Section 6: Associated Campaign (If Linked)
   final String? campaignId;
+  final String? campaignCode;
   final String? campaignTitle;
   final String? campaignBrand;
   final String? campaignStatus;
@@ -130,48 +122,72 @@ class PaymentDetailModel {
   final String? campaignObjective;
   final double? campaignBudget;
 
-  // Associated Subscription Details
+  // Section 6: Linked Subscription (If Linked)
   final String? subscriptionPlanName;
-  final String? subscriptionCode;
+  final String? subscriptionPlanCode;
   final String? subscriptionStatus;
+  final DateTime? subscriptionPeriodStart;
+  final DateTime? subscriptionPeriodEnd;
 
-  // Audit Timeline
-  final List<TimelineEvent> timeline;
+  // Section 7: Recorded Timestamps
+  final List<PersistedTimestampEntry> realTimestamps;
 
-  const PaymentDetailModel({
+  PaymentDetailModel({
     required this.id,
     required this.code,
     required this.amount,
     required this.currency,
-    required this.status,
-    required this.statusRaw,
+    required this.rawStatus,
+    required this.statusKind,
     required this.purpose,
-    required this.paymentMethod,
-    required this.gatewayName,
+    required this.readablePurpose,
+    required this.paymentMode,
+    required this.isOffline,
+    this.rawMethod,
+    required this.readableMethod,
+    this.gatewayName,
     required this.paymentRef,
-    required this.orderRef,
+    this.orderRef,
     required this.payerType,
+    required this.readablePayerType,
     required this.clientType,
-    this.paidAt,
+    required this.readableClientType,
     this.createdAt,
-    this.dueDate,
-    required this.subtotal,
+    this.paidAt,
+    this.collectedAt,
+    this.chequeDate,
+    this.subtotal,
     required this.cgstAmount,
     required this.sgstAmount,
+    required this.igstAmount,
     required this.taxAmount,
     required this.totalAmount,
     this.invoiceId,
     this.invoiceCode,
     this.invoiceStatus,
-    required this.clientName,
-    required this.clientCompany,
-    required this.clientPhone,
-    required this.clientEmail,
-    required this.fullAddress,
-    required this.clientCity,
-    required this.clientState,
-    required this.clientPincode,
+    this.invoiceIssuedAt,
+    this.invoicePaidAt,
+    this.bankName,
+    this.branchName,
+    this.accountHolder,
+    this.utrNumber,
+    this.referenceNumber,
+    this.chequeNumber,
+    this.collectorName,
+    this.remarks,
+    this.proofUrl,
+    this.clientName,
+    this.clientCompany,
+    this.clientPhone,
+    this.clientEmail,
+    this.clientGstin,
+    this.fullAddress,
+    this.clientCity,
+    this.clientState,
+    this.clientPincode,
+    this.locationLine,
     this.campaignId,
+    this.campaignCode,
     this.campaignTitle,
     this.campaignBrand,
     this.campaignStatus,
@@ -183,295 +199,406 @@ class PaymentDetailModel {
     this.campaignObjective,
     this.campaignBudget,
     this.subscriptionPlanName,
-    this.subscriptionCode,
+    this.subscriptionPlanCode,
     this.subscriptionStatus,
-    required this.timeline,
+    this.subscriptionPeriodStart,
+    this.subscriptionPeriodEnd,
+    required this.realTimestamps,
   });
 
-  String get readableMethod {
-    final raw = paymentMethod.toLowerCase();
-    if (raw.contains('card')) return 'Credit / Debit Card';
-    if (raw == 'upi') return 'UPI / QR Transfer';
-    if (raw == 'netbanking') return 'Internet Banking';
-    if (raw == 'bank_transfer' || raw == 'neft' || raw == 'rtgs') return 'Bank Transfer (NEFT / RTGS)';
-    if (raw == 'cheque') return 'Cheque Clearance';
-    if (paymentMethod.isNotEmpty && paymentMethod != '—') {
-      return paymentMethod.replaceAll('_', ' ').split(' ').map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '').join(' ');
-    }
-    return 'Bank Transfer';
-  }
+  bool get hasPayerInfo =>
+      clientName != null ||
+      clientCompany != null ||
+      clientPhone != null ||
+      clientEmail != null ||
+      clientGstin != null ||
+      fullAddress != null ||
+      locationLine != null;
 
-  String get readablePurpose {
-    switch (purpose.toLowerCase()) {
-      case 'ad_spend':
-        return 'Transit DOOH Advertising Campaign';
-      case 'saas_subscription':
-        return 'Fleet Management SaaS Subscription';
-      case 'psa_spend':
-        return 'Public Service Announcement (PSA)';
-      case 'payout':
-        return 'Fleet Operator Revenue Share Payout';
-      default:
-        if (purpose.isNotEmpty && purpose != '—') {
-          return purpose.replaceAll('_', ' ').split(' ').map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '').join(' ');
-        }
-        return 'Commercial Settlement';
-    }
-  }
+  bool get hasCampaignOrSubscription =>
+      campaignId != null || campaignTitle != null || subscriptionPlanName != null;
 
-  String get readablePayerType {
-    switch (payerType.toLowerCase()) {
-      case 'advertiser':
-        return 'Advertiser (Brand Client)';
-      case 'tenant':
-        return 'Fleet Operator (Tenant)';
-      case 'government':
-        return 'Government Agency';
-      default:
-        return 'Corporate Enterprise';
-    }
-  }
-
-  String get settlementDateFormatted {
-    final dt = paidAt ?? createdAt;
-    if (dt == null) return 'Pending';
-    return DateFormat('dd MMM yyyy, hh:mm a').format(dt);
-  }
+  bool get hasOfflineDetails =>
+      isOffline &&
+      (bankName != null ||
+          branchName != null ||
+          accountHolder != null ||
+          utrNumber != null ||
+          referenceNumber != null ||
+          chequeNumber != null ||
+          chequeDate != null ||
+          collectorName != null ||
+          remarks != null ||
+          proofUrl != null);
 
   factory PaymentDetailModel.fromJson(Map<String, dynamic> json) {
-    final id = (json['id'] ?? json['payment_id'] ?? json['transaction_id'] ?? '').toString();
-    final code = (json['code'] ?? (id.isNotEmpty ? 'PAY-$id' : 'PAY-0001')).toString();
+    // Top-level payment fields
+    final id = (json['id'] ?? '').toString();
+    final code = (json['code'] ?? id).toString();
 
-    // Amount parsing
-    final totalAmount = double.tryParse((json['amount'] ?? json['total'] ?? 0).toString().replaceAll(',', '')) ?? 0.0;
-
-    // Status parsing
-    final rawStatus = (json['status'] ?? 'pending').toString().toLowerCase();
-    PaymentStatus status = PaymentStatus.pending;
-    if (rawStatus == 'paid' || rawStatus == 'success' || rawStatus == 'completed') {
-      status = PaymentStatus.paid;
+    final rawStatus = (json['status'] ?? '').toString().toLowerCase();
+    PaymentStatusKind kind;
+    if (rawStatus == 'success' || rawStatus == 'paid') {
+      kind = PaymentStatusKind.paid;
+    } else if (rawStatus == 'pending' || rawStatus == 'created') {
+      kind = PaymentStatusKind.pending;
     } else if (rawStatus == 'failed' || rawStatus == 'overdue') {
-      status = PaymentStatus.overdue;
+      kind = PaymentStatusKind.failed;
+    } else if (rawStatus == 'refunded') {
+      kind = PaymentStatusKind.refunded;
+    } else {
+      kind = PaymentStatusKind.other;
     }
 
-    final currency = (json['currency'] ?? 'INR').toString().toUpperCase();
-    final purpose = (json['purpose'] ?? 'ad_spend').toString();
-    final paymentMethod = (json['method'] ?? json['payment_method'] ?? json['gateway'] ?? 'Bank Transfer').toString();
+    final mode = (json['payment_mode'] ?? '').toString().toLowerCase();
+    final isOff = mode == 'offline';
 
-    // Gateway
-    String gatewayName = 'Razorpay Gateway';
-    if (json['gateway'] is Map) {
-      gatewayName = (json['gateway']['name'] ?? 'Razorpay Gateway').toString();
-    } else if (json['gateway'] != null && json['gateway'].toString().isNotEmpty) {
-      gatewayName = json['gateway'].toString();
+    final rawMethodKey = isOff
+        ? (json['offline_method'] ?? json['method'])
+        : (json['method'] ?? json['offline_method']);
+    final rawMethodStr = rawMethodKey?.toString();
+
+    // Map method label
+    final readableMethodStr = _formatMethodLabel(rawMethodStr);
+
+    final gateway = json['gateway'] is Map ? Map<String, dynamic>.from(json['gateway']) : null;
+    final gatewayNameStr = (gateway?['name'] ?? json['gateway_name'])?.toString();
+
+    final paymentRefStr = (json['utr_number'] ??
+            json['reference_number'] ??
+            json['cheque_number'] ??
+            json['gateway_ref'] ??
+            json['transaction_id'] ??
+            code)
+        .toString();
+
+    final orderRefStr = json['gateway_order_id']?.toString();
+
+    final rawPurpose = (json['purpose'] ?? '').toString();
+    final readablePurposeStr = _formatPurposeLabel(rawPurpose);
+
+    final rawPayerType = (json['payer_type'] ?? '').toString();
+    final readablePayerTypeStr = _formatPayerTypeLabel(rawPayerType);
+
+    final rawClientType = (json['client_type'] ?? '').toString();
+    final readableClientTypeStr = rawClientType == 'app'
+        ? 'Mobile App'
+        : rawClientType == 'web'
+            ? 'Web'
+            : rawClientType.replaceAll('_', ' ');
+
+    final currencyStr = (json['currency'] ?? 'INR').toString().toUpperCase();
+
+    // Nested objects
+    final invoice = json['invoice'] is Map ? Map<String, dynamic>.from(json['invoice']) : null;
+    final org = json['organization'] is Map
+        ? Map<String, dynamic>.from(json['organization'])
+        : (invoice?['organization'] is Map ? Map<String, dynamic>.from(invoice!['organization']) : null);
+    final adv = json['advertiser'] is Map ? Map<String, dynamic>.from(json['advertiser']) : null;
+    final gov = json['government_agency'] is Map ? Map<String, dynamic>.from(json['government_agency']) : null;
+    final camp = json['campaign'] is Map ? Map<String, dynamic>.from(json['campaign']) : null;
+    final sub = json['subscription'] is Map ? Map<String, dynamic>.from(json['subscription']) : null;
+
+    // Organization users
+    final orgUsers = org?['users'] is List ? List<dynamic>.from(org!['users']) : [];
+    Map<String, dynamic>? orgAdmin;
+    for (final u in orgUsers) {
+      if (u is Map) {
+        final role = u['role'] is Map ? Map<String, dynamic>.from(u['role']) : null;
+        if (role?['code']?.toString().toUpperCase() == 'ROLE-TENANT-ADMIN') {
+          orgAdmin = Map<String, dynamic>.from(u);
+          break;
+        }
+      }
+    }
+    if (orgAdmin == null && orgUsers.isNotEmpty && orgUsers.first is Map) {
+      orgAdmin = Map<String, dynamic>.from(orgUsers.first);
     }
 
-    final paymentRef = (json['gateway_ref'] ?? json['txn_ref'] ?? json['transaction_id'] ?? json['gateway_payment_id'] ?? json['reference_number'] ?? '—').toString();
-    final orderRef = (json['gateway_order_id'] ?? json['order_id'] ?? '—').toString();
-    final payerType = (json['payer_type'] ?? 'advertiser').toString();
-    final clientType = (json['client_type'] ?? 'app').toString();
+    // Amounts
+    final totalAmt = double.tryParse((json['amount'] ?? invoice?['total'] ?? 0).toString().replaceAll(',', '')) ?? 0.0;
+    final subtotalAmt = invoice?['subtotal'] != null
+        ? double.tryParse(invoice!['subtotal'].toString().replaceAll(',', ''))
+        : null;
+    final cgstAmt = double.tryParse((invoice?['cgst_amount'] ?? 0).toString().replaceAll(',', '')) ?? 0.0;
+    final sgstAmt = double.tryParse((invoice?['sgst_amount'] ?? 0).toString().replaceAll(',', '')) ?? 0.0;
+    final igstAmt = double.tryParse((invoice?['igst_amount'] ?? 0).toString().replaceAll(',', '')) ?? 0.0;
+    final taxAmt = double.tryParse((invoice?['tax_amount'] ?? 0).toString().replaceAll(',', '')) ?? 0.0;
 
     // Dates
-    DateTime? paidAt;
-    if (json['paid_at'] != null) paidAt = DateTime.tryParse(json['paid_at'].toString());
-    DateTime? createdAt;
-    if (json['created_at'] != null) createdAt = DateTime.tryParse(json['created_at'].toString());
-    DateTime? dueDate;
-    if (json['due_date'] != null) dueDate = DateTime.tryParse(json['due_date'].toString());
+    final createdDt = _parseDateTime(json['created_at']);
+    final paidDt = _parseDateTime(json['paid_at']);
+    final collectedDt = _parseDateTime(json['collected_at']);
+    final chequeDt = _parseDateTime(json['cheque_date']);
+    final invIssuedDt = invoice != null ? _parseDateTime(invoice['issued_at']) : null;
+    final invPaidDt = invoice != null ? _parseDateTime(invoice['paid_at']) : null;
 
-    // Invoice sub-object
-    final invoiceMap = json['invoice'] is Map ? Map<String, dynamic>.from(json['invoice']) : null;
-    final String? invoiceId = invoiceMap != null ? (invoiceMap['id'] ?? invoiceMap['_id'])?.toString() : (json['invoice_id']?.toString());
-    final String? invoiceCode = invoiceMap != null ? (invoiceMap['code'] ?? invoiceMap['invoice_number'])?.toString() : (json['invoice_code']?.toString());
-    final String? invoiceStatus = invoiceMap != null ? (invoiceMap['status'])?.toString() : null;
+    // Offline Fields
+    final bankStr = (json['bank_name'] ?? '').toString().trim();
+    final branchStr = (json['branch_name'] ?? '').toString().trim();
+    final holderStr = (json['account_holder'] ?? '').toString().trim();
+    final utrStr = (json['utr_number'] ?? '').toString().trim();
+    final refStr = (json['reference_number'] ?? '').toString().trim();
+    final chequeNumStr = (json['cheque_number'] ?? '').toString().trim();
+    final collector = json['collector'] is Map ? Map<String, dynamic>.from(json['collector']) : null;
+    final collectorNameStr = (collector?['name'] ?? json['verified_by_name'] ?? '').toString().trim();
+    final remarksStr = (json['remarks'] ?? '').toString().trim();
+    final proofStr = (json['proof_url'] ?? '').toString().trim();
 
-    // Financial itemized GST breakdown calculation matching PaymentDetailsPage.jsx
-    double subtotal = 0.0;
-    if (invoiceMap != null && invoiceMap['subtotal'] != null) {
-      subtotal = double.tryParse(invoiceMap['subtotal'].toString().replaceAll(',', '')) ?? 0.0;
-    } else if (totalAmount > 0) {
-      subtotal = double.parse((totalAmount / 1.18).toStringAsFixed(2));
-    }
-
-    double cgst = 0.0;
-    if (invoiceMap != null && invoiceMap['cgst_amount'] != null) {
-      cgst = double.tryParse(invoiceMap['cgst_amount'].toString().replaceAll(',', '')) ?? 0.0;
-    } else if (totalAmount > 0) {
-      cgst = double.parse(((totalAmount - subtotal) / 2).toStringAsFixed(2));
-    }
-
-    double sgst = 0.0;
-    if (invoiceMap != null && invoiceMap['sgst_amount'] != null) {
-      sgst = double.tryParse(invoiceMap['sgst_amount'].toString().replaceAll(',', '')) ?? 0.0;
-    } else if (totalAmount > 0) {
-      sgst = double.parse(((totalAmount - subtotal) / 2).toStringAsFixed(2));
-    }
-
-    double taxTotal = 0.0;
-    if (invoiceMap != null && invoiceMap['tax_amount'] != null) {
-      taxTotal = double.tryParse(invoiceMap['tax_amount'].toString().replaceAll(',', '')) ?? 0.0;
-    } else {
-      taxTotal = double.parse((cgst + sgst).toStringAsFixed(2));
-    }
-
-    // Campaign sub-object
-    final campaignMap = json['campaign'] is Map ? Map<String, dynamic>.from(json['campaign']) : null;
-    final advertiserMap = json['advertiser'] is Map ? Map<String, dynamic>.from(json['advertiser']) : null;
-    final organizationMap = json['organization'] is Map ? Map<String, dynamic>.from(json['organization']) : null;
-
-    // Payer details
-    final clientName = (campaignMap?['client_name'] ??
-            invoiceMap?['customer_name'] ??
+    // Payer Profile (Strict DB Resolution)
+    final clientNameResolved = (camp?['client_name'] ??
+            invoice?['customer_name'] ??
+            org?['name'] ??
+            adv?['name'] ??
+            gov?['name'] ??
+            gov?['agency_name'] ??
             json['customer_name'] ??
-            advertiserMap?['name'] ??
-            'Client / Brand Partner')
-        .toString();
+            json['billing_name'])
+        ?.toString()
+        .trim();
 
-    final clientCompany = (campaignMap?['client_company'] ??
-            invoiceMap?['organization']?['name'] ??
-            organizationMap?['name'] ??
-            advertiserMap?['company_name'] ??
-            '—')
-        .toString();
+    final clientCompanyResolved = (camp?['client_company'] ??
+            org?['name'] ??
+            adv?['company_name'] ??
+            gov?['department'])
+        ?.toString()
+        .trim();
 
-    final clientPhone = (campaignMap?['client_phone'] ??
-            invoiceMap?['phone'] ??
-            json['customer_phone'] ??
-            '—')
-        .toString();
+    final clientPhoneResolved = (camp?['client_phone'] ??
+            orgAdmin?['phone'] ??
+            adv?['phone'] ??
+            gov?['phone'])
+        ?.toString()
+        .trim();
 
-    final clientEmail = (campaignMap?['client_email'] ??
-            invoiceMap?['email'] ??
-            json['customer_email'] ??
-            '—')
-        .toString();
+    final clientEmailResolved = (camp?['client_email'] ??
+            orgAdmin?['email'] ??
+            adv?['email'] ??
+            gov?['email'])
+        ?.toString()
+        .trim();
 
-    final clientCity = (campaignMap?['client_city'] ?? json['city'] ?? '—').toString();
-    final clientState = (campaignMap?['client_state'] ?? json['state'] ?? '').toString();
-    final clientPincode = (campaignMap?['client_pincode'] ?? json['pincode'] ?? '').toString();
-    final fullAddress = (invoiceMap?['billing_address'] ??
-            campaignMap?['client_address'] ??
-            json['address'] ??
-            '—')
-        .toString();
+    final clientGstinResolved = (invoice?['gstin'] ??
+            org?['gstin'] ??
+            adv?['gstin'])
+        ?.toString()
+        .trim();
 
-    // Campaign specs
-    String? campaignId;
-    String? campaignTitle;
-    String? campaignBrand;
-    String? campaignStatus;
-    String? campaignPlacement;
-    String? campaignTargetingMode;
-    int? campaignDurationSec;
-    String? campaignSlotType;
-    String? campaignCategory;
-    String? campaignObjective;
-    double? campaignBudget;
+    final fullAddressResolved = (invoice?['billing_address'] ??
+            camp?['client_address'] ??
+            org?['office_address'] ??
+            adv?['address'] ??
+            gov?['office_address'] ??
+            gov?['address'])
+        ?.toString()
+        .trim();
 
-    if (campaignMap != null) {
-      campaignId = (campaignMap['id'] ?? campaignMap['_id'])?.toString();
-      campaignTitle = campaignMap['title']?.toString();
-      campaignBrand = campaignMap['brand_name']?.toString();
-      campaignStatus = campaignMap['status']?.toString();
-      campaignPlacement = campaignMap['placement']?.toString();
-      campaignTargetingMode = campaignMap['targeting_mode']?.toString();
-      campaignDurationSec = int.tryParse((campaignMap['duration_per_play_sec'] ?? 15).toString());
-      campaignSlotType = campaignMap['slot_type']?.toString();
-      campaignCategory = campaignMap['category']?.toString();
-      campaignObjective = campaignMap['objective']?.toString();
-      campaignBudget = double.tryParse((campaignMap['budget'] ?? totalAmount).toString().replaceAll(',', ''));
+    final cityResolved = (camp?['client_city'] ?? org?['city'] ?? adv?['city'] ?? gov?['city'])?.toString().trim();
+    final stateResolved = (camp?['client_state'] ?? org?['state'] ?? adv?['state'] ?? gov?['state'])?.toString().trim();
+    final pincodeResolved = (camp?['client_pincode'] ?? org?['pincode'] ?? adv?['pincode'] ?? gov?['pincode'])?.toString().trim();
+
+    String? locationLineResolved;
+    final cityState = [cityResolved, stateResolved].where((e) => e != null && e.isNotEmpty).join(', ');
+    if (cityState.isNotEmpty && pincodeResolved != null && pincodeResolved.isNotEmpty) {
+      locationLineResolved = '$cityState - $pincodeResolved';
+    } else if (cityState.isNotEmpty) {
+      locationLineResolved = cityState;
+    } else if (pincodeResolved != null && pincodeResolved.isNotEmpty) {
+      locationLineResolved = pincodeResolved;
     }
 
-    // Subscription specs
-    final subMap = json['subscription'] is Map ? Map<String, dynamic>.from(json['subscription']) : null;
-    String? subscriptionPlanName;
-    String? subscriptionCode;
-    String? subscriptionStatus;
-    if (subMap != null) {
-      subscriptionPlanName = subMap['plan_name']?.toString();
-      subscriptionCode = (subMap['code'] ?? 'SUB-${subMap['id']}').toString();
-      subscriptionStatus = subMap['status']?.toString();
+    // Campaign Details
+    String? cId, cCode, cTitle, cBrand, cStatus, cPlacement, cSlotType, cCategory, cObjective;
+    int? cDuration;
+    double? cBudget;
+    if (camp != null) {
+      cId = camp['id']?.toString();
+      cCode = camp['code']?.toString();
+      cTitle = (camp['title'] ?? camp['name'])?.toString();
+      cBrand = camp['brand_name']?.toString();
+      cStatus = camp['status']?.toString();
+      cPlacement = [camp['placement'], camp['targeting_mode']].where((e) => e != null && e.toString().isNotEmpty).join(' · ');
+      cDuration = int.tryParse((camp['duration_per_play_sec'] ?? '').toString());
+      cSlotType = camp['slot_type']?.toString();
+      cCategory = [camp['category'], camp['objective']].where((e) => e != null && e.toString().isNotEmpty).join(' · ');
+      cBudget = double.tryParse((camp['budget'] ?? '').toString().replaceAll(',', ''));
     }
 
-    // 4-step Timeline Reconciliation
-    final createdDateStr = createdAt != null ? DateFormat('dd MMM yyyy, hh:mm a').format(createdAt) : '—';
-    final paidDateStr = paidAt != null ? DateFormat('dd MMM yyyy, hh:mm a').format(paidAt) : (status == PaymentStatus.paid ? 'Settled' : 'Pending');
+    // Subscription Details
+    String? subPlanName, subPlanCode, subStatus;
+    DateTime? subPeriodStart, subPeriodEnd;
+    if (sub != null) {
+      final plan = sub['plan'] is Map ? Map<String, dynamic>.from(sub['plan']) : null;
+      subPlanName = (plan?['name'] ?? sub['plan_type'])?.toString();
+      subPlanCode = plan?['code']?.toString();
+      subStatus = sub['status']?.toString();
+      subPeriodStart = _parseDateTime(sub['current_period_start']);
+      subPeriodEnd = _parseDateTime(sub['current_period_end']);
+    }
 
-    final timeline = <TimelineEvent>[
-      TimelineEvent(
-        title: 'Payment Created',
-        desc: 'Invoice & checkout session initiated',
-        date: createdDateStr,
-        isCompleted: true,
-      ),
-      TimelineEvent(
-        title: 'Gateway Authorized',
-        desc: '$gatewayName authenticated transaction',
-        date: paidAt != null ? paidDateStr : (status == PaymentStatus.paid ? 'Authorized' : 'Pending'),
-        isCompleted: paidAt != null || status == PaymentStatus.paid,
-      ),
-      TimelineEvent(
-        title: 'Bank Nodal Settlement',
-        desc: 'Funds credited to VMOVEXA nodal escrow account',
-        date: status == PaymentStatus.paid ? (paidAt != null ? DateFormat('dd MMM yyyy').format(paidAt) : 'Settled') : 'Pending',
-        isCompleted: status == PaymentStatus.paid,
-      ),
-      TimelineEvent(
-        title: 'Invoice & Ledger Reconciled',
-        desc: 'Tax invoice updated & audit ledger marked verified',
-        date: status == PaymentStatus.paid ? 'Verified ✓' : 'Awaiting Settlement',
-        isCompleted: status == PaymentStatus.paid,
-      ),
-    ];
+    // Real Recorded Timestamps (Persisted DB Dates Only)
+    final timestamps = <PersistedTimestampEntry>[];
+    if (createdDt != null) {
+      timestamps.add(PersistedTimestampEntry(
+        label: 'Payment Recorded',
+        value: _formatDisplayDateTime(createdDt),
+      ));
+    }
+    if (collectedDt != null && collectedDt != paidDt) {
+      timestamps.add(PersistedTimestampEntry(
+        label: 'Collected At',
+        value: _formatDisplayDateTime(collectedDt),
+      ));
+    }
+    if (paidDt != null) {
+      timestamps.add(PersistedTimestampEntry(
+        label: 'Paid / Settled At',
+        value: _formatDisplayDateTime(paidDt),
+      ));
+    }
+    if (invIssuedDt != null) {
+      timestamps.add(PersistedTimestampEntry(
+        label: 'Invoice Issued At',
+        value: _formatDisplayDateTime(invIssuedDt),
+      ));
+    }
+    if (invPaidDt != null) {
+      timestamps.add(PersistedTimestampEntry(
+        label: 'Invoice Paid At',
+        value: _formatDisplayDateTime(invPaidDt),
+      ));
+    }
 
     return PaymentDetailModel(
       id: id,
       code: code,
-      amount: totalAmount,
-      currency: currency,
-      status: status,
-      statusRaw: rawStatus,
-      purpose: purpose,
-      paymentMethod: paymentMethod,
-      gatewayName: gatewayName,
-      paymentRef: paymentRef,
-      orderRef: orderRef,
-      payerType: payerType,
-      clientType: clientType,
-      paidAt: paidAt,
-      createdAt: createdAt,
-      dueDate: dueDate,
-      subtotal: subtotal,
-      cgstAmount: cgst,
-      sgstAmount: sgst,
-      taxAmount: taxTotal,
-      totalAmount: totalAmount,
-      invoiceId: invoiceId,
-      invoiceCode: invoiceCode,
-      invoiceStatus: invoiceStatus,
-      clientName: clientName,
-      clientCompany: clientCompany,
-      clientPhone: clientPhone,
-      clientEmail: clientEmail,
-      fullAddress: fullAddress,
-      clientCity: clientCity,
-      clientState: clientState,
-      clientPincode: clientPincode,
-      campaignId: campaignId,
-      campaignTitle: campaignTitle,
-      campaignBrand: campaignBrand,
-      campaignStatus: campaignStatus,
-      campaignPlacement: campaignPlacement,
-      campaignTargetingMode: campaignTargetingMode,
-      campaignDurationSec: campaignDurationSec,
-      campaignSlotType: campaignSlotType,
-      campaignCategory: campaignCategory,
-      campaignObjective: campaignObjective,
-      campaignBudget: campaignBudget,
-      subscriptionPlanName: subscriptionPlanName,
-      subscriptionCode: subscriptionCode,
-      subscriptionStatus: subscriptionStatus,
-      timeline: timeline,
+      amount: totalAmt,
+      currency: currencyStr,
+      rawStatus: rawStatus,
+      statusKind: kind,
+      purpose: rawPurpose,
+      readablePurpose: readablePurposeStr,
+      paymentMode: mode,
+      isOffline: isOff,
+      rawMethod: rawMethodStr,
+      readableMethod: readableMethodStr,
+      gatewayName: gatewayNameStr,
+      paymentRef: paymentRefStr,
+      orderRef: orderRefStr,
+      payerType: rawPayerType,
+      readablePayerType: readablePayerTypeStr,
+      clientType: rawClientType,
+      readableClientType: readableClientTypeStr,
+      createdAt: createdDt,
+      paidAt: paidDt,
+      collectedAt: collectedDt,
+      chequeDate: chequeDt,
+      subtotal: subtotalAmt,
+      cgstAmount: cgstAmt,
+      sgstAmount: sgstAmt,
+      igstAmount: igstAmt,
+      taxAmount: taxAmt,
+      totalAmount: totalAmt,
+      invoiceId: invoice?['id']?.toString(),
+      invoiceCode: invoice?['code']?.toString(),
+      invoiceStatus: invoice?['status']?.toString(),
+      invoiceIssuedAt: invIssuedDt,
+      invoicePaidAt: invPaidDt,
+      bankName: bankStr.isNotEmpty ? bankStr : null,
+      branchName: branchStr.isNotEmpty ? branchStr : null,
+      accountHolder: holderStr.isNotEmpty ? holderStr : null,
+      utrNumber: utrStr.isNotEmpty ? utrStr : null,
+      referenceNumber: refStr.isNotEmpty && refStr != utrStr ? refStr : null,
+      chequeNumber: chequeNumStr.isNotEmpty ? chequeNumStr : null,
+      collectorName: collectorNameStr.isNotEmpty ? collectorNameStr : null,
+      remarks: remarksStr.isNotEmpty ? remarksStr : null,
+      proofUrl: proofStr.isNotEmpty ? proofStr : null,
+      clientName: clientNameResolved?.isNotEmpty == true ? clientNameResolved : null,
+      clientCompany: clientCompanyResolved?.isNotEmpty == true ? clientCompanyResolved : null,
+      clientPhone: clientPhoneResolved?.isNotEmpty == true ? clientPhoneResolved : null,
+      clientEmail: clientEmailResolved?.isNotEmpty == true ? clientEmailResolved : null,
+      clientGstin: clientGstinResolved?.isNotEmpty == true ? clientGstinResolved : null,
+      fullAddress: fullAddressResolved?.isNotEmpty == true ? fullAddressResolved : null,
+      clientCity: cityResolved?.isNotEmpty == true ? cityResolved : null,
+      clientState: stateResolved?.isNotEmpty == true ? stateResolved : null,
+      clientPincode: pincodeResolved?.isNotEmpty == true ? pincodeResolved : null,
+      locationLine: locationLineResolved,
+      campaignId: cId,
+      campaignCode: cCode,
+      campaignTitle: cTitle,
+      campaignBrand: cBrand,
+      campaignStatus: cStatus,
+      campaignPlacement: cPlacement?.isNotEmpty == true ? cPlacement : null,
+      campaignDurationSec: cDuration,
+      campaignSlotType: cSlotType,
+      campaignCategory: cCategory?.isNotEmpty == true ? cCategory : null,
+      campaignObjective: cObjective,
+      campaignBudget: cBudget,
+      subscriptionPlanName: subPlanName,
+      subscriptionPlanCode: subPlanCode,
+      subscriptionStatus: subStatus,
+      subscriptionPeriodStart: subPeriodStart,
+      subscriptionPeriodEnd: subPeriodEnd,
+      realTimestamps: timestamps,
     );
+  }
+
+  static DateTime? _parseDateTime(dynamic val) {
+    if (val == null) return null;
+    try {
+      return DateTime.parse(val.toString());
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static String _formatDisplayDateTime(DateTime dt) {
+    return DateFormat('dd MMM yyyy, hh:mm a').format(dt);
+  }
+
+  static String _formatMethodLabel(String? raw) {
+    if (raw == null || raw.isEmpty) return '—';
+    final map = {
+      'upi': 'UPI',
+      'upi_manual': 'UPI (Manual)',
+      'netbanking': 'Net Banking',
+      'bank_transfer': 'Bank Transfer',
+      'bank_wire': 'Bank Wire',
+      'neft': 'NEFT',
+      'rtgs': 'RTGS',
+      'imps': 'IMPS',
+      'cheque': 'Cheque',
+      'demand_draft': 'Demand Draft',
+      'cash': 'Cash',
+      'card': 'Card',
+      'razorpay': 'Razorpay',
+      'stripe': 'Stripe',
+      'other': 'Other',
+    };
+    return map[raw.toLowerCase()] ?? raw.replaceAll('_', ' ').toUpperCase();
+  }
+
+  static String _formatPurposeLabel(String raw) {
+    if (raw.isEmpty) return '—';
+    final map = {
+      'ad_spend': 'Advertising Campaign',
+      'saas_subscription': 'SaaS Subscription',
+      'psa_spend': 'Government / PSA Campaign',
+      'payout': 'Payout',
+      'wallet_topup': 'Wallet Top-up',
+      'refund': 'Refund',
+    };
+    return map[raw.toLowerCase()] ?? raw.replaceAll('_', ' ').capitalizeFirst ?? raw;
+  }
+
+  static String _formatPayerTypeLabel(String raw) {
+    if (raw.isEmpty) return '—';
+    final map = {
+      'advertiser': 'Advertiser',
+      'tenant': 'Tenant Admin',
+      'government': 'Government Agency',
+      'platform': 'Platform',
+    };
+    return map[raw.toLowerCase()] ?? raw.replaceAll('_', ' ').capitalizeFirst ?? raw;
   }
 }

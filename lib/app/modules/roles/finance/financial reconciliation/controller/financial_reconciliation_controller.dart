@@ -1,23 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:vmovexa/app/data/services/finance_service.dart';
-import 'package:vmovexa/app/utils/device_file_saver.dart';
 import '../model/financial_reconciliation_model.dart';
 
 class FinancialReconciliationController extends GetxController {
-  // Navigation: 0 = Roster, 1 = Wizard, 2 = Completed
+  // Navigation: 0 = Roster (Dashboard), 1 = Wizard (Start Reconciliation)
   final RxInt currentScreenIndex = 0.obs;
 
   // State Observables
   final Rx<ReconciliationSummaryModel?> summary = Rx<ReconciliationSummaryModel?>(null);
   final RxList<ReconciliationTransactionModel> transactions = <ReconciliationTransactionModel>[].obs;
   final Rx<ReconciliationAccountModel?> selectedAccount = Rx<ReconciliationAccountModel?>(null);
-  final Rx<ReconciliationCompletedData?> completedData = Rx<ReconciliationCompletedData?>(null);
 
   // Filters & Pagination
   final RxString accountSearch = ''.obs;
-  final RxString viewMode = 'table'.obs; // 'table' or 'card'
+  final RxString viewMode = 'card'.obs; // 'card' or 'table'
   final RxInt currentPage = 1.obs;
   final RxInt pageSize = 5.obs;
 
@@ -56,7 +53,9 @@ class FinancialReconciliationController extends GetxController {
   List<ReconciliationAccountModel> get filteredAccounts {
     final list = summary.value?.accounts ?? [];
     final q = accountSearch.value.trim().toLowerCase();
-    if (q.isEmpty) return list;
+    if (q.isEmpty) {
+      return list;
+    }
     return list.where((acc) {
       return acc.name.toLowerCase().contains(q) ||
           acc.category.toLowerCase().contains(q) ||
@@ -69,14 +68,18 @@ class FinancialReconciliationController extends GetxController {
   List<ReconciliationAccountModel> get paginatedAccounts {
     final all = filteredAccounts;
     final start = (currentPage.value - 1) * pageSize.value;
-    if (start >= all.length) return [];
+    if (start >= all.length) {
+      return [];
+    }
     final end = (start + pageSize.value > all.length) ? all.length : start + pageSize.value;
     return all.sublist(start, end);
   }
 
   int get totalPages {
     final len = filteredAccounts.length;
-    if (len == 0) return 1;
+    if (len == 0) {
+      return 1;
+    }
     return (len / pageSize.value).ceil();
   }
 
@@ -127,28 +130,28 @@ class FinancialReconciliationController extends GetxController {
       final res = await FinanceService.to.autoMatchReconciliation();
       if (res.success) {
         Get.snackbar(
-          'Auto-Match Successful',
-          'All verified records matched successfully with zero variance!',
+          'reconcile'.tr,
+          'recon_auto_match_success'.tr,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
         );
       } else {
         Get.snackbar(
-          'Matching Engine Run',
-          'Automated rule-based matching completed.',
-          backgroundColor: const Color(0xFF10B981),
+          'reconcile'.tr,
+          (res.message != null && res.message!.isNotEmpty) ? res.message! : 'recon_auto_match_done'.tr,
+          backgroundColor: const Color(0xFF3B82F6),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
         );
       }
       await loadTransactions();
       await loadReconciliationSummary();
-    } catch (e) {
+    } catch (_) {
       Get.snackbar(
-        'Auto-Match Completed',
-        'All verified transactions reconciled.',
-        backgroundColor: const Color(0xFF10B981),
+        'reconcile'.tr,
+        'recon_auto_match_failed'.tr,
+        backgroundColor: const Color(0xFFEF4444),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -158,88 +161,51 @@ class FinancialReconciliationController extends GetxController {
   }
 
   // ==========================================
-  // API: Finalize & Confirm Reconciliation
+  // API: Finalize & Confirm Reconciliation (Admin Panel Parity: No New Page)
   // ==========================================
   Future<void> finalizeReconciliation() async {
     isFinalizing.value = true;
     try {
       final acc = selectedAccount.value;
-      final nowStr = DateFormat('MMMM yyyy').format(DateTime.now());
 
       final res = await FinanceService.to.finalizeReconciliation({
         'statementDate': DateTime.now().toIso8601String(),
-        'accountName': acc?.name ?? 'Consolidated Corporate Accounts',
+        'accountName': acc?.name ?? 'consolidated_corporate_accounts'.tr,
         'accountId': acc?.id ?? 'corporate_all',
       });
 
-      if (res.success && res.data is Map<String, dynamic>) {
-        completedData.value = ReconciliationCompletedData.fromJson(
-          res.data as Map<String, dynamic>,
-          defaultAccount: acc?.name,
+      if (res.success) {
+        Get.snackbar(
+          'reconciliation'.tr,
+          'recon_finalized_success'.tr,
+          backgroundColor: const Color(0xFF10B981),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
         );
+        // Refresh data and return to Roster
+        await loadTransactions(acc?.id);
+        await loadReconciliationSummary();
+        currentScreenIndex.value = 0;
       } else {
-        completedData.value = ReconciliationCompletedData(
-          accountName: acc?.name ?? 'HDFC Corporate Transit Collection',
-          period: nowStr,
-          balance: acc?.ledgerBalance ?? '₹14,50,000',
-          matchedRate: '100%',
-          discrepancy: 'Zero Variance (Balanced)',
+        Get.snackbar(
+          'reconciliation'.tr,
+          (res.message != null && res.message!.isNotEmpty) ? res.message! : 'recon_finalize_failed'.tr,
+          backgroundColor: const Color(0xFFEF4444),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
         );
       }
-
-      currentScreenIndex.value = 2; // Move to Completed View
+    } catch (_) {
       Get.snackbar(
-        'Reconciliation Finalized',
-        'Reconciliation period finalized with zero variance!',
-        backgroundColor: const Color(0xFF10B981),
+        'reconciliation'.tr,
+        'recon_finalize_failed'.tr,
+        backgroundColor: const Color(0xFFEF4444),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
-    } catch (e) {
-      final acc = selectedAccount.value;
-      completedData.value = ReconciliationCompletedData(
-        accountName: acc?.name ?? 'HDFC Corporate Transit Collection',
-        period: DateFormat('MMMM yyyy').format(DateTime.now()),
-        balance: acc?.ledgerBalance ?? '₹14,50,000',
-        matchedRate: '100%',
-        discrepancy: 'Zero Variance (Balanced)',
-      );
-      currentScreenIndex.value = 2;
     } finally {
       isFinalizing.value = false;
     }
-  }
-
-  // ==========================================
-  // ACTIONS: Download Certificate / Copy Summary (Saves to device Downloads)
-  // ==========================================
-  Future<void> downloadBrsCertificate() async {
-    final audit = completedData.value;
-    final summaryText = 'VMOVEXA ENTERPRISE - BANK RECONCILIATION STATEMENT (BRS)\n'
-        'CERTIFICATE OF AUDIT VERIFICATION\n'
-        '--------------------------------------------------\n'
-        'Account Audited: ${audit?.accountName ?? 'HDFC Corporate Treasury'}\n'
-        'Reconciled Period: ${audit?.period ?? 'Current Cycle'}\n'
-        'Audited Ledger Balance: ${audit?.balance ?? '₹0.00'}\n'
-        'Reconciliation Result: ${audit?.matchedRate ?? '100%'} Matched\n'
-        'Net Discrepancy: ${audit?.discrepancy ?? 'Zero Variance (Balanced)'}\n'
-        'Verification Status: 100% Balanced & Cryptographically Sealed\n'
-        'Issued By: Finance Controller Desk\n'
-        'Generated On: ${DateFormat('dd MMM yyyy, hh:mm a').format(DateTime.now())}\n';
-
-    final cleanPeriod = (audit?.period ?? 'Cycle').replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
-    final fileName = 'BRS_Audit_Certificate_$cleanPeriod.txt';
-
-    final savedPath = await DeviceFileSaver.saveFile(
-      fileName: fileName,
-      content: summaryText,
-    );
-
-    DeviceFileSaver.showSuccessSnackbar(
-      title: 'BRS Audit Certificate Downloaded',
-      filePath: savedPath,
-      copyContent: summaryText,
-    );
   }
 
   // Navigation helpers

@@ -4,6 +4,8 @@
 /// 
 /// IMPORTANT: This file is for reference only. Do not import this in your app.
 
+library;
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/routes/app_routes.dart';

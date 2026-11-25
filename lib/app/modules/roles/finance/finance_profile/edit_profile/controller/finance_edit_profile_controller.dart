@@ -5,6 +5,7 @@ import 'package:vmovexa/app/data/services/auth_service.dart';
 import 'package:vmovexa/app/data/services/http_client_service.dart';
 import 'package:vmovexa/app/data/services/storage_service.dart';
 import 'package:vmovexa/app/modules/roles/finance/finance_profile/profile/controller/finance_profile_controller.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 
 class FinanceEditProfileController extends GetxController {
   // Form controllers mirroring Admin Panel FinanceOfficerAccountSettingsPage
@@ -21,6 +22,7 @@ class FinanceEditProfileController extends GetxController {
   final RxString avatarUrl = ''.obs;
   final RxBool isUploadingPhoto = false.obs;
   final RxBool isSaving = false.obs;
+  final RxBool isLoadingLive = false.obs;
 
   // Language & Regional preferences
   final RxString selectedLanguage = 'en'.obs;
@@ -48,6 +50,7 @@ class FinanceEditProfileController extends GetxController {
   void onInit() {
     super.onInit();
     loadCurrentUserData();
+    fetchLiveProfile();
   }
 
   void loadCurrentUserData() {
@@ -55,25 +58,74 @@ class FinanceEditProfileController extends GetxController {
       if (Get.isRegistered<StorageService>()) {
         final user = StorageService.to.getUser();
         if (user != null) {
-          fullNameController.text = user.name ?? '';
-          emailController.text = user.email ?? '';
-          phoneController.text = user.phone ?? '';
-          badgeIdController.text = user.enrollmentNo ?? user.code ?? (user.id != null ? 'FIN-${user.id}' : 'FIN-101');
-          companyNameController.text = user.companyName ?? user.organization?.name ?? 'VMOVEXA Private Limited';
-          branchController.text = user.branch ?? 'Corporate Finance & Accounts Wing';
-          addressController.text = user.officeAddress ?? user.organization?.officeAddress ?? '101, Business Hub, Bandra Kurla Complex, Mumbai, Maharashtra - 400051';
-
-          avatarUrl.value = user.avatarUrl ?? '';
-
-          if (user.language != null && user.language!.isNotEmpty) {
-            selectedLanguage.value = _normalizeLanguageCode(user.language!);
-          }
-          if (user.timezone != null && user.timezone!.isNotEmpty) {
-            selectedTimezone.value = _normalizeTimezoneCode(user.timezone!);
-          }
+          _populateFromUser(user);
         }
       }
     } catch (_) {}
+  }
+
+  /// Fetch live user data directly from GET /auth/me matching Admin Panel useAuth
+  Future<void> fetchLiveProfile() async {
+    try {
+      isLoadingLive.value = true;
+      if (Get.isRegistered<AuthService>()) {
+        final res = await AuthService.to.getMe();
+        if (res.success && res.data != null) {
+          _populateFromUser(res.data!);
+        }
+      }
+    } catch (_) {
+    } finally {
+      isLoadingLive.value = false;
+    }
+  }
+
+  /// Exact 1:1 logic from Admin Panel FinanceOfficerAccountSettingsPage:
+  /// - companyName: user.organization?.name || user.company_name || user.companyName || 'VMOVEXA Private Limited'
+  /// - branch: user.branch || user.division || 'Corporate Finance & Accounts Wing'
+  /// - address: user.organization?.office_address || user.office_address || user.address || '101, Business Hub, Bandra Kurla Complex, Mumbai, Maharashtra - 400051'
+  void _populateFromUser(dynamic u) {
+    fullNameController.text = u.name ?? '';
+    emailController.text = u.email ?? '';
+    phoneController.text = u.phone ?? '';
+    badgeIdController.text = u.enrollmentNo ?? u.code ?? (u.id != null ? 'FIN-${u.id}' : 'FIN-101');
+
+    // 1. Organization Legal Entity
+    final orgName = (u.organization?.name != null && u.organization!.name!.trim().isNotEmpty)
+        ? u.organization!.name!.trim()
+        : (u.companyName != null && u.companyName!.trim().isNotEmpty)
+            ? u.companyName!.trim()
+            : (u.organizationName != null && u.organizationName!.trim().isNotEmpty)
+                ? u.organizationName!.trim()
+                : 'VMOVEXA Private Limited';
+    companyNameController.text = orgName;
+
+    // 2. Assigned Branch / Division: user.branch || user.division || 'Corporate Finance & Accounts Wing'
+    String b = u.branch ?? '';
+    if (b == 'Regional Advertising Desk' || b.trim().toLowerCase() == 'jabalpur') {
+      b = '';
+    }
+    final branchName = b.trim().isNotEmpty
+        ? b.trim()
+        : 'Corporate Finance & Accounts Wing';
+    branchController.text = branchName;
+
+    // 3. Official Office Address
+    final addr = (u.organization?.officeAddress != null && u.organization!.officeAddress!.trim().isNotEmpty)
+        ? u.organization!.officeAddress!.trim()
+        : (u.officeAddress != null && u.officeAddress!.trim().isNotEmpty)
+            ? u.officeAddress!.trim()
+            : '101, Business Hub, Bandra Kurla Complex, Mumbai, Maharashtra - 400051';
+    addressController.text = addr;
+
+    avatarUrl.value = u.avatarUrl ?? '';
+
+    if (u.language != null && u.language!.isNotEmpty) {
+      selectedLanguage.value = _normalizeLanguageCode(u.language!);
+    }
+    if (u.timezone != null && u.timezone!.isNotEmpty) {
+      selectedTimezone.value = _normalizeTimezoneCode(u.timezone!);
+    }
   }
 
   String _normalizeLanguageCode(String raw) {
@@ -141,9 +193,9 @@ class FinanceEditProfileController extends GetxController {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Change Profile Photo',
-                  style: TextStyle(
+                Text(
+                  'finance_officer_change_photo'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -156,9 +208,9 @@ class FinanceEditProfileController extends GetxController {
               ],
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Select photo source for your Finance Officer avatar:',
-              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+            Text(
+              'finance_officer_select_source'.tr,
+              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
             ),
             const SizedBox(height: 18),
             ListTile(
@@ -170,13 +222,13 @@ class FinanceEditProfileController extends GetxController {
                 ),
                 child: const Icon(Icons.camera_alt_rounded, color: Color(0xFFB042FF), size: 22),
               ),
-              title: const Text(
-                'Take Photo with Camera',
-                style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+              title: Text(
+                'finance_officer_take_photo'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
               ),
-              subtitle: const Text(
-                'Capture fresh image instantly',
-                style: TextStyle(color: Color(0xFF64748B), fontSize: 11),
+              subtitle: Text(
+                'finance_officer_capture_fresh'.tr,
+                style: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
               ),
               trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF64748B), size: 20),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -195,13 +247,13 @@ class FinanceEditProfileController extends GetxController {
                 ),
                 child: const Icon(Icons.photo_library_rounded, color: Color(0xFF6366F1), size: 22),
               ),
-              title: const Text(
-                'Choose from Gallery',
-                style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+              title: Text(
+                'finance_officer_choose_gallery'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
               ),
-              subtitle: const Text(
-                'Pick an existing photo from library',
-                style: TextStyle(color: Color(0xFF64748B), fontSize: 11),
+              subtitle: Text(
+                'finance_officer_pick_existing'.tr,
+                style: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
               ),
               trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF64748B), size: 20),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -232,10 +284,10 @@ class FinanceEditProfileController extends GetxController {
 
       isUploadingPhoto.value = true;
       Get.snackbar(
-        'Uploading Avatar',
-        'Uploading profile photo to server...',
+        'finance_officer_avatar_title'.tr,
+        'finance_officer_uploading_photo'.tr,
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFFB042FF),
+        backgroundColor: AppTheme.gradientBlue,
         colorText: Colors.white,
         duration: const Duration(seconds: 2),
       );
@@ -268,8 +320,8 @@ class FinanceEditProfileController extends GetxController {
           }
 
           Get.snackbar(
-            'Success',
-            'Profile picture uploaded successfully.',
+            'finance_officer_avatar_title'.tr,
+            'finance_officer_photo_updated'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
@@ -277,17 +329,17 @@ class FinanceEditProfileController extends GetxController {
         }
       } else {
         Get.snackbar(
-          'Upload Failed',
-          res.message ?? 'Failed to upload photo.',
+          'finance_officer_avatar_title'.tr,
+          (res.message != null && res.message!.isNotEmpty) ? res.message! : 'upload_failed_err'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFFEF4444),
           colorText: Colors.white,
         );
       }
-    } catch (e) {
+    } catch (_) {
       Get.snackbar(
-        'Upload Error',
-        'Error uploading photo: $e',
+        'finance_officer_avatar_title'.tr,
+        'upload_failed_err'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),
         colorText: Colors.white,
@@ -300,8 +352,8 @@ class FinanceEditProfileController extends GetxController {
   void removePhoto() {
     avatarUrl.value = '';
     Get.snackbar(
-      'Photo Removed',
-      'Click "Save Changes" to apply removal on server.',
+      'finance_officer_avatar_title'.tr,
+      'finance_officer_photo_removed'.tr,
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: const Color(0xFF6366F1),
       colorText: Colors.white,
@@ -313,8 +365,8 @@ class FinanceEditProfileController extends GetxController {
     final name = fullNameController.text.trim();
     if (name.isEmpty) {
       Get.snackbar(
-        'Validation Error',
-        'Officer Full Name is required.',
+        'validation_error'.tr,
+        'finance_officer_name_required'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),
         colorText: Colors.white,
@@ -325,8 +377,8 @@ class FinanceEditProfileController extends GetxController {
     final email = emailController.text.trim();
     if (email.isEmpty) {
       Get.snackbar(
-        'Validation Error',
-        'Corporate Finance Email is required.',
+        'validation_error'.tr,
+        'finance_officer_email_required'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),
         colorText: Colors.white,
@@ -343,6 +395,7 @@ class FinanceEditProfileController extends GetxController {
         'company_name': companyNameController.text.trim(),
         'companyName': companyNameController.text.trim(),
         'branch': branchController.text.trim(),
+        'division': branchController.text.trim(),
         'office_address': addressController.text.trim(),
         'address': addressController.text.trim(),
         'language': selectedLanguage.value,
@@ -368,16 +421,16 @@ class FinanceEditProfileController extends GetxController {
 
           Get.back(result: true);
           Get.snackbar(
-            'Success',
-            'Finance profile updated successfully!',
+            'finance_officer_title'.tr,
+            'finance_officer_saved_success'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
           );
         } else {
           Get.snackbar(
-            'Update Failed',
-            res.message ?? 'Could not update profile.',
+            'finance_officer_title'.tr,
+            (res.message != null && res.message!.isNotEmpty) ? res.message! : 'finance_officer_save_failed'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFFEF4444),
             colorText: Colors.white,
@@ -386,10 +439,10 @@ class FinanceEditProfileController extends GetxController {
       } else {
         Get.back(result: true);
       }
-    } catch (e) {
+    } catch (_) {
       Get.snackbar(
-        'Error',
-        'Failed to save profile: $e',
+        'finance_officer_title'.tr,
+        'finance_officer_save_failed'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),
         colorText: Colors.white,

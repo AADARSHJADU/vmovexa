@@ -12,6 +12,8 @@ import 'package:vmovexa/app/modules/roles/driver/report/view/driver_incidents_li
 import 'package:vmovexa/app/modules/roles/driver/report/view/driver_incident_detail_view.dart';
 import 'package:vmovexa/app/modules/roles/finance/revenue_reporting/bindings/revenue_reporting_binding.dart';
 import 'package:vmovexa/app/modules/roles/finance/revenue_reporting/view/revenue_reporting_view.dart';
+import 'package:vmovexa/app/modules/roles/finance/revenue_reporting/bindings/report_details_binding.dart';
+import 'package:vmovexa/app/modules/roles/finance/revenue_reporting/view/report_details_view.dart';
 import 'package:vmovexa/app/modules/roles/finance/subscriptions/bindings/subscriptions_binding.dart';
 import 'package:vmovexa/app/modules/roles/finance/subscriptions/view/subscriptions_view.dart';
 import 'package:vmovexa/app/modules/roles/finance/subscriptions/onboard_tenant/bindings/onboard_tenant_binding.dart';
@@ -39,6 +41,8 @@ import '../modules/roles/finance/finance_dashboard/bindings/finance_dashboard_bi
 import '../modules/roles/finance/finance_dashboard/view/finance_dashboard_view.dart';
 import '../modules/roles/finance/finance_profile/help-support/bindings/finance_help_support_binding.dart';
 import '../modules/roles/finance/finance_profile/help-support/view/finance_help_support_view.dart';
+import '../modules/roles/finance/finance_profile/help-support/bindings/finance_raise_ticket_binding.dart';
+import '../modules/roles/finance/finance_profile/help-support/view/finance_raise_ticket_view.dart';
 import '../modules/roles/finance/finance_profile/notification_preference/bindings/notification_preferences_binding.dart';
 import '../modules/roles/finance/finance_profile/notification_preference/view/notification_preferences_view.dart';
 import '../modules/roles/finance/finance_profile/profile/bindings/finance_profile_binding.dart';
@@ -994,6 +998,12 @@ class AppPages {
       transition: Transition.rightToLeft,
     ),
     GetPage(
+      name: Routes.REPORT_DETAILS,
+      page: () => const ReportDetailsView(),
+      binding: ReportDetailsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
       name: Routes.GST_MANAGEMENT,
       page: () => const GSTManagementView(),
       binding: GSTManagementBinding(),
@@ -1050,6 +1060,12 @@ class AppPages {
       name: Routes.FINANCE_HELP_SUPPORT,
       page: () => const FinanceHelpSupportView(),
       binding: FinanceHelpSupportBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.FINANCE_RAISE_TICKET,
+      page: () => const FinanceRaiseTicketView(),
+      binding: FinanceRaiseTicketBinding(),
       transition: Transition.rightToLeft,
     ),
   ];

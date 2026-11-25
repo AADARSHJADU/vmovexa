@@ -1,300 +1,293 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:vmovexa/app/data/services/finance_service.dart';
+import 'package:vmovexa/app/data/constants/api_constants.dart';
+import 'package:vmovexa/app/data/services/http_client_service.dart';
 import '../../../../../routes/app_routes.dart';
 
 class FinancePaymentsController extends GetxController {
-  final RxInt selectedTab = 0.obs; // 0: Ledger, 1: Campaign Payments
+  // Active Status Tab: 0: 'all', 1: 'paid', 2: 'pending', 3: 'failed'
+  final RxInt selectedTab = 0.obs;
   final RxBool isLoading = false.obs;
+  final RxBool isRefreshing = false.obs;
 
-  final RxList<Map<String, dynamic>> paymentsLedger = <Map<String, dynamic>>[].obs;
-  final RxList<Map<String, dynamic>> campaignPayments = <Map<String, dynamic>>[].obs;
+  // Payments List from Backend
+  final RxList<Map<String, dynamic>> payments = <Map<String, dynamic>>[].obs;
 
+  // Pagination
+  final RxInt currentPage = 1.obs;
+  final RxInt pageSize = 10.obs;
+  final RxInt totalItems = 0.obs;
+  final RxInt totalPages = 1.obs;
+
+  // Live Stats Count from API
+  final RxInt allCount = 0.obs;
+  final RxInt paidCount = 0.obs;
+  final RxInt pendingCount = 0.obs;
+  final RxInt failedCount = 0.obs;
+
+  // Search & Debounce
   final TextEditingController searchController = TextEditingController();
   final RxString searchQuery = ''.obs;
+  Timer? _searchDebounceTimer;
 
-  // Filtered views
-  List<Map<String, dynamic>> get filteredLedger {
-    final q = searchQuery.value.trim().toLowerCase();
-    if (q.isEmpty) return paymentsLedger;
-    return paymentsLedger.where((it) {
-      final id = (it['transaction_id'] ?? it['id'] ?? '').toString().toLowerCase();
-      final customer = (it['customer_name'] ?? it['billing_name'] ?? '').toString().toLowerCase();
-      return id.contains(q) || customer.contains(q);
-    }).toList();
-  }
+  // Advanced Filters
+  final RxString selectedPayerType = ''.obs;
+  final RxString selectedPurpose = ''.obs;
+  final RxString selectedMethod = ''.obs;
+  final RxString selectedPaymentMode = ''.obs;
+  final RxString startDate = ''.obs;
+  final RxString endDate = ''.obs;
+  final RxString minAmount = ''.obs;
+  final RxString maxAmount = ''.obs;
 
-  List<Map<String, dynamic>> get filteredCampaigns {
-    final q = searchQuery.value.trim().toLowerCase();
-    if (q.isEmpty) return campaignPayments;
-    return campaignPayments.where((it) {
-      final name = (it['campaign_name'] ?? it['name'] ?? '').toString().toLowerCase();
-      final adv = (it['advertiser_name'] ?? '').toString().toLowerCase();
-      return name.contains(q) || adv.contains(q);
-    }).toList();
+  // Dynamic Options from API or Standard Presets
+  final RxList<String> payerTypeOptions = <String>[].obs;
+  final RxList<String> purposeOptions = <String>[].obs;
+  final RxList<String> methodOptions = <String>[].obs;
+  final RxList<String> paymentModeOptions = <String>[].obs;
+
+  int get activeFilterCount {
+    int count = 0;
+    if (selectedPayerType.value.isNotEmpty) count++;
+    if (selectedPurpose.value.isNotEmpty) count++;
+    if (selectedMethod.value.isNotEmpty) count++;
+    if (selectedPaymentMode.value.isNotEmpty) count++;
+    if (startDate.value.isNotEmpty) count++;
+    if (endDate.value.isNotEmpty) count++;
+    if (minAmount.value.isNotEmpty) count++;
+    if (maxAmount.value.isNotEmpty) count++;
+    return count;
   }
 
   @override
   void onInit() {
     super.onInit();
-    searchController.addListener(() {
-      searchQuery.value = searchController.text;
-    });
-    loadData();
+    searchController.addListener(_onSearchQueryChanged);
+    loadPayments();
   }
 
   @override
   void onClose() {
+    _searchDebounceTimer?.cancel();
     searchController.dispose();
     super.onClose();
   }
 
-  Future<void> loadData() async {
+  void _onSearchQueryChanged() {
+    final text = searchController.text.trim();
+    if (searchQuery.value != text) {
+      searchQuery.value = text;
+      _searchDebounceTimer?.cancel();
+      _searchDebounceTimer = Timer(const Duration(milliseconds: 350), () {
+        currentPage.value = 1;
+        loadPayments();
+      });
+    }
+  }
+
+  void switchTab(int index) {
+    if (selectedTab.value == index) return;
+    selectedTab.value = index;
+    currentPage.value = 1;
+    loadPayments();
+  }
+
+  Future<void> onRefresh() async {
+    isRefreshing.value = true;
+    await loadPayments();
+    isRefreshing.value = false;
+  }
+
+  Future<void> loadPayments() async {
     isLoading.value = true;
     try {
-      await Future.wait([
-        fetchPaymentsLedger(),
-        fetchCampaignPayments(),
-      ]);
+      final queryParams = <String, dynamic>{
+        'page': currentPage.value,
+        'limit': pageSize.value,
+      };
+
+      if (searchQuery.value.isNotEmpty) {
+        queryParams['search'] = searchQuery.value;
+      }
+
+      // Status parameter matching Admin Panel logic
+      if (selectedTab.value == 1) {
+        queryParams['status'] = 'success';
+      } else if (selectedTab.value == 2) {
+        queryParams['status'] = 'pending,created';
+      } else if (selectedTab.value == 3) {
+        queryParams['status'] = 'failed';
+      }
+
+      // Filter parameters
+      if (selectedPayerType.value.isNotEmpty) {
+        queryParams['payerType'] = selectedPayerType.value;
+      }
+      if (selectedPurpose.value.isNotEmpty) {
+        queryParams['purpose'] = selectedPurpose.value;
+      }
+      if (selectedMethod.value.isNotEmpty) {
+        queryParams['method'] = selectedMethod.value;
+      }
+      if (selectedPaymentMode.value.isNotEmpty) {
+        queryParams['paymentMode'] = selectedPaymentMode.value;
+      }
+      if (startDate.value.isNotEmpty) {
+        queryParams['startDate'] = startDate.value;
+      }
+      if (endDate.value.isNotEmpty) {
+        queryParams['endDate'] = endDate.value;
+      }
+      if (minAmount.value.isNotEmpty) {
+        queryParams['minAmount'] = minAmount.value;
+      }
+      if (maxAmount.value.isNotEmpty) {
+        queryParams['maxAmount'] = maxAmount.value;
+      }
+
+      final res = await HttpClientService.to.get<dynamic>(
+        ApiConstants.financePayments,
+        queryParams: queryParams,
+        requiresAuth: true,
+        create: (data) => data,
+      );
+
+      List<Map<String, dynamic>> itemsList = [];
+
+      if (res.success && res.data != null) {
+        dynamic data = res.data;
+
+        // Unpack nested payload if needed
+        if (data is Map && data.containsKey('data') && data['data'] != null) {
+          data = data['data'];
+        }
+
+        // Parse items list
+        dynamic rawItems;
+        if (data is Map) {
+          if (data.containsKey('items')) {
+            rawItems = data['items'];
+          } else if (data.containsKey('rows')) {
+            rawItems = data['rows'];
+          } else if (data.containsKey('payments')) {
+            rawItems = data['payments'];
+          }
+
+          // Parse pagination
+          if (data.containsKey('total')) {
+            totalItems.value = int.tryParse(data['total'].toString()) ?? 0;
+          } else if (data.containsKey('count')) {
+            totalItems.value = int.tryParse(data['count'].toString()) ?? 0;
+          }
+
+          if (data.containsKey('totalPages')) {
+            totalPages.value = int.tryParse(data['totalPages'].toString()) ?? 1;
+          } else {
+            totalPages.value = totalItems.value > 0 ? (totalItems.value / pageSize.value).ceil() : 1;
+          }
+
+          // Parse stats object
+          if (data.containsKey('stats') && data['stats'] is Map) {
+            final stats = Map<String, dynamic>.from(data['stats']);
+            allCount.value = int.tryParse((stats['all'] ?? 0).toString()) ?? 0;
+            paidCount.value = int.tryParse((stats['successful'] ?? stats['paid'] ?? 0).toString()) ?? 0;
+            pendingCount.value = int.tryParse((stats['pending'] ?? 0).toString()) ?? 0;
+            failedCount.value = int.tryParse((stats['failed'] ?? 0).toString()) ?? 0;
+          }
+
+          // Parse dynamic filter options if returned
+          if (data.containsKey('filterOptions') && data['filterOptions'] is Map) {
+            final filterOpts = Map<String, dynamic>.from(data['filterOptions']);
+            if (filterOpts['payerTypes'] is List) {
+              payerTypeOptions.assignAll(List<String>.from(filterOpts['payerTypes'].map((e) => e.toString())));
+            }
+            if (filterOpts['purposes'] is List) {
+              purposeOptions.assignAll(List<String>.from(filterOpts['purposes'].map((e) => e.toString())));
+            }
+            if (filterOpts['methods'] is List) {
+              methodOptions.assignAll(List<String>.from(filterOpts['methods'].map((e) => e.toString())));
+            }
+            if (filterOpts['paymentModes'] is List) {
+              paymentModeOptions.assignAll(List<String>.from(filterOpts['paymentModes'].map((e) => e.toString())));
+            }
+          }
+        } else if (data is List) {
+          rawItems = data;
+          totalItems.value = data.length;
+          totalPages.value = (data.length / pageSize.value).ceil();
+        }
+
+        if (rawItems is List) {
+          itemsList = rawItems.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+        }
+      }
+
+      payments.assignAll(itemsList);
+
+      // Fallback stats if stats weren't provided in the response
+      if (allCount.value == 0 && totalItems.value > 0 && selectedTab.value == 0) {
+        allCount.value = totalItems.value;
+      }
+    } catch (_) {
+      payments.clear();
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> onRefresh() async => loadData();
-
-  Future<void> fetchPaymentsLedger() async {
-    try {
-      final res = await FinanceService.to.getPayments(
-        search: searchQuery.value.isEmpty ? null : searchQuery.value,
-      );
-
-      List<Map<String, dynamic>> list = [];
-      if (res.success && res.data != null) {
-        dynamic items = res.data;
-        if (items is Map && items.containsKey('rows')) {
-          items = items['rows'];
-        } else if (items is Map && items.containsKey('items')) {
-          items = items['items'];
-        }
-
-        if (items is List && items.isNotEmpty) {
-          list = items.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-        }
-      }
-
-      paymentsLedger.assignAll(list);
-    } catch (e) {
-      paymentsLedger.clear();
-    }
+  void resetFilters() {
+    selectedPayerType.value = '';
+    selectedPurpose.value = '';
+    selectedMethod.value = '';
+    selectedPaymentMode.value = '';
+    startDate.value = '';
+    endDate.value = '';
+    minAmount.value = '';
+    maxAmount.value = '';
+    searchQuery.value = '';
+    searchController.clear();
+    currentPage.value = 1;
+    loadPayments();
   }
 
-  Future<void> fetchCampaignPayments() async {
-    try {
-      final res = await FinanceService.to.getCampaignPayments(
-        search: searchQuery.value.isEmpty ? null : searchQuery.value,
-      );
-
-      List<Map<String, dynamic>> list = [];
-      if (res.success && res.data != null) {
-        dynamic items = res.data;
-        if (items is Map && items.containsKey('rows')) {
-          items = items['rows'];
-        } else if (items is Map && items.containsKey('items')) {
-          items = items['items'];
-        }
-
-        if (items is List && items.isNotEmpty) {
-          list = items.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-        }
-      }
-
-      campaignPayments.assignAll(list);
-    } catch (e) {
-      campaignPayments.clear();
-    }
+  void applyFilters({
+    String? payerType,
+    String? purpose,
+    String? method,
+    String? paymentMode,
+    String? fromDate,
+    String? toDate,
+    String? minAmt,
+    String? maxAmt,
+  }) {
+    if (payerType != null) selectedPayerType.value = payerType;
+    if (purpose != null) selectedPurpose.value = purpose;
+    if (method != null) selectedMethod.value = method;
+    if (paymentMode != null) selectedPaymentMode.value = paymentMode;
+    if (fromDate != null) startDate.value = fromDate;
+    if (toDate != null) endDate.value = toDate;
+    if (minAmt != null) minAmount.value = minAmt;
+    if (maxAmt != null) maxAmount.value = maxAmt;
+    currentPage.value = 1;
+    loadPayments();
   }
 
-  // ---------------- Actions ----------------
-
-  Future<void> sendReminder(String paymentId, String customerName) async {
-    try {
-      Get.dialog(
-        const Center(child: CircularProgressIndicator(color: Color(0xFF6366F1))),
-        barrierDismissible: false,
-      );
-
-      final res = await FinanceService.to.sendPaymentReminder(paymentId);
-      Get.back();
-
-      Get.snackbar(
-        'Reminder Sent',
-        res.success ? 'Payment reminder dispatched to $customerName' : 'Reminder notification logged.',
-        backgroundColor: const Color(0xFF10B981),
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    } catch (e) {
-      Get.back();
-      Get.snackbar(
-        'Reminder Sent',
-        'Payment reminder sent successfully.',
-        backgroundColor: const Color(0xFF10B981),
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    }
+  void goToPage(int page) {
+    if (page < 1 || page > totalPages.value || page == currentPage.value) return;
+    currentPage.value = page;
+    loadPayments();
   }
 
-  Future<void> sharePaymentLink(String campaignId, String campaignName) async {
-    try {
-      Get.dialog(
-        const Center(child: CircularProgressIndicator(color: Color(0xFF6366F1))),
-        barrierDismissible: false,
-      );
-
-      final res = await FinanceService.to.shareCampaignPaymentLink(campaignId);
-      Get.back();
-
-      Get.snackbar(
-        'Link Dispatched',
-        res.success ? 'Payment link shared with advertiser for $campaignName' : 'Payment link generated & shared.',
-        backgroundColor: const Color(0xFF10B981),
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    } catch (e) {
-      Get.back();
-      Get.snackbar(
-        'Link Dispatched',
-        'Payment link copied & shared.',
-        backgroundColor: const Color(0xFF10B981),
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    }
+  void changePageSize(int size) {
+    if (pageSize.value == size) return;
+    pageSize.value = size;
+    currentPage.value = 1;
+    loadPayments();
   }
 
-  void openManualPayDialog(Map<String, dynamic> campaign) {
-    final campaignId = (campaign['id'] ?? '').toString();
-    final campaignName = (campaign['campaign_name'] ?? campaign['name'] ?? 'Campaign').toString();
-    final amount = double.tryParse((campaign['budget'] ?? campaign['amount'] ?? 50000).toString().replaceAll(',', '')) ?? 50000.0;
-
-    String paymentMethod = 'bank_transfer';
-    final refController = TextEditingController(text: 'TXN-${DateTime.now().millisecondsSinceEpoch}');
-    final notesController = TextEditingController();
-
-    Get.dialog(
-      Dialog(
-        backgroundColor: const Color(0xFF15151F),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Record Campaign Payment',
-                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'Campaign: $campaignName (\u20b9${amount.toStringAsFixed(2)})',
-                style: const TextStyle(color: Colors.white54, fontSize: 12),
-              ),
-              const SizedBox(height: 16),
-              const Text('Payment Channel', style: TextStyle(color: Colors.white70, fontSize: 12)),
-              const SizedBox(height: 6),
-              DropdownButtonFormField<String>(
-                value: paymentMethod,
-                dropdownColor: const Color(0xFF1B1B27),
-                style: const TextStyle(color: Colors.white, fontSize: 13),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: const Color(0xFF1B1B27),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                ),
-                items: const [
-                  DropdownMenuItem(value: 'bank_transfer', child: Text('Bank Wire / Direct Credit')),
-                  DropdownMenuItem(value: 'cheque', child: Text('Corporate Cheque')),
-                  DropdownMenuItem(value: 'gateway', child: Text('Gateway Manual Reconciliation')),
-                ],
-                onChanged: (val) {
-                  if (val != null) paymentMethod = val;
-                },
-              ),
-              const SizedBox(height: 12),
-              const Text('Transaction / UTR Reference', style: TextStyle(color: Colors.white70, fontSize: 12)),
-              const SizedBox(height: 6),
-              TextField(
-                controller: refController,
-                style: const TextStyle(color: Colors.white, fontSize: 13),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: const Color(0xFF1B1B27),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () => Get.back(),
-                      child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        Get.back();
-                        try {
-                          await FinanceService.to.recordManualCampaignPayment(campaignId, {
-                            'payment_method': paymentMethod,
-                            'reference_number': refController.text.trim(),
-                            'amount_paid': amount,
-                            'notes': notesController.text.trim(),
-                          });
-                          Get.snackbar(
-                            'Recorded',
-                            'Manual payment recorded for $campaignName',
-                            backgroundColor: const Color(0xFF10B981),
-                            colorText: Colors.white,
-                            snackPosition: SnackPosition.BOTTOM,
-                          );
-                          fetchCampaignPayments();
-                        } catch (_) {
-                          Get.snackbar(
-                            'Recorded',
-                            'Manual payment recorded successfully.',
-                            backgroundColor: const Color(0xFF10B981),
-                            colorText: Colors.white,
-                            snackPosition: SnackPosition.BOTTOM,
-                          );
-                          fetchCampaignPayments();
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6366F1),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      child: const Text('Confirm', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void openPaymentDetail(Map<String, dynamic> item) {
-    Get.toNamed(Routes.PAYMENT_DETAIL, arguments: item);
+  void navigateToDetails(Map<String, dynamic> pay) {
+    final id = (pay['id'] ?? pay['code'] ?? '').toString();
+    Get.toNamed(Routes.PAYMENT_DETAIL, arguments: pay.isNotEmpty ? pay : id);
   }
 }

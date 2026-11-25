@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/data/constants/api_constants.dart';
-import 'package:vmovexa/app/widgets/custom_button.dart';
+import 'package:vmovexa/app/routes/app_routes.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import '../controller/finance_edit_profile_controller.dart';
 
 class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
@@ -10,8 +11,6 @@ class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
   static const Color kBg = Color(0xFF0B0B14);
   static const Color kCardBg = Color(0xFF15151F);
   static const Color kBorder = Color(0xFF262638);
-  static const Color kPurple = Color(0xFFB042FF);
-  static const Color kIndigo = Color(0xFF6366F1);
   static const Color kInputBg = Color(0xFF0F0F1A);
 
   @override
@@ -29,13 +28,15 @@ class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
             _buildHeader(),
             const SizedBox(height: 16),
             _buildPhotoSection(),
-            const SizedBox(height: 20),
+            const SizedBox(height: 14),
+            _buildCorporateSettingsQuickNav(),
+            const SizedBox(height: 16),
             _buildPersonalInformationSection(),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             _buildCorporateDepartmentSection(),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             _buildPreferencesSection(),
-            const SizedBox(height: 28),
+            const SizedBox(height: 24),
             _buildActionButtons(),
             const SizedBox(height: 32),
           ],
@@ -44,7 +45,7 @@ class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
     );
   }
 
-  // 1. Header (Breadcrumb, Title, Subtitle)
+  // 1. Header (Back button, Title, Subtitle)
   Widget _buildHeader() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,30 +65,13 @@ class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
               ),
             ),
             const SizedBox(width: 12),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Row(
-                  //   children: [
-                  //     Text(
-                  //       'Finance Portal  /  ',
-                  //       style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
-                  //     ),
-                  //     Text(
-                  //       'Personal Account Settings',
-                  //       style: TextStyle(
-                  //         color: Color(0xFF818CF8),
-                  //         fontSize: 11,
-                  //         fontWeight: FontWeight.w600,
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
-                  // SizedBox(height: 2),
                   Text(
-                    'Personal Account Settings',
-                    style: TextStyle(
+                    'finance_officer_title'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
@@ -100,9 +84,9 @@ class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
           ],
         ),
         const SizedBox(height: 6),
-        const Text(
-          'Manage personal finance credentials, contact details, avatar photo, and preferences.',
-          style: TextStyle(color: Colors.white54, fontSize: 11.5),
+        Text(
+          'finance_officer_subtitle'.tr,
+          style: const TextStyle(color: Colors.white54, fontSize: 11.5),
         ),
       ],
     );
@@ -132,14 +116,14 @@ class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
                   decoration: BoxDecoration(
                     color: const Color(0xFF1E293B),
                     borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: kPurple.withValues(alpha: 0.5), width: 1.5),
+                    border: Border.all(color: AppTheme.gradientBlue.withValues(alpha: 0.5), width: 1.5),
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: resolved.isNotEmpty
                       ? Image.network(
                           resolved,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) => _buildAvatarFallback(),
+                          errorBuilder: (context, error, stackTrace) => _buildAvatarFallback(),
                         )
                       : _buildAvatarFallback(),
                 );
@@ -164,21 +148,21 @@ class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Finance Officer Profile Photo',
-                  style: TextStyle(
+                Text(
+                  'finance_officer_avatar_title'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 13.5,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 3),
-                const Text(
-                  'PNG, JPG, or WebP up to 5MB. Displayed across the portal audit logs.',
-                  style: TextStyle(color: Color(0xFF94A3B8), fontSize: 10.5),
+                Text(
+                  'finance_officer_avatar_desc'.tr,
+                  style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10.5),
                 ),
                 const SizedBox(height: 10),
-                Row(
+                Column(
                   children: [
                     Obx(
                       () => GestureDetector(
@@ -188,9 +172,7 @@ class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFFB042FF), Color(0xFF6366F1)],
-                            ),
+                            gradient: AppTheme.primaryGradient,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -206,9 +188,9 @@ class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
                                   ),
                                 ),
                                 const SizedBox(width: 6),
-                                const Text(
-                                  'Uploading...',
-                                  style: TextStyle(
+                                Text(
+                                  'uploading'.tr,
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 11,
                                     fontWeight: FontWeight.bold,
@@ -217,9 +199,9 @@ class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
                               ] else ...[
                                 const Icon(Icons.camera_alt_outlined, color: Colors.white, size: 14),
                                 const SizedBox(width: 6),
-                                const Text(
-                                  'Change Photo',
-                                  style: TextStyle(
+                                Text(
+                                  'finance_officer_change_photo'.tr,
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 11,
                                     fontWeight: FontWeight.bold,
@@ -231,7 +213,7 @@ class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(height: 8),
                     Obx(() {
                       if (controller.avatarUrl.value.isEmpty) return const SizedBox.shrink();
                       return GestureDetector(
@@ -243,9 +225,9 @@ class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.3)),
                           ),
-                          child: const Text(
-                            'Remove',
-                            style: TextStyle(
+                          child: Text(
+                            'finance_officer_remove_photo'.tr,
+                            style: const TextStyle(
                               color: Color(0xFFEF4444),
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
@@ -281,6 +263,81 @@ class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
     );
   }
 
+  // 2b. Corporate Settings Quick Nav Card (Matches Admin Panel 1:1)
+  Widget _buildCorporateSettingsQuickNav() {
+    return GestureDetector(
+      onTap: () => Get.toNamed(Routes.FINANCE_SETTINGS),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: kCardBg,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppTheme.gradientBlue.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.gradientBlue.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.business_outlined, color: AppTheme.gradientBlue, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'finance_officer_corp_q'.tr,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'finance_officer_corp_desc'.tr,
+                    style: const TextStyle(
+                      color: Color(0xFF94A3B8),
+                      fontSize: 10.5,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      gradient: AppTheme.primaryGradient,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'finance_officer_open_corp'.tr,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 10),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+          ],
+        ),
+      ),
+    );
+  }
+
   // 3. Section 1: Officer Personal Information
   Widget _buildPersonalInformationSection() {
     return Container(
@@ -305,9 +362,9 @@ class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
                 ),
               ),
               const SizedBox(width: 8),
-              const Text(
-                '1. OFFICER PERSONAL INFORMATION',
-                style: TextStyle(
+              Text(
+                'finance_officer_sec1_title'.tr,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
@@ -318,34 +375,34 @@ class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
           ),
           const SizedBox(height: 14),
           _buildTextField(
-            label: 'Officer Full Name',
+            label: 'finance_officer_full_name'.tr,
             isRequired: true,
             controller: controller.fullNameController,
-            hint: 'e.g. Rahul Sharma',
+            hint: 'finance_officer_ph_name'.tr,
             icon: Icons.person_outline,
           ),
           const SizedBox(height: 12),
           _buildTextField(
-            label: 'Corporate Finance Email',
+            label: 'finance_officer_email'.tr,
             isRequired: true,
             controller: controller.emailController,
-            hint: 'e.g. rahul@vmovexa.com',
+            hint: 'finance_officer_ph_email'.tr,
             icon: Icons.mail_outline,
             keyboardType: TextInputType.emailAddress,
           ),
           const SizedBox(height: 12),
           _buildTextField(
-            label: 'Direct Contact / Mobile Number',
+            label: 'finance_officer_mobile'.tr,
             controller: controller.phoneController,
-            hint: 'e.g. +91 98765 88990',
+            hint: 'finance_officer_ph_phone'.tr,
             icon: Icons.call_outlined,
             keyboardType: TextInputType.phone,
           ),
           const SizedBox(height: 12),
           _buildTextField(
-            label: 'Finance Officer Badge / ID',
+            label: 'finance_officer_badge_id'.tr,
             controller: controller.badgeIdController,
-            hint: 'FIN-101',
+            hint: 'finance_officer_ph_badge'.tr,
             icon: Icons.badge_outlined,
             enabled: false,
           ),
@@ -378,9 +435,9 @@ class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
                 ),
               ),
               const SizedBox(width: 8),
-              const Text(
-                '2. CORPORATE DEPARTMENT & ROLE',
-                style: TextStyle(
+              Text(
+                'finance_officer_sec2_title'.tr,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
@@ -391,23 +448,23 @@ class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
           ),
           const SizedBox(height: 14),
           _buildTextField(
-            label: 'Organization Legal Entity',
+            label: 'finance_officer_legal_entity'.tr,
             controller: controller.companyNameController,
-            hint: 'e.g. VMOVEXA Private Limited',
+            hint: 'finance_officer_ph_entity'.tr,
             icon: Icons.business_outlined,
           ),
           const SizedBox(height: 12),
           _buildTextField(
-            label: 'Assigned Branch / Division',
+            label: 'finance_officer_assigned_branch'.tr,
             controller: controller.branchController,
-            hint: 'e.g. Corporate Finance & Taxation Wing',
+            hint: 'finance_officer_ph_branch'.tr,
             icon: Icons.account_tree_outlined,
           ),
           const SizedBox(height: 12),
           _buildTextField(
-            label: 'Official Office Address',
+            label: 'finance_officer_office_address'.tr,
             controller: controller.addressController,
-            hint: 'e.g. 101, Business Hub, BKC, Mumbai',
+            hint: 'finance_officer_ph_address'.tr,
             icon: Icons.location_on_outlined,
             maxLines: 2,
           ),
@@ -440,9 +497,9 @@ class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
                 ),
               ),
               const SizedBox(width: 8),
-              const Text(
-                '3. SYSTEM LANGUAGE & REGIONAL\nPREFERENCES',
-                style: TextStyle(
+              Text(
+                'finance_officer_sec3_title'.tr,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
@@ -452,9 +509,9 @@ class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
             ],
           ),
           const SizedBox(height: 14),
-          const Text(
-            'Portal Interface Language',
-            style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11.5, fontWeight: FontWeight.w600),
+          Text(
+            'finance_officer_interface_lang'.tr,
+            style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11.5, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 6),
           Obx(
@@ -490,9 +547,9 @@ class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
             ),
           ),
           const SizedBox(height: 14),
-          const Text(
-            'Timezone & Financial Ledger Clock',
-            style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11.5, fontWeight: FontWeight.w600),
+          Text(
+            'finance_officer_tz_clock'.tr,
+            style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11.5, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 6),
           Obx(
@@ -532,19 +589,57 @@ class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
     );
   }
 
-  // Action Buttons (Using CustomButton with gradient as requested)
+  // 6. Action Buttons
   Widget _buildActionButtons() {
     return Column(
       children: [
-        Obx(
-          () => CustomButton(
-            text: 'Save Profile Changes',
-            isGradient: true,
-            isLoading: controller.isSaving.value,
-            onTap: controller.saveProfile,
-            prefixIcon: const Icon(Icons.save_outlined, color: Colors.white, size: 18),
-          ),
-        ),
+        Obx(() {
+          final saving = controller.isSaving.value;
+          return GestureDetector(
+            onTap: saving ? null : controller.saveProfile,
+            child: Container(
+              width: double.infinity,
+              height: 48,
+              decoration: BoxDecoration(
+                gradient: AppTheme.primaryGradient,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.gradientBlue.withValues(alpha: 0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              alignment: Alignment.center,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (saving)
+                    const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  else
+                    const Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
+                  const SizedBox(width: 8),
+                  Text(
+                    saving ? 'saving_changes'.tr : 'finance_officer_save_btn'.tr,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
         const SizedBox(height: 10),
         SizedBox(
           width: double.infinity,
@@ -555,12 +650,12 @@ class FinanceEditProfileView extends GetView<FinanceEditProfileController> {
               side: const BorderSide(color: kBorder),
               backgroundColor: Colors.transparent,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(
+            child: Text(
+              'cancel'.tr,
+              style: const TextStyle(
                 color: Color(0xFF94A3B8),
                 fontSize: 14,
                 fontWeight: FontWeight.w600,

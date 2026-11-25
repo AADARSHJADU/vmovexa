@@ -135,18 +135,13 @@ class UserModel {
       parsedAdvertiser = Map<String, dynamic>.from(json['advertiser'] as Map);
     }
 
-    // Parse branch - exactly matching Admin Panel:
-    // user.branch || user.city || 'Regional Advertising Desk'
+    // Parse branch / division - matching Admin Panel: user.branch || user.division
     String? parsedBranch = json['branch']?.toString() ??
-        parsedAdvertiser?['branch']?.toString() ??
-        json['city']?.toString() ??
-        parsedAdvertiser?['city']?.toString();
-    if (parsedBranch == null && json['fleetOperatorProfile'] is Map) {
-      parsedBranch = json['fleetOperatorProfile']['location']?.toString();
-    } else if (parsedBranch == null && json['fleet_operator_profile'] is Map) {
-      parsedBranch = json['fleet_operator_profile']['location']?.toString();
+        json['division']?.toString() ??
+        parsedAdvertiser?['branch']?.toString();
+    if (parsedBranch == null && parsedAdvertiser != null) {
+      parsedBranch = 'Regional Advertising Desk';
     }
-    parsedBranch ??= 'Regional Advertising Desk';
 
     // Parse office address / address - exactly matching Admin Panel:
     // user.advertiser?.address || user.organization?.office_address || user.address || ''

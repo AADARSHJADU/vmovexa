@@ -1,24 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:vmovexa/app/theme/app_colors.dart';
-import 'package:vmovexa/app/widgets/custom_button.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import '../controller/payment_detail_controller.dart';
 import '../model/payment_detail_model.dart';
 
 class PaymentDetailView extends GetView<PaymentDetailController> {
   const PaymentDetailView({super.key});
 
+  static const Color kBg = Color(0xFF0B0B14);
+  static const Color kCardBg = Color(0xFF13131F);
+  static const Color kCardInnerBg = Color(0xFF1B1B2A);
+  static const Color kBorderColor = Color(0xFF222235);
+  static const Color kBlue = Color(0xFF3B82F6);
+  static const Color kGreen = Color(0xFF10B981);
+  static const Color kAmber = Color(0xFFF59E0B);
+  static const Color kRed = Color(0xFFEF4444);
+  static const Color kPurple = Color(0xFF8B5CF6);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0D15),
+      backgroundColor: kBg,
       body: SafeArea(
         child: Obx(() {
-          if (controller.isLoading.value &&
-              controller.paymentDetail.value == null) {
+          if (controller.isLoading.value && controller.paymentDetail.value == null) {
             return const Center(
-              child: CircularProgressIndicator(color: Color(0xFF3B82F6)),
+              child: CircularProgressIndicator(color: kPurple),
             );
           }
 
@@ -32,30 +42,50 @@ class PaymentDetailView extends GetView<PaymentDetailController> {
               _buildTopHeader(pay),
               Expanded(
                 child: RefreshIndicator(
-                  color: const Color(0xFF3B82F6),
-                  backgroundColor: const Color(0xFF1B1B28),
+                  color: kPurple,
+                  backgroundColor: kCardBg,
                   onRefresh: () => controller.loadPayment(controller.paymentId),
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildHeroBanner(pay),
+                        // Section 1: Total Settlement Amount (Hero Banner)
+                        _buildHeroSettlementBanner(pay),
                         const SizedBox(height: 16),
-                        _buildTransactionAuditCard(pay),
+
+                        // Section 2: Transaction & Banking Audit
+                        _buildTransactionAuditSection(pay),
                         const SizedBox(height: 16),
-                        _buildTaxBreakdownCard(pay),
+
+                        // Section 3: Tax & Commercial Breakdown
+                        _buildTaxBreakdownSection(pay),
                         const SizedBox(height: 16),
-                        _buildPayerProfileCard(pay),
-                        const SizedBox(height: 16),
-                        _buildCampaignOrSubscriptionCard(pay),
-                        const SizedBox(height: 16),
-                        _buildAuditTimelineCard(pay),
-                        const SizedBox(height: 24),
+
+                        // Section 4: Offline Settlement Details (Conditional)
+                        if (pay.hasOfflineDetails) ...[
+                          _buildOfflineSettlementSection(pay),
+                          const SizedBox(height: 16),
+                        ],
+
+                        // Section 5: Payer & Entity Profile (Conditional)
+                        if (pay.hasPayerInfo) ...[
+                          _buildPayerProfileSection(pay),
+                          const SizedBox(height: 16),
+                        ],
+
+                        // Section 6: Linked Subscription / Associated Campaign (Conditional)
+                        if (pay.hasCampaignOrSubscription) ...[
+                          _buildLinkedEntitySection(pay),
+                          const SizedBox(height: 16),
+                        ],
+
+                        // Section 7: Recorded Timestamps (Persisted DB Dates Only)
+                        if (pay.realTimestamps.isNotEmpty) ...[
+                          _buildRecordedTimestampsSection(pay),
+                          const SizedBox(height: 16),
+                        ],
                       ],
                     ),
                   ),
@@ -76,31 +106,27 @@ class PaymentDetailView extends GetView<PaymentDetailController> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: const BoxDecoration(
-        color: Color(0xFF13131F),
-        border: Border(bottom: BorderSide(color: Color(0xFF1F1F30), width: 1)),
+        color: kCardBg,
+        border: Border(bottom: BorderSide(color: kBorderColor, width: 1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
+              // Back Button
               IconButton(
                 onPressed: () => Get.back(),
-                icon: const Icon(
-                  Icons.arrow_back_rounded,
-                  color: Colors.white,
-                  size: 20,
-                ),
+                icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 20),
                 style: IconButton.styleFrom(
                   backgroundColor: const Color(0xFF1C1C2D),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  padding: const EdgeInsets.all(8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   minimumSize: const Size(36, 36),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
+
+              // Title & Badges
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,79 +136,113 @@ class PaymentDetailView extends GetView<PaymentDetailController> {
                         Flexible(
                           child: Text(
                             pay.code,
-                            style: const TextStyle(
+                            style: GoogleFonts.firaCode(
                               color: Colors.white,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w900,
-                              fontFamily: 'monospace',
-                              letterSpacing: 0.5,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         const SizedBox(width: 8),
+
+                        // Status Badge
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
                           decoration: BoxDecoration(
-                            color: pay.status.bgColor,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: pay.status.borderColor),
+                            color: pay.statusKind.bgColor,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: pay.statusKind.borderColor),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Container(
-                                width: 6,
-                                height: 6,
+                                width: 5,
+                                height: 5,
                                 decoration: BoxDecoration(
-                                  color: pay.status.color,
+                                  color: pay.statusKind.color,
                                   shape: BoxShape.circle,
                                 ),
                               ),
-                              const SizedBox(width: 5),
+                              const SizedBox(width: 4),
                               Text(
-                                pay.status.label,
+                                _getStatusText(pay.statusKind, pay.rawStatus),
                                 style: TextStyle(
-                                  color: pay.status.color,
+                                  color: pay.statusKind.color,
                                   fontSize: 10,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ],
                           ),
                         ),
+
+                        // Mode Badge
+                        if (pay.paymentMode.isNotEmpty) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                            decoration: BoxDecoration(
+                              color: pay.isOffline ? kAmber.withValues(alpha: 0.15) : kBlue.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: pay.isOffline ? kAmber.withValues(alpha: 0.35) : kBlue.withValues(alpha: 0.35),
+                              ),
+                            ),
+                            child: Text(
+                              pay.paymentMode.toUpperCase(),
+                              style: TextStyle(
+                                color: pay.isOffline ? kAmber : const Color(0xFF93C5FD),
+                                fontSize: 9,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Ledger audit for ${pay.clientName}',
-                      style: const TextStyle(
-                        color: Colors.white60,
-                        fontSize: 11,
+                    if (pay.clientName != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        '${'audit_record_for'.tr} ${pay.clientName}',
+                        style: const TextStyle(
+                          color: Colors.white54,
+                          fontSize: 11,
+                        ),
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),
+
+              // Tax Invoice Shortcut
+              if (pay.invoiceId != null && pay.invoiceId!.isNotEmpty) ...[
+                IconButton(
+                  onPressed: () => controller.openLinkedInvoice(pay.invoiceId),
+                  icon: const Icon(Icons.receipt_long_rounded, color: Color(0xFF60A5FA), size: 18),
+                  style: IconButton.styleFrom(
+                    backgroundColor: const Color(0xFF1E293B),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    minimumSize: const Size(36, 36),
+                  ),
+                  tooltip: 'tax_invoice'.tr,
+                ),
+                const SizedBox(width: 6),
+              ],
+
+              // Refresh Button
               IconButton(
                 onPressed: () => controller.loadPayment(controller.paymentId),
-                icon: const Icon(
-                  Icons.refresh_rounded,
-                  color: Colors.white70,
-                  size: 18,
-                ),
+                icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 18),
                 style: IconButton.styleFrom(
                   backgroundColor: const Color(0xFF1C1C2D),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   minimumSize: const Size(36, 36),
                 ),
-                tooltip: 'Refresh',
+                tooltip: 'refresh_settlements'.tr,
               ),
             ],
           ),
@@ -192,39 +252,35 @@ class PaymentDetailView extends GetView<PaymentDetailController> {
   }
 
   // ==========================================
-  // HERO SETTLEMENT BANNER
+  // SECTION 1: TOTAL SETTLEMENT AMOUNT (HERO BANNER)
   // ==========================================
-  Widget _buildHeroBanner(PaymentDetailModel pay) {
+  Widget _buildHeroSettlementBanner(PaymentDetailModel pay) {
     final currencyFormatter = NumberFormat.currency(
       locale: 'en_IN',
       symbol: '₹',
       decimalDigits: 2,
     );
+
+    final settledDate = pay.paidAt != null
+        ? DateFormat('dd MMM yyyy, hh:mm a').format(pay.paidAt!)
+        : '—';
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            const Color(0xFF181827),
-            const Color(0xFF131320),
-            pay.status == PaymentStatus.paid
-                ? const Color(0xFF064E3B).withOpacity(0.25)
-                : const Color(0xFF3B82F6).withOpacity(0.12),
-          ],
+        color: kCardBg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFF2A2A40)),
+        gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF151528),
+            Color(0xFF13131F),
+            Color(0xFF1A1A30),
+          ],
         ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF28283E)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.4),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,1486 +288,818 @@ class PaymentDetailView extends GetView<PaymentDetailController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'TOTAL SETTLEMENT AMOUNT',
-                style: TextStyle(
-                  color: Colors.white38,
+              Text(
+                'total_settlement_amount_caps'.tr,
+                style: const TextStyle(
+                  color: Colors.white54,
                   fontSize: 10,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w800,
                   letterSpacing: 1.1,
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: pay.status == PaymentStatus.paid
-                  ? const Color(0xFF064E3B).withOpacity(0.6)
-                  : const Color(0xFF78350F).withOpacity(0.6),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: pay.status == PaymentStatus.paid
-                    ? const Color(0xFF10B981).withOpacity(0.4)
-                    : const Color(0xFFF59E0B).withOpacity(0.4),
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  pay.status == PaymentStatus.paid
-                      ? Icons.check_circle_rounded
-                      : Icons.schedule_rounded,
-                  color: pay.status == PaymentStatus.paid
-                      ? const Color(0xFF10B981)
-                      : const Color(0xFFF59E0B),
-                  size: 11,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  pay.status == PaymentStatus.paid
-                      ? 'Settled & Verified'
-                      : 'Awaiting Settlement',
-                  style: TextStyle(
-                    color: pay.status == PaymentStatus.paid
-                        ? const Color(0xFF10B981)
-                        : const Color(0xFFF59E0B),
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                currencyFormatter.format(pay.totalAmount),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.w900,
-                  fontFamily: 'monospace',
-                  letterSpacing: -0.5,
-                ),
-              ),
-              const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E3A8A).withOpacity(0.4),
+                  gradient: AppTheme.primaryGradient,
                   borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    color: const Color(0xFF3B82F6).withOpacity(0.3),
-                  ),
                 ),
                 child: Text(
                   pay.currency,
                   style: const TextStyle(
-                    color: Color(0xFF60A5FA),
+                    color: Colors.white,
                     fontSize: 10,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w900,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              const Text(
-                'Purpose: ',
-                style: TextStyle(color: Colors.white54, fontSize: 12),
-              ),
-              Flexible(
-                child: Text(
-                  pay.readablePurpose,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          const Divider(color: Color(0xFF28283E), height: 1),
-          const SizedBox(height: 12),
-          // 3 Quick Spec Chips
-          Row(
-            children: [
-              Expanded(
-                child: _buildBannerChip(
-                  icon: Icons.credit_card_rounded,
-                  iconColor: const Color(0xFF60A5FA),
-                  label: 'Payment Mode',
-                  value: pay.readableMethod,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildBannerChip(
-                  icon: Icons.event_available_rounded,
-                  iconColor: const Color(0xFF34D399),
-                  label: 'Settled On',
-                  value: pay.settlementDateFormatted,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildBannerChip(
-                  icon: Icons.verified_user_rounded,
-                  iconColor: const Color(0xFFA78BFA),
-                  label: 'Gateway',
-                  value: pay.gatewayName,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+          const SizedBox(height: 8),
 
-  Widget _buildBannerChip({
-    required IconData icon,
-    required Color iconColor,
-    required String label,
-    required String value,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1B1B2C),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF252538)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+          // Big Amount
           Text(
-            label.toUpperCase(),
-            style: const TextStyle(
-              color: Colors.white38,
-              fontSize: 9,
-              fontWeight: FontWeight.bold,
+            currencyFormatter.format(pay.amount),
+            style: GoogleFonts.firaCode(
+              color: Colors.white,
+              fontSize: 32,
+              fontWeight: FontWeight.w900,
+              letterSpacing: -0.5,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Icon(icon, color: iconColor, size: 12),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  value,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 
-  // ==========================================
-  // CARD 1: TRANSACTION & BANKING AUDIT
-  // ==========================================
-  Widget _buildTransactionAuditCard(PaymentDetailModel pay) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF151522),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFF232336)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Row(
-                children: [
-                  Icon(
-                    Icons.account_balance_rounded,
-                    color: Color(0xFF3B82F6),
-                    size: 16,
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    'Transaction & Banking Audit',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 5),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: const Color(0xFF064E3B).withOpacity(0.5),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: const Color(0xFF10B981).withOpacity(0.3),
-              ),
-            ),
-            child: const Text(
-              'Gateway Verified',
-              style: TextStyle(
-                color: Color(0xFF34D399),
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          const SizedBox(height: 14),
-          // Bank UTR Reference with Copy
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1C1C2D),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF28283E)),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'BANK UTR / TRANSACTION REFERENCE',
-                        style: TextStyle(
-                          color: Colors.white38,
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        pay.paymentRef,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'monospace',
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                if (pay.paymentRef != '—')
-                  Obx(() {
-                    final isCopied = controller.copiedKey.value == 'utr';
-                    return TextButton.icon(
-                      onPressed: () => controller.copyToClipboard(
-                        pay.paymentRef,
-                        'utr',
-                        'UTR Reference',
-                      ),
-                      icon: Icon(
-                        isCopied ? Icons.check_rounded : Icons.copy_rounded,
-                        size: 13,
-                        color: isCopied
-                            ? const Color(0xFF34D399)
-                            : const Color(0xFF93C5FD),
-                      ),
-                      label: Text(
-                        isCopied ? 'Copied' : 'Copy',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: isCopied
-                              ? const Color(0xFF34D399)
-                              : const Color(0xFF93C5FD),
-                        ),
-                      ),
-                      style: TextButton.styleFrom(
-                        backgroundColor: const Color(0xFF26263B),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                    );
-                  }),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-          // Row 2: Platform ID & Order Reference
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1C1C2D),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFF28283E)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'PLATFORM ID',
-                            style: TextStyle(
-                              color: Colors.white38,
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () => controller.copyToClipboard(
-                              pay.code,
-                              'code',
-                              'Payment Code',
-                            ),
-                            child: const Text(
-                              'Copy',
-                              style: TextStyle(
-                                color: Color(0xFF60A5FA),
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        pay.code,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'monospace',
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1C1C2D),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFF28283E)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'ORDER REFERENCE',
-                        style: TextStyle(
-                          color: Colors.white38,
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        pay.orderRef != '—'
-                            ? pay.orderRef
-                            : 'Direct Settlement',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'monospace',
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          // Row 3: Payer Entity Type & Payment Channel
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1C1C2D),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFF28283E)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'PAYER ENTITY TYPE',
-                        style: TextStyle(
-                          color: Colors.white38,
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        pay.readablePayerType,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1C1C2D),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFF28283E)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'PAYMENT CHANNEL',
-                        style: TextStyle(
-                          color: Colors.white38,
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        pay.clientType == 'app'
-                            ? 'Mobile App'
-                            : 'Web Checkout Portal',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ==========================================
-  // CARD 2: TAX & COMMERCIAL BREAKDOWN (GST)
-  // ==========================================
-  Widget _buildTaxBreakdownCard(PaymentDetailModel pay) {
-    final currencyFormatter = NumberFormat.currency(
-      locale: 'en_IN',
-      symbol: '₹',
-      decimalDigits: 2,
-    );
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF151522),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFF232336)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Row(
-                children: [
-                  Icon(
-                    Icons.receipt_long_rounded,
-                    color: Color(0xFF818CF8),
-                    size: 16,
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    'Tax & Commercial Breakdown',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 5),
-          if (pay.invoiceCode != null)
-            GestureDetector(
-              onTap: () => controller.openTaxInvoice(),
-              child: Text(
-                '${pay.invoiceCode} →',
-                style: const TextStyle(
-                  color: Color(0xFF60A5FA),
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            )
-          else
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: const Text(
-                'Direct Receipt',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          const SizedBox(height: 14),
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1C1C2D),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFF28283E)),
-            ),
-            child: Column(
-              children: [
-                _buildAmountRow(
-                  'Base Subtotal (Campaign Value)',
-                  currencyFormatter.format(pay.subtotal),
-                  isBold: false,
-                ),
-                const SizedBox(height: 8),
-                _buildAmountRow(
-                  'CGST (Central Tax 9.0%)',
-                  '+ ${currencyFormatter.format(pay.cgstAmount)}',
-                  isMuted: true,
-                ),
-                const SizedBox(height: 6),
-                _buildAmountRow(
-                  'SGST (State Tax 9.0%)',
-                  '+ ${currencyFormatter.format(pay.sgstAmount)}',
-                  isMuted: true,
-                ),
-                const SizedBox(height: 10),
-                const Divider(color: Color(0xFF28283E), height: 1),
-                const SizedBox(height: 10),
-                _buildAmountRow(
-                  'Total Tax (18% GST)',
-                  currencyFormatter.format(pay.taxAmount),
-                  isBold: true,
-                ),
-                const SizedBox(height: 10),
-                const Divider(color: Color(0xFF28283E), height: 1),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Net Total Paid',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      currencyFormatter.format(pay.totalAmount),
-                      style: const TextStyle(
-                        color: Color(0xFF10B981),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
-                        fontFamily: 'monospace',
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          if (pay.invoiceId != null) ...[
-            const SizedBox(height: 10),
+          // Payment Purpose
+          if (pay.readablePurpose.isNotEmpty && pay.readablePurpose != '—') ...[
+            const SizedBox(height: 4),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Invoice Status: ${pay.invoiceStatus ?? 'PAID'}',
+                  '${'payment_purpose'.tr}: ',
                   style: const TextStyle(color: Colors.white54, fontSize: 11),
                 ),
-                GestureDetector(
-                  onTap: () => controller.openTaxInvoice(),
-                  child: const Text(
-                    'Open Tax Invoice →',
-                    style: TextStyle(
-                      color: Color(0xFF60A5FA),
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
+                Text(
+                  pay.readablePurpose,
+                  style: const TextStyle(
+                    color: Color(0xFF93C5FD),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
             ),
           ],
+
+          const SizedBox(height: 16),
+
+          // 3-Column Meta Box
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0F0F1B).withValues(alpha: 0.8),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFF26263B)),
+            ),
+            child: Row(
+              children: [
+                // Payment Mode & Method
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'payment_mode_caps'.tr,
+                        style: const TextStyle(
+                          color: Colors.white38,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        pay.readableMethod,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+
+                Container(width: 1, height: 28, color: const Color(0xFF26263B)),
+                const SizedBox(width: 10),
+
+                // Settled On
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'settled_on_caps'.tr,
+                        style: const TextStyle(
+                          color: Colors.white38,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        settledDate,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Bank / Gateway
+                if (pay.bankName != null || pay.gatewayName != null) ...[
+                  Container(width: 1, height: 28, color: const Color(0xFF26263B)),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          pay.isOffline ? 'bank_caps'.tr : 'gateway_caps'.tr,
+                          style: const TextStyle(
+                            color: Colors.white38,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          pay.bankName ?? pay.gatewayName ?? '—',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildAmountRow(
-    String label,
-    String value, {
-    bool isBold = false,
-    bool isMuted = false,
-  }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  // ==========================================
+  // SECTION 2: TRANSACTION & BANKING AUDIT
+  // ==========================================
+  Widget _buildTransactionAuditSection(PaymentDetailModel pay) {
+    return _buildSectionCard(
+      title: 'txn_banking_audit'.tr,
+      icon: Icons.credit_card_rounded,
+      iconColor: const Color(0xFF60A5FA),
+      trailing: pay.paymentMode.isNotEmpty
+          ? Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1F1F32),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                pay.paymentMode.toUpperCase(),
+                style: const TextStyle(color: Colors.white70, fontSize: 9, fontWeight: FontWeight.bold),
+              ),
+            )
+          : null,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: isMuted
-                ? Colors.white38
-                : (isBold ? Colors.white : Colors.white70),
-            fontSize: 12,
-            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+        // Bank UTR / Reference
+        if (pay.paymentRef.isNotEmpty && pay.paymentRef != '—')
+          _buildCopyableRow(
+            label: 'bank_utr_reference'.tr,
+            value: pay.paymentRef,
+            keyName: 'utr',
           ),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            color: isMuted ? Colors.white54 : Colors.white,
-            fontSize: 12,
-            fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
-            fontFamily: 'monospace',
-          ),
+
+        const SizedBox(height: 10),
+
+        // Grid of Transaction Audit Details
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            if (pay.code.isNotEmpty)
+              _buildAuditGridItem(
+                label: 'platform_payment_code'.tr,
+                value: pay.code,
+                keyName: 'code',
+                isMono: true,
+              ),
+            if (pay.orderRef != null && pay.orderRef!.isNotEmpty)
+              _buildAuditGridItem(
+                label: 'order_reference'.tr,
+                value: pay.orderRef!,
+                isMono: true,
+              ),
+            if (pay.readablePayerType.isNotEmpty && pay.readablePayerType != '—')
+              _buildAuditGridItem(
+                label: 'payer_type_label'.tr,
+                value: pay.readablePayerType,
+              ),
+            if (pay.readableClientType.isNotEmpty && pay.readableClientType != '—')
+              _buildAuditGridItem(
+                label: 'payment_channel'.tr,
+                value: pay.readableClientType,
+              ),
+            if (pay.gatewayName != null && pay.gatewayName!.isNotEmpty)
+              _buildAuditGridItem(
+                label: 'payment_gateway'.tr,
+                value: pay.gatewayName!,
+              ),
+            if (pay.createdAt != null)
+              _buildAuditGridItem(
+                label: 'created_at'.tr,
+                value: DateFormat('dd MMM yyyy, hh:mm a').format(pay.createdAt!),
+              ),
+          ],
         ),
       ],
     );
   }
 
   // ==========================================
-  // CARD 3: PAYER & ENTITY PROFILE
+  // SECTION 3: TAX & COMMERCIAL BREAKDOWN
   // ==========================================
-  Widget _buildPayerProfileCard(PaymentDetailModel pay) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF151522),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFF232336)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.business_rounded,
-                    color: Color(0xFFA855F7),
-                    size: 16,
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    'Payer & Entity Profile',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              Text(
-                'Verified Client',
-                style: TextStyle(
-                  color: Color(0xFF60A5FA),
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          // Client & Company
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1C1C2D),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF28283E)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'CLIENT / CONTACT PERSON',
-                  style: TextStyle(
-                    color: Colors.white38,
-                    fontSize: 9,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  pay.clientName,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                if (pay.clientCompany != '—' &&
-                    pay.clientCompany != pay.clientName) ...[
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.apartment_rounded,
-                        color: Colors.white38,
-                        size: 12,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Organization: ',
-                        style: TextStyle(color: Colors.white54, fontSize: 11),
-                      ),
-                      Flexible(
-                        child: Text(
-                          pay.clientCompany,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-          // Phone & Email
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1C1C2D),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFF28283E)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'CONTACT PHONE',
-                        style: TextStyle(
-                          color: Colors.white38,
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.phone_rounded,
-                            color: Colors.white54,
-                            size: 12,
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              pay.clientPhone,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1C1C2D),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFF28283E)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'EMAIL ADDRESS',
-                        style: TextStyle(
-                          color: Colors.white38,
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.mail_rounded,
-                            color: Colors.white54,
-                            size: 12,
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              pay.clientEmail,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          // Location & Address
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1C1C2D),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF28283E)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'BILLING LOCATION & ADDRESS',
-                  style: TextStyle(
-                    color: Colors.white38,
-                    fontSize: 9,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(
-                      Icons.location_on_rounded,
-                      color: Color(0xFFF43F5E),
-                      size: 14,
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        pay.fullAddress != '—'
-                            ? pay.fullAddress
-                            : 'Commercial Head Office',
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12,
-                          height: 1.3,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                if (pay.clientCity != '—') ...[
-                  const SizedBox(height: 4),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20),
-                    child: Text(
-                      '${pay.clientCity}${pay.clientState.isNotEmpty ? ', ${pay.clientState}' : ''}${pay.clientPincode.isNotEmpty ? ' - ${pay.clientPincode}' : ''}',
-                      style: const TextStyle(
-                        color: Colors.white38,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ==========================================
-  // CARD 4: ASSOCIATED CAMPAIGN / SUBSCRIPTION
-  // ==========================================
-  Widget _buildCampaignOrSubscriptionCard(PaymentDetailModel pay) {
+  Widget _buildTaxBreakdownSection(PaymentDetailModel pay) {
     final currencyFormatter = NumberFormat.currency(
       locale: 'en_IN',
       symbol: '₹',
       decimalDigits: 2,
     );
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF151522),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFF232336)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
+    return _buildSectionCard(
+      title: 'tax_commercial_breakdown'.tr,
+      icon: Icons.receipt_long_rounded,
+      iconColor: const Color(0xFF818CF8),
+      trailing: pay.invoiceCode != null
+          ? GestureDetector(
+              onTap: () => controller.openLinkedInvoice(pay.invoiceId),
+              child: Row(
                 children: [
-                  Icon(
-                    pay.campaignTitle != null
-                        ? Icons.campaign_rounded
-                        : Icons.workspace_premium_rounded,
-                    color: const Color(0xFF14B8A6),
-                    size: 16,
-                  ),
-                  const SizedBox(width: 8),
                   Text(
-                    pay.campaignTitle != null
-                        ? 'Associated Campaign Specs'
-                        : 'Platform Subscription Service',
+                    pay.invoiceCode!,
+                    style: GoogleFonts.firaCode(
+                      color: const Color(0xFF60A5FA),
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 3),
+                  const Icon(Icons.arrow_forward_rounded, size: 12, color: Color(0xFF60A5FA)),
+                ],
+              ),
+            )
+          : null,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: kCardInnerBg,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFF262638)),
+          ),
+          child: Column(
+            children: [
+              // Base Subtotal
+              if (pay.subtotal != null) ...[
+                _buildTaxRow('base_subtotal'.tr, currencyFormatter.format(pay.subtotal)),
+                const SizedBox(height: 8),
+              ],
+
+              // CGST
+              if (pay.cgstAmount > 0) ...[
+                _buildTaxRow('cgst'.tr, '+ ${currencyFormatter.format(pay.cgstAmount)}', isMuted: true),
+                const SizedBox(height: 8),
+              ],
+
+              // SGST
+              if (pay.sgstAmount > 0) ...[
+                _buildTaxRow('sgst'.tr, '+ ${currencyFormatter.format(pay.sgstAmount)}', isMuted: true),
+                const SizedBox(height: 8),
+              ],
+
+              // IGST
+              if (pay.igstAmount > 0) ...[
+                _buildTaxRow('igst'.tr, '+ ${currencyFormatter.format(pay.igstAmount)}', isMuted: true),
+                const SizedBox(height: 8),
+              ],
+
+              // Tax Amount (fallback if cgst/sgst/igst are 0)
+              if (pay.taxAmount > 0 && pay.cgstAmount == 0 && pay.sgstAmount == 0 && pay.igstAmount == 0) ...[
+                _buildTaxRow('tax_amount'.tr, '+ ${currencyFormatter.format(pay.taxAmount)}', isMuted: true),
+                const SizedBox(height: 8),
+              ],
+
+              const Divider(height: 16, color: Color(0xFF2C2C40)),
+
+              // Net Total
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'net_total'.tr,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 14,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  Text(
+                    currencyFormatter.format(pay.totalAmount),
+                    style: GoogleFonts.firaCode(
+                      color: kGreen,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
                     ),
                   ),
                 ],
               ),
-              if (pay.campaignId != null)
-                Text(
-                  pay.campaignId!,
+            ],
+          ),
+        ),
+
+        // Open Tax Invoice Link Action
+        if (pay.invoiceId != null) ...[
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${'invoice_status'.tr}: ${pay.invoiceStatus?.toUpperCase() ?? 'ISSUED'}',
+                style: const TextStyle(color: Colors.white54, fontSize: 11, fontWeight: FontWeight.bold),
+              ),
+              GestureDetector(
+                onTap: () => controller.openLinkedInvoice(pay.invoiceId),
+                child: Text(
+                  'open_tax_invoice'.tr,
                   style: const TextStyle(
                     color: Color(0xFF60A5FA),
                     fontSize: 11,
-                    fontFamily: 'monospace',
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w800,
+                    decoration: TextDecoration.underline,
                   ),
                 ),
+              ),
             ],
           ),
-          const SizedBox(height: 14),
-          if (pay.campaignTitle != null) ...[
-            // Title & Status
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1C1C2D),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF28283E)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'CAMPAIGN TITLE & BRAND',
-                          style: TextStyle(
-                            color: Colors.white38,
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          pay.campaignTitle!,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        if (pay.campaignBrand != null) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            'Brand: ${pay.campaignBrand}',
-                            style: const TextStyle(
-                              color: Colors.white54,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF064E3B).withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                        color: const Color(0xFF10B981).withOpacity(0.3),
-                      ),
-                    ),
-                    child: Text(
-                      pay.campaignStatus ?? 'Approved',
-                      style: const TextStyle(
-                        color: Color(0xFF34D399),
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-            // Placement & Slot Duration
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1C1C2D),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF28283E)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'PLACEMENT & SCREENS',
-                          style: TextStyle(
-                            color: Colors.white38,
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${pay.campaignPlacement ?? 'All Screens'} (${pay.campaignTargetingMode ?? 'Transit Screens'})',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1C1C2D),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF28283E)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'SLOT & DURATION',
-                          style: TextStyle(
-                            color: Colors.white38,
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${pay.campaignDurationSec ?? 15}s per slot (${pay.campaignSlotType ?? 'standard'})',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            // Category & Budget
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1C1C2D),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF28283E)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'CATEGORY & OBJECTIVE',
-                          style: TextStyle(
-                            color: Colors.white38,
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${pay.campaignCategory ?? 'Commercial'} · ${pay.campaignObjective ?? 'Awareness'}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1C1C2D),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF28283E)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'CAMPAIGN BUDGET',
-                          style: TextStyle(
-                            color: Colors.white38,
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          currencyFormatter.format(
-                            pay.campaignBudget ?? pay.totalAmount,
-                          ),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'monospace',
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ] else if (pay.subscriptionPlanName != null) ...[
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1C1C2D),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF28283E)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'SUBSCRIPTION PLAN',
-                    style: TextStyle(
-                      color: Colors.white38,
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    pay.subscriptionPlanName!,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Code: ${pay.subscriptionCode ?? '—'} · Status: ${pay.subscriptionStatus ?? 'Active'}',
-                    style: const TextStyle(color: Colors.white54, fontSize: 11),
-                  ),
-                ],
-              ),
-            ),
-          ] else ...[
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1C1C2D),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF28283E)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Direct Platform Billing Transaction',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Settled directly against commercial invoice reference ${pay.invoiceCode ?? pay.code}.',
-                    style: const TextStyle(color: Colors.white54, fontSize: 11),
-                  ),
-                ],
-              ),
-            ),
-          ],
         ],
-      ),
+      ],
     );
   }
 
   // ==========================================
-  // AUDIT TIMELINE PROGRESSION
+  // SECTION 4: OFFLINE SETTLEMENT DETAILS (CONDITIONAL)
   // ==========================================
-  Widget _buildAuditTimelineCard(PaymentDetailModel pay) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF151522),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFF232336)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'SETTLEMENT PROGRESSION & AUDIT TRAIL',
-                style: TextStyle(
-                  color: Colors.white38,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.1,
-                ),
+  Widget _buildOfflineSettlementSection(PaymentDetailModel pay) {
+    return _buildSectionCard(
+      title: 'offline_settlement_details'.tr,
+      icon: Icons.account_balance_rounded,
+      iconColor: kAmber,
+      trailing: pay.rawMethod != null
+          ? Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+              decoration: BoxDecoration(
+                color: kAmber.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(4),
               ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Icon(
-                Icons.check_circle_rounded,
-                color: Color(0xFF10B981),
-                size: 14,
+              child: Text(
+                pay.readableMethod.toUpperCase(),
+                style: const TextStyle(color: kAmber, fontSize: 9, fontWeight: FontWeight.bold),
               ),
-              SizedBox(width: 4),
-              Text(
-                'Verified',
-                style: TextStyle(
-                  color: Color(0xFF10B981),
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'Clear 4-step reconciliation verification flow',
-            style: TextStyle(color: Colors.white54, fontSize: 11),
-          ),
-          const SizedBox(height: 16),
-          ...pay.timeline.asMap().entries.map((entry) {
-            final idx = entry.key;
-            final step = entry.value;
-            final isLast = idx == pay.timeline.length - 1;
+            )
+          : null,
+      children: [
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            if (pay.bankName != null)
+              _buildAuditGridItem(label: 'bank_name'.tr, value: pay.bankName!),
+            if (pay.branchName != null)
+              _buildAuditGridItem(label: 'branch_name'.tr, value: pay.branchName!),
+            if (pay.accountHolder != null)
+              _buildAuditGridItem(label: 'account_holder'.tr, value: pay.accountHolder!),
+            if (pay.utrNumber != null)
+              _buildAuditGridItem(label: 'utr_number'.tr, value: pay.utrNumber!, isMono: true, keyName: 'offline_utr'),
+            if (pay.referenceNumber != null)
+              _buildAuditGridItem(label: 'reference_number'.tr, value: pay.referenceNumber!, isMono: true, keyName: 'offline_ref'),
+            if (pay.chequeNumber != null)
+              _buildAuditGridItem(label: 'cheque_number'.tr, value: pay.chequeNumber!, isMono: true),
+            if (pay.chequeDate != null)
+              _buildAuditGridItem(label: 'cheque_date'.tr, value: DateFormat('dd MMM yyyy').format(pay.chequeDate!)),
+            if (pay.collectorName != null)
+              _buildAuditGridItem(label: 'collected_by'.tr, value: pay.collectorName!),
+            if (pay.remarks != null)
+              _buildAuditGridItem(label: 'remarks_notes'.tr, value: pay.remarks!, isFullWidth: true),
+          ],
+        ),
 
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        // Proof Link if Present
+        if (pay.proofUrl != null && pay.proofUrl!.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: kCardInnerBg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF262638)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 22,
-                      height: 22,
-                      decoration: BoxDecoration(
-                        color: step.isCompleted
-                            ? const Color(0xFF10B981)
-                            : const Color(0xFF26263B),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: step.isCompleted
-                              ? const Color(0xFF34D399)
-                              : const Color(0xFF3F3F56),
-                        ),
-                      ),
-                      child: Center(
-                        child: step.isCompleted
-                            ? const Icon(
-                                Icons.check,
-                                color: Colors.white,
-                                size: 13,
-                              )
-                            : Text(
-                                '${idx + 1}',
-                                style: const TextStyle(
-                                  color: Colors.white54,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                    Text(
+                      'payment_proof_doc'.tr,
+                      style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'view_uploaded_proof'.tr,
+                      style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 12, fontWeight: FontWeight.w700),
+                    ),
+                  ],
+                ),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    try {
+                      final uri = Uri.parse(pay.proofUrl!);
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(uri, mode: LaunchMode.externalApplication);
+                      }
+                    } catch (_) {}
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1E293B),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    minimumSize: Size.zero,
+                  ),
+                  icon: const Icon(Icons.open_in_new_rounded, size: 13, color: Colors.white),
+                  label: Text('open_doc'.tr, style: const TextStyle(color: Colors.white, fontSize: 11)),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  // ==========================================
+  // SECTION 5: PAYER & ENTITY PROFILE
+  // ==========================================
+  Widget _buildPayerProfileSection(PaymentDetailModel pay) {
+    return _buildSectionCard(
+      title: 'payer_entity_profile'.tr,
+      icon: Icons.business_rounded,
+      iconColor: const Color(0xFFA78BFA),
+      trailing: pay.readablePayerType.isNotEmpty && pay.readablePayerType != '—'
+          ? Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1F1F32),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                pay.readablePayerType,
+                style: const TextStyle(color: Colors.white70, fontSize: 9, fontWeight: FontWeight.bold),
+              ),
+            )
+          : null,
+      children: [
+        // Client Person & Organization
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: kCardInnerBg,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFF262638)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'client_person_label'.tr,
+                style: const TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                pay.clientName ?? '—',
+                style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+              if (pay.clientCompany != null && pay.clientCompany != pay.clientName) ...[
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(Icons.apartment_rounded, color: Colors.white38, size: 12),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${'organization_label'.tr}: ',
+                      style: const TextStyle(color: Colors.white54, fontSize: 11),
+                    ),
+                    Flexible(
+                      child: Text(
+                        pay.clientCompany!,
+                        style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    if (!isLast)
+                  ],
+                ),
+              ],
+              if (pay.clientGstin != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  'GSTIN: ${pay.clientGstin}',
+                  style: GoogleFonts.firaCode(color: const Color(0xFF93C5FD), fontSize: 11),
+                ),
+              ],
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 10),
+
+        // Phone & Email
+        if (pay.clientPhone != null || pay.clientEmail != null) ...[
+          Row(
+            children: [
+              if (pay.clientPhone != null)
+                Expanded(
+                  child: _buildContactBox(
+                    label: 'contact_phone'.tr,
+                    value: pay.clientPhone!,
+                    icon: Icons.phone_rounded,
+                    onTap: () {
+                      controller.copyToClipboard(pay.clientPhone!, 'phone', 'Phone');
+                    },
+                  ),
+                ),
+              if (pay.clientPhone != null && pay.clientEmail != null) const SizedBox(width: 10),
+              if (pay.clientEmail != null)
+                Expanded(
+                  child: _buildContactBox(
+                    label: 'email_address'.tr,
+                    value: pay.clientEmail!,
+                    icon: Icons.mail_rounded,
+                    onTap: () {
+                      controller.copyToClipboard(pay.clientEmail!, 'email', 'Email');
+                    },
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 10),
+        ],
+
+        // Full Address
+        if (pay.fullAddress != null || pay.locationLine != null) ...[
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: kCardInnerBg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF262638)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'billing_address_label'.tr,
+                  style: const TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.location_on_rounded, color: Color(0xFFF43F5E), size: 14),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (pay.fullAddress != null)
+                            Text(
+                              pay.fullAddress!,
+                              style: const TextStyle(color: Colors.white70, fontSize: 12, height: 1.3),
+                            ),
+                          if (pay.locationLine != null) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              pay.locationLine!,
+                              style: const TextStyle(color: Colors.white54, fontSize: 11),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  // ==========================================
+  // SECTION 6: LINKED SUBSCRIPTION / CAMPAIGN
+  // ==========================================
+  Widget _buildLinkedEntitySection(PaymentDetailModel pay) {
+    final isCampaign = pay.campaignId != null || pay.campaignTitle != null;
+    final currencyFormatter = NumberFormat.currency(locale: 'en_IN', symbol: '₹');
+
+    return _buildSectionCard(
+      title: isCampaign ? 'associated_campaign'.tr : 'linked_subscription'.tr,
+      icon: isCampaign ? Icons.campaign_rounded : Icons.card_membership_rounded,
+      iconColor: const Color(0xFF14B8A6),
+      trailing: (isCampaign ? pay.campaignCode : pay.subscriptionPlanCode) != null
+          ? Text(
+              (isCampaign ? pay.campaignCode : pay.subscriptionPlanCode)!,
+              style: GoogleFonts.firaCode(
+                color: const Color(0xFF60A5FA),
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+              ),
+            )
+          : null,
+      children: [
+        if (isCampaign) ...[
+          // Campaign Box
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: kCardInnerBg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF262638)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'campaign_brand_caps'.tr,
+                            style: const TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            pay.campaignTitle ?? 'Campaign',
+                            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                          ),
+                          if (pay.campaignBrand != null) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              '${'brand_label'.tr}: ${pay.campaignBrand}',
+                              style: const TextStyle(color: Colors.white54, fontSize: 11),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    if (pay.campaignStatus != null)
                       Container(
-                        width: 2,
-                        height: 36,
-                        color: step.isCompleted
-                            ? const Color(0xFF10B981).withOpacity(0.5)
-                            : const Color(0xFF26263B),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1F1F32),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: const Color(0xFF2D2D45)),
+                        ),
+                        child: Text(
+                          pay.campaignStatus!.toUpperCase(),
+                          style: const TextStyle(color: Colors.white70, fontSize: 9, fontWeight: FontWeight.bold),
+                        ),
                       ),
                   ],
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              step.title,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              step.date,
-                              style: const TextStyle(
-                                color: Colors.white38,
-                                fontSize: 10,
-                                fontFamily: 'monospace',
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          step.desc,
-                          style: const TextStyle(
-                            color: Colors.white54,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
               ],
-            );
-          }),
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // Campaign Details Grid
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              if (pay.campaignPlacement != null)
+                _buildAuditGridItem(label: 'placement_screens'.tr, value: pay.campaignPlacement!),
+              if (pay.campaignDurationSec != null)
+                _buildAuditGridItem(
+                  label: 'slot_duration'.tr,
+                  value: '${pay.campaignDurationSec}s per slot (${pay.campaignSlotType ?? 'standard'})',
+                ),
+              if (pay.campaignCategory != null)
+                _buildAuditGridItem(label: 'cat_objective'.tr, value: pay.campaignCategory!),
+              if (pay.campaignBudget != null)
+                _buildAuditGridItem(
+                  label: 'campaign_budget'.tr,
+                  value: currencyFormatter.format(pay.campaignBudget),
+                  isMono: true,
+                ),
+            ],
+          ),
+        ] else if (pay.subscriptionPlanName != null) ...[
+          // Subscription Box
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: kCardInnerBg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF262638)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'subscription_plan_caps'.tr,
+                  style: const TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  pay.subscriptionPlanName!,
+                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+                if (pay.subscriptionPlanCode != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    'Code: ${pay.subscriptionPlanCode}',
+                    style: GoogleFonts.firaCode(color: Colors.white54, fontSize: 11),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              if (pay.subscriptionStatus != null)
+                _buildAuditGridItem(label: 'common_status'.tr, value: pay.subscriptionStatus!.toUpperCase()),
+              if (pay.subscriptionPeriodStart != null || pay.subscriptionPeriodEnd != null)
+                _buildAuditGridItem(
+                  label: 'billing_period'.tr,
+                  value: '${pay.subscriptionPeriodStart != null ? DateFormat('dd MMM yyyy').format(pay.subscriptionPeriodStart!) : ''} - ${pay.subscriptionPeriodEnd != null ? DateFormat('dd MMM yyyy').format(pay.subscriptionPeriodEnd!) : ''}',
+                ),
+            ],
+          ),
         ],
-      ),
+      ],
+    );
+  }
+
+  // ==========================================
+  // SECTION 7: RECORDED TIMESTAMPS
+  // ==========================================
+  Widget _buildRecordedTimestampsSection(PaymentDetailModel pay) {
+    return _buildSectionCard(
+      title: 'recorded_timestamps'.tr,
+      icon: Icons.access_time_rounded,
+      iconColor: const Color(0xFF94A3B8),
+      children: [
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: pay.realTimestamps.map((entry) {
+            return _buildAuditGridItem(
+              label: entry.label,
+              value: entry.value,
+              isMono: true,
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 
@@ -1722,8 +1110,8 @@ class PaymentDetailView extends GetView<PaymentDetailController> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: const BoxDecoration(
-        color: Color(0xFF13131F),
-        border: Border(top: BorderSide(color: Color(0xFF1F1F30), width: 1)),
+        color: kCardBg,
+        border: Border(top: BorderSide(color: kBorderColor, width: 1)),
       ),
       child: Row(
         children: [
@@ -1732,53 +1120,56 @@ class PaymentDetailView extends GetView<PaymentDetailController> {
               onPressed: () => Get.back(),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Color(0xFF28283E)),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                padding: const EdgeInsets.symmetric(vertical: 13),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text(
-                'Back to Payments',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Text(
+                'back_to_payments'.tr,
+                style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold),
               ),
             ),
           ),
-          const SizedBox(width: 10),
-          Expanded(
-            flex: 2,
-            child: pay.status == PaymentStatus.paid
-                ? CustomButton(
-                    text: 'Official Receipt',
-                    onTap: () => controller.showOfficialReceipt(),
-                  )
-                : pay.status == PaymentStatus.pending
-                ? Obx(
-                    () => CustomButton(
-                      text: controller.isSendingReminder.value
-                          ? 'Sending...'
-                          : 'Send Reminder',
-                      onTap: controller.isSendingReminder.value
-                          ? () {}
-                          : () =>
-                                controller.sendPaymentReminder(isUrgent: false),
+          if (pay.statusKind != PaymentStatusKind.paid) ...[
+            const SizedBox(width: 10),
+            Expanded(
+              flex: 2,
+              child: SizedBox(
+                height: 44,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ElevatedButton(
+                    onPressed: controller.isSendingReminder.value
+                        ? null
+                        : () => controller.sendPaymentReminder(
+                              isUrgent: pay.statusKind == PaymentStatusKind.failed,
+                            ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                  )
-                : Obx(
-                    () => CustomButton(
-                      text: controller.isSendingReminder.value
-                          ? 'Dispatching...'
-                          : 'Send Overdue Notice',
-                      onTap: controller.isSendingReminder.value
-                          ? () {}
-                          : () =>
-                                controller.sendPaymentReminder(isUrgent: false),
+                    child: Obx(
+                      () => Text(
+                        controller.isSendingReminder.value
+                            ? 'dispatching_label'.tr
+                            : (pay.statusKind == PaymentStatusKind.failed
+                                ? 'send_overdue_notice'.tr
+                                : 'send_payment_reminder'.tr),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
                     ),
                   ),
-          ),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -1794,36 +1185,297 @@ class PaymentDetailView extends GetView<PaymentDetailController> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.receipt_long_outlined,
-              size: 56,
-              color: Colors.white24,
-            ),
+            const Icon(Icons.receipt_long_outlined, size: 56, color: Colors.white24),
             const SizedBox(height: 16),
-            const Text(
-              'Payment record not found',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+            Text(
+              'payment_record_not_found'.tr,
+              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'This transaction could not be located in the financial ledger.',
+            Text(
+              'payment_record_not_found_desc'.tr,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white54, fontSize: 13),
+              style: const TextStyle(color: Colors.white54, fontSize: 13),
             ),
             const SizedBox(height: 20),
-            CustomButton(
-              text: 'Back to Payments',
-              onTap: () => Get.back(),
-              width: 200,
-              height: 44,
+            SizedBox(
+              height: 42,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: AppTheme.primaryGradient,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: ElevatedButton(
+                  onPressed: () => Get.back(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                  ),
+                  child: Text(
+                    'return_to_payments_list'.tr,
+                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  // ==========================================
+  // HELPER WIDGETS
+  // ==========================================
+  Widget _buildSectionCard({
+    required String title,
+    required IconData icon,
+    required Color iconColor,
+    required List<Widget> children,
+    Widget? trailing,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: kCardBg,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: kBorderColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(icon, color: iconColor, size: 16),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      ?trailing,
+                    ],
+                  ),
+                ],
+              ),
+
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCopyableRow({
+    required String label,
+    required String value,
+    required String keyName,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: kCardInnerBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF262638)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label.toUpperCase(),
+                  style: const TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  value,
+                  style: GoogleFonts.firaCode(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          Obx(() {
+            final isCopied = controller.copiedKey.value == keyName;
+            return TextButton.icon(
+              onPressed: () => controller.copyToClipboard(value, keyName, label),
+              icon: Icon(
+                isCopied ? Icons.check_rounded : Icons.copy_rounded,
+                size: 13,
+                color: isCopied ? kGreen : const Color(0xFF93C5FD),
+              ),
+              label: Text(
+                isCopied ? 'copied_label'.tr : 'copy_label'.tr,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: isCopied ? kGreen : const Color(0xFF93C5FD),
+                ),
+              ),
+              style: TextButton.styleFrom(
+                backgroundColor: const Color(0xFF26263B),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAuditGridItem({
+    required String label,
+    required String value,
+    bool isMono = false,
+    bool isFullWidth = false,
+    String? keyName,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double width = isFullWidth
+            ? constraints.maxWidth
+            : (constraints.maxWidth > 400 ? (constraints.maxWidth - 10) / 2 : constraints.maxWidth);
+
+        return Container(
+          width: width,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: kCardInnerBg,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFF262638)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    label.toUpperCase(),
+                    style: const TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold),
+                  ),
+                  if (keyName != null)
+                    GestureDetector(
+                      onTap: () => controller.copyToClipboard(value, keyName, label),
+                      child: Text(
+                        'copy_label'.tr,
+                        style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 10, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 3),
+              Text(
+                value,
+                style: isMono
+                    ? GoogleFonts.firaCode(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)
+                    : const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                overflow: TextOverflow.ellipsis,
+                maxLines: isFullWidth ? 4 : 2,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTaxRow(String label, String value, {bool isMuted = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: isMuted ? Colors.white54 : Colors.white70,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.firaCode(
+            color: isMuted ? Colors.white60 : Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildContactBox({
+    required String label,
+    required String value,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: kCardInnerBg,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFF262638)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label.toUpperCase(),
+              style: const TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 3),
+            Row(
+              children: [
+                Icon(icon, color: Colors.white54, size: 12),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    value,
+                    style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getStatusText(PaymentStatusKind kind, String raw) {
+    switch (kind) {
+      case PaymentStatusKind.paid:
+        return 'common_paid'.tr;
+      case PaymentStatusKind.pending:
+        return 'common_pending'.tr;
+      case PaymentStatusKind.failed:
+        return 'common_failed'.tr;
+      case PaymentStatusKind.refunded:
+        return 'common_refunded'.tr;
+      case PaymentStatusKind.other:
+        return raw.toUpperCase();
+    }
   }
 }

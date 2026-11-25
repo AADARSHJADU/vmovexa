@@ -6,87 +6,101 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:vmovexa/app/data/services/finance_service.dart';
 import 'package:vmovexa/app/routes/app_routes.dart';
-import '../../../../../widgets/custom_button.dart';
+import 'package:vmovexa/app/theme/app_theme.dart';
 import '../model/report_models.dart';
-import '../view/report_generated_view.dart';
 
 class RevenueReportingController extends GetxController {
-  // ---------------- Header ----------------
-  final RxInt notificationCount = 1.obs;
+  // ---------------- Loading States ----------------
   final RxBool isLoading = false.obs;
   final RxBool summaryLoading = false.obs;
   final RxBool isGenerating = false.obs;
+  final RxBool downloading = false.obs;
 
-  // ---------------- Reporting Period Dates ----------------
+  // ---------------- Workspace Tab: 'ledger' (Live Revenue Ledger) | 'archive' (Compiled Reports) ----------------
+  final RxString activeTab = 'ledger'.obs;
+
+  // ---------------- Reporting Period Dates & Presets ----------------
   final RxString startDate = ''.obs;
   final RxString endDate = ''.obs;
   final RxString activePreset = 'this_month'.obs;
 
-  // ---------------- Live KPIs (Mirroring Admin Panel 1:1) ----------------
-  final RxDouble totalBilled = 0.0.obs;
-  final RxDouble totalRevenue = 0.0.obs;
-  final RxDouble subRevenue = 0.0.obs;
-  final RxDouble campaignRevenue = 0.0.obs;
-  final RxDouble taxTotal = 0.0.obs;
-  final RxDouble pendingDues = 0.0.obs;
-  final RxInt activeSubs = 0.obs;
-  final RxInt activeCampaigns = 0.obs;
-
-  // ---------------- Report Type Selection (Frontend 1:1) ----------------
-  final RxString selectedReportType = 'campaign_revenue'.obs;
+  // ---------------- Report Category Selection (Admin Panel 1:1) ----------------
+  final RxString selectedReportType = 'revenue_summary'.obs;
 
   final List<ReportTypeOption> reportTypes = const [
     ReportTypeOption(
-      id: 'campaign_revenue',
-      label: 'Campaign Ad Revenue',
-      badge: 'Ad Spend',
-      desc: 'Ad spend collections, impression ledger & advertiser invoicing',
+      id: 'revenue_summary',
+      labelKey: 'finance_report_type_all_revenue',
+      label: 'All Revenue (Combined)',
+      desc: 'Combined SaaS subscriptions, campaign ad spend & government billing',
       icon: Icons.analytics_outlined,
       color: Color(0xFF3B82F6),
       bgColor: Color(0xFF1E3A8A),
+      badge: 'All Revenue',
     ),
     ReportTypeOption(
       id: 'subscription_revenue',
+      labelKey: 'finance_report_type_subscription',
       label: 'SaaS Subscription MRR',
-      badge: 'Recurring',
       desc: 'Fleet operator recurring plans, license fees & renewal billings',
       icon: Icons.sync_rounded,
       color: Color(0xFF6366F1),
       bgColor: Color(0xFF312E81),
+      badge: 'Subscription',
     ),
     ReportTypeOption(
-      id: 'gst_tax',
-      label: 'GST & Tax Statement',
-      badge: 'Tax / GST',
-      desc: 'CGST, SGST, IGST tax breakdown for audit & GSTR filing',
-      icon: Icons.receipt_long_outlined,
+      id: 'campaign_revenue',
+      labelKey: 'finance_report_type_campaign',
+      label: 'Campaign Ad Revenue',
+      desc: 'Ad spend collections, impression ledger & advertiser invoicing',
+      icon: Icons.campaign_outlined,
       color: Color(0xFF10B981),
       bgColor: Color(0xFF064E3B),
+      badge: 'Ad Spend',
     ),
     ReportTypeOption(
-      id: 'overdue_dues',
-      label: 'Overdue Receivables',
-      badge: 'Receivables',
-      desc: 'Outstanding client invoices & pending tenant balances',
-      icon: Icons.warning_amber_rounded,
+      id: 'government_campaign_revenue',
+      labelKey: 'finance_report_type_government',
+      label: 'Government Campaign Revenue',
+      desc: 'PSA campaigns, department billing and treasury collections',
+      icon: Icons.shield_outlined,
       color: Color(0xFFF59E0B),
       bgColor: Color(0xFF78350F),
+      badge: 'Government',
     ),
   ];
 
-  // ---------------- Archive, Category Filter & Search (Frontend 1:1) ----------------
-  final RxList<RecentReport> archiveReports = <RecentReport>[].obs;
-  final TextEditingController searchController = TextEditingController();
-  final RxString archiveSearch = ''.obs;
-  final RxString selectedCategoryFilter = 'all'.obs;
+  // ---------------- Live KPIs (Mirroring Admin Panel 1:1) ----------------
+  final RxDouble totalBilled = 0.0.obs;
+  final RxInt invoiceCount = 0.obs;
+  final RxDouble totalRevenue = 0.0.obs;
+  final RxDouble subRevenue = 0.0.obs;
+  final RxDouble campaignRevenue = 0.0.obs;
+  final RxDouble governmentRevenue = 0.0.obs;
+  final RxDouble taxTotal = 0.0.obs;
+  final RxDouble cgstTotal = 0.0.obs;
+  final RxDouble sgstTotal = 0.0.obs;
+  final RxDouble igstTotal = 0.0.obs;
+  final RxDouble pendingDues = 0.0.obs;
+  final RxInt activeSubs = 0.obs;
+  final RxInt activeCampaigns = 0.obs;
 
-  final List<Map<String, String>> categoryFilterOptions = const [
-    {'id': 'all', 'label': 'All Categories'},
-    {'id': 'campaign_revenue', 'label': 'Campaign Ad Revenue'},
-    {'id': 'subscription_revenue', 'label': 'SaaS Subscription MRR'},
-    {'id': 'gst_tax', 'label': 'GST Tax Audit'},
-    {'id': 'overdue_dues', 'label': 'Overdue Receivables'},
-  ];
+  // ---------------- TAB 1: Live Revenue Ledger States ----------------
+  final RxList<LiveInvoiceItem> liveInvoices = <LiveInvoiceItem>[].obs;
+  final RxString ledgerStatusFilter = 'all'.obs;
+  final TextEditingController ledgerSearchController = TextEditingController();
+  final RxString ledgerSearch = ''.obs;
+  final RxInt ledgerPage = 1.obs;
+  final RxInt ledgerPageSize = 6.obs;
+
+  // ---------------- TAB 2: Compiled Reports Archive States ----------------
+  final RxList<RecentReport> archiveReports = <RecentReport>[].obs;
+  final RxString selectedCategoryFilter = 'all'.obs;
+  final RxString archiveSort = 'newest'.obs; // 'newest' | 'oldest'
+  final TextEditingController archiveSearchController = TextEditingController();
+  final RxString archiveSearch = ''.obs;
+  final RxInt archivePage = 1.obs;
+  final RxInt archivePageSize = 6.obs;
 
   // ---------------- Last Generated Report ----------------
   final Rx<RecentReport?> generatedReport = Rx<RecentReport?>(null);
@@ -96,6 +110,13 @@ class RevenueReportingController extends GetxController {
     super.onInit();
     _initDateDefaults();
     fetchData();
+  }
+
+  @override
+  void onClose() {
+    ledgerSearchController.dispose();
+    archiveSearchController.dispose();
+    super.onClose();
   }
 
   void _initDateDefaults() {
@@ -199,20 +220,94 @@ class RevenueReportingController extends GetxController {
         pendingDues.value = dues;
         subRevenue.value = double.tryParse((d['subRevenue'] ?? d['sub_revenue'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
         campaignRevenue.value = double.tryParse((d['campaignRevenue'] ?? d['campaign_revenue'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
+        governmentRevenue.value = double.tryParse((d['governmentRevenue'] ?? d['government_revenue'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
         taxTotal.value = double.tryParse((d['taxTotal'] ?? d['tax_total'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
+        cgstTotal.value = double.tryParse((d['cgstTotal'] ?? d['cgst_total'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
+        sgstTotal.value = double.tryParse((d['sgstTotal'] ?? d['sgst_total'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
+        igstTotal.value = double.tryParse((d['igstTotal'] ?? d['igst_total'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
         activeSubs.value = int.tryParse((d['activeSubs'] ?? d['active_subscriptions'] ?? 0).toString()) ?? 0;
         activeCampaigns.value = int.tryParse((d['activeCampaigns'] ?? d['active_campaigns'] ?? 0).toString()) ?? 0;
+
+        // Parse Live Invoices
+        List rawInvoices = [];
+        if (d['invoices'] is List) {
+          rawInvoices = d['invoices'] as List;
+        }
+
+        if (rawInvoices.isNotEmpty) {
+          final parsed = rawInvoices
+              .whereType<Map>()
+              .map((e) => LiveInvoiceItem.fromJson(Map<String, dynamic>.from(e)))
+              .toList();
+          liveInvoices.assignAll(parsed);
+          invoiceCount.value = parsed.length;
+        } else {
+          // Fallback to fetch invoices from endpoint if report-summary doesn't embed invoices array
+          await _fallbackFetchLiveInvoices();
+        }
+      } else {
+        await _fallbackFetchLiveInvoices();
       }
-    } catch (_) {}
-    finally {
+    } catch (_) {
+      await _fallbackFetchLiveInvoices();
+    } finally {
       summaryLoading.value = false;
     }
+  }
+
+  /// Fallback loader for live invoices matching period
+  Future<void> _fallbackFetchLiveInvoices() async {
+    try {
+      final invRes = await FinanceService.to.getInvoices(limit: 50);
+      if (invRes.success && invRes.data != null) {
+        List items = [];
+        if (invRes.data is List) {
+          items = invRes.data as List;
+        } else if (invRes.data is Map && invRes.data['items'] is List) {
+          items = invRes.data['items'] as List;
+        } else if (invRes.data is Map && invRes.data['rows'] is List) {
+          items = invRes.data['rows'] as List;
+        } else if (invRes.data is Map && invRes.data['data'] is List) {
+          items = invRes.data['data'] as List;
+        }
+
+        final parsed = items
+            .whereType<Map>()
+            .map((e) => LiveInvoiceItem.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
+
+        liveInvoices.assignAll(parsed);
+        invoiceCount.value = parsed.length;
+
+        if (totalBilled.value == 0 && parsed.isNotEmpty) {
+          double sumBilled = 0;
+          double sumTax = 0;
+          double sumDues = 0;
+          double sumPaid = 0;
+
+          for (final inv in parsed) {
+            sumBilled += inv.total;
+            sumTax += inv.taxAmount;
+            if (inv.status == 'paid') {
+              sumPaid += inv.total;
+            } else if (inv.status == 'issued' || inv.status == 'overdue') {
+              sumDues += inv.total;
+            }
+          }
+
+          totalBilled.value = sumBilled;
+          totalRevenue.value = sumPaid;
+          taxTotal.value = sumTax;
+          pendingDues.value = sumDues;
+        }
+      }
+    } catch (_) {}
   }
 
   /// GET /reports
   Future<void> loadReports() async {
     try {
-      final res = await FinanceService.to.getReports();
+      final res = await FinanceService.to.getReports(page: 1, limit: 50);
       if (res.data != null) {
         List items = [];
         if (res.data is List) {
@@ -221,9 +316,14 @@ class RevenueReportingController extends GetxController {
           items = res.data['data'] as List;
         } else if (res.data is Map && res.data['items'] is List) {
           items = res.data['items'] as List;
+        } else if (res.data is Map && res.data['rows'] is List) {
+          items = res.data['rows'] as List;
         }
 
-        final parsed = items.map((e) => RecentReport.fromJson(Map<String, dynamic>.from(e))).toList();
+        final parsed = items
+            .whereType<Map>()
+            .map((e) => RecentReport.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
         archiveReports.assignAll(parsed);
       } else {
         archiveReports.clear();
@@ -233,12 +333,55 @@ class RevenueReportingController extends GetxController {
     }
   }
 
-  /// Filtered reports getter (with Category filter & Search query matching Frontend)
-  List<RecentReport> get filteredReports {
+  // ----------------------------------------------------
+  // TAB 1 (Live Revenue Ledger) Getters & Filtering
+  // ----------------------------------------------------
+  List<String> get availableLedgerStatuses {
+    final set = <String>{};
+    for (final inv in liveInvoices) {
+      if (inv.status.isNotEmpty) {
+        set.add(inv.status.toLowerCase());
+      }
+    }
+    return set.toList();
+  }
+
+  List<LiveInvoiceItem> get filteredLiveInvoices {
+    final q = ledgerSearch.value.trim().toLowerCase();
+    final filterStatus = ledgerStatusFilter.value;
+
+    return liveInvoices.where((inv) {
+      final matchesStatus = filterStatus == 'all' || inv.status == filterStatus;
+      final matchesSearch = q.isEmpty ||
+          inv.code.toLowerCase().contains(q) ||
+          inv.customerName.toLowerCase().contains(q) ||
+          inv.formattedPayerType.toLowerCase().contains(q) ||
+          inv.formattedBillingStream.toLowerCase().contains(q) ||
+          inv.formattedStatusLabel.toLowerCase().contains(q) ||
+          inv.total.toString().contains(q);
+
+      return matchesStatus && matchesSearch;
+    }).toList();
+  }
+
+  List<LiveInvoiceItem> get pagedLiveInvoices {
+    final list = filteredLiveInvoices;
+    final start = (ledgerPage.value - 1) * ledgerPageSize.value;
+    if (start >= list.length) return [];
+    final end = (start + ledgerPageSize.value).clamp(0, list.length);
+    return list.sublist(start, end);
+  }
+
+  int get ledgerTotalPages => (filteredLiveInvoices.length / ledgerPageSize.value).ceil().clamp(1, 9999);
+
+  // ----------------------------------------------------
+  // TAB 2 (Compiled Reports Archive) Getters & Filtering
+  // ----------------------------------------------------
+  List<RecentReport> get filteredArchiveReports {
     final query = archiveSearch.value.trim().toLowerCase();
     final catFilter = selectedCategoryFilter.value;
 
-    return archiveReports.where((r) {
+    final list = archiveReports.where((r) {
       final matchesSearch = query.isEmpty ||
           r.title.toLowerCase().contains(query) ||
           r.id.toLowerCase().contains(query) ||
@@ -248,24 +391,60 @@ class RevenueReportingController extends GetxController {
 
       return matchesSearch && matchesCat;
     }).toList();
+
+    // Sort matching Admin Panel 5 options
+    list.sort((a, b) {
+      switch (archiveSort.value) {
+        case 'oldest':
+          return a.dateText.compareTo(b.dateText);
+        case 'amount_high':
+          return b.totalBilled.compareTo(a.totalBilled);
+        case 'amount_low':
+          return a.totalBilled.compareTo(b.totalBilled);
+        case 'title':
+          return a.title.toLowerCase().compareTo(b.title.toLowerCase());
+        case 'newest':
+        default:
+          return b.dateText.compareTo(a.dateText);
+      }
+    });
+
+    return list;
   }
 
-  /// Generate Report POST /reports/generate
+  List<RecentReport> get pagedArchiveReports {
+    final list = filteredArchiveReports;
+    final start = (archivePage.value - 1) * archivePageSize.value;
+    if (start >= list.length) return [];
+    final end = (start + archivePageSize.value).clamp(0, list.length);
+    return list.sublist(start, end);
+  }
+
+  int get archiveTotalPages => (filteredArchiveReports.length / archivePageSize.value).ceil().clamp(1, 9999);
+
+  /// Open Compiled Report Details Page (Admin Panel 1:1)
+  void openReportDetails(RecentReport rep) {
+    Get.toNamed(Routes.REPORT_DETAILS, arguments: rep);
+  }
+
+  // ----------------------------------------------------
+  // Compile & Export CSV Action (Admin Panel 1:1)
+  // ----------------------------------------------------
   Future<void> onGenerateReport() async {
     isGenerating.value = true;
     final typeOption = reportTypes.firstWhere(
       (r) => r.id == selectedReportType.value,
       orElse: () => reportTypes.first,
     );
-    final autoTitle = '${typeOption.label} — ${startDate.value} to ${endDate.value}';
-    final periodText = '${startDate.value} → ${endDate.value}';
+    final autoTitle = '${typeOption.label} Ledger';
+    final periodText = '${startDate.value} to ${endDate.value}';
 
     try {
       final payload = {
         'reportType': selectedReportType.value,
         'format': 'csv',
         'params': {
-          'title': autoTitle,
+          'title': '$autoTitle ($periodText)',
           'period': periodText,
           'reportType': selectedReportType.value,
           'startDate': startDate.value,
@@ -280,11 +459,11 @@ class RevenueReportingController extends GetxController {
 
       final newReport = RecentReport(
         id: reportId,
-        title: autoTitle,
+        title: '$autoTitle ($periodText)',
         reportType: selectedReportType.value,
         badge: typeOption.badge,
         period: periodText,
-        dateText: DateFormat('dd MMM yyyy').format(DateTime.now()),
+        dateText: DateFormat('dd/MM/yyyy').format(DateTime.now()),
         format: ReportFormat.csv,
         fileSizeText: '26.4 KB',
         fileUrl: fileUrl,
@@ -296,24 +475,31 @@ class RevenueReportingController extends GetxController {
         pendingDues: pendingDues.value,
         activeSubs: activeSubs.value,
         activeCampaigns: activeCampaigns.value,
+        invoiceCount: liveInvoices.length,
       );
 
       generatedReport.value = newReport;
       archiveReports.insert(0, newReport);
 
-      // Save to device storage as well
-      await downloadReportCsv(newReport);
+      // Generate RFC compliant CSV text
+      final csvContent = _buildCsvReportString(autoTitle, periodText, selectedReportType.value, liveInvoices);
 
-      Get.to(() => const ReportGeneratedView());
+      // Save to device storage
+      final savedPath = await _saveReportToDevice(newReport, csvContent, remoteFileUrl: fileUrl);
+
+      // Switch to compiled reports tab
+      activeTab.value = 'archive';
+
+      _showDownloadSuccessSheet(newReport, savedPath, isCompiled: true);
     } catch (_) {
-      // In case server generation response falls back, create client instance
+      // In case server generation response falls back, compile client instance
       final newReport = RecentReport(
         id: 'REP-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
-        title: autoTitle,
+        title: '$autoTitle ($periodText)',
         reportType: selectedReportType.value,
         badge: typeOption.badge,
         period: periodText,
-        dateText: DateFormat('dd MMM yyyy').format(DateTime.now()),
+        dateText: DateFormat('dd/MM/yyyy').format(DateTime.now()),
         format: ReportFormat.csv,
         fileSizeText: '26.4 KB',
         totalBilled: totalBilled.value,
@@ -324,27 +510,30 @@ class RevenueReportingController extends GetxController {
         pendingDues: pendingDues.value,
         activeSubs: activeSubs.value,
         activeCampaigns: activeCampaigns.value,
+        invoiceCount: liveInvoices.length,
       );
 
       generatedReport.value = newReport;
       archiveReports.insert(0, newReport);
 
-      await downloadReportCsv(newReport);
+      final csvContent = _buildCsvReportString(autoTitle, periodText, selectedReportType.value, liveInvoices);
+      final savedPath = await _saveReportToDevice(newReport, csvContent);
 
-      Get.to(() => const ReportGeneratedView());
+      activeTab.value = 'archive';
+      _showDownloadSuccessSheet(newReport, savedPath, isCompiled: true);
     } finally {
       isGenerating.value = false;
     }
   }
 
-  /// Real CSV Download & Mobile Device Storage Saver
-  Future<void> downloadReportCsv(RecentReport report) async {
-    isGenerating.value = true;
+  /// Direct Download of Compiled Report (from Tab 2 list item)
+  Future<void> downloadCompiledReport(RecentReport report) async {
+    downloading.value = true;
     try {
-      // 1. Fetch fresh report record if available
-      String? resolvedContent = report.content;
       String? remoteFileUrl = report.fileUrl;
+      String? resolvedContent = report.content;
 
+      // Try fetching fresh report details if available
       try {
         final res = await FinanceService.to.getReport(report.id);
         if (res.success && res.data != null) {
@@ -356,37 +545,96 @@ class RevenueReportingController extends GetxController {
         }
       } catch (_) {}
 
-      // 2. Generate standard CSV content if not provided
-      final currencyFormatter = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 2);
-      final csvContent = resolvedContent ??
-          'Title,Period,Report Type,Total Billed,Total Revenue,Total Tax,Pending Dues\n'
-          '"${report.title}","${report.period}","${report.reportType}","${currencyFormatter.format(report.totalBilled)}","${currencyFormatter.format(report.totalRevenue)}","${currencyFormatter.format(report.taxTotal)}","${currencyFormatter.format(report.pendingDues)}"\n';
+      final csvContent = resolvedContent ?? _buildCsvReportString(
+        report.title,
+        report.period,
+        report.reportType,
+        liveInvoices,
+        totalBilledOverride: report.totalBilled,
+        totalRevenueOverride: report.totalRevenue,
+        taxTotalOverride: report.taxTotal,
+        pendingDuesOverride: report.pendingDues,
+      );
 
-      // 3. Write file directly to phone storage (/storage/emulated/0/Download)
       final savedPath = await _saveReportToDevice(report, csvContent, remoteFileUrl: remoteFileUrl);
-
-      // 4. Show success BottomSheet with path and actions
-      _showDownloadSuccessSheet(report, savedPath, csvContent);
+      _showDownloadSuccessSheet(report, savedPath, isCompiled: false);
     } catch (e) {
       Get.snackbar(
-        'Download Error',
-        'Could not save report to device: $e',
+        'download_error'.tr,
+        'Could not save report: $e',
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
     } finally {
-      isGenerating.value = false;
+      downloading.value = false;
     }
   }
 
-  /// Writes report directly to Android public Downloads directory (/storage/emulated/0/Download)
+  /// Builds RFC 4180 compliant CSV string matching Admin Panel buildReportCsv
+  String _buildCsvReportString(
+    String title,
+    String period,
+    String repType,
+    List<LiveInvoiceItem> invoices, {
+    double? totalBilledOverride,
+    double? totalRevenueOverride,
+    double? taxTotalOverride,
+    double? pendingDuesOverride,
+  }) {
+    final billed = totalBilledOverride ?? totalBilled.value;
+    final revenue = totalRevenueOverride ?? totalRevenue.value;
+    final tax = taxTotalOverride ?? taxTotal.value;
+    final cgst = cgstTotal.value;
+    final sgst = sgstTotal.value;
+    final igst = igstTotal.value;
+    final dues = pendingDuesOverride ?? pendingDues.value;
+
+    final buffer = StringBuffer();
+    buffer.writeln('"VMOVEXA Corporate Revenue & Collections Ledger"');
+    buffer.writeln('"Title","${title.replaceAll('"', '""')}"');
+    buffer.writeln('"Report Type","$repType"');
+    buffer.writeln('"Period","${period.replaceAll('"', '""')}"');
+    buffer.writeln('"Total Billed (INR)","$billed"');
+    buffer.writeln('"Total Revenue Paid (INR)","$revenue"');
+    buffer.writeln('"Total Tax / GST (INR)","$tax"');
+    buffer.writeln('"CGST (INR)","$cgst"');
+    buffer.writeln('"SGST (INR)","$sgst"');
+    buffer.writeln('"IGST (INR)","$igst"');
+    buffer.writeln('"Outstanding Dues (INR)","$dues"');
+
+    if (invoices.isNotEmpty) {
+      buffer.writeln('');
+      buffer.writeln('"Invoice Code","Client / Payer","Issue Date","Due Date","Payer Type","Type","Taxable Subtotal (INR)","CGST (INR)","SGST (INR)","IGST (INR)","GST Amount (INR)","Total Amount (INR)","Status"');
+      for (final inv in invoices) {
+        final row = [
+          '"${inv.code}"',
+          '"${inv.customerName.replaceAll('"', '""')}"',
+          '"${inv.issuedAt}"',
+          '"${inv.dueAt}"',
+          '"${inv.formattedPayerType}"',
+          '"${inv.formattedBillingStream}"',
+          inv.subtotal,
+          inv.cgstAmount,
+          inv.sgstAmount,
+          inv.igstAmount,
+          inv.taxAmount,
+          inv.total,
+          '"${inv.status.toUpperCase()}"',
+        ].join(',');
+        buffer.writeln(row);
+      }
+    }
+
+    return '\uFEFF${buffer.toString()}';
+  }
+
+  /// Writes report file directly to public Downloads folder (/storage/emulated/0/Download)
   Future<String> _saveReportToDevice(RecentReport report, String csvContent, {String? remoteFileUrl}) async {
     final cleanId = report.id.replaceAll('#', '').replaceAll(' ', '_');
     final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final fileName = 'VMOVEXA_Report_${cleanId}_$timestamp.csv';
+    final fileName = 'VMOVEXA_${cleanId}_$timestamp.csv';
 
-    // If server provides a file_url, try downloading directly
     List<int>? fileBytes;
     if (remoteFileUrl != null && remoteFileUrl.isNotEmpty) {
       try {
@@ -401,28 +649,30 @@ class RevenueReportingController extends GetxController {
       } catch (_) {}
     }
 
-    // 1. Try Android Public Download folder
+    // 1. Android Public Download Folder
     try {
-      final downloadDir = Directory('/storage/emulated/0/Download');
-      if (await downloadDir.exists()) {
-        final targetFile = File('${downloadDir.path}/$fileName');
-        if (fileBytes != null) {
-          await targetFile.writeAsBytes(fileBytes);
-        } else {
-          await targetFile.writeAsString(csvContent);
+      if (Platform.isAndroid) {
+        final downloadDir = Directory('/storage/emulated/0/Download');
+        if (await downloadDir.exists()) {
+          final targetFile = File('${downloadDir.path}/$fileName');
+          if (fileBytes != null) {
+            await targetFile.writeAsBytes(fileBytes, flush: true);
+          } else {
+            await targetFile.writeAsString(csvContent, flush: true);
+          }
+          return targetFile.path;
         }
-        return targetFile.path;
       }
     } catch (_) {}
 
-    // 2. Try System Temp / Application Documents fallback
+    // 2. System Temp Fallback
     try {
       final tempDir = Directory.systemTemp;
       final targetFile = File('${tempDir.path}/$fileName');
       if (fileBytes != null) {
-        await targetFile.writeAsBytes(fileBytes);
+        await targetFile.writeAsBytes(fileBytes, flush: true);
       } else {
-        await targetFile.writeAsString(csvContent);
+        await targetFile.writeAsString(csvContent, flush: true);
       }
       return targetFile.path;
     } catch (e) {
@@ -432,8 +682,8 @@ class RevenueReportingController extends GetxController {
     return fileName;
   }
 
-  /// Displays download completion bottom sheet with file path
-  void _showDownloadSuccessSheet(RecentReport report, String filePath, String csvContent) {
+  /// Displays download confirmation bottom sheet with file path
+  void _showDownloadSuccessSheet(RecentReport report, String filePath, {bool isCompiled = false}) {
     Clipboard.setData(ClipboardData(text: filePath));
 
     Get.bottomSheet(
@@ -463,9 +713,9 @@ class RevenueReportingController extends GetxController {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'CSV Downloaded & Saved',
-                        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                      Text(
+                        isCompiled ? 'report_compiled_and_downloaded'.tr : 'report_downloaded_success'.tr,
+                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 2),
                       Text(
@@ -479,9 +729,9 @@ class RevenueReportingController extends GetxController {
               ],
             ),
             const SizedBox(height: 18),
-            const Text(
-              'File saved to device storage:',
-              style: TextStyle(color: Colors.white54, fontSize: 11, fontWeight: FontWeight.bold),
+            Text(
+              'file_saved_to_device'.tr,
+              style: const TextStyle(color: Colors.white54, fontSize: 11, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 6),
             Container(
@@ -517,25 +767,40 @@ class RevenueReportingController extends GetxController {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    child: const Text('Close', style: TextStyle(color: Colors.white70)),
+                    child: Text('close'.tr, style: const TextStyle(color: Colors.white70)),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   flex: 2,
-                  child: CustomButton(
-                    text: 'Copy File Path',
-                    onTap: () {
-                      Clipboard.setData(ClipboardData(text: filePath));
-                      Get.back();
-                      Get.snackbar(
-                        'Path Copied',
-                        'File path copied to clipboard.',
-                        backgroundColor: const Color(0xFF10B981),
-                        colorText: Colors.white,
-                        snackPosition: SnackPosition.BOTTOM,
-                      );
-                    },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: AppTheme.primaryGradient,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: filePath));
+                        Get.back();
+                        Get.snackbar(
+                          'path_copied'.tr,
+                          'path_copied_clipboard'.tr,
+                          backgroundColor: const Color(0xFF10B981),
+                          colorText: Colors.white,
+                          snackPosition: SnackPosition.BOTTOM,
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      child: Text(
+                        'copy_file_path'.tr,
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -546,8 +811,8 @@ class RevenueReportingController extends GetxController {
     );
 
     Get.snackbar(
-      'CSV Downloaded',
-      'Report "${report.title}" saved to device Downloads.',
+      isCompiled ? 'report_compiled'.tr : 'report_downloaded'.tr,
+      'saved_to_downloads'.tr,
       backgroundColor: const Color(0xFF10B981),
       colorText: Colors.white,
       snackPosition: SnackPosition.BOTTOM,
@@ -571,17 +836,20 @@ class RevenueReportingController extends GetxController {
               child: const Icon(Icons.delete_forever_rounded, color: Color(0xFFEF4444), size: 20),
             ),
             const SizedBox(width: 10),
-            const Text('Delete Report?', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              'delete_report_question'.tr,
+              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            ),
           ],
         ),
         content: Text(
-          'Are you sure you want to permanently remove "${report.title}" from the generated archive? This cannot be undone.',
+          'delete_report_confirm_msg'.tr,
           style: const TextStyle(color: Colors.white70, fontSize: 12.5, height: 1.4),
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white54)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -592,7 +860,7 @@ class RevenueReportingController extends GetxController {
               backgroundColor: const Color(0xFFEF4444),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('Delete', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: Text('delete'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -605,8 +873,8 @@ class RevenueReportingController extends GetxController {
     } catch (_) {}
     archiveReports.removeWhere((r) => r.id == report.id);
     Get.snackbar(
-      'Report Deleted',
-      'Report "${report.title}" removed from archive.',
+      'report_deleted'.tr,
+      'report_deleted_msg'.tr,
       backgroundColor: const Color(0xFF1E293B),
       colorText: Colors.white,
       snackPosition: SnackPosition.BOTTOM,

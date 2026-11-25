@@ -51,6 +51,7 @@ extension ReportFormatX on ReportFormat {
 /// Report type definition matching Admin Panel 1:1
 class ReportTypeOption {
   final String id;
+  final String labelKey;
   final String label;
   final String desc;
   final IconData icon;
@@ -60,6 +61,7 @@ class ReportTypeOption {
 
   const ReportTypeOption({
     required this.id,
+    required this.labelKey,
     required this.label,
     required this.desc,
     required this.icon,
@@ -69,7 +71,120 @@ class ReportTypeOption {
   });
 }
 
-/// Recent / Archived report item model
+/// Live Period Invoice Model matching Admin Panel reportSummary.invoices
+class LiveInvoiceItem {
+  final String id;
+  final String code;
+  final String customerName;
+  final String payerType; // tenant, advertiser, government
+  final String type; // saas_subscription, ad_spend, psa_spend
+  final double subtotal;
+  final double cgstAmount;
+  final double sgstAmount;
+  final double igstAmount;
+  final double taxAmount;
+  final double total;
+  final String status; // paid, issued, overdue, draft
+  final String issuedAt;
+  final String dueAt;
+  final List<Map<String, dynamic>> items;
+
+  LiveInvoiceItem({
+    required this.id,
+    required this.code,
+    required this.customerName,
+    required this.payerType,
+    required this.type,
+    required this.subtotal,
+    required this.cgstAmount,
+    required this.sgstAmount,
+    required this.igstAmount,
+    required this.taxAmount,
+    required this.total,
+    required this.status,
+    required this.issuedAt,
+    required this.dueAt,
+    this.items = const [],
+  });
+
+  factory LiveInvoiceItem.fromJson(Map<String, dynamic> json) {
+    final rawSubtotal = json['subtotal'] ?? json['taxableSubtotal'] ?? 0;
+    final rawTotal = json['total'] ?? json['grossTotal'] ?? json['amount'] ?? 0;
+    final rawTax = json['taxAmount'] ?? json['tax_amount'] ?? json['gstAmount'] ?? 0;
+    final rawCgst = json['cgstAmount'] ?? json['cgst_amount'] ?? 0;
+    final rawSgst = json['sgstAmount'] ?? json['sgst_amount'] ?? 0;
+    final rawIgst = json['igstAmount'] ?? json['igst_amount'] ?? 0;
+
+    List<Map<String, dynamic>> parsedItems = [];
+    if (json['items'] is List) {
+      parsedItems = (json['items'] as List)
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    }
+
+    return LiveInvoiceItem(
+      id: (json['id'] ?? json['_id'] ?? '').toString(),
+      code: (json['code'] ?? json['invoiceCode'] ?? json['invoiceNumber'] ?? '—').toString(),
+      customerName: (json['customerName'] ?? json['clientName'] ?? json['customer']?['name'] ?? json['payer']?['name'] ?? '—').toString(),
+      payerType: (json['payerType'] ?? json['payer_type'] ?? 'tenant').toString().toLowerCase(),
+      type: (json['type'] ?? json['billingType'] ?? json['stream'] ?? 'saas_subscription').toString().toLowerCase(),
+      subtotal: double.tryParse(rawSubtotal.toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0,
+      cgstAmount: double.tryParse(rawCgst.toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0,
+      sgstAmount: double.tryParse(rawSgst.toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0,
+      igstAmount: double.tryParse(rawIgst.toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0,
+      taxAmount: double.tryParse(rawTax.toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0,
+      total: double.tryParse(rawTotal.toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0,
+      status: (json['status'] ?? 'issued').toString().toLowerCase(),
+      issuedAt: (json['issuedAt'] ?? json['issued_at'] ?? json['date'] ?? '').toString(),
+      dueAt: (json['dueAt'] ?? json['due_at'] ?? '').toString(),
+      items: parsedItems,
+    );
+  }
+
+  String get formattedPayerType {
+    switch (payerType.toLowerCase()) {
+      case 'tenant':
+        return 'Tenant Admin';
+      case 'advertiser':
+        return 'Advertiser';
+      case 'government':
+        return 'Government';
+      default:
+        return payerType.replaceAll('_', ' ');
+    }
+  }
+
+  String get formattedBillingStream {
+    switch (type.toLowerCase()) {
+      case 'saas_subscription':
+        return 'SaaS Subscription';
+      case 'ad_spend':
+        return 'Campaign Ad Spend';
+      case 'psa_spend':
+        return 'Government PSA';
+      default:
+        return type.replaceAll('_', ' ');
+    }
+  }
+
+  String get formattedStatusLabel {
+    switch (status.toLowerCase()) {
+      case 'paid':
+        return 'Paid';
+      case 'issued':
+        return 'Unpaid';
+      case 'overdue':
+        return 'Overdue';
+      case 'draft':
+        return 'Draft';
+      default:
+        return status.replaceAll('_', ' ');
+    }
+  }
+}
+
+/// Recent / Archived report item model matching Admin Panel 1:1
 class RecentReport {
   final String id;
   final String title;
@@ -89,6 +204,9 @@ class RecentReport {
   final double taxTotal;
   final int activeSubs;
   final int activeCampaigns;
+  final int? invoiceCount;
+  final String status;
+  final Map<String, dynamic> summary;
 
   RecentReport({
     required this.id,
@@ -98,8 +216,8 @@ class RecentReport {
     required this.format,
     required this.fileSizeText,
     this.content,
-    this.reportType = 'campaign_revenue',
-    this.badge = 'Ad Spend',
+    this.reportType = 'revenue_summary',
+    this.badge = 'All Revenue',
     this.fileUrl,
     this.totalBilled = 0.0,
     this.pendingDues = 0.0,
@@ -109,6 +227,9 @@ class RecentReport {
     this.taxTotal = 0.0,
     this.activeSubs = 0,
     this.activeCampaigns = 0,
+    this.invoiceCount,
+    this.status = 'ready',
+    this.summary = const {},
   });
 
   factory RecentReport.fromJson(Map<String, dynamic> json) {
@@ -118,27 +239,37 @@ class RecentReport {
     Map<String, dynamic> params = {};
     if (json['params'] is Map) {
       params = Map<String, dynamic>.from(json['params']);
+    } else if (json['params'] is String) {
+      try {
+        // try parse json string if needed
+      } catch (_) {}
     }
 
-    final repType = (json['report_type'] ?? params['reportType'] ?? 'campaign_revenue').toString();
-    final title = (params['title'] ?? json['title'] ?? json['name'] ?? 'Financial Statement').toString();
-    final period = (params['period'] ?? json['period'] ?? '—').toString();
+    final repType = (params['reportType'] ?? json['report_type'] ?? json['reportType'] ?? 'revenue_summary').toString();
+    final period = (params['period'] ?? json['period'] ?? (params['startDate'] != null && params['endDate'] != null ? '${params['startDate']} → ${params['endDate']}' : '—')).toString();
     final dateText = json['created_at'] != null
         ? json['created_at'].toString().split('T').first
         : (json['generatedOn'] ?? json['dateText'] ?? '—').toString();
     final fileSizeText = (json['file_size'] ?? json['fileSize'] ?? json['fileSizeText'] ?? '24.8 KB').toString();
     final content = json['content']?.toString();
     final fileUrl = json['file_url']?.toString();
+    final status = (json['status'] ?? 'ready').toString();
 
-    // Determine badge from repType matching Admin Panel
-    String badge = 'Ad Spend';
+    // Determine badge and title from repType matching Admin Panel
+    String badge = 'All Revenue';
+    String defaultTitle = 'All Revenue Ledger';
     if (repType == 'subscription_revenue') {
-      badge = 'Recurring';
-    } else if (repType == 'gst_tax') {
-      badge = 'Tax / GST';
-    } else if (repType == 'overdue_dues') {
-      badge = 'Receivables';
+      badge = 'Subscription';
+      defaultTitle = 'SaaS Subscription MRR Ledger';
+    } else if (repType == 'campaign_revenue') {
+      badge = 'Ad Spend';
+      defaultTitle = 'Campaign Ad Revenue Ledger';
+    } else if (repType == 'government_campaign_revenue') {
+      badge = 'Government';
+      defaultTitle = 'Government Campaign Revenue Ledger';
     }
+
+    final title = (params['title'] ?? json['title'] ?? json['name'] ?? defaultTitle).toString();
 
     // Summary sub-object or top level
     final summaryMap = json['summary'] is Map ? Map<String, dynamic>.from(json['summary']) : json;
@@ -150,6 +281,13 @@ class RecentReport {
     final taxTotal = double.tryParse((summaryMap['taxTotal'] ?? summaryMap['tax_total'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
     final activeSubs = int.tryParse((summaryMap['activeSubs'] ?? summaryMap['active_subscriptions'] ?? 0).toString()) ?? 0;
     final activeCampaigns = int.tryParse((summaryMap['activeCampaigns'] ?? summaryMap['active_campaigns'] ?? 0).toString()) ?? 0;
+
+    int? invCount;
+    if (summaryMap['invoiceCount'] != null) {
+      invCount = int.tryParse(summaryMap['invoiceCount'].toString());
+    } else if (summaryMap['invoices'] is List) {
+      invCount = (summaryMap['invoices'] as List).length;
+    }
 
     return RecentReport(
       id: id,
@@ -170,6 +308,9 @@ class RecentReport {
       taxTotal: taxTotal,
       activeSubs: activeSubs,
       activeCampaigns: activeCampaigns,
+      invoiceCount: invCount,
+      status: status,
+      summary: summaryMap,
     );
   }
 }

@@ -1,83 +1,81 @@
-/// Multi-State GSTIN Registration Item
-class MultiStateGstin {
+/// Customer GSTIN Filing Summary Item matching Admin Panel 1:1
+class CustomerGstinItem {
   final String gstin;
-  final String state;
   final int invoicesCount;
   final double taxableAmount;
   final double totalTax;
   final String status;
 
-  MultiStateGstin({
+  CustomerGstinItem({
     required this.gstin,
-    required this.state,
     required this.invoicesCount,
     required this.taxableAmount,
     required this.totalTax,
     required this.status,
   });
 
-  factory MultiStateGstin.fromJson(Map<String, dynamic> json) {
-    return MultiStateGstin(
+  factory CustomerGstinItem.fromJson(Map<String, dynamic> json) {
+    return CustomerGstinItem(
       gstin: (json['gstin'] ?? '—').toString(),
-      state: (json['state'] ?? '—').toString(),
       invoicesCount: int.tryParse((json['invoicesCount'] ?? json['invoices_count'] ?? 0).toString()) ?? 0,
-      taxableAmount: double.tryParse((json['taxableAmount'] ?? json['taxable_amount'] ?? 0).toString().replaceAll(',', '')) ?? 0.0,
-      totalTax: double.tryParse((json['totalTax'] ?? json['total_tax'] ?? 0).toString().replaceAll(',', '')) ?? 0.0,
-      status: (json['status'] ?? 'Active').toString(),
+      taxableAmount: double.tryParse((json['taxableAmount'] ?? json['taxable_amount'] ?? json['taxable'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0,
+      totalTax: double.tryParse((json['totalTax'] ?? json['total_tax'] ?? json['amount'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0,
+      status: (json['status'] ?? 'Recorded').toString(),
     );
   }
 }
 
-/// Head-wise Tax Breakup Item
+/// Head-wise Tax Breakup Item matching Admin Panel 1:1
 class GstBreakupItem {
   final String taxHead;
   final String rate;
   final double taxable;
   final double amount;
-  final double itc;
-  final double netPayable;
 
   GstBreakupItem({
     required this.taxHead,
     required this.rate,
     required this.taxable,
     required this.amount,
-    required this.itc,
-    required this.netPayable,
   });
 
   factory GstBreakupItem.fromJson(Map<String, dynamic> json) {
     return GstBreakupItem(
-      taxHead: (json['taxHead'] ?? json['tax_head'] ?? 'CGST').toString(),
-      rate: (json['rate'] ?? '9%').toString(),
-      taxable: double.tryParse((json['taxable'] ?? json['taxable_value'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0,
-      amount: double.tryParse((json['amount'] ?? json['output_tax'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0,
-      itc: double.tryParse((json['itc'] ?? json['itc_available'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0,
-      netPayable: double.tryParse((json['netPayable'] ?? json['net_payable'] ?? json['amount'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0,
+      taxHead: (json['taxHead'] ?? json['tax_head'] ?? json['head'] ?? '—').toString(),
+      rate: (json['rate'] ?? '—').toString(),
+      taxable: double.tryParse((json['taxable'] ?? json['taxable_value'] ?? json['taxableAmount'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0,
+      amount: double.tryParse((json['amount'] ?? json['outputTax'] ?? json['output_tax'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0,
     );
   }
 }
 
-/// Enterprise GST Summary Model matching Admin Panel 1:1
+/// Enterprise GST Summary Model matching Admin Panel GstManagementPage.jsx 1:1
 class GstSummaryModel {
+  // Tab 1 & Tab 3 Metrics
   final double taxableValue;
   final double cgst;
   final double sgst;
   final double igst;
   final double totalGst;
-  final double netPayable;
+  final double compensationCess;
+  final double otherStatutoryTax;
 
-  // Corporate Registration
+  // Verification & Status
+  final String verificationStatus; // 'configured' | 'not_configured'
+  final int repairedRecords;
+
+  // Corporate Registration (Configuration Record)
   final String legalName;
   final String gstin;
   final String state;
+  final String stateCode;
   final String filingFrequency;
   final String jurisdiction;
 
-  // Multi-state roster
-  final List<MultiStateGstin> gstinList;
+  // Tab 2: Customer GSTIN Filing Summary
+  final List<CustomerGstinItem> customerGstinSummary;
 
-  // Head-wise Tax Breakup
+  // Tab 3: Detailed Head-wise Tax Breakup
   final List<GstBreakupItem> breakup;
 
   GstSummaryModel({
@@ -86,13 +84,17 @@ class GstSummaryModel {
     required this.sgst,
     required this.igst,
     required this.totalGst,
-    required this.netPayable,
+    required this.compensationCess,
+    required this.otherStatutoryTax,
+    required this.verificationStatus,
+    required this.repairedRecords,
     required this.legalName,
     required this.gstin,
     required this.state,
+    required this.stateCode,
     required this.filingFrequency,
     required this.jurisdiction,
-    required this.gstinList,
+    required this.customerGstinSummary,
     required this.breakup,
   });
 
@@ -103,13 +105,17 @@ class GstSummaryModel {
       sgst: 0.0,
       igst: 0.0,
       totalGst: 0.0,
-      netPayable: 0.0,
+      compensationCess: 0.0,
+      otherStatutoryTax: 0.0,
+      verificationStatus: '',
+      repairedRecords: 0,
       legalName: '—',
       gstin: '—',
       state: '—',
-      filingFrequency: '—',
+      stateCode: '',
+      filingFrequency: 'Monthly (GSTR-1 & GSTR-3B)',
       jurisdiction: '—',
-      gstinList: [],
+      customerGstinSummary: [],
       breakup: [],
     );
   }
@@ -120,21 +126,60 @@ class GstSummaryModel {
     final sgst = double.tryParse((json['sgst'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
     final igst = double.tryParse((json['igst'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
     final totalGst = double.tryParse((json['totalGst'] ?? json['total_gst'] ?? json['total_gst_collected'] ?? (cgst + sgst + igst)).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
-    final netPayable = double.tryParse((json['netPayable'] ?? json['net_payable'] ?? totalGst).toString().replaceAll(',', '').replaceAll('₹', '')) ?? totalGst;
 
+    final verificationStatus = (json['verificationStatus'] ?? json['verification_status'] ?? (json['gstin'] != null && json['gstin'] != '—' ? 'configured' : '')).toString();
+    final repairedRecords = int.tryParse((json['repairedRecords'] ?? json['repaired_records'] ?? 0).toString()) ?? 0;
+
+    // Corporate Registration fields
     final legalName = (json['legalName'] ?? json['legal_name'] ?? '—').toString();
     final gstin = (json['gstin'] ?? json['gstin_number'] ?? '—').toString();
     final state = (json['state'] ?? '—').toString();
-    final filingFrequency = (json['filingFrequency'] ?? json['filing_frequency'] ?? '—').toString();
+    final stateCode = (json['stateCode'] ?? json['state_code'] ?? '').toString();
+    final filingFrequency = (json['filingFrequency'] ?? json['filing_frequency'] ?? 'Monthly (GSTR-1 & GSTR-3B)').toString();
     final jurisdiction = (json['jurisdiction'] ?? '—').toString();
 
-    // Roster
-    final rawGstinList = json['gstinList'] is List ? json['gstinList'] as List : (json['gstin_list'] is List ? json['gstin_list'] as List : []);
-    final gstinList = rawGstinList.map((e) => MultiStateGstin.fromJson(Map<String, dynamic>.from(e))).toList();
+    // Tab 2: Customer GSTIN Filing Summary
+    List<CustomerGstinItem> customerGstins = [];
+    final rawCustomerList = json['customerGstinSummary'] is List
+        ? json['customerGstinSummary'] as List
+        : (json['customer_gstin_summary'] is List
+            ? json['customer_gstin_summary'] as List
+            : (json['gstinList'] is List ? json['gstinList'] as List : []));
 
-    // Breakup
+    customerGstins = rawCustomerList
+        .whereType<Map>()
+        .map((e) => CustomerGstinItem.fromJson(Map<String, dynamic>.from(e)))
+        .toList();
+
+    // Tab 3: Detailed Head-wise Tax Breakup
+    List<GstBreakupItem> breakupList = [];
     final rawBreakup = json['breakup'] is List ? json['breakup'] as List : [];
-    final breakup = rawBreakup.map((e) => GstBreakupItem.fromJson(Map<String, dynamic>.from(e))).toList();
+    breakupList = rawBreakup
+        .whereType<Map>()
+        .map((e) => GstBreakupItem.fromJson(Map<String, dynamic>.from(e)))
+        .toList();
+
+    // Derive GST Compensation Cess from JSON or breakup rows
+    double parsedCess = double.tryParse((json['compensationCess'] ?? json['cess'] ?? json['gst_compensation_cess'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
+    if (parsedCess == 0.0) {
+      for (final b in breakupList) {
+        final th = b.taxHead.toLowerCase();
+        if (th.contains('cess') || th.contains('compensation')) {
+          parsedCess += b.amount;
+        }
+      }
+    }
+
+    // Derive Other Statutory Tax from JSON or breakup rows
+    double parsedOther = double.tryParse((json['otherStatutoryTax'] ?? json['otherTax'] ?? json['other_statutory_tax'] ?? 0).toString().replaceAll(',', '').replaceAll('₹', '')) ?? 0.0;
+    if (parsedOther == 0.0) {
+      for (final b in breakupList) {
+        final th = b.taxHead.toLowerCase();
+        if (!th.contains('cgst') && !th.contains('sgst') && !th.contains('igst') && !th.contains('cess') && !th.contains('compensation')) {
+          parsedOther += b.amount;
+        }
+      }
+    }
 
     return GstSummaryModel(
       taxableValue: taxableValue,
@@ -142,14 +187,18 @@ class GstSummaryModel {
       sgst: sgst,
       igst: igst,
       totalGst: totalGst,
-      netPayable: netPayable,
+      compensationCess: parsedCess,
+      otherStatutoryTax: parsedOther,
+      verificationStatus: verificationStatus,
+      repairedRecords: repairedRecords,
       legalName: legalName,
       gstin: gstin,
       state: state,
+      stateCode: stateCode,
       filingFrequency: filingFrequency,
       jurisdiction: jurisdiction,
-      gstinList: gstinList,
-      breakup: breakup,
+      customerGstinSummary: customerGstins,
+      breakup: breakupList,
     );
   }
 }

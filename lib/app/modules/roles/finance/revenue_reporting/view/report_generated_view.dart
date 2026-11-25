@@ -195,7 +195,7 @@ class ReportGeneratedView extends GetView<RevenueReportingController> {
                 CustomButton(
                   text:  'Download CSV Package',
                   onTap:(){
-                    controller.downloadReportCsv(rep);
+                    controller.downloadCompiledReport(rep);
                   },
                 ),
                 // SizedBox(

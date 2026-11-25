@@ -145,29 +145,3 @@ class ReconciliationTransactionModel {
     );
   }
 }
-
-class ReconciliationCompletedData {
-  final String accountName;
-  final String period;
-  final String balance;
-  final String matchedRate;
-  final String discrepancy;
-
-  ReconciliationCompletedData({
-    required this.accountName,
-    required this.period,
-    required this.balance,
-    required this.matchedRate,
-    required this.discrepancy,
-  });
-
-  factory ReconciliationCompletedData.fromJson(Map<String, dynamic> json, {String? defaultAccount}) {
-    return ReconciliationCompletedData(
-      accountName: (json['accountName'] ?? defaultAccount ?? 'HDFC Corporate Transit Collection').toString(),
-      period: (json['period'] ?? 'October 2026').toString(),
-      balance: (json['balance'] ?? '₹14,50,000').toString(),
-      matchedRate: (json['matchedRate'] ?? '100%').toString(),
-      discrepancy: (json['discrepancy'] ?? 'Zero Variance (Balanced)').toString(),
-    );
-  }
-}
