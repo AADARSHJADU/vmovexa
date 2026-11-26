@@ -280,11 +280,11 @@ class CampaignPaymentsController extends GetxController {
                 child: TextField(
                   controller: emailCtrl,
                   style: const TextStyle(color: Colors.white, fontSize: 13),
-                  decoration: const InputDecoration(
-                    hintText: 'customer@example.com',
-                    hintStyle: TextStyle(color: Colors.white38, fontSize: 12),
+                  decoration: InputDecoration(
+                    hintText: 'eg_customer_name'.tr,
+                    hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                   ),
                 ),
               ),
@@ -300,11 +300,11 @@ class CampaignPaymentsController extends GetxController {
                 child: TextField(
                   controller: phoneCtrl,
                   style: const TextStyle(color: Colors.white, fontSize: 13),
-                  decoration: const InputDecoration(
-                    hintText: '+91 98765 43210',
-                    hintStyle: TextStyle(color: Colors.white38, fontSize: 12),
+                  decoration: InputDecoration(
+                    hintText: 'eg_phone'.tr,
+                    hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                   ),
                 ),
               ),

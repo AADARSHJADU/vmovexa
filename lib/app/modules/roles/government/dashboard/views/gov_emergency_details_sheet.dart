@@ -162,7 +162,7 @@ class GovEmergencyDetailsSheet extends StatelessWidget {
                             Icon(Icons.warning_amber_rounded, size: 12, color: sevColor),
                             const SizedBox(width: 5),
                             Text(
-                              '${broadcast.displaySeverity} SEVERITY',
+                              '${broadcast.displaySeverity} ${'severity_badge'.tr}',
                               style: TextStyle(
                                 color: sevColor,
                                 fontSize: 9.5,
@@ -213,7 +213,7 @@ class GovEmergencyDetailsSheet extends StatelessWidget {
                       border: Border.all(color: AppColors.cardBorder, width: 1),
                     ),
                     child: Text(
-                      broadcast.authority ?? 'State Public Transit Department',
+                      broadcast.authority ?? 'state_transit_dept'.tr,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
@@ -237,7 +237,7 @@ class GovEmergencyDetailsSheet extends StatelessWidget {
                     child: Text(
                       broadcast.message?.isNotEmpty == true
                           ? broadcast.message!
-                          : (broadcast.bodyText ?? 'No description provided'),
+                          : (broadcast.bodyText ?? 'no_description_provided'.tr),
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
@@ -476,12 +476,12 @@ class GovEmergencyDetailsSheet extends StatelessWidget {
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          children: const [
-            Icon(Icons.circle, color: Color(0xFF10B981), size: 6),
-            SizedBox(width: 4),
+          children: [
+            const Icon(Icons.circle, color: Color(0xFF10B981), size: 6),
+            const SizedBox(width: 4),
             Text(
-              'LIVE OVERRIDE',
-              style: TextStyle(
+              'status_live_override'.tr,
+              style: const TextStyle(
                 color: Color(0xFF10B981),
                 fontSize: 8.5,
                 fontWeight: FontWeight.bold,
@@ -498,9 +498,9 @@ class GovEmergencyDetailsSheet extends StatelessWidget {
           color: const Color(0xFFF59E0B).withOpacity(0.18),
           borderRadius: BorderRadius.circular(6),
         ),
-        child: const Text(
-          'PENDING REVIEW',
-          style: TextStyle(
+        child: Text(
+          'status_pending_review'.tr,
+          style: const TextStyle(
             color: Color(0xFFF59E0B),
             fontSize: 8.5,
             fontWeight: FontWeight.bold,
@@ -515,9 +515,9 @@ class GovEmergencyDetailsSheet extends StatelessWidget {
           color: const Color(0xFF3B82F6).withOpacity(0.18),
           borderRadius: BorderRadius.circular(6),
         ),
-        child: const Text(
-          'APPROVED',
-          style: TextStyle(
+        child: Text(
+          'status_approved'.tr,
+          style: const TextStyle(
             color: Color(0xFF3B82F6),
             fontSize: 8.5,
             fontWeight: FontWeight.bold,
@@ -532,9 +532,9 @@ class GovEmergencyDetailsSheet extends StatelessWidget {
           color: const Color(0xFFEF4444).withOpacity(0.18),
           borderRadius: BorderRadius.circular(6),
         ),
-        child: const Text(
-          'REVOKED',
-          style: TextStyle(
+        child: Text(
+          'status_revoked'.tr,
+          style: const TextStyle(
             color: Color(0xFFEF4444),
             fontSize: 8.5,
             fontWeight: FontWeight.bold,
@@ -548,9 +548,9 @@ class GovEmergencyDetailsSheet extends StatelessWidget {
         color: Colors.white.withOpacity(0.08),
         borderRadius: BorderRadius.circular(6),
       ),
-      child: const Text(
-        'EXPIRED',
-        style: TextStyle(
+      child: Text(
+        'status_expired'.tr,
+        style: const TextStyle(
           color: AppColors.textMuted,
           fontSize: 8.5,
           fontWeight: FontWeight.bold,

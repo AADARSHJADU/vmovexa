@@ -757,7 +757,7 @@ class MyRouteView extends GetView<MyRouteController> {
                           border: Border.all(color: kAmber.withOpacity(0.4)),
                         ),
                         child: Text(
-                          'SLOT: ${slot!.slotCode}',
+                          'slot_code_prefix'.trParams({'code': slot!.slotCode!}),
                           style: const TextStyle(color: kAmber, fontSize: 10, fontWeight: FontWeight.w800),
                         ),
                       ),
@@ -1404,9 +1404,10 @@ class MyRouteView extends GetView<MyRouteController> {
     final model = v?.model ?? slot?.vehicleModel ?? '—';
     final depotName = depot?.name ?? '—';
     final fleetName = fleet?.name ?? '—';
-    final timeWindow = slot?.timeWindow ??
-        (slot?.formattedStartTime != null && slot?.formattedEndTime != null
-            ? '${slot!.formattedStartTime} - ${slot!.formattedEndTime}'
+    final s = slot;
+    final timeWindow = s?.timeWindow ??
+        (s != null && s.formattedStartTime != null && s.formattedEndTime != null
+            ? '${s.formattedStartTime} - ${s.formattedEndTime}'
             : '—');
 
     return Container(
@@ -2018,7 +2019,7 @@ class MyRouteView extends GetView<MyRouteController> {
       final h = diff.inHours;
       final m = diff.inMinutes % 60;
       if (h > 0) return '${h}h ${m}m';
-      if (m > 0) return '$m mins';
+      if (m > 0) return '$m ${'mins_suffix'.tr}';
       return '${diff.inSeconds % 60}s';
     } catch (_) {
       return '—';

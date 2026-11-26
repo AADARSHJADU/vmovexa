@@ -911,7 +911,7 @@ class _FinanceHelpSupportViewState extends State<FinanceHelpSupportView> {
             onChanged: controller.setHistorySearch,
             style: const TextStyle(color: Colors.white, fontSize: 12),
             decoration: InputDecoration(
-              hintText: 'Search tickets by code, subject, or category...',
+              hintText: 'search_tickets_full_hint'.tr,
               hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
               prefixIcon: const Icon(Icons.search, color: Color(0xFF64748B), size: 16),
               suffixIcon: Obx(

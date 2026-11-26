@@ -242,13 +242,15 @@ class ReviewIncidentView extends GetView<ReportIncidentController> {
           break;
       }
 
-      final hosp = controller.hospitalNameCtrl.text.trim().isNotEmpty ? controller.hospitalNameCtrl.text.trim() : 'No hospital specified';
-      final casualtiesStr = '${controller.deadCasualty.value} Fatalities · ${controller.injuredCount.value} Injured ($hosp)';
+      final hosp = controller.hospitalNameCtrl.text.trim().isNotEmpty ? controller.hospitalNameCtrl.text.trim() : 'no_hospital_specified'.tr;
+      final casualtiesStr = '${controller.deadCasualty.value} ${'fatalities'.tr} · ${controller.injuredCount.value} ${'injured_count'.tr} ($hosp)';
 
-      final ambulanceStr = controller.ambulanceAssigned.value ? 'YES' : 'NO';
-      final policeStr = controller.policeNotified.value ? 'YES' : 'NO';
-      final towingStr = controller.towingRequested.value ? 'YES' : 'NO';
-      final assistanceStr = 'Ambulance: $ambulanceStr | Police: $policeStr | Towing: $towingStr';
+      final yesText = 'yes'.tr;
+      final noText = 'no'.tr;
+      final ambulanceStr = controller.ambulanceAssigned.value ? yesText : noText;
+      final policeStr = controller.policeNotified.value ? yesText : noText;
+      final towingStr = controller.towingRequested.value ? yesText : noText;
+      final assistanceStr = '${'ambulance_label'.tr}: $ambulanceStr | ${'police_label'.tr}: $policeStr | ${'towing_label'.tr}: $towingStr';
 
       return Container(
         padding: const EdgeInsets.all(16),
@@ -315,9 +317,9 @@ class ReviewIncidentView extends GetView<ReportIncidentController> {
 
             // Weather & Road Type
             _buildReviewRow(
-              label: 'Environment:',
+              label: 'review_environment'.tr,
               valueWidget: Text(
-                '${controller.weatherConditions.value} · ${controller.roadType.value}',
+                '${_getWeatherLabel(controller.weatherConditions.value)} · ${_getRoadTypeLabel(controller.roadType.value)}',
                 style: const TextStyle(color: Colors.white70, fontSize: 11.5, fontWeight: FontWeight.w600),
               ),
             ),
@@ -327,7 +329,7 @@ class ReviewIncidentView extends GetView<ReportIncidentController> {
             _buildReviewRow(
               label: 'driver_incident.review_media'.tr,
               valueWidget: Text(
-                '${controller.photoPaths.length} Photo(s) · ${controller.videoPaths.length} Video(s)',
+                '${controller.photoPaths.length} ${'photos_count'.tr} · ${controller.videoPaths.length} ${'videos_count'.tr}',
                 style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
               ),
             ),
@@ -359,7 +361,7 @@ class ReviewIncidentView extends GetView<ReportIncidentController> {
 
             // Affected Parties
             _buildReviewRow(
-              label: 'Affected Parties:',
+              label: 'review_affected_parties'.tr,
               valueWidget: Text(
                 controller.affectedPartiesText,
                 textAlign: TextAlign.right,
@@ -370,6 +372,38 @@ class ReviewIncidentView extends GetView<ReportIncidentController> {
         ),
       );
     });
+  }
+
+  String _getWeatherLabel(String key) {
+    switch (key) {
+      case 'Heavy Rain':
+        return 'driver_incident.weather_rain'.tr;
+      case 'Fog / Smog':
+        return 'driver_incident.weather_fog'.tr;
+      case 'Night / Dark':
+        return 'driver_incident.weather_night'.tr;
+      case 'Storm / Wind':
+        return 'driver_incident.weather_storm'.tr;
+      case 'Clear':
+      default:
+        return 'driver_incident.weather_clear'.tr;
+    }
+  }
+
+  String _getRoadTypeLabel(String key) {
+    switch (key) {
+      case 'Express Highway':
+        return 'driver_incident.road_highway'.tr;
+      case 'Flyover Bridge':
+        return 'driver_incident.road_bridge'.tr;
+      case 'Bus Stop Bay':
+        return 'driver_incident.road_bus_bay'.tr;
+      case 'Depot Junction':
+        return 'driver_incident.road_depot'.tr;
+      case 'City Street':
+      default:
+        return 'driver_incident.road_city_street'.tr;
+    }
   }
 
   Widget _buildReviewRow({required String label, required Widget valueWidget}) {

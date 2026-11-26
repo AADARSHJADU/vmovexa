@@ -962,7 +962,7 @@ class DriverCompletedTripsView extends GetView<DriverCompletedTripsController> {
       final h = diff.inHours;
       final m = diff.inMinutes % 60;
       if (h > 0) return '${h}h ${m}m';
-      if (m > 0) return '$m mins';
+      if (m > 0) return '$m ${'mins_suffix'.tr}';
       return '${diff.inSeconds % 60}s';
     } catch (_) {
       return '—';

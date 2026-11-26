@@ -128,8 +128,8 @@ class DriverHelpSupportController extends GetxController {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
         Get.snackbar(
-          'Emergency Hotline',
-          'Call Transit Control Room: $title',
+          'emergency_hotline'.tr,
+          'call_transit_control_room'.trParams({'title': title}),
           backgroundColor: const Color(0xFFE53935),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
@@ -138,8 +138,8 @@ class DriverHelpSupportController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Emergency Hotline',
-        'Call Transit Control Room: $title',
+        'emergency_hotline'.tr,
+        'call_transit_control_room'.trParams({'title': title}),
         backgroundColor: const Color(0xFFE53935),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
@@ -161,7 +161,7 @@ class DriverHelpSupportController extends GetxController {
       } catch (e) {
         Get.snackbar(
           'error'.tr,
-          'Could not open document: $e',
+          'could_not_open_document'.trParams({'error': e.toString()}),
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent,
           colorText: Colors.white,

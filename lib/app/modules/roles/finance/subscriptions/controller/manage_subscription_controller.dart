@@ -384,7 +384,7 @@ class ManageSubscriptionController extends GetxController {
           Get.find<SubscriptionsController>().fetchSubscriptions();
         }
       } else {
-        Get.snackbar('error'.tr, res.message ?? 'Failed to update status',
+        Get.snackbar('error'.tr, res.message ?? 'failed_to_update_status'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFFEF4444),
             colorText: Colors.white);
@@ -434,7 +434,7 @@ class ManageSubscriptionController extends GetxController {
               const SizedBox(height: 6),
               Text('${'reset_pass_desc'.tr} $adminEmail', style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11.5)),
               const SizedBox(height: 16),
-              const Text('New Password', style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 11.5, fontWeight: FontWeight.w600)),
+              Text('new_password'.tr, style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 11.5, fontWeight: FontWeight.w600)),
               const SizedBox(height: 6),
               Obx(() => Container(
                     decoration: BoxDecoration(color: const Color(0xFF0F172A), borderRadius: BorderRadius.circular(10), border: Border.all(color: const Color(0x1FFFFFFF))),
@@ -473,7 +473,7 @@ class ManageSubscriptionController extends GetxController {
                       ),
                       onPressed: () {
                         Clipboard.setData(ClipboardData(text: newPassCtrl.text));
-                        Get.snackbar('copied'.tr, 'Password copied to clipboard!', snackPosition: SnackPosition.BOTTOM, backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
+                        Get.snackbar('copied'.tr, 'password_copied_clipboard'.tr, snackPosition: SnackPosition.BOTTOM, backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
                       },
                       child: Text('copy_info'.tr, style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600)),
                     ),

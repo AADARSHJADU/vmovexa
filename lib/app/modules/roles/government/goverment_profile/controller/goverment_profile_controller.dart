@@ -123,7 +123,7 @@ class GovernmentProfileController extends GetxController {
   // Officer Getters
   String get officerName {
     final u = user.value ?? _authService.currentUser;
-    return (u?.name != null && u!.name!.isNotEmpty) ? u.name! : 'Government Official';
+    return (u?.name != null && u!.name!.isNotEmpty) ? u.name! : 'gov_official_title'.tr;
   }
 
   String get officerRole {
@@ -143,7 +143,7 @@ class GovernmentProfileController extends GetxController {
     return u?.organization?.name ??
         u?.companyName ??
         u?.organizationName ??
-        'State Public Transit Department';
+        'default_transit_agency'.tr;
   }
 
   String get officerId {
@@ -200,9 +200,9 @@ class GovernmentProfileController extends GetxController {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Update Officer Avatar',
-                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                Text(
+                  'update_officer_avatar'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 IconButton(
                   icon: const Icon(Icons.close_rounded, color: Colors.white70, size: 20),
@@ -211,9 +211,9 @@ class GovernmentProfileController extends GetxController {
               ],
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Select photo source to update your official authority credentials:',
-              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+            Text(
+              'select_photo_source_desc'.tr,
+              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
             ),
             const SizedBox(height: 18),
             ListTile(
@@ -225,8 +225,8 @@ class GovernmentProfileController extends GetxController {
                 ),
                 child: const Icon(Icons.camera_alt_rounded, color: Color(0xFF3B82F6), size: 22),
               ),
-              title: const Text('Take Photo with Camera', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
-              subtitle: const Text('Capture new photo instantly', style: TextStyle(color: Color(0xFF64748B), fontSize: 11)),
+              title: Text('take_photo_camera'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+              subtitle: Text('capture_photo_instantly'.tr, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11)),
               trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF64748B), size: 20),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               onTap: () {
@@ -244,8 +244,8 @@ class GovernmentProfileController extends GetxController {
                 ),
                 child: const Icon(Icons.photo_library_rounded, color: Color(0xFF10B981), size: 22),
               ),
-              title: const Text('Choose from Device Gallery', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
-              subtitle: const Text('Pick image from your gallery', style: TextStyle(color: Color(0xFF64748B), fontSize: 11)),
+              title: Text('choose_from_gallery'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+              subtitle: Text('pick_image_from_gallery'.tr, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11)),
               trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF64748B), size: 20),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               onTap: () {
@@ -274,8 +274,8 @@ class GovernmentProfileController extends GetxController {
 
       isUploadingPhoto.value = true;
       Get.snackbar(
-        'Uploading Avatar',
-        'Uploading officer credentials photo...',
+        'uploading_avatar_title'.tr,
+        'uploading_avatar_desc'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF6366F1),
         colorText: Colors.white,
@@ -309,8 +309,8 @@ class GovernmentProfileController extends GetxController {
           }
 
           Get.snackbar(
-            'Success',
-            'Officer avatar updated successfully!',
+            'common.success'.tr,
+            'officer_avatar_updated_msg'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
@@ -319,8 +319,8 @@ class GovernmentProfileController extends GetxController {
         }
       } else {
         Get.snackbar(
-          'Upload Failed',
-          res.message ?? 'Unable to upload photo to server.',
+          'upload_failed_title'.tr,
+          res.message ?? 'unable_upload_photo_msg'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFFEF4444),
           colorText: Colors.white,
@@ -328,8 +328,8 @@ class GovernmentProfileController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Upload Error',
-        'Could not complete photo upload: $e',
+        'upload_error_title'.tr,
+        '${'could_not_complete_upload'.tr}: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),
         colorText: Colors.white,
@@ -365,19 +365,19 @@ class GovernmentProfileController extends GetxController {
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Logout Account',
-              style: TextStyle(
+            Text(
+              'logout_account'.tr,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Are you sure you want to end your administrative government officer session?',
+            Text(
+              'logout_officer_confirm_msg'.tr,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Color(0xFF94A3B8),
                 fontSize: 13,
                 height: 1.4,
@@ -394,7 +394,7 @@ class GovernmentProfileController extends GetxController {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+                    child: Text('Cancel'.tr, style: const TextStyle(color: Colors.white70)),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -409,7 +409,7 @@ class GovernmentProfileController extends GetxController {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('Logout', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    child: Text('logout'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],

@@ -440,31 +440,31 @@ class PaymentDetailModel {
     final timestamps = <PersistedTimestampEntry>[];
     if (createdDt != null) {
       timestamps.add(PersistedTimestampEntry(
-        label: 'Payment Recorded',
+        label: 'payment_recorded'.tr,
         value: _formatDisplayDateTime(createdDt),
       ));
     }
     if (collectedDt != null && collectedDt != paidDt) {
       timestamps.add(PersistedTimestampEntry(
-        label: 'Collected At',
+        label: 'collected_at'.tr,
         value: _formatDisplayDateTime(collectedDt),
       ));
     }
     if (paidDt != null) {
       timestamps.add(PersistedTimestampEntry(
-        label: 'Paid / Settled At',
+        label: 'paid_settled_at'.tr,
         value: _formatDisplayDateTime(paidDt),
       ));
     }
     if (invIssuedDt != null) {
       timestamps.add(PersistedTimestampEntry(
-        label: 'Invoice Issued At',
+        label: 'invoice_issued_at'.tr,
         value: _formatDisplayDateTime(invIssuedDt),
       ));
     }
     if (invPaidDt != null) {
       timestamps.add(PersistedTimestampEntry(
-        label: 'Invoice Paid At',
+        label: 'invoice_paid_at'.tr,
         value: _formatDisplayDateTime(invPaidDt),
       ));
     }
@@ -581,12 +581,12 @@ class PaymentDetailModel {
   static String _formatPurposeLabel(String raw) {
     if (raw.isEmpty) return '—';
     final map = {
-      'ad_spend': 'Advertising Campaign',
-      'saas_subscription': 'SaaS Subscription',
-      'psa_spend': 'Government / PSA Campaign',
-      'payout': 'Payout',
-      'wallet_topup': 'Wallet Top-up',
-      'refund': 'Refund',
+      'ad_spend': 'purpose_ad_campaign'.tr,
+      'saas_subscription': 'purpose_saas_sub'.tr,
+      'psa_spend': 'purpose_psa_campaign'.tr,
+      'payout': 'purpose_payout'.tr,
+      'wallet_topup': 'purpose_wallet_topup'.tr,
+      'refund': 'purpose_refund'.tr,
     };
     return map[raw.toLowerCase()] ?? raw.replaceAll('_', ' ').capitalizeFirst ?? raw;
   }
@@ -594,10 +594,10 @@ class PaymentDetailModel {
   static String _formatPayerTypeLabel(String raw) {
     if (raw.isEmpty) return '—';
     final map = {
-      'advertiser': 'Advertiser',
-      'tenant': 'Tenant Admin',
-      'government': 'Government Agency',
-      'platform': 'Platform',
+      'advertiser': 'payer_advertiser'.tr,
+      'tenant': 'payer_tenant_admin'.tr,
+      'government': 'payer_gov_agency'.tr,
+      'platform': 'payer_platform'.tr,
     };
     return map[raw.toLowerCase()] ?? raw.replaceAll('_', ' ').capitalizeFirst ?? raw;
   }

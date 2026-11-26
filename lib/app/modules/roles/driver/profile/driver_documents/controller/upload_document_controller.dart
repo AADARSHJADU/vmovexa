@@ -140,14 +140,14 @@ class UploadDocumentController extends GetxController {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Replace Document',
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            Text(
+              'replace_document'.tr,
+              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 6),
-            const Text(
-              'Select new image to replace current document.',
-              style: TextStyle(color: Colors.white54, fontSize: 12),
+            Text(
+              'select_new_image_replace'.tr,
+              style: const TextStyle(color: Colors.white54, fontSize: 12),
             ),
             const SizedBox(height: 16),
             ListTile(
@@ -271,8 +271,8 @@ class UploadDocumentController extends GetxController {
       Get.off(() => const DocumentSubmittedView());
     } catch (e) {
       Get.snackbar(
-        'Submission Failed',
-        'Error uploading document: $e',
+        'submission_failed'.tr,
+        'error_uploading_document'.trParams({'error': e.toString()}),
         backgroundColor: const Color(0xFF15151F),
         colorText: Colors.redAccent,
         snackPosition: SnackPosition.BOTTOM,
@@ -289,9 +289,9 @@ class UploadDocumentController extends GetxController {
       AlertDialog(
         backgroundColor: const Color(0xFF15151F),
         title: Text('doc_guidelines'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        content: const Text(
-          'Make sure all 4 corners of the document are clearly visible, text is sharply focused, and there is no light glare. Verification typically takes 24 - 48 hours.',
-          style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
+        content: Text(
+          'doc_guidelines_content'.tr,
+          style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
         ),
         actions: [
           TextButton(onPressed: () => Get.back(), child: Text('got_it'.tr, style: const TextStyle(color: AppTheme.gradientBlue))),
@@ -342,7 +342,7 @@ class UploadDocumentController extends GetxController {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         title: Text('remove_document'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         content: Text(
-          'Are you sure you want to remove "$documentTitle"? You can re-upload it at any time.',
+          'confirm_remove_document'.trParams({'title': documentTitle}),
           style: const TextStyle(color: Colors.white70, fontSize: 13),
         ),
         actions: [
@@ -361,7 +361,7 @@ class UploadDocumentController extends GetxController {
                 }
                 Get.back(); // exit preview
               } else {
-                Get.snackbar('common.error'.tr, res.message ?? 'Failed to delete document', backgroundColor: const Color(0xFF15151F), colorText: Colors.redAccent);
+                Get.snackbar('common.error'.tr, res.message ?? 'failed_to_delete_document'.tr, backgroundColor: const Color(0xFF15151F), colorText: Colors.redAccent);
               }
             },
             child: Text('delete'.tr, style: const TextStyle(color: Colors.redAccent)),

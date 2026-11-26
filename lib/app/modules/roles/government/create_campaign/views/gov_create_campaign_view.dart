@@ -187,7 +187,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
         return const SizedBox.shrink();
       }
       final info = controller.draftInfo.value!;
-      final campaignName = info['name']?.toString() ?? 'Public Welfare Broadcast';
+      final campaignName = info['name']?.toString() ?? 'public_welfare_broadcast_preview'.tr;
       final savedTime = info['savedTime']?.toString() ?? '';
       final step = info['step'] ?? 1;
 
@@ -464,7 +464,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
             _buildFieldLabel('campaign_name_label'.tr, isRequired: true),
             _buildTextField(
               controller: controller.nameController,
-              hint: 'e.g. Swachh Bharat Transit Awareness / Jal Shakti Mission',
+              hint: 'gov_campaign_name_hint'.tr,
               icon: Icons.campaign_rounded,
             ),
             const SizedBox(height: 14),
@@ -556,7 +556,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
             _buildFieldLabel('description_label'.tr),
             _buildTextField(
               controller: controller.descriptionController,
-              hint: 'Describe your target commuters, key messaging, and campaign objectives...',
+              hint: 'campaign_desc_hint'.tr,
               maxLines: 3,
             ),
             const SizedBox(height: 14),
@@ -604,7 +604,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
         // Sponsoring Authority & Nodal Officer Details
         _buildSectionHeader(
           title: 'gov_authority_contact_details'.tr,
-          subtitle: 'Official contact point for municipal transit clearance orders',
+          subtitle: 'gov_step1_subtitle'.tr,
         ),
         const SizedBox(height: 14),
 
@@ -836,7 +836,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
       children: [
         _buildSectionHeader(
           title: 'step_creative_assets'.tr,
-          subtitle: 'Attach multiple images, videos, PDF documents, or streaming URLs. Files are stored locally and will only be uploaded when you submit the campaign.',
+          subtitle: 'gov_step2_subtitle'.tr,
         ),
         const SizedBox(height: 16),
 
@@ -1370,7 +1370,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
               ),
               const SizedBox(height: 3),
               Text(
-                active.videoUrl ?? 'Online Video Stream',
+                active.videoUrl ?? 'online_video_stream'.tr,
                 style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -1636,7 +1636,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                     itemBuilder: (context) => [10, 15, 30, 60].map((d) {
                       return PopupMenuItem<int>(
                         value: d,
-                        child: Text('${d}s duration', style: const TextStyle(color: Colors.white, fontSize: 11)),
+                        child: Text('${d}s ${'common_duration'.tr}', style: const TextStyle(color: Colors.white, fontSize: 11)),
                       );
                     }).toList(),
                     child: Container(
@@ -1679,7 +1679,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
         // Title & Subtitle matching Admin Panel
         _buildSectionHeader(
           title: 'step_transit_routes'.tr,
-          subtitle: 'Search a route, open its buses, then select complete buses or individual screens.',
+          subtitle: 'gov_step3_subtitle'.tr,
         ),
         const SizedBox(height: 12),
 
@@ -1717,7 +1717,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
             Expanded(
               child: _buildTextField(
                 controller: TextEditingController(text: controller.routeSearchQuery.value),
-                hint: 'Search route, operator or bus number...',
+                hint: 'search_route_bus_hint'.tr,
                 icon: Icons.search_rounded,
                 onChanged: (v) => controller.routeSearchQuery.value = v,
               ),
@@ -1752,7 +1752,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
             return Container(
               padding: const EdgeInsets.all(24),
               alignment: Alignment.center,
-              child: const Text('No transit routes found matching query', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+              child: Text('routes_not_found_msg'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
             );
           }
 
@@ -1906,7 +1906,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                                   minimumSize: Size.zero,
                                 ),
                                 child: Text(
-                                  isBusExpanded ? 'Hide screens' : 'View screens',
+                                  isBusExpanded ? 'hide_screens'.tr : 'view_screens'.tr,
                                   style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 10.5, fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -2075,11 +2075,11 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
             Obx(() {
               final activeDays = controller.durationDaysNumber;
               final presets = [
-                {'days': 7, 'label': '7 Days', 'sub': '1 Week Flight'},
-                {'days': 14, 'label': '14 Days', 'sub': '2 Weeks (Standard)'},
-                {'days': 30, 'label': '30 Days', 'sub': '1 Month Full Run'},
-                {'days': 60, 'label': '60 Days', 'sub': '2 Months Extended'},
-                {'days': 90, 'label': '90 Days', 'sub': 'Quarterly Campaign'},
+                {'days': 7, 'label': 'preset_7_days'.tr, 'sub': 'preset_1_week_flight'.tr},
+                {'days': 14, 'label': 'preset_14_days'.tr, 'sub': 'preset_2_weeks_std'.tr},
+                {'days': 30, 'label': 'preset_30_days'.tr, 'sub': 'preset_1_month_full'.tr},
+                {'days': 60, 'label': 'preset_60_days'.tr, 'sub': 'preset_2_months_ext'.tr},
+                {'days': 90, 'label': 'preset_90_days'.tr, 'sub': 'preset_quarterly_campaign'.tr},
               ];
 
               return LayoutBuilder(
@@ -2317,7 +2317,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                       const Icon(Icons.date_range_rounded, size: 16, color: Color(0xFF3B82F6)),
                       const SizedBox(width: 6),
                       Text(
-                        '${'active_broadcast_days_title'.tr} (${controller.selectedDays.length} of 7 days active)',
+                        '${'active_broadcast_days_title'.tr} (${controller.selectedDays.length} ${'active_days_of_7_count'.tr})',
                         style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -2376,7 +2376,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  isSel ? 'On' : 'Off',
+                                  isSel ? 'broadcast_on'.tr : 'broadcast_off'.tr,
                                   style: TextStyle(
                                     color: isSel ? Colors.white.withValues(alpha: 0.9) : AppColors.textMuted,
                                     fontSize: 8.5,
@@ -2436,9 +2436,9 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                 ],
               ),
               const SizedBox(height: 4),
-              const Text(
-                'Select the daily transit broadcast window during which onboard screens actively loop your ad.',
-                style: TextStyle(color: AppColors.textMuted, fontSize: 10.5),
+              Text(
+                'daily_transit_window_desc'.tr,
+                style: const TextStyle(color: AppColors.textMuted, fontSize: 10.5),
               ),
               const SizedBox(height: 12),
 
@@ -2447,10 +2447,10 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                 final curStart = controller.dailySlotStart.value;
                 final curEnd = controller.dailySlotEnd.value;
                 final slots = [
-                  {'start': '08:00', 'end': '22:00', 'label': 'Prime Transit', 'sub': '08:00 – 22:00 (14h)', 'best': true},
-                  {'start': '06:00', 'end': '23:00', 'label': 'Full Day', 'sub': '06:00 – 23:00 (17h)', 'best': false},
-                  {'start': '07:00', 'end': '12:00', 'label': 'Morning Rush', 'sub': '07:00 – 12:00 (5h)', 'best': false},
-                  {'start': '16:00', 'end': '22:00', 'label': 'Evening Rush', 'sub': '16:00 – 22:00 (6h)', 'best': false},
+                  {'start': '08:00', 'end': '22:00', 'label': 'slot_prime_transit'.tr, 'sub': '08:00 – 22:00 (14h)', 'best': true},
+                  {'start': '06:00', 'end': '23:00', 'label': 'slot_full_day'.tr, 'sub': '06:00 – 23:00 (17h)', 'best': false},
+                  {'start': '07:00', 'end': '12:00', 'label': 'slot_morning_rush'.tr, 'sub': '07:00 – 12:00 (5h)', 'best': false},
+                  {'start': '16:00', 'end': '22:00', 'label': 'slot_evening_rush'.tr, 'sub': '16:00 – 22:00 (6h)', 'best': false},
                 ];
 
                 return LayoutBuilder(builder: (context, c) {
@@ -2502,7 +2502,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                                           color: const Color(0xFFF59E0B),
                                           borderRadius: BorderRadius.circular(4),
                                         ),
-                                        child: const Text('Best', style: TextStyle(color: Colors.black, fontSize: 8.5, fontWeight: FontWeight.bold)),
+                                        child: Text('badge_best'.tr, style: const TextStyle(color: Colors.black, fontSize: 8.5, fontWeight: FontWeight.bold)),
                                       ),
                                   ],
                                 ),
@@ -2539,16 +2539,16 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Row(
+                          Row(
                             children: [
-                              Icon(Icons.wb_sunny_rounded, size: 12, color: Color(0xFFF59E0B)),
-                              SizedBox(width: 4),
-                              Text('Airtime Start Time', style: TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                              const Icon(Icons.wb_sunny_rounded, size: 12, color: Color(0xFFF59E0B)),
+                              const SizedBox(width: 4),
+                              Text('airtime_start_time'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold)),
                             ],
                           ),
                           const SizedBox(height: 4),
                           Text(controller.dailySlotStart.value, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-                          const Text('Auto-synced with Broadcast Start', style: TextStyle(color: AppColors.textMuted, fontSize: 8.5)),
+                          Text('auto_synced_broadcast_start'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 8.5)),
                         ],
                       ),
                     )),
@@ -2565,16 +2565,16 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Row(
+                          Row(
                             children: [
-                              Icon(Icons.nightlight_round, size: 12, color: Color(0xFF818CF8)),
-                              SizedBox(width: 4),
-                              Text('Airtime End Time', style: TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                              const Icon(Icons.nightlight_round, size: 12, color: Color(0xFF818CF8)),
+                              const SizedBox(width: 4),
+                              Text('airtime_end_time'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold)),
                             ],
                           ),
                           const SizedBox(height: 4),
                           Text(controller.dailySlotEnd.value, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-                          const Text('Auto-synced with Broadcast End', style: TextStyle(color: AppColors.textMuted, fontSize: 8.5)),
+                          Text('auto_synced_broadcast_end'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 8.5)),
                         ],
                       ),
                     )),
@@ -2631,9 +2631,9 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('00:00 (Night)', style: TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
+                        Text('time_00_night'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
                         Text(
-                          'Active Airtime: ${controller.dailySlotStart.value} to ${controller.dailySlotEnd.value} (${controller.dailyOperatingHours} Hours)',
+                          '${'active_airtime_label'.tr}: ${controller.dailySlotStart.value} - ${controller.dailySlotEnd.value} (${controller.dailyOperatingHours} ${'hours_unit'.tr})',
                           style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 10, fontWeight: FontWeight.bold),
                         ),
                         // const Text('24:00 (Midnight)', style: TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
@@ -2684,12 +2684,12 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                   children: [
                     const Icon(Icons.public_rounded, size: 16, color: Color(0xFF3B82F6)),
                     const SizedBox(width: 8),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('IST (UTC+05:30)', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                          Text('Edge devices will automatically synchronize playback timing with vehicle IoT hardware', style: TextStyle(color: AppColors.textMuted, fontSize: 9)),
+                          const Text('IST (UTC+05:30)', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                          Text('edge_iot_sync_note'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9)),
                         ],
                       ),
                     ),
@@ -2861,7 +2861,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
               const SizedBox(width: 8),
               Expanded(
                 child: Obx(() => _buildTimeSelector(
-                  label: 'Start Time',
+                  label: 'start_time_label'.tr,
                   timeStr: controller.dailySlotStart.value,
                   onTap: () => controller.selectStartTime(Get.context!),
                 )),
@@ -2924,7 +2924,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
               const SizedBox(width: 8),
               Expanded(
                 child: Obx(() => _buildTimeSelector(
-                  label: 'End Time',
+                  label: 'end_time_label'.tr,
                   timeStr: controller.dailySlotEnd.value,
                   onTap: () => controller.selectEndTime(Get.context!),
                 )),
@@ -2971,7 +2971,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
       children: [
         _buildSectionHeader(
           title: 'step_budget_breakdown'.tr,
-          subtitle: 'Customize base broadcast fee, add custom line items (charges, discounts, taxes), and configure QR attribution.',
+          subtitle: 'gov_pricing_step_subtitle'.tr,
         ),
         const SizedBox(height: 16),
 
@@ -2981,7 +2981,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildFieldLabel('Base Airtime Broadcast Fee (₹)', isRequired: true),
+                _buildFieldLabel('base_airtime_broadcast_fee'.tr, isRequired: true),
                 // Container(
                 //   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 //   decoration: BoxDecoration(
@@ -3082,11 +3082,11 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppColors.cardBorder, style: BorderStyle.solid),
                   ),
-                  child: const Column(
+                  child: Column(
                     children: [
-                      Text('No custom line items added yet.', style: TextStyle(color: Colors.white70, fontSize: 11.5, fontWeight: FontWeight.w600)),
-                      SizedBox(height: 4),
-                      Text('Click "+ Add Line Item" above to add taxes (GST / CGST / SGST), custom fees, or discounts.', style: TextStyle(color: AppColors.textMuted, fontSize: 10), textAlign: TextAlign.center),
+                      Text('no_custom_line_items'.tr, style: const TextStyle(color: Colors.white70, fontSize: 11.5, fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 4),
+                      Text('click_add_line_item_hint'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 10), textAlign: TextAlign.center),
                     ],
                   ),
                 );
@@ -3114,7 +3114,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text('Item', style: TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                                  Text('item_col_label'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold)),
                                   const SizedBox(height: 4),
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -3136,20 +3136,20 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                                         style: const TextStyle(color: Colors.white, fontSize: 11),
                                         items: [
                                           DropdownMenuItem<String>(enabled: false, value: 'HEADER_TAX', child: Text('statutory_taxes_group'.tr, style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 9.5, fontWeight: FontWeight.bold))),
-                                          const DropdownMenuItem<String>(value: 'GST_CGST', child: Text('Central GST (CGST 9%)', style: TextStyle(fontSize: 11))),
-                                          const DropdownMenuItem<String>(value: 'GST_SGST', child: Text('State GST (SGST 9%)', style: TextStyle(fontSize: 11))),
-                                          const DropdownMenuItem<String>(value: 'GST_IGST', child: Text('Integrated GST (IGST 18%)', style: TextStyle(fontSize: 11))),
-                                          const DropdownMenuItem<String>(value: 'GST_CESS', child: Text('GST Compensation Cess', style: TextStyle(fontSize: 11))),
+                                          DropdownMenuItem<String>(value: 'GST_CGST', child: Text('item_cgst_9'.tr, style: const TextStyle(fontSize: 11))),
+                                          DropdownMenuItem<String>(value: 'GST_SGST', child: Text('item_sgst_9'.tr, style: const TextStyle(fontSize: 11))),
+                                          DropdownMenuItem<String>(value: 'GST_IGST', child: Text('item_igst_18'.tr, style: const TextStyle(fontSize: 11))),
+                                          DropdownMenuItem<String>(value: 'GST_CESS', child: Text('item_gst_cess'.tr, style: const TextStyle(fontSize: 11))),
                                           DropdownMenuItem<String>(enabled: false, value: 'HEADER_COMM', child: Text('commercial_charges_group'.tr, style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 9.5, fontWeight: FontWeight.bold))),
-                                          const DropdownMenuItem<String>(value: 'FEE_AIRTIME_BROADCAST', child: Text('Public Airtime Playback Fee', style: TextStyle(fontSize: 11))),
-                                          const DropdownMenuItem<String>(value: 'FEE_HARDWARE_RENTAL', child: Text('Hardware Maintenance & IoT Rental', style: TextStyle(fontSize: 11))),
-                                          const DropdownMenuItem<String>(value: 'FEE_CREATIVE_DESIGN', child: Text('Creative Verification & Compliance', style: TextStyle(fontSize: 11))),
-                                          const DropdownMenuItem<String>(value: 'FEE_ONBOARDING_SETUP', child: Text('Deployment & Fleet Onboarding', style: TextStyle(fontSize: 11))),
+                                          DropdownMenuItem<String>(value: 'FEE_AIRTIME_BROADCAST', child: Text('item_airtime_fee'.tr, style: const TextStyle(fontSize: 11))),
+                                          DropdownMenuItem<String>(value: 'FEE_HARDWARE_RENTAL', child: Text('item_hardware_rental'.tr, style: const TextStyle(fontSize: 11))),
+                                          DropdownMenuItem<String>(value: 'FEE_CREATIVE_DESIGN', child: Text('item_creative_design'.tr, style: const TextStyle(fontSize: 11))),
+                                          DropdownMenuItem<String>(value: 'FEE_ONBOARDING_SETUP', child: Text('item_onboarding_setup'.tr, style: const TextStyle(fontSize: 11))),
                                           DropdownMenuItem<String>(enabled: false, value: 'HEADER_DISC', child: Text('discounts_group'.tr, style: const TextStyle(color: Color(0xFF34D399), fontSize: 9.5, fontWeight: FontWeight.bold))),
-                                          const DropdownMenuItem<String>(value: 'DISCOUNT_VOLUME', child: Text('High Frequency Broadcast Discount', style: TextStyle(fontSize: 11))),
-                                          const DropdownMenuItem<String>(value: 'DISCOUNT_PROMO', child: Text('Welfare Campaign Concession', style: TextStyle(fontSize: 11))),
+                                          DropdownMenuItem<String>(value: 'DISCOUNT_VOLUME', child: Text('item_discount_volume'.tr, style: const TextStyle(fontSize: 11))),
+                                          DropdownMenuItem<String>(value: 'DISCOUNT_PROMO', child: Text('item_discount_promo'.tr, style: const TextStyle(fontSize: 11))),
                                           DropdownMenuItem<String>(enabled: false, value: 'HEADER_CUST', child: Text('custom_item_group'.tr, style: const TextStyle(color: Colors.white70, fontSize: 9.5, fontWeight: FontWeight.bold))),
-                                          const DropdownMenuItem<String>(value: 'CUSTOM', child: Text('Custom Surcharge / Fee', style: TextStyle(fontSize: 11))),
+                                          DropdownMenuItem<String>(value: 'CUSTOM', child: Text('item_custom_fee'.tr, style: const TextStyle(fontSize: 11))),
                                         ],
                                         onChanged: (val) {
                                           if (val != null && !val.startsWith('HEADER_')) {
@@ -3168,7 +3168,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text('Type', style: TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                                  Text('type_label'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold)),
                                   const SizedBox(height: 4),
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -3184,10 +3184,10 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                                         isExpanded: true,
                                         icon: const Icon(Icons.arrow_drop_down, color: Colors.white70, size: 18),
                                         style: const TextStyle(color: Colors.white, fontSize: 11),
-                                        items: const [
-                                          DropdownMenuItem<String>(value: 'charge', child: Text('Charge (+)', style: TextStyle(fontSize: 11, color: Color(0xFF60A5FA)))),
-                                          DropdownMenuItem<String>(value: 'discount', child: Text('Discount (-)', style: TextStyle(fontSize: 11, color: Color(0xFF34D399)))),
-                                          DropdownMenuItem<String>(value: 'tax', child: Text('Tax (+)', style: TextStyle(fontSize: 11, color: Color(0xFFF59E0B)))),
+                                        items: [
+                                          DropdownMenuItem<String>(value: 'charge', child: Text('charge_plus'.tr, style: const TextStyle(fontSize: 11, color: Color(0xFF60A5FA)))),
+                                          DropdownMenuItem<String>(value: 'discount', child: Text('discount_minus'.tr, style: const TextStyle(fontSize: 11, color: Color(0xFF34D399)))),
+                                          DropdownMenuItem<String>(value: 'tax', child: Text('tax_plus'.tr, style: const TextStyle(fontSize: 11, color: Color(0xFFF59E0B)))),
                                         ],
                                         onChanged: (val) {
                                           if (val != null) controller.updateBreakdownItemType(item.id, val);
@@ -3217,7 +3217,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text('Description', style: TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                                  Text('description_label'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold)),
                                   const SizedBox(height: 4),
                                   Container(
                                     decoration: BoxDecoration(
@@ -3228,11 +3228,11 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                                     child: TextField(
                                       controller: TextEditingController(text: item.label)..selection = TextSelection.collapsed(offset: item.label.length),
                                       style: const TextStyle(color: Colors.white, fontSize: 11),
-                                      decoration: const InputDecoration(
-                                        hintText: 'Item description',
-                                        hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 10.5),
+                                      decoration: InputDecoration(
+                                        hintText: 'item_description_hint'.tr,
+                                        hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 10.5),
                                         border: InputBorder.none,
-                                        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                                       ),
                                       onChanged: (val) => controller.updateBreakdownItemLabel(item.id, val),
                                     ),
@@ -3249,7 +3249,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      const Text('Amount (₹)', style: TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                                      Text('amount_inr'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold)),
                                       if (isTax)
                                         Row(
                                           children: [
@@ -3338,7 +3338,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Payment Invoice Summary', style: TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.bold)),
+                  Text('payment_invoice_summary_title'.tr, style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.bold)),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
@@ -3346,7 +3346,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
                     ),
-                    child: const Text('Live Calculation', style: TextStyle(color: Color(0xFF34D399), fontSize: 9.5, fontWeight: FontWeight.bold)),
+                    child: Text('live_calculation'.tr, style: const TextStyle(color: Color(0xFF34D399), fontSize: 9.5, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -3356,7 +3356,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Base Airtime Playback Fee', style: TextStyle(color: Colors.white70, fontSize: 11)),
+                  Text('base_airtime_playback_fee'.tr, style: const TextStyle(color: Colors.white70, fontSize: 11)),
                   Text('₹${controller.baseAmountNum.toStringAsFixed(0)}', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                 ],
               ),
@@ -3397,7 +3397,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Subtotal Net', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                  Text('subtotal_net'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
                   Text('₹${controller.subtotalNet.toStringAsFixed(0)}', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                 ],
               ),
@@ -3407,11 +3407,11 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('TOTAL PAYABLE AMOUNT', style: TextStyle(color: Color(0xFF34D399), fontSize: 11.5, fontWeight: FontWeight.bold)),
-                      Text('Official municipal billing estimate', style: TextStyle(color: AppColors.textMuted, fontSize: 9)),
+                      Text('total_payable_amount'.tr, style: const TextStyle(color: Color(0xFF34D399), fontSize: 11.5, fontWeight: FontWeight.bold)),
+                      Text('official_billing_estimate'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9)),
                     ],
                   ),
                   Text(
@@ -3434,7 +3434,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        'Exact calculation will be saved to the campaign. Final clearance requires SuperAdmin or Agency Nodal Officer sign-off before dispatch.',
+                        'exact_calc_saved_note'.tr,
                         style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5, height: 1.3),
                       ),
                     ),
@@ -3463,7 +3463,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                       ),
                     ),
                     const SizedBox(width: 6),
-                    const Text('Active Dynamic QR', style: TextStyle(color: Color(0xFF34D399), fontSize: 10, fontWeight: FontWeight.bold)),
+                    Text('active_dynamic_qr'.tr, style: const TextStyle(color: Color(0xFF34D399), fontSize: 10, fontWeight: FontWeight.bold)),
                   ],
                 ),
                 Obx(() => Text(
@@ -3473,9 +3473,9 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
               ],
             ),
             const SizedBox(height: 6),
-            const Text(
-              'Dynamic QR Code Identity',
-              style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+            Text(
+              'dynamic_qr_identity_title'.tr,
+              style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 2),
             Text(
@@ -3507,9 +3507,9 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                       )),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'SCAN WITH CAMERA TO TRACK LEAD',
-                      style: TextStyle(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                    Text(
+                      'scan_camera_track_lead'.tr.toUpperCase(),
+                      style: const TextStyle(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 0.5),
                     ),
                   ],
                 ),
@@ -3527,7 +3527,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
               ),
               child: Row(
                 children: [
-                  const Text('Tracking Gateway: ', style: TextStyle(color: AppColors.textMuted, fontSize: 10.5, fontWeight: FontWeight.w600)),
+                  Text('${'tracking_gateway_label'.tr} ', style: const TextStyle(color: AppColors.textMuted, fontSize: 10.5, fontWeight: FontWeight.w600)),
                   Expanded(
                     child: Obx(() => Text(
                       controller.trackingGatewayUrl,
@@ -3549,7 +3549,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
             const SizedBox(height: 12),
 
             // Citizen Portal URL Input
-            _buildFieldLabel('Citizen Portal / Destination Landing URL'),
+            _buildFieldLabel('citizen_portal_destination_url'.tr),
             _buildTextField(
               controller: controller.qrRedirectUrlController,
               hint: 'https://citizen.mp.gov.in/portal/advisory',
@@ -3658,9 +3658,9 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                   ],
                 ),
                 const SizedBox(height: 2),
-                const Text(
-                  'Please review all parameters and configurations\nbefore submitting for clearance.',
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+                Text(
+                  'review_clearance_desc'.tr,
+                  style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
                 ),
               ],
             ),
@@ -3672,19 +3672,19 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
         // Section 1: Campaign Overview & Metadata
         _buildReviewSectionCard(
           stepNumber: 1,
-          title: 'Campaign Overview & Metadata',
+          title: 'review_campaign_overview'.tr,
           onEdit: () => controller.goToStep(1),
           children: [
             _buildReviewGrid([
-              {'label': 'Campaign Name', 'value': controller.nameController.text.trim().isNotEmpty ? controller.nameController.text.trim() : '–'},
-              {'label': 'Brand / Product', 'value': controller.brandNameController.text.trim().isNotEmpty ? controller.brandNameController.text.trim() : '–'},
-              {'label': 'Campaign Type', 'value': controller.selectedCampaignType.value},
-              {'label': 'Objective', 'value': controller.selectedObjective.value},
-              {'label': 'Category', 'value': controller.selectedCategory.value},
+              {'label': 'campaign_name_text'.tr, 'value': controller.nameController.text.trim().isNotEmpty ? controller.nameController.text.trim() : '–'},
+              {'label': 'brand_product'.tr, 'value': controller.brandNameController.text.trim().isNotEmpty ? controller.brandNameController.text.trim() : '–'},
+              {'label': 'campaign_type_label'.tr, 'value': controller.selectedCampaignType.value},
+              {'label': 'objective_text'.tr, 'value': controller.selectedObjective.value},
+              {'label': 'category'.tr, 'value': controller.selectedCategory.value},
             ]),
             if (controller.descriptionController.text.trim().isNotEmpty) ...[
               const SizedBox(height: 10),
-              const Text('Campaign Brief / Description:', style: TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold)),
+              Text('review_campaign_brief'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold)),
               const SizedBox(height: 4),
               Container(
                 width: double.infinity,
@@ -3706,16 +3706,16 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
         // Section 2: Department / Agency Details & Location
         _buildReviewSectionCard(
           stepNumber: 1,
-          title: 'Department / Agency Details & Location',
+          title: 'review_department_details'.tr,
           onEdit: () => controller.goToStep(1),
           children: [
             _buildReviewGrid([
-              {'label': 'Nodal Officer', 'value': controller.clientNameController.text.trim().isNotEmpty ? controller.clientNameController.text.trim() : '–'},
-              {'label': 'Department', 'value': controller.clientCompanyController.text.trim().isNotEmpty ? controller.clientCompanyController.text.trim() : 'Government Department'},
-              {'label': 'Contact Phone', 'value': controller.clientPhoneController.text.trim().isNotEmpty ? controller.clientPhoneController.text.trim() : '–'},
-              {'label': 'Official Email', 'value': controller.clientEmailController.text.trim().isNotEmpty ? controller.clientEmailController.text.trim() : '–'},
-              {'label': 'City & Region', 'value': [controller.clientCityController.text.trim(), controller.clientStateController.text.trim()].where((s) => s.isNotEmpty).join(', ')},
-              {'label': 'Department Address', 'value': controller.clientAddressController.text.trim().isNotEmpty ? controller.clientAddressController.text.trim() : '–'},
+              {'label': 'gov_nodal_officer_name'.tr, 'value': controller.clientNameController.text.trim().isNotEmpty ? controller.clientNameController.text.trim() : '–'},
+              {'label': 'department'.tr, 'value': controller.clientCompanyController.text.trim().isNotEmpty ? controller.clientCompanyController.text.trim() : 'department'.tr},
+              {'label': 'contact_phone'.tr, 'value': controller.clientPhoneController.text.trim().isNotEmpty ? controller.clientPhoneController.text.trim() : '–'},
+              {'label': 'official_email_label'.tr, 'value': controller.clientEmailController.text.trim().isNotEmpty ? controller.clientEmailController.text.trim() : '–'},
+              {'label': 'city_region'.tr, 'value': [controller.clientCityController.text.trim(), controller.clientStateController.text.trim()].where((s) => s.isNotEmpty).join(', ')},
+              {'label': 'department_address'.tr, 'value': controller.clientAddressController.text.trim().isNotEmpty ? controller.clientAddressController.text.trim() : '–'},
             ]),
             if (controller.clientLatitude.value != null && controller.clientLongitude.value != null) ...[
               const SizedBox(height: 8),
@@ -3724,7 +3724,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                   const Icon(Icons.location_on_rounded, size: 14, color: Color(0xFF60A5FA)),
                   const SizedBox(width: 4),
                   Text(
-                    'GPS Coordinates: ${controller.clientLatitude.value!.toStringAsFixed(5)}, ${controller.clientLongitude.value!.toStringAsFixed(5)}',
+                    '${'gps_coordinates_label'.tr}: ${controller.clientLatitude.value!.toStringAsFixed(5)}, ${controller.clientLongitude.value!.toStringAsFixed(5)}',
                     style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 10, fontFamily: 'monospace'),
                   ),
                   const SizedBox(width: 8),
@@ -3734,7 +3734,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                       color: const Color(0xFF10B981).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: const Text('Verified GPS', style: TextStyle(color: Color(0xFF34D399), fontSize: 8.5, fontWeight: FontWeight.bold)),
+                    child: Text('verified_gps'.tr, style: const TextStyle(color: Color(0xFF34D399), fontSize: 8.5, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -3746,12 +3746,12 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
         // Section 3: Advertisement Creative Assets
         _buildReviewSectionCard(
           stepNumber: 2,
-          title: 'Advertisement Creative Assets',
+          title: 'review_creative_assets'.tr,
           onEdit: () => controller.goToStep(2),
-          badge: '${controller.creativeItems.length} Attached',
+          badge: '${controller.creativeItems.length} ${'attached_badge'.tr}',
           children: [
             if (controller.creativeItems.isEmpty)
-              const Text('No creative asset attached yet.', style: TextStyle(color: AppColors.textMuted, fontSize: 11, fontStyle: FontStyle.italic))
+              Text('no_creative_attached_yet'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 11, fontStyle: FontStyle.italic))
             else
               Column(
                 children: controller.creativeItems.map((c) {
@@ -3800,32 +3800,32 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
         // Section 4: Transit Routes & Screen Inventory
         _buildReviewSectionCard(
           stepNumber: 3,
-          title: 'Transit Routes & Screen Inventory',
+          title: 'review_transit_routes'.tr,
           onEdit: () => controller.goToStep(3),
-          badge: '${controller.totalSelectedVehicles} Buses · ${controller.totalSelectedScreens} Screens',
+          badge: '${controller.totalSelectedVehicles} ${'buses_unit'.tr} · ${controller.totalSelectedScreens} ${'screens_unit'.tr}',
           children: [
             Row(
               children: [
                 Expanded(
                   child: _buildMetricTile(
-                    label: 'Selected Routes',
-                    value: '${controller.selectedTargets.length} Corridors',
+                    label: 'selected_routes_metric'.tr,
+                    value: '${controller.selectedTargets.length} ${'corridors_unit'.tr}',
                     icon: Icons.alt_route_rounded,
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: _buildMetricTile(
-                    label: 'Transit Buses',
-                    value: '${controller.totalSelectedVehicles} Buses',
+                    label: 'transit_buses'.tr,
+                    value: '${controller.totalSelectedVehicles} ${'buses_unit'.tr}',
                     icon: Icons.directions_bus_rounded,
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: _buildMetricTile(
-                    label: 'Total Screens',
-                    value: '${controller.totalSelectedScreens} Displays',
+                    label: 'total_screens_metric'.tr,
+                    value: '${controller.totalSelectedScreens} ${'displays_unit'.tr}',
                     icon: Icons.tv_rounded,
                   ),
                 ),
@@ -3867,8 +3867,8 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text('${t.vehicleCount} Buses', style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 10.5, fontWeight: FontWeight.bold)),
-                          Text('${t.totalScreens} Screens', style: const TextStyle(color: Color(0xFFC084FC), fontSize: 9.5, fontWeight: FontWeight.bold)),
+                          Text('${t.vehicleCount} ${'buses_unit'.tr}', style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 10.5, fontWeight: FontWeight.bold)),
+                          Text('${t.totalScreens} ${'screens_unit'.tr}', style: const TextStyle(color: Color(0xFFC084FC), fontSize: 9.5, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ],
@@ -3883,17 +3883,17 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
         // Section 5: Broadcast Schedule & Operating Airtime
         _buildReviewSectionCard(
           stepNumber: 4,
-          title: 'Broadcast Schedule & Operating Airtime',
+          title: 'review_broadcast_schedule'.tr,
           onEdit: () => controller.goToStep(4),
           badge: '${controller.durationDaysNumber} Days (${controller.dailyOperatingHours}h / day)',
           children: [
             _buildReviewGrid([
-              {'label': 'Broadcast Start', 'value': '${DateFormat('dd MMM yyyy').format(controller.startDate.value)}\n${controller.dailySlotStart.value} Launch'},
-              {'label': 'Broadcast End', 'value': '${DateFormat('dd MMM yyyy').format(controller.endDate.value)}\n${controller.dailySlotEnd.value} Expiry'},
-              {'label': 'Repeat & Active Days', 'value': '${controller.repeatFrequency.value} (${controller.selectedDays.length} Days/Wk)'},
-              {'label': 'Daily Operating Window', 'value': '${controller.dailySlotStart.value} – ${controller.dailySlotEnd.value} (${controller.dailyOperatingHours}h)'},
-              {'label': 'Timezone', 'value': controller.timezone.value},
-              {'label': 'Priority Dispatch', 'value': controller.selectedPriority.value},
+              {'label': 'broadcast_start'.tr, 'value': '${DateFormat('dd MMM yyyy').format(controller.startDate.value)}\n${controller.dailySlotStart.value} ${'launch_label'.tr}'},
+              {'label': 'broadcast_end'.tr, 'value': '${DateFormat('dd MMM yyyy').format(controller.endDate.value)}\n${controller.dailySlotEnd.value} ${'expiry_label'.tr}'},
+              {'label': 'repeat_active_days'.tr, 'value': '${controller.repeatFrequency.value} (${controller.selectedDays.length} ${'days_wk_label'.tr})'},
+              {'label': 'daily_operating_window'.tr, 'value': '${controller.dailySlotStart.value} – ${controller.dailySlotEnd.value} (${controller.dailyOperatingHours}h)'},
+              {'label': 'timezone_label'.tr, 'value': controller.timezone.value},
+              {'label': 'priority_dispatch'.tr, 'value': controller.selectedPriority.value},
             ]),
             const SizedBox(height: 10),
             Container(
@@ -3905,8 +3905,8 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Total Airtime: ~${controller.totalAirtimeHours} Hours', style: const TextStyle(color: Colors.white70, fontSize: 10.5, fontWeight: FontWeight.bold)),
-                  Text('Est. Loops: ~${controller.estimatedLoopsPerDay} Plays\n/ Day',
+                  Text('total_airtime_approx'.trParams({'h': '${controller.totalAirtimeHours}'}), style: const TextStyle(color: Colors.white70, fontSize: 10.5, fontWeight: FontWeight.bold)),
+                  Text('est_loops_per_day'.trParams({'loops': '${controller.estimatedLoopsPerDay}'}),
                       style: const TextStyle(color: Color(0xFF34D399), fontSize: 10.5, fontWeight: FontWeight.bold)),
                 ],
               ),
@@ -3918,9 +3918,9 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
         // Section 6: Financial Investment & Budget Breakdown + Itemized Billing Ledger Table
         _buildReviewSectionCard(
           stepNumber: 5,
-          title: 'Campaign Budget & Tax Invoice\nBreakdown',
+          title: 'review_budget_breakdown'.tr,
           onEdit: () => controller.goToStep(5),
-          badge: 'Total Payable: ₹${controller.finalTotalAmount.toStringAsFixed(0)}',
+          badge: '${'total_payable_badge'.tr}: ₹${controller.finalTotalAmount.toStringAsFixed(0)}',
           children: [
             // Summary row tiles
             Row(
@@ -3935,7 +3935,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Campaign Base Fee', style: TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
+                        Text('campaign_base_fee'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
                         const SizedBox(height: 2),
                         Text('₹${controller.baseAmountNum.toStringAsFixed(0)}', style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                       ],
@@ -3954,7 +3954,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Total Allocation', style: TextStyle(color: Color(0xFF34D399), fontSize: 9.5, fontWeight: FontWeight.bold)),
+                        Text('total_allocation'.tr, style: const TextStyle(color: Color(0xFF34D399), fontSize: 9.5, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 2),
                         Text('₹${controller.finalTotalAmount.toStringAsFixed(0)}', style: const TextStyle(color: Color(0xFF34D399), fontSize: 14, fontWeight: FontWeight.w900)),
                       ],
@@ -3976,12 +3976,12 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('ITEMIZED BILLING LEDGER', style: TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                  Text('itemized_billing_ledger'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                   const SizedBox(height: 6),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Base Airtime Broadcast Fee', style: TextStyle(color: Colors.white70, fontSize: 10.5)),
+                      Text('base_airtime_broadcast_fee'.tr, style: const TextStyle(color: Colors.white70, fontSize: 10.5)),
                       Text('₹${controller.baseAmountNum.toStringAsFixed(0)}', style: const TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -4004,7 +4004,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Total Budget Allocation (INR)', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                      Text('total_budget_allocation_inr'.tr, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                       Text('₹${controller.finalTotalAmount.toStringAsFixed(0)}', style: const TextStyle(color: Color(0xFF34D399), fontSize: 13, fontWeight: FontWeight.w900)),
                     ],
                   ),
@@ -4018,7 +4018,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
         // Section 7: Dynamic QR Code Identity & Attribution
         _buildReviewSectionCard(
           stepNumber: 5,
-          title: 'Dynamic QR Code & Commuter\nAttribution',
+          title: 'review_dynamic_qr'.tr,
           onEdit: () => controller.goToStep(5),
           badge: '● ${'active_qr_engine'.tr}',
           children: [
@@ -4520,7 +4520,7 @@ class GovCreateCampaignView extends GetView<GovCreateCampaignController> {
           items: items.map((item) {
             return DropdownMenuItem<String>(
               value: item,
-              child: Text(item, maxLines: 1, overflow: TextOverflow.ellipsis),
+              child: Text(controller.getDropdownItemLabel(item), maxLines: 1, overflow: TextOverflow.ellipsis),
             );
           }).toList(),
           onChanged: onChanged,

@@ -52,8 +52,8 @@ class NotificationPreferencesController extends GetxController {
         final res = await FinanceService.to.updateNotificationSettings({field: nextVal});
         if (res.success) {
           Get.snackbar(
-            'Preference Updated',
-            'Notification channel setting has been saved.',
+            'pref_updated_title'.tr,
+            'pref_saved_success'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
@@ -63,8 +63,8 @@ class NotificationPreferencesController extends GetxController {
           // Revert on failure
           _setChannelValue(field, currentValue);
           Get.snackbar(
-            'Error',
-            res.message ?? 'Failed to update setting.',
+            'error'.tr,
+            res.message ?? 'failed_update_setting'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFFEF4444),
             colorText: Colors.white,
@@ -74,8 +74,8 @@ class NotificationPreferencesController extends GetxController {
     } catch (e) {
       _setChannelValue(field, currentValue);
       Get.snackbar(
-        'Error',
-        'Could not update preference: $e',
+        'error'.tr,
+        'pref_update_error'.trParams({'error': e.toString()}),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),
         colorText: Colors.white,

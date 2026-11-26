@@ -303,7 +303,7 @@ class GovCreateEmergencyView extends GetView<GovernmentDashboardController> {
             children: [
               _buildSeverityCard(
                 level: 'Critical',
-                title: 'Critical',
+                title: 'critical'.tr,
                 desc: 'gov_emergency.full_screen_flash'.tr,
                 iconData: Icons.notifications_active_rounded,
                 iconColor: const Color(0xFFEF4444),
@@ -312,7 +312,7 @@ class GovCreateEmergencyView extends GetView<GovernmentDashboardController> {
               ),
               _buildSeverityCard(
                 level: 'High',
-                title: 'High',
+                title: 'high'.tr,
                 desc: 'gov_emergency.top_banner_override'.tr,
                 iconData: Icons.warning_amber_rounded,
                 iconColor: const Color(0xFFF59E0B),
@@ -321,7 +321,7 @@ class GovCreateEmergencyView extends GetView<GovernmentDashboardController> {
               ),
               _buildSeverityCard(
                 level: 'Medium',
-                title: 'Medium',
+                title: 'medium'.tr,
                 desc: 'gov_emergency.ticker_scroll'.tr,
                 iconData: Icons.campaign_rounded,
                 iconColor: const Color(0xFF3B82F6),
@@ -330,7 +330,7 @@ class GovCreateEmergencyView extends GetView<GovernmentDashboardController> {
               ),
               _buildSeverityCard(
                 level: 'Low',
-                title: 'Low',
+                title: 'low'.tr,
                 desc: 'gov_emergency.standard_loop'.tr,
                 iconData: Icons.info_outline_rounded,
                 iconColor: const Color(0xFF94A3B8),

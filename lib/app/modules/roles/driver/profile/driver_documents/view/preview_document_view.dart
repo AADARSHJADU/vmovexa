@@ -269,12 +269,12 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
                                           style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold),
                                         ),
                                         const SizedBox(height: 2),
-                                        const Text(
-                                            'File stored on server',
-                                            style: TextStyle(
-                                                color: Colors.white38,
-                                                fontSize: 10,
-                                            ),
+                                        Text(
+                                          'file_stored_on_server'.tr,
+                                          style: const TextStyle(
+                                            color: Colors.white38,
+                                            fontSize: 10,
+                                          ),
                                         ),
                                       ],
                                     );
@@ -379,7 +379,7 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
               _infoRow(
                 Icons.verified_outlined,
                 'document_status'.tr,
-                isUploadedOnServer ? controller.documentStatus.value : 'ready_to_submit'.tr,
+                isUploadedOnServer ? _formatDocStatus(controller.documentStatus.value) : 'ready_to_submit'.tr,
                 highlightStatus: true,
               ),
               _divider(),
@@ -624,5 +624,23 @@ class PreviewDocumentView extends GetView<UploadDocumentController> {
         ),
       );
     });
+  }
+
+  String _formatDocStatus(String status) {
+    switch (status.toLowerCase()) {
+      case 'uploaded':
+        return 'doc_status_uploaded'.tr;
+      case 'under_review':
+      case 'under review':
+      case 'pending':
+        return 'doc_status_pending'.tr;
+      case 'verified':
+      case 'approved':
+        return 'doc_status_approved'.tr;
+      case 'rejected':
+        return 'doc_status_rejected'.tr;
+      default:
+        return status;
+    }
   }
 }

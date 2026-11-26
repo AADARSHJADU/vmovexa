@@ -413,8 +413,8 @@ class FinanceHelpSupportController extends GetxController {
         }
       } catch (e) {
         Get.snackbar(
-          'Error',
-          'Could not open guide: $e',
+          'error'.tr,
+          '${'could_not_open_guide'.tr}: $e',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFFEF4444),
           colorText: Colors.white,

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/modules/roles/driver/profile/driver_documents/model/document_requirement_model.dart';
 import 'package:vmovexa/app/theme/app_theme.dart';
-import '../../../../technician/hardware_configuration/views/shared_widgets.dart';
 import '../controller/driver_documents_controller.dart';
 
 class DriverDocumentsView extends GetView<DriverDocumentsController> {
@@ -194,8 +193,8 @@ class DriverDocumentsView extends GetView<DriverDocumentsController> {
                 Expanded(
                   child: _metricBox(
                     label: 'dl_validity'.tr,
-                    value: controller.dlStatus.value,
-                    subtext: 'Exp: ${controller.dlExpiry.value}',
+                    value: controller.dlStatus.value == 'Valid' ? 'doc_valid'.tr : controller.dlStatus.value,
+                    subtext: 'exp_prefix'.trParams({'date': controller.dlExpiry.value}),
                     color: const Color(0xFFFBBF24),
                   ),
                 ),

@@ -1478,7 +1478,7 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
                                 ),
                               ),
                               child: Text(
-                                rep.badge,
+                                _getBadgeTranslated(rep.badge),
                                 style: const TextStyle(
                                   color: Color(0xFFA5B4FC),
                                   fontSize: 9,
@@ -1684,5 +1684,20 @@ class RevenueReportingView extends GetView<RevenueReportingController> {
         ),
       ],
     );
+  }
+
+  String _getBadgeTranslated(String badge) {
+    switch (badge) {
+      case 'All Revenue':
+        return 'badge_all_revenue'.tr;
+      case 'Subscription':
+        return 'badge_subscription'.tr;
+      case 'Ad Spend':
+        return 'badge_ad_spend'.tr;
+      case 'Government':
+        return 'badge_government'.tr;
+      default:
+        return badge;
+    }
   }
 }

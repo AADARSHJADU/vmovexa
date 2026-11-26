@@ -101,21 +101,21 @@ class FinanceProfileView extends GetView<FinanceProfileController> {
                           icon: Icons.headset_mic_outlined,
                           iconColor: const Color(0xFF38BDF8),
                           title: 'help_support'.tr,
-                          subtitle: 'GST filing guides, reconciliation FAQs, and dispute desk',
+                          subtitle: 'helpdesk_gst_filing_sub'.tr,
                           onTap: controller.onHelpSupportTap,
                         ),
                         _MenuItem(
                           icon: Icons.shield_outlined,
                           iconColor: const Color(0xFF34D399),
                           title: 'privacy_policy'.tr,
-                          subtitle: 'Financial data encryption, banking compliance, and privacy',
+                          subtitle: 'fin_security_compliance_sub'.tr,
                           onTap: controller.onPrivacyPolicyTap,
                         ),
                         _MenuItem(
                           icon: Icons.description_outlined,
                           iconColor: const Color(0xFFF472B6),
                           title: 'terms_slas'.tr,
-                          subtitle: 'Commercial SLA, corporate tax policies, and refund rules',
+                          subtitle: 'commercial_sla_sub'.tr,
                           onTap: controller.onTermsTap,
                         ),
                       ]),
@@ -194,30 +194,30 @@ class FinanceProfileView extends GetView<FinanceProfileController> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Profile & Finance Account',
-                    style: TextStyle(
+                    'profile_finance_account'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 19,
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.3,
                     ),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
-                    'Manage finance credentials, tax authorizations & preferences',
-                    style: TextStyle(color: Colors.white54, fontSize: 11),
+                    'manage_finance_credentials'.tr,
+                    style: const TextStyle(color: Colors.white54, fontSize: 11),
                   ),
                 ],
               ),
             ),
             const SizedBox(width: 8),
             CustomButton(
-              text: 'Edit Profile',
+              text: 'edit_profile'.tr,
               isGradient: true,
               width: 125,
               height: 38,
@@ -346,7 +346,7 @@ class FinanceProfileView extends GetView<FinanceProfileController> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Finance ID: ${controller.financeId.value}',
+                    '${'finance_id_label'.tr}: ${controller.financeId.value}',
                     style: const TextStyle(
                       color: Color(0xFF94A3B8),
                       fontSize: 11,
@@ -386,7 +386,7 @@ class FinanceProfileView extends GetView<FinanceProfileController> {
         children: [
           Expanded(
             child: _buildStatPill(
-              title: 'REVENUE',
+              title: 'revenue_caps'.tr,
               value: controller.totalRevenue.value,
               valueColor: Colors.white,
             ),
@@ -394,7 +394,7 @@ class FinanceProfileView extends GetView<FinanceProfileController> {
           const SizedBox(width: 8),
           Expanded(
             child: _buildStatPill(
-              title: 'INVOICES',
+              title: 'invoices_caps'.tr,
               value: controller.invoiceCount.value,
               valueColor: const Color(0xFF60A5FA),
             ),
@@ -402,7 +402,7 @@ class FinanceProfileView extends GetView<FinanceProfileController> {
           const SizedBox(width: 8),
           Expanded(
             child: _buildStatPill(
-              title: 'SETTLED',
+              title: 'settled_caps'.tr,
               value: controller.settledCount.value,
               valueColor: const Color(0xFF34D399),
             ),

@@ -558,7 +558,7 @@ class InvoiceDetailsView extends GetView<InvoiceDetailsController> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('CGST (9%)', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                            Text('cgst_9'.tr, style: const TextStyle(color: Colors.white70, fontSize: 12)),
                             Text(_formatCurrency(inv.cgstAmount > 0 ? inv.cgstAmount : inv.taxAmount / 2), style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
                           ],
                         ),
@@ -566,7 +566,7 @@ class InvoiceDetailsView extends GetView<InvoiceDetailsController> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('SGST (9%)', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                            Text('sgst_9'.tr, style: const TextStyle(color: Colors.white70, fontSize: 12)),
                             Text(_formatCurrency(inv.sgstAmount > 0 ? inv.sgstAmount : inv.taxAmount / 2), style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
                           ],
                         ),
@@ -574,7 +574,7 @@ class InvoiceDetailsView extends GetView<InvoiceDetailsController> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('GST (18%)', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                            Text('gst_18'.tr, style: const TextStyle(color: Colors.white70, fontSize: 12)),
                             Text(_formatCurrency(inv.taxAmount), style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
                           ],
                         ),
@@ -623,11 +623,11 @@ class InvoiceDetailsView extends GetView<InvoiceDetailsController> {
                     style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 11, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 6),
-                  const Text('Bank Name: HDFC Bank Ltd', style: TextStyle(color: Colors.white, fontSize: 11.5)),
-                  const Text('Account Name: VMOVEXA PRIVATE LIMITED', style: TextStyle(color: Colors.white, fontSize: 11.5)),
-                  const Text('Account Number: 50200088219012', style: TextStyle(color: Colors.white, fontSize: 11.5, fontFamily: 'monospace', fontWeight: FontWeight.bold)),
-                  const Text('IFSC Code: HDFC0000123 • Branch: BKC, Mumbai', style: TextStyle(color: Colors.white, fontSize: 11.5)),
-                  const Text('UPI VPA: vmovexa@hdfcbank', style: TextStyle(color: Colors.white70, fontSize: 11)),
+                  Text('${'bank_name_label'.tr}: HDFC Bank Ltd', style: const TextStyle(color: Colors.white, fontSize: 11.5)),
+                  Text('${'account_name_label'.tr}: VMOVEXA PRIVATE LIMITED', style: const TextStyle(color: Colors.white, fontSize: 11.5)),
+                  Text('${'account_number_label'.tr}: 50200088219012', style: const TextStyle(color: Colors.white, fontSize: 11.5, fontFamily: 'monospace', fontWeight: FontWeight.bold)),
+                  Text('${'ifsc_code_label'.tr}: HDFC0000123 • ${'branch_label'.tr}: BKC, Mumbai', style: const TextStyle(color: Colors.white, fontSize: 11.5)),
+                  Text('${'upi_vpa_label'.tr}: vmovexa@hdfcbank', style: const TextStyle(color: Colors.white70, fontSize: 11)),
                 ],
               ),
             ),

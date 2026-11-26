@@ -316,7 +316,7 @@ class DriverSupportHistoryView extends GetView<DriverSupportHistoryController> {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    ticket.category,
+                    _getCategoryLabel(ticket.category),
                     style: const TextStyle(color: Colors.white70, fontSize: 10),
                   ),
                 ),
@@ -330,7 +330,7 @@ class DriverSupportHistoryView extends GetView<DriverSupportHistoryController> {
                     border: Border.all(color: ticket.statusColor.withOpacity(0.3)),
                   ),
                   child: Text(
-                    ticket.status.toUpperCase(),
+                    _getStatusLabel(ticket.status),
                     style: TextStyle(
                       color: ticket.statusColor,
                       fontSize: 9.5,
@@ -365,7 +365,7 @@ class DriverSupportHistoryView extends GetView<DriverSupportHistoryController> {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    ticket.priority.toUpperCase(),
+                    _getPriorityLabel(ticket.priority),
                     style: TextStyle(
                       color: ticket.priorityColor,
                       fontSize: 9,
@@ -421,5 +421,57 @@ class DriverSupportHistoryView extends GetView<DriverSupportHistoryController> {
         ),
       ),
     );
+  }
+
+  String _getCategoryLabel(String cat) {
+    switch (cat) {
+      case 'General':
+        return 'ticket_category_general'.tr;
+      case 'Technical':
+        return 'ticket_category_technical'.tr;
+      case 'Fastag & Tolls':
+        return 'ticket_category_fastag_tolls'.tr;
+      case 'Billing & Payouts':
+        return 'ticket_category_billing_payouts'.tr;
+      case 'Hardware & Telematics':
+        return 'ticket_category_hardware_telematics'.tr;
+      case 'Driver & Fleet Roster':
+        return 'ticket_category_driver_fleet_roster'.tr;
+      case 'Route & Schedule':
+        return 'ticket_category_route_schedule'.tr;
+      default:
+        return cat;
+    }
+  }
+
+  String _getStatusLabel(String status) {
+    switch (status.toLowerCase()) {
+      case 'open':
+        return 'ticket_status_open'.tr;
+      case 'in_progress':
+      case 'in progress':
+        return 'ticket_status_in_progress'.tr;
+      case 'resolved':
+        return 'ticket_status_resolved'.tr;
+      case 'closed':
+        return 'ticket_status_closed'.tr;
+      default:
+        return status.toUpperCase();
+    }
+  }
+
+  String _getPriorityLabel(String priority) {
+    switch (priority.toLowerCase()) {
+      case 'low':
+        return 'low'.tr.toUpperCase();
+      case 'medium':
+        return 'medium'.tr.toUpperCase();
+      case 'high':
+        return 'high'.tr.toUpperCase();
+      case 'critical':
+        return 'critical'.tr.toUpperCase();
+      default:
+        return priority.toUpperCase();
+    }
   }
 }

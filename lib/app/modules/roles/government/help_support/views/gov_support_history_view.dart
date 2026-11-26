@@ -265,8 +265,8 @@ class GovSupportHistoryView extends GetView<GovSupportHistoryController> {
 
   Widget _buildTicketCard(BuildContext context, GovSupportHistoryController c, Map<String, dynamic> ticket) {
     final code = ticket['code'] ?? ticket['id'] ?? 'TICKET';
-    final subject = ticket['subject'] ?? 'Untitled Support Ticket';
-    final category = ticket['category'] ?? 'General';
+    final subject = ticket['subject'] ?? 'untitled_support_ticket'.tr;
+    final category = ticket['category'] != null ? c.getCategoryLabel(ticket['category'].toString()) : 'category_general'.tr;
     final priority = (ticket['priority'] ?? 'medium').toString().toLowerCase();
     final status = (ticket['status'] ?? 'open').toString().toLowerCase();
     final createdAt = ticket['createdAt']?.toString() ?? ticket['created_at']?.toString() ?? '';
@@ -334,7 +334,7 @@ class GovSupportHistoryView extends GetView<GovSupportHistoryController> {
                       border: Border.all(color: priorityColor.withValues(alpha: 0.4)),
                     ),
                     child: Text(
-                      priority.toUpperCase(),
+                      _getPriorityLabel(priority),
                       style: TextStyle(
                         color: priorityColor,
                         fontSize: 9.5,
@@ -423,7 +423,7 @@ class GovSupportHistoryView extends GetView<GovSupportHistoryController> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '${c.paginationStartIndex}-${c.paginationEndIndex} of $totalItems',
+              '${c.paginationStartIndex}-${c.paginationEndIndex} ${'gov_reports.of'.tr} $totalItems',
               style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
             ),
             Row(
@@ -452,5 +452,22 @@ class GovSupportHistoryView extends GetView<GovSupportHistoryController> {
         ),
       );
     });
+  }
+
+  String _getPriorityLabel(String p) {
+    switch (p.toLowerCase()) {
+      case 'urgent':
+        return 'urgent'.tr.toUpperCase();
+      case 'critical':
+        return 'critical'.tr.toUpperCase();
+      case 'high':
+        return 'high'.tr.toUpperCase();
+      case 'medium':
+        return 'medium'.tr.toUpperCase();
+      case 'low':
+        return 'low'.tr.toUpperCase();
+      default:
+        return p.toUpperCase();
+    }
   }
 }

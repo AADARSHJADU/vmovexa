@@ -645,7 +645,7 @@ class IncidentLocationMediaView extends GetView<ReportIncidentController> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          'Img #${index + 1}',
+                          'photo_index'.trParams({'index': '${index + 1}'}),
                           style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -763,7 +763,7 @@ class IncidentLocationMediaView extends GetView<ReportIncidentController> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          'Video #${index + 1}',
+                          'video_index'.trParams({'index': '${index + 1}'}),
                           style: const TextStyle(color: Color(0xFFFBBF24), fontSize: 9, fontWeight: FontWeight.bold),
                         ),
                       ),

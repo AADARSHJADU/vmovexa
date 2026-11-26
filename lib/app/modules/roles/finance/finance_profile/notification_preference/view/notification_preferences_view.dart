@@ -63,19 +63,19 @@ class NotificationPreferencesView extends GetView<NotificationPreferencesControl
               ),
             ),
             const SizedBox(width: 12),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
                       Text(
-                        'Finance Portal  /  ',
-                        style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+                        'finance_portal_breadcrumb'.tr,
+                        style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
                       ),
                       Text(
-                        'Notification Settings',
-                        style: TextStyle(
+                        'notification_settings'.tr,
+                        style: const TextStyle(
                           color: Color(0xFF818CF8),
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -83,10 +83,10 @@ class NotificationPreferencesView extends GetView<NotificationPreferencesControl
                       ),
                     ],
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
-                    'Finance Notification Settings',
-                    style: TextStyle(
+                    'finance_notification_settings_title'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
@@ -104,9 +104,9 @@ class NotificationPreferencesView extends GetView<NotificationPreferencesControl
                   gradient: AppTheme.primaryGradient,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Text(
-                  'Done',
-                  style: TextStyle(
+                child: Text(
+                  'done_btn'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -117,9 +117,9 @@ class NotificationPreferencesView extends GetView<NotificationPreferencesControl
           ],
         ),
         const SizedBox(height: 6),
-        const Text(
-          'Manage your delivery preferences across 5 notification channels',
-          style: TextStyle(color: Colors.white54, fontSize: 11.5),
+        Text(
+          'manage_delivery_channels_sub'.tr,
+          style: const TextStyle(color: Colors.white54, fontSize: 11.5),
         ),
       ],
     );
@@ -141,40 +141,25 @@ class NotificationPreferencesView extends GetView<NotificationPreferencesControl
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'NOTIFICATION DELIVERY CHANNELS',
-                    style: TextStyle(
+                    'notification_delivery_channels_header'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 0.5,
                     ),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
-                    'Toggle channels on or off according to your\npreference',
-                    style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+                    'toggle_channels_preference'.tr,
+                    style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
                   ),
                 ],
               ),
-              // Container(
-              //   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              //   decoration: BoxDecoration(
-              //     gradient: AppTheme.primaryGradient,
-              //     borderRadius: BorderRadius.circular(6),
-              //   ),
-              //   child: const Text(
-              //     '5 Channels',
-              //     style: TextStyle(
-              //       color: Colors.white,
-              //       fontSize: 10,
-              //       fontWeight: FontWeight.w700,
-              //     ),
-              //   ),
-              // ),
             ],
           ),
           const SizedBox(height: 16),
@@ -183,8 +168,8 @@ class NotificationPreferencesView extends GetView<NotificationPreferencesControl
           Obx(
             () => _buildChannelTile(
               id: 'channel_in_app',
-              title: 'Web Notifications',
-              desc: 'Real-time browser popups and in-app dashboard notifications',
+              title: 'pref_channel_web_title'.tr,
+              desc: 'pref_channel_web_desc'.tr,
               icon: Icons.language,
               iconColor: const Color(0xFF60A5FA),
               enabled: controller.channelInApp.value,
@@ -197,8 +182,8 @@ class NotificationPreferencesView extends GetView<NotificationPreferencesControl
           Obx(
             () => _buildChannelTile(
               id: 'channel_push',
-              title: 'Push Notifications',
-              desc: 'Mobile device push notifications and urgent alerts',
+              title: 'pref_channel_push_title'.tr,
+              desc: 'pref_channel_push_desc'.tr,
               icon: Icons.phone_android,
               iconColor: const Color(0xFF818CF8),
               enabled: controller.channelPush.value,
@@ -211,8 +196,8 @@ class NotificationPreferencesView extends GetView<NotificationPreferencesControl
           Obx(
             () => _buildChannelTile(
               id: 'channel_sms',
-              title: 'SMS Notifications',
-              desc: 'Direct SMS text alerts on your registered mobile number',
+              title: 'pref_channel_sms_title'.tr,
+              desc: 'pref_channel_sms_desc'.tr,
               icon: Icons.chat_bubble_outline,
               iconColor: const Color(0xFFFBBF24),
               enabled: controller.channelSms.value,
@@ -225,8 +210,8 @@ class NotificationPreferencesView extends GetView<NotificationPreferencesControl
           Obx(
             () => _buildChannelTile(
               id: 'channel_email',
-              title: 'Mail Notifications',
-              desc: 'Email summaries, invoices, and critical system notices',
+              title: 'pref_channel_mail_title'.tr,
+              desc: 'pref_channel_mail_desc'.tr,
               icon: Icons.mail_outline,
               iconColor: const Color(0xFFFB7185),
               enabled: controller.channelEmail.value,
@@ -239,8 +224,8 @@ class NotificationPreferencesView extends GetView<NotificationPreferencesControl
           Obx(
             () => _buildChannelTile(
               id: 'channel_whatsapp',
-              title: 'WhatsApp Notifications',
-              desc: 'Instant WhatsApp message alerts and dispatch updates',
+              title: 'pref_channel_whatsapp_title'.tr,
+              desc: 'pref_channel_whatsapp_desc'.tr,
               icon: Icons.verified_user_outlined,
               iconColor: const Color(0xFF34D399),
               enabled: controller.channelWhatsapp.value,

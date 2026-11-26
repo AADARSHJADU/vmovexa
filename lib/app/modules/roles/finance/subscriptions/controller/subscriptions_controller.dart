@@ -355,7 +355,7 @@ class SubscriptionsController extends GetxController {
         fetchSubscriptions();
       } else {
         Get.snackbar(
-          'Approval Failed',
+          'approval_failed'.tr,
           (res.message != null && res.message!.isNotEmpty) ? res.message! : 'tenant_approval_failed'.tr,
           backgroundColor: Colors.redAccent,
           colorText: Colors.white,
@@ -363,7 +363,7 @@ class SubscriptionsController extends GetxController {
         );
       }
     } catch (e) {
-      Get.snackbar('Error', e.toString(), backgroundColor: Colors.redAccent, colorText: Colors.white);
+      Get.snackbar('error'.tr, e.toString(), backgroundColor: Colors.redAccent, colorText: Colors.white);
     } finally {
       isActionLoading.value = false;
     }
@@ -376,8 +376,8 @@ class SubscriptionsController extends GetxController {
       final res = await FinanceService.to.updateOrganizationStatus(id, nextStatus);
       if (res.success) {
         Get.snackbar(
-          nextStatus == 'active' ? 'Tenant Activated' : 'Tenant Suspended',
-          'Organization status updated to $nextStatus',
+          nextStatus == 'active' ? 'tenant_activated'.tr : 'tenant_suspended'.tr,
+          '${'org_status_updated'.tr} ($nextStatus)',
           backgroundColor: nextStatus == 'active' ? const Color(0xFF10B981) : Colors.orangeAccent,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
@@ -385,15 +385,15 @@ class SubscriptionsController extends GetxController {
         fetchSubscriptions();
       } else {
         Get.snackbar(
-          'Failed',
-          (res.message != null && res.message!.isNotEmpty) ? res.message! : 'Could not update status',
+          'failed'.tr,
+          (res.message != null && res.message!.isNotEmpty) ? res.message! : 'could_not_update_status'.tr,
           backgroundColor: Colors.redAccent,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
         );
       }
     } catch (e) {
-      Get.snackbar('Error', e.toString(), backgroundColor: Colors.redAccent, colorText: Colors.white);
+      Get.snackbar('error'.tr, e.toString(), backgroundColor: Colors.redAccent, colorText: Colors.white);
     } finally {
       isActionLoading.value = false;
     }

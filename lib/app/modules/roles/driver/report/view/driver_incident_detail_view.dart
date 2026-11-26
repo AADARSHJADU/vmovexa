@@ -71,8 +71,8 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
         Get.snackbar(
-          'Maps',
-          'Could not launch map URL',
+          'maps'.tr,
+          'could_not_launch_map'.tr,
           backgroundColor: kCardBg,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
@@ -1314,7 +1314,7 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Video #${idx + 1}',
+                            'video_index'.trParams({'index': '${idx + 1}'}),
                             style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 2),
@@ -1752,11 +1752,11 @@ class _DriverIncidentDetailViewState extends State<DriverIncidentDetailView> {
   }
 
   String _formatDisruptionLevel(String? lvl) {
-    if (lvl == null || lvl.isEmpty || lvl == 'none') return 'Normal Traffic Flow';
+    if (lvl == null || lvl.isEmpty || lvl == 'none') return 'driver_incident.traffic_none'.tr;
     final l = lvl.toLowerCase();
-    if (l == 'minor') return 'Minor Delay';
-    if (l == 'lane_blocked') return 'Single Lane Blocked';
-    if (l == 'gridlock' || l == 'total') return 'Total Gridlock';
+    if (l == 'minor') return 'driver_incident.traffic_minor'.tr;
+    if (l == 'lane_blocked') return 'driver_incident.traffic_lane_blocked'.tr;
+    if (l == 'gridlock' || l == 'total') return 'driver_incident.traffic_gridlock'.tr;
     return lvl.replaceAll('_', ' ').capitalizeFirst ?? lvl;
   }
 

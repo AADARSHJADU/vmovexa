@@ -75,29 +75,6 @@ class FinanceRaiseTicketView extends GetView<FinanceRaiseTicketController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Text(
-                      'finance_help.portal_breadcrumb'.tr,
-                      style: const TextStyle(color: kMuted, fontSize: 11),
-                    ),
-                    const Text('  /  ', style: TextStyle(color: kMuted, fontSize: 11)),
-                    Text(
-                      'finance_help.help_breadcrumb'.tr,
-                      style: const TextStyle(color: kMuted, fontSize: 11),
-                    ),
-                    const Text('  /  ', style: TextStyle(color: kMuted, fontSize: 11)),
-                    Text(
-                      'finance_help.raise_ticket'.tr,
-                      style: const TextStyle(
-                        color: Color(0xFF818CF8),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 2),
                 Text(
                   'finance_help.raise_ticket_title'.tr,
                   style: const TextStyle(
@@ -108,21 +85,6 @@ class FinanceRaiseTicketView extends GetView<FinanceRaiseTicketController> {
                   ),
                 ),
               ],
-            ),
-          ),
-          GestureDetector(
-            onTap: () => Get.back(),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: kBg,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: kBorder),
-              ),
-              child: Text(
-                'back_to_ticket_history'.tr,
-                style: const TextStyle(color: Colors.white70, fontSize: 10.5, fontWeight: FontWeight.bold),
-              ),
             ),
           ),
         ],
@@ -538,7 +500,7 @@ class FinanceRaiseTicketView extends GetView<FinanceRaiseTicketController> {
                   ),
                   child: const Icon(Icons.camera_alt_outlined, color: Color(0xFF818CF8), size: 18),
                 ),
-                title: const Text('Camera', style: TextStyle(color: Colors.white, fontSize: 12.5)),
+                title: Text('camera'.tr, style: const TextStyle(color: Colors.white, fontSize: 12.5)),
                 onTap: () {
                   Navigator.pop(ctx);
                   controller.pickAttachment(source: ImageSource.camera);
@@ -553,7 +515,7 @@ class FinanceRaiseTicketView extends GetView<FinanceRaiseTicketController> {
                   ),
                   child: const Icon(Icons.photo_library_outlined, color: Color(0xFF818CF8), size: 18),
                 ),
-                title: const Text('Gallery / Photo Library', style: TextStyle(color: Colors.white, fontSize: 12.5)),
+                title: Text('gallery_photo_library'.tr, style: const TextStyle(color: Colors.white, fontSize: 12.5)),
                 onTap: () {
                   Navigator.pop(ctx);
                   controller.pickAttachment(source: ImageSource.gallery);

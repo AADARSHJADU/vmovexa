@@ -29,6 +29,27 @@ class _CreateSupportTicketSheetState extends State<CreateSupportTicketSheet> {
     'Route & Schedule',
   ];
 
+  String _getCategoryLabel(String cat) {
+    switch (cat) {
+      case 'General':
+        return 'ticket_category_general'.tr;
+      case 'Technical':
+        return 'ticket_category_technical'.tr;
+      case 'Fastag & Tolls':
+        return 'ticket_category_fastag_tolls'.tr;
+      case 'Billing & Payouts':
+        return 'ticket_category_billing_payouts'.tr;
+      case 'Hardware & Telematics':
+        return 'ticket_category_hardware_telematics'.tr;
+      case 'Driver & Fleet Roster':
+        return 'ticket_category_driver_fleet_roster'.tr;
+      case 'Route & Schedule':
+        return 'ticket_category_route_schedule'.tr;
+      default:
+        return cat;
+    }
+  }
+
   final List<Map<String, dynamic>> _priorities = [
     {'value': 'low', 'label': 'low', 'color': Color(0xFF78909C)},
     {'value': 'medium', 'label': 'medium', 'color': Color(0xFF3F7BF5)},
@@ -277,7 +298,7 @@ class _CreateSupportTicketSheetState extends State<CreateSupportTicketSheet> {
                     items: _categories.map((cat) {
                       return DropdownMenuItem<String>(
                         value: cat,
-                        child: Text(cat, style: const TextStyle(color: Colors.white, fontSize: 13)),
+                        child: Text(_getCategoryLabel(cat), style: const TextStyle(color: Colors.white, fontSize: 13)),
                       );
                     }).toList(),
                     onChanged: (val) {

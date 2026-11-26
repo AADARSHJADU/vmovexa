@@ -568,7 +568,7 @@ class ScheduleView extends GetView<ScheduleController> {
           Row(
             children: [
               Text(
-                shift.date ?? 'Today',
+                shift.date ?? 'today'.tr,
                 style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 11,
@@ -977,7 +977,7 @@ class ScheduleView extends GetView<ScheduleController> {
             const SizedBox(height: 14),
 
             // Info Grid
-            _buildModalRow('date'.tr, shift.date ?? 'Today'),
+            _buildModalRow('date'.tr, shift.date ?? 'today'.tr),
             _buildModalRow('timetable_shift'.tr, '${shift.startTime ?? '—'} – ${shift.endTime ?? '—'}'),
             _buildModalRow('vehicle_assigned'.tr, shift.busNumber ?? '—'),
             if (shift.slotCode != null) _buildModalRow('slot_code'.tr, shift.slotCode!),

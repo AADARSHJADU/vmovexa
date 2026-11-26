@@ -275,7 +275,7 @@ class OnboardTenantController extends GetxController {
         duration: const Duration(seconds: 2),
       );
     } catch (e) {
-      _showError('Failed to pick image: $e');
+      _showError('${'failed_to_pick_image'.tr}: $e');
     }
   }
 
@@ -612,10 +612,10 @@ class OnboardTenantController extends GetxController {
   void copyCredentials() {
     final d = successModalData.value;
     if (d != null) {
-      final text = 'VMOVEXA Tenant Login Credentials\n'
-          'Company: ${d['orgName']}\n'
-          'Email: ${d['adminEmail']}\n'
-          'Password: ${d['adminPassword']}';
+      final text = '${'tenant_credentials_header'.tr}\n'
+          '${'lbl_company_name'.tr}: ${d['orgName']}\n'
+          '${'lbl_login_email'.tr}: ${d['adminEmail']}\n'
+          '${'password'.tr}: ${d['adminPassword']}';
       Clipboard.setData(ClipboardData(text: text));
       Get.snackbar(
         'copied'.tr,

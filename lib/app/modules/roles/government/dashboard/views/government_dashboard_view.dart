@@ -61,18 +61,18 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
 
   Widget _buildTopHeader(BuildContext context, int index) {
     String title = 'VMOVEXA';
-    String subtitle = 'Government Portal';
+    String subtitle = 'gov_portal_subtitle'.tr;
     bool showActions = true;
 
     if (index == 1) {
-      title = 'Campaigns';
-      subtitle = 'Manage and monitor your government campaigns';
+      title = 'campaigns'.tr;
+      subtitle = 'gov_campaigns_header_sub'.tr;
     } else if (index == 3) {
-      title = 'Analytics';
-      subtitle = 'Performance & Coverage Metrics';
+      title = 'analytics'.tr;
+      subtitle = 'gov_analytics_header_sub'.tr;
     } else if (index == 4) {
-      title = 'Portal Settings';
-      subtitle = 'Manage preferences & account';
+      title = 'portal_settings'.tr;
+      subtitle = 'portal_settings_sub'.tr;
       showActions = false;
     }
 
@@ -2632,7 +2632,7 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
               IconButton(
                 icon: const Icon(Icons.refresh_rounded, color: AppColors.textSecondary, size: 20),
                 onPressed: () => controller.loadDashboardData(silent: true),
-                tooltip: 'Refresh',
+                tooltip: 'common.refresh'.tr,
                 constraints: const BoxConstraints(),
                 padding: const EdgeInsets.all(6),
               ),
@@ -2986,12 +2986,12 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
               Expanded(
                 child: Obx(() => _buildFilterDropdown<String>(
                       value: controller.selectedEmergencySeverity.value,
-                      items: const [
-                        DropdownMenuItem(value: 'all', child: Text('All Severity')),
-                        DropdownMenuItem(value: 'critical', child: Text('Critical')),
-                        DropdownMenuItem(value: 'high', child: Text('High')),
-                        DropdownMenuItem(value: 'medium', child: Text('Medium')),
-                        DropdownMenuItem(value: 'low', child: Text('Low')),
+                      items: [
+                        DropdownMenuItem(value: 'all', child: Text('gov_emergency.all_severity'.tr)),
+                        DropdownMenuItem(value: 'critical', child: Text('critical'.tr)),
+                        DropdownMenuItem(value: 'high', child: Text('high'.tr)),
+                        DropdownMenuItem(value: 'medium', child: Text('medium'.tr)),
+                        DropdownMenuItem(value: 'low', child: Text('low'.tr)),
                       ],
                       onChanged: (val) {
                         if (val != null) controller.selectedEmergencySeverity.value = val;
@@ -3004,10 +3004,10 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
               Expanded(
                 child: Obx(() => _buildFilterDropdown<String>(
                       value: controller.selectedEmergencyScope.value,
-                      items: const [
-                        DropdownMenuItem(value: 'all', child: Text('All Scope')),
-                        DropdownMenuItem(value: 'all_screens', child: Text('Entire Network')),
-                        DropdownMenuItem(value: 'partial', child: Text('Selected Routes')),
+                      items: [
+                        DropdownMenuItem(value: 'all', child: Text('gov_emergency.all_scope'.tr)),
+                        DropdownMenuItem(value: 'all_screens', child: Text('gov_emergency.entire_network'.tr)),
+                        DropdownMenuItem(value: 'partial', child: Text('gov_emergency.selected_routes'.tr)),
                       ],
                       onChanged: (val) {
                         if (val != null) controller.selectedEmergencyScope.value = val;
@@ -3020,10 +3020,10 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
               Expanded(
                 child: Obx(() => _buildFilterDropdown<String>(
                       value: controller.selectedEmergencySort.value,
-                      items: const [
-                        DropdownMenuItem(value: 'newest', child: Text('Newest')),
-                        DropdownMenuItem(value: 'oldest', child: Text('Oldest')),
-                        DropdownMenuItem(value: 'severity', child: Text('Highest Sev')),
+                      items: [
+                        DropdownMenuItem(value: 'newest', child: Text('newest'.tr)),
+                        DropdownMenuItem(value: 'oldest', child: Text('oldest'.tr)),
+                        DropdownMenuItem(value: 'severity', child: Text('gov_emergency.highest_sev'.tr)),
                       ],
                       onChanged: (val) {
                         if (val != null) controller.selectedEmergencySort.value = val;
@@ -3087,25 +3087,25 @@ class GovernmentDashboardView extends GetView<GovernmentDashboardController> {
             ),
             if (tab != 'All')
               _buildFilterChip(
-                label: 'Tab: $tab',
+                label: '${'filter_tab_label'.tr}: $tab',
                 color: const Color(0xFFEF4444),
                 onClear: () => controller.selectedEmergencyTab.value = 'All',
               ),
             if (sev != 'all')
               _buildFilterChip(
-                label: 'Severity: ${sev.toUpperCase()}',
+                label: '${'filter_severity_label'.tr}: ${sev.toUpperCase()}',
                 color: const Color(0xFFF59E0B),
                 onClear: () => controller.selectedEmergencySeverity.value = 'all',
               ),
             if (scope != 'all')
               _buildFilterChip(
-                label: scope == 'all_screens' ? 'Scope: Network' : 'Scope: Routes',
+                label: scope == 'all_screens' ? 'scope_network'.tr : 'scope_routes'.tr,
                 color: const Color(0xFF3B82F6),
                 onClear: () => controller.selectedEmergencyScope.value = 'all',
               ),
             if (q.isNotEmpty)
               _buildFilterChip(
-                label: 'Query: "$q"',
+                label: '${'filter_query_label'.tr}: "$q"',
                 color: Colors.white60,
                 onClear: () {
                   controller.emergencySearchController.clear();

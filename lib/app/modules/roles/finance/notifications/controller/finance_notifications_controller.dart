@@ -126,14 +126,31 @@ class FinanceNotificationsController extends GetxController with GetSingleTicker
         await FinanceService.to.markAllNotificationsRead();
       }
       Get.snackbar(
-        'All Marked as Read',
-        'All financial notifications have been marked as read.',
+        'all_marked_read_title'.tr,
+        'all_marked_read_msg'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF10B981),
         colorText: Colors.white,
         duration: const Duration(seconds: 2),
       );
     } catch (_) {}
+  }
+
+  String getTabLocalizedKey(String tab) {
+    switch (tab) {
+      case 'All':
+        return 'notif_tab_all';
+      case 'Unread':
+        return 'notif_tab_unread';
+      case 'Invoices':
+        return 'notif_tab_invoices';
+      case 'Payments':
+        return 'notif_tab_payments';
+      case 'Subscriptions':
+        return 'notif_tab_subscriptions';
+      default:
+        return tab;
+    }
   }
 
   Future<void> deleteNotification(FinanceNotificationModel item) async {

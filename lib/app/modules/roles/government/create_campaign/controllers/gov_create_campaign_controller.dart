@@ -265,21 +265,21 @@ class GovCreateCampaignController extends GetxController {
         BreakdownItemModel(
           id: 'item_airtime_std',
           key: 'FEE_AIRTIME_BROADCAST',
-          label: 'Public Airtime Playback Fee',
+          label: 'item_airtime_fee'.tr,
           type: 'charge',
           amount: 2500.0,
         ),
         BreakdownItemModel(
           id: 'item_cgst_std',
           key: 'GST_CGST',
-          label: 'Central GST (CGST 9%)',
+          label: 'item_cgst_9'.tr,
           type: 'tax',
           amount: 2250.0,
         ),
         BreakdownItemModel(
           id: 'item_sgst_std',
           key: 'GST_SGST',
-          label: 'State GST (SGST 9%)',
+          label: 'item_sgst_9'.tr,
           type: 'tax',
           amount: 2250.0,
         ),
@@ -480,7 +480,7 @@ class GovCreateCampaignController extends GetxController {
         }
       }
     } catch (e) {
-      Get.snackbar('Picker Error', 'Could not access gallery: $e',
+      Get.snackbar('picker_error_title'.tr, 'could_not_access_gallery_msg'.trParams({'error': e.toString()}),
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
     }
   }
@@ -1071,7 +1071,7 @@ class GovCreateCampaignController extends GetxController {
       BreakdownItemModel(
         id: id,
         key: 'CUSTOM',
-        label: 'Custom Public Service Item',
+        label: 'item_custom_surcharge'.tr,
         type: 'charge',
         amount: 0.0,
       ),
@@ -1094,7 +1094,7 @@ class GovCreateCampaignController extends GetxController {
         BreakdownItemModel(
           id: 'item_${DateTime.now().millisecondsSinceEpoch}_cgst',
           key: 'GST_CGST',
-          label: 'Central GST (CGST 9%)',
+          label: 'item_cgst_9'.tr,
           type: 'tax',
           amount: amount,
         ),
@@ -1114,7 +1114,7 @@ class GovCreateCampaignController extends GetxController {
         BreakdownItemModel(
           id: 'item_${DateTime.now().millisecondsSinceEpoch}_igst',
           key: 'GST_IGST',
-          label: 'Integrated GST (IGST 18%)',
+          label: 'item_igst_18'.tr,
           type: 'tax',
           amount: amount,
         ),
@@ -1179,52 +1179,52 @@ class GovCreateCampaignController extends GetxController {
 
     switch (key) {
       case 'GST_CGST':
-        label = 'Central GST (CGST 9%)';
+        label = 'item_cgst_9'.tr;
         type = 'tax';
         amount = (base * 0.09).roundToDouble();
         break;
       case 'GST_SGST':
-        label = 'State GST (SGST 9%)';
+        label = 'item_sgst_9'.tr;
         type = 'tax';
         amount = (base * 0.09).roundToDouble();
         break;
       case 'GST_IGST':
-        label = 'Integrated GST (IGST 18%)';
+        label = 'item_igst_18'.tr;
         type = 'tax';
         amount = (base * 0.18).roundToDouble();
         break;
       case 'GST_CESS':
-        label = 'GST Compensation Cess';
+        label = 'item_gst_cess'.tr;
         type = 'tax';
         amount = 0.0;
         break;
       case 'FEE_AIRTIME_BROADCAST':
-        label = 'Public Airtime Playback Fee';
+        label = 'item_airtime_fee'.tr;
         type = 'charge';
         amount = (base * 0.10).roundToDouble();
         break;
       case 'FEE_HARDWARE_RENTAL':
-        label = 'Hardware Maintenance & Edge IoT Rental';
+        label = 'item_hardware_rental'.tr;
         type = 'charge';
         amount = 5000.0;
         break;
       case 'FEE_CREATIVE_DESIGN':
-        label = 'Creative Verification & Compliance';
+        label = 'item_creative_design'.tr;
         type = 'charge';
         amount = 2500.0;
         break;
       case 'FEE_ONBOARDING_SETUP':
-        label = 'Campaign Deployment & Fleet Onboarding';
+        label = 'item_onboarding_fee'.tr;
         type = 'charge';
         amount = 3500.0;
         break;
       case 'DISCOUNT_VOLUME':
-        label = 'High Frequency Broadcast Discount';
+        label = 'item_volume_discount'.tr;
         type = 'discount';
         amount = (base * 0.15).roundToDouble();
         break;
       case 'DISCOUNT_PROMO':
-        label = 'Welfare Campaign Concession';
+        label = 'item_promo_concession'.tr;
         type = 'discount';
         amount = (base * 0.10).roundToDouble();
         break;
@@ -1331,7 +1331,7 @@ class GovCreateCampaignController extends GetxController {
       return false;
     }
     if (dailySlotStart.value.compareTo(dailySlotEnd.value) >= 0) {
-      Get.snackbar('required_label'.tr, 'Daily Broadcast End Time must be later than Start Time',
+      Get.snackbar('required_label'.tr, 'end_time_must_be_later_msg'.tr,
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return false;
     }
@@ -1499,10 +1499,10 @@ class GovCreateCampaignController extends GetxController {
           hasSavedDraft.value = false;
           draftSavedAt.value = '';
           draftInfo.value = null;
-          Get.snackbar('success'.tr, 'Broadcast updated successfully',
+          Get.snackbar('success'.tr, 'broadcast_updated_msg'.tr,
               backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
         } else {
-          Get.snackbar('Update Failed', res.message ?? 'Failed to update broadcast',
+          Get.snackbar('update_failed_title'.tr, res.message ?? 'failed_update_broadcast_msg'.tr,
               backgroundColor: const Color(0xFFEF4444), colorText: Colors.white, duration: const Duration(seconds: 4));
         }
       } else {
@@ -1515,12 +1515,12 @@ class GovCreateCampaignController extends GetxController {
           draftSavedAt.value = '';
           draftInfo.value = null;
         } else {
-          Get.snackbar('Submission Failed', res.message ?? 'Failed to create broadcast',
+          Get.snackbar('submission_failed_title'.tr, res.message ?? 'failed_create_broadcast_msg'.tr,
               backgroundColor: const Color(0xFFEF4444), colorText: Colors.white, duration: const Duration(seconds: 4));
         }
       }
     } catch (e) {
-      Get.snackbar('Error', 'An error occurred during submission: $e',
+      Get.snackbar('error'.tr, 'submission_error_occurred'.trParams({'error': e.toString()}),
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
     } finally {
       isSubmitting.value = false;
@@ -1592,7 +1592,7 @@ class GovCreateCampaignController extends GetxController {
         duration: const Duration(seconds: 2),
       );
     } catch (e) {
-      Get.snackbar('Draft Error', 'Could not save draft: $e',
+      Get.snackbar('draft_error_title'.tr, 'could_not_save_draft_err'.trParams({'error': e.toString()}),
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
     }
   }
@@ -1695,7 +1695,7 @@ class GovCreateCampaignController extends GetxController {
         colorText: Colors.white,
       );
     } catch (e) {
-      Get.snackbar('Restore Error', 'Could not restore draft: $e',
+      Get.snackbar('restore_error_title'.tr, 'could_not_restore_draft_err'.trParams({'error': e.toString()}),
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
     }
   }
@@ -1712,5 +1712,54 @@ class GovCreateCampaignController extends GetxController {
       colorText: Colors.white,
       duration: const Duration(seconds: 2),
     );
+  }
+
+  String getDropdownItemLabel(String item) {
+    switch (item) {
+      case 'Increase Brand Awareness':
+        return 'objective_brand_awareness'.tr;
+      case 'Drive Sales':
+        return 'objective_drive_sales'.tr;
+      case 'Store Footfall':
+        return 'objective_store_footfall'.tr;
+      case 'Product Launch':
+        return 'objective_product_launch'.tr;
+      case 'Lead Generation':
+        return 'objective_lead_generation'.tr;
+      case 'Retail':
+        return 'cat_retail'.tr;
+      case 'Technology':
+        return 'cat_technology'.tr;
+      case 'Fashion':
+        return 'cat_fashion'.tr;
+      case 'Automotive':
+        return 'cat_automotive'.tr;
+      case 'FMCG / Grocery':
+        return 'cat_fmcg_grocery'.tr;
+      case 'Real Estate':
+        return 'cat_real_estate'.tr;
+      case 'Entertainment':
+        return 'cat_entertainment'.tr;
+      case 'Healthcare':
+        return 'cat_healthcare'.tr;
+      case 'Education':
+        return 'cat_education'.tr;
+      case 'Finance / BFSI':
+        return 'cat_finance_bfsi'.tr;
+      case 'Government / PSU':
+        return 'cat_government_psu'.tr;
+      case 'Hospitality / Tourism':
+        return 'cat_hospitality_tourism'.tr;
+      case 'E-Commerce':
+        return 'cat_ecommerce'.tr;
+      case 'Telecommunications':
+        return 'cat_telecom'.tr;
+      case 'Media & Entertainment':
+        return 'cat_media_entertainment'.tr;
+      case 'Public Awareness / Social':
+        return 'cat_public_awareness_social'.tr;
+      default:
+        return item;
+    }
   }
 }

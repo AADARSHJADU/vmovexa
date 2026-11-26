@@ -16,8 +16,8 @@ class GovSideDrawer extends StatelessWidget {
     final authService = AuthService.to;
     final user = authService.currentUser;
 
-    final officerName = user?.name ?? 'Government Official';
-    final agencyName = user?.organization?.name ?? 'State Public Transit Agency';
+    final officerName = user?.name ?? 'gov_official_title'.tr;
+    final agencyName = user?.organization?.name ?? 'default_transit_agency'.tr;
     final rawAvatar = user?.avatarUrl;
     final avatarUrl = rawAvatar != null && rawAvatar.isNotEmpty
         ? ApiConstants.resolveFileUrl(rawAvatar)
@@ -65,7 +65,7 @@ class GovSideDrawer extends StatelessWidget {
                   ),
                   IconButton(
                     icon: const Icon(Icons.keyboard_double_arrow_left_rounded, color: Colors.white70, size: 24),
-                    tooltip: 'Collapse Menu',
+                    tooltip: 'collapse_menu'.tr,
                     onPressed: () => Get.back(),
                   ),
                 ],
@@ -124,9 +124,9 @@ class GovSideDrawer extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(width: 5),
-                              const Text(
-                                'OFFICIAL STATE AGENCY',
-                                style: TextStyle(
+                              Text(
+                                'official_state_agency'.tr,
+                                style: const TextStyle(
                                   color: Color(0xFF10B981),
                                   fontSize: 8.5,
                                   fontWeight: FontWeight.bold,

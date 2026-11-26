@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../../../theme/app_colors.dart';
 import '../controller/finance_reports_controller.dart';
 import '../../revenue_reporting/view/revenue_reporting_view.dart';
 import '../../revenue_reporting/controller/revenue_reporting_controller.dart';
@@ -38,10 +37,10 @@ class FinanceReportsView extends GetView<FinanceReportsController> {
     }
 
     final tabs = [
-      {'title': 'Revenue', 'icon': Icons.trending_up},
-      {'title': 'GST & Tax', 'icon': Icons.receipt_long},
-      {'title': 'Reconcile', 'icon': Icons.balance},
-      {'title': 'Tenants', 'icon': Icons.people_outline},
+      {'title': 'fin_revenue'.tr, 'icon': Icons.trending_up},
+      {'title': 'gst_tax'.tr, 'icon': Icons.receipt_long},
+      {'title': 'reconcile'.tr, 'icon': Icons.balance},
+      {'title': 'tenants'.tr, 'icon': Icons.people_outline},
     ];
 
     return Scaffold(
@@ -59,7 +58,7 @@ class FinanceReportsView extends GetView<FinanceReportsController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Reports & Compliance',
+                          'reports_compliance'.tr,
                           style: GoogleFonts.raleway(
                             color: Colors.white,
                             fontSize: 20,
@@ -68,7 +67,7 @@ class FinanceReportsView extends GetView<FinanceReportsController> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Revenue P&L, GST Returns, Bank Match & Tenants',
+                          'reports_compliance_subtitle'.tr,
                           style: GoogleFonts.raleway(
                             color: Colors.white54,
                             fontSize: 11.5,

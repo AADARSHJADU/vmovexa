@@ -419,8 +419,8 @@ class DriverIncidentsListView extends GetView<DriverIncidentsListController> {
     }
 
     final ticket = item.ticketNumber ?? (item.id != null ? '#${item.id}' : 'INC');
-    final incType = item.incidentType ?? item.title ?? 'Incident';
-    final locationText = item.locationName ?? item.location?.address ?? 'Location not specified';
+    final incType = item.incidentType ?? item.title ?? 'incident'.tr;
+    final locationText = item.locationName ?? item.location?.address ?? 'location_not_specified'.tr;
 
     return GestureDetector(
       onTap: onTap,

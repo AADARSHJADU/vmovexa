@@ -7,11 +7,11 @@ extension NotificationCategoryX on NotificationCategory {
   String get label {
     switch (this) {
       case NotificationCategory.alert:
-        return 'Alert';
+        return 'alert'.tr;
       case NotificationCategory.update:
-        return 'Update';
+        return 'update'.tr;
       case NotificationCategory.system:
-        return 'System';
+        return 'system'.tr;
     }
   }
 
@@ -180,27 +180,27 @@ class DriverNotification {
   }
 
   static String _formatRelativeTime(String? dateStr) {
-    if (dateStr == null || dateStr.isEmpty) return 'Recently';
+    if (dateStr == null || dateStr.isEmpty) return 'recently'.tr;
     try {
       final dt = DateTime.parse(dateStr).toLocal();
       final now = DateTime.now();
       final diff = now.difference(dt);
 
       if (diff.inSeconds < 60) {
-        return 'Just now';
+        return 'just_now'.tr;
       } else if (diff.inMinutes < 60) {
-        return '${diff.inMinutes}m ago';
+        return 'm_ago'.trParams({'m': '${diff.inMinutes}'});
       } else if (diff.inHours < 24) {
-        return '${diff.inHours}h ago';
+        return 'h_ago'.trParams({'h': '${diff.inHours}'});
       } else if (diff.inDays == 1) {
-        return 'Yesterday';
+        return 'yesterday'.tr;
       } else if (diff.inDays < 7) {
-        return '${diff.inDays}d ago';
+        return 'd_ago'.trParams({'d': '${diff.inDays}'});
       } else {
         return '${dt.day}/${dt.month}/${dt.year}';
       }
     } catch (_) {
-      return 'Recently';
+      return 'recently'.tr;
     }
   }
 }

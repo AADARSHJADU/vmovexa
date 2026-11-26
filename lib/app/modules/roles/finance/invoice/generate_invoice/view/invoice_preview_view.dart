@@ -104,7 +104,7 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
       ),
       child: Obx(() {
         final customerName = controller.customerNameCtrl.text.trim().isEmpty
-            ? 'Customer / Company'
+            ? 'customer_company'.tr
             : controller.customerNameCtrl.text.trim();
         final billingAddr = controller.billingAddressCtrl.text.trim().isEmpty
             ? '—'
@@ -127,9 +127,9 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Invoice #',
-                        style: TextStyle(color: Colors.white, fontSize: 10),
+                      Text(
+                        'invoice_num_label'.tr,
+                        style: const TextStyle(color: Colors.white, fontSize: 10),
                       ),
                       const SizedBox(height: 3),
                       Text(
@@ -146,9 +146,9 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Text(
-                      'Invoice Date',
-                      style: TextStyle(color: Colors.white, fontSize: 10),
+                    Text(
+                      'invoice_date'.tr,
+                      style: const TextStyle(color: Colors.white, fontSize: 10),
                     ),
                     const SizedBox(height: 3),
                     Row(
@@ -174,7 +174,7 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
               ],
             ),
             const SizedBox(height: 16),
-            _sectionHeader(Icons.person_outline, 'Customer Details'),
+            _sectionHeader(Icons.person_outline, 'customer_details'.tr),
             const SizedBox(height: 10),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,10 +183,10 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _miniLabel('Customer Name'),
+                      _miniLabel('customer_name'.tr),
                       _miniValue(customerName),
                       const SizedBox(height: 8),
-                      _miniLabel('Billing Address'),
+                      _miniLabel('billing_address'.tr),
                       _miniValue(billingAddr),
                     ],
                   ),
@@ -196,10 +196,10 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _miniLabel('GSTIN'),
+                      _miniLabel('gstin_label'.tr),
                       _miniValue(gstin),
                       const SizedBox(height: 8),
-                      _miniLabel('Place of Supply'),
+                      _miniLabel('place_of_supply'.tr),
                       _miniValue(placeOfSupply),
                     ],
                   ),
@@ -209,7 +209,7 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
             const SizedBox(height: 16),
             Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
             const SizedBox(height: 16),
-            _sectionHeader(Icons.description_outlined, 'Invoice Details'),
+            _sectionHeader(Icons.description_outlined, 'invoice_details'.tr),
             const SizedBox(height: 10),
             Row(
               children: [
@@ -217,7 +217,7 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _miniLabel('Due Date'),
+                      _miniLabel('due_date'.tr),
                       _miniValue(controller.dueDateText),
                     ],
                   ),
@@ -226,7 +226,7 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _miniLabel('PO / Reference No.'),
+                      _miniLabel('po_reference_no'.tr),
                       _miniValue(
                         controller.poReferenceCtrl.text.trim().isEmpty
                             ? '—'
@@ -239,7 +239,7 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _miniLabel('Currency'),
+                      _miniLabel('currency'.tr),
                       _miniValue(controller.currency.value.split(' - ').first),
                     ],
                   ),
@@ -249,7 +249,7 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
             const SizedBox(height: 16),
             Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
             const SizedBox(height: 16),
-            _sectionHeader(Icons.inventory_2_outlined, 'Invoice Items'),
+            _sectionHeader(Icons.inventory_2_outlined, 'invoice_items'.tr),
             const SizedBox(height: 10),
             _buildItemsTable(),
             const SizedBox(height: 16),
@@ -257,7 +257,7 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
             const SizedBox(height: 16),
             Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
             const SizedBox(height: 16),
-            _sectionHeader(Icons.notes_outlined, 'Notes / Terms'),
+            _sectionHeader(Icons.notes_outlined, 'notes_terms'.tr),
             const SizedBox(height: 8),
             Container(
               width: double.infinity,
@@ -268,7 +268,7 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
               ),
               child: Text(
                 controller.notesCtrl.text.trim().isEmpty
-                    ? 'Payment within 15 days of invoice date.'
+                    ? 'payment_within_15_days'.tr
                     : controller.notesCtrl.text.trim(),
                 style: const TextStyle(color: Colors.white70, fontSize: 11.5),
               ),
@@ -315,42 +315,42 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
     return Obx(
       () => Column(
         children: [
-          const Row(
+          Row(
             children: [
               Expanded(
                 flex: 3,
                 child: Text(
-                  'Item Description',
-                  style: TextStyle(color: Colors.white, fontSize: 9.5),
+                  'item_description'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 9.5),
                 ),
               ),
               Expanded(
                 flex: 2,
                 child: Text(
-                  'HSN/SAC',
-                  style: TextStyle(color: Colors.white, fontSize: 9.5),
+                  'hsn_sac'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 9.5),
                 ),
               ),
               Expanded(
                 flex: 1,
                 child: Text(
-                  'Qty',
-                  style: TextStyle(color: Colors.white, fontSize: 9.5),
+                  'qty_col'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 9.5),
                 ),
               ),
               Expanded(
                 flex: 2,
                 child: Text(
-                  'Rate (\u20b9)',
-                  style: TextStyle(color: Colors.white, fontSize: 9.5),
+                  'rate_inr'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 9.5),
                   textAlign: TextAlign.right,
                 ),
               ),
               Expanded(
                 flex: 2,
                 child: Text(
-                  'Amount (\u20b9)',
-                  style: TextStyle(color: Colors.white, fontSize: 9.5),
+                  'amount_inr'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 9.5),
                   textAlign: TextAlign.right,
                 ),
               ),
@@ -436,20 +436,20 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _totalRow('Subtotal', controller.subtotalText),
+              _totalRow('subtotal'.tr, controller.subtotalText),
               const SizedBox(height: 6),
-              _totalRow('CGST (9%)', controller.cgstText),
+              _totalRow('cgst_9'.tr, controller.cgstText),
               const SizedBox(height: 6),
-              _totalRow('SGST (9%)', controller.sgstText),
+              _totalRow('sgst_9'.tr, controller.sgstText),
               const SizedBox(height: 8),
               Divider(color: Colors.white.withValues(alpha: 0.1), height: 1),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Total Amount',
-                    style: TextStyle(
+                  Text(
+                    'total_amount'.tr,
+                    style: const TextStyle(
                       color: kPurple,
                       fontSize: 12.5,
                       fontWeight: FontWeight.w700,
@@ -522,18 +522,18 @@ class InvoicePreviewView extends GetView<GenerateInvoiceController> {
                           strokeWidth: 2.4,
                         ),
                       )
-                    : const Row(
+                    : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.download_outlined,
                             color: Colors.white,
                             size: 18,
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           Text(
-                            'Download Invoice',
-                            style: TextStyle(
+                            'download_invoice'.tr,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,
                               fontWeight: FontWeight.w700,

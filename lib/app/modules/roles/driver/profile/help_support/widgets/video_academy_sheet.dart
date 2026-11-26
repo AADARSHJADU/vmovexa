@@ -134,7 +134,7 @@ class VideoAcademySheet extends StatelessWidget {
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: Text(
-                                        video.category.toUpperCase(),
+                                        _getVideoCategoryLabel(video.category).toUpperCase(),
                                         style: TextStyle(
                                           color: AppTheme.gradientPink,
                                           fontSize: 9,
@@ -238,5 +238,22 @@ class VideoAcademySheet extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _getVideoCategoryLabel(String cat) {
+    switch (cat.toLowerCase()) {
+      case 'training':
+        return 'video_cat_training'.tr;
+      case 'getting started':
+        return 'video_cat_getting_started'.tr;
+      case 'navigation':
+        return 'video_cat_navigation'.tr;
+      case 'emergency sos':
+        return 'video_cat_emergency_sos'.tr;
+      case 'shift end':
+        return 'video_cat_shift_end'.tr;
+      default:
+        return cat;
+    }
   }
 }

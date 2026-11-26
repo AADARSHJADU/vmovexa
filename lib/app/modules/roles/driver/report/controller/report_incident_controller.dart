@@ -209,16 +209,16 @@ class ReportIncidentController extends GetxController {
 
       await reverseGeocode(targetLat, targetLng);
       Get.snackbar(
-        'GPS Locked',
-        'Coordinates resolved: (${targetLat.toStringAsFixed(4)}, ${targetLng.toStringAsFixed(4)})',
+        'gps_locked'.tr,
+        'coordinates_resolved'.trParams({'lat': targetLat.toStringAsFixed(4), 'lng': targetLng.toStringAsFixed(4)}),
         backgroundColor: const Color(0xFF15151F),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
     } catch (e) {
       Get.snackbar(
-        'GPS Error',
-        'Could not acquire exact GPS coordinates: $e',
+        'gps_error'.tr,
+        'could_not_acquire_gps'.trParams({'error': e.toString()}),
         backgroundColor: const Color(0xFF15151F),
         colorText: Colors.redAccent,
         snackPosition: SnackPosition.BOTTOM,
@@ -276,8 +276,8 @@ class ReportIncidentController extends GetxController {
   Future<void> onUploadPhoto(BuildContext context) async {
     if (photoPaths.length >= maxPhotos) {
       Get.snackbar(
-        'Limit Reached',
-        'You can upload up to $maxPhotos photos.',
+        'limit_reached'.tr,
+        'max_photos_limit_msg'.trParams({'max': maxPhotos.toString()}),
         backgroundColor: const Color(0xFF15151F),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
@@ -334,8 +334,8 @@ class ReportIncidentController extends GetxController {
   Future<void> onUploadVideo(BuildContext context) async {
     if (videoPaths.length >= maxVideos) {
       Get.snackbar(
-        'Limit Reached',
-        'You can upload up to $maxVideos videos.',
+        'limit_reached'.tr,
+        'max_videos_limit_msg'.trParams({'max': maxVideos.toString()}),
         backgroundColor: const Color(0xFF15151F),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
@@ -512,10 +512,10 @@ class ReportIncidentController extends GetxController {
 
   void onStep1NextPressed() {
     if (descriptionCtrl.text.trim().isEmpty) {
-      descriptionError.value = 'Please describe the incident';
+      descriptionError.value = 'please_describe_road_incident'.tr;
       Get.snackbar(
-        'Missing Information',
-        'Please describe what occurred on the road *',
+        'missing_information'.tr,
+        'please_describe_road_incident'.tr,
         backgroundColor: const Color(0xFF15151F),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
@@ -539,8 +539,8 @@ class ReportIncidentController extends GetxController {
 
     if (effectiveLoc.isEmpty && !hasLocationPin.value) {
       Get.snackbar(
-        'Missing Location',
-        'Please specify or pin the incident location *',
+        'missing_location'.tr,
+        'please_specify_location'.tr,
         backgroundColor: const Color(0xFF15151F),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
@@ -637,10 +637,10 @@ class ReportIncidentController extends GetxController {
 
       // Check if server rejected request
       if (!response.success) {
-        final errMsg = response.message ?? response.error ?? 'Failed to submit incident report';
+        final errMsg = response.message ?? response.error ?? 'submission_failed'.tr;
         debugPrint('❌ [ReportIncidentController] Server error: $errMsg');
         Get.snackbar(
-          'Submission Failed',
+          'submission_failed'.tr,
           errMsg,
           backgroundColor: const Color(0xFF15151F),
           colorText: Colors.redAccent,
@@ -714,8 +714,8 @@ class ReportIncidentController extends GetxController {
       Get.off(() => const IncidentSubmittedView());
     } catch (e) {
       Get.snackbar(
-        'Submission Failed',
-        'Could not report incident: $e',
+        'submission_failed'.tr,
+        'could_not_report_incident'.trParams({'error': e.toString()}),
         backgroundColor: const Color(0xFF15151F),
         colorText: Colors.redAccent,
         snackPosition: SnackPosition.BOTTOM,
@@ -744,8 +744,8 @@ class ReportIncidentController extends GetxController {
 
   void onShareReport() {
     Get.snackbar(
-      'Share Report',
-      'Ticket Number: ${incidentId.value}',
+      'share_report'.tr,
+      'ticket_number_copied'.trParams({'ticket': incidentId.value}),
       backgroundColor: const Color(0xFF15151F),
       colorText: Colors.white,
       snackPosition: SnackPosition.BOTTOM,

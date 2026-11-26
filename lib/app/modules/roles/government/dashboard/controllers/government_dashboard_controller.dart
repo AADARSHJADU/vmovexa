@@ -261,18 +261,18 @@ class GovernmentDashboardController extends GetxController {
       final res = await _govService.startCampaign(id);
       if (res.success) {
         Get.snackbar(
-          'Broadcast Started',
-          'Campaign broadcast is live on transit screens.',
+          'broadcast_started_title'.tr,
+          'broadcast_started_msg'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
         );
         loadDashboardData(silent: true);
       } else {
-        Get.snackbar('Failed', res.message ?? 'Could not start campaign', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+        Get.snackbar('failed'.tr, res.message ?? 'could_not_start_campaign'.tr, backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to start campaign: $e', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+      Get.snackbar('error'.tr, 'failed_start_campaign_err'.trParams({'error': e.toString()}), backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
     }
   }
 
@@ -283,18 +283,18 @@ class GovernmentDashboardController extends GetxController {
       final res = await _govService.pauseCampaign(id);
       if (res.success) {
         Get.snackbar(
-          'Broadcast Paused',
-          'Campaign transit broadcast has been paused.',
+          'broadcast_paused_title'.tr,
+          'broadcast_paused_msg'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFFF59E0B),
           colorText: Colors.white,
         );
         loadDashboardData(silent: true);
       } else {
-        Get.snackbar('Failed', res.message ?? 'Could not pause campaign', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+        Get.snackbar('failed'.tr, res.message ?? 'could_not_pause_campaign'.tr, backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to pause campaign: $e', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+      Get.snackbar('error'.tr, 'failed_pause_campaign_err'.trParams({'error': e.toString()}), backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
     }
   }
 
@@ -328,18 +328,18 @@ class GovernmentDashboardController extends GetxController {
         final res = await _govService.endCampaign(id);
         if (res.success) {
           Get.snackbar(
-            'Campaign Ended',
-            'Broadcast ended permanently.',
+            'campaign_ended_title'.tr,
+            'campaign_ended_msg'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
           );
           loadDashboardData(silent: true);
         } else {
-          Get.snackbar('Failed', res.message ?? 'Could not end campaign', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+          Get.snackbar('failed'.tr, res.message ?? 'could_not_end_campaign'.tr, backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
         }
       } catch (e) {
-        Get.snackbar('Error', 'Failed to end campaign: $e', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+        Get.snackbar('error'.tr, 'failed_end_campaign_err'.trParams({'error': e.toString()}), backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       }
     }
   }
@@ -351,18 +351,18 @@ class GovernmentDashboardController extends GetxController {
       final res = await _govService.approveCampaign(id);
       if (res.success) {
         Get.snackbar(
-          'Broadcast Approved',
-          'Public service broadcast cleared for transit screens.',
+          'broadcast_approved_title'.tr,
+          'broadcast_approved_msg'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
         );
         loadDashboardData(silent: true);
       } else {
-        Get.snackbar('Failed', res.message ?? 'Approval failed', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+        Get.snackbar('failed'.tr, res.message ?? 'approval_failed_msg'.tr, backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Approval failed: $e', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+      Get.snackbar('error'.tr, 'approval_failed_err'.trParams({'error': e.toString()}), backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
     }
   }
 
@@ -388,7 +388,7 @@ class GovernmentDashboardController extends GetxController {
               decoration: InputDecoration(
                 filled: true,
                 fillColor: const Color(0xFF0F172A),
-                hintText: 'Enter reason...',
+                hintText: 'enter_reason_hint'.tr,
                 hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
               ),
@@ -415,21 +415,21 @@ class GovernmentDashboardController extends GetxController {
     if (confirmed == true) {
       final reason = remarksController.text.trim();
       try {
-        final res = await _govService.rejectCampaign(id, reason.isNotEmpty ? reason : 'Creative specifications incomplete');
+        final res = await _govService.rejectCampaign(id, reason.isNotEmpty ? reason : 'creative_specs_incomplete_reason'.tr);
         if (res.success) {
           Get.snackbar(
-            'Campaign Rejected',
-            'Revision remarks submitted.',
+            'campaign_rejected_title'.tr,
+            'campaign_rejected_msg'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFFEF4444),
             colorText: Colors.white,
           );
           loadDashboardData(silent: true);
         } else {
-          Get.snackbar('Failed', res.message ?? 'Could not reject campaign', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+          Get.snackbar('failed'.tr, res.message ?? 'could_not_reject_campaign'.tr, backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
         }
       } catch (e) {
-        Get.snackbar('Error', 'Failed to reject campaign: $e', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+        Get.snackbar('error'.tr, 'failed_reject_campaign_err'.trParams({'error': e.toString()}), backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       }
     }
   }
@@ -464,18 +464,18 @@ class GovernmentDashboardController extends GetxController {
         final res = await _govService.deleteCampaign(id);
         if (res.success) {
           Get.snackbar(
-            'Campaign Deleted',
-            'Campaign deleted successfully.',
+            'campaign_deleted_title'.tr,
+            'campaign_deleted_msg'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
           );
           loadDashboardData(silent: true);
         } else {
-          Get.snackbar('Failed', res.message ?? 'Could not delete campaign', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+          Get.snackbar('failed'.tr, res.message ?? 'could_not_delete_campaign'.tr, backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
         }
       } catch (e) {
-        Get.snackbar('Error', 'Failed to delete campaign: $e', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+        Get.snackbar('error'.tr, 'failed_delete_campaign_err'.trParams({'error': e.toString()}), backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       }
     }
   }
@@ -774,7 +774,7 @@ class GovernmentDashboardController extends GetxController {
         }
       }
     } catch (e) {
-      Get.snackbar('Picker Error', 'Could not pick file: $e',
+      Get.snackbar('picker_error_title'.tr, 'could_not_pick_file_err'.trParams({'error': e.toString()}),
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
     }
   }
@@ -783,12 +783,12 @@ class GovernmentDashboardController extends GetxController {
     final raw = mediaUrlInputController.text.trim();
     if (raw.isEmpty) return;
     if (!raw.startsWith('http://') && !raw.startsWith('https://')) {
-      Get.snackbar('Invalid URL', 'gov_emergency.invalid_url'.tr,
+      Get.snackbar('invalid_url_title'.tr, 'gov_emergency.invalid_url'.tr,
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return;
     }
     if (mediaItems.any((i) => i.url == raw)) {
-      Get.snackbar('Notice', 'gov_emergency.url_already_added'.tr,
+      Get.snackbar('common.notice'.tr, 'gov_emergency.url_already_added'.tr,
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return;
     }
@@ -856,7 +856,7 @@ class GovernmentDashboardController extends GetxController {
   Future<void> broadcastEmergencyAlert() async {
     final headline = alertHeadlineController.text.trim();
     if (headline.isEmpty) {
-      Get.snackbar('Required Field', 'gov_emergency.err_headline_required'.tr,
+      Get.snackbar('required_field'.tr, 'gov_emergency.err_headline_required'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFFEF4444),
           colorText: Colors.white);
@@ -864,7 +864,7 @@ class GovernmentDashboardController extends GetxController {
     }
 
     if (mediaItems.isEmpty) {
-      Get.snackbar('Required Field', 'gov_emergency.err_visual_required'.tr,
+      Get.snackbar('required_field'.tr, 'gov_emergency.err_visual_required'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFFEF4444),
           colorText: Colors.white);
@@ -872,7 +872,7 @@ class GovernmentDashboardController extends GetxController {
     }
 
     if (!targetAllScreens.value && selectedTargets.isEmpty) {
-      Get.snackbar('Required Field', 'gov_emergency.err_target_required'.tr,
+      Get.snackbar('required_field'.tr, 'gov_emergency.err_target_required'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFFEF4444),
           colorText: Colors.white);
@@ -943,7 +943,7 @@ class GovernmentDashboardController extends GetxController {
 
       if (response.success) {
         Get.snackbar(
-          'Emergency Alert Broadcasted',
+          'emergency_alert_broadcasted_title'.tr,
           'gov_emergency.broadcast_success'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
@@ -971,8 +971,8 @@ class GovernmentDashboardController extends GetxController {
         }
       } else {
         Get.snackbar(
-          'Broadcast Failed',
-          response.message ?? 'Failed to transmit broadcast alert',
+          'broadcast_failed_title'.tr,
+          response.message ?? 'failed_transmit_alert_msg'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFFEF4444),
           colorText: Colors.white,
@@ -980,8 +980,8 @@ class GovernmentDashboardController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'An unexpected error occurred while transmitting alert: $e',
+        'error'.tr,
+        'alert_transmit_err_msg'.trParams({'error': e.toString()}),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),
         colorText: Colors.white,
@@ -1000,7 +1000,7 @@ class GovernmentDashboardController extends GetxController {
       final res = await _govService.revokeEmergencyBroadcast(id);
       if (res.success) {
         Get.snackbar(
-          'Alert Revoked',
+          'alert_revoked_title'.tr,
           'gov_emergency.revoke_success'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
@@ -1014,10 +1014,10 @@ class GovernmentDashboardController extends GetxController {
           activeAlert.value = activeList.isNotEmpty ? activeList.first : null;
         }
       } else {
-        Get.snackbar('Revoke Failed', res.message ?? 'Failed to revoke alert', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+        Get.snackbar('revoke_failed_title'.tr, res.message ?? 'failed_revoke_alert_msg'.tr, backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to revoke alert.', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+      Get.snackbar('error'.tr, 'failed_revoke_alert_msg'.tr, backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
     }
   }
 
@@ -1026,7 +1026,7 @@ class GovernmentDashboardController extends GetxController {
       final res = await _govService.deleteEmergencyBroadcast(id);
       if (res.success) {
         Get.snackbar(
-          'Deleted',
+          'deleted'.tr,
           'gov_emergency.delete_success'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
@@ -1040,10 +1040,10 @@ class GovernmentDashboardController extends GetxController {
           activeAlert.value = activeList.isNotEmpty ? activeList.first : null;
         }
       } else {
-        Get.snackbar('Delete Failed', res.message ?? 'Failed to delete broadcast', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+        Get.snackbar('delete_failed_title'.tr, res.message ?? 'failed_delete_broadcast_msg'.tr, backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to delete broadcast: $e', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+      Get.snackbar('error'.tr, 'failed_delete_broadcast_err'.trParams({'error': e.toString()}), backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
     }
   }
 

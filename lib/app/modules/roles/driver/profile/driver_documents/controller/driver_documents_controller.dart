@@ -8,7 +8,6 @@ import 'package:vmovexa/app/theme/app_theme.dart';
 
 import 'package:vmovexa/app/data/models/driver_models.dart';
 import 'package:vmovexa/app/data/services/driver_service.dart';
-import 'package:vmovexa/app/modules/roles/driver/home/controller/driver_home_controller.dart';
 import 'package:vmovexa/app/modules/roles/driver/profile/controller/driver_profile_controller.dart';
 
 class DriverDocumentsController extends GetxController {
@@ -170,7 +169,7 @@ class DriverDocumentsController extends GetxController {
 
       String? validText;
       if (doc.expiryDate != null && doc.expiryDate!.isNotEmpty) {
-        validText = 'Valid till ${doc.expiryDate}';
+        validText = 'valid_till_prefix'.trParams({'date': doc.expiryDate!});
       }
 
       final fileName = doc.fileName ?? (doc.url != null ? doc.url!.split('/').last : 'Document Attached');
@@ -232,9 +231,9 @@ class DriverDocumentsController extends GetxController {
         backgroundColor: const Color(0xFF15151F),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         title: Text('doc_guidelines'.tr, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-        content: const Text(
-          'Please upload clear, legible copies of your government-issued documents. Supported formats: JPG, PNG, PDF (under 10MB). Documents undergo compliance verification within 24-48 hours.',
-          style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
+        content: Text(
+          'driver_docs_guidelines_content'.tr,
+          style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
         ),
         actions: [
           TextButton(
@@ -265,7 +264,7 @@ class DriverDocumentsController extends GetxController {
                   Get.find<DriverProfileController>().fetchProfile();
                 }
               } else {
-                Get.snackbar('common.error'.tr, res.message ?? 'Failed to delete', backgroundColor: const Color(0xFF15151F), colorText: Colors.redAccent);
+                Get.snackbar('common.error'.tr, res.message ?? 'failed_to_delete_document'.tr, backgroundColor: const Color(0xFF15151F), colorText: Colors.redAccent);
               }
             },
             child: Text('delete'.tr, style: const TextStyle(color: Colors.redAccent)),

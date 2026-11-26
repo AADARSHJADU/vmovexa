@@ -938,7 +938,7 @@ class DriverHomeView extends GetView<DriverHomeController> {
 
                 const SizedBox(height: 3),
                 Text(
-                  '${shift.startDepot ?? "Depot"} → ${shift.endDepot ?? "Terminus"}',
+                  '${shift.startDepot ?? 'depot'.tr} → ${shift.endDepot ?? 'driver_routes.terminus'.tr}',
                   style: const TextStyle(color: Colors.white54, fontSize: 10.5),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

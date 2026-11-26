@@ -140,4 +140,25 @@ class GovSupportHistoryController extends GetxController {
       currentPage.value--;
     }
   }
+
+  String getCategoryLabel(String cat) {
+    switch (cat) {
+      case 'General':
+        return 'category_general'.tr;
+      case 'Technical':
+        return 'category_technical'.tr;
+      case 'Emergency Broadcast':
+        return 'category_emergency_broadcast'.tr;
+      case 'Route & Schedule':
+        return 'category_route_schedule'.tr;
+      case 'Commuter Safety & Telemetry':
+        return 'category_commuter_safety'.tr;
+      case 'Statutory Audit & Reports':
+        return 'category_statutory_audit'.tr;
+      case 'Transit Display Hardware':
+        return 'category_transit_hardware'.tr;
+      default:
+        return cat;
+    }
+  }
 }

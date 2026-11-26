@@ -199,7 +199,7 @@ class FinanceRaiseTicketController extends GetxController {
         } else {
           Get.snackbar(
             'error'.tr,
-            res.message ?? 'Submission failed',
+            res.message ?? 'submission_failed'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFFEF4444),
             colorText: Colors.white,

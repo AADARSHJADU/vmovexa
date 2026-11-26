@@ -100,7 +100,7 @@ class PaymentDetailController extends GetxController {
   Future<void> sendPaymentReminder({bool isUrgent = false}) async {
     final pay = paymentDetail.value;
     if (pay == null || pay.id.isEmpty) {
-      Get.snackbar('Error', 'Invalid payment record', snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar('error'.tr, 'invalid_payment_record'.tr, snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
@@ -118,18 +118,18 @@ class PaymentDetailController extends GetxController {
 
       if (res.success) {
         Get.snackbar(
-          'Dispatched',
+          'dispatched_label'.tr,
           isUrgent
-              ? 'Urgent demand notice dispatched successfully!'
-              : 'Payment reminder sent via Email & SMS!',
+              ? 'urgent_demand_notice_sent'.tr
+              : 'payment_reminder_sent'.tr,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
         );
       } else {
         Get.snackbar(
-          'Reminder Logged',
-          'Payment reminder recorded in dispatch ledger.',
+          'reminder_logged'.tr,
+          'payment_reminder_recorded_ledger'.tr,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
@@ -137,8 +137,8 @@ class PaymentDetailController extends GetxController {
       }
     } catch (_) {
       Get.snackbar(
-        'Reminder Logged',
-        'Payment reminder recorded in dispatch ledger.',
+        'reminder_logged'.tr,
+        'payment_reminder_recorded_ledger'.tr,
         backgroundColor: const Color(0xFF10B981),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,

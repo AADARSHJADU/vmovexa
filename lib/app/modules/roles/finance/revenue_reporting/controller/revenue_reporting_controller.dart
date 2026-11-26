@@ -436,7 +436,7 @@ class RevenueReportingController extends GetxController {
       (r) => r.id == selectedReportType.value,
       orElse: () => reportTypes.first,
     );
-    final autoTitle = '${typeOption.label} Ledger';
+    final autoTitle = '${typeOption.labelKey.tr} ${'ledger'.tr}';
     final periodText = '${startDate.value} to ${endDate.value}';
 
     try {
@@ -561,7 +561,7 @@ class RevenueReportingController extends GetxController {
     } catch (e) {
       Get.snackbar(
         'download_error'.tr,
-        'Could not save report: $e',
+        '${'could_not_save_report'.tr}: $e',
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,

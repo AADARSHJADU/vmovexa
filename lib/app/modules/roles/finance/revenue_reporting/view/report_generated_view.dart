@@ -24,7 +24,7 @@ class ReportGeneratedView extends GetView<RevenueReportingController> {
           final rep = controller.generatedReport.value ??
               RecentReport(
                 id: 'REP-1042',
-                title: 'Revenue & Collections Statement',
+                title: 'revenue_collections_statement'.tr,
                 period: '${controller.startDate.value} → ${controller.endDate.value}',
                 dateText: DateFormat('dd MMM yyyy').format(DateTime.now()),
                 format: ReportFormat.csv,
@@ -79,10 +79,10 @@ class ReportGeneratedView extends GetView<RevenueReportingController> {
                 ),
                 const SizedBox(height: 18),
 
-                const Text(
-                  'Report Generated Successfully!',
+                Text(
+                  'report_generated_success'.tr,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.w900,
@@ -90,10 +90,10 @@ class ReportGeneratedView extends GetView<RevenueReportingController> {
                   ),
                 ),
                 const SizedBox(height: 6),
-                const Text(
-                  'Your statement has been compiled and is ready for export and audit sharing.',
+                Text(
+                  'statement_compiled_desc'.tr,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white54, fontSize: 12, height: 1.4),
+                  style: const TextStyle(color: Colors.white54, fontSize: 12, height: 1.4),
                 ),
                 const SizedBox(height: 24),
 
@@ -116,9 +116,9 @@ class ReportGeneratedView extends GetView<RevenueReportingController> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'STATEMENT TITLE',
-                                  style: TextStyle(color: Colors.white38, fontSize: 9.5, fontWeight: FontWeight.bold),
+                                Text(
+                                  'statement_title_label'.tr,
+                                  style: const TextStyle(color: Colors.white38, fontSize: 9.5, fontWeight: FontWeight.bold),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
@@ -150,7 +150,7 @@ class ReportGeneratedView extends GetView<RevenueReportingController> {
                         children: [
                           Expanded(
                             child: _buildDetailCell(
-                              label: 'REPORTING PERIOD',
+                              label: 'reporting_period_label'.tr,
                               value: rep.period,
                               valueColor: Colors.white,
                             ),
@@ -158,7 +158,7 @@ class ReportGeneratedView extends GetView<RevenueReportingController> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: _buildDetailCell(
-                              label: 'TOTAL REVENUE',
+                              label: 'total_revenue_label'.tr,
                               value: currencyFormatter.format(rep.totalRevenue),
                               valueColor: const Color(0xFF60A5FA),
                               isMono: true,
@@ -171,7 +171,7 @@ class ReportGeneratedView extends GetView<RevenueReportingController> {
                         children: [
                           Expanded(
                             child: _buildDetailCell(
-                              label: 'ACTIVE SUBSCRIPTIONS',
+                              label: 'active_subscriptions_label'.tr,
                               value: '${rep.activeSubs} Plans (${currencyFormatter.format(rep.subRevenue)})',
                               valueColor: const Color(0xFF818CF8),
                             ),
@@ -179,7 +179,7 @@ class ReportGeneratedView extends GetView<RevenueReportingController> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: _buildDetailCell(
-                              label: 'CAMPAIGNS & TAX',
+                              label: 'campaigns_tax_label'.tr,
                               value: '${rep.activeCampaigns} Ads • Tax: ${currencyFormatter.format(rep.taxTotal)}',
                               valueColor: const Color(0xFF34D399),
                             ),
@@ -193,8 +193,8 @@ class ReportGeneratedView extends GetView<RevenueReportingController> {
 
                 // Action Buttons matching Admin Panel
                 CustomButton(
-                  text:  'Download CSV Package',
-                  onTap:(){
+                  text: 'download_csv_package'.tr,
+                  onTap: () {
                     controller.downloadCompiledReport(rep);
                   },
                 ),
@@ -225,18 +225,18 @@ class ReportGeneratedView extends GetView<RevenueReportingController> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text(
-                      'Back to Reports Archive',
-                      style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.bold),
+                    child: Text(
+                      'back_to_reports_archive'.tr,
+                      style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
                 const SizedBox(height: 14),
                 GestureDetector(
                   onTap: () => Get.offAllNamed(Routes.FINANCE_DASHBOARD),
-                  child: const Text(
-                    'Go to Dashboard',
-                    style: TextStyle(color: Color(0xFF60A5FA), fontSize: 12, fontWeight: FontWeight.bold),
+                  child: Text(
+                    'go_to_dashboard'.tr,
+                    style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],

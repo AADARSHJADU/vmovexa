@@ -40,7 +40,7 @@ class GovernmentProfileView extends StatelessWidget {
                       icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 22),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
-                      tooltip: 'Refresh Profile',
+                      tooltip: 'refresh_profile_tooltip'.tr,
                       onPressed: c.loadProfileData,
                     ),
                     const SizedBox(width: 12),
@@ -78,9 +78,9 @@ class GovernmentProfileView extends StatelessWidget {
                     _buildHeroProfileCard(c),
                     const SizedBox(height: 18),
 
-                   /* // 2. 3 Core Metric Stat Pills matching Web
+                    // 2. 3 Core Metric Stat Pills matching Web
                     _buildStatsRow(c),
-                    const SizedBox(height: 24),*/
+                    const SizedBox(height: 24),
 
                     // 3. Account & Security Section
                     Text(
@@ -442,7 +442,7 @@ class GovernmentProfileView extends StatelessWidget {
         children: [
           _buildMenuRow(
             label: 'account_settings'.tr,
-            subtitle: 'Department details, ministry clearance, and contact info',
+            subtitle: 'account_settings_sub'.tr,
             iconData: Icons.badge_outlined,
             iconColor: const Color(0xFF3B82F6),
             onTap: () => Get.toNamed(Routes.ACCOUNT_SETTINGS),
@@ -450,7 +450,7 @@ class GovernmentProfileView extends StatelessWidget {
           const Divider(color: AppColors.cardBorder, height: 14),
           _buildMenuRow(
             label: 'security_password'.tr,
-            subtitle: 'Change official password and security clearance',
+            subtitle: 'security_password_sub'.tr,
             iconData: Icons.lock_outline_rounded,
             iconColor: const Color(0xFF8B5CF6),
             onTap: () => Get.toNamed(Routes.CHANGE_PASSWORD),
@@ -458,7 +458,7 @@ class GovernmentProfileView extends StatelessWidget {
           const Divider(color: AppColors.cardBorder, height: 14),
           _buildMenuRow(
             label: 'notification_settings'.tr,
-            subtitle: 'Emergency broadcast alarms, compliance dispatches, and alerts',
+            subtitle: 'notification_settings_sub'.tr,
             iconData: Icons.notifications_none_rounded,
             iconColor: const Color(0xFFF59E0B),
             onTap: () => Get.toNamed(Routes.NOTIFICATION_SETTINGS),
@@ -489,7 +489,7 @@ class GovernmentProfileView extends StatelessWidget {
           const Divider(color: AppColors.cardBorder, height: 14),
           _buildMenuRow(
             label: 'privacy_policy'.tr,
-            subtitle: 'Sovereign citizen data privacy, security encryption, and audit',
+            subtitle: 'privacy_policy_sub'.tr,
             iconData: Icons.shield_outlined,
             iconColor: const Color(0xFF06B6D4),
             onTap: () => Get.toNamed(Routes.PRIVACY_POLICY),
@@ -497,7 +497,7 @@ class GovernmentProfileView extends StatelessWidget {
           const Divider(color: AppColors.cardBorder, height: 14),
           _buildMenuRow(
             label: 'terms_conditions'.tr,
-            subtitle: 'Statutory governance SLAs, public notices, and usage terms',
+            subtitle: 'terms_conditions_sub'.tr,
             iconData: Icons.description_outlined,
             iconColor: const Color(0xFF94A3B8),
             onTap: () => Get.toNamed(Routes.TERMS_CONDITIONS),

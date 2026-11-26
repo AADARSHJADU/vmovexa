@@ -207,7 +207,7 @@ class CampaignPaymentDetailsController extends GetxController {
                 controller: emailCtrl,
                 style: const TextStyle(color: Colors.white, fontSize: 13),
                 decoration: InputDecoration(
-                  hintText: 'name@company.com',
+                  hintText: 'eg_email'.tr,
                   hintStyle: const TextStyle(color: Color(0xFF64748B)),
                   filled: true,
                   fillColor: const Color(0xFF0F172A),
@@ -237,7 +237,7 @@ class CampaignPaymentDetailsController extends GetxController {
                 keyboardType: TextInputType.phone,
                 style: const TextStyle(color: Colors.white, fontSize: 13),
                 decoration: InputDecoration(
-                  hintText: '+91 98765 43210',
+                  hintText: 'eg_phone'.tr,
                   hintStyle: const TextStyle(color: Color(0xFF64748B)),
                   filled: true,
                   fillColor: const Color(0xFF0F172A),
@@ -419,7 +419,7 @@ class CampaignPaymentDetailsController extends GetxController {
                 controller: refCtrl,
                 style: const TextStyle(color: Colors.white, fontSize: 13),
                 decoration: InputDecoration(
-                  hintText: 'e.g. UTR1234567890 / CHQ-8899',
+                  hintText: 'eg_utr_chq'.tr,
                   hintStyle: const TextStyle(color: Color(0xFF64748B)),
                   filled: true,
                   fillColor: const Color(0xFF0F172A),

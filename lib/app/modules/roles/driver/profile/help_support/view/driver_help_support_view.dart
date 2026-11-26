@@ -833,7 +833,7 @@ class DriverHelpSupportView extends GetView<DriverHelpSupportController> {
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: Text(
-                                    ticket.status.toUpperCase(),
+                                    _getStatusLabel(ticket.status),
                                     style: TextStyle(
                                       color: ticket.statusColor,
                                       fontSize: 9,
@@ -851,7 +851,7 @@ class DriverHelpSupportView extends GetView<DriverHelpSupportController> {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                ticket.category,
+                                _getCategoryLabel(ticket.category),
                                 style: const TextStyle(color: Colors.white70, fontSize: 9.5),
                               ),
                             ),
@@ -887,5 +887,42 @@ class DriverHelpSupportView extends GetView<DriverHelpSupportController> {
         }),
       ],
     );
+  }
+
+  String _getCategoryLabel(String cat) {
+    switch (cat) {
+      case 'General':
+        return 'ticket_category_general'.tr;
+      case 'Technical':
+        return 'ticket_category_technical'.tr;
+      case 'Fastag & Tolls':
+        return 'ticket_category_fastag_tolls'.tr;
+      case 'Billing & Payouts':
+        return 'ticket_category_billing_payouts'.tr;
+      case 'Hardware & Telematics':
+        return 'ticket_category_hardware_telematics'.tr;
+      case 'Driver & Fleet Roster':
+        return 'ticket_category_driver_fleet_roster'.tr;
+      case 'Route & Schedule':
+        return 'ticket_category_route_schedule'.tr;
+      default:
+        return cat;
+    }
+  }
+
+  String _getStatusLabel(String status) {
+    switch (status.toLowerCase()) {
+      case 'open':
+        return 'ticket_status_open'.tr;
+      case 'in_progress':
+      case 'in progress':
+        return 'ticket_status_in_progress'.tr;
+      case 'resolved':
+        return 'ticket_status_resolved'.tr;
+      case 'closed':
+        return 'ticket_status_closed'.tr;
+      default:
+        return status.toUpperCase();
+    }
   }
 }

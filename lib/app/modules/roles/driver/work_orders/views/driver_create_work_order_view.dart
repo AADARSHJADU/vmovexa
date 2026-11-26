@@ -388,14 +388,30 @@ class DriverCreateWorkOrderView extends GetView<DriverCreateWorkOrderController>
         return 'wo_cat_brakes_steering'.tr;
       case 'Electrical / Battery':
         return 'wo_cat_electrical_battery'.tr;
+      case 'Tyres / Wheels':
       case 'Tires / Suspension':
-        return 'wo_cat_tires_suspension'.tr;
+        return 'wo_cat_tyres_wheels'.tr;
+      case 'Body / Exterior Damage':
+        return 'wo_cat_body_exterior'.tr;
+      case 'Air Conditioning / HVAC':
       case 'HVAC / AC System':
-        return 'wo_cat_hvac_ac'.tr;
+        return 'wo_cat_ac_hvac'.tr;
+      case 'GPS / Tracking Device':
+        return 'wo_cat_gps_device'.tr;
+      case 'Display Screen / Media':
       case 'Fare Validator / Display Unit':
-        return 'wo_cat_fare_validator'.tr;
+        return 'wo_cat_display_media'.tr;
+      case 'Fuel System':
+        return 'wo_cat_fuel_system'.tr;
+      case 'Lights / Signals':
+        return 'wo_cat_lights_signals'.tr;
+      case 'Doors / Windows':
+        return 'wo_cat_doors_windows'.tr;
+      case 'Seats / Interior':
+        return 'wo_cat_seats_interior'.tr;
+      case 'Other':
       case 'Other General Maintenance':
-        return 'wo_cat_other_maintenance'.tr;
+        return 'wo_cat_other'.tr;
       default:
         return cat;
     }

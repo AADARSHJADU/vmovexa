@@ -150,7 +150,12 @@ class DriverProfileView extends GetView<DriverProfileController> {
                     children: [
                       Text(controller.fullName.value, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
                       const SizedBox(height: 2),
-                      Text(controller.roleLabel.value, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                      Text(
+                        controller.roleLabel.value.isNotEmpty && controller.roleLabel.value != 'Commercial Driver'
+                            ? controller.roleLabel.value
+                            : 'commercial_driver'.tr,
+                        style: const TextStyle(color: Colors.white54, fontSize: 12),
+                      ),
                     ],
                   ),
                 ),
@@ -190,23 +195,6 @@ class DriverProfileView extends GetView<DriverProfileController> {
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  // ---------------- Stats row ----------------
-  Widget _buildStatsRow() {
-    return Obx(
-          () => Row(
-        children: [
-          Expanded(child: _StatPill(icon: Icons.directions_bus_filled_outlined, count: '${controller.routesCount.value}', label: 'routes'.tr, onTap: () => controller.onStatTap('Routes'))),
-          const SizedBox(width: 8),
-          Expanded(child: _StatPill(icon: Icons.calendar_today_outlined, count: '${controller.schedulesCount.value}', label: 'schedules_stat'.tr, onTap: () => controller.onStatTap('Schedules'))),
-          const SizedBox(width: 8),
-          Expanded(child: _StatPill(icon: Icons.notifications_none_rounded, count: '${controller.notificationsCount.value}', label: 'notifications_stat'.tr, onTap: () => controller.onStatTap('Notifications'))),
-          const SizedBox(width: 8),
-          Expanded(child: _StatPill(icon: Icons.description_outlined, count: '${controller.documentsCount.value}', label: 'documents_stat'.tr, onTap: () => controller.onStatTap('Documents'))),
         ],
       ),
     );
@@ -335,45 +323,6 @@ class DriverProfileView extends GetView<DriverProfileController> {
             const Icon(Icons.logout, color: Colors.white, size: 17),
             const SizedBox(width: 8),
             Text('logout'.tr, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// =====================================================================
-// Stat pill (Routes / Schedules / Notifications / Documents)
-// =====================================================================
-class _StatPill extends StatelessWidget {
-  final IconData icon;
-  final String count;
-  final String label;
-  final VoidCallback onTap;
-
-  const _StatPill({required this.icon, required this.count, required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-        decoration: BoxDecoration(
-          color: DriverProfileView.kCardBg,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: DriverProfileView.kBorder),
-        ),
-        child: Column(
-          children: [
-            ShaderMask(
-              shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
-              child: Icon(icon, color: Colors.white, size: 16),
-            ),
-            const SizedBox(height: 6),
-            Text(count, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w800)),
-            const SizedBox(height: 2),
-            Text(label, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white38, fontSize: 8.5)),
           ],
         ),
       ),

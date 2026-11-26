@@ -377,10 +377,10 @@ class DriverWorkOrderDetailsView extends GetView<DriverWorkOrderDetailsControlle
             ),
           ),
           const SizedBox(height: 12),
-          _buildInfoRow('category'.tr, order.issueCategory),
+          _buildInfoRow('category'.tr, _getCategoryLabel(order.issueCategory)),
           _buildInfoRow('vehicle_bus'.tr, order.busNumber),
           _buildInfoRow('depot'.tr, order.depotName),
-          _buildInfoRow('urgency'.tr, order.urgency.toUpperCase()),
+          _buildInfoRow('urgency'.tr, _getUrgencyLabel(order.urgency).toUpperCase()),
           if (order.requestedAt != null && order.requestedAt!.isNotEmpty)
             _buildInfoRow('requested_at'.tr, order.requestedAt!),
           if (order.slaDueAt != null && order.slaDueAt!.isNotEmpty)
@@ -562,5 +562,57 @@ class DriverWorkOrderDetailsView extends GetView<DriverWorkOrderDetailsControlle
   bool _isResolved(String status) {
     final s = status.toLowerCase();
     return s == 'resolved' || s == 'completed' || s == 'closed';
+  }
+
+  String _getCategoryLabel(String cat) {
+    switch (cat) {
+      case 'Engine / Mechanical':
+        return 'wo_cat_engine_mech'.tr;
+      case 'Brakes / Steering':
+        return 'wo_cat_brakes_steering'.tr;
+      case 'Electrical / Battery':
+        return 'wo_cat_electrical_battery'.tr;
+      case 'Tyres / Wheels':
+      case 'Tires / Suspension':
+        return 'wo_cat_tyres_wheels'.tr;
+      case 'Body / Exterior Damage':
+        return 'wo_cat_body_exterior'.tr;
+      case 'Air Conditioning / HVAC':
+      case 'HVAC / AC System':
+        return 'wo_cat_ac_hvac'.tr;
+      case 'GPS / Tracking Device':
+        return 'wo_cat_gps_device'.tr;
+      case 'Display Screen / Media':
+      case 'Fare Validator / Display Unit':
+        return 'wo_cat_display_media'.tr;
+      case 'Fuel System':
+        return 'wo_cat_fuel_system'.tr;
+      case 'Lights / Signals':
+        return 'wo_cat_lights_signals'.tr;
+      case 'Doors / Windows':
+        return 'wo_cat_doors_windows'.tr;
+      case 'Seats / Interior':
+        return 'wo_cat_seats_interior'.tr;
+      case 'Other':
+      case 'Other General Maintenance':
+        return 'wo_cat_other'.tr;
+      default:
+        return cat;
+    }
+  }
+
+  String _getUrgencyLabel(String urgency) {
+    switch (urgency.toLowerCase()) {
+      case 'critical':
+        return 'critical'.tr;
+      case 'high':
+        return 'high'.tr;
+      case 'normal':
+        return 'normal'.tr;
+      case 'low':
+        return 'low'.tr;
+      default:
+        return urgency;
+    }
   }
 }

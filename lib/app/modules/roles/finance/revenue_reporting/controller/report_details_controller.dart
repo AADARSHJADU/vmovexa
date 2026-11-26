@@ -238,7 +238,7 @@ class ReportDetailsController extends GetxController {
     } catch (e) {
       Get.snackbar(
         'download_error'.tr,
-        'Failed to export CSV: $e',
+        '${'failed_to_export_csv'.tr}: $e',
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,

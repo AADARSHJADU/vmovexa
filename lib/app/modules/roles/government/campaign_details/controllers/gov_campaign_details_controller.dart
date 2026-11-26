@@ -142,7 +142,7 @@ class GovCampaignDetailsController extends GetxController {
       } else {
         Get.snackbar(
           'common.error'.tr,
-          res.message ?? 'Verification failed',
+          res.message ?? 'verification_failed'.tr,
           backgroundColor: const Color(0xFFEF4444),
           colorText: Colors.white,
         );
@@ -179,7 +179,7 @@ class GovCampaignDetailsController extends GetxController {
       } else {
         Get.snackbar(
           'common.error'.tr,
-          res.message ?? 'Submission failed',
+          res.message ?? 'submission_failed'.tr,
           backgroundColor: const Color(0xFFEF4444),
           colorText: Colors.white,
         );
@@ -214,7 +214,7 @@ class GovCampaignDetailsController extends GetxController {
       } else {
         Get.snackbar(
           'common.error'.tr,
-          res.message ?? 'Failed to start broadcast',
+          res.message ?? 'failed_start_broadcast'.tr,
           backgroundColor: const Color(0xFFEF4444),
           colorText: Colors.white,
         );
@@ -247,7 +247,7 @@ class GovCampaignDetailsController extends GetxController {
       } else {
         Get.snackbar(
           'common.error'.tr,
-          res.message ?? 'Failed to pause broadcast',
+          res.message ?? 'failed_pause_broadcast'.tr,
           backgroundColor: const Color(0xFFEF4444),
           colorText: Colors.white,
         );
@@ -303,7 +303,7 @@ class GovCampaignDetailsController extends GetxController {
           );
           await fetchCampaignDetails(campId);
         } else {
-          Get.snackbar('common.error'.tr, res.message ?? 'Failed to end campaign', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+          Get.snackbar('common.error'.tr, res.message ?? 'failed_end_campaign_msg'.tr, backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
         }
       } catch (e) {
         Get.snackbar('common.error'.tr, e.toString(), backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
@@ -347,7 +347,7 @@ class GovCampaignDetailsController extends GetxController {
           Get.back();
           Get.snackbar('common.success'.tr, 'gov_campaign_details.campaign_deleted_msg'.tr, backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
         } else {
-          Get.snackbar('common.error'.tr, res.message ?? 'Delete failed', backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
+          Get.snackbar('common.error'.tr, res.message ?? 'delete_failed'.tr, backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
         }
       } catch (e) {
         Get.snackbar('common.error'.tr, e.toString(), backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
@@ -378,7 +378,7 @@ class GovCampaignDetailsController extends GetxController {
           snackPosition: SnackPosition.BOTTOM,
         );
       } else {
-        Get.snackbar('common.error'.tr, res.message ?? 'SMS dispatch queued', backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
+        Get.snackbar('common.error'.tr, res.message ?? 'sms_dispatch_queued'.tr, backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
       }
     } catch (e) {
       Get.snackbar('common.success'.tr, 'gov_campaign_details.sms_sent_success'.tr, backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
@@ -410,7 +410,7 @@ class GovCampaignDetailsController extends GetxController {
           snackPosition: SnackPosition.BOTTOM,
         );
       } else {
-        Get.snackbar('common.error'.tr, res.message ?? 'Email dispatch queued', backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
+        Get.snackbar('common.error'.tr, res.message ?? 'email_dispatch_queued'.tr, backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
       }
     } catch (e) {
       Get.snackbar('common.success'.tr, 'gov_campaign_details.email_sent_success'.tr, backgroundColor: const Color(0xFF10B981), colorText: Colors.white);

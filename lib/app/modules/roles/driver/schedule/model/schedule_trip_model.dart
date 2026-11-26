@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 enum ScheduleTripStatus { onDuty, pending, scheduled, completed }
 
@@ -6,13 +7,13 @@ extension ScheduleTripStatusX on ScheduleTripStatus {
   String get label {
     switch (this) {
       case ScheduleTripStatus.onDuty:
-        return 'On Duty';
+        return 'on_duty'.tr;
       case ScheduleTripStatus.pending:
-        return 'Pending';
+        return 'pending'.tr;
       case ScheduleTripStatus.scheduled:
-        return 'Scheduled';
+        return 'scheduled'.tr;
       case ScheduleTripStatus.completed:
-        return 'Completed';
+        return 'completed'.tr;
     }
   }
 

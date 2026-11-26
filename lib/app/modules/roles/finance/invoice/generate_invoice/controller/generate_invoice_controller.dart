@@ -54,12 +54,12 @@ class GenerateInvoiceController extends GetxController {
   // ---------------- STEP 3: Taxes & Terms ----------------
   final RxString placeOfSupply = '27-Maharashtra'.obs;
   final List<Map<String, String>> placeOfSupplyOptions = const [
-    {'value': '27-Maharashtra', 'label': '27 - Maharashtra (CGST 9% + SGST 9%)'},
-    {'value': '23-Madhya Pradesh', 'label': '23 - Madhya Pradesh (IGST 18%)'},
-    {'value': '07-Delhi', 'label': '07 - Delhi (IGST 18%)'},
-    {'value': '29-Karnataka', 'label': '29 - Karnataka (IGST 18%)'},
-    {'value': '33-Tamil Nadu', 'label': '33 - Tamil Nadu (IGST 18%)'},
-    {'value': '24-Gujarat', 'label': '24 - Gujarat (IGST 18%)'},
+    {'value': '27-Maharashtra', 'labelKey': 'pos_27_maharashtra', 'label': '27 - Maharashtra (CGST 9% + SGST 9%)'},
+    {'value': '23-Madhya Pradesh', 'labelKey': 'pos_23_madhya_pradesh', 'label': '23 - Madhya Pradesh (IGST 18%)'},
+    {'value': '07-Delhi', 'labelKey': 'pos_07_delhi', 'label': '07 - Delhi (IGST 18%)'},
+    {'value': '29-Karnataka', 'labelKey': 'pos_29_karnataka', 'label': '29 - Karnataka (IGST 18%)'},
+    {'value': '33-Tamil Nadu', 'labelKey': 'pos_33_tamil_nadu', 'label': '33 - Tamil Nadu (IGST 18%)'},
+    {'value': '24-Gujarat', 'labelKey': 'pos_24_gujarat', 'label': '24 - Gujarat (IGST 18%)'},
   ];
 
   final Rx<DateTime> dueDate = Rx<DateTime>(DateTime.now().add(const Duration(days: 15)));
@@ -135,14 +135,14 @@ class GenerateInvoiceController extends GetxController {
       );
 
       DeviceFileSaver.showSuccessSnackbar(
-        title: 'Tax Invoice Downloaded',
+        title: 'tax_invoice_downloaded'.tr,
         filePath: savedPath,
         copyContent: buffer.toString(),
       );
     } catch (e) {
       Get.snackbar(
-        'Download Error',
-        'Could not save invoice file: $e',
+        'download_error'.tr,
+        'could_not_save_invoice'.trParams({'error': e.toString()}),
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
@@ -236,8 +236,8 @@ class GenerateInvoiceController extends GetxController {
     if (step < 1 || step > 4) return;
     if (step > 1 && customerNameCtrl.text.trim().isEmpty) {
       Get.snackbar(
-        'Validation Error',
-        'Customer / Company Name is required',
+        'validation_error'.tr,
+        'customer_company_name_required'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
@@ -249,8 +249,8 @@ class GenerateInvoiceController extends GetxController {
       final validItems = items.where((i) => i.descCtrl.text.trim().isNotEmpty && i.total > 0).toList();
       if (validItems.isEmpty) {
         Get.snackbar(
-          'Validation Error',
-          'Please add at least one line item with description and rate',
+          'validation_error'.tr,
+          'add_line_item_desc_rate_required'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent,
           colorText: Colors.white,
@@ -279,8 +279,8 @@ class GenerateInvoiceController extends GetxController {
     final customerName = customerNameCtrl.text.trim();
     if (customerName.isEmpty) {
       Get.snackbar(
-        'Validation Error',
-        'Customer name is required',
+        'validation_error'.tr,
+        'customer_name_required'.tr,
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
       );
@@ -304,8 +304,8 @@ class GenerateInvoiceController extends GetxController {
 
     if (validItems.isEmpty) {
       Get.snackbar(
-        'Validation Error',
-        'Please add at least one valid line item',
+        'validation_error'.tr,
+        'add_valid_line_item_required'.tr,
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
       );
@@ -341,8 +341,8 @@ class GenerateInvoiceController extends GetxController {
       final res = await FinanceService.to.generateInvoice(payload);
       if (res.success) {
         Get.snackbar(
-          'Invoice Generated',
-          'Tax invoice has been issued and dispatched successfully.',
+          'invoice_generated'.tr,
+          'tax_invoice_issued_dispatched_success'.tr,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
@@ -360,8 +360,8 @@ class GenerateInvoiceController extends GetxController {
         Get.back();
       } else {
         Get.snackbar(
-          'Error',
-          res.message ?? 'Failed to generate tax invoice',
+          'error'.tr,
+          res.message ?? 'failed_generate_invoice'.tr,
           backgroundColor: Colors.redAccent,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
@@ -369,8 +369,8 @@ class GenerateInvoiceController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'An error occurred: $e',
+        'error'.tr,
+        'could_not_save_invoice'.trParams({'error': e.toString()}),
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,

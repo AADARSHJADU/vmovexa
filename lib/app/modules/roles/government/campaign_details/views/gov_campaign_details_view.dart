@@ -91,7 +91,7 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
           ),
           IconButton(
             icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 20),
-            tooltip: 'Refresh',
+            tooltip: 'common.refresh'.tr,
             onPressed: () {
               final cid = controller.campaign.value.id;
               if (cid != null && cid.isNotEmpty) {
@@ -638,7 +638,7 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
         'id': 'payment_qr',
         'label': 'gov_campaign_details.clearance_qr'.tr,
         'icon': Icons.qr_code_2_rounded,
-        'count': c.isPaymentSettled ? 'Paid' : 'Sanction',
+        'count': c.isPaymentSettled ? 'paid_status'.tr : 'sanction_status'.tr,
       },
     ];
 
@@ -1348,9 +1348,9 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
                   itemBuilder: (context, idx) {
                     final target = c.targets![idx];
                     final routeCode = target['route'] is Map ? target['route']['code'] : (target['route_code'] ?? 'RTE-${idx + 1}');
-                    final routeName = target['route'] is Map ? target['route']['name'] : (target['route_name'] ?? target['fleet_name'] ?? 'Transit Route');
+                    final routeName = target['route'] is Map ? target['route']['name'] : (target['route_name'] ?? target['fleet_name'] ?? 'transit_route'.tr);
                     final city = target['city'] ?? (target['route'] is Map ? target['route']['start_point'] : 'City Corridor');
-                    final fleetName = target['fleet_name'] ?? 'Transit Operator';
+                    final fleetName = target['fleet_name'] ?? 'transit_operator'.tr;
                     final busesCount = target['vehicles_count'] ?? (target['vehicle_ids'] is List ? (target['vehicle_ids'] as List).length : 1);
                     final screensCount = target['screens_count'] ?? 1;
 
@@ -1753,7 +1753,7 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
                     ),
                     const SizedBox(height: 8),
                     ...c.breakdownItems.map((item) {
-                      final label = item['label'] ?? 'Broadcast Fee';
+                      final label = item['label'] ?? 'broadcast_fee_fallback'.tr;
                       final amount = double.tryParse(item['amount']?.toString() ?? '') ?? 0.0;
                       final type = item['type'] ?? 'base';
                       final isDiscount = type == 'discount' || amount < 0;
@@ -2015,7 +2015,7 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
                               onPressed: sending ? null : () => controller.handleSendSms(),
                               child: sending
                                   ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                                  : const Text('Send SMS', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                                  : Text('send_sms_btn'.tr, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                             );
                           }),
                         ],
@@ -2072,7 +2072,7 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
                               onPressed: sending ? null : () => controller.handleSendEmail(),
                               child: sending
                                   ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                                  : const Text('Send Email', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                                  : Text('send_email_btn'.tr, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                             );
                           }),
                         ],
@@ -2354,35 +2354,35 @@ class GovCampaignDetailsView extends GetView<GovCampaignDetailsController> {
                     _buildStepConnector(isDone: c.status != 'draft'),
                     _buildLifecycleStep(
                       'gov_campaign_details.step_under_review'.tr,
-                      c.verifiedOnDisplay ?? (c.status == 'under review' ? 'In Progress' : 'Passed'),
+                      c.verifiedOnDisplay ?? (c.status == 'under review' ? 'status_in_progress'.tr : 'status_passed'.tr),
                       isDone: c.status != 'draft',
                       isCurrent: c.status == 'under review' || c.status == 'pending_approval',
                     ),
                     _buildStepConnector(isDone: c.isApprovedStatus),
                     _buildLifecycleStep(
                       'gov_campaign_details.step_approved'.tr,
-                      c.approvedOnDisplay ?? (c.isApprovedStatus ? 'Passed' : 'Pending'),
+                      c.approvedOnDisplay ?? (c.isApprovedStatus ? 'status_passed'.tr : 'pending'.tr),
                       isDone: c.isApprovedStatus,
                       isCurrent: false,
                     ),
                     _buildStepConnector(isDone: isPaid),
                     _buildLifecycleStep(
                       'gov_campaign_details.step_payment'.tr,
-                      isPaid ? 'Settled' : 'Pending',
+                      isPaid ? 'status_settled'.tr : 'pending'.tr,
                       isDone: isPaid,
                       isCurrent: c.isPaymentPending,
                     ),
                     _buildStepConnector(isDone: c.isLiveBroadcast || c.status == 'completed'),
                     _buildLifecycleStep(
                       'gov_campaign_details.step_live'.tr,
-                      c.isLiveBroadcast ? 'Active' : (c.status == 'completed' ? 'Finished' : 'Waiting Launch'),
+                      c.isLiveBroadcast ? 'status_active'.tr : (c.status == 'completed' ? 'status_finished'.tr : 'status_waiting_launch'.tr),
                       isDone: c.isLiveBroadcast || c.status == 'completed',
                       isCurrent: c.isLiveBroadcast,
                     ),
                     _buildStepConnector(isDone: c.status == 'completed'),
                     _buildLifecycleStep(
                       'gov_campaign_details.step_completed'.tr,
-                      c.status == 'completed' ? 'Finished' : 'Future',
+                      c.status == 'completed' ? 'status_finished'.tr : 'status_future'.tr,
                       isDone: c.status == 'completed',
                       isCurrent: false,
                     ),

@@ -177,7 +177,7 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                         backgroundColor: isCompleted
                             ? kGreen
                             : isActive
-                                ? Colors.white.withOpacity(0.25)
+                                ? Colors.white.withValues(alpha: 0.25)
                                 : const Color(0xFF475569),
                         child: isCompleted
                             ? const Icon(Icons.check, size: 12, color: Colors.white)
@@ -238,40 +238,40 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                 ),
               ),
               const SizedBox(height: 2),
-              const Text(
-                'Recipient advertiser corporate registration',
-                style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+              Text(
+                'recipient_advertiser_corp_reg'.tr,
+                style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
               ),
               const Divider(color: kBorder, height: 24),
               _buildInputField(
-                label: 'Customer / Company Name *',
+                label: 'customer_company_name_star'.tr,
                 controller: controller.customerNameCtrl,
-                hintText: 'e.g. Sharma Electronics Pvt Ltd',
+                hintText: 'eg_customer_name'.tr,
               ),
               const SizedBox(height: 12),
               _buildInputField(
-                label: 'Client GSTIN *',
+                label: 'client_gstin_star'.tr,
                 controller: controller.gstinCtrl,
-                hintText: 'e.g. 27AAAAA0000A1Z5',
+                hintText: 'eg_gstin'.tr,
                 isMono: true,
               ),
               const SizedBox(height: 12),
               _buildInputField(
-                label: 'PO / Work Order Ref',
+                label: 'po_work_order_ref'.tr,
                 controller: controller.poReferenceCtrl,
-                hintText: 'e.g. PO-2026-1042',
+                hintText: 'eg_po_number'.tr,
                 isMono: true,
               ),
               const SizedBox(height: 12),
               _buildInputField(
-                label: 'Billing Address *',
+                label: 'billing_address_star'.tr,
                 controller: controller.billingAddressCtrl,
-                hintText: '45, M.G. Road, Pune, Maharashtra - 411001',
+                hintText: 'eg_billing_address'.tr,
                 maxLines: 2,
               ),
               const SizedBox(height: 20),
               CustomButton(
-                text: 'Next: Add Line Items →',
+                text: 'next_add_line_items'.tr,
                 onTap: () => controller.goToStep(2),
                 height: 48,
               ),
@@ -394,9 +394,9 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                           ),
                           const SizedBox(height: 8),
                           _buildInputField(
-                            label: 'Description',
+                            label: 'description'.tr,
                             controller: it.descCtrl,
-                            hintText: 'e.g. Transit Video Ad (15 Days - 25 Buses)',
+                            hintText: 'eg_item_desc'.tr,
                           ),
                           const SizedBox(height: 8),
                           Row(
@@ -404,7 +404,7 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                               Expanded(
                                 flex: 2,
                                 child: _buildInputField(
-                                  label: 'Qty',
+                                  label: 'qty_col'.tr,
                                   controller: it.qtyCtrl,
                                   hintText: '1',
                                   keyboardType: TextInputType.number,
@@ -414,7 +414,7 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                               Expanded(
                                 flex: 3,
                                 child: _buildInputField(
-                                  label: 'Unit Rate (₹)',
+                                  label: 'unit_rate_inr'.tr,
                                   controller: it.rateCtrl,
                                   hintText: '85000',
                                   keyboardType: TextInputType.number,
@@ -426,7 +426,7 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text('Total', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 10.5, fontWeight: FontWeight.bold)),
+                                    Text('total'.tr, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10.5, fontWeight: FontWeight.bold)),
                                     const SizedBox(height: 4),
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
@@ -489,14 +489,14 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      child: const Text('← Back', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
+                      child: Text('back_arrow_label'.tr, style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     flex: 2,
                     child: CustomButton(
-                      text: 'Next: Taxes & Terms →',
+                      text: 'next_taxes_terms'.tr,
                       onTap: () => controller.goToStep(3),
                       height: 44,
                     ),
@@ -564,7 +564,7 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                           .map(
                             (opt) => DropdownMenuItem(
                               value: opt['value'],
-                              child: Text(opt['label']!),
+                              child: Text(opt['labelKey'] != null ? opt['labelKey']!.tr : opt['label']!),
                             ),
                           )
                           .toList(),
@@ -608,9 +608,9 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
               ),
               const SizedBox(height: 12),
               _buildInputField(
-                label: 'Service Delivery / Provisioning Terms',
+                label: 'service_delivery_terms'.tr,
                 controller: controller.deliveryTermsCtrl,
-                hintText: 'e.g. Net 15 days upon spot verification completion',
+                hintText: 'eg_payment_terms'.tr,
               ),
               const SizedBox(height: 16),
               // Automated Tax Breakdown Card
@@ -627,7 +627,7 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Taxable Value:', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
+                          Text('taxable_value_colon'.tr, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
                           Text('₹${controller.subtotal.value.toStringAsFixed(0)}', style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.bold)),
                         ],
                       ),
@@ -635,7 +635,7 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('CGST (9%):', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
+                          Text('cgst_9_colon'.tr, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
                           Text('₹${controller.cgst.toStringAsFixed(0)}', style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.bold)),
                         ],
                       ),
@@ -643,7 +643,7 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('SGST (9%):', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
+                          Text('sgst_9_colon'.tr, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
                           Text('₹${controller.sgst.toStringAsFixed(0)}', style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.bold)),
                         ],
                       ),
@@ -651,7 +651,7 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Grand Total:', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w800)),
+                          Text('grand_total_colon'.tr, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w800)),
                           Text(
                             '₹${controller.grandTotal.toStringAsFixed(0)}',
                             style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 17, fontWeight: FontWeight.w900),
@@ -673,14 +673,14 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      child: const Text('← Back', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
+                      child: Text('back_arrow_label'.tr, style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     flex: 2,
                     child: CustomButton(
-                      text: 'Next: Review & Issue →',
+                      text: 'next_review_issue'.tr,
                       onTap: () => controller.goToStep(4),
                       height: 44,
                     ),
@@ -709,9 +709,9 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Review Tax Invoice Before Dispatch',
-                style: TextStyle(
+              Text(
+                'review_tax_invoice_before_dispatch'.tr,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
@@ -719,9 +719,9 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                 ),
               ),
               const SizedBox(height: 2),
-              const Text(
-                'Verify bill amounts and party information',
-                style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+              Text(
+                'verify_bill_party_info'.tr,
+                style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
               ),
               const Divider(color: kBorder, height: 24),
               // Review Details Card
@@ -735,34 +735,34 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                 child: Column(
                   children: [
                     _buildReviewRow(
-                      label: 'Recipient Party:',
+                      label: 'recipient_party_colon'.tr,
                       value: controller.customerNameCtrl.text.trim(),
                     ),
                     const Divider(color: Color(0x1FFFFFFF), height: 16),
                     _buildReviewRow(
-                      label: 'GSTIN:',
+                      label: 'gstin_label'.tr,
                       value: controller.gstinCtrl.text.trim().isNotEmpty
                           ? controller.gstinCtrl.text.trim()
-                          : 'Not Provided',
+                          : 'not_provided'.tr,
                       isMono: true,
                     ),
                     const Divider(color: Color(0x1FFFFFFF), height: 16),
                     _buildReviewRow(
-                      label: 'Place of Supply:',
+                      label: 'place_of_supply_colon'.tr,
                       value: controller.placeOfSupply.value,
                     ),
                     const Divider(color: Color(0x1FFFFFFF), height: 16),
                     _buildReviewRow(
-                      label: 'Payment Due:',
+                      label: 'payment_due_colon'.tr,
                       value: controller.dueDateFormatted,
                     ),
                     const Divider(color: Color(0x1FFFFFFF), height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'Final Invoice Total:',
-                          style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12.5, fontWeight: FontWeight.bold),
+                        Text(
+                          'final_invoice_total_colon'.tr,
+                          style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12.5, fontWeight: FontWeight.bold),
                         ),
                         Text(
                           '₹${controller.grandTotal.toStringAsFixed(0)}',
@@ -789,14 +789,14 @@ class GenerateInvoiceView extends GetView<GenerateInvoiceController> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
-                        child: const Text('← Back', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
+                        child: Text('back_arrow_label'.tr, style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
                       ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
                       flex: 2,
                       child: CustomButton(
-                        text: controller.isSubmitting.value ? 'Issuing…' : 'Issue & Dispatch Invoice',
+                        text: controller.isSubmitting.value ? 'issuing_ellipsis'.tr : 'issue_dispatch_invoice'.tr,
                         onTap: controller.isSubmitting.value ? () {} : controller.submitInvoice,
                         isLoading: controller.isSubmitting.value,
                         prefixIcon: controller.isSubmitting.value

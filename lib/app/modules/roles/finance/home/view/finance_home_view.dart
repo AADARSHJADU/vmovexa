@@ -5,7 +5,6 @@ import '../../../../../routes/app_routes.dart';
 import '../../../../../theme/app_colors.dart';
 import '../../../../../theme/app_theme.dart';
 import '../controller/finance_home_controller.dart';
-import '../models/finance_home_models.dart';
 
 class FinanceHomeView extends GetView<FinanceHomeController> {
   const FinanceHomeView({super.key});

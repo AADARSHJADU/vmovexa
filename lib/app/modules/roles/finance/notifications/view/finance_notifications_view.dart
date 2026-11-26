@@ -94,9 +94,9 @@ class FinanceNotificationsView extends GetView<FinanceNotificationsController> {
                           'finance_portal_breadcrumb'.tr,
                           style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
                         ),
-                        const Text(
-                          'Alerts & Messages',
-                          style: TextStyle(
+                        Text(
+                          'alerts_and_messages'.tr,
+                          style: const TextStyle(
                             color: Color(0xFF818CF8),
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -145,9 +145,9 @@ class FinanceNotificationsView extends GetView<FinanceNotificationsController> {
             ],
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Automated invoice dispatches, gateway settlements & subscription expiries',
-            style: TextStyle(color: Colors.white54, fontSize: 11),
+          Text(
+            'automated_alerts_subtitle'.tr,
+            style: const TextStyle(color: Colors.white54, fontSize: 11),
           ),
         ],
       ),
@@ -185,7 +185,7 @@ class FinanceNotificationsView extends GetView<FinanceNotificationsController> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          label,
+                          controller.getTabLocalizedKey(label).tr,
                           style: TextStyle(
                             color: isSelected ? Colors.white : const Color(0xFF94A3B8),
                             fontSize: 11.5,
@@ -411,9 +411,9 @@ class FinanceNotificationsView extends GetView<FinanceNotificationsController> {
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'You are all caught up with your financial ledger alerts.',
-            style: TextStyle(color: Color(0xFF64748B), fontSize: 11.5),
+          Text(
+            'all_caught_up_alerts'.tr,
+            style: const TextStyle(color: Color(0xFF64748B), fontSize: 11.5),
           ),
         ],
       ),

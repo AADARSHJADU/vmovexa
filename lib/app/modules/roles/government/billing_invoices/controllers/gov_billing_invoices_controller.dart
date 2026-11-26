@@ -602,7 +602,7 @@ class GovBillingInvoicesController extends GetxController {
     } catch (e) {
       Get.snackbar(
         'error'.tr,
-        'Could not save invoice file: $e',
+        '${'could_not_save_invoice_file'.tr}: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,

@@ -304,9 +304,9 @@ class FinanceProfileController extends GetxController {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Change Profile Photo',
-                  style: TextStyle(
+                Text(
+                  'change_profile_photo'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -319,9 +319,9 @@ class FinanceProfileController extends GetxController {
               ],
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Upload new photo from camera or gallery:',
-              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+            Text(
+              'upload_photo_camera_gallery'.tr,
+              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
             ),
             const SizedBox(height: 18),
             ListTile(
@@ -333,9 +333,9 @@ class FinanceProfileController extends GetxController {
                 ),
                 child: const Icon(Icons.camera_alt_rounded, color: Color(0xFFB042FF), size: 22),
               ),
-              title: const Text(
-                'Take Photo with Camera',
-                style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+              title: Text(
+                'take_photo_with_camera'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
               ),
               trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF64748B), size: 20),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -354,9 +354,9 @@ class FinanceProfileController extends GetxController {
                 ),
                 child: const Icon(Icons.photo_library_rounded, color: Color(0xFF6366F1), size: 22),
               ),
-              title: const Text(
-                'Choose from Gallery',
-                style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+              title: Text(
+                'choose_photo_from_gallery'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
               ),
               trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF64748B), size: 20),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -386,8 +386,8 @@ class FinanceProfileController extends GetxController {
 
       isUploadingAvatar.value = true;
       Get.snackbar(
-        'Uploading Avatar',
-        'Uploading image to server...',
+        'uploading_avatar_title'.tr,
+        'uploading_image_server'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFB042FF),
         colorText: Colors.white,
@@ -416,8 +416,8 @@ class FinanceProfileController extends GetxController {
           }
 
           Get.snackbar(
-            'Success',
-            'Profile picture updated successfully.',
+            'success'.tr,
+            'profile_pic_updated_success'.tr,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
@@ -425,8 +425,8 @@ class FinanceProfileController extends GetxController {
         }
       } else {
         Get.snackbar(
-          'Upload Failed',
-          res.message ?? 'Failed to upload photo.',
+          'upload_failed_title'.tr,
+          res.message ?? 'failed_upload_photo'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFFEF4444),
           colorText: Colors.white,
@@ -434,8 +434,8 @@ class FinanceProfileController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Upload Error',
-        'Error uploading photo: $e',
+        'upload_error_title'.tr,
+        'error_uploading_photo'.trParams({'error': e.toString()}),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),
         colorText: Colors.white,
@@ -508,18 +508,18 @@ class FinanceProfileController extends GetxController {
       AlertDialog(
         backgroundColor: const Color(0xFF15151F),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Log Out',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        title: Text(
+          'confirm_logout_finance_title'.tr,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        content: const Text(
-          'Are you sure you want to log out from the Finance Officer portal?',
-          style: TextStyle(color: Colors.white70),
+        content: Text(
+          'confirm_logout_finance_prompt'.tr,
+          style: const TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white54)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -535,9 +535,9 @@ class FinanceProfileController extends GetxController {
               backgroundColor: const Color(0xFFEF4444),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
-            child: const Text(
-              'Log Out',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            child: Text(
+              'confirm_logout_finance_title'.tr,
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ),
         ],

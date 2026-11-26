@@ -227,7 +227,7 @@ class DriverProfileController extends GetxController {
   void onViewCompanyDetails() {
     Get.snackbar(
       companyName.value,
-      'Organization: ${companyName.value}',
+      'organization_prefix'.trParams({'name': companyName.value}),
       backgroundColor: const Color(0xFF15151F),
       colorText: Colors.white,
       snackPosition: SnackPosition.BOTTOM,
@@ -249,14 +249,14 @@ class DriverProfileController extends GetxController {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Change Profile Photo',
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            Text(
+              'change_profile_photo'.tr,
+              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 6),
-            const Text(
-              'Choose photo from camera or gallery to update your profile.',
-              style: TextStyle(color: Colors.white54, fontSize: 12),
+            Text(
+              'choose_photo_camera_gallery'.tr,
+              style: const TextStyle(color: Colors.white54, fontSize: 12),
             ),
             const SizedBox(height: 18),
             ListTile(
@@ -315,8 +315,8 @@ class DriverProfileController extends GetxController {
 
       isUploadingAvatar.value = true;
       Get.snackbar(
-        'Uploading Avatar',
-        'Uploading your profile photo...',
+        'uploading_avatar'.tr,
+        'uploading_profile_photo'.tr,
         backgroundColor: const Color(0xFF6366F1),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
@@ -382,8 +382,8 @@ class DriverProfileController extends GetxController {
           }
 
           Get.snackbar(
-            'Success',
-            'Profile photo updated successfully!',
+            'success'.tr,
+            'profile_photo_updated'.tr,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM,
@@ -392,8 +392,8 @@ class DriverProfileController extends GetxController {
         }
       } else {
         Get.snackbar(
-          'Upload Failed',
-          res.message ?? 'Could not upload photo. Please try again.',
+          'submission_failed'.tr,
+          res.message ?? 'could_not_upload_photo'.tr,
           backgroundColor: const Color(0xFFEF4444),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
@@ -402,8 +402,8 @@ class DriverProfileController extends GetxController {
     } catch (e) {
       debugPrint('Error uploading avatar: $e');
       Get.snackbar(
-        'Upload Error',
-        'An error occurred while uploading photo.',
+        'common.error'.tr,
+        'error_uploading_photo_generic'.tr,
         backgroundColor: const Color(0xFFEF4444),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
@@ -440,13 +440,13 @@ class DriverProfileController extends GetxController {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildInfoRow('Name', fullName.value),
-            _buildInfoRow('Phone', phone.value),
-            _buildInfoRow('Email', email.value),
-            _buildInfoRow('License No', licenseNumber.value),
-            _buildInfoRow('License Expiry', licenseExpiry.value),
-            _buildInfoRow('Vehicle', assignedVehicleText.value),
-            _buildInfoRow('Duty Status', dutyStatus.value.replaceAll('_', ' ').toUpperCase()),
+            _buildInfoRow('profile_label_name'.tr, fullName.value),
+            _buildInfoRow('profile_label_phone'.tr, phone.value),
+            _buildInfoRow('profile_label_email'.tr, email.value),
+            _buildInfoRow('profile_label_license_no'.tr, licenseNumber.value),
+            _buildInfoRow('profile_label_license_expiry'.tr, licenseExpiry.value),
+            _buildInfoRow('profile_label_vehicle'.tr, assignedVehicleText.value),
+            _buildInfoRow('profile_label_duty_status'.tr, _getDutyStatusLabel(dutyStatus.value)),
           ],
         ),
         actions: [
@@ -567,5 +567,18 @@ class DriverProfileController extends GetxController {
         ],
       ),
     );
+  }
+
+  String _getDutyStatusLabel(String status) {
+    switch (status.toLowerCase()) {
+      case 'on_duty':
+        return 'on_duty'.tr;
+      case 'off_duty':
+        return 'off_duty'.tr;
+      case 'on_break':
+        return 'on_break'.tr;
+      default:
+        return status.replaceAll('_', ' ').toUpperCase();
+    }
   }
 }

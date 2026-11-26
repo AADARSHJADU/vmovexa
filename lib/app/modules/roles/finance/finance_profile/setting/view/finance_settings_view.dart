@@ -509,7 +509,7 @@ class FinanceSettingsView extends GetView<FinanceSettingsController> {
               const SizedBox(height: 10),
               // Direct URL Input Field
               _buildTextField(
-                label: 'URL',
+                label: 'url'.tr,
                 controller: controller.logoUrlController,
                 onChanged: (val) => controller.logoUrl.value = val.trim(),
               ),

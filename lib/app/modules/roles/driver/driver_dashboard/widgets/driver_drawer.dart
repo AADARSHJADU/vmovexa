@@ -218,9 +218,9 @@ class DriverDrawer extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4),
                         border: Border.all(color: const Color(0xFFF43F5E).withValues(alpha: 0.4)),
                       ),
-                      child: const Text(
-                        'SOS',
-                        style: TextStyle(
+                      child: Text(
+                        'sos_caps'.tr,
+                        style: const TextStyle(
                           color: Color(0xFFF43F5E),
                           fontSize: 9,
                           fontWeight: FontWeight.bold,

@@ -1008,7 +1008,7 @@ class FinancePaymentsView extends GetView<FinancePaymentsController> {
       // {'value': 'card', 'label': 'Card'},
       // {'value': 'netbanking', 'label': 'Net banking'},
       // {'value': 'bank_wire', 'label': 'Bank wire'},
-      {'value': 'bank_transfer', 'label': 'Bank transfer'},
+      {'value': 'bank_transfer', 'label': 'bank_transfer'.tr},
       // {'value': 'neft', 'label': 'NEFT'},
       // {'value': 'rtgs', 'label': 'RTGS'},
       // {'value': 'imps', 'label': 'IMPS'},
