@@ -185,6 +185,8 @@ class _WorkOrderResolutionSheetState extends State<WorkOrderResolutionSheet> {
                             children: [
                               Text(
                                 'resolve_work_order_title'.tr,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -194,6 +196,8 @@ class _WorkOrderResolutionSheetState extends State<WorkOrderResolutionSheet> {
                               const SizedBox(height: 2),
                               Text(
                                 '${widget.order.code} · ${'vehicle'.tr} ${widget.order.busNumber.isNotEmpty ? widget.order.busNumber : 'N/A'}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   color: Colors.white60,
                                   fontSize: 12,
@@ -236,6 +240,8 @@ class _WorkOrderResolutionSheetState extends State<WorkOrderResolutionSheet> {
                         children: [
                           Text(
                             widget.order.busNumber.isNotEmpty ? widget.order.busNumber : widget.order.code,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 13,
@@ -312,12 +318,16 @@ class _WorkOrderResolutionSheetState extends State<WorkOrderResolutionSheet> {
                           children: [
                             Text(
                               'work_order_resolved'.tr,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                             ),
                             if (widget.order.resolvedAt != null) ...[
                               const SizedBox(height: 2),
                               Text(
                                 '${'completed_on'.tr} ${widget.order.resolvedAt}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(color: Colors.white70, fontSize: 11),
                               ),
                             ],
@@ -365,6 +375,8 @@ class _WorkOrderResolutionSheetState extends State<WorkOrderResolutionSheet> {
                     ),
                     child: Text(
                       'cancel'.tr,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -437,6 +449,8 @@ class _WorkOrderResolutionSheetState extends State<WorkOrderResolutionSheet> {
                         ),
                         child: Text(
                           'cancel'.tr,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 13,
@@ -481,12 +495,16 @@ class _WorkOrderResolutionSheetState extends State<WorkOrderResolutionSheet> {
                                         ),
                                       ),
                                       const SizedBox(width: 8),
-                                      Text(
-                                        'submitting_resolution'.tr,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
+                                      Flexible(
+                                        child: Text(
+                                          'submitting_resolution'.tr,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -500,12 +518,16 @@ class _WorkOrderResolutionSheetState extends State<WorkOrderResolutionSheet> {
                                         color: Colors.white,
                                       ),
                                       const SizedBox(width: 6),
-                                      Text(
-                                        'confirm_resolution'.tr,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
+                                      Flexible(
+                                        child: Text(
+                                          'confirm_resolution'.tr,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -555,6 +577,8 @@ class _WorkOrderResolutionSheetState extends State<WorkOrderResolutionSheet> {
       ),
       child: Text(
         label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(color: text, fontSize: 10, fontWeight: FontWeight.bold),
       ),
     );

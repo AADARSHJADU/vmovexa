@@ -60,7 +60,7 @@ class EditProfileController extends GetxController {
       reportingManager.value = currentProfile.reportingManager;
       workLocation.value = currentProfile.workLocation;
       joinedDate.value = currentProfile.joinedDate;
-      username.value = currentProfile.username.isNotEmpty ? currentProfile.username : 'rahul.sharma';
+      username.value = currentProfile.username.isNotEmpty ? currentProfile.username : 'technician';
       techId.value = currentProfile.techId;
       employeeId.value = currentProfile.employeeId;
     } else if (Get.isRegistered<StorageService>()) {
@@ -71,9 +71,9 @@ class EditProfileController extends GetxController {
         phoneController.text = cached.phone ?? '';
         addressController.text = cached.officeAddress ?? cached.branch ?? '';
         avatarUrl.value = cached.avatarUrl ?? '';
-        role.value = cached.role ?? 'Senior Technician';
-        techId.value = cached.code ?? cached.id ?? 'TECH-0078';
-        employeeId.value = cached.enrollmentNo ?? cached.code ?? 'EMP-1456';
+        role.value = cached.role ?? 'Central Field Technician';
+        techId.value = cached.code ?? cached.id ?? 'TECH-001';
+        employeeId.value = cached.enrollmentNo ?? cached.code ?? 'EMP-001';
       }
     }
   }

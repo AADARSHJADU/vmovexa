@@ -205,11 +205,16 @@ class ConfigurationSavedView extends GetView<HardwareConfigController> {
                 : Text(label, style: const TextStyle(color: Colors.white54, fontSize: 12)),
           ),
           if (!isHeaderRow)
-            trailing ??
-                Text(
-                  value,
-                  style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w600),
-                ),
+            Flexible(
+              child: trailing ??
+                  Text(
+                    value,
+                    textAlign: TextAlign.end,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w600),
+                  ),
+            ),
           if (isHeaderRow && trailing != null) trailing,
         ],
       ),
@@ -282,7 +287,14 @@ class ConfigurationSavedView extends GetView<HardwareConfigController> {
           children: [
             const Icon(Icons.home_outlined, color: Colors.white, size: 18),
             const SizedBox(width: 8),
-            Text('go_to_display_devices'.tr, style: const TextStyle(color: Colors.white, fontSize: 14.5, fontWeight: FontWeight.w700)),
+            Flexible(
+              child: Text(
+                'go_to_display_devices'.tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: Colors.white, fontSize: 14.5, fontWeight: FontWeight.w700),
+              ),
+            ),
           ],
         ),
       ),
@@ -305,7 +317,14 @@ class ConfigurationSavedView extends GetView<HardwareConfigController> {
           children: [
             const Icon(Icons.tune, color: kPurple, size: 18),
             const SizedBox(width: 8),
-            Text('configure_another_device'.tr, style: const TextStyle(color: kPurple, fontSize: 14.5, fontWeight: FontWeight.w700)),
+            Flexible(
+              child: Text(
+                'configure_another_device'.tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: kPurple, fontSize: 14.5, fontWeight: FontWeight.w700),
+              ),
+            ),
           ],
         ),
       ),

@@ -45,6 +45,22 @@ class TechnicianService extends GetxService {
     );
   }
 
+  /// PATCH /api/v1/notifications/:id/read
+  Future<ApiResponseModel<dynamic>> markNotificationRead(String id) async {
+    return _http.patch(
+      ApiConstants.notificationRead(id),
+      requiresAuth: true,
+    );
+  }
+
+  /// PATCH /api/v1/notifications/read-all
+  Future<ApiResponseModel<dynamic>> markAllNotificationsRead() async {
+    return _http.patch(
+      ApiConstants.notificationReadAll,
+      requiresAuth: true,
+    );
+  }
+
   // ==========================================================
   // SECTION 1: Technician Self-Service (Work Orders)
   // ==========================================================

@@ -183,15 +183,22 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
               }
             },
           ),
-          Text(
-            'report_emergency_incident'.tr,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'report_emergency_incident'.tr,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-          SizedBox()
+          const SizedBox(width: 8),
+          const SizedBox(width: 40),
           // Obx(() {
           //   return Container(
           //     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -633,7 +640,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
               padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: Text('continue_to_gps_location'.tr, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold)),
+            child: Text('continue_to_gps_location'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold)),
           ),
         ),
       ],
@@ -756,6 +763,8 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                     : const Icon(Icons.my_location_rounded, size: 15, color: Colors.white),
                 label: Text(
                   controller.isDetectingGps.value ? 'detecting_gps'.tr : 'auto_detect_gps'.tr,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -972,27 +981,60 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
         const SizedBox(height: 24),
 
         // Navigation Buttons
+
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            OutlinedButton(
-              onPressed: () => controller.goToPreviousStep(),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.cardBorder),
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () => controller.goToPreviousStep(),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AppColors.cardBorder),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  '← ${'back'.tr}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12,
+                  ),
+                ),
               ),
-              child: Text('← ${'back'.tr}', style: const TextStyle(color: Colors.white70, fontSize: 12)),
             ),
-            ElevatedButton(
-              onPressed: () => controller.goToNextStep(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2563EB),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () => controller.goToNextStep(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2563EB),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  'continue_to_medical_severity'.tr,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-              child: Text('continue_to_medical_severity'.tr, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
             ),
           ],
         ),
@@ -1484,27 +1526,62 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
         const SizedBox(height: 24),
 
         // Navigation Buttons
+
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            OutlinedButton(
-              onPressed: () => controller.goToPreviousStep(),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.cardBorder),
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () => controller.goToPreviousStep(),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AppColors.cardBorder),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  '← ${'back'.tr}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12,
+                  ),
+                ),
               ),
-              child: Text('← ${'back'.tr}', style: const TextStyle(color: Colors.white70, fontSize: 12)),
             ),
-            ElevatedButton(
-              onPressed: () => controller.goToNextStep(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2563EB),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            const SizedBox(width: 10),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () => controller.goToNextStep(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2563EB),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  'continue_to_media_submit'.tr,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-              child: Text('continue_to_media_submit'.tr, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
             ),
           ],
         ),
@@ -1642,6 +1719,8 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                       ),
                       child: Text(
                         controller.isUploadingPhoto.value ? 'uploading_photo'.tr : 'add_photo_plus'.tr,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                       ),
                     );
@@ -1777,6 +1856,8 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                       ),
                       child: Text(
                         controller.isUploadingVideo.value ? 'uploading_photo'.tr : 'add_video'.tr,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                       ),
                     );
@@ -1842,7 +1923,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text('video_item_title'.trParams({'num': (idx + 1).toString()}), style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                                      Text('tap_to_view'.tr, style: TextStyle(color: Colors.grey.shade400, fontSize: 9.5)),
+                                      Text('tap_to_view'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey.shade400, fontSize: 9.5)),
                                     ],
                                   ),
                                 ),
@@ -1973,36 +2054,95 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
         const SizedBox(height: 24),
 
         // Navigation & Submit
+
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            OutlinedButton(
-              onPressed: () => controller.goToPreviousStep(),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.cardBorder),
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            Expanded(
+              flex: 2,
+              child: OutlinedButton(
+                onPressed: () => controller.goToPreviousStep(),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AppColors.cardBorder),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  '← ${'back'.tr}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12,
+                  ),
+                ),
               ),
-              child: Text('← ${'back'.tr}', style: const TextStyle(color: Colors.white70, fontSize: 12)),
             ),
-            Obx(() {
-              return ElevatedButton.icon(
-                onPressed: controller.isSubmittingReport.value ? null : () => controller.submitReportIncident(),
-                icon: controller.isSubmittingReport.value
-                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : const Icon(Icons.warning_amber_rounded, size: 18, color: Colors.white),
-                label: Text(
-                  controller.isSubmittingReport.value ? 'broadcasting_report'.tr : 'broadcast_emergency_report'.tr,
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFDC2626),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              );
-            }),
+            const SizedBox(width: 10),
+            Expanded(
+              flex: 3,
+              child: Obx(() {
+                final isSubmitting = controller.isSubmittingReport.value;
+
+                return ElevatedButton(
+                  onPressed: isSubmitting
+                      ? null
+                      : () => controller.submitReportIncident(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFDC2626),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (isSubmitting)
+                        const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      else
+                        const Icon(
+                          Icons.warning_amber_rounded,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                      const SizedBox(width: 5),
+                      Flexible(
+                        child: Text(
+                          isSubmitting
+                              ? 'broadcasting_report'.tr
+                              : 'broadcast_emergency_report'.tr,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ),
           ],
         ),
       ],
@@ -2184,7 +2324,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                child: Text('view_in_incidents_log'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                child: Text('view_in_incidents_log'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
               ),
             ),
             const SizedBox(height: 10),
@@ -2199,7 +2339,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                child: Text('report_another_incident'.tr, style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.bold)),
+                child: Text('report_another_incident'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.bold)),
               ),
             ),
           ],
@@ -2404,7 +2544,7 @@ class ReportIncidentView extends GetView<EmergencyIncidentsController> {
                     }
                   },
                   icon: const Icon(Icons.open_in_new_rounded, size: 16, color: Colors.white),
-                  label: Text('open_play_video'.tr, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                  label: Text('open_play_video'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFA855F7),
                     padding: const EdgeInsets.symmetric(vertical: 12),

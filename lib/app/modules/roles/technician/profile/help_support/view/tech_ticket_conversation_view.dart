@@ -122,12 +122,16 @@ class TechTicketConversationView extends GetView<TechTicketConversationControlle
               children: [
                 Row(
                   children: [
-                    Text(
-                      ticket?.code ?? 'ticket'.tr,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                    Flexible(
+                      child: Text(
+                        ticket?.code ?? 'ticket'.tr,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     if (ticket != null) ...[
@@ -141,6 +145,8 @@ class TechTicketConversationView extends GetView<TechTicketConversationControlle
                         ),
                         child: Text(
                           ticket.status.toUpperCase(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: ticket.statusColor,
                             fontSize: 8.5,

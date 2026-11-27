@@ -151,7 +151,7 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
         ElevatedButton.icon(
           onPressed: controller.goToAssign,
           icon: const Icon(Icons.directions_bus_rounded, size: 14),
-          label: Text(isAssigned ? 'Reassign Bus' : 'Assign to Bus'),
+          label: Text(isAssigned ? 'Reassign Bus' : 'Assign to Bus', maxLines: 1, overflow: TextOverflow.ellipsis),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF1E3A8A).withValues(alpha: 0.6),
             foregroundColor: const Color(0xFF93C5FD),
@@ -169,7 +169,7 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
           ElevatedButton.icon(
             onPressed: controller.goToLiveTracking,
             icon: const Icon(Icons.map_rounded, size: 14),
-            label: const Text('Live Track'),
+            label: const Text('Live Track', maxLines: 1, overflow: TextOverflow.ellipsis),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.15),
               foregroundColor: const Color(0xFF34D399),
@@ -187,7 +187,7 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
           ElevatedButton.icon(
             onPressed: controller.handleUnassign,
             icon: const Icon(Icons.link_off_rounded, size: 14),
-            label: const Text('Unlink Bus'),
+            label: const Text('Unlink Bus', maxLines: 1, overflow: TextOverflow.ellipsis),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.amber.withValues(alpha: 0.15),
               foregroundColor: Colors.amberAccent,
@@ -204,7 +204,7 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
         ElevatedButton.icon(
           onPressed: controller.handleReboot,
           icon: const Icon(Icons.restart_alt_rounded, size: 14),
-          label: const Text('Reboot Unit'),
+          label: const Text('Reboot Unit', maxLines: 1, overflow: TextOverflow.ellipsis),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF6366F1).withValues(alpha: 0.15),
             foregroundColor: const Color(0xFF818CF8),
@@ -221,7 +221,7 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
         ElevatedButton.icon(
           onPressed: controller.handleTestConnectivity,
           icon: const Icon(Icons.network_ping_rounded, size: 14),
-          label: const Text('Ping / Test'),
+          label: const Text('Ping / Test', maxLines: 1, overflow: TextOverflow.ellipsis),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF0F766E).withValues(alpha: 0.2),
             foregroundColor: const Color(0xFF2DD4BF),
@@ -363,32 +363,60 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
-                children: [
-                  Icon(Icons.memory_rounded, color: Color(0xFF38BDF8), size: 18),
-                  SizedBox(width: 8),
-                  Text(
-                    'Compute Unit Specifications',
-                    style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0F172A),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: const Color(0xFF334155)),
+              Expanded(
+                flex: 3,
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.memory_rounded,
+                      color: Color(0xFF38BDF8),
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'Compute Unit Specifications',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
-                child: Text(
-                  d.displayCode,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontFamily: 'monospace',
-                    fontWeight: FontWeight.bold,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 2,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0F172A),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                        color: const Color(0xFF334155),
+                      ),
+                    ),
+                    child: Text(
+                      d.displayCode,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontFamily: 'monospace',
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
               ),
@@ -481,28 +509,58 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Row(
             children: [
-              Row(
-                children: [
-                  Icon(Icons.gps_fixed_rounded, color: Colors.amberAccent, size: 18),
-                  SizedBox(width: 8),
-                  Text(
-                    'Connected GNSS/GPS Telemetry',
-                    style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                ],
+              Expanded(
+                flex: 3,
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.gps_fixed_rounded,
+                      color: Colors.amberAccent,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'Connected GNSS/GPS Telemetry',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              Row(
-                children: [
-                  CircleAvatar(radius: 3, backgroundColor: Color(0xFF10B981)),
-                  SizedBox(width: 4),
-                  Text(
-                    'GNSS Live Lock',
-                    style: TextStyle(color: Color(0xFF34D399), fontSize: 11, fontWeight: FontWeight.bold),
-                  ),
-                ],
+              const SizedBox(width: 8),
+              Flexible(
+                flex: 2,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    const CircleAvatar(
+                      radius: 3,
+                      backgroundColor: Color(0xFF10B981),
+                    ),
+                    const SizedBox(width: 4),
+                    const Flexible(
+                      child: Text(
+                        'GNSS Live Lock',
+                        style: TextStyle(
+                          color: Color(0xFF34D399),
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -604,36 +662,92 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
   }
 
   // --- 5. Organization, Depot & Fleet Context Card ---
+
   Widget _buildOrgAndVehicleCard(GpsDeviceModel d) {
     final isAssigned = d.isAssigned;
     final veh = d.vehicle;
+
+    // Reusable text style for organization details.
+    const valueStyle = TextStyle(
+      color: Colors.white,
+      fontSize: 12,
+      fontWeight: FontWeight.bold,
+    );
+
+    // Reusable label-value row with responsive text.
+    Widget buildInfoRow(String label, String value) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Flexible(
+            flex: 2,
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: Color(0xFF64748B),
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 3,
+            child: Text(
+              value,
+              style: valueStyle,
+              textAlign: TextAlign.end,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      );
+    }
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        border: Border.all(
+          color: AppColors.cardBorder,
+          width: 1.2,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
-                children: [
-                  Icon(Icons.hub_rounded, color: Color(0xFF38BDF8), size: 18),
-                  SizedBox(width: 8),
-                  Text(
-                    'Organization & Vehicle Context',
-                    style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                ],
+              const Icon(
+                Icons.hub_rounded,
+                color: Color(0xFF38BDF8),
+                size: 18,
               ),
-              _buildStatusBadge(isAssigned ? 'ASSIGNED' : 'SPARE'),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Text(
+                  'Organization & Vehicle Context',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              _buildStatusBadge(
+                isAssigned ? 'ASSIGNED' : 'SPARE',
+              ),
             ],
           ),
+
           const SizedBox(height: 12),
 
           // Hierarchy Card
@@ -642,92 +756,134 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
             decoration: BoxDecoration(
               color: const Color(0xFF0F172A),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF1E293B)),
+              border: Border.all(
+                color: const Color(0xFF1E293B),
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('TENANT ORG', style: TextStyle(color: Color(0xFF64748B), fontSize: 9, fontWeight: FontWeight.bold)),
-                    Text(
-                      veh?.orgName.isNotEmpty == true ? veh!.orgName : 'VMovexa Transit Systems',
-                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                    ),
-                  ],
+                buildInfoRow(
+                  'TENANT ORG',
+                  veh?.orgName.isNotEmpty == true
+                      ? veh!.orgName
+                      : 'VMovexa Transit Systems',
+                ),
+
+                const SizedBox(height: 8),
+                const Divider(
+                  height: 1,
+                  color: Color(0xFF1E293B),
                 ),
                 const SizedBox(height: 8),
-                const Divider(height: 1, color: Color(0xFF1E293B)),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('FLEET OPERATOR', style: TextStyle(color: Color(0xFF64748B), fontSize: 9, fontWeight: FontWeight.bold)),
-                    Text(
-                      veh?.fleetName.isNotEmpty == true ? veh!.fleetName : 'General Transit Fleet',
-                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                    ),
-                  ],
+
+                buildInfoRow(
+                  'FLEET OPERATOR',
+                  veh?.fleetName.isNotEmpty == true
+                      ? veh!.fleetName
+                      : 'General Transit Fleet',
                 ),
+
                 if (veh?.depotName.isNotEmpty == true) ...[
                   const SizedBox(height: 8),
-                  const Divider(height: 1, color: Color(0xFF1E293B)),
+                  const Divider(
+                    height: 1,
+                    color: Color(0xFF1E293B),
+                  ),
                   const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('HOME DEPOT', style: TextStyle(color: Color(0xFF64748B), fontSize: 9, fontWeight: FontWeight.bold)),
-                      Text(
-                        veh!.depotName,
-                        style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                      ),
-                    ],
+
+                  buildInfoRow(
+                    'HOME DEPOT',
+                    veh!.depotName,
                   ),
                 ],
               ],
             ),
           ),
 
+          // Assigned Vehicle Card
           if (isAssigned) ...[
             const SizedBox(height: 12),
+
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: const Color(0xFF10B981).withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.3),
+                ),
               ),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Icon(Icons.directions_bus_rounded, color: Color(0xFF10B981), size: 28),
+                  const Icon(
+                    Icons.directions_bus_rounded,
+                    color: Color(0xFF10B981),
+                    size: 28,
+                  ),
+
                   const SizedBox(width: 12),
+
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          veh?.busNumber.isNotEmpty == true ? veh!.busNumber : 'Bus #${d.vehicleId}',
-                          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                          veh?.busNumber.isNotEmpty == true
+                              ? veh!.busNumber
+                              : 'Bus #${d.vehicleId}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
+
                         if (veh?.model.isNotEmpty == true)
                           Text(
                             '${veh!.model}${veh.vin.isNotEmpty ? ' • VIN: ${veh.vin}' : ''}',
-                            style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                            style: const TextStyle(
+                              color: AppColors.textMuted,
+                              fontSize: 11,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                       ],
                     ),
                   ),
-                  OutlinedButton(
-                    onPressed: controller.goToVehicleDetails,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF10B981),
-                      side: const BorderSide(color: Color(0xFF10B981)),
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+
+                  const SizedBox(width: 8),
+
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: OutlinedButton(
+                      onPressed: controller.goToVehicleDetails,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF10B981),
+                        side: const BorderSide(
+                          color: Color(0xFF10B981),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: const Text(
+                        'View Bus',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                    child: const Text('View Bus', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -737,6 +893,7 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
       ),
     );
   }
+
 
   // --- 6. Installation & Diagnostic Notes Card ---
   Widget _buildNotesCard(GpsDeviceModel d) {
@@ -846,7 +1003,7 @@ class GpsDetailsView extends GetView<GpsDetailsController> {
                 backgroundColor: const Color(0xFF6366F1),
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Back to Edge Devices'),
+              child: const Text('Back to Edge Devices', maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
           ],
         ),

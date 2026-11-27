@@ -540,16 +540,23 @@ class AddDepotView extends GetView<AddDepotController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const CustomBackButton(),
-          Obx(
-            () => Text(
-              controller.isEditMode.value ? 'edit_depot_title'.tr : 'add_depot_title'.tr,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+          const SizedBox(width: 8),
+          Expanded(
+            child: Obx(
+              () => Text(
+                controller.isEditMode.value ? 'edit_depot_title'.tr : 'add_depot_title'.tr,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ),
+          const SizedBox(width: 8),
           const SizedBox(width: 40),
         ],
       ),

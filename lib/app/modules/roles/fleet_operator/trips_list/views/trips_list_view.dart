@@ -68,14 +68,21 @@ class TripsListView extends GetView<TripsListController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const CustomBackButton(),
-          Text(
-            'trips_daily_schedules'.tr,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'trips_daily_schedules'.tr,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
+          const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 22),
             onPressed: () => controller.fetchTrips(),
@@ -103,13 +110,17 @@ class TripsListView extends GetView<TripsListController> {
               Expanded(
                 child: Row(
                   children: [
-                    Text(
-                      'trips_voyages_dispatch'.tr,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -0.3,
+                    Flexible(
+                      child: Text(
+                        'trips_voyages_dispatch'.tr,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -0.3,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -159,6 +170,8 @@ class TripsListView extends GetView<TripsListController> {
                   ),
                   label: Text(
                     'live_tracking_radar'.tr,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
@@ -457,7 +470,7 @@ class TripsListView extends GetView<TripsListController> {
                   side: const BorderSide(color: Color(0xFF3B82F6)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
-                child: Text('clear'.tr, style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 11)),
+                child: Text('clear'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 11)),
               ),
             ],
           ),
@@ -644,13 +657,20 @@ class TripsListView extends GetView<TripsListController> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Progress: $progress% (${trip.coveredKm.toStringAsFixed(1)} / ${trip.distanceKm.toStringAsFixed(1)} km)',
-                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
+                Expanded(
+                  child: Text(
+                    'Progress: $progress% (${trip.coveredKm.toStringAsFixed(1)} / ${trip.distanceKm.toStringAsFixed(1)} km)',
+                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
+                const SizedBox(width: 8),
                 Text(
                   'ETA: ${trip.eta}',
                   style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -708,20 +728,29 @@ class TripsListView extends GetView<TripsListController> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Icon(Icons.gps_fixed_rounded, size: 12, color: AppColors.textMuted),
-                    const SizedBox(width: 4),
-                    Text(
-                      trip.punctualityStatus,
-                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
-                    ),
-                  ],
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.gps_fixed_rounded, size: 12, color: AppColors.textMuted),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          trip.punctualityStatus,
+                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
                 Row(
                   children: const [
                     Text(
                       'View Voyage Specs',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: Color(0xFF60A5FA),
                         fontSize: 11,

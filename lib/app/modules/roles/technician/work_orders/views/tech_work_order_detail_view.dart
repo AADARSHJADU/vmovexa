@@ -154,30 +154,36 @@ class TechWorkOrderDetailView extends GetView<TechWorkOrderDetailController> {
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF6366F1).withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.4)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      order.code,
-                      style: const TextStyle(
-                        color: Color(0xFF818CF8),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6366F1).withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.4)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          order.code,
+                          style: const TextStyle(
+                            color: Color(0xFF818CF8),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 4),
-                    InkWell(
-                      onTap: controller.copyCode,
-                      child: const Icon(Icons.copy_rounded, color: Color(0xFF818CF8), size: 14),
-                    ),
-                  ],
+                      const SizedBox(width: 4),
+                      InkWell(
+                        onTap: controller.copyCode,
+                        child: const Icon(Icons.copy_rounded, color: Color(0xFF818CF8), size: 14),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -225,32 +231,35 @@ class TechWorkOrderDetailView extends GetView<TechWorkOrderDetailController> {
             children: [
               const Icon(Icons.calendar_today_rounded, size: 12, color: Colors.white38),
               const SizedBox(width: 5),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-
-                  Text(
-                    '${'assigned_on'.tr} ${order.dispatchedAt != null
-                        ? DateFormat('MM/dd/yyyy, hh:mm:ss a').format(
-                      DateTime.parse(order.dispatchedAt!).toLocal(),
-                    )
-                        : '—'}',
-                    style: const TextStyle(
-                      color: Colors.white54,
-                      fontSize: 11,
-                    ),
-                  ),
-
-                  if (order.assignedByName != null && order.assignedByName!.isNotEmpty) ...[
-                    const SizedBox(width: 4),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      '${'by'.tr} ${order.assignedByName}',
-                      style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold),
+                      '${'assigned_on'.tr} ${order.dispatchedAt != null
+                          ? DateFormat('MM/dd/yyyy, hh:mm:ss a').format(
+                        DateTime.parse(order.dispatchedAt!).toLocal(),
+                      )
+                          : '—'}',
+                      style: const TextStyle(
+                        color: Colors.white54,
+                        fontSize: 11,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
+                    if (order.assignedByName != null && order.assignedByName!.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        '${'by'.tr} ${order.assignedByName}',
+                        style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
-
             ],
           ),
         ],
@@ -808,6 +817,8 @@ class TechWorkOrderDetailView extends GetView<TechWorkOrderDetailController> {
                 icon: const Icon(Icons.pin_drop_rounded, size: 18),
                 label: Text(
                   'mark_arrived'.tr,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -842,9 +853,13 @@ class TechWorkOrderDetailView extends GetView<TechWorkOrderDetailController> {
                         children: [
                           const Icon(Icons.check_circle_outline_rounded, size: 18, color: Colors.white),
                           const SizedBox(width: 8),
-                          Text(
-                            'resolve_job'.tr,
-                            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                          Flexible(
+                            child: Text(
+                              'resolve_job'.tr,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ],
                       ),

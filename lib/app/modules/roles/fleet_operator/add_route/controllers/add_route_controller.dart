@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -100,6 +101,9 @@ class AddRouteController extends GetxController {
 
   // Stops List
   final RxList<StopFormItem> stops = <StopFormItem>[].obs;
+  final RxInt stopsVersion = 0.obs;
+
+  Timer? _coordDebounceTimer;
 
   @override
   void onInit() {
@@ -118,10 +122,45 @@ class AddRouteController extends GetxController {
       final rand = 1000 + Random().nextInt(9000);
       codeController.text = 'RTE-$rand';
     }
+
+    _setupCoordinateListeners();
+  }
+
+  void _setupCoordinateListeners() {
+    startLatController.addListener(_onManualCoordChanged);
+    startLngController.addListener(_onManualCoordChanged);
+    endLatController.addListener(_onManualCoordChanged);
+    endLngController.addListener(_onManualCoordChanged);
+  }
+
+  void _onManualCoordChanged() {
+    final sLat = double.tryParse(startLatController.text.trim());
+    final sLng = double.tryParse(startLngController.text.trim());
+    final eLat = double.tryParse(endLatController.text.trim());
+    final eLng = double.tryParse(endLngController.text.trim());
+
+    if (sLat != null && sLat != 0.0 && sLat != startLat.value) startLat.value = sLat;
+    if (sLng != null && sLng != 0.0 && sLng != startLng.value) startLng.value = sLng;
+    if (eLat != null && eLat != 0.0 && eLat != endLat.value) endLat.value = eLat;
+    if (eLng != null && eLng != 0.0 && eLng != endLng.value) endLng.value = eLng;
+
+    if (sLat != null && sLng != null && eLat != null && eLng != null &&
+        sLat != 0.0 && sLng != 0.0 && eLat != 0.0 && eLng != 0.0) {
+      if (_coordDebounceTimer?.isActive ?? false) _coordDebounceTimer?.cancel();
+      _coordDebounceTimer = Timer(const Duration(milliseconds: 900), () {
+        computeGoogleDrivingRoute(isManual: false);
+      });
+    }
   }
 
   @override
   void onClose() {
+    _coordDebounceTimer?.cancel();
+    startLatController.removeListener(_onManualCoordChanged);
+    startLngController.removeListener(_onManualCoordChanged);
+    endLatController.removeListener(_onManualCoordChanged);
+    endLngController.removeListener(_onManualCoordChanged);
+
     nameController.dispose();
     codeController.dispose();
     startPointController.dispose();
@@ -250,12 +289,16 @@ class AddRouteController extends GetxController {
         geofence: '50',
       ),
     );
+    stopsVersion.value++;
+    stops.refresh();
   }
 
   void removeStop(int index) {
     if (index >= 0 && index < stops.length) {
       final item = stops.removeAt(index);
       item.dispose();
+      stopsVersion.value++;
+      stops.refresh();
       recalculateAllStopMetrics();
       // Recalculate route path when a stop is removed
       if (startLat.value != 0 && endLat.value != 0) {
@@ -313,6 +356,9 @@ class AddRouteController extends GetxController {
       s.addressController.text = place.formattedAddress;
       if (place.latitude != null) s.latController.text = place.latitude.toString();
       if (place.longitude != null) s.lngController.text = place.longitude.toString();
+
+      stopsVersion.value++;
+      stops.refresh();
 
       // Recalculate distance and ETA immediately from origin and intermediate waypoints
       recalculateAllStopMetrics();

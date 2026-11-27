@@ -33,18 +33,21 @@ class TermsConditionsView extends GetView<TermsConditionsController> {
               child: Row(
                 children: [
                   const CustomBackButton(),
+                  const SizedBox(width: 8),
                   Expanded(
-                    child: Center(
-                      child: Text(
-                        'terms_conditions'.tr,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    child: Text(
+                      'terms_conditions'.tr,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  const SizedBox(width: 8),
                   IconButton(
                     icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 20),
                     onPressed: c.loadTermsContent,

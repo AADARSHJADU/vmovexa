@@ -102,16 +102,23 @@ class AddVehicleView extends GetView<AddVehicleController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           CustomBackButton(onTap: () => Get.back()),
-          Obx(
-            () => Text(
-              controller.isEditMode.value ? 'edit_vehicle_profile'.tr : 'add_vehicle'.tr,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+          const SizedBox(width: 8),
+          Expanded(
+            child: Obx(
+              () => Text(
+                controller.isEditMode.value ? 'edit_vehicle_profile'.tr : 'add_vehicle'.tr,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ),
+          const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.info_outline_rounded, color: Colors.white70, size: 22),
             onPressed: () => _showHelpBottomSheet(),
@@ -603,6 +610,8 @@ class AddVehicleView extends GetView<AddVehicleController> {
                         const SizedBox(width: 4),
                         Text(
                           'view_document'.tr,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             color: Color(0xFF10B981),
                             fontSize: 10,
@@ -1018,6 +1027,9 @@ class AddVehicleView extends GetView<AddVehicleController> {
               fontSize: 11,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
           ),
         ),
       ),
@@ -1054,7 +1066,7 @@ class AddVehicleView extends GetView<AddVehicleController> {
                   children: [
                     const Icon(Icons.add_a_photo_rounded, color: Colors.white, size: 14),
                     const SizedBox(width: 4),
-                    Text('add_photo'.tr, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                    Text('add_photo'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -1117,24 +1129,39 @@ class AddVehicleView extends GetView<AddVehicleController> {
                                 ),
                               ),
                               // Bottom translucent "View" bar with eye icon
+
                               Positioned(
                                 bottom: 0,
                                 left: 0,
                                 right: 0,
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 3),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 3,
+                                    horizontal: 2,
+                                  ),
                                   color: Colors.black87.withValues(alpha: 0.75),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
+                                    mainAxisSize: MainAxisSize.max,
                                     children: [
-                                      const Icon(Icons.visibility_rounded, color: Colors.white, size: 11),
+                                      const Icon(
+                                        Icons.visibility_rounded,
+                                        color: Colors.white,
+                                        size: 11,
+                                      ),
                                       const SizedBox(width: 3),
-                                      Text(
-                                        'view_photo'.tr,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 9,
-                                          fontWeight: FontWeight.bold,
+                                      Flexible(
+                                        child: Text(
+                                          'view_photo'.tr,
+                                          maxLines: 1,
+                                          softWrap: false,
+                                          overflow: TextOverflow.ellipsis,
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -1300,6 +1327,8 @@ class AddVehicleView extends GetView<AddVehicleController> {
               ),
               child: Text(
                 'cancel'.tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.bold),
               ),
             ),

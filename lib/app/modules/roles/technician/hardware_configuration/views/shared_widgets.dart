@@ -41,17 +41,26 @@ class SectionCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Icon(icon, color: kPurple, size: 16),
-                  const SizedBox(width: 8),
-                  Text(
-                    title,
-                    style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
-                  ),
-                ],
+              Expanded(
+                child: Row(
+                  children: [
+                    Icon(icon, color: kPurple, size: 16),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              ?trailingBadge,
+              if (trailingBadge != null) ...[
+                const SizedBox(width: 8),
+                trailingBadge!,
+              ],
             ],
           ),
           const SizedBox(height: 12),
@@ -95,6 +104,8 @@ class SettingSliderRow extends StatelessWidget {
           width: 96,
           child: Text(
             label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: enabled ? Colors.white70 : Colors.white24,
               fontSize: 11.5,
@@ -165,11 +176,13 @@ class SettingDropdownRow extends StatelessWidget {
         Expanded(
           child: Text(
             label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(color: Colors.white70, fontSize: 12.5, fontWeight: FontWeight.w600),
           ),
         ),
-        SizedBox(
-          width: dropdownWidth,
+        ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: dropdownWidth),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(

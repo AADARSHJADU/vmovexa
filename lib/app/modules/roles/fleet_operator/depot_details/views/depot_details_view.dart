@@ -585,6 +585,8 @@ class DepotDetailsView extends GetView<DepotDetailsController> {
                       : Icon(d.isOperational ? Icons.cancel_outlined : Icons.check_circle_outline_rounded, size: 18),
                   label: Text(
                     d.isOperational ? 'close_facility_btn'.tr : 'reopen_facility_btn'.tr,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                   ),
                 ),
@@ -610,7 +612,7 @@ class DepotDetailsView extends GetView<DepotDetailsController> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             icon: const Icon(Icons.delete_outline_rounded, size: 18),
-            label: Text('delete_depot_btn'.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+            label: Text('delete_depot_btn'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
           ),
         ],
       );

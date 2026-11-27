@@ -31,15 +31,22 @@ class ProfileView extends StatelessWidget {
                   onPressed: controller.loadProfileData,
                   tooltip: 'refresh'.tr,
                 ),
-                Text(
-                  'operator_profile'.tr,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: -0.3,
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'operator_profile'.tr,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: -0.3,
+                    ),
                   ),
                 ),
+                const SizedBox(width: 8),
                 InkWell(
                   onTap: () => Get.toNamed(Routes.ACCOUNT_SETTINGS),
                   borderRadius: BorderRadius.circular(20),
@@ -117,6 +124,8 @@ class ProfileView extends StatelessWidget {
                       icon: const Icon(Icons.logout_rounded, color: Color(0xFFEF4444), size: 18),
                       label: Text(
                         'logout'.tr,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: Color(0xFFEF4444),
                           fontSize: 14,
@@ -521,7 +530,7 @@ class ProfileView extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF6366F1),
                   ),
-                  child: Text('close'.tr, style: const TextStyle(color: Colors.white)),
+                  child: Text('close'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white)),
                 ),
               );
             },

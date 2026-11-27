@@ -27,14 +27,21 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const CustomBackButton(),
-                  Text(
-                    'vehicle_details_title'.tr,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'vehicle_details_title'.tr,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  const SizedBox(width: 8),
                   Row(
                     children: [
                       IconButton(
@@ -501,9 +508,13 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                             height: 16,
                           ),
                           const SizedBox(width: 6),
-                          Text(
-                            'assigned_route_corridor'.tr,
-                            style: const TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold),
+                          Expanded(
+                            child: Text(
+                              'assigned_route_corridor'.tr,
+                              style: const TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ],
                       ),
@@ -511,6 +522,8 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                       Text(
                         controller.assignedRoute,
                         style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 6),
                       Row(
@@ -578,13 +591,17 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
   }
 
   // Display Screen Configuration Card matching Admin Panel
+
   Widget _buildDisplayScreenConfigCard() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF8B5CF6).withValues(alpha: 0.3), width: 1.2),
+        border: Border.all(
+          color: const Color(0xFF8B5CF6).withValues(alpha: 0.3),
+          width: 1.2,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -592,22 +609,42 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
-                children: [
-                  Icon(Icons.tv_rounded, color: Color(0xFFA855F7), size: 18),
-                  SizedBox(width: 8),
-                  Text(
-                    'Display Screen Config',
-                    style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                ],
+              Expanded(
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.tv_rounded,
+                      color: Color(0xFFA855F7),
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Display Screen Config',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF8B5CF6).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFF8B5CF6).withValues(alpha: 0.4)),
+                  border: Border.all(
+                    color: const Color(0xFF8B5CF6).withValues(alpha: 0.4),
+                  ),
                 ),
                 child: Text(
                   '${controller.totalDisplays} ${'screens_suffix'.tr}',
@@ -620,30 +657,37 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
               ),
             ],
           ),
+
           const SizedBox(height: 14),
 
-          // 4 Matrix Screen Rows
+          // Matrix Screen Rows
           _buildScreenConfigRow(
             'left_side_displays'.tr,
             '${controller.leftDisplays} ${'units_suffix'.tr}',
             const Color(0xFF8B5CF6),
             const Color(0xFFC084FC),
           ),
+
           const SizedBox(height: 8),
+
           _buildScreenConfigRow(
             'right_side_displays'.tr,
             '${controller.rightDisplays} ${'units_suffix'.tr}',
             const Color(0xFF8B5CF6),
             const Color(0xFFC084FC),
           ),
+
           const SizedBox(height: 8),
+
           _buildScreenConfigRow(
             'rear_display'.tr,
             '${controller.rearDisplays} ${'unit_suffix'.tr}',
             const Color(0xFFEC4899),
             const Color(0xFFF472B6),
           ),
+
           const SizedBox(height: 8),
+
           _buildScreenConfigRow(
             'emergency_exit_display'.tr,
             '${controller.emergencyDisplays} ${'unit_suffix'.tr}',
@@ -654,6 +698,7 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
       ),
     );
   }
+
 
   Widget _buildScreenConfigRow(String label, String value, Color dotColor, Color textColor) {
     return Container(
@@ -666,23 +711,32 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
-              ),
-              const SizedBox(width: 10),
-              Text(
-                label,
-                style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w500),
-              ),
-            ],
+          Expanded(
+            child: Row(
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w500),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
           ),
+          const SizedBox(width: 8),
           Text(
             value,
             style: TextStyle(color: textColor, fontSize: 13, fontWeight: FontWeight.bold),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -805,7 +859,7 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
                   minimumSize: const Size(0, 32),
                 ),
-                child: Text('change_btn'.tr, style: const TextStyle(color: Colors.white70, fontSize: 11)),
+                child: Text('change_btn'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white70, fontSize: 11)),
               ),
               const SizedBox(width: 6),
               OutlinedButton.icon(
@@ -817,7 +871,7 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                   minimumSize: const Size(0, 32),
                 ),
                 icon: const Icon(Icons.call_outlined, color: Colors.white, size: 14),
-                label: Text('call_btn'.tr, style: const TextStyle(color: Colors.white, fontSize: 11)),
+                label: Text('call_btn'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 11)),
               ),
             ],
           ),
@@ -837,18 +891,18 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
       child: Column(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildGpsParam('device_id_label'.tr, controller.gpsDeviceId),
-              _buildGpsParam('network_status_label'.tr, 'active_4g_lte'.tr),
+              Expanded(child: _buildGpsParam('device_id_label'.tr, controller.gpsDeviceId)),
+              const SizedBox(width: 8),
+              Expanded(child: _buildGpsParam('network_status_label'.tr, 'active_4g_lte'.tr)),
             ],
           ),
           const SizedBox(height: 12),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildGpsParam('signal_strength_label'.tr, 'strong_signal_label'.tr),
-              _buildGpsParam('live_ping_label'.tr, 'realtime_sync'.tr),
+              Expanded(child: _buildGpsParam('signal_strength_label'.tr, 'strong_signal_label'.tr)),
+              const SizedBox(width: 8),
+              Expanded(child: _buildGpsParam('live_ping_label'.tr, 'realtime_sync'.tr)),
             ],
           ),
           const SizedBox(height: 10),
@@ -865,6 +919,8 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
                 icon: const Icon(Icons.link_rounded, size: 14, color: Color(0xFF818CF8)),
                 label: Text(
                   'change_link_gps'.tr,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(color: Color(0xFF818CF8), fontSize: 11, fontWeight: FontWeight.bold),
                 ),
                 style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero),
@@ -880,9 +936,9 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 9)),
+        Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 9), maxLines: 1, overflow: TextOverflow.ellipsis),
         const SizedBox(height: 2),
-        Text(value, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+        Text(value, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
       ],
     );
   }
@@ -922,61 +978,112 @@ class VehicleDetailsView extends GetView<VehicleDetailsController> {
             statusColor = Colors.amber;
         }
 
-        return Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppColors.cardBg,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.cardBorder, width: 1.2),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.description_outlined, color: Color(0xFF60A5FA), size: 20),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        return
+          Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.cardBg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.cardBorder,
+                width: 1.2,
+              ),
+            ),
+            child: Row(
+              children: [
+                // LEFT SIDE: Document information
+                Expanded(
+                  child: Row(
                     children: [
-                      Text(docType, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                      if (doc.uploadedAt.isNotEmpty)
-                        Text(
-                          '${'uploaded_prefix'.tr}${doc.uploadedAt.split('T').first}',
-                          style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+                      const Icon(
+                        Icons.description_outlined,
+                        color: Color(0xFF60A5FA),
+                        size: 20,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              docType,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (doc.uploadedAt.isNotEmpty)
+                              Text(
+                                '${'uploaded_prefix'.tr}${doc.uploadedAt.split('T').first}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: AppColors.textMuted,
+                                  fontSize: 10,
+                                ),
+                              ),
+                          ],
                         ),
+                      ),
                     ],
                   ),
-                ],
-              ),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: statusColor.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: statusColor.withValues(alpha: 0.4)),
+                ),
+
+                const SizedBox(width: 8),
+
+                // RIGHT SIDE: Status + View button
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: statusColor.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: statusColor.withValues(alpha: 0.4),
+                          ),
+                        ),
+                        child: Text(
+                          (doc.approvalStatus ?? 'Pending').toUpperCase(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: statusColor,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ),
-                    child: Text(
-                      (doc.approvalStatus ?? 'Pending').toUpperCase(),
-                      style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  if (doc.url.isNotEmpty) ...[
-                    const SizedBox(width: 8),
-                    IconButton(
-                      icon: const Icon(Icons.remove_red_eye_outlined, size: 18, color: Color(0xFF60A5FA)),
-                      onPressed: () => _showDocDialog(doc),
-                      tooltip: 'View Document',
-                    ),
+                    if (doc.url.isNotEmpty)
+                      IconButton(
+                        constraints: const BoxConstraints(
+                          minWidth: 36,
+                          minHeight: 36,
+                        ),
+                        padding: EdgeInsets.zero,
+                        icon: const Icon(
+                          Icons.remove_red_eye_outlined,
+                          size: 18,
+                          color: Color(0xFF60A5FA),
+                        ),
+                        onPressed: () => _showDocDialog(doc),
+                        tooltip: 'View Document',
+                      ),
                   ],
-                ],
-              ),
-            ],
-          ),
-        );
+                ),
+              ],
+            ),
+          );
       }).toList(),
     );
   }

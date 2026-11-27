@@ -99,7 +99,7 @@ PLATFORM: VMOVEXA Intelligent Fleet Telematics Cloud
         duration: const Duration(seconds: 4),
         mainButton: TextButton(
           onPressed: () => _openDownloadedFile(file.path),
-          child: Text('open'.tr.toUpperCase(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          child: Text('open'.tr.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         ),
       );
     } catch (e) {

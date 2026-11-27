@@ -104,6 +104,8 @@ class DepotsListView extends GetView<DepotsListController> {
                       SizedBox(width: 6),
                       Text(
                         'Add Depot',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -637,7 +639,7 @@ class DepotsListView extends GetView<DepotsListController> {
                         children: [
                           const Icon(Icons.visibility_outlined, size: 16, color: Color(0xFF38BDF8)),
                           const SizedBox(width: 10),
-                          Text('view_facility_dossier'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                          Text('view_facility_dossier'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 12)),
                         ],
                       ),
                     ),
@@ -647,7 +649,7 @@ class DepotsListView extends GetView<DepotsListController> {
                         children: [
                           const Icon(Icons.edit_outlined, size: 16, color: Color(0xFF10B981)),
                           const SizedBox(width: 10),
-                          Text('edit_facility_details'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                          Text('edit_facility_details'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 12)),
                         ],
                       ),
                     ),
@@ -663,6 +665,8 @@ class DepotsListView extends GetView<DepotsListController> {
                           const SizedBox(width: 10),
                           Text(
                             dep.isOperational ? 'close_facility'.tr : 'reopen_facility'.tr,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(color: Colors.white, fontSize: 12),
                           ),
                         ],
@@ -675,7 +679,7 @@ class DepotsListView extends GetView<DepotsListController> {
                         children: [
                           const Icon(Icons.delete_outline_rounded, size: 16, color: Color(0xFFEF4444)),
                           const SizedBox(width: 10),
-                          Text('delete_facility'.tr, style: const TextStyle(color: Color(0xFFEF4444), fontSize: 12)),
+                          Text('delete_facility'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFFEF4444), fontSize: 12)),
                         ],
                       ),
                     ),

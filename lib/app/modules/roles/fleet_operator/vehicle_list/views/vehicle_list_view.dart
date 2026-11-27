@@ -124,7 +124,7 @@ class VehicleListController extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
-            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white60)),
+            child: Text('cancel'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white60)),
           ),
           ElevatedButton(
             onPressed: () => Get.back(result: true),
@@ -132,7 +132,7 @@ class VehicleListController extends GetxController {
               backgroundColor: Colors.redAccent,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: Text('delete'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: Text('delete'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -190,32 +190,51 @@ class VehicleListView extends StatelessWidget {
       child: Column(
         children: [
           // Top Header Bar
+
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Icon(Icons.directions_car_rounded, color: Colors.lightBlueAccent, size: 24),
-                    const SizedBox(width: 8),
-                    Text(
-                      'vehicles_displays'.tr,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                // Vehicle Title
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.directions_car_rounded,
+                        color: Colors.lightBlueAccent,
+                        size: 24,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'vehicles_displays'.tr,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+
+                const SizedBox(width: 8),
+
+                // Add Vehicle Button
                 Container(
                   decoration: BoxDecoration(
                     gradient: AppTheme.primaryGradient,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF9333EA).withValues(alpha: 0.25),
+                        color: const Color(0xFF9333EA)
+                            .withValues(alpha: 0.25),
                         blurRadius: 16,
                         offset: const Offset(0, 4),
                       ),
@@ -224,17 +243,26 @@ class VehicleListView extends StatelessWidget {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap:  controller.navigateToAddVehicle,
+                      onTap: controller.navigateToAddVehicle,
                       borderRadius: BorderRadius.circular(12),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.add, color: Colors.white, size: 20),
+                            const Icon(
+                              Icons.add,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                             const SizedBox(width: 6),
                             Text(
                               'add_vehicle'.tr,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
@@ -412,82 +440,62 @@ class VehicleListView extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.white10,
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: Colors.white24),
-                      ),
-                      child: Text(
-                        v.registrationNumber,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.8,
-                        ),
-                      ),
+                Flexible(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white10,
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: Colors.white24),
                     ),
-                    // const SizedBox(width: 8),
-                    // Container(
-                    //   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                    //   decoration: BoxDecoration(
-                    //     color: isElectric
-                    //         ? const Color(0xFF10B981).withValues(alpha: 0.15)
-                    //         : Colors.white10,
-                    //     borderRadius: BorderRadius.circular(6),
-                    //   ),
-                    //   child: Row(
-                    //     children: [
-                    //       Icon(
-                    //         isElectric ? Icons.bolt_rounded : Icons.local_gas_station_rounded,
-                    //         size: 13,
-                    //         color: isElectric ? const Color(0xFF34D399) : AppColors.textMuted,
-                    //       ),
-                    //       const SizedBox(width: 3),
-                    //       Text(
-                    //         v.fuelType.toUpperCase(),
-                    //         style: TextStyle(
-                    //           color: isElectric ? const Color(0xFF34D399) : AppColors.textMuted,
-                    //           fontSize: 10,
-                    //           fontWeight: FontWeight.bold,
-                    //         ),
-                    //       ),
-                    //     ],
-                    //   ),
-                    // ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: statusColor.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: statusColor.withValues(alpha: 0.4)),
+                    child: Text(
+                      v.registrationNumber,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.8,
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 6,
-                            height: 6,
-                            decoration: BoxDecoration(color: statusColor, shape: BoxShape.circle),
-                          ),
-                          const SizedBox(width: 5),
-                          Text(
-                            statusLabel,
-                            style: TextStyle(
-                              color: statusColor,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: statusColor.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: statusColor.withValues(alpha: 0.4)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 6,
+                              height: 6,
+                              decoration: BoxDecoration(color: statusColor, shape: BoxShape.circle),
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 5),
+                            Flexible(
+                              child: Text(
+                                statusLabel,
+                                style: TextStyle(
+                                  color: statusColor,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(width: 4),
@@ -514,7 +522,7 @@ class VehicleListView extends StatelessWidget {
                             children: [
                               const Icon(Icons.visibility_outlined, size: 16, color: Color(0xFF60A5FA)),
                               const SizedBox(width: 8),
-                              Text('view_details'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                              Text('view_details'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 12)),
                             ],
                           ),
                         ),
@@ -524,7 +532,7 @@ class VehicleListView extends StatelessWidget {
                             children: [
                               const Icon(Icons.edit_outlined, size: 16, color: Colors.amberAccent),
                               const SizedBox(width: 8),
-                              Text('edit_vehicle'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                              Text('edit_vehicle'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 12)),
                             ],
                           ),
                         ),
@@ -535,7 +543,7 @@ class VehicleListView extends StatelessWidget {
                             children: [
                               const Icon(Icons.delete_outline_rounded, size: 16, color: Colors.redAccent),
                               const SizedBox(width: 8),
-                              Text('delete'.tr, style: const TextStyle(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.bold)),
+                              Text('delete'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.bold)),
                             ],
                           ),
                         ),
@@ -563,12 +571,16 @@ class VehicleListView extends StatelessWidget {
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       if (v.fleetName != null) ...[
                         const SizedBox(height: 2),
                         Text(
                           v.fleetName!,
                           style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ],
@@ -602,21 +614,29 @@ class VehicleListView extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Icon(Icons.person_outline_rounded, size: 15, color: AppColors.textMuted),
-                    const SizedBox(width: 5),
-                    Text(
-                      v.assignedDriverName ?? 'no_driver_assigned'.tr,
-                      style: TextStyle(
-                        color: v.assignedDriverName != null ? Colors.white70 : AppColors.textMuted,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.person_outline_rounded, size: 15, color: AppColors.textMuted),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: Text(
+                          v.assignedDriverName ?? 'no_driver_assigned'.tr,
+                          style: TextStyle(
+                            color: v.assignedDriverName != null ? Colors.white70 : AppColors.textMuted,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
                 Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     if (v.speedKmh != null) ...[
                       const Icon(Icons.speed_rounded, size: 15, color: Colors.cyanAccent),
@@ -624,6 +644,7 @@ class VehicleListView extends StatelessWidget {
                       Text(
                         '${v.speedKmh!.toStringAsFixed(1)} km/h',
                         style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                        maxLines: 1,
                       ),
                       const SizedBox(width: 10),
                     ],
@@ -633,6 +654,7 @@ class VehicleListView extends StatelessWidget {
                       Text(
                         '${v.batterySocPct}%',
                         style: const TextStyle(color: Color(0xFF34D399), fontSize: 11, fontWeight: FontWeight.bold),
+                        maxLines: 1,
                       ),
                     ],
                   ],

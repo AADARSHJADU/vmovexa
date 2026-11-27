@@ -73,15 +73,22 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const CustomBackButton(),
-          Text(
-            'emergency_sos'.tr,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.2,
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'emergency_sos'.tr,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.2,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
+          const SizedBox(width: 8),
           IconButton(
             onPressed: () => controller.fetchIncidents(),
             icon: const Icon(Icons.refresh_rounded, color: Colors.white70),
@@ -687,6 +694,8 @@ class EmergencyIncidentsListView extends GetView<EmergencyIncidentsController> {
                   inc.createdAt != null && inc.createdAt!.length >= 10
                       ? inc.createdAt!.substring(0, 10)
                       : 'recorded'.tr,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                   style: TextStyle(color: Colors.grey.shade500, fontSize: 10),
                 ),
                 Row(

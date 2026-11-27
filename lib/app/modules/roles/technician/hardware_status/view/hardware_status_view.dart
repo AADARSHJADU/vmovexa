@@ -96,17 +96,25 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
               child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white70, size: 16),
             ),
             const SizedBox(width: 8),
-            Text(
-              'technician'.tr,
-              style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w500),
+            Flexible(
+              child: Text(
+                'technician'.tr,
+                style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w500),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             const Text(
               '  /  ',
               style: TextStyle(color: Colors.white24, fontSize: 12),
             ),
-            Text(
-              'hardware_subsystems_status'.tr,
-              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+            Expanded(
+              child: Text(
+                'hardware_subsystems_status'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),
@@ -127,6 +135,8 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.5,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -137,6 +147,8 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
                       fontWeight: FontWeight.w400,
                       height: 1.35,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -433,7 +445,12 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
                       side: const BorderSide(color: kPurple),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
-                    child: Text('reset_all_filters'.tr, style: const TextStyle(color: kPurple, fontSize: 12)),
+                    child: Text(
+                      'reset_all_filters'.tr,
+                      style: const TextStyle(color: kPurple, fontSize: 12),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
@@ -493,31 +510,52 @@ class HardwareStatusView extends GetView<HardwareStatusController> {
   // Footer (Last Updated & Refresh)
   // =====================================================================
   Widget _buildFooter() {
-    return Obx(
-      () => Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            '${'last_updated'.tr}: ${controller.lastUpdatedText}',
-            style: const TextStyle(color: Colors.white38, fontSize: 11),
-          ),
-          InkWell(
-            onTap: controller.onRefresh,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.refresh_rounded, color: kPurple, size: 14),
-                const SizedBox(width: 4),
-                Text(
-                  'refresh'.tr,
-                  style: const TextStyle(color: kPurple, fontSize: 12, fontWeight: FontWeight.w700),
+    return
+      Obx(
+            () => Row(
+          children: [
+            Expanded(
+              child: Text(
+                '${'last_updated'.tr}: ${controller.lastUpdatedText}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                softWrap: false,
+                style: const TextStyle(
+                  color: Colors.white38,
+                  fontSize: 11,
                 ),
-              ],
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+
+            const SizedBox(width: 8),
+
+            InkWell(
+              onTap: controller.onRefresh,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.refresh_rounded,
+                    color: kPurple,
+                    size: 14,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'refresh'.tr,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: kPurple,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
   }
 }
 
@@ -556,26 +594,36 @@ class _KpiStatCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.white38,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.5,
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white38,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(width: 4),
               Icon(icon, color: iconColor, size: 14),
             ],
           ),
           const SizedBox(height: 6),
-          Text(
-            value,
-            style: TextStyle(
-              color: textColor,
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.3,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: TextStyle(
+                color: textColor,
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.3,
+              ),
+              maxLines: 1,
             ),
           ),
         ],
@@ -794,51 +842,41 @@ class _VehicleHardwareCard extends StatelessWidget {
           const SizedBox(height: 12),
 
           // Action Buttons matching Admin Panel
+
+
           Row(
             children: [
+              // Run Diagnostics Button
               Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: AppTheme.primaryGradient,
-                    borderRadius: BorderRadius.circular(9),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.gradientPink.withValues(alpha: 0.2),
-                        blurRadius: 6,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: ElevatedButton.icon(
-                    onPressed: onRunDiagnostics,
-                    icon: const Icon(Icons.bolt_rounded, size: 14, color: Colors.white),
-                    label: Text(
-                      'run_diagnostics_btn'.tr,
-                      style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 9),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
-                      elevation: 0,
-                    ),
+                child: CustomButton(
+                  text: 'run_diagnostics_btn'.tr,
+                  onTap: onRunDiagnostics,
+                  isGradient: true,
+                  isOutlined: false,
+                  height: 42,
+                  prefixIcon: const Icon(
+                    Icons.bolt_rounded,
+                    size: 14,
+                    color: Colors.white,
                   ),
                 ),
               ),
+
               const SizedBox(width: 8),
-              OutlinedButton.icon(
-                onPressed: onTroubleshoot,
-                icon: const Icon(Icons.build_outlined, size: 13, color: Color(0xFF60A5FA)),
-                label: Text(
-                  'troubleshoot_btn'.tr,
-                  style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFF60A5FA)),
-                ),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Color(0x3360A5FA)),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
+
+              // Troubleshoot Button
+              Expanded(
+                child: CustomButton(
+                  text: 'troubleshoot_btn'.tr,
+                  onTap: onTroubleshoot,
+                  isGradient: false,
+                  isOutlined: true,
+                  height: 42,
+                  prefixIcon: const Icon(
+                    Icons.build_outlined,
+                    size: 14,
+                    color: Color(0xFF60A5FA),
+                  ),
                 ),
               ),
             ],

@@ -253,24 +253,42 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
               final isChecking = ctrl.isCheckingConflict.value;
 
               if (isChecking) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  color: const Color(0xFF6366F1).withValues(alpha: 0.1),
-                  child: Row(
-                    children: [
-                      const SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF818CF8)),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        'checking_timetable_collisions'.tr,
-                        style: const TextStyle(color: Color(0xFF818CF8), fontSize: 11, fontStyle: FontStyle.italic),
-                      ),
-                    ],
-                  ),
-                );
+                return
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Color(0xFF818CF8),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'checking_timetable_collisions'.tr,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: true,
+                            style: const TextStyle(
+                              color: Color(0xFF818CF8),
+                              fontSize: 11,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+
               }
 
               if (conflict != null && conflict.hasConflict) {
@@ -485,24 +503,46 @@ class _AddVehicleSlotSheetState extends State<AddVehicleSlotSheet> {
                         gradient: AppTheme.primaryGradient,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Center(
+                      child:
+                      Center(
                         child: isSaving
                             ? const SizedBox(
-                                width: 22,
-                                height: 22,
-                                child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
-                              )
-                            : Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Icons.check_circle_outline_rounded, color: Colors.white, size: 18),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'register_slot_schedule'.tr,
-                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
-                                  ),
-                                ],
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: Colors.white,
+                          ),
+                        )
+                            : Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              const Icon(
+                                Icons.check_circle_outline_rounded,
+                                color: Colors.white,
+                                size: 18,
                               ),
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  'register_slot_schedule'.tr,
+                                  maxLines: 1,
+                                  softWrap: false,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),

@@ -395,7 +395,7 @@ class VehicleAnalyticsController extends GetxController {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       icon: const Icon(Icons.copy_rounded, color: Color(0xFF6366F1), size: 16),
-                      label: Text('copy_to_clipboard'.tr, style: const TextStyle(color: Color(0xFF6366F1), fontSize: 12, fontWeight: FontWeight.bold)),
+                      label: Text('copy_to_clipboard'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFF6366F1), fontSize: 12, fontWeight: FontWeight.bold)),
                       onPressed: () {
                         Clipboard.setData(ClipboardData(text: csvText));
                         Get.back();
@@ -418,7 +418,7 @@ class VehicleAnalyticsController extends GetxController {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       icon: const Icon(Icons.download_rounded, color: Colors.white, size: 16),
-                      label: Text('save_csv_file'.tr, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                      label: Text('save_csv_file'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                       onPressed: () async {
                         try {
                           final dir = Directory.systemTemp;

@@ -557,7 +557,7 @@ class AssignDriverView extends GetView<AssignDriverController> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       ),
-                      child: Text('+ ${'add_driver'.tr}', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                      child: Text('+ ${'add_driver'.tr}', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(width: 16),
                     TextButton(
@@ -569,6 +569,8 @@ class AssignDriverView extends GetView<AssignDriverController> {
                       ),
                       child: Text(
                         'skip_for_now'.tr,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 11, fontWeight: FontWeight.bold),
                       ),
                     ),

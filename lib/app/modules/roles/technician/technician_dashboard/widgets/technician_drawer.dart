@@ -75,6 +75,14 @@ class TechnicianDrawer extends StatelessWidget {
                     },
                   ),
                   _buildDrawerItem(
+                    title: 'hardware_configuration'.tr,
+                    icon: 'assets/icons/fleet_operator_icons/profileHeaderSettingA.svg',
+                    onTap: () {
+                      Get.back();
+                      Get.toNamed(Routes.HARDWARE_CONFIGURATION);
+                    },
+                  ),
+                  _buildDrawerItem(
                     title: 'hardware_status'.tr,
                     icon: 'assets/icons/monitor_heart.svg',
                     onTap: () {
@@ -105,10 +113,10 @@ class TechnicianDrawer extends StatelessWidget {
                   _buildDrawerItem(
                     title: 'technician_profile'.tr,
                     icon: 'assets/icons/profile.svg',
-                    isSelected: dashboardCtrl.selectedNavIndex.value == 4,
+                    isSelected: dashboardCtrl.selectedNavIndex.value == 3,
                     onTap: () {
                       Get.back();
-                      dashboardCtrl.onNavItemTapped(4);
+                      dashboardCtrl.onNavItemTapped(3);
                     },
                   ),
                   _buildDrawerItem(
@@ -195,7 +203,7 @@ class TechnicianDrawer extends StatelessWidget {
     return InkWell(
       onTap: () {
         Get.back();
-        controller.onNavItemTapped(4); // Profile tab
+        controller.onNavItemTapped(3); // Profile tab
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
@@ -296,6 +304,8 @@ class TechnicianDrawer extends StatelessWidget {
       padding: const EdgeInsets.only(left: 12, top: 10, bottom: 6),
       child: Text(
         title,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: const TextStyle(
           color: AppColors.textMuted,
           fontSize: 10,
@@ -343,6 +353,8 @@ class TechnicianDrawer extends StatelessWidget {
         ),
         title: Text(
           title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
             color: isSelected ? Colors.white : AppColors.textPrimary,
             fontSize: 13,

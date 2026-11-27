@@ -347,6 +347,8 @@ class TechEdgeSetupView extends GetView<TechEdgeSetupController> {
                           const SizedBox(width: 4),
                           Text(
                             'download_zip'.tr,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                           ),
                         ],
@@ -542,7 +544,7 @@ class TechEdgeSetupView extends GetView<TechEdgeSetupController> {
     return Obx(() {
       final data = controller.handshakeData.value;
       final isOnline = data?['isOnline'] == true;
-      final isReg = data?['isRegistered'] != false;
+      final isReg = data?['isRegistered'] == true;
       final gps = data?['gps'] as Map?;
       final isGpsLocked = gps?['locked'] == true;
       final telemetry = data?['telemetry'] as Map?;
@@ -578,7 +580,7 @@ class TechEdgeSetupView extends GetView<TechEdgeSetupController> {
           // Tile 3: GPS Telemetry
           _buildStatusTile(
             title: 'gps_fix'.tr,
-            badge: isGpsLocked ? '${gps?['satellites'] ?? 8} Sats' : 'No Fix',
+            badge: isGpsLocked ? '${gps?['satellites'] ?? 0} Sats' : 'No Fix',
             badgeBg: isGpsLocked ? const Color(0xFF38BDF8).withValues(alpha: 0.2) : Colors.white12,
             badgeColor: isGpsLocked ? const Color(0xFF38BDF8) : Colors.white60,
             mainText: isGpsLocked ? '${gps?['speed'] ?? 0} km/h Lock' : 'awaiting_sat'.tr,
@@ -591,13 +593,18 @@ class TechEdgeSetupView extends GetView<TechEdgeSetupController> {
             badge: 'RK3588',
             badgeBg: const Color(0xFF8B5CF6).withValues(alpha: 0.2),
             badgeColor: const Color(0xFFA78BFA),
-            mainText: '${telemetry?['socTemp'] ?? '42°C'} • ${telemetry?['cpuUsage'] ?? '18%'}',
-            subText: 'RAM: ${telemetry?['ramUsage'] ?? '34%'} • ${telemetry?['connectedScreens'] ?? 1} Screen',
+            mainText: telemetry != null
+                ? '${telemetry['socTemp'] ?? '—'} • ${telemetry['cpuUsage'] ?? '—'}'
+                : '— • —',
+            subText: telemetry != null
+                ? 'RAM: ${telemetry['ramUsage'] ?? '—'} • ${telemetry['connectedScreens'] ?? 0} Screen'
+                : 'No telemetry available',
           ),
         ],
       );
     });
   }
+
 
   Widget _buildStatusTile({
     required String title,
@@ -621,23 +628,60 @@ class TechEdgeSetupView extends GetView<TechEdgeSetupController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(title, style: const TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.bold)),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(color: badgeBg, borderRadius: BorderRadius.circular(6)),
-                child: Text(badge, style: TextStyle(color: badgeColor, fontSize: 9, fontWeight: FontWeight.bold)),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: badgeBg,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    badge,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: badgeColor,
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
           Text(
             mainText,
-            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           Text(
             subText,
-            style: const TextStyle(color: Colors.white54, fontSize: 9.5),
+            style: const TextStyle(
+              color: Colors.white54,
+              fontSize: 9.5,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -646,11 +690,14 @@ class TechEdgeSetupView extends GetView<TechEdgeSetupController> {
     );
   }
 
+
+
   Widget _buildHandshakeResultBanner() {
     return Obx(() {
       final isOnline = controller.handshakeData.value?['isOnline'] == true;
 
       return Container(
+        width: double.infinity,
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isOnline
@@ -664,21 +711,35 @@ class TechEdgeSetupView extends GetView<TechEdgeSetupController> {
           ),
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(
-              isOnline ? Icons.check_circle_rounded : Icons.info_outline_rounded,
-              color: isOnline ? const Color(0xFF10B981) : Colors.white60,
+              isOnline
+                  ? Icons.check_circle_rounded
+                  : Icons.info_outline_rounded,
+              color: isOnline
+                  ? const Color(0xFF10B981)
+                  : Colors.white60,
               size: 22,
             ),
             const SizedBox(width: 10),
+
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    isOnline ? 'prov_verified_banner'.tr : 'ready_prov_banner'.tr,
+                    isOnline
+                        ? 'prov_verified_banner'.tr
+                        : 'ready_prov_banner'.tr,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: true,
                     style: TextStyle(
-                      color: isOnline ? const Color(0xFF34D399) : Colors.white,
+                      color: isOnline
+                          ? const Color(0xFF34D399)
+                          : Colors.white,
                       fontSize: 11.5,
                       fontWeight: FontWeight.bold,
                     ),
@@ -688,20 +749,40 @@ class TechEdgeSetupView extends GetView<TechEdgeSetupController> {
                     isOnline
                         ? 'Edge Box ${controller.targetBoxId.value} is active & transmitting live telemetry.'
                         : 'Run deploy_edge.bat on laptop to initialize handshake.',
-                    style: const TextStyle(color: Colors.white60, fontSize: 10),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: true,
+                    style: const TextStyle(
+                      color: Colors.white60,
+                      fontSize: 10,
+                    ),
                   ),
                 ],
               ),
             ),
-            TextButton(
-              onPressed: () => controller.verifyHandshake(),
-              style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF818CF8),
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-              ),
-              child: Text(
-                're_test_handshake'.tr,
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+
+            const SizedBox(width: 4),
+
+            Flexible(
+              child: TextButton(
+                onPressed: () => controller.verifyHandshake(),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFF818CF8),
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  minimumSize: const Size(0, 36),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text(
+                  're_test_handshake'.tr,
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: true,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ],
@@ -709,6 +790,7 @@ class TechEdgeSetupView extends GetView<TechEdgeSetupController> {
       );
     });
   }
+
 
   // ---------------- Card 4: Diagnostics Accordion ----------------
   Widget _buildDiagnosticsAccordion(BuildContext context) {

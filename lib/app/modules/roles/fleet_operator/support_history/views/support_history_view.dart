@@ -22,19 +22,22 @@ class SupportHistoryView extends GetView<SupportHistoryController> {
               child: Row(
                 children: [
                   const CustomBackButton(),
+                  const SizedBox(width: 8),
                   Expanded(
-                    child: Center(
-                      child: Text(
-                        'your_support_history'.tr,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    child: Text(
+                      'your_support_history'.tr,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(width: 48), // Spacer to balance back button
+                  const SizedBox(width: 8),
+                  const SizedBox(width: 40), // Spacer to balance back button
                 ],
               ),
             ),
@@ -73,7 +76,7 @@ class SupportHistoryView extends GetView<SupportHistoryController> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     icon: const Icon(Icons.filter_list_rounded, color: Color(0xFF3B82F6), size: 16),
-                    label: Text('filter'.tr, style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 12, fontWeight: FontWeight.bold)),
+                    label: Text('filter'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 12, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),

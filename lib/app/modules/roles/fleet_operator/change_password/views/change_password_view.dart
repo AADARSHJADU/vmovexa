@@ -26,19 +26,22 @@ class ChangePasswordView extends StatelessWidget {
               child: Row(
                 children: [
                   const CustomBackButton(),
+                  const SizedBox(width: 8),
                   Expanded(
-                    child: Center(
-                      child: Text(
-                        'change_password'.tr,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    child: Text(
+                      'change_password'.tr,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(width: 48), // Spacer to balance back button
+                  const SizedBox(width: 8),
+                  const SizedBox(width: 40), // Spacer to balance back button
                 ],
               ),
             ),
@@ -114,7 +117,7 @@ class ChangePasswordView extends StatelessWidget {
                         backgroundColor: Colors.transparent,
                       ),
                       icon: SvgPicture.asset("assets/icons/fleet_operator_icons/cancelA.svg", colorFilter: const ColorFilter.mode(Color(0xFF3B82F6), BlendMode.srcIn), width: 18, height: 18),
-                      label: Text('cancel'.tr, style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 13, fontWeight: FontWeight.bold)),
+                      label: Text('cancel'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 13, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(height: 20),
                   ],

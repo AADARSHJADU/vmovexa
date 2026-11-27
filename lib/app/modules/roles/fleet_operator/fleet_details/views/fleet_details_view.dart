@@ -120,6 +120,8 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                                   const SizedBox(width: 6),
                                   Text(
                                     'back_to_fleet_list'.tr,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                       color: AppColors.textLink,
                                       fontSize: 13,
@@ -152,14 +154,21 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           CustomBackButton(onTap: controller.backToFleetList),
-          Text(
-            'fleet_details_title'.tr,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'fleet_details_title'.tr,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
+          const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.edit_outlined, color: Colors.white, size: 22),
             tooltip: 'edit_fleet_profile_tooltip'.tr,
@@ -220,6 +229,8 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -228,6 +239,8 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                         color: AppColors.textSecondary,
                         fontSize: 12,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 6),
                     Column(
@@ -291,7 +304,7 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                 child: ElevatedButton.icon(
                   onPressed: controller.goToEditFleet,
                   icon: const Icon(Icons.edit, size: 14, color: Colors.white),
-                  label: Text('edit_fleet'.tr, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  label: Text('edit_fleet'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(0, 40),
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
@@ -310,7 +323,7 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                 ElevatedButton.icon(
                   onPressed: controller.approveFleet,
                   icon: const Icon(Icons.check_circle_outline, size: 14, color: Colors.white),
-                  label: Text('approve_btn'.tr, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  label: Text('approve_btn'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF10B981),
                     foregroundColor: Colors.white,
@@ -324,7 +337,7 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                 OutlinedButton.icon(
                   onPressed: () => controller.showRejectDialog(context),
                   icon: const Icon(Icons.cancel_outlined, size: 14, color: Color(0xFFEF4444)),
-                  label: Text('reject_btn'.tr, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFEF4444))),
+                  label: Text('reject_btn'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFEF4444))),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(0, 40),
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
@@ -370,6 +383,8 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                   ),
                   label: Text(
                     isActive ? 'suspend_fleet'.tr : 'activate_fleet'.tr,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -880,7 +895,15 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+        Expanded(
+          child: Text(
+            label,
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        const SizedBox(width: 8),
         Flexible(
           child: Text(
             value,
@@ -1000,7 +1023,7 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                             minimumSize: Size.zero,
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
-                          child: Text('view_file'.tr, style: const TextStyle(color: AppColors.textLink, fontSize: 11, fontWeight: FontWeight.bold)),
+                          child: Text('view_file'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppColors.textLink, fontSize: 11, fontWeight: FontWeight.bold)),
                         ),
                     ],
                   ),
@@ -1151,7 +1174,7 @@ class FleetDetailsView extends GetView<FleetDetailsController> {
                 child: ElevatedButton.icon(
                   onPressed: controller.goToAddVehicle,
                   icon: const Icon(Icons.add, size: 14, color: Colors.white),
-                  label: Text('add_vehicle'.tr, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                  label: Text('add_vehicle'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,

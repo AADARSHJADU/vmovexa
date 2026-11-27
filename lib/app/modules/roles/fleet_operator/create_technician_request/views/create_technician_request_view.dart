@@ -57,16 +57,23 @@ class CreateTechnicianRequestView extends GetView<CreateTechnicianRequestControl
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const CustomBackButton(),
-          Obx(() => Text(
-                controller.isEditMode.value
-                    ? 'edit_work_order'.tr
-                    : 'submit_request'.tr,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              )),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Obx(() => Text(
+                  controller.isEditMode.value
+                      ? 'edit_work_order'.tr
+                      : 'submit_request'.tr,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                )),
+          ),
+          const SizedBox(width: 8),
           const SizedBox(width: 40),
         ],
       ),
@@ -216,7 +223,7 @@ class CreateTechnicianRequestView extends GetView<CreateTechnicianRequestControl
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: Text('cancel'.tr, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                  child: Text('cancel'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
                 ),
               ),
               const SizedBox(width: 10),
@@ -261,6 +268,8 @@ class CreateTechnicianRequestView extends GetView<CreateTechnicianRequestControl
                                 Expanded(
                                   child: Text(
                                     textAlign: TextAlign.center,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                     controller.isEditMode.value
                                         ? 'update_work_order'.tr
                                         : 'submit_ticket_super_admin'.tr,

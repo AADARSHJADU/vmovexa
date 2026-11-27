@@ -95,7 +95,7 @@ class GpsListView extends GetView<GpsListController> {
           OutlinedButton.icon(
             onPressed: controller.fetchDevices,
             icon: const Icon(Icons.refresh_rounded, size: 14, color: Colors.white70),
-            label: const Text('Refresh', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
+            label: const Text('Refresh', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               side: const BorderSide(color: AppColors.cardBorder, width: 1.2),
@@ -639,6 +639,8 @@ class GpsListView extends GetView<GpsListController> {
                       ),
                       child: const Text(
                         'Unlink',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(color: Colors.amberAccent, fontSize: 11, fontWeight: FontWeight.bold),
                       ),
                     )
@@ -653,7 +655,7 @@ class GpsListView extends GetView<GpsListController> {
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                       ),
-                      child: const Text('Assign', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                      child: const Text('Assign', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                     ),
                 ],
               ),
@@ -982,7 +984,7 @@ class GpsListView extends GetView<GpsListController> {
                         side: const BorderSide(color: Color(0xFF334155)),
                       ),
                     ),
-                    child: const Text('Reassign Bus', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    child: const Text('Reassign Bus', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -998,7 +1000,7 @@ class GpsListView extends GetView<GpsListController> {
                       side: const BorderSide(color: Colors.amber),
                     ),
                   ),
-                  child: const Text('Unlink', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  child: const Text('Unlink', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 ),
                 const SizedBox(width: 8),
                 Container(
@@ -1031,7 +1033,7 @@ class GpsListView extends GetView<GpsListController> {
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      child: const Text('Assign to Bus', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      child: const Text('Assign to Bus', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ),

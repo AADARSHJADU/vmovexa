@@ -167,7 +167,7 @@ class DriverStaffController extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white54)),
+            child: Text('cancel'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white54)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -178,7 +178,7 @@ class DriverStaffController extends GetxController {
               backgroundColor: const Color(0xFFEF4444),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
-            child: Text('delete_driver'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: Text('delete_driver'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -257,68 +257,91 @@ class DriverStaffListView extends StatelessWidget {
       child: Column(
         children: [
           // Top Header Bar
+
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Icon(Icons.badge_outlined, color: Color(0xFF10B981), size: 24),
-                    const SizedBox(width: 8),
-                    Text(
-                      'drivers_roster'.tr,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
+                // Drivers Roster Title
+                Expanded(
+                  child: Row(
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: AppTheme.primaryGradient,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF9333EA).withValues(alpha: 0.25),
-                              blurRadius: 16,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap:  controller.goToAddDriver,
-                            borderRadius: BorderRadius.circular(12),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.person_add_rounded, color: Colors.white, size: 20),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    'onboard_driver'.tr,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                      const Icon(
+                        Icons.badge_outlined,
+                        color: Color(0xFF10B981),
+                        size: 24,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'drivers_roster'.tr,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     ],
                   ),
+                ),
 
+                const SizedBox(width: 8),
+
+                // Onboard Driver Button
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF9333EA)
+                            .withValues(alpha: 0.25),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: controller.goToAddDriver,
+                      borderRadius: BorderRadius.circular(12),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.person_add_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'onboard_driver'.tr,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -607,39 +630,64 @@ class DriverStaffListView extends StatelessWidget {
                 const SizedBox(width: 12),
 
                 // Name & Badge ID
+
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Badge ID + Blood Group
                       Row(
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF3B82F6).withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.4)),
-                            ),
-                            child: Text(
-                              d.displayBadgeId,
-                              style: const TextStyle(
-                                color: Color(0xFF60A5FA),
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'monospace',
+                          Flexible(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                                vertical: 1.5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF3B82F6)
+                                    .withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(
+                                  color: const Color(0xFF3B82F6)
+                                      .withValues(alpha: 0.4),
+                                ),
+                              ),
+                              child: Text(
+                                d.displayBadgeId,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Color(0xFF60A5FA),
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'monospace',
+                                ),
                               ),
                             ),
                           ),
+
                           if (d.bloodGroup.isNotEmpty) ...[
                             const SizedBox(width: 4),
-                            Text(
-                              '• ${d.bloodGroup}',
-                              style: const TextStyle(color: Color(0xFFF87171), fontSize: 10, fontWeight: FontWeight.bold),
+                            Flexible(
+                              child: Text(
+                                '• ${d.bloodGroup}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Color(0xFFF87171),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                           ],
                         ],
                       ),
+
                       const SizedBox(height: 3),
+
+                      // Driver Name
                       Text(
                         d.name,
                         style: const TextStyle(
@@ -650,12 +698,29 @@ class DriverStaffListView extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
+
                       const SizedBox(height: 2),
+
+                      // Phone Number
                       Row(
                         children: [
-                          const Icon(Icons.phone_outlined, size: 12, color: AppColors.textMuted),
+                          const Icon(
+                            Icons.phone_outlined,
+                            size: 12,
+                            color: AppColors.textMuted,
+                          ),
                           const SizedBox(width: 4),
-                          Text(d.phone.isNotEmpty ? d.phone : '—', style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                          Expanded(
+                            child: Text(
+                              d.phone.isNotEmpty ? d.phone : '—',
+                              style: const TextStyle(
+                                color: AppColors.textMuted,
+                                fontSize: 11,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -772,49 +837,61 @@ class DriverStaffListView extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Icon(Icons.star_rounded, size: 15, color: Color(0xFFFBBF24)),
-                    const SizedBox(width: 3),
-                    Text(
-                      d.rating.toStringAsFixed(1),
-                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
-                      decoration: BoxDecoration(
-                        color: d.assignedVehicleReg != null
-                            ? const Color(0xFF6366F1).withValues(alpha: 0.15)
-                            : Colors.white.withValues(alpha: 0.05),
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
-                          color: d.assignedVehicleReg != null
-                              ? const Color(0xFF6366F1).withValues(alpha: 0.4)
-                              : Colors.white.withValues(alpha: 0.15),
-                        ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.star_rounded, size: 15, color: Color(0xFFFBBF24)),
+                      const SizedBox(width: 3),
+                      Text(
+                        d.rating.toStringAsFixed(1),
+                        style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.directions_bus_rounded,
-                            size: 11,
-                            color: d.assignedVehicleReg != null ? const Color(0xFF818CF8) : AppColors.textMuted,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            d.displayBus,
-                            style: TextStyle(
-                              color: d.assignedVehicleReg != null ? const Color(0xFF818CF8) : AppColors.textMuted,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+                          decoration: BoxDecoration(
+                            color: d.assignedVehicleReg != null
+                                ? const Color(0xFF6366F1).withValues(alpha: 0.15)
+                                : Colors.white.withValues(alpha: 0.05),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: d.assignedVehicleReg != null
+                                  ? const Color(0xFF6366F1).withValues(alpha: 0.4)
+                                  : Colors.white.withValues(alpha: 0.15),
                             ),
                           ),
-                        ],
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.directions_bus_rounded,
+                                size: 11,
+                                color: d.assignedVehicleReg != null ? const Color(0xFF818CF8) : AppColors.textMuted,
+                              ),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  d.displayBus,
+                                  style: TextStyle(
+                                    color: d.assignedVehicleReg != null ? const Color(0xFF818CF8) : AppColors.textMuted,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
 
                 // 3-Dot Action Menu (Matching AdminDriversPage.jsx)
                 PopupMenuButton<String>(
@@ -845,7 +922,7 @@ class DriverStaffListView extends StatelessWidget {
                         children: [
                           const Icon(Icons.remove_red_eye_outlined, color: Color(0xFF38BDF8), size: 16),
                           const SizedBox(width: 8),
-                          Text('view_kyc_dossier'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                          Text('view_kyc_dossier'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 12)),
                         ],
                       ),
                     ),
@@ -855,7 +932,7 @@ class DriverStaffListView extends StatelessWidget {
                         children: [
                           const Icon(Icons.edit_outlined, color: Color(0xFF94A3B8), size: 16),
                           const SizedBox(width: 8),
-                          Text('edit_roster_details'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                          Text('edit_roster_details'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 12)),
                         ],
                       ),
                     ),
@@ -899,7 +976,7 @@ class DriverStaffListView extends StatelessWidget {
                         children: [
                           const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 16),
                           const SizedBox(width: 8),
-                          Text('delete_driver'.tr, style: const TextStyle(color: Color(0xFFEF4444), fontSize: 12)),
+                          Text('delete_driver'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFFEF4444), fontSize: 12)),
                         ],
                       ),
                     ),

@@ -24,61 +24,106 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
             ),
 
             // 2. Top Header Bar Overlay
+
             Positioned(
               top: 0,
               left: 0,
               right: 0,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
                 color: AppColors.background.withValues(alpha: 0.92),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    // Back Button
                     const CustomBackButton(),
-                    Column(
-                      children: [
-                        Text(
-                          'live_tracking'.tr,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+
+                    const SizedBox(width: 8),
+
+                    // Center Title
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'live_tracking'.tr,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 2),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: 6,
-                              height: 6,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF10B981),
-                                shape: BoxShape.circle,
+
+                          const SizedBox(height: 2),
+
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: 6,
+                                height: 6,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFF10B981),
+                                  shape: BoxShape.circle,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              'live'.tr,
-                              style: const TextStyle(
-                                color: Color(0xFF10B981),
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
+
+                              const SizedBox(width: 6),
+
+                              Text(
+                                'live'.tr,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Color(0xFF10B981),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
+
+                    const SizedBox(width: 8),
+
+                    // Right Action Buttons
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.search_rounded, color: Colors.white, size: 24),
+                          constraints: const BoxConstraints(
+                            minWidth: 36,
+                            minHeight: 40,
+                          ),
+                          padding: EdgeInsets.zero,
+                          icon: const Icon(
+                            Icons.search_rounded,
+                            color: Colors.white,
+                            size: 22,
+                          ),
                           tooltip: 'Search & Switch Vehicle',
                           onPressed: () => _showVehiclePickerSheet(context),
                         ),
+
                         IconButton(
-                          icon: const Icon(Icons.swap_horiz_rounded, color: Colors.white, size: 24),
+                          constraints: const BoxConstraints(
+                            minWidth: 36,
+                            minHeight: 40,
+                          ),
+                          padding: EdgeInsets.zero,
+                          icon: Icon(
+                            Icons.swap_horiz_rounded,
+                            color: Colors.white,
+                            size: 22,
+                          ),
                           tooltip: 'Select Vehicle',
                           onPressed: () => _showVehiclePickerSheet(context),
                         ),
@@ -626,6 +671,7 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
 
   // ==================== BOTTOM DRAWER PANEL ====================
 
+
   Widget _buildBottomDrawer(BuildContext context) {
     return Container(
       width: double.infinity,
@@ -634,8 +680,15 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
       ),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        border: const Border(top: BorderSide(color: AppColors.cardBorder, width: 1.5)),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(20),
+        ),
+        border: const Border(
+          top: BorderSide(
+            color: AppColors.cardBorder,
+            width: 1.5,
+          ),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.4),
@@ -644,295 +697,437 @@ class LiveTrackingView extends GetView<LiveTrackingController> {
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 12,
+      ),
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-          // Drag handle
-          Center(
-            child: Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.cardBorder,
-                borderRadius: BorderRadius.circular(10),
+            // Drag Handle
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.cardBorder,
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 14),
 
-          // Current Trip panel header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.alt_route_rounded, color: Color(0xFF6366F1), size: 18),
-                  const SizedBox(width: 8),
-                  Text(
-                    'current_trip'.tr,
-                    style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-              OutlinedButton.icon(
-                onPressed: controller.fitRouteBounds,
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: AppColors.cardBorder),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                ),
-                icon: const Icon(Icons.map_outlined, color: Colors.white, size: 13),
-                label: Text('view_route'.tr, style: const TextStyle(color: Colors.white, fontSize: 11)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
+            const SizedBox(height: 14),
 
-          // Dynamic Trip Path Stepper
-          Obx(() {
-            return Row(
+            // Current Trip Header
+            Row(
               children: [
                 Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.background,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.cardBorder, width: 1),
-                    ),
-                    child: Row(
-                      children: [
-                        // Vertical Dot Timeline indicator
-                        Column(
-                          children: [
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(color: Color(0xFF3B82F6), shape: BoxShape.circle),
-                            ),
-                            Container(width: 1.5, height: 20, color: AppColors.cardBorder),
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle),
-                            ),
-                          ],
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.alt_route_rounded,
+                        color: Color(0xFF6366F1),
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'current_trip'.tr,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: OutlinedButton.icon(
+                    onPressed: controller.fitRouteBounds,
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(
+                        color: AppColors.cardBorder,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                    ),
+                    icon: const Icon(
+                      Icons.map_outlined,
+                      color: Colors.white,
+                      size: 13,
+                    ),
+                    label: Text(
+                      'view_route'.tr,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            // Dynamic Trip Path Stepper
+            Obx(() {
+              return Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.background,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.cardBorder,
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          // Vertical Timeline Indicator
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(
-                                controller.sourceLocation.value.isEmpty
-                                    ? 'Depot Origin'
-                                    : controller.sourceLocation.value,
-                                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFF3B82F6),
+                                  shape: BoxShape.circle,
+                                ),
                               ),
-                              const SizedBox(height: 12),
-                              Text(
-                                controller.destinationLocation.value.isEmpty
-                                    ? 'Destination Station'
-                                    : controller.destinationLocation.value,
-                                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                              Container(
+                                width: 1.5,
+                                height: 20,
+                                color: AppColors.cardBorder,
+                              ),
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                  color: Colors.redAccent,
+                                  shape: BoxShape.circle,
+                                ),
                               ),
                             ],
+                          ),
+
+                          const SizedBox(width: 12),
+
+                          // Source and Destination
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  controller.sourceLocation.value.isEmpty
+                                      ? 'Depot Origin'
+                                      : controller.sourceLocation.value,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 12),
+
+                                Text(
+                                  controller.destinationLocation.value.isEmpty
+                                      ? 'Destination Station'
+                                      : controller.destinationLocation.value,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  // Remaining Specs Details
+                  SizedBox(
+                    width: 76,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${controller.distanceRemainingKm.value > 0 ? controller.distanceRemainingKm.value.toStringAsFixed(1) : "0.0"} km',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        Text(
+                          'distance_remaining'.tr,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 9,
+                          ),
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        Text(
+                          '${controller.etaMinutes.value > 0 ? controller.etaMinutes.value : "15"} mins',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Color(0xFF38BDF8),
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        Text(
+                          'eta_label'.tr,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 9,
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                // Remaining specs details
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${controller.distanceRemainingKm.value > 0 ? controller.distanceRemainingKm.value.toStringAsFixed(1) : "0.0"} km',
-                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-                    ),
-                    Text('distance_remaining'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9)),
-                    const SizedBox(height: 8),
-                    Text(
-                      '${controller.etaMinutes.value > 0 ? controller.etaMinutes.value : "15"} mins',
-                      style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 13, fontWeight: FontWeight.bold),
-                    ),
-                    Text('eta_label'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 9)),
-                  ],
-                ),
-              ],
-            );
-          }),
-          const SizedBox(height: 10),
+                ],
+              );
+            }),
 
-          // Last GPS update tag line
-          Obx(() {
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Last GPS ping: ${controller.lastUpdated.value}',
-                  style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.sync_rounded, color: Color(0xFF10B981), size: 16),
-                  tooltip: 'Refresh Telemetry',
-                  onPressed: controller.initLiveTracking,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-              ],
-            );
-          }),
-          const SizedBox(height: 14),
+            const SizedBox(height: 10),
 
-          // Realtime Stats Row: Speed, Battery, Signal, Ignition
-          Obx(() {
-            return Row(
-              children: [
-                Expanded(
-                  child: _buildRealtimeStatCard(
-                    '${controller.speed.value} km/h',
-                    'current_speed_stat'.tr,
-                    const Icon(Icons.speed, color: Color(0xFF38BDF8), size: 18),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildRealtimeStatCard(
-                    '${controller.battery.value}%',
-                    'battery_stat'.tr,
-                    Icon(
-                      Icons.battery_charging_full_rounded,
-                      color: controller.battery.value > 20 ? const Color(0xFF10B981) : Colors.redAccent,
-                      size: 18,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildRealtimeStatCard(
-                    controller.gpsSignal.value,
-                    'gps_signal_stat'.tr,
-                    const Icon(Icons.cell_tower_rounded, color: Color(0xFF6366F1), size: 18),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildRealtimeStatCard(
-                    controller.ignition.value,
-                    'ignition_status_stat'.tr,
-                    Icon(
-                      Icons.power_settings_new_rounded,
-                      color: controller.ignition.value == 'ON' ? const Color(0xFF10B981) : Colors.grey,
-                      size: 18,
-                    ),
-                  ),
-                ),
-              ],
-            );
-          }),
-          const SizedBox(height: 18),
-
-          // Quick actions title
-          Row(
-            children: [
-              const Icon(Icons.bolt_rounded, color: Colors.purpleAccent, size: 16),
-              const SizedBox(width: 6),
-              Text(
-                'quick_actions_title'.tr,
-                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-
-          // Quick Actions Grid Row
-          Row(
-            children: [
-              Expanded(
-                child: _buildQuickActionItem(
-                  'call_driver_action'.tr,
-                  const Icon(Icons.phone_in_talk_rounded, color: Color(0xFF10B981), size: 18),
-                  controller.callDriver,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildQuickActionItem(
-                  'navigate_btn'.tr,
-                  const Icon(Icons.navigation_rounded, color: Color(0xFF38BDF8), size: 18),
-                  controller.launchNavigation,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildQuickActionItem(
-                  'trip_history_btn'.tr,
-                  const Icon(Icons.history_rounded, color: Color(0xFF6366F1), size: 18),
-                  controller.goToTripHistory,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildQuickActionItem(
-                  'emergency_alert_action'.tr,
-                  const Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 18),
-                  controller.reportEmergency,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-
-          // Footer actions: View details, End tracking
-          Row(
-            children: [
-              Expanded(
-                child: CustomButton(
-                  text: 'view_trip_details_btn'.tr,
-                  isGradient: true,
-                  onTap: controller.goToTripDetails,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: controller.endTracking,
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.redAccent),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.stop_rounded, color: Colors.redAccent, size: 18),
-                      const SizedBox(width: 6),
-                      Text(
-                        'end_tracking_btn'.tr,
-                        style: const TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.bold),
+            // Last GPS Update
+            Obx(() {
+              return Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Last GPS ping: ${controller.lastUpdated.value}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 10,
                       ),
-                    ],
+                    ),
+                  ),
+
+                  IconButton(
+                    icon: const Icon(
+                      Icons.sync_rounded,
+                      color: Color(0xFF10B981),
+                      size: 16,
+                    ),
+                    tooltip: 'Refresh Telemetry',
+                    onPressed: controller.initLiveTracking,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                      minWidth: 32,
+                      minHeight: 32,
+                    ),
+                  ),
+                ],
+              );
+            }),
+
+            const SizedBox(height: 14),
+
+            // Realtime Stats Row
+            Obx(() {
+              return Row(
+                children: [
+                  Expanded(
+                    child: _buildRealtimeStatCard(
+                      '${controller.speed.value} km/h',
+                      'current_speed_stat'.tr,
+                      const Icon(
+                        Icons.speed,
+                        color: Color(0xFF38BDF8),
+                        size: 18,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  Expanded(
+                    child: _buildRealtimeStatCard(
+                      '${controller.battery.value}%',
+                      'battery_stat'.tr,
+                      Icon(
+                        Icons.battery_charging_full_rounded,
+                        color: controller.battery.value > 20
+                            ? const Color(0xFF10B981)
+                            : Colors.redAccent,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  Expanded(
+                    child: _buildRealtimeStatCard(
+                      controller.gpsSignal.value,
+                      'gps_signal_stat'.tr,
+                      const Icon(
+                        Icons.cell_tower_rounded,
+                        color: Color(0xFF6366F1),
+                        size: 18,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  Expanded(
+                    child: _buildRealtimeStatCard(
+                      controller.ignition.value,
+                      'ignition_status_stat'.tr,
+                      Icon(
+                        Icons.power_settings_new_rounded,
+                        color: controller.ignition.value == 'ON'
+                            ? const Color(0xFF10B981)
+                            : Colors.grey,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }),
+
+            const SizedBox(height: 18),
+
+            // Quick Actions Title
+            Row(
+              children: [
+                const Icon(
+                  Icons.bolt_rounded,
+                  color: Colors.purpleAccent,
+                  size: 16,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'quick_actions_title'.tr,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-        ],
+              ],
+            ),
+
+            const SizedBox(height: 10),
+
+            // Quick Actions Grid Row
+            Row(
+              children: [
+                Expanded(
+                  child: _buildQuickActionItem(
+                    'call_driver_action'.tr,
+                    const Icon(
+                      Icons.phone_in_talk_rounded,
+                      color: Color(0xFF10B981),
+                      size: 18,
+                    ),
+                    controller.callDriver,
+                  ),
+                ),
+
+                const SizedBox(width: 8),
+
+                Expanded(
+                  child: _buildQuickActionItem(
+                    'navigate_btn'.tr,
+                    const Icon(
+                      Icons.navigation_rounded,
+                      color: Color(0xFF38BDF8),
+                      size: 18,
+                    ),
+                    controller.launchNavigation,
+                  ),
+                ),
+
+                const SizedBox(width: 8),
+
+                Expanded(
+                  child: _buildQuickActionItem(
+                    'trip_history_btn'.tr,
+                    const Icon(
+                      Icons.history_rounded,
+                      color: Color(0xFF6366F1),
+                      size: 18,
+                    ),
+                    controller.goToTripHistory,
+                  ),
+                ),
+
+                const SizedBox(width: 8),
+
+                Expanded(
+                  child: _buildQuickActionItem(
+                    'emergency_alert_action'.tr,
+                    const Icon(
+                      Icons.warning_amber_rounded,
+                      color: Colors.redAccent,
+                      size: 18,
+                    ),
+                    controller.reportEmergency,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
+
 
   Widget _buildRealtimeStatCard(String value, String label, Widget icon) {
     return Container(

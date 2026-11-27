@@ -83,15 +83,22 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const CustomBackButton(),
-              Text(
-                'reports_and_analytics_title'.tr,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'reports_and_analytics_title'.tr,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox()
+              const SizedBox(width: 8),
+              const SizedBox(width: 32),
             ],
           ),
           const SizedBox(height: 8),
@@ -99,38 +106,41 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // Timeframe dropdown
-              Obx(() {
-                return Container(
-                  height: 34,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  decoration: BoxDecoration(
-                    color: AppColors.cardBg,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.cardBorder),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: controller.timeframe.value,
-                      dropdownColor: AppColors.cardBg,
-                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                      items: [
-                        DropdownMenuItem(value: 'today', child: Text('timeframe_today'.tr)),
-                        DropdownMenuItem(value: 'week', child: Text('timeframe_this_week'.tr)),
-                        DropdownMenuItem(value: 'month', child: Text('timeframe_this_month'.tr)),
-                        DropdownMenuItem(value: 'quarter', child: Text('timeframe_this_quarter'.tr)),
-                      ],
-                      onChanged: (val) {
-                        if (val != null) controller.timeframe.value = val;
-                      },
+              Expanded(
+                child: Obx(() {
+                  return Container(
+                    height: 36,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: AppColors.cardBg,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.cardBorder),
                     ),
-                  ),
-                );
-              }),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: controller.timeframe.value,
+                        isExpanded: true,
+                        dropdownColor: AppColors.cardBg,
+                        style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                        items: [
+                          DropdownMenuItem(value: 'today', child: Text('timeframe_today'.tr, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                          DropdownMenuItem(value: 'week', child: Text('timeframe_this_week'.tr, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                          DropdownMenuItem(value: 'month', child: Text('timeframe_this_month'.tr, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                          DropdownMenuItem(value: 'quarter', child: Text('timeframe_this_quarter'.tr, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                        ],
+                        onChanged: (val) {
+                          if (val != null) controller.timeframe.value = val;
+                        },
+                      ),
+                    ),
+                  );
+                }),
+              ),
               const SizedBox(width: 8),
               // Export Button
               Obx(() {
                 return Container(
-                  height: 34,
+                  height: 36,
                   decoration: BoxDecoration(
                     gradient: AppTheme.primaryGradient,
                     borderRadius: BorderRadius.circular(8),
@@ -153,7 +163,7 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
                     icon: controller.isExporting.value
                         ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 1.5))
                         : const Icon(Icons.file_download_outlined, color: Colors.white, size: 15),
-                    label: Text('export_csv_btn'.tr, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                    label: Text('export_csv_btn'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                     onPressed: controller.isExporting.value ? null : () => controller.exportReport(),
                   ),
                 );
@@ -204,9 +214,13 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
                   children: [
                     Container(width: 6, height: 6, decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle)),
                     const SizedBox(width: 6),
-                    Text(
-                      'live_telematics_engine'.tr,
-                      style: const TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                    Expanded(
+                      child: Text(
+                        'live_telematics_engine'.tr,
+                        style: const TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
@@ -214,11 +228,15 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
                 Text(
                   'reports_and_analytics_title'.tr,
                   style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 Text(
                   'reports_telematics_sub'.tr,
                   style: TextStyle(color: Colors.grey.shade400, fontSize: 11, height: 1.3),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -282,7 +300,7 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
         physics: const NeverScrollableScrollPhysics(),
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
-        childAspectRatio: 1.25,
+        childAspectRatio: 1.1,
         children: reports.map((r) {
           final id = r['id'] as String;
           final isSelected = controller.selectedReportType.value == id;
@@ -332,6 +350,8 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
                             fontSize: 8.5,
                             fontWeight: FontWeight.bold,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -357,13 +377,26 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(r['count'] as String, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                          Text(r['sub'] as String, style: const TextStyle(color: Color(0xFF10B981), fontSize: 9, fontWeight: FontWeight.w600)),
-                        ],
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              r['count'] as String,
+                              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              r['sub'] as String,
+                              style: const TextStyle(color: Color(0xFF10B981), fontSize: 9, fontWeight: FontWeight.w600),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: 4),
                       Icon(Icons.chevron_right_rounded, size: 16, color: isSelected ? const Color(0xFF38BDF8) : Colors.grey),
                     ],
                   ),
@@ -381,42 +414,37 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
   // ==========================================
   Widget _buildSummaryKpiStrip() {
     return Obx(() {
-      return Row(
+      return GridView.count(
+        crossAxisCount: 2,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        childAspectRatio: 2.1,
         children: [
-          Expanded(
-            child: _buildKpiBox(
-              title: 'utilization_kpi'.tr,
-              value: '${controller.fleetUtilizationRate}%',
-              sub: 'on_route_sub'.trParams({'count': controller.onRouteCount.toString()}),
-              color: const Color(0xFF38BDF8),
-            ),
+          _buildKpiBox(
+            title: 'utilization_kpi'.tr,
+            value: '${controller.fleetUtilizationRate}%',
+            sub: 'on_route_sub'.trParams({'count': controller.onRouteCount.toString()}),
+            color: const Color(0xFF38BDF8),
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _buildKpiBox(
-              title: 'distance_kpi'.tr,
-              value: '${controller.totalDistanceKm.toStringAsFixed(1)} km',
-              sub: 'transit_routes_sub'.tr,
-              color: const Color(0xFF10B981),
-            ),
+          _buildKpiBox(
+            title: 'distance_kpi'.tr,
+            value: '${controller.totalDistanceKm.toStringAsFixed(1)} km',
+            sub: 'transit_routes_sub'.tr,
+            color: const Color(0xFF10B981),
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _buildKpiBox(
-              title: 'dispatches_kpi'.tr,
-              value: '${controller.trips.length}',
-              sub: 'active_trips_sub'.trParams({'count': controller.activeTripsCount.toString()}),
-              color: const Color(0xFFA855F7),
-            ),
+          _buildKpiBox(
+            title: 'dispatches_kpi'.tr,
+            value: '${controller.trips.length}',
+            sub: 'active_trips_sub'.trParams({'count': controller.activeTripsCount.toString()}),
+            color: const Color(0xFFA855F7),
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _buildKpiBox(
-              title: 'telemetry_kpi'.tr,
-              value: '${controller.telemetryUnitsOnline}',
-              sub: 'live_mqtt_units_sub'.tr,
-              color: const Color(0xFFF59E0B),
-            ),
+          _buildKpiBox(
+            title: 'telemetry_kpi'.tr,
+            value: '${controller.telemetryUnitsOnline}',
+            sub: 'live_mqtt_units_sub'.tr,
+            color: const Color(0xFFF59E0B),
           ),
         ],
       );
@@ -425,7 +453,7 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
 
   Widget _buildKpiBox({required String title, required String value, required String sub, required Color color}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(12),
@@ -433,12 +461,28 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(title, style: const TextStyle(color: Colors.grey, fontSize: 9, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 4),
-          Text(value, style: TextStyle(color: color, fontSize: 13, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
-          const SizedBox(height: 2),
-          Text(sub, style: TextStyle(color: Colors.grey.shade500, fontSize: 8.5), maxLines: 1, overflow: TextOverflow.ellipsis),
+          Text(
+            title,
+            style: const TextStyle(color: Colors.grey, fontSize: 9.5, fontWeight: FontWeight.bold),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 3),
+          Text(
+            value,
+            style: TextStyle(color: color, fontSize: 13.5, fontWeight: FontWeight.bold),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 1),
+          Text(
+            sub,
+            style: TextStyle(color: Colors.grey.shade500, fontSize: 8.5),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );
@@ -461,13 +505,20 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'fleet_efficiency_score'.tr,
-                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+              Expanded(
+                child: Text(
+                  'fleet_efficiency_score'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
+              const SizedBox(width: 8),
               Text(
                 'composite_telematics'.tr,
                 style: const TextStyle(color: Colors.grey, fontSize: 10),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
@@ -524,12 +575,23 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
   }
 
   Widget _buildEfficiencySubItem(String label, String val, Color valColor) {
-    return Column(
-      children: [
-        Text(val, style: TextStyle(color: valColor, fontSize: 13, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 2),
-        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 9.5)),
-      ],
+    return Expanded(
+      child: Column(
+        children: [
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(val, style: TextStyle(color: valColor, fontSize: 13, fontWeight: FontWeight.bold), maxLines: 1),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: const TextStyle(color: Colors.grey, fontSize: 9.5),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 
@@ -557,21 +619,26 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'weekly_performance_trend'.tr,
-                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 0.5),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'tap_bar_inspect_telematics'.tr,
-                      style: TextStyle(color: Colors.grey.shade400, fontSize: 10),
-                    ),
-                  ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'weekly_performance_trend'.tr,
+                        style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'tap_bar_inspect_telematics'.tr,
+                        style: TextStyle(color: Colors.grey.shade400, fontSize: 10),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
                 ),
-
               ],
             ),
             const SizedBox(height: 5),
@@ -617,13 +684,20 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'telematics_reading'.trParams({'day': selectedPoint.label}),
-                    style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
+                  Expanded(
+                    child: Text(
+                      'telematics_reading'.trParams({'day': selectedPoint.label}),
+                      style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   Text(
                     '${selectedPoint.value} ${selectedPoint.unit} ${selectedPoint.isPeak ? "reading_peak".tr : ""}',
                     style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 11.5, fontWeight: FontWeight.bold),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -635,71 +709,73 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
               height: 160,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: List.generate(points.length, (i) {
                   final p = points[i];
                   final isSelected = selectedIdx == i;
                   final heightPct = (p.value / maxVal).clamp(0.15, 1.0);
 
-                  return GestureDetector(
-                    onTap: () => controller.selectedDayIndex.value = i,
-                    child: Container(
-                      width: 38,
-                      color: Colors.transparent,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          if (p.isPeak)
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
-                              margin: const EdgeInsets.only(bottom: 4),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF2563EB),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: const Text('PEAK', style: TextStyle(color: Colors.white, fontSize: 7, fontWeight: FontWeight.bold)),
-                            )
-                          else
-                            const SizedBox(height: 14),
-
-                          // The Bar
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            width: isSelected ? 30 : 26,
-                            height: 100 * heightPct,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: p.gradientColors,
-                                begin: Alignment.bottomCenter,
-                                end: Alignment.topCenter,
-                              ),
-                              borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-                              border: isSelected ? Border.all(color: Colors.white, width: 1.5) : null,
-                              boxShadow: isSelected
-                                  ? [BoxShadow(color: p.gradientColors.last.withValues(alpha: 0.4), blurRadius: 10, offset: const Offset(0, -2))]
-                                  : [],
-                            ),
-                            child: Align(
-                              alignment: Alignment.topCenter,
-                              child: Container(
-                                height: 3,
+                  return Expanded(
+                    child: GestureDetector(
+                      onTap: () => controller.selectedDayIndex.value = i,
+                      child: Container(
+                        color: Colors.transparent,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            if (p.isPeak)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
+                                margin: const EdgeInsets.only(bottom: 4),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.5),
-                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                                  color: const Color(0xFF2563EB),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Text('PEAK', style: TextStyle(color: Colors.white, fontSize: 7, fontWeight: FontWeight.bold)),
+                              )
+                            else
+                              const SizedBox(height: 14),
+
+                            // The Bar
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              width: isSelected ? 24 : 18,
+                              height: 100 * heightPct,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: p.gradientColors,
+                                  begin: Alignment.bottomCenter,
+                                  end: Alignment.topCenter,
+                                ),
+                                borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                                border: isSelected ? Border.all(color: Colors.white, width: 1.5) : null,
+                                boxShadow: isSelected
+                                    ? [BoxShadow(color: p.gradientColors.last.withValues(alpha: 0.4), blurRadius: 10, offset: const Offset(0, -2))]
+                                    : [],
+                              ),
+                              child: Align(
+                                alignment: Alignment.topCenter,
+                                child: Container(
+                                  height: 3,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.5),
+                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            p.label,
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : Colors.grey.shade400,
-                              fontSize: 10,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                            const SizedBox(height: 6),
+                            Text(
+                              p.label,
+                              style: TextStyle(
+                                color: isSelected ? Colors.white : Colors.grey.shade400,
+                                fontSize: 10,
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   );
@@ -755,13 +831,20 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title.toUpperCase(),
-                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+              Expanded(
+                child: Text(
+                  title.toUpperCase(),
+                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
+              const SizedBox(width: 8),
               Text(
                 _getRecordCountText(),
                 style: TextStyle(color: Colors.grey.shade400, fontSize: 10.5),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
@@ -786,8 +869,22 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
                       isExpanded: true,
                       style: const TextStyle(color: Colors.white, fontSize: 11),
                       items: [
-                        DropdownMenuItem(value: 'all', child: Text('all_divisions_count'.trParams({'count': controller.fleets.length.toString()}))),
-                        ...controller.fleets.map((f) => DropdownMenuItem(value: f.id.toString(), child: Text(f.name))),
+                        DropdownMenuItem(
+                          value: 'all',
+                          child: Text(
+                            'all_divisions_count'.trParams({'count': controller.fleets.length.toString()}),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        ...controller.fleets.map((f) => DropdownMenuItem(
+                          value: f.id.toString(),
+                          child: Text(
+                            f.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        )),
                       ],
                       onChanged: (val) {
                         if (val != null) controller.selectedFleetId.value = val;
@@ -814,11 +911,11 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
                       isExpanded: true,
                       style: const TextStyle(color: Colors.white, fontSize: 11),
                       items: [
-                        DropdownMenuItem(value: 'all', child: Text('all_statuses'.tr)),
-                        DropdownMenuItem(value: 'on_route', child: Text('on_route_active'.tr)),
-                        DropdownMenuItem(value: 'in_depot', child: Text('status_in_depot'.tr)),
-                        DropdownMenuItem(value: 'active', child: Text('active'.tr)),
-                        DropdownMenuItem(value: 'maintenance', child: Text('status_maintenance'.tr)),
+                        DropdownMenuItem(value: 'all', child: Text('all_statuses'.tr, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                        DropdownMenuItem(value: 'on_route', child: Text('on_route_active'.tr, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                        DropdownMenuItem(value: 'in_depot', child: Text('status_in_depot'.tr, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                        DropdownMenuItem(value: 'active', child: Text('active'.tr, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                        DropdownMenuItem(value: 'maintenance', child: Text('status_maintenance'.tr, maxLines: 1, overflow: TextOverflow.ellipsis)),
                       ],
                       onChanged: (val) {
                         if (val != null) controller.selectedStatus.value = val;
@@ -899,16 +996,23 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.directions_bus_rounded, color: Color(0xFF38BDF8), size: 18),
-                      const SizedBox(width: 8),
-                      Text(
-                        v.registrationNumber,
-                        style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                  Expanded(
+                    child: Row(
+                      children: [
+                        const Icon(Icons.directions_bus_rounded, color: Color(0xFF38BDF8), size: 18),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            v.registrationNumber,
+                            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
@@ -926,6 +1030,8 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
                         fontSize: 9.5,
                         fontWeight: FontWeight.bold,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
@@ -934,24 +1040,35 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
               Text(
                 '${v.make} ${v.model} • Year: ${v.year ?? 2024} • Depot: ${v.depotName ?? "Central Depot"}',
                 style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Icon(Icons.wifi, size: 13, color: isGpsOnline ? const Color(0xFF10B981) : Colors.redAccent),
-                      const SizedBox(width: 4),
-                      Text(
-                        isGpsOnline ? 'gps_online'.tr : 'gps_offline'.tr,
-                        style: TextStyle(color: isGpsOnline ? const Color(0xFF10B981) : Colors.redAccent, fontSize: 10.5, fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Icon(Icons.wifi, size: 13, color: isGpsOnline ? const Color(0xFF10B981) : Colors.redAccent),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            isGpsOnline ? 'gps_online'.tr : 'gps_offline'.tr,
+                            style: TextStyle(color: isGpsOnline ? const Color(0xFF10B981) : Colors.redAccent, fontSize: 10.5, fontWeight: FontWeight.bold),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   Text(
                     'Speed: ${v.speedKmh?.toStringAsFixed(0) ?? "0"} km/h',
                     style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -997,18 +1114,31 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(d.name, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                    Text(
+                      d.name,
+                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     const SizedBox(height: 2),
                     Text(
                       'Lic: ${d.licenseNumber.isNotEmpty ? d.licenseNumber : d.badgeId} • Bus: ${d.assignedVehicleReg ?? "None"}',
                       style: TextStyle(color: Colors.grey.shade400, fontSize: 10.5),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
-                    Text('Status: ${d.status.toUpperCase()}', style: const TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.bold)),
+                    Text(
+                      'Status: ${d.status.toUpperCase()}',
+                      style: const TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ],
                 ),
               ),
-              if (d.phone.isNotEmpty)
+              if (d.phone.isNotEmpty) ...[
+                const SizedBox(width: 8),
                 IconButton(
                   icon: const Icon(Icons.phone, color: Color(0xFF10B981), size: 18),
                   onPressed: () async {
@@ -1016,6 +1146,7 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
                     if (await canLaunchUrl(uri)) await launchUrl(uri);
                   },
                 ),
+              ],
             ],
           ),
         );
@@ -1050,10 +1181,15 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    t.code.isNotEmpty ? t.code : 'Trip #${t.id}',
-                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                  Expanded(
+                    child: Text(
+                      t.code.isNotEmpty ? t.code : 'Trip #${t.id}',
+                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
@@ -1071,6 +1207,8 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
                         fontSize: 9,
                         fontWeight: FontWeight.bold,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
@@ -1079,18 +1217,27 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
               Text(
                 'Route: ${t.route?.name ?? "Transit Corridor"} • Vehicle: ${t.vehicle?.busNumber ?? t.vehicleId ?? "Assigned"}',
                 style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    '${t.origin} ➔ ${t.destination}',
-                    style: TextStyle(color: Colors.grey.shade300, fontSize: 10.5),
+                  Expanded(
+                    child: Text(
+                      '${t.origin} ➔ ${t.destination}',
+                      style: TextStyle(color: Colors.grey.shade300, fontSize: 10.5),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   Text(
                     '${t.distanceKm.toStringAsFixed(1)} km',
                     style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 11, fontWeight: FontWeight.bold),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -1128,16 +1275,42 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(v.registrationNumber, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-                  Text('${v.fuelType.toUpperCase()} (EV)', style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 10.5, fontWeight: FontWeight.bold)),
+                  Expanded(
+                    child: Text(
+                      v.registrationNumber,
+                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '${v.fuelType.toUpperCase()} (EV)',
+                    style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 10.5, fontWeight: FontWeight.bold),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('battery_soc_energy_health'.tr, style: TextStyle(color: Colors.grey.shade400, fontSize: 11)),
-                  Text('$battery%', style: const TextStyle(color: Color(0xFF10B981), fontSize: 12, fontWeight: FontWeight.bold)),
+                  Expanded(
+                    child: Text(
+                      'battery_soc_energy_health'.tr,
+                      style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '$battery%',
+                    style: const TextStyle(color: Color(0xFF10B981), fontSize: 12, fontWeight: FontWeight.bold),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ),
               const SizedBox(height: 6),
@@ -1154,8 +1327,21 @@ class VehicleAnalyticsView extends GetView<VehicleAnalyticsController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Efficiency: 94%', style: TextStyle(color: Colors.grey, fontSize: 10.5)),
-                  Text('telematics_optimal'.tr, style: const TextStyle(color: Color(0xFF10B981), fontSize: 10.5, fontWeight: FontWeight.w600)),
+                  const Expanded(
+                    child: Text(
+                      'Efficiency: 94%',
+                      style: TextStyle(color: Colors.grey, fontSize: 10.5),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'telematics_optimal'.tr,
+                    style: const TextStyle(color: Color(0xFF10B981), fontSize: 10.5, fontWeight: FontWeight.w600),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ),
             ],

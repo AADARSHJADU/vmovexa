@@ -374,7 +374,7 @@ class ActivityLogsController extends GetxController {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     icon: const Icon(Icons.copy_rounded, size: 16),
-                    label: Text('copy_to_clipboard'.tr, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    label: Text('copy_to_clipboard'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: csvContent));
                       Get.back();
@@ -398,7 +398,7 @@ class ActivityLogsController extends GetxController {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     icon: const Icon(Icons.download_rounded, size: 16),
-                    label: Text('save_csv_file'.tr, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
+                    label: Text('save_csv_file'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: csvContent));
                       Get.back();

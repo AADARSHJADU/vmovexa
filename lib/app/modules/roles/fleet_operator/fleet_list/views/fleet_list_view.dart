@@ -28,25 +28,32 @@ class FleetListView extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      if (!isEmbedded) ...[
-                        const CustomBackButton(),
-                        const SizedBox(width: 8),
-                      ] else ...[
-                        const Icon(Icons.directions_bus_rounded, color: Colors.indigoAccent, size: 24),
-                        const SizedBox(width: 8),
-                      ],
-                      const Text(
-                        'Fleet Management',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: Row(
+                      children: [
+                        if (!isEmbedded) ...[
+                          const CustomBackButton(),
+                          const SizedBox(width: 8),
+                        ] else ...[
+                          const Icon(Icons.directions_bus_rounded, color: Colors.indigoAccent, size: 24),
+                          const SizedBox(width: 8),
+                        ],
+                        const Expanded(
+                          child: Text(
+                            'Fleet Management',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   Row(
                     children: [
                       IconButton(
@@ -115,14 +122,17 @@ class FleetListView extends StatelessWidget {
 
                   // Filter Tabs
                   Obx(
-                    () => Row(
-                      children: [
-                        _buildFilterPill('All'),
-                        const SizedBox(width: 10),
-                        _buildFilterPill('Active'),
-                        const SizedBox(width: 10),
-                        _buildFilterPill('Inactive'),
-                      ],
+                    () => SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildFilterPill('All'),
+                          const SizedBox(width: 10),
+                          _buildFilterPill('Active'),
+                          const SizedBox(width: 10),
+                          _buildFilterPill('Inactive'),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -180,6 +190,8 @@ class FleetListView extends StatelessWidget {
                   SizedBox(width: 6),
                   Text(
                     'Add Fleet',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14,

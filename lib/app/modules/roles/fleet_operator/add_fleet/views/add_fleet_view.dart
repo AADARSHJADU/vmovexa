@@ -102,16 +102,23 @@ class AddFleetView extends GetView<AddFleetController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const CustomBackButton(),
-          Obx(
-            () => Text(
-              controller.isEditMode.value ? 'edit_fleet_operator'.tr : 'add_fleet_operator'.tr,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+          const SizedBox(width: 8),
+          Expanded(
+            child: Obx(
+              () => Text(
+                controller.isEditMode.value ? 'edit_fleet_operator'.tr : 'add_fleet_operator'.tr,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ),
+          const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.info_outline_rounded, color: Colors.white70, size: 22),
             onPressed: () => _showHelpBottomSheet(),
@@ -1040,6 +1047,8 @@ class AddFleetView extends GetView<AddFleetController> {
               ),
               child: Text(
                 'cancel'.tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.bold),
               ),
             ),

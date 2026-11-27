@@ -208,18 +208,25 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const CustomBackButton(),
-          Obx(() {
-            final inc = controller.selectedIncident.value;
-            final title = inc != null ? '${'incident'.tr} #${inc.id}' : 'incident_detail'.tr;
-            return Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            );
-          }),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Obx(() {
+              final inc = controller.selectedIncident.value;
+              final title = inc != null ? '${'incident'.tr} #${inc.id}' : 'incident_detail'.tr;
+              return Text(
+                title,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              );
+            }),
+          ),
+          const SizedBox(width: 8),
           IconButton(
             onPressed: () {
               final inc = controller.selectedIncident.value;
@@ -568,7 +575,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                       elevation: 0,
                     ),
                     icon: const Icon(Icons.phone, size: 15, color: Colors.white),
-                    label: Text('call'.tr, style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
+                    label: Text('call'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
                     onPressed: () async {
                       final uri = Uri.parse('tel:${inc.displayDriverPhone}');
                       if (await canLaunchUrl(uri)) {
@@ -642,7 +649,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
                         ),
-                        child: Text('view_map_action'.tr, style: const TextStyle(color: Color(0xFF34D399), fontSize: 10, fontWeight: FontWeight.bold)),
+                        child: Text('view_map_action'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFF34D399), fontSize: 10, fontWeight: FontWeight.bold)),
                       ),
                     ),
                   ],
@@ -1073,7 +1080,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                               const Icon(Icons.play_circle_fill_rounded, color: Color(0xFFA855F7), size: 32),
                               const SizedBox(height: 4),
                               Text('${'video'.tr} #${index + 1}', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                              Text('tap_to_view'.tr, style: TextStyle(color: Colors.grey.shade400, fontSize: 9.5)),
+                              Text('tap_to_view'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey.shade400, fontSize: 9.5)),
                             ],
                           ),
                         ),
@@ -1203,14 +1210,19 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'current_status_label'.trParams({'status': _getStatusLabel(inc.status)}),
-                    style: TextStyle(color: Colors.grey.shade400, fontSize: 12, fontWeight: FontWeight.bold),
+                  Expanded(
+                    child: Text(
+                      'current_status_label'.trParams({'status': _getStatusLabel(inc.status)}),
+                      style: TextStyle(color: Colors.grey.shade400, fontSize: 12, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(4)),
-                    child: Text('super_admin_only_badge'.tr, style: const TextStyle(color: Colors.white70, fontSize: 9, fontWeight: FontWeight.bold)),
+                    child: Text('super_admin_only_badge'.tr, style: const TextStyle(color: Colors.white70, fontSize: 9, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
                   ),
                 ],
               ),
@@ -1351,6 +1363,8 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                     : const Icon(Icons.phone_in_talk_rounded, size: 16, color: Colors.white),
                 label: Text(
                   controller.isUpdatingResolution.value ? 'saving_notes'.tr : 'save_driver_voice_contact_notes'.tr,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -1580,7 +1594,7 @@ class EmergencyIncidentDetailsView extends GetView<EmergencyIncidentsController>
                     }
                   },
                   icon: const Icon(Icons.open_in_new_rounded, size: 16, color: Colors.white),
-                  label: Text('open_play_video'.tr, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                  label: Text('open_play_video'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFA855F7),
                     padding: const EdgeInsets.symmetric(vertical: 12),

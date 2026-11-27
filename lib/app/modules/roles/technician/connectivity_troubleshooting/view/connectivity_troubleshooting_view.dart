@@ -173,15 +173,20 @@ class ConnectivityTroubleshootingView extends GetView<ConnectivityTroubleshootin
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'target_unit_details'.tr,
-                  style: const TextStyle(
-                    color: Colors.white38,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
+                Expanded(
+                  child: Text(
+                    'target_unit_details'.tr,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white38,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ),
+                const SizedBox(width: 8),
                 // Switch Device Button
                 InkWell(
                   onTap: () => _showDeviceSelectionModal(context),
@@ -196,9 +201,13 @@ class ConnectivityTroubleshootingView extends GetView<ConnectivityTroubleshootin
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          'switch_device'.tr,
-                          style: const TextStyle(color: kPurple, fontSize: 10.5, fontWeight: FontWeight.w700),
+                        Flexible(
+                          child: Text(
+                            'switch_device'.tr,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: kPurple, fontSize: 10.5, fontWeight: FontWeight.w700),
+                          ),
                         ),
                         const SizedBox(width: 4),
                         const Icon(Icons.keyboard_arrow_down_rounded, color: kPurple, size: 14),
@@ -520,10 +529,15 @@ class ConnectivityTroubleshootingView extends GetView<ConnectivityTroubleshootin
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'select_target_unit'.tr,
-                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800),
+                Expanded(
+                  child: Text(
+                    'select_target_unit'.tr,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800),
+                  ),
                 ),
+                const SizedBox(width: 8),
                 IconButton(
                   onPressed: () => Get.back(),
                   icon: const Icon(Icons.close, color: Colors.white54, size: 20),
@@ -676,15 +690,20 @@ class _MatrixCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.white38,
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.5,
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white38,
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                  ),
                 ),
               ),
+              const SizedBox(width: 8),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -692,6 +711,8 @@ class _MatrixCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     statusLabel,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(color: color, fontSize: 11.5, fontWeight: FontWeight.w700),
                   ),
                 ],

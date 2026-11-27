@@ -57,14 +57,21 @@ class AssignGpsView extends GetView<AssignGpsController> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Select Bus for Edge Box Installation',
-                      style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                    Expanded(
+                      child: Text(
+                        'Select Bus for Edge Box Installation',
+                        style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     Obx(() {
                       return Text(
                         '${controller.filteredVehicles.length} buses',
                         style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       );
                     }),
                   ],
@@ -367,7 +374,7 @@ class AssignGpsView extends GetView<AssignGpsController> {
                 child: OutlinedButton.icon(
                   onPressed: isSubmitting ? null : controller.handleUnassign,
                   icon: const Icon(Icons.link_off_rounded, size: 16),
-                  label: const Text('Unbind Bus', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                  label: const Text('Unbind Bus', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.redAccent,
                     side: const BorderSide(color: Colors.redAccent, width: 1.2),
@@ -537,7 +544,7 @@ class AssignGpsView extends GetView<AssignGpsController> {
                 Center(
                   child: TextButton(
                     onPressed: controller.skipForNow,
-                    child: Text('skip_for_now'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
+                    child: Text('skip_for_now'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
                   ),
                 ),
                 const SizedBox(height: 20),

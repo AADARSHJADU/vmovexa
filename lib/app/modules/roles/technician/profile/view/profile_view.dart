@@ -120,6 +120,7 @@ class ProfileView extends GetView<ProfileController> {
   }
 
   // ---------------- Profile Header Card ----------------
+
   Widget _buildProfileHeaderCard() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -130,6 +131,7 @@ class ProfileView extends GetView<ProfileController> {
       ),
       child: Obx(() {
         final data = controller.profile.value;
+
         if (data == null && controller.isLoading.value) {
           return const Center(
             child: Padding(
@@ -143,159 +145,202 @@ class ProfileView extends GetView<ProfileController> {
           return const SizedBox.shrink();
         }
 
-        final photoUrl = data.profilePicture != null && data.profilePicture!.isNotEmpty
+        final photoUrl =
+        data.profilePicture != null && data.profilePicture!.isNotEmpty
             ? ApiConstants.resolveFileUrl(data.profilePicture)
             : null;
 
-        return Row(
+        return Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Avatar Photo with camera badge
-            GestureDetector(
-              onTap: controller.changePhoto,
-              child: Stack(
-                children: [
-                  Container(
-                    width: 68,
-                    height: 68,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: kPurple.withValues(alpha: 0.12),
-                      border: Border.all(color: kPurple.withValues(alpha: 0.35), width: 1.5),
-                    ),
-                    child: ClipOval(
-                      child: controller.isUploadingPhoto.value
-                          ? const Center(
-                              child: SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  color: kPurple,
-                                  strokeWidth: 2.2,
-                                ),
+            // Avatar + Profile Information
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Profile Photo
+                GestureDetector(
+                  onTap: controller.changePhoto,
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: 68,
+                        height: 68,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: kPurple.withValues(alpha: 0.12),
+                          border: Border.all(
+                            color: kPurple.withValues(alpha: 0.35),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: ClipOval(
+                          child: controller.isUploadingPhoto.value
+                              ? const Center(
+                            child: SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                color: kPurple,
+                                strokeWidth: 2.2,
                               ),
-                            )
-                          : (photoUrl != null && photoUrl.isNotEmpty)
+                            ),
+                          )
+                              : (photoUrl != null && photoUrl.isNotEmpty)
                               ? Image.network(
-                                  photoUrl,
-                                  width: 68,
-                                  height: 68,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) => Center(
-                                    child: SvgPicture.asset(
-                                      'assets/icons/profile.svg',
-                                      width: 34,
-                                      height: 34,
-                                    ),
-                                  ),
-                                )
-                              : Center(
+                            photoUrl,
+                            width: 68,
+                            height: 68,
+                            fit: BoxFit.cover,
+                            errorBuilder:
+                                (context, error, stackTrace) =>
+                                Center(
                                   child: SvgPicture.asset(
                                     'assets/icons/profile.svg',
                                     width: 34,
                                     height: 34,
                                   ),
                                 ),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(3),
-                      decoration: const BoxDecoration(
-                        color: kCardBg,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: kPurple,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.camera_alt_rounded,
-                          color: Colors.white,
-                          size: 11,
+                          )
+                              : Center(
+                            child: SvgPicture.asset(
+                              'assets/icons/profile.svg',
+                              width: 34,
+                              height: 34,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration: const BoxDecoration(
+                            color: kCardBg,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: kPurple,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt_rounded,
+                              color: Colors.white,
+                              size: 11,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 16),
-
-            // Profile info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    data.name,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    data.role,
-                    style: const TextStyle(
-                      color: kPurple,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    '${'tech_id'.tr}: ${data.techId}',
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 10.5,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${'employee_id'.tr}: ${data.employeeId}',
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 10.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-
-            // Edit Profile Button with AppTheme.primaryGradient
-            GestureDetector(
-              onTap: controller.editProfile,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  gradient: AppTheme.primaryGradient,
-                  borderRadius: BorderRadius.circular(8),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/fleet_operator_icons/editA.svg',
-                      width: 12,
-                      height: 12,
-                      colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'edit_profile'.tr,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.bold,
+
+                const SizedBox(width: 14),
+
+                // Profile Details
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        data.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: true,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
+
+                      const SizedBox(height: 4),
+
+                      Text(
+                        data.role,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: true,
+                        style: const TextStyle(
+                          color: kPurple,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      Text(
+                        '${'tech_id'.tr}: ${data.techId}',
+                        softWrap: true,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 10.5,
+                          height: 1.4,
+                        ),
+                      ),
+
+                      const SizedBox(height: 3),
+
+                      Text(
+                        '${'employee_id'.tr}: ${data.employeeId}',
+                        softWrap: true,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 10.5,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 14),
+
+            // Edit Profile Button - Right Aligned
+            Align(
+              alignment: Alignment.centerRight,
+              child: GestureDetector(
+                onTap: controller.editProfile,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/icons/fleet_operator_icons/editA.svg',
+                        width: 13,
+                        height: 13,
+                        colorFilter: const ColorFilter.mode(
+                          Colors.white,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        'edit_profile'.tr,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

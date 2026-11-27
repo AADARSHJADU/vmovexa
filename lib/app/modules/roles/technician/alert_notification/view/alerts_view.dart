@@ -149,13 +149,26 @@ class AlertsView extends GetView<AlertsController> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text('recent_alerts'.tr, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+        Expanded(
+          child: Text(
+            'recent_alerts'.tr,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+          ),
+        ),
+        const SizedBox(width: 8),
         GestureDetector(
           onTap: controller.onMarkAllAsRead,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('mark_all_as_read'.tr, style: const TextStyle(color: kPurple, fontSize: 12, fontWeight: FontWeight.w600)),
+              Text(
+                'mark_all_as_read'.tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: kPurple, fontSize: 12, fontWeight: FontWeight.w600),
+              ),
               const SizedBox(width: 6),
               SvgPicture.asset(
                 'assets/icons/new_fleet-op-ic/mynaui_mail.svg',

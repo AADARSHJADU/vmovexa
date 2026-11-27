@@ -23,6 +23,8 @@ class VehicleSlotsView extends GetView<VehicleSlotsController> {
         title: Text(
           'vehicle_slots_timetable'.tr,
           style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         actions: [
           IconButton(
@@ -36,6 +38,8 @@ class VehicleSlotsView extends GetView<VehicleSlotsController> {
               icon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
               label: Text(
                 'schedule'.tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
@@ -202,11 +206,17 @@ class VehicleSlotsView extends GetView<VehicleSlotsController> {
           Text(
             label,
             style: const TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.w600),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 2),
-          Text(
-            value,
-            style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold),
+              maxLines: 1,
+            ),
           ),
         ],
       ),
@@ -415,19 +425,41 @@ class VehicleSlotsView extends GetView<VehicleSlotsController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  'hourly_transit_timeline'.tr,
-                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    'hourly_transit_timeline'.tr,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-                Text(
-                  'operating_shifts'.tr,
-                  style: const TextStyle(color: Color(0xFF818CF8), fontSize: 11, fontWeight: FontWeight.w600),
+                const SizedBox(width: 8),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    'operating_shifts'.tr,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.end,
+                    style: const TextStyle(
+                      color: Color(0xFF818CF8),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ],
             ),
+
             const SizedBox(height: 12),
             const Divider(color: Color(0xFF334155), height: 1),
             const SizedBox(height: 12),
@@ -590,7 +622,7 @@ class VehicleSlotsView extends GetView<VehicleSlotsController> {
           ElevatedButton.icon(
             onPressed: () => AddVehicleSlotSheet.show(Get.context!),
             icon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
-            label: Text('add_schedule_slot'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
+            label: Text('add_schedule_slot'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 12)),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF6366F1),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),

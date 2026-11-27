@@ -314,6 +314,8 @@ class FleetOpDashboardView extends StatelessWidget {
                   label: Text(
                     'live_tracking'.tr,
                     style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ),
@@ -345,19 +347,23 @@ class FleetOpDashboardView extends StatelessWidget {
                       },
                       borderRadius: BorderRadius.circular(12),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Icon(Icons.add, color: Colors.white, size: 20),
                             const SizedBox(width: 6),
-                            Text(
-                              'add_vehicle'.tr,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
+                            Flexible(
+                              child: Text(
+                                'add_vehicle'.tr,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
@@ -388,7 +394,7 @@ class FleetOpDashboardView extends StatelessWidget {
         physics: const NeverScrollableScrollPhysics(),
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
-        childAspectRatio: 1.45,
+        childAspectRatio: 1.32,
         children: [
           _buildKpiCard(
             title: 'fleet_vehicles'.tr,
@@ -431,6 +437,7 @@ class FleetOpDashboardView extends StatelessWidget {
     });
   }
 
+
   Widget _buildKpiCard({
     required String title,
     required String value,
@@ -448,24 +455,32 @@ class FleetOpDashboardView extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.cardBg,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.cardBorder, width: 1.2),
+          border: Border.all(
+            color: AppColors.cardBorder,
+            width: 1.2,
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            // Title + Icon
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.8,
+                Expanded(
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.8,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                const SizedBox(width: 6),
                 Container(
                   width: 30,
                   height: 30,
@@ -473,32 +488,58 @@ class FleetOpDashboardView extends StatelessWidget {
                     color: iconColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(icon, color: iconColor, size: 16),
+                  child: Icon(
+                    icon,
+                    color: iconColor,
+                    size: 16,
+                  ),
                 ),
               ],
             ),
+
+            // Value + Subtitle
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  value,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    value,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
                   ),
                 ),
+
                 const SizedBox(height: 2),
+
                 Row(
                   children: [
-                    Container(width: 5, height: 5, decoration: BoxDecoration(color: subtitleColor, shape: BoxShape.circle)),
-                    const SizedBox(width: 4),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
+                    Container(
+                      width: 5,
+                      height: 5,
+                      decoration: BoxDecoration(
                         color: subtitleColor,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+
+                    Expanded(
+                      child: Text(
+                        subtitle,
+                        style: TextStyle(
+                          color: subtitleColor,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -510,6 +551,8 @@ class FleetOpDashboardView extends StatelessWidget {
       ),
     );
   }
+
+
 
   Widget _buildQuickActions() {
     final actions = [
@@ -536,11 +579,13 @@ class FleetOpDashboardView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
+
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
             children: actions.map((act) {
               final color = act['color'] as Color;
+
               return Padding(
                 padding: const EdgeInsets.only(right: 12),
                 child: InkWell(
@@ -548,11 +593,17 @@ class FleetOpDashboardView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
                     width: 80,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.cardBg,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.cardBorder, width: 1.2),
+                      border: Border.all(
+                        color: AppColors.cardBorder,
+                        width: 1.2,
+                      ),
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -564,15 +615,26 @@ class FleetOpDashboardView extends StatelessWidget {
                             color: color.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Icon(act['icon'] as IconData, size: 20, color: color),
+                          child: Icon(
+                            act['icon'] as IconData,
+                            size: 20,
+                            color: color,
+                          ),
                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          act['title'] as String,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
+
+                        SizedBox(
+                          width: double.infinity,
+                          child: Text(
+                            act['title'] as String,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -587,28 +649,48 @@ class FleetOpDashboardView extends StatelessWidget {
     );
   }
 
+
   Widget _buildAssignedVehiclesSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'assigned_fleet_vehicles'.tr,
-              style: const TextStyle(
-                color: AppColors.textMuted,
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.9,
+            // Assigned Fleet Vehicles
+            Expanded(
+              child: Text(
+                'assigned_fleet_vehicles'.tr,
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.9,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
+
+            const SizedBox(width: 8),
+
+            // View All
             TextButton(
               onPressed: controller.goToVehicles,
-              style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero),
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
               child: Text(
                 '${'view_all'.tr} →',
-                style: const TextStyle(color: Color(0xFF6366F1), fontSize: 11, fontWeight: FontWeight.bold),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Color(0xFF6366F1),
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
@@ -714,63 +796,124 @@ class FleetOpDashboardView extends StatelessWidget {
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: statusColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: statusColor.withValues(alpha: 0.4)),
-                  ),
-                  child: Text(
-                    statusLabel.toUpperCase(),
-                    style: TextStyle(color: statusColor, fontSize: 9, fontWeight: FontWeight.bold),
+                Flexible(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: statusColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: statusColor.withValues(alpha: 0.4)),
+                    ),
+                    child: Text(
+                      statusLabel.toUpperCase(),
+                      style: TextStyle(color: statusColor, fontSize: 9, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
+
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 8,
+              ),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.03),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.badge_outlined, size: 13, color: Color(0xFF10B981)),
-                      const SizedBox(width: 4),
-                      Text(
-                        driverName,
-                        style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w500),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Icon(Icons.memory_rounded, size: 13, color: hasGps ? Colors.amberAccent : AppColors.textMuted),
-                      const SizedBox(width: 4),
-                      Text(
-                        hasGps ? 'gps_linked'.tr : 'no_gps'.tr,
-                        style: TextStyle(
-                          color: hasGps ? Colors.amberAccent : AppColors.textMuted,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
+                  // Driver Name
+                  Expanded(
+                    flex: 4,
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.badge_outlined,
+                          size: 13,
+                          color: Color(0xFF10B981),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            driverName,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  Row(
-                    children: [
-                      const Icon(Icons.speed_rounded, size: 13, color: Colors.cyanAccent),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${(vehicle.speedKmh ?? 0).toStringAsFixed(0)} km/h',
-                        style: const TextStyle(color: Colors.cyanAccent, fontSize: 11, fontWeight: FontWeight.w500),
-                      ),
-                    ],
+
+                  const SizedBox(width: 5),
+
+                  // GPS Status
+                  Expanded(
+                    flex: 3,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.memory_rounded,
+                          size: 13,
+                          color: hasGps
+                              ? Colors.amberAccent
+                              : AppColors.textMuted,
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            hasGps ? 'gps_linked'.tr : 'no_gps'.tr,
+                            style: TextStyle(
+                              color: hasGps
+                                  ? Colors.amberAccent
+                                  : AppColors.textMuted,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(width: 5),
+
+                  // Speed
+                  Expanded(
+                    flex: 3,
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.speed_rounded,
+                          size: 13,
+                          color: Colors.cyanAccent,
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            '${(vehicle.speedKmh ?? 0).toStringAsFixed(0)} km/h',
+                            style: const TextStyle(
+                              color: Colors.cyanAccent,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -815,11 +958,15 @@ class FleetOpDashboardView extends StatelessWidget {
                 Text(
                   'iot_gateway_online'.tr,
                   style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 Obx(() => Text(
                   '${controller.assignedGpsCount} ${'gps_trackers_streaming'.tr}',
                   style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 )),
               ],
             ),

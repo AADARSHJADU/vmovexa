@@ -306,7 +306,7 @@ class FleetDetailsController extends GetxController {
                 children: [
                   TextButton(
                     onPressed: () => Get.back(),
-                    child: Text('cancel'.tr, style: const TextStyle(color: Colors.white60)),
+                    child: Text('cancel'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white60)),
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
@@ -320,7 +320,7 @@ class FleetDetailsController extends GetxController {
                       backgroundColor: const Color(0xFFEF4444),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    child: Text('confirm_reject'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    child: Text('confirm_reject'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),

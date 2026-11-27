@@ -195,12 +195,12 @@ class AssignGpsController extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
-            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white70)),
+            child: Text('cancel'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white70)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.amber.shade700),
             onPressed: () => Get.back(result: true),
-            child: Text('unassign'.tr, style: const TextStyle(color: Colors.white)),
+            child: Text('unassign'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),

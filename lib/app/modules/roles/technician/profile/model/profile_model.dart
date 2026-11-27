@@ -39,23 +39,23 @@ class TechnicianProfile {
     final email = user.email ?? '';
     final usernameFromEmail = email.contains('@') ? email.split('@').first : 'technician';
     final orgName = user.organizationName ?? user.organization?.name ?? 'Field Operations';
-    final branchName = user.branch ?? 'Main Depot';
+    final branchName = user.branch ?? user.officeAddress ?? 'Central Depot';
 
     return TechnicianProfile(
       name: (user.name != null && user.name!.trim().isNotEmpty) ? user.name!.trim() : 'Technician',
-      role: (user.role != null && user.role!.trim().isNotEmpty) ? user.role!.trim() : 'Senior Technician',
+      role: (user.role != null && user.role!.trim().isNotEmpty) ? user.role!.trim() : 'Central Field Technician',
       techId: user.code ?? user.id ?? 'TECH-001',
-      employeeId: user.enrollmentNo ?? user.code ?? 'EMP-001',
+      employeeId: user.enrollmentNo ?? user.code ?? (user.id != null ? 'EMP-${user.id}' : 'EMP-001'),
       profilePicture: user.avatarUrl,
       email: email,
       phoneNumber: user.phone ?? '',
-      dateOfBirth: '15 May 1990',
-      gender: 'Male',
+      dateOfBirth: '',
+      gender: '',
       address: user.officeAddress ?? user.branch ?? '',
       department: orgName,
-      reportingManager: 'Operations Lead',
+      reportingManager: user.organizationName ?? 'Operations Lead',
       workLocation: branchName,
-      joinedDate: '10 Jan 2022',
+      joinedDate: '',
       username: usernameFromEmail,
     );
   }

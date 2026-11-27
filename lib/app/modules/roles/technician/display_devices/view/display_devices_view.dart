@@ -10,13 +10,24 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
 
   @override
   Widget build(BuildContext context) {
+
+    // Ensure controller is registered before accessing GetView.controller
+    if (!Get.isRegistered<DisplayDevicesController>()) {
+      Get.put<DisplayDevicesController>(
+        DisplayDevicesController(),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFF0A0C14),
       body: SafeArea(
         child: Obx(() {
-          if (controller.isLoading.value && controller.allDevices.isEmpty) {
+          if (controller.isLoading.value &&
+              controller.allDevices.isEmpty) {
             return const Center(
-              child: CircularProgressIndicator(color: Color(0xFF6366F1)),
+              child: CircularProgressIndicator(
+                color: Color(0xFF6366F1),
+              ),
             );
           }
 
@@ -40,7 +51,8 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
                 const SizedBox(height: 10),
                 _buildDeviceList(context),
                 const SizedBox(height: 16),
-                if (controller.filteredDevices.isNotEmpty) _buildPaginationFooter(),
+                if (controller.filteredDevices.isNotEmpty)
+                  _buildPaginationFooter(),
                 const SizedBox(height: 24),
               ],
             ),
@@ -50,42 +62,57 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
     );
   }
 
+
   // ---------------- Header with Edge Setup & Refresh ----------------
   Widget _buildHeader(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        // Left Side: Title + Description
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Row(
                 children: [
-                  Text(
-                    'edge_devices'.tr,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: -0.2,
+                  Flexible(
+                    child: Text(
+                      'edge_devices'.tr,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -0.2,
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF6366F1).withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.4)),
-                    ),
-                    child: Obx(
-                      () => Text(
-                        '${controller.allDevices.length} UNITS',
-                        style: const TextStyle(
-                          color: Color(0xFF818CF8),
-                          fontSize: 9,
-                          fontWeight: FontWeight.w800,
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF6366F1).withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                          color: const Color(0xFF6366F1).withValues(alpha: 0.4),
+                        ),
+                      ),
+                      child: Obx(
+                            () => Text(
+                          '${controller.allDevices.length} UNITS',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Color(0xFF818CF8),
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ),
                     ),
@@ -95,20 +122,28 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
               const SizedBox(height: 3),
               const Text(
                 'RK3588 edge player boxes, display screens & IoT telematics',
-                style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 11,
+                ),
               ),
             ],
           ),
         ),
-        const SizedBox(width: 8),
 
-        // Edge Setup Action Button (Matching Admin Web Portal)
+        const SizedBox(width: 6),
+
+        // Edge Setup Button
         InkWell(
           onTap: controller.goToEdgeSetup,
           borderRadius: BorderRadius.circular(10),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8,
+              vertical: 7,
+            ),
             decoration: BoxDecoration(
               gradient: AppTheme.primaryGradient,
               borderRadius: BorderRadius.circular(10),
@@ -123,26 +158,47 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.terminal_rounded, color: Colors.white, size: 14),
+                const Icon(
+                  Icons.terminal_rounded,
+                  color: Colors.white,
+                  size: 14,
+                ),
                 const SizedBox(width: 4),
                 Text(
                   'edge_setup'.tr,
-                  style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
           ),
         ),
-        const SizedBox(width: 6),
 
+        const SizedBox(width: 4),
+
+        // Refresh Button
         IconButton(
           onPressed: controller.onRefresh,
-          icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 18),
-          constraints: const BoxConstraints(),
+          icon: const Icon(
+            Icons.refresh_rounded,
+            color: Colors.white70,
+            size: 18,
+          ),
+          constraints: const BoxConstraints(
+            minWidth: 36,
+            minHeight: 36,
+          ),
+          padding: const EdgeInsets.all(8),
           style: IconButton.styleFrom(
             backgroundColor: const Color(0xFF1E293B),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            padding: const EdgeInsets.all(8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         ),
       ],
@@ -205,30 +261,39 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.8,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.8,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                count,
-                style: TextStyle(
-                  color: color,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
+                const SizedBox(height: 2),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    count,
+                    style: TextStyle(
+                      color: color,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
+          const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -348,17 +413,22 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Obx(
-          () => Text(
-            '${'deployed_devices_caps'.tr} (${controller.filteredDevices.length})',
-            style: const TextStyle(
-              color: AppColors.textMuted,
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1,
+        Expanded(
+          child: Obx(
+            () => Text(
+              '${'deployed_devices_caps'.tr} (${controller.filteredDevices.length})',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: AppColors.textMuted,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1,
+              ),
             ),
           ),
         ),
+        const SizedBox(width: 8),
         Container(
           decoration: BoxDecoration(
             gradient: AppTheme.primaryGradient,
@@ -384,6 +454,8 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
             icon: const Icon(Icons.add_rounded, size: 16),
             label: Text(
               'add_edge_device'.tr,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
             ),
           ),
@@ -452,22 +524,27 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF6366F1).withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.4)),
-                ),
-                child: Text(
-                  device.boxId,
-                  style: const TextStyle(
-                    color: Color(0xFF818CF8),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6366F1).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.4)),
+                  ),
+                  child: Text(
+                    device.boxId,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Color(0xFF818CF8),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
               ),
+              const SizedBox(width: 8),
               Row(
                 children: [
                   // Status badge (online/offline)
@@ -592,6 +669,8 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
                   icon: const Icon(Icons.settings_outlined, size: 14),
                   label: Text(
                     'configure_hardware'.tr,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -649,16 +728,33 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            Icon(icon, color: AppColors.textMuted, size: 13),
-            const SizedBox(width: 5),
-            Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
-          ],
+        Expanded(
+          flex: 1,
+          child: Row(
+            children: [
+              Icon(icon, color: AppColors.textMuted, size: 13),
+              const SizedBox(width: 5),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                ),
+              ),
+            ],
+          ),
         ),
-        Text(
-          value.isNotEmpty ? value : '—',
-          style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+        const SizedBox(width: 8),
+        Expanded(
+          flex: 1,
+          child: Text(
+            value.isNotEmpty ? value : '—',
+            textAlign: TextAlign.end,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+          ),
         ),
       ],
     );
@@ -673,10 +769,15 @@ class DisplayDevicesView extends GetView<DisplayDevicesController> {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            '${'showing_count'.tr} ${controller.showingFrom}–${controller.showingTo} ${'of_count'.tr} ${controller.filteredDevices.length}',
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+          Expanded(
+            child: Text(
+              '${'showing_count'.tr} ${controller.showingFrom}–${controller.showingTo} ${'of_count'.tr} ${controller.filteredDevices.length}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+            ),
           ),
+          const SizedBox(width: 8),
           Row(
             children: [
               IconButton(
