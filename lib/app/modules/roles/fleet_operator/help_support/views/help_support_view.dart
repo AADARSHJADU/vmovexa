@@ -25,18 +25,21 @@ class HelpSupportView extends GetView<HelpSupportController> {
               child: Row(
                 children: [
                   const CustomBackButton(),
+                  const SizedBox(width: 8),
                   Expanded(
-                    child: Center(
-                      child: Text(
-                        'help_support'.tr,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    child: Text(
+                      'help_support'.tr,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  const SizedBox(width: 8),
                   IconButton(
                     icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 20),
                     onPressed: c.loadHelpContent,
@@ -72,18 +75,44 @@ class HelpSupportView extends GetView<HelpSupportController> {
                       const SizedBox(height: 24),
 
                       // Frequently Asked Questions Section
+
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('frequently_asked_questions'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.bold)),
-                          Obx(
-                            () => Text(
-                              'faqs_count'.trParams({'count': c.filteredFaqs.length.toString()}),
-                              style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 10, fontWeight: FontWeight.bold),
+                          Expanded(
+                            child: Text(
+                              'frequently_asked_questions'.tr,
+                              style: const TextStyle(
+                                color: AppColors.textMuted,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: false,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Obx(
+                                  () => Text(
+                                'faqs_count'.trParams({
+                                  'count': c.filteredFaqs.length.toString(),
+                                }),
+                                style: const TextStyle(
+                                  color: Color(0xFF60A5FA),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: false,
+                                textAlign: TextAlign.end,
+                              ),
                             ),
                           ),
                         ],
                       ),
+
                       const SizedBox(height: 10),
                       _buildFaqsPanel(c),
                       const SizedBox(height: 24),

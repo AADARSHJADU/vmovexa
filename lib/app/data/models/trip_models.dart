@@ -109,6 +109,7 @@ class TripItemModel {
   final String? endedAt;
   final double? currentSpeed;
   final double? avgSpeed;
+  final double? maxSpeed;
   final String punctualityStatus;
   final String? vehicleId;
   final String? driverId;
@@ -116,6 +117,9 @@ class TripItemModel {
   final TripVehicleInfo? vehicle;
   final TripDriverInfo? driver;
   final TripRouteInfo? route;
+  final double? lat;
+  final double? lng;
+  final String? fleetName;
 
   TripItemModel({
     required this.id,
@@ -131,6 +135,7 @@ class TripItemModel {
     this.endedAt,
     this.currentSpeed,
     this.avgSpeed,
+    this.maxSpeed,
     this.punctualityStatus = 'On Time',
     this.vehicleId,
     this.driverId,
@@ -138,6 +143,9 @@ class TripItemModel {
     this.vehicle,
     this.driver,
     this.route,
+    this.lat,
+    this.lng,
+    this.fleetName,
   });
 
   factory TripItemModel.fromJson(Map<String, dynamic> json) {
@@ -189,11 +197,14 @@ class TripItemModel {
       eta: json['eta']?.toString() ?? (stat == 'completed' ? 'Finished' : 'On Schedule'),
       startedAt: json['started_at']?.toString() ?? json['start_time']?.toString(),
       endedAt: json['ended_at']?.toString() ?? json['end_time']?.toString(),
-      currentSpeed: (json['current_speed'] ?? json['speed'] ?? json['vehicle']?['last_speed']) != null
-          ? double.tryParse((json['current_speed'] ?? json['speed'] ?? json['vehicle']?['last_speed']).toString())
+      currentSpeed: (json['current_speed'] ?? json['speed'] ?? json['vehicle']?['last_speed'] ?? json['vehicle']?['speed']) != null
+          ? double.tryParse((json['current_speed'] ?? json['speed'] ?? json['vehicle']?['last_speed'] ?? json['vehicle']?['speed']).toString())
           : null,
       avgSpeed: (json['avg_speed'] ?? json['average_speed']) != null
           ? double.tryParse((json['avg_speed'] ?? json['average_speed']).toString())
+          : null,
+      maxSpeed: (json['max_speed'] ?? json['peak_speed']) != null
+          ? double.tryParse((json['max_speed'] ?? json['peak_speed']).toString())
           : null,
       punctualityStatus: json['punctuality_status']?.toString() ?? 'On Time',
       vehicleId: json['vehicle_id']?.toString() ?? json['vehicleId']?.toString(),
@@ -202,6 +213,15 @@ class TripItemModel {
       vehicle: vInfo,
       driver: dInfo,
       route: rInfo,
+      lat: (json['lat'] ?? json['latitude'] ?? json['vehicle']?['lat'] ?? json['vehicle']?['latitude']) != null
+          ? double.tryParse((json['lat'] ?? json['latitude'] ?? json['vehicle']?['lat'] ?? json['vehicle']?['latitude']).toString())
+          : null,
+      lng: (json['lng'] ?? json['longitude'] ?? json['vehicle']?['lng'] ?? json['vehicle']?['longitude']) != null
+          ? double.tryParse((json['lng'] ?? json['longitude'] ?? json['vehicle']?['lng'] ?? json['vehicle']?['longitude']).toString())
+          : null,
+      fleetName: json['fleet_name']?.toString() ??
+          json['fleet']?['name']?.toString() ??
+          json['organization']?['name']?.toString(),
     );
   }
 }

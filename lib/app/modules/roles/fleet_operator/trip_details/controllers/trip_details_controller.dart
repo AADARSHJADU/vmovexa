@@ -2,184 +2,381 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../../routes/app_routes.dart';
 import '../../../../../theme/app_colors.dart';
 import '../../../../../data/models/trip_models.dart';
 import '../../../../../data/models/trip_details_model.dart';
+import '../../../../../data/services/fleet_service.dart';
 
 class TripDetailsController extends GetxController {
-  late String tripId;
-  late String vehicleName;
-  late String vehicleId;
-  late String vehicleModel;
-  late String fleetName;
-  late String driverName;
-  late String driverPhone;
-  late String driverLicense;
-  late String origin;
-  late String originTime;
-  late String destination;
-  late String destinationTime;
-  late String totalDistanceStr;
-  late String coveredDistanceStr;
-  late String remainingDistanceStr;
-  late String etaStr;
-  late String currentSpeedStr;
-  late String avgSpeedStr;
-  late String maxSpeedStr;
-  late String timeEnRouteStr;
-  late String stopsCountStr;
-  late String gpsStatus;
-  late String gpsCode;
-  late String batteryFuel;
-  late String status;
-  double? lat;
-  double? lng;
-
+  final Rx<TripItemModel?> trip = Rx<TripItemModel?>(null);
+  final RxBool isLoading = false.obs;
+  final RxBool isEnding = false.obs;
   final RxBool isExporting = false.obs;
+  final RxBool copied = false.obs;
+
+  String rawTripId = '';
+  String rawVehicleId = '';
+  String rawVehicleName = '';
+  String rawDriverName = '';
+  double? initialLat;
+  double? initialLng;
 
   @override
   void onInit() {
     super.onInit();
-    final args = Get.arguments;
+    _parseArguments();
+    if (rawTripId.isNotEmpty) {
+      fetchTripDetails(rawTripId);
+    } else if (rawVehicleId.isNotEmpty) {
+      fetchTripByVehicle(rawVehicleId);
+    }
+  }
 
-    TripItemModel? tripItem;
-    TripDetailsModel? tripDetails;
-    Map<dynamic, dynamic>? argsMap;
+  void _parseArguments() {
+    final args = Get.arguments;
+    if (args == null) return;
 
     if (args is TripItemModel) {
-      tripItem = args;
+      trip.value = args;
+      rawTripId = args.id;
+      rawVehicleId = args.vehicleId ?? args.vehicle?.id ?? '';
+      rawVehicleName = args.vehicle?.busNumber ?? '';
+      rawDriverName = args.driver?.name ?? '';
+      initialLat = args.lat;
+      initialLng = args.lng;
     } else if (args is TripDetailsModel) {
-      tripDetails = args;
+      rawTripId = args.id;
+      rawVehicleId = args.id;
+      rawVehicleName = args.vehicleName;
+      rawDriverName = args.driverName;
+      initialLat = args.lat;
+      initialLng = args.lng;
     } else if (args is Map) {
-      argsMap = args;
       if (args['trip'] is TripItemModel) {
-        tripItem = args['trip'] as TripItemModel;
-      } else if (args['tripDetails'] is TripDetailsModel) {
-        tripDetails = args['tripDetails'] as TripDetailsModel;
+        trip.value = args['trip'] as TripItemModel;
+      }
+      rawTripId = args['tripId']?.toString() ??
+          args['id']?.toString() ??
+          trip.value?.id ??
+          '';
+      rawVehicleId = args['vehicleId']?.toString() ??
+          trip.value?.vehicleId ??
+          '';
+      rawVehicleName = args['vehicleName']?.toString() ??
+          trip.value?.vehicle?.busNumber ??
+          '';
+      rawDriverName = args['driverName']?.toString() ??
+          trip.value?.driver?.name ??
+          '';
+
+      if (args['lat'] != null) {
+        initialLat = double.tryParse(args['lat'].toString());
+      }
+      if (args['lng'] != null) {
+        initialLng = double.tryParse(args['lng'].toString());
+      }
+    } else if (args is String || args is num) {
+      rawTripId = args.toString();
+    }
+  }
+
+  String _cleanTripId(String id) {
+    if (id.startsWith('TRIP-')) {
+      final sub = id.replaceFirst('TRIP-', '');
+      final parsed = int.tryParse(sub);
+      if (parsed != null && parsed > 0) return parsed.toString();
+    }
+    return id.trim();
+  }
+
+  Future<void> fetchTripDetails(String id) async {
+    final cleanId = _cleanTripId(id);
+    if (cleanId.isEmpty) return;
+
+    try {
+      if (trip.value == null) {
+        isLoading.value = true;
+      }
+
+      final res = await FleetService.to.getTrip(cleanId);
+      if (res.success && res.data != null) {
+        trip.value = res.data;
+        if (trip.value?.id.isNotEmpty == true) {
+          rawTripId = trip.value!.id;
+        }
+        return;
+      }
+
+      // Fallback: search organization's trips list to find matching trip
+      final listRes = await FleetService.to.getTrips(limit: 20);
+      if (listRes.success && listRes.data != null && listRes.data!.isNotEmpty) {
+        final found = listRes.data!.firstWhereOrNull(
+          (t) =>
+              t.id == cleanId ||
+              t.code == id ||
+              t.code == cleanId ||
+              (rawVehicleId.isNotEmpty && t.vehicleId == rawVehicleId),
+        );
+        if (found != null) {
+          trip.value = found;
+          rawTripId = found.id;
+          return;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching trip details: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchTripByVehicle(String vehicleId) async {
+    try {
+      if (trip.value == null) {
+        isLoading.value = true;
+      }
+      final listRes = await FleetService.to.getTrips(limit: 20);
+      if (listRes.success && listRes.data != null && listRes.data!.isNotEmpty) {
+        final found = listRes.data!.firstWhereOrNull((t) => t.vehicleId == vehicleId);
+        if (found != null) {
+          trip.value = found;
+          rawTripId = found.id;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching trip by vehicle: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  String formatDateTime(String? raw) {
+    if (raw == null || raw.trim().isEmpty) return '—';
+    try {
+      final dt = DateTime.parse(raw);
+      return DateFormat('hh:mm a').format(dt.toLocal());
+    } catch (_) {
+      return raw;
+    }
+  }
+
+  // ==========================================
+  // DYNAMIC COMPUTED GETTERS
+  // ==========================================
+  String get tripId {
+    if (trip.value != null && trip.value!.code.isNotEmpty) {
+      return trip.value!.code;
+    }
+    if (rawTripId.isNotEmpty) {
+      return rawTripId.startsWith('TRIP-')
+          ? rawTripId
+          : 'TRIP-${rawTripId.padLeft(4, '0')}';
+    }
+    return '—';
+  }
+
+  String get vehicleName {
+    final busNum = trip.value?.vehicle?.busNumber;
+    if (busNum != null && busNum.isNotEmpty && busNum != '—') {
+      return busNum;
+    }
+    if (rawVehicleName.isNotEmpty && rawVehicleName != '—') {
+      return rawVehicleName;
+    }
+    return '—';
+  }
+
+  String get vehicleId {
+    return trip.value?.vehicleId ??
+        trip.value?.vehicle?.id ??
+        (rawVehicleId.isNotEmpty ? rawVehicleId : '—');
+  }
+
+  String get vehicleModel {
+    final model = trip.value?.vehicle?.model;
+    if (model != null && model.isNotEmpty && model != 'Transit Vehicle') {
+      return model;
+    }
+    return '—';
+  }
+
+  String get vehicleType {
+    final vType = trip.value?.vehicle?.vehicleType;
+    if (vType != null && vType.isNotEmpty) {
+      return vType;
+    }
+    return 'Transit Bus';
+  }
+
+  String get fleetName {
+    return trip.value?.fleetName ?? '—';
+  }
+
+  String get driverName {
+    final name = trip.value?.driver?.name;
+    if (name != null && name.isNotEmpty && name != 'Unassigned Driver') {
+      return name;
+    }
+    if (rawDriverName.isNotEmpty && rawDriverName != '—') {
+      return rawDriverName;
+    }
+    return 'No Driver Assigned';
+  }
+
+  String get driverPhone {
+    final phone = trip.value?.driver?.phone;
+    if (phone != null && phone.isNotEmpty) {
+      return phone;
+    }
+    return '—';
+  }
+
+  String get driverLicense {
+    final dl = trip.value?.driver?.dlNumber;
+    if (dl != null && dl.isNotEmpty) return dl;
+    final badge = trip.value?.driver?.badgeId;
+    if (badge != null && badge.isNotEmpty) return badge;
+    return '—';
+  }
+
+  String get origin {
+    final org = trip.value?.origin ?? trip.value?.route?.startPoint;
+    if (org != null && org.isNotEmpty && org != 'Origin Terminal' && org != 'Origin Station') {
+      return org;
+    }
+    return '—';
+  }
+
+  String get originTime {
+    return formatDateTime(trip.value?.startedAt);
+  }
+
+  String get destination {
+    final dest = trip.value?.destination ?? trip.value?.route?.endPoint;
+    if (dest != null && dest.isNotEmpty && dest != 'Destination Terminal' && dest != 'Destination Station') {
+      return dest;
+    }
+    return '—';
+  }
+
+  String get destinationTime {
+    if (trip.value?.endedAt != null) {
+      return formatDateTime(trip.value?.endedAt);
+    }
+    if (trip.value?.eta != null && trip.value!.eta.isNotEmpty) {
+      return trip.value!.eta;
+    }
+    return '—';
+  }
+
+  double get totalDistance => trip.value?.distanceKm ?? 0.0;
+  double get coveredDistance => trip.value?.coveredKm ?? 0.0;
+  double get remainingDistance =>
+      ((totalDistance - coveredDistance).clamp(0.0, 99999.0));
+
+  int get progressPercent {
+    if (trip.value != null) {
+      if (trip.value!.progressPercent > 0) return trip.value!.progressPercent;
+      if (status == 'completed') return 100;
+      if (totalDistance > 0 && coveredDistance > 0) {
+        return ((coveredDistance / totalDistance) * 100).round().clamp(0, 100);
       }
     }
+    return status == 'completed' ? 100 : 0;
+  }
 
-    // Vehicle Information
-    vehicleName = argsMap?['vehicleName']?.toString() ??
-        tripItem?.vehicle?.busNumber ??
-        tripDetails?.vehiclePlate ??
-        tripDetails?.vehicleName ??
-        'MH12AB1234';
+  String get totalDistanceStr =>
+      totalDistance > 0 ? '${totalDistance.toStringAsFixed(1)} km' : '—';
+  String get coveredDistanceStr =>
+      coveredDistance > 0 ? '${coveredDistance.toStringAsFixed(1)} km ($progressPercent%)' : '0.0 km (0%)';
+  String get remainingDistanceStr =>
+      totalDistance > 0 ? '${remainingDistance.toStringAsFixed(1)} km' : '—';
 
-    vehicleId = argsMap?['vehicleId']?.toString() ??
-        tripItem?.vehicleId ??
-        tripDetails?.id ??
-        '5';
-
-    vehicleModel = argsMap?['vehicleModel']?.toString() ??
-        tripItem?.vehicle?.model ??
-        tripDetails?.vehicleModel ??
-        'Volvo 8400 Electric';
-
-    fleetName = argsMap?['fleetName']?.toString() ?? 'City Bus Fleet';
-
-    // Driver Information
-    driverName = argsMap?['driverName']?.toString() ??
-        tripItem?.driver?.name ??
-        tripDetails?.driverName ??
-        'Rajesh Kumar';
-
-    driverPhone = argsMap?['driverPhone']?.toString() ??
-        argsMap?['phone']?.toString() ??
-        tripItem?.driver?.phone ??
-        tripDetails?.driverPhone ??
-        '+91 98765 43210';
-
-    driverLicense = argsMap?['driverLicense']?.toString() ??
-        tripItem?.driver?.dlNumber ??
-        tripDetails?.driverLicense ??
-        'KA01 2015 123456';
-
-    // Trip ID & Route Info
-    tripId = argsMap?['tripId']?.toString() ??
-        tripItem?.code ??
-        tripItem?.id ??
-        tripDetails?.code ??
-        tripDetails?.id ??
-        'TRIP-20260805-001';
-
-    origin = argsMap?['source']?.toString() ??
-        argsMap?['origin']?.toString() ??
-        tripItem?.origin ??
-        tripDetails?.origin ??
-        'MG Road, Bengaluru';
-
-    originTime = argsMap?['originTime']?.toString() ??
-        tripItem?.startedAt ??
-        tripDetails?.displayStartTime ??
-        '08:10 AM';
-
-    destination = argsMap?['destination']?.toString() ??
-        tripItem?.destination ??
-        tripDetails?.destination ??
-        'Kempegowda Bus Station';
-
-    destinationTime = argsMap?['destinationTime']?.toString() ??
-        tripItem?.endedAt ??
-        '09:25 AM';
-
-    // Distances & Progress
-    if (tripItem != null && tripItem.distanceKm > 0) {
-      totalDistanceStr = '${tripItem.distanceKm.toStringAsFixed(1)} km';
-      coveredDistanceStr = '${tripItem.coveredKm.toStringAsFixed(1)} km (${tripItem.progressPercent}%)';
-      final rem = (tripItem.distanceKm - tripItem.coveredKm).clamp(0.0, 99999.0);
-      remainingDistanceStr = '${rem.toStringAsFixed(1)} km';
-    } else if (tripDetails != null && tripDetails.totalDistance > 0) {
-      totalDistanceStr = '${tripDetails.totalDistance.toStringAsFixed(1)} km';
-      coveredDistanceStr = '${tripDetails.coveredDistance.toStringAsFixed(1)} km (${tripDetails.progressPercent}%)';
-      remainingDistanceStr = '${tripDetails.remainingDistance.toStringAsFixed(1)} km';
-    } else {
-      totalDistanceStr = argsMap?['distance']?.toString() ?? '18.6 km';
-      coveredDistanceStr = '6.2 km (33%)';
-      remainingDistanceStr = '12.4 km';
+  String get etaStr {
+    if (trip.value?.eta != null && trip.value!.eta.isNotEmpty) {
+      return trip.value!.eta;
     }
+    return status == 'completed' ? 'Completed' : 'On Schedule';
+  }
 
-    etaStr = argsMap?['eta']?.toString() ??
-        tripItem?.eta ??
-        tripDetails?.eta ??
-        '18 mins';
-
-    // Telematics & Speeds
-    final curSpeed = tripItem?.currentSpeed ?? tripDetails?.currentSpeed;
-    currentSpeedStr = curSpeed != null
-        ? '${curSpeed.toStringAsFixed(0)} km/h'
-        : (argsMap?['speed'] != null ? '${argsMap!['speed']} km/h' : '42 km/h');
-
-    final avgSpd = tripItem?.avgSpeed ?? tripDetails?.avgSpeed;
-    avgSpeedStr = avgSpd != null ? '${avgSpd.toStringAsFixed(0)} km/h' : '36 km/h';
-    maxSpeedStr = tripDetails?.maxSpeed != null ? '${tripDetails!.maxSpeed.toStringAsFixed(0)} km/h' : '68 km/h';
-
-    timeEnRouteStr = argsMap?['timeEnRoute']?.toString() ?? '08m 24s';
-    stopsCountStr = argsMap?['stops']?.toString() ?? '5';
-
-    gpsStatus = argsMap?['gpsStatus']?.toString() ??
-        tripItem?.vehicle?.gpsStatus ??
-        tripDetails?.gpsStatus ??
-        'Strong';
-
-    gpsCode = argsMap?['gpsCode']?.toString() ?? 'GPS-TRK-00123';
-    batteryFuel = argsMap?['battery']?.toString() ?? '92%';
-    status = argsMap?['status']?.toString() ?? tripItem?.status ?? tripDetails?.status ?? 'active';
-
-    // Coordinates
-    if (argsMap?['lat'] != null) {
-      lat = double.tryParse(argsMap!['lat'].toString());
-    } else if (tripDetails?.lat != null) {
-      lat = tripDetails!.lat;
+  String get currentSpeedStr {
+    if (trip.value?.currentSpeed != null) {
+      return '${trip.value!.currentSpeed!.toStringAsFixed(0)} km/h';
     }
+    return status == 'completed' ? '0 km/h' : '—';
+  }
 
-    if (argsMap?['lng'] != null) {
-      lng = double.tryParse(argsMap!['lng'].toString());
-    } else if (tripDetails?.lng != null) {
-      lng = tripDetails!.lng;
+  String get avgSpeedStr {
+    if (trip.value?.avgSpeed != null) {
+      return '${trip.value!.avgSpeed!.toStringAsFixed(0)} km/h';
     }
+    return '—';
+  }
+
+  String get maxSpeedStr {
+    if (trip.value?.maxSpeed != null) {
+      return '${trip.value!.maxSpeed!.toStringAsFixed(0)} km/h';
+    }
+    return '—';
+  }
+
+  String get punctualityStatus {
+    if (trip.value?.punctualityStatus != null && trip.value!.punctualityStatus.isNotEmpty) {
+      return trip.value!.punctualityStatus;
+    }
+    return 'On Schedule';
+  }
+
+  String get gpsStatus {
+    final st = trip.value?.vehicle?.gpsStatus;
+    if (st != null && st.isNotEmpty) {
+      return st.toUpperCase();
+    }
+    return 'CONNECTED';
+  }
+
+  String get gpsCode {
+    final devId = trip.value?.vehicle?.gpsDeviceId;
+    if (devId != null && devId.isNotEmpty && devId != 'Active Onboard') {
+      return devId;
+    }
+    return 'Active Onboard';
+  }
+
+  String get batteryFuel {
+    final fuel = trip.value?.vehicle?.fuelType;
+    if (fuel != null && fuel.isNotEmpty) {
+      return fuel.toUpperCase();
+    }
+    return 'ELECTRIC / DIESEL';
+  }
+
+  String get status {
+    return trip.value?.status.toLowerCase() ?? 'scheduled';
+  }
+
+  double? get lat => trip.value?.lat ?? initialLat;
+  double? get lng => trip.value?.lng ?? initialLng;
+
+  void copyTripId() {
+    final code = tripId;
+    if (code.isEmpty || code == '—') return;
+    Clipboard.setData(ClipboardData(text: code));
+    copied.value = true;
+    Future.delayed(const Duration(seconds: 2), () {
+      copied.value = false;
+    });
+    Get.snackbar(
+      'copied_title'.tr,
+      'Trip code $code copied to clipboard',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: const Color(0xFF6366F1),
+      colorText: Colors.white,
+      duration: const Duration(seconds: 2),
+    );
   }
 
   // ==========================================
@@ -187,7 +384,7 @@ class TripDetailsController extends GetxController {
   // ==========================================
   Future<void> callDriver() async {
     final cleanPhone = driverPhone.replaceAll(RegExp(r'[^\d+]'), '');
-    if (cleanPhone.isEmpty) {
+    if (cleanPhone.isEmpty || driverPhone == '—') {
       Get.snackbar(
         'driver'.tr,
         'Driver contact number is not available.',
@@ -229,8 +426,17 @@ class TripDetailsController extends GetxController {
     Uri url;
     if (lat != null && lng != null && lat != 0.0 && lng != 0.0) {
       url = Uri.parse('https://www.google.com/maps/dir/?api=1&destination=$lat,$lng');
-    } else {
+    } else if (destination.isNotEmpty && destination != '—') {
       url = Uri.parse('https://www.google.com/maps/dir/?api=1&destination=${Uri.encodeComponent(destination)}');
+    } else {
+      Get.snackbar(
+        'navigation'.tr,
+        'Destination coordinates or address not available.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orangeAccent,
+        colorText: Colors.white,
+      );
+      return;
     }
 
     try {
@@ -239,7 +445,7 @@ class TripDetailsController extends GetxController {
       } else {
         Get.snackbar(
           'navigation'.tr,
-          'Opening navigation for $destination...',
+          'Opening navigation...',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF3B82F6),
           colorText: Colors.white,
@@ -497,14 +703,14 @@ class TripDetailsController extends GetxController {
 
       Get.snackbar(
         'export_pdf_btn'.tr,
-        'Trip Sheet PDF saved to Download: ${file.path}',
+        'Trip Sheet PDF saved to: ${file.path}',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF10B981),
         colorText: Colors.white,
         duration: const Duration(seconds: 4),
         mainButton: TextButton(
           onPressed: () => _openDownloadedFile(file.path),
-          child: Text('open'.tr.toUpperCase(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          child: Text('open'.tr.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         ),
       );
 
@@ -544,19 +750,18 @@ ROUTE TELEMETRY & PROGRESS:
 Origin Terminal: $origin
 Departure Time: $originTime
 Destination Terminal: $destination
-Scheduled Arrival: $destinationTime
+Scheduled Arrival / ETA: $destinationTime
 Total Route Distance: $totalDistanceStr
 Covered Distance: $coveredDistanceStr
 Remaining Distance: $remainingDistanceStr
-Estimated Time En Route / ETA: $etaStr
 Current Speed: $currentSpeedStr
 Average Speed: $avgSpeedStr
-Peak / Max Speed: $maxSpeedStr
+Punctuality: $punctualityStatus
 
 WAYPOINT TIMELINE:
 1. Departs: $origin ($originTime)
-2. Mid-Corridor Checkpoint: En Route
-3. Live GPS Coordinates: ${lat != null && lng != null ? '$lat, $lng' : 'Tracking Active'}
+2. Mid-Corridor Checkpoint: En Route ($coveredDistanceStr)
+3. Live Coordinates: ${lat != null && lng != null ? '$lat, $lng' : 'Tracking Active'}
 4. Arrival Terminal: $destination ($destinationTime)
 
 -------------------------------------------------------
@@ -659,7 +864,7 @@ by VMOVEXA Intelligent Fleet Telematics Cloud Platform.
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    child: Text('close'.tr),
+                    child: Text('close'.tr, maxLines: 1, overflow: TextOverflow.ellipsis),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -676,7 +881,7 @@ by VMOVEXA Intelligent Fleet Telematics Cloud Platform.
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                     icon: const Icon(Icons.visibility_rounded, size: 16),
-                    label: Text('open_file'.tr),
+                    label: Text('open_file'.tr, maxLines: 1, overflow: TextOverflow.ellipsis),
                   ),
                 ),
               ],
@@ -713,14 +918,59 @@ by VMOVEXA Intelligent Fleet Telematics Cloud Platform.
     }
   }
 
-  void completeTrip() {
-    Get.back();
-    Get.snackbar(
-      'completed'.tr,
-      'Trip $tripId has been marked as completed successfully.',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color(0xFF10B981),
-      colorText: Colors.white,
-    );
+  // ==========================================
+  // ACTION 5: COMPLETE TRIP VIA API
+  // ==========================================
+  Future<void> completeTrip() async {
+    if (status == 'completed' || isEnding.value) return;
+
+    final idToEnd = trip.value?.id.isNotEmpty == true ? trip.value!.id : rawTripId;
+    if (idToEnd.isEmpty) {
+      Get.snackbar(
+        'error'.tr,
+        'Trip ID not available to complete.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    try {
+      isEnding.value = true;
+      final cleanId = _cleanTripId(idToEnd);
+      final res = await FleetService.to.endTrip(cleanId);
+      if (res.success) {
+        Get.snackbar(
+          'completed'.tr,
+          'Trip marked as completed successfully!',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color(0xFF10B981),
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+        );
+        await fetchTripDetails(idToEnd);
+      } else {
+        Get.snackbar(
+          'error'.tr,
+          (res.message != null && res.message!.isNotEmpty)
+              ? res.message!
+              : 'Failed to complete trip.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'error'.tr,
+        'Failed to complete trip: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+    } finally {
+      isEnding.value = false;
+    }
   }
 }

@@ -199,7 +199,7 @@ class AddGpsView extends GetView<AddGpsController> {
                 OutlinedButton.icon(
                   onPressed: () => controller.pickImage(ImageSource.camera),
                   icon: const Icon(Icons.camera_alt_rounded, size: 14, color: Color(0xFF818CF8)),
-                  label: Text('camera'.tr, style: const TextStyle(color: Color(0xFF818CF8), fontSize: 12)),
+                  label: Text('camera'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFF818CF8), fontSize: 12)),
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Color(0xFF4F46E5)),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -209,7 +209,7 @@ class AddGpsView extends GetView<AddGpsController> {
                 OutlinedButton.icon(
                   onPressed: () => controller.pickImage(ImageSource.gallery),
                   icon: const Icon(Icons.photo_library_rounded, size: 14, color: Colors.white70),
-                  label: Text('gallery'.tr, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                  label: Text('gallery'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white70, fontSize: 12)),
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: AppColors.cardBorder),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

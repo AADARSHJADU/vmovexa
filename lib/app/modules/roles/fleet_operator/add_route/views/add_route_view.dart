@@ -31,6 +31,8 @@ class AddRouteView extends GetView<AddRouteController> {
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               const Text(
                 'Corridor lines, stops & waypoints',
@@ -38,6 +40,8 @@ class AddRouteView extends GetView<AddRouteController> {
                   color: AppColors.textSecondary,
                   fontSize: 11,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           );
@@ -52,10 +56,6 @@ class AddRouteView extends GetView<AddRouteController> {
             _buildSection1Identity(),
             const SizedBox(height: 16),
 
-            // Live Corridor Map Preview (Google Static Map & Polyline)
-            _buildLiveMapPreview(),
-            const SizedBox(height: 16),
-
             // Section 2: Origin & Destination Corridor
             _buildSection2Corridor(),
             const SizedBox(height: 16),
@@ -68,6 +68,10 @@ class AddRouteView extends GetView<AddRouteController> {
             _buildSection4Stops(),
             const SizedBox(height: 24),
 
+            // Live Corridor Map Preview (Google Static Map & Polyline)
+            _buildLiveMapPreview(),
+            const SizedBox(height: 16),
+
             // Submit & Cancel Buttons
             _buildActionButtons(),
             const SizedBox(height: 32),
@@ -79,6 +83,8 @@ class AddRouteView extends GetView<AddRouteController> {
 
   Widget _buildLiveMapPreview() {
     return Obx(() {
+      // Track stopsVersion to reactively re-render when waypoints change
+      final _ = controller.stopsVersion.value;
       final sLat = controller.startLat.value != 0.0
           ? controller.startLat.value
           : double.tryParse(controller.startLatController.text.trim());
@@ -104,6 +110,7 @@ class AddRouteView extends GetView<AddRouteController> {
         distanceKm: dist,
         durationMinutes: dur,
         isComputing: controller.isComputingRoute.value,
+        height: 290,
         onRecalculate: () => controller.computeGoogleDrivingRoute(isManual: true),
       );
     });
@@ -582,6 +589,8 @@ class AddRouteView extends GetView<AddRouteController> {
             icon: const Icon(Icons.calculate_outlined, size: 14, color: AppColors.textSecondary),
             label: const Text(
               'Estimate via Direct Coordinates (Haversine Fallback)',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
             ),
           ),
@@ -624,6 +633,8 @@ class AddRouteView extends GetView<AddRouteController> {
                     const SizedBox(width: 4),
                     Text(
                       'add_stop'.tr,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 11,
@@ -682,6 +693,8 @@ class AddRouteView extends GetView<AddRouteController> {
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                           child: Text(
                             'add_waypoint_stop'.tr,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontSize: 12,
                               color: Colors.white,
@@ -1015,6 +1028,8 @@ class AddRouteView extends GetView<AddRouteController> {
               child: Text(
                 'cancel'.tr,
                 style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 14, fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
               ),
             ),
           ),
@@ -1054,6 +1069,8 @@ class AddRouteView extends GetView<AddRouteController> {
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                             ),
                     ),
                   ),

@@ -452,15 +452,21 @@ class RegisterDeviceView extends GetView<RegisterDeviceController> {
             return Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'select_fleet_label'.tr,
-                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                Expanded(
+                  child: Text(
+                    'select_fleet_label'.tr,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                  ),
                 ),
-                if (hasOrg)
+                if (hasOrg) ...[
+                  const SizedBox(width: 8),
                   Text(
                     '($availableCount ${'available_count_fmt'.tr})',
                     style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 10.5, fontWeight: FontWeight.bold),
                   ),
+                ],
               ],
             );
           }),
@@ -531,15 +537,21 @@ class RegisterDeviceView extends GetView<RegisterDeviceController> {
             return Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'select_bus_label'.tr,
-                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                Expanded(
+                  child: Text(
+                    'select_bus_label'.tr,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                  ),
                 ),
-                if (hasOrg && hasFleet)
+                if (hasOrg && hasFleet) ...[
+                  const SizedBox(width: 8),
                   Text(
                     '($availableCount ${'buses_count_fmt'.tr})',
                     style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 10.5, fontWeight: FontWeight.bold),
                   ),
+                ],
               ],
             );
           }),
@@ -610,10 +622,15 @@ class RegisterDeviceView extends GetView<RegisterDeviceController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'depot_garage'.tr,
-                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+              Expanded(
+                child: Text(
+                  'depot_garage'.tr,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
@@ -623,6 +640,8 @@ class RegisterDeviceView extends GetView<RegisterDeviceController> {
                 ),
                 child: Text(
                   'auto_assigned_from_fleet'.tr,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(color: Color(0xFF10B981), fontSize: 9.5, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -758,6 +777,8 @@ class RegisterDeviceView extends GetView<RegisterDeviceController> {
               ),
               child: Text(
                 'cancel'.tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.bold),
               ),
             ),
@@ -799,12 +820,16 @@ class RegisterDeviceView extends GetView<RegisterDeviceController> {
                             children: [
                               const Icon(Icons.check_rounded, color: Colors.white, size: 18),
                               const SizedBox(width: 6),
-                              Text(
-                                btnLabel,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 13.5,
-                                  fontWeight: FontWeight.bold,
+                              Flexible(
+                                child: Text(
+                                  btnLabel,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ],

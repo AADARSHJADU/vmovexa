@@ -53,22 +53,27 @@ class ProfileController extends GetxController {
 
     // Fallback if still null
     if (profile.value == null) {
-      profile.value = TechnicianProfile(
-        name: 'Rahul Sharma',
-        role: 'Senior Technician',
-        techId: 'TECH-0078',
-        employeeId: 'EMP-1456',
-        email: 'rahul.sharma@vmovexa.com',
-        phoneNumber: '+91 98765 43210',
-        dateOfBirth: '15 May 1990',
-        gender: 'Male',
-        address: 'Bandra East, Mumbai, Maharashtra - 400051',
-        department: 'Field Operations',
-        reportingManager: 'Amit Verma',
-        workLocation: 'Mumbai Zone',
-        joinedDate: '10 Jan 2022',
-        username: 'rahul.sharma',
-      );
+      final cachedUser = Get.isRegistered<StorageService>() ? StorageService.to.getUser() : null;
+      if (cachedUser != null) {
+        profile.value = TechnicianProfile.fromUserModel(cachedUser);
+      } else {
+        profile.value = TechnicianProfile(
+          name: 'Technician',
+          role: 'Central Field Technician',
+          techId: 'TECH-001',
+          employeeId: 'EMP-001',
+          email: '',
+          phoneNumber: '',
+          dateOfBirth: '',
+          gender: '',
+          address: '',
+          department: 'Field Operations',
+          reportingManager: 'Operations Lead',
+          workLocation: 'Central Depot',
+          joinedDate: '',
+          username: 'technician',
+        );
+      }
     }
   }
 

@@ -24,14 +24,21 @@ class SetupCompleteView extends GetView<SetupCompleteController> {
                     icon: const Icon(Icons.close_rounded, color: Colors.white, size: 26),
                     onPressed: controller.backToFleet,
                   ),
-                  Text(
-                    'setup_complete_title'.tr,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'setup_complete_title'.tr,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  const SizedBox(width: 8),
                   const SizedBox(width: 48), // Balancing spacing
                 ],
               ),

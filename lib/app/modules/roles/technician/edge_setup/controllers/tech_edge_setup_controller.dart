@@ -68,15 +68,14 @@ class TechEdgeSetupController extends GetxController {
         final data = Map<String, dynamic>.from(res.data as Map);
         handshakeData.value = data;
       } else {
-        // Fallback live status structure
         handshakeData.value = {
           'boxId': id,
-          'isRegistered': true,
+          'isRegistered': false,
           'isOnline': false,
-          'lastSeen': DateTime.now().toIso8601String(),
+          'lastSeen': null,
           'gps': {'locked': false, 'satellites': 0, 'speed': 0},
-          'telemetry': {'socTemp': '42°C', 'cpuUsage': '18%', 'ramUsage': '34%', 'connectedScreens': 1},
-          'message': res.message ?? 'Ready for Provisioning',
+          'telemetry': null,
+          'message': res.message ?? 'Device is not registered yet. Run the 1-command installer.',
         };
       }
 
@@ -88,11 +87,28 @@ class TechEdgeSetupController extends GetxController {
       lastCheckTime.value = '$h:$m:$s $ampm';
 
       final isOnline = handshakeData.value?['isOnline'] == true;
+      final isReg = handshakeData.value?['isRegistered'] == true;
       if (isOnline) {
         Get.snackbar(
           'online'.tr,
           'Device $id is ONLINE & transmitting live telemetry!',
           backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.25),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } else if (isReg) {
+        Get.snackbar(
+          'registered'.tr,
+          'Device $id is registered in backend.',
+          backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.25),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } else {
+        Get.snackbar(
+          'not_registered'.tr,
+          res.message ?? 'Device $id is not registered yet. Run the 1-command installer.',
+          backgroundColor: const Color(0xFFEF4444).withValues(alpha: 0.25),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
         );

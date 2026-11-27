@@ -24,7 +24,7 @@ class AccountSettingsController extends GetxController {
   final RxString branch = ''.obs;
   final RxString officeAddress = ''.obs;
 
-  final RxString language = 'English (India)'.obs;
+  //final RxString language = 'English (India)'.obs;
   final RxString timezone = 'Asia/Kolkata (GMT+05:30)'.obs;
   final RxString avatarUrl = ''.obs;
 
@@ -87,9 +87,9 @@ class AccountSettingsController extends GetxController {
     } else if (user.organization?.officeAddress != null && user.organization!.officeAddress!.isNotEmpty) {
       officeAddress.value = user.organization!.officeAddress!;
     }
-    if (user.language != null && user.language!.isNotEmpty) {
+    /*if (user.language != null && user.language!.isNotEmpty) {
       language.value = user.language!;
-    }
+    }*/
     if (user.timezone != null && user.timezone!.isNotEmpty) {
       timezone.value = user.timezone!;
     }
@@ -177,7 +177,7 @@ class AccountSettingsController extends GetxController {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    child: Text('cancel'.tr, style: const TextStyle(color: Colors.white70)),
+                    child: Text('cancel'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white70)),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -195,7 +195,7 @@ class AccountSettingsController extends GetxController {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    child: Text('apply'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    child: Text('apply'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],
@@ -366,7 +366,7 @@ class AccountSettingsController extends GetxController {
                 permissions: currentUser.permissions,
                 branch: branch.value,
                 officeAddress: officeAddress.value,
-                language: language.value,
+                //language: language.value,
                 timezone: timezone.value,
                 companyName: companyName.value,
               );
@@ -475,7 +475,7 @@ class AccountSettingsController extends GetxController {
                         side: const BorderSide(color: Color(0xFF334155)),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      child: Text('cancel'.tr, style: const TextStyle(color: Colors.white)),
+                      child: Text('cancel'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -492,7 +492,7 @@ class AccountSettingsController extends GetxController {
                         backgroundColor: const Color(0xFF6366F1),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      child: Text('apply'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      child: Text('apply'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -525,7 +525,7 @@ class AccountSettingsController extends GetxController {
         'branch': branch.value.trim(),
         'address': officeAddress.value.trim(),
         'office_address': officeAddress.value.trim(),
-        'language': language.value.trim(),
+        //'language': language.value.trim(),
         'timeZone': timezone.value.trim(),
         'timezone': timezone.value.trim(),
       };
@@ -559,7 +559,7 @@ class AccountSettingsController extends GetxController {
             permissions: currentUser?.permissions ?? [],
             branch: branch.value.trim(),
             officeAddress: officeAddress.value.trim(),
-            language: language.value.trim(),
+            //language: language.value.trim(),
             timezone: timezone.value.trim(),
             companyName: companyName.value.trim(),
           );

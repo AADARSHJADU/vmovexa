@@ -326,46 +326,65 @@ class HardwareConfigurationView extends GetView<HardwareConfigController> {
   }
 
   // ---------------- Footer (Back to Devices + Save Configuration) ----------------
+
   Widget _buildFooter() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
       decoration: BoxDecoration(
         color: kBg,
-        border: Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.06))),
+        border: Border(
+          top: BorderSide(
+            color: Colors.white.withValues(alpha: 0.06),
+          ),
+        ),
       ),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: controller.onBackPressed,
-            child: Container(
-              height: 50,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: kFieldBg,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-              ),
-              alignment: Alignment.center,
-              child: Row(
-                children: [
-                  // const Icon(Icons.chevron_left, color: Colors.white70, size: 18),
-                  // const SizedBox(width: 4),
-                  Text(
-                    'back_to_devices'.tr,
-                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700),
+          // Back Button
+          Expanded(
+            flex: 1,
+            child: GestureDetector(
+              onTap: controller.onBackPressed,
+              child: Container(
+                height: 50,
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                decoration: BoxDecoration(
+                  color: kFieldBg,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.1),
                   ),
-                ],
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  'back_to_devices'.tr,
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
             ),
           ),
+
           const SizedBox(width: 12),
+
+          // Save Configuration Button
           Expanded(
+            flex: 1,
             child: Obx(
-              () => GestureDetector(
-                onTap: controller.isSaving.value ? null : controller.onSaveConfiguration,
+                  () => GestureDetector(
+                onTap: controller.isSaving.value
+                    ? null
+                    : controller.onSaveConfiguration,
                 child: Container(
                   height: 50,
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
                   decoration: BoxDecoration(
                     gradient: AppTheme.primaryGradient,
                     borderRadius: BorderRadius.circular(12),
@@ -380,22 +399,38 @@ class HardwareConfigurationView extends GetView<HardwareConfigController> {
                   alignment: Alignment.center,
                   child: controller.isSaving.value
                       ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.4),
-                        )
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2.4,
+                    ),
+                  )
                       : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
-                            const SizedBox(width: 8),
-                            Text(
-                              'save_configuration'.tr,
-                              style: const TextStyle(color: Colors.white, fontSize: 14,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                          ],
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.check_circle_outline,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 5),
+                      Flexible(
+                        child: Text(
+                          'save_configuration'.tr,
+                          maxLines: 2,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -27,18 +27,21 @@ class AccountSettingsView extends StatelessWidget {
               child: Row(
                 children: [
                   const CustomBackButton(),
+                  const SizedBox(width: 8),
                   Expanded(
-                    child: Center(
-                      child: Text(
-                        'account_settings'.tr,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    child: Text(
+                      'account_settings'.tr,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  const SizedBox(width: 8),
                   IconButton(
                     icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 20),
                     onPressed: controller.loadUserData,
@@ -159,6 +162,8 @@ class AccountSettingsView extends StatelessWidget {
                       ),
                       label: Text(
                         'cancel'.tr,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 13, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -203,7 +208,7 @@ class AccountSettingsView extends StatelessWidget {
         TextButton.icon(
           onPressed: onAction,
           icon: const Icon(Icons.camera_alt_outlined, color: Color(0xFF3B82F6), size: 14),
-          label: Text(actionLabel, style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 11, fontWeight: FontWeight.bold)),
+          label: Text(actionLabel, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 11, fontWeight: FontWeight.bold)),
           style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero),
         ),
       ],
@@ -484,7 +489,7 @@ class AccountSettingsView extends StatelessWidget {
     );
   }
 
-  Widget _buildPreferencesCard(AccountSettingsController controller) {
+  /*Widget _buildPreferencesCard(AccountSettingsController controller) {
     return Obx(
       () => Container(
         padding: const EdgeInsets.all(16),
@@ -520,7 +525,7 @@ class AccountSettingsView extends StatelessWidget {
         ),
       ),
     );
-  }
+  }*/
 
   Widget _buildPreferenceItem({
     required String label,

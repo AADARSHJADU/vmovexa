@@ -135,7 +135,7 @@ class FleetOpProfileController extends GetxController {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: Text('cancel'.tr, style: const TextStyle(color: Colors.white)),
+                      child: Text('cancel'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -154,6 +154,8 @@ class FleetOpProfileController extends GetxController {
                       ),
                       child: Text(
                         'logout'.tr,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ),

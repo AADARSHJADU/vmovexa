@@ -102,25 +102,25 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Text(
-                          'audit_trail'.tr,
-                          style: const TextStyle(
-                            color: Color(0xFF06B6D4),
-                            fontSize: 10,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.1,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      'audit_trail'.tr,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Color(0xFF06B6D4),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.1,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'activity_logs'.tr,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 18,
+                        fontSize: 17,
                         fontWeight: FontWeight.w900,
                         letterSpacing: -0.3,
                       ),
@@ -128,6 +128,7 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                   ],
                 ),
               ),
+              const SizedBox(width: 6),
 
               // Refresh Button
               Obx(() => IconButton(
@@ -140,24 +141,28 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                         : const Icon(Icons.refresh_rounded, color: Colors.white70, size: 20),
                     onPressed: controller.isLoading.value ? null : () => controller.loadLogs(),
                     tooltip: 'refresh'.tr,
+                    constraints: const BoxConstraints(),
+                    padding: const EdgeInsets.all(6),
                   )),
 
-              const SizedBox(width: 4),
+              const SizedBox(width: 6),
 
               // Export CSV Button (Matching Admin Panel)
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF06B6D4),
                   foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   minimumSize: Size.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   elevation: 0,
                 ),
-                icon: const Icon(Icons.download_rounded, size: 15, color: Colors.black),
+                icon: const Icon(Icons.download_rounded, size: 14, color: Colors.black),
                 label: Text(
                   'export_csv'.tr,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900),
                 ),
                 onPressed: () => controller.handleExportCSV(),
@@ -168,6 +173,8 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
             padding: const EdgeInsets.only(left: 48, top: 2),
             child: Text(
               'audit_trail_sub'.tr,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(color: Colors.white54, fontSize: 11),
             ),
           ),
@@ -179,55 +186,64 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
   // --- 1. 4 KPI Stats Cards Strip ---
   Widget _buildKpiStatsStrip() {
     return Obx(() {
-      return Row(
-        children: [
-          // Total Events
-          Expanded(
-            child: _buildKpiCard(
-              title: 'total_logs'.tr,
-              count: controller.totalItems.toString(),
-              color: Colors.white,
-              bgColor: Colors.white.withValues(alpha: 0.05),
-              borderColor: AppColors.cardBorder,
-            ),
-          ),
-          const SizedBox(width: 8),
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final isNarrow = constraints.maxWidth < 340;
+          return Row(
+            children: [
+              // Total Events
+              Expanded(
+                child: _buildKpiCard(
+                  title: 'total_logs'.tr,
+                  count: controller.totalItems.toString(),
+                  color: Colors.white,
+                  bgColor: Colors.white.withValues(alpha: 0.05),
+                  borderColor: AppColors.cardBorder,
+                  isNarrow: isNarrow,
+                ),
+              ),
+              const SizedBox(width: 8),
 
-          // Info Logs
-          Expanded(
-            child: _buildKpiCard(
-              title: 'info_logs_kpi'.tr,
-              count: controller.infoCount.toString(),
-              color: const Color(0xFF38BDF8),
-              bgColor: const Color(0xFF0284C7).withValues(alpha: 0.12),
-              borderColor: const Color(0xFF0284C7).withValues(alpha: 0.3),
-            ),
-          ),
-          const SizedBox(width: 8),
+              // Info Logs
+              Expanded(
+                child: _buildKpiCard(
+                  title: 'info_logs_kpi'.tr,
+                  count: controller.infoCount.toString(),
+                  color: const Color(0xFF38BDF8),
+                  bgColor: const Color(0xFF0284C7).withValues(alpha: 0.12),
+                  borderColor: const Color(0xFF0284C7).withValues(alpha: 0.3),
+                  isNarrow: isNarrow,
+                ),
+              ),
+              const SizedBox(width: 8),
 
-          // Warnings
-          Expanded(
-            child: _buildKpiCard(
-              title: 'warnings_kpi'.tr,
-              count: controller.warningCount.toString(),
-              color: const Color(0xFFFBBF24),
-              bgColor: const Color(0xFFD97706).withValues(alpha: 0.12),
-              borderColor: const Color(0xFFD97706).withValues(alpha: 0.3),
-            ),
-          ),
-          const SizedBox(width: 8),
+              // Warnings
+              Expanded(
+                child: _buildKpiCard(
+                  title: 'warnings_kpi'.tr,
+                  count: controller.warningCount.toString(),
+                  color: const Color(0xFFFBBF24),
+                  bgColor: const Color(0xFFD97706).withValues(alpha: 0.12),
+                  borderColor: const Color(0xFFD97706).withValues(alpha: 0.3),
+                  isNarrow: isNarrow,
+                ),
+              ),
+              const SizedBox(width: 8),
 
-          // Critical Events
-          Expanded(
-            child: _buildKpiCard(
-              title: 'critical_kpi'.tr,
-              count: controller.criticalCount.toString(),
-              color: const Color(0xFFF87171),
-              bgColor: const Color(0xFFDC2626).withValues(alpha: 0.12),
-              borderColor: const Color(0xFFDC2626).withValues(alpha: 0.3),
-            ),
-          ),
-        ],
+              // Critical Events
+              Expanded(
+                child: _buildKpiCard(
+                  title: 'critical_kpi'.tr,
+                  count: controller.criticalCount.toString(),
+                  color: const Color(0xFFF87171),
+                  bgColor: const Color(0xFFDC2626).withValues(alpha: 0.12),
+                  borderColor: const Color(0xFFDC2626).withValues(alpha: 0.3),
+                  isNarrow: isNarrow,
+                ),
+              ),
+            ],
+          );
+        },
       );
     });
   }
@@ -238,9 +254,10 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
     required Color color,
     required Color bgColor,
     required Color borderColor,
+    bool isNarrow = false,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+      padding: EdgeInsets.symmetric(horizontal: isNarrow ? 6 : 8, vertical: 10),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(12),
@@ -255,18 +272,22 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: color.withValues(alpha: 0.8),
-              fontSize: 9,
+              fontSize: 8.5,
               fontWeight: FontWeight.w900,
-              letterSpacing: 0.5,
+              letterSpacing: 0.3,
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            count,
-            style: TextStyle(
-              color: color,
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              count,
+              style: TextStyle(
+                color: color,
+                fontSize: 16,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
         ],
@@ -396,15 +417,20 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'filter_controls'.tr,
-                style: const TextStyle(
-                  color: Colors.white38,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.8,
+              Expanded(
+                child: Text(
+                  'filter_controls'.tr,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white38,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.8,
+                  ),
                 ),
               ),
+              const SizedBox(width: 8),
               GestureDetector(
                 onTap: controller.resetFilters,
                 child: Row(
@@ -413,6 +439,8 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                     const SizedBox(width: 4),
                     Text(
                       'reset_filters_btn'.tr,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Color(0xFF06B6D4),
                         fontSize: 11,
@@ -564,7 +592,11 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
               final text = itemLabels?[item] ?? item.toString();
               return DropdownMenuItem<T>(
                 value: item,
-                child: Text(text),
+                child: Text(
+                  text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               );
             }).toList(),
             onChanged: onChanged,
@@ -725,6 +757,8 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                     icon: const Icon(Icons.arrow_forward_rounded, size: 12, color: Color(0xFF06B6D4)),
                     label: Text(
                       'inspect_action'.tr,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(color: Color(0xFF06B6D4), fontSize: 11, fontWeight: FontWeight.bold),
                     ),
                     onPressed: () => controller.openLogDetails(log),
@@ -786,20 +820,26 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                     const SizedBox(width: 6),
                     _buildSeverityBadge(log.severity),
                     const SizedBox(width: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.05),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        log.category,
-                        style: const TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold),
+                    Flexible(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          log.category,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
-                    const Spacer(),
+                    const SizedBox(width: 6),
                     Text(
                       log.formattedTime,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Colors.white38,
                         fontSize: 10,
@@ -813,6 +853,8 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                 // Action Title
                 Text(
                   log.action,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 13,
@@ -839,26 +881,31 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.person_outline_rounded, size: 14, color: Colors.white38),
-                          const SizedBox(width: 4),
-                          Text(
-                            log.actorName,
-                            style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600),
-                          ),
-                          if (log.actorRole.isNotEmpty) ...[
-                            Text(
-                              ' (${log.actorRole})',
-                              style: const TextStyle(color: Colors.white38, fontSize: 10),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            const Icon(Icons.person_outline_rounded, size: 14, color: Colors.white38),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                log.actorRole.isNotEmpty
+                                    ? '${log.actorName} (${log.actorRole})'
+                                    : log.actorName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600),
+                              ),
                             ),
                           ],
-                        ],
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       Row(
                         children: [
                           Text(
                             'inspect_payload'.tr,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(color: Color(0xFF06B6D4), fontSize: 11, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(width: 2),
@@ -934,14 +981,19 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // "Showing 1 - 10 of 48 entries"
-                Text(
-                  controller.paginationRangeText,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    controller.paginationRangeText,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
+                const SizedBox(width: 8),
 
                 // Rows per page selector
                 Row(
@@ -975,68 +1027,71 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
             const SizedBox(height: 10),
 
             // Bottom Row: Navigation Buttons + Page Number Pills
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Previous Button
-                IconButton(
-                  icon: const Icon(Icons.chevron_left_rounded, size: 20),
-                  color: controller.canPrev ? const Color(0xFF06B6D4) : Colors.white24,
-                  onPressed: controller.canPrev ? controller.prevPage : null,
-                  tooltip: 'previous_page'.tr,
-                ),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Previous Button
+                  IconButton(
+                    icon: const Icon(Icons.chevron_left_rounded, size: 20),
+                    color: controller.canPrev ? const Color(0xFF06B6D4) : Colors.white24,
+                    onPressed: controller.canPrev ? controller.prevPage : null,
+                    tooltip: 'previous_page'.tr,
+                  ),
 
-                const SizedBox(width: 4),
+                  const SizedBox(width: 4),
 
-                // Page Pills: Up to 5 visible page numbers
-                ...List.generate(tPages, (index) {
-                  final p = index + 1;
-                  // Only show reasonable window around currentPage
-                  if (tPages > 5 && (p < curPage - 2 || p > curPage + 2)) {
-                    if (p == 1 || p == tPages) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 2),
-                        child: Text('.', style: TextStyle(color: Colors.white38)),
-                      );
+                  // Page Pills: Up to 5 visible page numbers
+                  ...List.generate(tPages, (index) {
+                    final p = index + 1;
+                    // Only show reasonable window around currentPage
+                    if (tPages > 5 && (p < curPage - 2 || p > curPage + 2)) {
+                      if (p == 1 || p == tPages) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 2),
+                          child: Text('.', style: TextStyle(color: Colors.white38)),
+                        );
+                      }
+                      return const SizedBox.shrink();
                     }
-                    return const SizedBox.shrink();
-                  }
 
-                  final isSelected = p == curPage;
-                  return GestureDetector(
-                    onTap: () => controller.goToPage(p),
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 3),
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFF06B6D4) : Colors.white.withValues(alpha: 0.05),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: isSelected ? const Color(0xFF06B6D4) : Colors.white12,
+                    final isSelected = p == curPage;
+                    return GestureDetector(
+                      onTap: () => controller.goToPage(p),
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 3),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: isSelected ? const Color(0xFF06B6D4) : Colors.white.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isSelected ? const Color(0xFF06B6D4) : Colors.white12,
+                          ),
+                        ),
+                        child: Text(
+                          '$p',
+                          style: TextStyle(
+                            color: isSelected ? Colors.black : Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                      child: Text(
-                        '$p',
-                        style: TextStyle(
-                          color: isSelected ? Colors.black : Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  );
-                }),
+                    );
+                  }),
 
-                const SizedBox(width: 4),
+                  const SizedBox(width: 4),
 
-                // Next Button
-                IconButton(
-                  icon: const Icon(Icons.chevron_right_rounded, size: 20),
-                  color: controller.canNext ? const Color(0xFF06B6D4) : Colors.white24,
-                  onPressed: controller.canNext ? controller.nextPage : null,
-                  tooltip: 'next_page'.tr,
-                ),
-              ],
+                  // Next Button
+                  IconButton(
+                    icon: const Icon(Icons.chevron_right_rounded, size: 20),
+                    color: controller.canNext ? const Color(0xFF06B6D4) : Colors.white24,
+                    onPressed: controller.canNext ? controller.nextPage : null,
+                    tooltip: 'next_page'.tr,
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -1064,31 +1119,37 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0284C7).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
-                    ),
-                    child: Text(
-                      '#${log.id}',
-                      style: const TextStyle(
-                        color: Color(0xFF38BDF8),
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'monospace',
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0284C7).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
+                      ),
+                      child: Text(
+                        '#${log.id}',
+                        style: const TextStyle(
+                          color: Color(0xFF38BDF8),
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    'log_details_payload'.tr,
-                    style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ],
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'log_details_payload'.tr,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               IconButton(
                 icon: const Icon(Icons.close_rounded, color: Colors.grey, size: 20),
@@ -1119,10 +1180,15 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'action_and_event'.tr,
-                              style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold),
+                            Expanded(
+                              child: Text(
+                                'action_and_event'.tr,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold),
+                              ),
                             ),
+                            const SizedBox(width: 8),
                             _buildSeverityBadge(log.severity),
                           ],
                         ),
@@ -1170,6 +1236,8 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                               const SizedBox(height: 4),
                               Text(
                                 log.actorName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                               ),
                               if (log.actorEmail.isNotEmpty)
@@ -1182,6 +1250,8 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                               if (log.actorRole.isNotEmpty)
                                 Text(
                                   'Role: ${log.actorRole}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 10, fontWeight: FontWeight.w600),
                                 ),
                             ],
@@ -1209,14 +1279,20 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                               const SizedBox(height: 4),
                               Text(
                                 log.category,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                               ),
                               Text(
                                 'IP: ${log.ipAddress}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(color: Colors.white60, fontSize: 10, fontFamily: 'monospace'),
                               ),
                               Text(
                                 'Event: ${log.event}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(color: Color(0xFF06B6D4), fontSize: 10, fontWeight: FontWeight.w600),
                               ),
                             ],
@@ -1231,10 +1307,15 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'raw_payload_data'.tr,
-                        style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.w900),
+                      Expanded(
+                        child: Text(
+                          'raw_payload_data'.tr,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.w900),
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       TextButton.icon(
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -1244,6 +1325,8 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                         icon: const Icon(Icons.copy_rounded, size: 12, color: Color(0xFF06B6D4)),
                         label: Text(
                           'copy_data_btn'.tr,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(color: Color(0xFF06B6D4), fontSize: 11, fontWeight: FontWeight.bold),
                         ),
                         onPressed: () => controller.copyLogPayload(log),
@@ -1288,7 +1371,7 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
               onPressed: () => controller.selectedLog.value = null,
-              child: Text('close_modal'.tr, style: const TextStyle(fontWeight: FontWeight.bold)),
+              child: Text('close_modal'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold)),
             ),
           ),
         ],
@@ -1328,7 +1411,7 @@ class ActivityLogsView extends GetView<ActivityLogsController> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
             onPressed: controller.resetFilters,
-            child: Text('reset_filters_btn'.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+            child: Text('reset_filters_btn'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
           ),
         ],
       ),

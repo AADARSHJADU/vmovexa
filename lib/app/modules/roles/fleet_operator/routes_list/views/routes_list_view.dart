@@ -105,6 +105,8 @@ class RoutesListView extends GetView<RoutesListController> {
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -113,11 +115,13 @@ class RoutesListView extends GetView<RoutesListController> {
                     color: AppColors.textSecondary,
                     fontSize: 11,
                   ),
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
+          const SizedBox(width: 8),
           Container(
             decoration: BoxDecoration(
               gradient: AppTheme.primaryGradient,
@@ -136,17 +140,19 @@ class RoutesListView extends GetView<RoutesListController> {
                 onTap: controller.goToAddRoute,
                 borderRadius: BorderRadius.circular(12),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(Icons.add_rounded, color: Colors.white, size: 18),
-                      const SizedBox(width: 6),
+                      const SizedBox(width: 4),
                       Text(
                         'add_route'.tr,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 13,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -155,8 +161,7 @@ class RoutesListView extends GetView<RoutesListController> {
                 ),
               ),
             ),
-          ),
-        ],
+          ),],
       ),
     );
   }
@@ -431,6 +436,8 @@ class RoutesListView extends GetView<RoutesListController> {
                           const SizedBox(width: 8),
                           Text(
                             'add_route'.tr,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 13,
@@ -540,6 +547,8 @@ class RoutesListView extends GetView<RoutesListController> {
                       ),
                       child: Text(
                         statusLabel,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: statusColor,
                           fontSize: 10,
@@ -580,7 +589,7 @@ class RoutesListView extends GetView<RoutesListController> {
                             children: [
                               const Icon(Icons.visibility_outlined, color: Colors.blueAccent, size: 16),
                               const SizedBox(width: 8),
-                              Text('view_details_stops'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                              Text('view_details_stops'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 12)),
                             ],
                           ),
                         ),
@@ -590,7 +599,7 @@ class RoutesListView extends GetView<RoutesListController> {
                             children: [
                               const Icon(Icons.edit_outlined, color: Colors.amberAccent, size: 16),
                               const SizedBox(width: 8),
-                              Text('edit_route'.tr, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                              Text('edit_route'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 12)),
                             ],
                           ),
                         ),
@@ -622,7 +631,7 @@ class RoutesListView extends GetView<RoutesListController> {
                             children: [
                               const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 16),
                               const SizedBox(width: 8),
-                              Text('delete_route'.tr, style: const TextStyle(color: Colors.redAccent, fontSize: 12)),
+                              Text('delete_route'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.redAccent, fontSize: 12)),
                             ],
                           ),
                         ),
@@ -711,46 +720,32 @@ class RoutesListView extends GetView<RoutesListController> {
                 const SizedBox(height: 12),
 
                 // Metrics Badges: Distance • Duration • Stops • Assigned Buses
-             Column(
-               crossAxisAlignment: CrossAxisAlignment.start,
-               children: [
-                 Row(
-                   children: [
-                     _buildMetricChip(
-                       icon: Icons.straighten_rounded,
-                       text: route.totalDistanceKm > 0 ? '${route.totalDistanceKm} km' : '— km',
-                       color: const Color(0xFF38BDF8),
-                     ),
-                     const SizedBox(width: 8),
-                     _buildMetricChip(
-                       icon: Icons.timer_outlined,
-                       text: route.totalDurationMin > 0 ? '~${route.totalDurationMin} min' : '— min',
-                       color: const Color(0xFFA78BFA),
-                     ),
-                     const SizedBox(width: 8),
-                     _buildMetricChip(
-                       icon: Icons.location_on_outlined,
-                       text: '${route.stopsCount} ${'stops'.tr}',
-                       color: const Color(0xFF34D399),
-                     ),
-                   ],
-                 ),
-                 const SizedBox(height: 8),
-                 Row(
-                   children: [
-
-
-                     const SizedBox(width: 8),
-                     _buildMetricChip(
-                       icon: Icons.directions_bus_rounded,
-                       text: '${route.assignedVehiclesCount} ${'buses'.tr}',
-                       color: const Color(0xFFFBBF24),
-                     ),
-
-                   ],
-                 ),
-               ],
-             )
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  children: [
+                    _buildMetricChip(
+                      icon: Icons.straighten_rounded,
+                      text: route.totalDistanceKm > 0 ? '${route.totalDistanceKm} km' : '— km',
+                      color: const Color(0xFF38BDF8),
+                    ),
+                    _buildMetricChip(
+                      icon: Icons.timer_outlined,
+                      text: route.totalDurationMin > 0 ? '~${route.totalDurationMin} min' : '— min',
+                      color: const Color(0xFFA78BFA),
+                    ),
+                    _buildMetricChip(
+                      icon: Icons.location_on_outlined,
+                      text: '${route.stopsCount} ${'stops'.tr}',
+                      color: const Color(0xFF34D399),
+                    ),
+                    _buildMetricChip(
+                      icon: Icons.directions_bus_rounded,
+                      text: '${route.assignedVehiclesCount} ${'buses'.tr}',
+                      color: const Color(0xFFFBBF24),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

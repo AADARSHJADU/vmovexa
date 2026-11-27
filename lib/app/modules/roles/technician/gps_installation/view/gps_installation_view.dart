@@ -239,15 +239,20 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        veh.registrationNumber,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          fontFamily: 'monospace',
+                      Expanded(
+                        child: Text(
+                          veh.registrationNumber,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            fontFamily: 'monospace',
+                          ),
                         ),
                       ),
+                      const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
@@ -257,6 +262,8 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
                         ),
                         child: Text(
                           '${'vehicle_hash_prefix'.tr}${veh.id}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600),
                         ),
                       ),
@@ -514,6 +521,8 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
               alignment: Alignment.center,
               child: Text(
                 'cancel'.tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w700),
               ),
             ),
@@ -549,9 +558,13 @@ class GpsInstallationView extends GetView<GpsInstallationController> {
                           children: [
                             const Icon(Icons.check, color: Colors.white, size: 18),
                             const SizedBox(width: 8),
-                            Text(
-                              'install_assign_telematics_btn'.tr,
-                              style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w700),
+                            Flexible(
+                              child: Text(
+                                'install_assign_telematics_btn'.tr,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w700),
+                              ),
                             ),
                           ],
                         ),

@@ -498,12 +498,16 @@ class _WorkOrderCard extends StatelessWidget {
             // Top Row: Code, Urgency, Status
             Row(
               children: [
-                Text(
-                  order.code,
-                  style: const TextStyle(
-                    color: Color(0xFF818CF8),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
+                Flexible(
+                  child: Text(
+                    order.code,
+                    style: const TextStyle(
+                      color: Color(0xFF818CF8),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -600,8 +604,10 @@ class _WorkOrderCard extends StatelessWidget {
             const SizedBox(height: 10),
             const Divider(color: Color(0xFF1E293B), height: 1),
             const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: 8,
+              runSpacing: 6,
               children: [
                 InkWell(
                   onTap: onTap,
@@ -620,6 +626,8 @@ class _WorkOrderCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           'view_details'.tr,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 11,
@@ -630,8 +638,7 @@ class _WorkOrderCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (canMarkOnSite) ...[
-                  const SizedBox(width: 8),
+                if (canMarkOnSite)
                   InkWell(
                     onTap: onMarkOnSite,
                     borderRadius: BorderRadius.circular(8),
@@ -649,6 +656,8 @@ class _WorkOrderCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             'mark_on_site'.tr,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               color: Color(0xFFF59E0B),
                               fontSize: 11,
@@ -659,9 +668,7 @@ class _WorkOrderCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                ],
-                if (canResolve) ...[
-                  const SizedBox(width: 8),
+                if (canResolve)
                   InkWell(
                     onTap: onResolve,
                     borderRadius: BorderRadius.circular(8),
@@ -685,6 +692,8 @@ class _WorkOrderCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             'resolve_order'.tr,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 11,
@@ -695,7 +704,6 @@ class _WorkOrderCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                ],
               ],
             ),
           ],

@@ -119,6 +119,8 @@ class TechHelpSupportView extends GetView<TechHelpSupportController> {
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 2),
               Text(
@@ -381,28 +383,38 @@ class TechHelpSupportView extends GetView<TechHelpSupportController> {
   }
 
   // ---------------- 5. Standard Operating Procedures & Guides (4 Cards) ----------------
+
   Widget _buildSopGuidesSection(List<TechGuideItem> guides) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'sop_and_guides'.tr,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
+            Expanded(
+              child: Text(
+                'sop_and_guides'.tr,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
         ),
         Text(
           'tech_sop_guides_sub'.tr,
-          style: const TextStyle(color: Colors.white38, fontSize: 11),
+          style: const TextStyle(
+            color: Colors.white38,
+            fontSize: 11,
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 10),
+
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -415,6 +427,7 @@ class TechHelpSupportView extends GetView<TechHelpSupportController> {
           itemCount: guides.length,
           itemBuilder: (context, index) {
             final guide = guides[index];
+
             return GestureDetector(
               onTap: () => controller.openSopGuide(guide),
               child: Container(
@@ -427,8 +440,8 @@ class TechHelpSupportView extends GetView<TechHelpSupportController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Icon and PDF badge
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
                           padding: const EdgeInsets.all(8),
@@ -436,10 +449,18 @@ class TechHelpSupportView extends GetView<TechHelpSupportController> {
                             color: guide.iconColor.withOpacity(0.15),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Icon(guide.iconData, color: guide.iconColor, size: 18),
+                          child: Icon(
+                            guide.iconData,
+                            color: guide.iconColor,
+                            size: 18,
+                          ),
                         ),
+                        const Spacer(),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: const Color(0xFF2ECC71).withOpacity(0.15),
                             borderRadius: BorderRadius.circular(4),
@@ -458,7 +479,10 @@ class TechHelpSupportView extends GetView<TechHelpSupportController> {
                         ),
                       ],
                     ),
+
                     const Spacer(),
+
+                    // Guide title
                     Text(
                       guide.title,
                       style: const TextStyle(
@@ -469,17 +493,30 @@ class TechHelpSupportView extends GetView<TechHelpSupportController> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
+
                     const SizedBox(height: 2),
+
+                    // Guide description
                     Text(
                       guide.desc,
-                      style: const TextStyle(color: Colors.white38, fontSize: 10),
+                      style: const TextStyle(
+                        color: Colors.white38,
+                        fontSize: 10,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
+
                     const SizedBox(height: 6),
+
+                    // Download action
                     Row(
                       children: [
-                        const Icon(Icons.download_rounded, color: Color(0xFF60A5FA), size: 12),
+                        const Icon(
+                          Icons.download_rounded,
+                          color: Color(0xFF60A5FA),
+                          size: 12,
+                        ),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
@@ -493,7 +530,12 @@ class TechHelpSupportView extends GetView<TechHelpSupportController> {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const Icon(Icons.open_in_new_rounded, color: Color(0xFF60A5FA), size: 11),
+                        const SizedBox(width: 4),
+                        const Icon(
+                          Icons.open_in_new_rounded,
+                          color: Color(0xFF60A5FA),
+                          size: 11,
+                        ),
                       ],
                     ),
                   ],
@@ -506,6 +548,7 @@ class TechHelpSupportView extends GetView<TechHelpSupportController> {
     );
   }
 
+
   // ---------------- 6. Recent Tickets Section ----------------
   Widget _buildRecentTicketsSection() {
     return Column(
@@ -514,18 +557,25 @@ class TechHelpSupportView extends GetView<TechHelpSupportController> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'recent_tickets'.tr,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
+            Expanded(
+              child: Text(
+                'recent_tickets'.tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
+            const SizedBox(width: 8),
             GestureDetector(
               onTap: controller.openSupportHistory,
               child: Text(
                 'view_all'.tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: AppTheme.gradientBlue,
                   fontSize: 12,
@@ -538,14 +588,16 @@ class TechHelpSupportView extends GetView<TechHelpSupportController> {
         const SizedBox(height: 8),
 
         // Quick action row: Raise Support Ticket + View Ticket History
+
+
         Row(
           children: [
             Expanded(
-              flex: 3,
               child: GestureDetector(
                 onTap: controller.openRaiseTicketModal,
                 child: Container(
                   height: 40,
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
                   decoration: BoxDecoration(
                     gradient: AppTheme.primaryGradient,
                     borderRadius: BorderRadius.circular(12),
@@ -557,60 +609,77 @@ class TechHelpSupportView extends GetView<TechHelpSupportController> {
                       ),
                     ],
                   ),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.add_circle_outline_rounded, color: Colors.white, size: 16),
-                        const SizedBox(width: 6),
-                        Text(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.add_circle_outline_rounded,
+                        color: Colors.white,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: Text(
                           'raise_support_ticket'.tr,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
+
             const SizedBox(width: 8),
+
             Expanded(
-              flex: 2,
               child: GestureDetector(
                 onTap: controller.openSupportHistory,
                 child: Container(
                   height: 40,
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
                   decoration: BoxDecoration(
                     color: kCardBg,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: kBorder),
                   ),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.history_outlined, color: Colors.white70, size: 16),
-                        const SizedBox(width: 6),
-                        Text(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.history_outlined,
+                        color: Colors.white70,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: Text(
                           'ticket_history'.tr,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
           ],
         ),
+
         const SizedBox(height: 12),
 
         // Ticket List or Empty Box
@@ -687,14 +756,19 @@ class TechHelpSupportView extends GetView<TechHelpSupportController> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  ticket.code,
-                                  style: const TextStyle(
-                                    color: AppTheme.gradientBlue,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
+                                Expanded(
+                                  child: Text(
+                                    ticket.code,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: AppTheme.gradientBlue,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
+                                const SizedBox(width: 8),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
@@ -704,6 +778,8 @@ class TechHelpSupportView extends GetView<TechHelpSupportController> {
                                   ),
                                   child: Text(
                                     ticket.status.toUpperCase(),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       color: ticket.statusColor,
                                       fontSize: 9,

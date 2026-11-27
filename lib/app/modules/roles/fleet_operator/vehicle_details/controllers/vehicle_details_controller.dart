@@ -205,7 +205,7 @@ class VehicleDetailsController extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
-            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white60)),
+            child: Text('cancel'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white60)),
           ),
           ElevatedButton(
             onPressed: () => Get.back(result: true),
@@ -213,7 +213,7 @@ class VehicleDetailsController extends GetxController {
               backgroundColor: Colors.redAccent,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: Text('delete_btn'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: Text('delete_btn'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

@@ -160,11 +160,11 @@ class RouteDetailsController extends GetxController {
             actionLoading.value = false;
           }
         },
-        child: Text('reject_btn'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        child: Text('reject_btn'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
       cancel: TextButton(
         onPressed: () => Get.back(),
-        child: Text('cancel'.tr, style: const TextStyle(color: Color(0xFF94A3B8))),
+        child: Text('cancel'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFF94A3B8))),
       ),
     );
   }
@@ -207,11 +207,11 @@ class RouteDetailsController extends GetxController {
             isLoading.value = false;
           }
         },
-        child: Text('delete'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        child: Text('delete'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
       cancel: TextButton(
         onPressed: () => Get.back(),
-        child: Text('cancel'.tr, style: const TextStyle(color: Color(0xFF94A3B8))),
+        child: Text('cancel'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFF94A3B8))),
       ),
     );
   }
@@ -414,6 +414,8 @@ class RouteDetailsController extends GetxController {
                           child: Center(
                             child: Text(
                               'confirm'.tr,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -453,11 +455,11 @@ class RouteDetailsController extends GetxController {
       confirm: ElevatedButton(
         style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
         onPressed: () => Get.back(result: true),
-        child: Text('remove_action'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        child: Text('remove_action'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
       cancel: TextButton(
         onPressed: () => Get.back(result: false),
-        child: Text('cancel'.tr, style: const TextStyle(color: Color(0xFF94A3B8))),
+        child: Text('cancel'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFF94A3B8))),
       ),
     );
 

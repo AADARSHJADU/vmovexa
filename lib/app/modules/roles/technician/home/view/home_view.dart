@@ -220,6 +220,7 @@ class HomeView extends GetView<HomeController> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                          const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                             decoration: BoxDecoration(
@@ -255,7 +256,7 @@ class HomeView extends GetView<HomeController> {
                       const SizedBox(height: 3),
                       Row(
                         children: [
-                          Flexible(
+                          Expanded(
                             child: Text(
                               role,
                               style: const TextStyle(
@@ -417,51 +418,54 @@ class HomeView extends GetView<HomeController> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          'technician_rating_caps'.tr,
-                          style: const TextStyle(
-                            color: AppColors.textMuted,
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.8,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'technician_rating_caps'.tr,
+                        style: const TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.8,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            avgRating,
+                            style: const TextStyle(
+                              color: Color(0xFFF59E0B),
+                              fontSize: 26,
+                              fontWeight: FontWeight.w900,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text(
-                          avgRating,
-                          style: const TextStyle(
-                            color: Color(0xFFF59E0B),
-                            fontSize: 26,
-                            fontWeight: FontWeight.w900,
+                          const SizedBox(width: 4),
+                          const Text(
+                            '/ 5.0',
+                            style: TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.bold),
                           ),
-                        ),
-                        const SizedBox(width: 4),
-                        const Text(
-                          '/ 5.0',
-                          style: TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      totalRatings > 0
-                          ? '$totalRatings ${'verified_client_ratings'.tr}'
-                          : 'no_reviews_yet'.tr,
-                      style: const TextStyle(color: Colors.white54, fontSize: 10),
-                    ),
-                  ],
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        totalRatings > 0
+                            ? '$totalRatings ${'verified_client_ratings'.tr}'
+                            : 'no_reviews_yet'.tr,
+                        style: const TextStyle(color: Colors.white54, fontSize: 10),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
@@ -482,7 +486,7 @@ class HomeView extends GetView<HomeController> {
             physics: const NeverScrollableScrollPhysics(),
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
-            childAspectRatio: 1.55,
+            childAspectRatio: 1.45,
             children: [
               _buildKpiCard(
                 title: 'offline_devices'.tr,
@@ -556,15 +560,21 @@ class HomeView extends GetView<HomeController> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(width: 4),
               Icon(icon, color: color, size: 18),
             ],
           ),
-          Text(
-            count,
-            style: TextStyle(
-              color: color,
-              fontSize: 22,
-              fontWeight: FontWeight.w900,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              count,
+              style: TextStyle(
+                color: color,
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+              ),
+              maxLines: 1,
             ),
           ),
           Text(
@@ -590,31 +600,41 @@ class HomeView extends GetView<HomeController> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                _buildSectionHeader('todays_assigned_tasks_caps'.tr),
-                const SizedBox(width: 8),
-                Obx(() => Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppTheme.gradientBlue.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: AppTheme.gradientBlue.withValues(alpha: 0.35)),
-                      ),
-                      child: Text(
-                        '${controller.todaysWorkOrders.length} ${'active_tasks'.tr}',
-                        style: const TextStyle(
-                          color: AppTheme.gradientBlue,
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    )),
-              ],
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _buildSectionHeader('todays_assigned_tasks_caps'.tr),
+                  ),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Obx(() => Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppTheme.gradientBlue.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: AppTheme.gradientBlue.withValues(alpha: 0.35)),
+                          ),
+                          child: Text(
+                            '${controller.todaysWorkOrders.length} ${'active_tasks'.tr}',
+                            style: const TextStyle(
+                              color: AppTheme.gradientBlue,
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        )),
+                  ),
+                ],
+              ),
             ),
+            const SizedBox(width: 8),
             InkWell(
               onTap: controller.onViewAllTasks,
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     'view_all'.tr,
@@ -623,6 +643,8 @@ class HomeView extends GetView<HomeController> {
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const Icon(Icons.chevron_right_rounded, color: AppTheme.gradientBlue, size: 16),
                 ],
@@ -710,30 +732,28 @@ class HomeView extends GetView<HomeController> {
           children: [
             // Section Header
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 18),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'client_ratings_and_reviews'.tr,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 18),
                 ),
-
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'client_ratings_and_reviews'.tr,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 4),
@@ -901,17 +921,24 @@ class HomeView extends GetView<HomeController> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'recent_client_feedback'.tr,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    'recent_client_feedback'.tr,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                const SizedBox(width: 8),
                 Text(
                   '${reviews.length} ${'shown'.tr}',
                   style: const TextStyle(color: Colors.white38, fontSize: 10.5),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -987,7 +1014,7 @@ class HomeView extends GetView<HomeController> {
                                 children: [
                                   Row(
                                     children: [
-                                      Flexible(
+                                      Expanded(
                                         child: Text(
                                           rev.clientName,
                                           style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
@@ -1087,15 +1114,20 @@ class HomeView extends GetView<HomeController> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          'quick_actions_caps'.tr,
-          style: const TextStyle(
-            color: AppColors.textMuted,
-            fontSize: 10.5,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 1.1,
+        Expanded(
+          child: Text(
+            'quick_actions_caps'.tr,
+            style: const TextStyle(
+              color: AppColors.textMuted,
+              fontSize: 10.5,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.1,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
+        const SizedBox(width: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
           decoration: BoxDecoration(
@@ -1117,6 +1149,8 @@ class HomeView extends GetView<HomeController> {
               fontSize: 10,
               fontWeight: FontWeight.w700,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],
@@ -1134,7 +1168,7 @@ class HomeView extends GetView<HomeController> {
         physics: const NeverScrollableScrollPhysics(),
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
-        childAspectRatio: 1.45,
+        childAspectRatio: 1.28,
         children: [
           _buildQuickActionTile(
             title: 'field_work_orders'.tr,
@@ -1228,16 +1262,21 @@ class HomeView extends GetView<HomeController> {
                     colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E293B),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: const Color(0x1AFFFFFF)),
-                  ),
-                  child: Text(
-                    badge,
-                    style: const TextStyle(color: Colors.white70, fontSize: 9, fontWeight: FontWeight.bold),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E293B),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: const Color(0x1AFFFFFF)),
+                    ),
+                    child: Text(
+                      badge,
+                      style: const TextStyle(color: Colors.white70, fontSize: 9, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
               ],
@@ -1269,6 +1308,9 @@ class HomeView extends GetView<HomeController> {
   Widget _buildSectionHeader(String title) {
     return Text(
       title,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      softWrap: false,
       style: const TextStyle(
         color: AppColors.textMuted,
         fontSize: 10,
@@ -1314,9 +1356,13 @@ class _WorkOrderSummaryTile extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        order.code,
-                        style: const TextStyle(color: AppTheme.gradientBlue, fontSize: 11, fontWeight: FontWeight.bold),
+                      Expanded(
+                        child: Text(
+                          order.code,
+                          style: const TextStyle(color: AppTheme.gradientBlue, fontSize: 11, fontWeight: FontWeight.bold),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                       const SizedBox(width: 6),
                       _buildUrgencyPill(order.urgency),
@@ -1374,6 +1420,8 @@ class _WorkOrderSummaryTile extends StatelessWidget {
       ),
       child: Text(
         label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(color: color, fontSize: 8.5, fontWeight: FontWeight.bold),
       ),
     );
@@ -1406,6 +1454,8 @@ class _WorkOrderSummaryTile extends StatelessWidget {
       ),
       child: Text(
         label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(color: color, fontSize: 9.5, fontWeight: FontWeight.bold),
       ),
     );

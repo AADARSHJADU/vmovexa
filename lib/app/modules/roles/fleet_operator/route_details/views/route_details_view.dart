@@ -207,25 +207,30 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
         children: [
           // Top Row: Code Badge + Status Badge
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2563EB).withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.4)),
-                ),
-                child: Text(
-                  r.displayCode,
-                  style: const TextStyle(
-                    color: Color(0xFF60A5FA),
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2563EB).withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.4)),
+                  ),
+                  child: Text(
+                    r.displayCode,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Color(0xFF60A5FA),
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
@@ -247,6 +252,8 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
                     const SizedBox(width: 6),
                     Text(
                       statusLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: statusColor,
                         fontSize: 11,
@@ -387,9 +394,13 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
             children: [
               const Icon(Icons.hourglass_top_rounded, color: Color(0xFFF59E0B), size: 18),
               const SizedBox(width: 8),
-              Text(
-                'pending_approval_notice'.tr,
-                style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 13, fontWeight: FontWeight.bold),
+              Expanded(
+                child: Text(
+                  'pending_approval_notice'.tr,
+                  style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 13, fontWeight: FontWeight.bold),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
@@ -410,7 +421,7 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
                   icon: const Icon(Icons.check_circle_outline_rounded, size: 16),
-                  label: Text('approve_btn'.tr, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  label: Text('approve_btn'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 ),
               ),
               const SizedBox(width: 10),
@@ -424,7 +435,7 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
                   icon: const Icon(Icons.cancel_outlined, size: 16),
-                  label: Text('reject_btn'.tr, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  label: Text('reject_btn'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],
@@ -664,13 +675,20 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Corridor Stops Sequence',
-              style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+            const Expanded(
+              child: Text(
+                'Corridor Stops Sequence',
+                style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
+            const SizedBox(width: 8),
             Text(
               '${r.stops.length} scheduled stops',
               style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -814,19 +832,26 @@ class RouteDetailsView extends GetView<RouteDetailsController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'assigned_fleet_bus_caps'.tr,
-                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    '${list.length} ${'buses'.tr}',
-                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'assigned_fleet_bus_caps'.tr,
+                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      '${list.length} ${'buses'.tr}',
+                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 decoration: BoxDecoration(
                   gradient: AppTheme.primaryGradient,

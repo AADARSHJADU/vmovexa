@@ -37,12 +37,16 @@ class TechSupportHistoryView extends GetView<TechSupportHistoryController> {
             children: [
               const Icon(Icons.add_rounded, color: Colors.white, size: 20),
               const SizedBox(width: 6),
-              Text(
-                'raise_ticket'.tr,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
+              Flexible(
+                child: Text(
+                  'raise_ticket'.tr,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],

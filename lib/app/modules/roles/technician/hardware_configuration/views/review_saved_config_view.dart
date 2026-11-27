@@ -269,25 +269,41 @@ class ReviewAndSaveConfigView extends GetView<HardwareConfigController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Icon(icon, color: kPurple, size: 16),
-                  const SizedBox(width: 8),
-                  Text(title, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
-                ],
+              Expanded(
+                child: Row(
+                  children: [
+                    Icon(icon, color: kPurple, size: 16),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              if (tabIndexToEdit != null)
+              if (tabIndexToEdit != null) ...[
+                const SizedBox(width: 8),
                 GestureDetector(
                   onTap: () => controller.onEditSection(tabIndexToEdit),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('edit'.tr, style: const TextStyle(color: kPurple, fontSize: 12, fontWeight: FontWeight.w600)),
+                      Text(
+                        'edit'.tr,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: kPurple, fontSize: 12, fontWeight: FontWeight.w600),
+                      ),
                       const SizedBox(width: 3),
                       const Icon(Icons.edit_outlined, color: kPurple, size: 13),
                     ],
                   ),
                 ),
+              ],
             ],
           ),
           const SizedBox(height: 10),
@@ -304,9 +320,23 @@ class ReviewAndSaveConfigView extends GetView<HardwareConfigController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: Text(label, style: const TextStyle(color: Colors.white54, fontSize: 11.5)),
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: Colors.white54, fontSize: 11.5),
+            ),
           ),
-          Text(value, style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w600)),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w600),
+            ),
+          ),
         ],
       ),
     );
@@ -355,7 +385,12 @@ class ReviewAndSaveConfigView extends GetView<HardwareConfigController> {
                   child: Row(
                     children: [
                       const Icon(Icons.chevron_left, color: kPurple, size: 18),
-                      Text('back'.tr, style: const TextStyle(color: kPurple, fontSize: 13.5, fontWeight: FontWeight.w700)),
+                      Text(
+                        'back'.tr,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: kPurple, fontSize: 13.5, fontWeight: FontWeight.w700),
+                      ),
                     ],
                   ),
                 ),
@@ -383,9 +418,13 @@ class ReviewAndSaveConfigView extends GetView<HardwareConfigController> {
                         children: [
                           const Icon(Icons.save_outlined, color: Colors.white, size: 17),
                           const SizedBox(width: 8),
-                          Text(
-                            'save_configuration'.tr,
-                            style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+                          Flexible(
+                            child: Text(
+                              'save_configuration'.tr,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+                            ),
                           ),
                         ],
                       ),

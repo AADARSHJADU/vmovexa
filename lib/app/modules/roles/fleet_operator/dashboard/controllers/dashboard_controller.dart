@@ -170,7 +170,7 @@ class FleetOpDashboardController extends GetxController {
       confirm: ElevatedButton(
         style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1)),
         onPressed: () => Get.back(),
-        child: Text('close'.tr, style: const TextStyle(color: Colors.white)),
+        child: Text('close'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white)),
       ),
     );
   }
@@ -196,7 +196,7 @@ class FleetOpDashboardController extends GetxController {
       confirm: ElevatedButton(
         style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1)),
         onPressed: () => Get.back(),
-        child: Text('close'.tr, style: const TextStyle(color: Colors.white)),
+        child: Text('close'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white)),
       ),
     );
   }
@@ -220,7 +220,7 @@ class FleetOpDashboardController extends GetxController {
       confirm: ElevatedButton(
         style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1)),
         onPressed: () => Get.back(),
-        child: Text('close'.tr, style: const TextStyle(color: Colors.white)),
+        child: Text('close'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white)),
       ),
     );
   }
@@ -244,7 +244,7 @@ class FleetOpDashboardController extends GetxController {
       confirm: ElevatedButton(
         style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1)),
         onPressed: () => Get.back(),
-        child: Text('close'.tr, style: const TextStyle(color: Colors.white)),
+        child: Text('close'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white)),
       ),
     );
   }

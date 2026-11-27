@@ -337,17 +337,24 @@ class DeviceDiagnosticsView extends GetView<DeviceDiagnosticsController> {
           Obx(() => Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    '${'select_target_device_header'.tr} (${controller.filteredDevices.length})',
-                    style: const TextStyle(
-                      color: Colors.white38,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.5,
+                  Expanded(
+                    child: Text(
+                      '${'select_target_device_header'.tr} (${controller.filteredDevices.length})',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white38,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                      ),
                     ),
                   ),
+                  const SizedBox(width: 8),
                   Text(
                     'click_to_switch_target'.tr,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(color: Colors.white38, fontSize: 10),
                   ),
                 ],
@@ -504,21 +511,38 @@ class DeviceDiagnosticsView extends GetView<DeviceDiagnosticsController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Top Row: Tag, Box ID & Status Pill
+
             Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
-                  decoration: BoxDecoration(
-                    color: const Color(0x263B82F6),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: const Color(0x403B82F6)),
-                  ),
-                  child: Text(
-                    'target_edge_device_pill'.tr,
-                    style: const TextStyle(color: Color(0xFF93C5FD), fontSize: 9.5, fontWeight: FontWeight.w700),
+                Flexible(
+                  flex: 0,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 2.5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0x263B82F6),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                        color: const Color(0x403B82F6),
+                      ),
+                    ),
+                    child: Text(
+                      'target_edge_device_pill'.tr,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Color(0xFF93C5FD),
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
                 ),
+
                 const SizedBox(width: 8),
+
                 Expanded(
                   child: Text(
                     dev.displayId,
@@ -532,40 +556,60 @@ class DeviceDiagnosticsView extends GetView<DeviceDiagnosticsController> {
                     ),
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: isOnline ? kEmeraldBg : kRedBg,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: isOnline ? kEmerald.withValues(alpha: 0.4) : kRed.withValues(alpha: 0.4),
+
+                const SizedBox(width: 6),
+
+                Flexible(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
                     ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          color: isOnline ? kEmerald : kRed,
-                          shape: BoxShape.circle,
-                        ),
+                    decoration: BoxDecoration(
+                      color: isOnline ? kEmeraldBg : kRedBg,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isOnline
+                            ? kEmerald.withValues(alpha: 0.4)
+                            : kRed.withValues(alpha: 0.4),
                       ),
-                      const SizedBox(width: 5),
-                      Text(
-                        isOnline ? 'online_live_telemetry_badge'.tr : 'device_offline_badge'.tr,
-                        style: TextStyle(
-                          color: isOnline ? kEmeraldText : kRedText,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: isOnline ? kEmerald : kRed,
+                            shape: BoxShape.circle,
+                          ),
                         ),
-                      ),
-                    ],
+
+                        const SizedBox(width: 5),
+
+                        Flexible(
+                          child: Text(
+                            isOnline
+                                ? 'online_live_telemetry_badge'.tr
+                                : 'device_offline_badge'.tr,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: false,
+                            style: TextStyle(
+                              color: isOnline ? kEmeraldText : kRedText,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
+
             const SizedBox(height: 10),
 
             // Info Metadata Grid
@@ -934,6 +978,7 @@ class DeviceDiagnosticsView extends GetView<DeviceDiagnosticsController> {
     );
   }
 
+
   Widget _buildMetricItem({
     required String label,
     required String value,
@@ -944,31 +989,55 @@ class DeviceDiagnosticsView extends GetView<DeviceDiagnosticsController> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: Colors.white54, fontSize: 11)),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              value,
-              style: TextStyle(
-                color: valueColor ?? Colors.white,
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                fontFamily: isMonospace ? 'monospace' : null,
-              ),
+        Expanded(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Colors.white54,
+              fontSize: 11,
             ),
-            if (onCopy != null) ...[
-              const SizedBox(width: 4),
-              GestureDetector(
-                onTap: onCopy,
-                child: const Icon(Icons.copy_rounded, color: Colors.white38, size: 12),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Flexible(
+                child: Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    color: valueColor ?? Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: isMonospace ? 'monospace' : null,
+                  ),
+                ),
               ),
+              if (onCopy != null) ...[
+                const SizedBox(width: 4),
+                GestureDetector(
+                  onTap: onCopy,
+                  child: const Icon(
+                    Icons.copy_rounded,
+                    color: Colors.white38,
+                    size: 12,
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ],
     );
   }
+
 
   Widget _buildProgressMetricItem({
     required String label,
@@ -982,9 +1051,19 @@ class DeviceDiagnosticsView extends GetView<DeviceDiagnosticsController> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: const TextStyle(color: Colors.white54, fontSize: 11)),
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: Colors.white54, fontSize: 11),
+              ),
+            ),
+            const SizedBox(width: 8),
             Text(
               valueStr,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
             ),
           ],
@@ -1039,16 +1118,24 @@ class DeviceDiagnosticsView extends GetView<DeviceDiagnosticsController> {
                   child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  'running_subsystems_btn'.tr,
-                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
+                Flexible(
+                  child: Text(
+                    'running_subsystems_btn'.tr,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
+                  ),
                 ),
               ] else ...[
                 const Icon(Icons.track_changes_rounded, color: Colors.white, size: 18),
                 const SizedBox(width: 8),
-                Text(
-                  'run_subsystems_btn'.tr,
-                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w800),
+                Flexible(
+                  child: Text(
+                    'run_subsystems_btn'.tr,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w800),
+                  ),
                 ),
               ],
             ],
@@ -1407,6 +1494,7 @@ class DeviceDiagnosticsView extends GetView<DeviceDiagnosticsController> {
                 const SizedBox(height: 8),
 
                 // Controls Row: Search Input + AutoScroll + Pause + Clear + Copy
+
                 Row(
                   children: [
                     // Search input
@@ -1417,14 +1505,24 @@ class DeviceDiagnosticsView extends GetView<DeviceDiagnosticsController> {
                         decoration: BoxDecoration(
                           color: const Color(0xFF181B28),
                           borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: const Color(0x1AFFFFFF)),
+                          border: Border.all(
+                            color: const Color(0x1AFFFFFF),
+                          ),
                         ),
                         child: TextField(
                           onChanged: (val) => controller.logSearch.value = val,
-                          style: const TextStyle(color: Colors.white, fontSize: 11, fontFamily: 'monospace'),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontFamily: 'monospace',
+                          ),
                           decoration: InputDecoration(
                             hintText: 'filter_logs_input_ph'.tr,
-                            hintStyle: const TextStyle(color: Colors.white38, fontSize: 10, fontFamily: 'monospace'),
+                            hintStyle: const TextStyle(
+                              color: Colors.white38,
+                              fontSize: 10,
+                              fontFamily: 'monospace',
+                            ),
                             border: InputBorder.none,
                             isDense: true,
                             contentPadding: const EdgeInsets.only(bottom: 6),
@@ -1432,35 +1530,54 @@ class DeviceDiagnosticsView extends GetView<DeviceDiagnosticsController> {
                         ),
                       ),
                     ),
+
                     const SizedBox(width: 6),
 
                     // Auto-scroll toggle
-                    Obx(() => _buildTerminalMiniButton(
-                          label: '${'auto_scroll_toggle'.tr} ${controller.autoScroll.value ? "on_caps".tr : "off_caps".tr}',
+                    Flexible(
+                      child: Obx(
+                            () => _buildTerminalMiniButton(
+                          label:
+                          '${'auto_scroll_toggle'.tr} ${controller.autoScroll.value ? "on_caps".tr : "off_caps".tr}',
                           isActive: controller.autoScroll.value,
                           onTap: () => controller.autoScroll.toggle(),
-                        )),
+                        ),
+                      ),
+                    ),
+
                     const SizedBox(width: 4),
 
                     // Pause / Resume toggle
-                    Obx(() => _buildTerminalMiniButton(
-                          label: controller.isLiveStreaming.value ? 'pause_btn'.tr : 'resume_btn'.tr,
+                    Flexible(
+                      child: Obx(
+                            () => _buildTerminalMiniButton(
+                          label: controller.isLiveStreaming.value
+                              ? 'pause_btn'.tr
+                              : 'resume_btn'.tr,
                           onTap: () => controller.isLiveStreaming.toggle(),
-                        )),
+                        ),
+                      ),
+                    ),
+
                     const SizedBox(width: 4),
 
                     // Clear button
-                    _buildTerminalMiniButton(
-                      label: 'clear_btn'.tr,
-                      onTap: controller.clearLogs,
+                    Flexible(
+                      child: _buildTerminalMiniButton(
+                        label: 'clear_btn'.tr,
+                        onTap: controller.clearLogs,
+                      ),
                     ),
+
                     const SizedBox(width: 4),
 
                     // Copy button
-                    _buildTerminalMiniButton(
-                      label: 'copy_btn'.tr,
-                      isGradient: true,
-                      onTap: controller.copyLogs,
+                    Flexible(
+                      child: _buildTerminalMiniButton(
+                        label: 'copy_btn'.tr,
+                        isGradient: true,
+                        onTap: controller.copyLogs,
+                      ),
                     ),
                   ],
                 ),

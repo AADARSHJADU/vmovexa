@@ -126,7 +126,7 @@ class DepotDetailsController extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white60)),
+            child: Text('cancel'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white60)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -137,7 +137,7 @@ class DepotDetailsController extends GetxController {
               Get.back();
               _deleteDepot();
             },
-            child: Text('delete_facility_action'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: Text('delete_facility_action'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

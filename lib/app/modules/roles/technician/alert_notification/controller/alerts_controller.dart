@@ -1,5 +1,8 @@
 import 'package:get/get.dart';
+import 'package:vmovexa/app/data/models/api_response_model.dart';
+import 'package:vmovexa/app/data/models/notification_model.dart';
 import 'package:vmovexa/app/data/services/fleet_service.dart';
+import 'package:vmovexa/app/data/services/technician_service.dart';
 import '../model/alert_item_model.dart';
 
 class AlertsController extends GetxController {
@@ -61,36 +64,40 @@ class AlertsController extends GetxController {
   Future<void> fetchAlerts() async {
     isLoading.value = true;
     try {
-      if (Get.isRegistered<FleetService>()) {
-        final res = await FleetService.to.getNotifications(limit: 50);
-        if (res.success && res.data != null && res.data!.isNotEmpty) {
-          final mapped = res.data!.map((n) {
-            AlertSeverity sev = AlertSeverity.info;
-            final typeStr = n.type.toLowerCase();
-            if (typeStr.contains('critical') || typeStr.contains('error') || typeStr.contains('danger')) {
-              sev = AlertSeverity.critical;
-            } else if (typeStr.contains('warn')) {
-              sev = AlertSeverity.warning;
-            } else if (typeStr.contains('resolve') || typeStr.contains('success')) {
-              sev = AlertSeverity.resolved;
-            }
+      ApiResponseModel<List<AppNotificationModel>>? res;
+      if (Get.isRegistered<TechnicianService>()) {
+        res = await TechnicianService.to.getNotifications(limit: 50);
+      } else if (Get.isRegistered<FleetService>()) {
+        res = await FleetService.to.getNotifications(limit: 50);
+      }
 
-            return AlertItem(
-              id: n.id,
-              title: n.title,
-              message: n.body,
-              deviceId: n.metadata['deviceId']?.toString() ?? 'VMX-DEV-${n.id}',
-              vehicleNumber: n.metadata['vehicleNumber']?.toString() ?? 'Fleet Vehicle',
-              depotLocation: n.metadata['depot']?.toString() ?? 'Depot',
-              timestamp: DateTime.tryParse(n.createdAt) ?? DateTime.now(),
-              severity: sev,
-              isRead: n.isRead.value,
-            );
-          }).toList();
-          allAlerts.assignAll(mapped);
-          visibleCount.value = pageSize;
-          return;
-        }
+      if (res != null && res.success && res.data != null && res.data!.isNotEmpty) {
+        final mapped = res.data!.map((n) {
+          AlertSeverity sev = AlertSeverity.info;
+          final typeStr = n.type.toLowerCase();
+          if (typeStr.contains('critical') || typeStr.contains('error') || typeStr.contains('danger')) {
+            sev = AlertSeverity.critical;
+          } else if (typeStr.contains('warn')) {
+            sev = AlertSeverity.warning;
+          } else if (typeStr.contains('resolve') || typeStr.contains('success')) {
+            sev = AlertSeverity.resolved;
+          }
+
+          return AlertItem(
+            id: n.id,
+            title: n.title,
+            message: n.body,
+            deviceId: n.metadata['deviceId']?.toString() ?? 'VMX-DEV-${n.id}',
+            vehicleNumber: n.metadata['vehicleNumber']?.toString() ?? 'Fleet Vehicle',
+            depotLocation: n.metadata['depot']?.toString() ?? 'Depot',
+            timestamp: DateTime.tryParse(n.createdAt) ?? DateTime.now(),
+            severity: sev,
+            isRead: n.isRead.value,
+          );
+        }).toList();
+        allAlerts.assignAll(mapped);
+        visibleCount.value = pageSize;
+        return;
       }
       allAlerts.clear();
       visibleCount.value = pageSize;
@@ -144,7 +151,9 @@ class AlertsController extends GetxController {
     alert.isRead = true;
     allAlerts.refresh();
     try {
-      if (Get.isRegistered<FleetService>()) {
+      if (Get.isRegistered<TechnicianService>()) {
+        TechnicianService.to.markNotificationRead(alert.id);
+      } else if (Get.isRegistered<FleetService>()) {
         FleetService.to.markNotificationRead(alert.id);
       }
     } catch (_) {}
@@ -161,7 +170,9 @@ class AlertsController extends GetxController {
     }
     allAlerts.refresh();
     try {
-      if (Get.isRegistered<FleetService>()) {
+      if (Get.isRegistered<TechnicianService>()) {
+        TechnicianService.to.markAllNotificationsRead();
+      } else if (Get.isRegistered<FleetService>()) {
         FleetService.to.markAllNotificationsRead();
       }
     } catch (_) {}

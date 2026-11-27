@@ -34,11 +34,11 @@ class TechnicianDashboardController extends GetxController {
   }
 
   void goToHardwareConfig() {
-    selectedNavIndex.value = 3;
+    Get.toNamed(Routes.HARDWARE_CONFIGURATION);
   }
 
   void goToProfile() {
-    selectedNavIndex.value = 4;
+    selectedNavIndex.value = 3;
   }
 
   void goToGpsInstallation() {

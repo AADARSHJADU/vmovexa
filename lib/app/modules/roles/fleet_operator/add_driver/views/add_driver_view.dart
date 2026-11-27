@@ -632,16 +632,23 @@ class AddDriverView extends GetView<AddDriverController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const CustomBackButton(),
-          Obx(
-            () => Text(
-              controller.isEditMode.value ? 'edit_driver_profile'.tr : 'onboard_new_driver'.tr,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
+          const SizedBox(width: 8),
+          Expanded(
+            child: Obx(
+              () => Text(
+                controller.isEditMode.value ? 'edit_driver_profile'.tr : 'onboard_new_driver'.tr,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ),
+          const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.help_outline_rounded, color: Colors.white70, size: 22),
             onPressed: () {

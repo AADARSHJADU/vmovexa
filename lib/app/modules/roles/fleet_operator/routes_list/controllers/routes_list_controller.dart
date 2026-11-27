@@ -209,11 +209,11 @@ class RoutesListController extends GetxController {
             actionLoading.value = false;
           }
         },
-        child: Text('reject_route'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        child: Text('reject_route'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
       cancel: TextButton(
         onPressed: () => Get.back(),
-        child: Text('cancel'.tr, style: const TextStyle(color: Color(0xFF94A3B8))),
+        child: Text('cancel'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFF94A3B8))),
       ),
     );
   }
@@ -272,11 +272,11 @@ class RoutesListController extends GetxController {
             isLoading.value = false;
           }
         },
-        child: Text('delete'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        child: Text('delete'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
       cancel: TextButton(
         onPressed: () => Get.back(),
-        child: Text('cancel'.tr, style: const TextStyle(color: Color(0xFF94A3B8))),
+        child: Text('cancel'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFF94A3B8))),
       ),
     );
   }

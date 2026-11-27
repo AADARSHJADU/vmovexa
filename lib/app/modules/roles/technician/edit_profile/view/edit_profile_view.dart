@@ -274,6 +274,8 @@ class EditProfileView extends GetView<EditProfileController> {
                   ),
                   child: Text(
                     'change'.tr,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: kPurple,
                       fontSize: 12,
@@ -410,9 +412,11 @@ class EditProfileView extends GetView<EditProfileController> {
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              child: const Text(
-                'Change Profile Photo',
-                style: TextStyle(
+              child: Text(
+                'change_profile_photo'.tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
                   color: kPurple,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -468,12 +472,16 @@ class EditProfileView extends GetView<EditProfileController> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      'save_changes'.tr,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
+                    Flexible(
+                      child: Text(
+                        'save_changes'.tr,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],

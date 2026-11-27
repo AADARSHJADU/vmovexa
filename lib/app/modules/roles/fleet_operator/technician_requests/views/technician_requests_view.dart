@@ -69,14 +69,21 @@ class TechnicianRequestsView extends GetView<TechnicianRequestsController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const CustomBackButton(),
-          Text(
-            'technician_requests'.tr,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'technician_requests'.tr,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
+          const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 22),
             onPressed: () => controller.fetchWorkOrders(),
@@ -407,7 +414,7 @@ class TechnicianRequestsView extends GetView<TechnicianRequestsController> {
                   side: const BorderSide(color: Color(0xFF3B82F6)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
-                child: Text('reset_filter'.tr, style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 11)),
+                child: Text('reset_filter'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFF3B82F6), fontSize: 11)),
               ),
             ],
           ),

@@ -17,7 +17,7 @@ class GpsInstallationSuccessView extends GetView<GpsInstallationController> {
     return Scaffold(
       backgroundColor: kBg,
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             children: [
@@ -48,7 +48,7 @@ class GpsInstallationSuccessView extends GetView<GpsInstallationController> {
               ),
               const SizedBox(height: 24),
               _buildDetailsCard(),
-              const Spacer(),
+              const SizedBox(height: 24),
               _buildPrimaryButton(),
               const SizedBox(height: 10),
               _buildSecondaryButton(),
@@ -220,17 +220,27 @@ class GpsInstallationSuccessView extends GetView<GpsInstallationController> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: const TextStyle(color: Colors.white54, fontSize: 12),
+        Expanded(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(color: Colors.white54, fontSize: 12),
+          ),
         ),
-        Text(
-          value,
-          style: TextStyle(
-            color: valueColor,
-            fontSize: 12.5,
-            fontFamily: isMono ? 'monospace' : null,
-            fontWeight: FontWeight.w700,
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: valueColor,
+              fontSize: 12.5,
+              fontFamily: isMono ? 'monospace' : null,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ],
@@ -262,9 +272,13 @@ class GpsInstallationSuccessView extends GetView<GpsInstallationController> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'view_hardware_gps_status'.tr,
-              style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+            Flexible(
+              child: Text(
+                'view_hardware_gps_status'.tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+              ),
             ),
             const SizedBox(width: 8),
             const Icon(Icons.arrow_forward, color: Colors.white, size: 16),
@@ -289,6 +303,8 @@ class GpsInstallationSuccessView extends GetView<GpsInstallationController> {
         alignment: Alignment.center,
         child: Text(
           'go_to_dashboard'.tr,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w700),
         ),
       ),

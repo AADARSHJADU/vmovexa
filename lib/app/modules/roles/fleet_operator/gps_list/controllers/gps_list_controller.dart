@@ -116,7 +116,7 @@ class GpsListController extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
-            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white70)),
+            child: Text('cancel'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white70)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -124,7 +124,7 @@ class GpsListController extends GetxController {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () => Get.back(result: true),
-            child: const Text('Unlink', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: const Text('Unlink', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -174,7 +174,7 @@ class GpsListController extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
-            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white70)),
+            child: Text('cancel'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white70)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -182,7 +182,7 @@ class GpsListController extends GetxController {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () => Get.back(result: true),
-            child: const Text('Reboot Unit', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: const Text('Reboot Unit', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -242,7 +242,7 @@ class GpsListController extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
-            child: Text('cancel'.tr, style: const TextStyle(color: Colors.white70)),
+            child: Text('cancel'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white70)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -250,7 +250,7 @@ class GpsListController extends GetxController {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () => Get.back(result: true),
-            child: Text('delete'.tr, style: const TextStyle(color: Colors.white)),
+            child: Text('delete'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),

@@ -21,7 +21,7 @@ class RegistrationSuccessView extends GetView<RegisterDeviceController> {
     return Scaffold(
       backgroundColor: kBg,
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             children: [
@@ -41,7 +41,7 @@ class RegistrationSuccessView extends GetView<RegisterDeviceController> {
               ),
               const SizedBox(height: 24),
               _buildDetailsCard(),
-              const Spacer(),
+              const SizedBox(height: 24),
               _buildPrimaryButton(),
               const SizedBox(height: 10),
               _buildSecondaryButton(),
@@ -224,9 +224,13 @@ class RegistrationSuccessView extends GetView<RegisterDeviceController> {
               children: [
                 const Icon(Icons.terminal_rounded, color: Colors.white, size: 18),
                 const SizedBox(width: 8),
-                Text(
-                  'edge_setup'.tr,
-                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+                Flexible(
+                  child: Text(
+                    'edge_setup'.tr,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+                  ),
                 ),
               ],
             ),
@@ -249,9 +253,13 @@ class RegistrationSuccessView extends GetView<RegisterDeviceController> {
               children: [
                 const Icon(Icons.devices_other_rounded, color: Colors.white70, size: 18),
                 const SizedBox(width: 8),
-                Text(
-                  'edge_devices'.tr,
-                  style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w700),
+                Flexible(
+                  child: Text(
+                    'edge_devices'.tr,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w700),
+                  ),
                 ),
               ],
             ),
@@ -278,9 +286,13 @@ class RegistrationSuccessView extends GetView<RegisterDeviceController> {
           children: [
             const Icon(Icons.add_circle_outline, color: kPurple, size: 18),
             const SizedBox(width: 8),
-            Text(
-              'register_edge_device'.tr,
-              style: const TextStyle(color: AppColors.accentPurple, fontSize: 14, fontWeight: FontWeight.w700),
+            Flexible(
+              child: Text(
+                'register_edge_device'.tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: AppColors.accentPurple, fontSize: 14, fontWeight: FontWeight.w700),
+              ),
             ),
           ],
         ),

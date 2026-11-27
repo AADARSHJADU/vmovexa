@@ -104,46 +104,84 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
     );
   }
 
+
   Widget _buildTopBar(BuildContext context, DriverItemModel d) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: const BoxDecoration(
         color: AppColors.background,
-        border: Border(bottom: BorderSide(color: AppColors.cardBorder, width: 1.2)),
+        border: Border(
+          bottom: BorderSide(
+            color: AppColors.cardBorder,
+            width: 1.2,
+          ),
+        ),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              const CustomBackButton(),
-              const SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    d.name,
-                    style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          // Left section
+          Expanded(
+            child: Row(
+              children: [
+                const CustomBackButton(),
+                const SizedBox(width: 8),
+
+                // Driver name and badge ID
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        d.name,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        '${'badge_id_prefix'.tr}${d.displayBadgeId}',
+                        style: const TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 11,
+                          fontFamily: 'monospace',
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
-                  Text(
-                    '${'badge_id_prefix'.tr}${d.displayBadgeId}',
-                    style: const TextStyle(color: AppColors.textMuted, fontSize: 11, fontFamily: 'monospace'),
-                  ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
+
+          // Right section - Actions
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                icon: const Icon(Icons.edit_outlined, color: Colors.white, size: 22),
+                icon: const Icon(
+                  Icons.edit_outlined,
+                  color: Colors.white,
+                  size: 22,
+                ),
                 tooltip: 'edit_driver'.tr,
                 onPressed: controller.goToEditDriver,
               ),
               PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert_rounded, color: Colors.white, size: 24),
+                icon: const Icon(
+                  Icons.more_vert_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
                 color: const Color(0xFF1E293B),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 onSelected: (val) {
                   if (val == 'edit') {
                     controller.goToEditDriver();
@@ -162,9 +200,19 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                     value: 'edit',
                     child: Row(
                       children: [
-                        const Icon(Icons.edit_note_rounded, color: Color(0xFF38BDF8), size: 18),
+                        const Icon(
+                          Icons.edit_note_rounded,
+                          color: Color(0xFF38BDF8),
+                          size: 18,
+                        ),
                         const SizedBox(width: 10),
-                        Text('edit_driver_details'.tr, style: const TextStyle(color: Colors.white, fontSize: 13)),
+                        Text(
+                          'edit_driver_details'.tr,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -173,9 +221,19 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                       value: 'active',
                       child: Row(
                         children: [
-                          const Icon(Icons.check_circle_outline_rounded, color: Color(0xFF10B981), size: 18),
+                          const Icon(
+                            Icons.check_circle_outline_rounded,
+                            color: Color(0xFF10B981),
+                            size: 18,
+                          ),
                           const SizedBox(width: 10),
-                          Text('set_available_btn'.tr, style: const TextStyle(color: Color(0xFF10B981), fontSize: 13)),
+                          Text(
+                            'set_available_btn'.tr,
+                            style: const TextStyle(
+                              color: Color(0xFF10B981),
+                              fontSize: 13,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -184,9 +242,19 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                       value: 'off_duty',
                       child: Row(
                         children: [
-                          const Icon(Icons.pause_circle_outline_rounded, color: Color(0xFF94A3B8), size: 18),
+                          const Icon(
+                            Icons.pause_circle_outline_rounded,
+                            color: Color(0xFF94A3B8),
+                            size: 18,
+                          ),
                           const SizedBox(width: 10),
-                          Text('set_off_duty_btn'.tr, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                          Text(
+                            'set_off_duty_btn'.tr,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -195,9 +263,19 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                       value: 'verify',
                       child: Row(
                         children: [
-                          const Icon(Icons.verified_outlined, color: Color(0xFF14B8A6), size: 18),
+                          const Icon(
+                            Icons.verified_outlined,
+                            color: Color(0xFF14B8A6),
+                            size: 18,
+                          ),
                           const SizedBox(width: 10),
-                          Text('verify_kyc_docs'.tr, style: const TextStyle(color: Color(0xFF14B8A6), fontSize: 13)),
+                          Text(
+                            'verify_kyc_docs'.tr,
+                            style: const TextStyle(
+                              color: Color(0xFF14B8A6),
+                              fontSize: 13,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -206,9 +284,19 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                     value: 'delete',
                     child: Row(
                       children: [
-                        const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 18),
+                        const Icon(
+                          Icons.delete_outline_rounded,
+                          color: Color(0xFFEF4444),
+                          size: 18,
+                        ),
                         const SizedBox(width: 10),
-                        Text('delete_driver'.tr, style: const TextStyle(color: Color(0xFFEF4444), fontSize: 13)),
+                        Text(
+                          'delete_driver'.tr,
+                          style: const TextStyle(
+                            color: Color(0xFFEF4444),
+                            fontSize: 13,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -220,6 +308,7 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
       ),
     );
   }
+
 
   Widget _buildProfileCard(DriverItemModel d) {
     Color dutyColor = const Color(0xFF64748B);
@@ -297,9 +386,13 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                     Text(
                       d.name,
                       style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 3),
-                    Row(
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -310,6 +403,8 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                           ),
                           child: Text(
                             d.displayBadgeId,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               color: Color(0xFF60A5FA),
                               fontSize: 10,
@@ -318,8 +413,7 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                             ),
                           ),
                         ),
-                        if (d.bloodGroup.isNotEmpty) ...[
-                          const SizedBox(width: 6),
+                        if (d.bloodGroup.isNotEmpty)
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
@@ -329,6 +423,8 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                             ),
                             child: Text(
                               '${'blood_prefix'.tr}${d.bloodGroup}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 color: Color(0xFFF87171),
                                 fontSize: 10,
@@ -336,7 +432,6 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                               ),
                             ),
                           ),
-                        ],
                       ],
                     ),
                     const SizedBox(height: 6),
@@ -344,7 +439,14 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                       children: [
                         const Icon(Icons.phone_rounded, size: 14, color: AppColors.textMuted),
                         const SizedBox(width: 4),
-                        Text(d.phone.isNotEmpty ? d.phone : 'no_phone'.tr, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                        Expanded(
+                          child: Text(
+                            d.phone.isNotEmpty ? d.phone : 'no_phone'.tr,
+                            style: const TextStyle(color: Colors.white70, fontSize: 12),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ],
                     ),
                     if (d.email.isNotEmpty) ...[
@@ -372,8 +474,12 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
           const Divider(color: AppColors.cardBorder, height: 22),
 
           // Badge Status Row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 8,
             children: [
               // Duty status badge
               Container(
@@ -384,10 +490,25 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                   border: Border.all(color: dutyColor.withValues(alpha: 0.4)),
                 ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Container(width: 6, height: 6, decoration: BoxDecoration(color: dutyColor, shape: BoxShape.circle)),
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: dutyColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
                     const SizedBox(width: 6),
-                    Text(dutyLabel, style: TextStyle(color: dutyColor, fontSize: 11, fontWeight: FontWeight.bold)),
+                    Text(
+                      dutyLabel,
+                      style: TextStyle(
+                        color: dutyColor,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -399,13 +520,27 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                   decoration: BoxDecoration(
                     color: const Color(0xFFEF4444).withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.4)),
+                    border: Border.all(
+                      color: const Color(0xFFEF4444).withValues(alpha: 0.4),
+                    ),
                   ),
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.cancel_rounded, size: 12, color: Color(0xFFEF4444)),
+                      const Icon(
+                        Icons.cancel_rounded,
+                        size: 12,
+                        color: Color(0xFFEF4444),
+                      ),
                       const SizedBox(width: 4),
-                      Text('kyc_rejected_caps'.tr, style: const TextStyle(color: Color(0xFFEF4444), fontSize: 10, fontWeight: FontWeight.bold)),
+                      Text(
+                        'kyc_rejected_caps'.tr,
+                        style: const TextStyle(
+                          color: Color(0xFFEF4444),
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 )
@@ -415,13 +550,27 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                   decoration: BoxDecoration(
                     color: const Color(0xFF10B981).withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
+                    border: Border.all(
+                      color: const Color(0xFF10B981).withValues(alpha: 0.4),
+                    ),
                   ),
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.verified_rounded, size: 12, color: Color(0xFF10B981)),
+                      const Icon(
+                        Icons.verified_rounded,
+                        size: 12,
+                        color: Color(0xFF10B981),
+                      ),
                       const SizedBox(width: 4),
-                      Text('docs_verified_caps'.tr, style: const TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.bold)),
+                      Text(
+                        'docs_verified_caps'.tr,
+                        style: const TextStyle(
+                          color: Color(0xFF10B981),
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 )
@@ -431,13 +580,27 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                   decoration: BoxDecoration(
                     color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.4)),
+                    border: Border.all(
+                      color: const Color(0xFFF59E0B).withValues(alpha: 0.4),
+                    ),
                   ),
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.schedule_rounded, size: 12, color: Color(0xFFF59E0B)),
+                      const Icon(
+                        Icons.schedule_rounded,
+                        size: 12,
+                        color: Color(0xFFF59E0B),
+                      ),
                       const SizedBox(width: 4),
-                      Text('docs_pending_caps'.tr, style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 10, fontWeight: FontWeight.bold)),
+                      Text(
+                        'docs_pending_caps'.tr,
+                        style: const TextStyle(
+                          color: Color(0xFFF59E0B),
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -485,7 +648,12 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
       ),
       child: Column(
         children: [
-          Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+          Text(
+            label,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
           const SizedBox(height: 4),
           Text(
             value,
@@ -498,6 +666,7 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
     );
   }
 
+
   Widget _buildLicenseComplianceCard(DriverItemModel d) {
     final dlValid = !d.dlStatus.toLowerCase().contains('expir');
 
@@ -506,46 +675,97 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        border: Border.all(
+          color: AppColors.cardBorder,
+          width: 1.2,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Card Heading
           Row(
             children: [
-              const Icon(Icons.badge_outlined, color: Color(0xFF10B981), size: 18),
+              const Icon(
+                Icons.badge_outlined,
+                color: Color(0xFF10B981),
+                size: 18,
+              ),
               const SizedBox(width: 8),
-              Text(
-                'commercial_dl_kyc_title'.tr,
-                style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+              Expanded(
+                child: Text(
+                  'commercial_dl_kyc_title'.tr,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ],
           ),
-          const Divider(color: AppColors.cardBorder, height: 20),
 
-          _buildDetailRow('dl_number_label'.tr, d.licenseNumber.isNotEmpty ? d.licenseNumber : '—', isHighlight: true),
-          _buildDetailRow('license_type_label'.tr, d.licenseType),
+          const Divider(
+            color: AppColors.cardBorder,
+            height: 20,
+          ),
+
+          _buildDetailRow(
+            'dl_number_label'.tr,
+            d.licenseNumber.isNotEmpty ? d.licenseNumber : '—',
+            isHighlight: true,
+          ),
+
+          _buildDetailRow(
+            'license_type_label'.tr,
+            d.licenseType,
+          ),
+
           _buildDetailRow(
             'dl_expiry_label'.tr,
             d.dlExpiry.isNotEmpty ? d.dlExpiry : '—',
-            customValueColor: dlValid ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+            customValueColor: dlValid
+                ? const Color(0xFF10B981)
+                : const Color(0xFFEF4444),
           ),
+
           if (d.issueDate.isNotEmpty)
-            _buildDetailRow('issue_date_label'.tr, d.issueDate),
-          _buildDetailRow('rto_authority_label'.tr, d.issuingAuthority.isNotEmpty ? d.issuingAuthority : '—'),
+            _buildDetailRow(
+              'issue_date_label'.tr,
+              d.issueDate,
+            ),
+
+          _buildDetailRow(
+            'rto_authority_label'.tr,
+            d.issuingAuthority.isNotEmpty
+                ? d.issuingAuthority
+                : '—',
+          ),
+
           _buildDetailRow(
             'medical_validity_label'.tr,
-            d.medicalFitnessValidUntil.isNotEmpty ? d.medicalFitnessValidUntil : '—',
+            d.medicalFitnessValidUntil.isNotEmpty
+                ? d.medicalFitnessValidUntil
+                : '—',
           ),
+
           _buildDetailRow(
             'aadhaar_kyc_label'.tr,
-            d.aadhaarVerified ? 'verified_label'.tr : 'pending_label'.tr,
-            customValueColor: d.aadhaarVerified ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+            d.aadhaarVerified
+                ? 'verified_label'.tr
+                : 'pending_label'.tr,
+            customValueColor: d.aadhaarVerified
+                ? const Color(0xFF10B981)
+                : const Color(0xFFF59E0B),
           ),
         ],
       ),
     );
   }
+
+
 
   Widget _buildOperationsShiftCard(DriverItemModel d) {
     return Container(
@@ -553,29 +773,69 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        border: Border.all(
+          color: AppColors.cardBorder,
+          width: 1.2,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Operations Shift Heading
           Row(
             children: [
-              const Icon(Icons.schedule_rounded, color: Color(0xFF38BDF8), size: 18),
+              const Icon(
+                Icons.schedule_rounded,
+                color: Color(0xFF38BDF8),
+                size: 18,
+              ),
               const SizedBox(width: 8),
-              Text(
-                'operations_shift_title'.tr,
-                style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+              Expanded(
+                child: Text(
+                  'operations_shift_title'.tr,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ],
           ),
-          const Divider(color: AppColors.cardBorder, height: 20),
 
-          _buildDetailRow('home_depot_label'.tr, d.displayDepot),
-          _buildDetailRow('designated_bus_label'.tr, d.displayBus),
-          _buildDetailRow('active_shift_roster_label'.tr, d.displayShift, isHighlight: true),
+          const Divider(
+            color: AppColors.cardBorder,
+            height: 20,
+          ),
+
+          _buildDetailRow(
+            'home_depot_label'.tr,
+            d.displayDepot,
+          ),
+
+          _buildDetailRow(
+            'designated_bus_label'.tr,
+            d.displayBus,
+          ),
+
+          _buildDetailRow(
+            'active_shift_roster_label'.tr,
+            d.displayShift,
+            isHighlight: true,
+          ),
+
           if (d.joiningDate.isNotEmpty)
-            _buildDetailRow('date_of_joining_label'.tr, d.joiningDate),
-          _buildDetailRow('driving_experience_label'.tr, d.experienceYears),
+            _buildDetailRow(
+              'date_of_joining_label'.tr,
+              d.joiningDate,
+            ),
+
+          _buildDetailRow(
+            'driving_experience_label'.tr,
+            d.experienceYears,
+          ),
         ],
       ),
     );
@@ -639,25 +899,49 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.folder_shared_outlined, color: Color(0xFF10B981), size: 18),
-                  const SizedBox(width: 8),
-                  Text(
-                    'kyc_compliance_title'.tr,
-                    style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                ],
+              Expanded(
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.folder_shared_outlined,
+                      color: Color(0xFF10B981),
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'kyc_compliance_title'.tr,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              Text(
-                '${docs.length} ${'attached_suffix'.tr}',
-                style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  '${docs.length} ${'attached_suffix'.tr}',
+                  style: TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 11,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.end,
+                ),
               ),
             ],
           ),
+
           const Divider(color: AppColors.cardBorder, height: 20),
 
           if (docs.isEmpty)
@@ -667,9 +951,13 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                 children: [
                   const Icon(Icons.info_outline_rounded, color: AppColors.textMuted, size: 16),
                   const SizedBox(width: 8),
-                  Text(
-                    'no_docs_uploaded'.tr,
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12),
+                  Expanded(
+                    child: Text(
+                      'no_docs_uploaded'.tr,
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
@@ -753,27 +1041,53 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
     );
   }
 
-  Widget _buildDetailRow(String label, String value, {bool isHighlight = false, Color? customValueColor}) {
+
+  Widget _buildDetailRow(
+      String label,
+      String value, {
+        bool isHighlight = false,
+        Color? customValueColor,
+      }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          // Label
           Expanded(
             flex: 4,
-            child: Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+            child: Text(
+              label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              softWrap: true,
+              style: const TextStyle(
+                color: AppColors.textMuted,
+                fontSize: 12,
+              ),
+            ),
           ),
+
           const SizedBox(width: 8),
+
+          // Value
           Expanded(
             flex: 5,
             child: Text(
               value,
               textAlign: TextAlign.right,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              softWrap: true,
               style: TextStyle(
-                color: customValueColor ?? (isHighlight ? const Color(0xFF38BDF8) : Colors.white),
+                color: customValueColor ??
+                    (isHighlight
+                        ? const Color(0xFF38BDF8)
+                        : Colors.white),
                 fontSize: 12,
-                fontWeight: isHighlight ? FontWeight.bold : FontWeight.w500,
+                fontWeight: isHighlight
+                    ? FontWeight.bold
+                    : FontWeight.w500,
               ),
             ),
           ),
@@ -781,6 +1095,7 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
       ),
     );
   }
+
 
   Widget _buildBottomActions(DriverItemModel d) {
     return Container(
@@ -800,7 +1115,7 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               icon: const Icon(Icons.edit_outlined, size: 16, color: Color(0xFF38BDF8)),
-              label: Text('edit_driver'.tr, style: const TextStyle(color: Color(0xFF38BDF8), fontWeight: FontWeight.bold, fontSize: 13)),
+              label: Text('edit_driver'.tr, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFF38BDF8), fontWeight: FontWeight.bold, fontSize: 13)),
             ),
           ),
           const SizedBox(width: 12),
@@ -818,6 +1133,8 @@ class DriverDetailsView extends GetView<DriverDetailsController> {
               icon: Icon(d.isAvailable ? Icons.pause_circle_outline_rounded : Icons.play_circle_outline_rounded, size: 16, color: Colors.white),
               label: Text(
                 d.isAvailable ? 'set_off_duty_btn'.tr : 'set_available_btn'.tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
               ),
             ),
