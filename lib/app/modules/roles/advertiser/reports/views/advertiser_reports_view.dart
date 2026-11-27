@@ -511,7 +511,7 @@ class AdvertiserReportsContent extends StatelessWidget {
                       final isSelected = controller.selectedCampaignId.value == c.id;
                       return _buildPickerItem(
                         title: c.displayTitle,
-                        subtitle: 'Status: ${c.status.toUpperCase()} • Budget: ${c.formattedBudget}',
+                        subtitle: '${'status_label'.tr}: ${c.status.toUpperCase()} • ${'budget_label'.tr}: ${c.formattedBudget}',
                         isSelected: isSelected,
                         onTap: () {
                           controller.selectedCampaignId.value = c.id;
@@ -587,6 +587,69 @@ class AdvertiserReportsContent extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'active_scope_snapshot_lbl'.tr,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 2),
+
+                    Text(
+                      'summary_metrics_desc'.tr,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white54,
+                        fontSize: 10,
+                      ),
+                    ),
+
+                    const SizedBox(height: 2),
+
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E293B),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                          color: AppColors.cardBorder,
+                        ),
+                      ),
+                      child: Text(
+                        active != null
+                            ? active.displayCode
+                            : 'ALL-CAMPAIGNS',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Color(0xFF38BDF8),
+                          fontFamily: 'monospace',
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          /*Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -621,27 +684,27 @@ class AdvertiserReportsContent extends StatelessWidget {
               ),
 
             ],
-          ),
+          ),*/
           const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
                 child: _buildSnapshotPill(
-                  label: 'TOTAL MANAGED',
+                  label: 'total_managed_lbl'.tr,
                   value: '₹${controller.totalBudgetAmount.toStringAsFixed(0)}',
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: _buildSnapshotPill(
-                  label: 'AMOUNT SPENT',
+                  label: 'amount_spent_lbl'.tr,
                   value: '₹${controller.totalSpentAmount.toStringAsFixed(0)}',
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: _buildSnapshotPill(
-                  label: 'DELIVERED',
+                  label: 'delivered_lbl'.tr,
                   value: controller.totalImpressionsCount.toString(),
                 ),
               ),

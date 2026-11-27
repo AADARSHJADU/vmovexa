@@ -41,7 +41,7 @@ class CampaignLifecycleFlowWidget extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
+                     /* Row(
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -63,6 +63,52 @@ class CampaignLifecycleFlowWidget extends StatelessWidget {
                           Text(
                             'end_to_end_campaign_flow'.tr,
                             style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+                          ),
+                        ],
+                      ),*/
+                      Row(
+                        children: [
+                          Flexible(
+                            flex: 2,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF6366F1).withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: const Color(0xFF6366F1).withValues(alpha: 0.4),
+                                ),
+                              ),
+                              child: Text(
+                                'vmovexa_dooh_engine'.tr,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Color(0xFF818CF8),
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(width: 6),
+
+                          Expanded(
+                            flex: 3,
+                            child: Text(
+                              'end_to_end_campaign_flow'.tr,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: AppColors.textMuted,
+                                fontSize: 10,
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -88,7 +134,7 @@ class CampaignLifecycleFlowWidget extends StatelessWidget {
                           border: Border.all(color: AppColors.cardBorder),
                         ),
                         child: Text(
-                          controller.showDiagram.value ? 'Hide ▲' : 'Show ▼',
+                          controller.showDiagram.value ? 'hide_diagram'.tr : 'show_diagram'.tr,
                           style: const TextStyle(
                             color: Color(0xFF818CF8),
                             fontSize: 10,
@@ -115,11 +161,11 @@ class CampaignLifecycleFlowWidget extends StatelessWidget {
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
-                        _buildTabButton('pipeline', 'Visual Pipeline', Icons.rocket_launch_outlined),
+                        _buildTabButton('pipeline', 'visual_pipeline_tab'.tr, Icons.rocket_launch_outlined),
                         const SizedBox(width: 8),
-                        _buildTabButton('roles', 'Roles & Actions', Icons.person_outline_rounded),
+                        _buildTabButton('roles', 'roles_actions_tab'.tr, Icons.person_outline_rounded),
                         const SizedBox(width: 8),
-                        _buildTabButton('matrix', 'Status Matrix', Icons.table_chart_outlined),
+                        _buildTabButton('matrix', 'status_matrix_tab'.tr, Icons.table_chart_outlined),
                       ],
                     ),
                   ),
@@ -348,7 +394,7 @@ class CampaignLifecycleFlowWidget extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
-                                isSelected ? '● Active' : 'Step $stepId',
+                                isSelected ? 'active_badge'.tr : '${'step_prefix'.tr} $stepId',
                                 style: TextStyle(
                                   color: isSelected ? Colors.white : AppColors.textMuted,
                                   fontSize: 8.5,
@@ -448,7 +494,7 @@ class CampaignLifecycleFlowWidget extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Stage $selId: ${step['title']}',
+                            '${'stage_prefix'.tr} $selId: ${step['title']}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 13,
@@ -457,7 +503,7 @@ class CampaignLifecycleFlowWidget extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Primary Actor: ${step['role']}',
+                            '${'primary_actor_prefix'.tr} ${step['role']}',
                             style: TextStyle(color: color, fontSize: 10.5, fontWeight: FontWeight.bold),
                           ),
                         ],
@@ -480,7 +526,7 @@ class CampaignLifecycleFlowWidget extends StatelessWidget {
                         border: Border.all(color: AppColors.cardBorder),
                       ),
                       child: Text(
-                        'Status: ${step['status']}'.toUpperCase(),
+                        '${'status_label'.tr}: ${step['status']}'.toUpperCase(),
                         style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 9, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -492,7 +538,7 @@ class CampaignLifecycleFlowWidget extends StatelessWidget {
                         border: Border.all(color: AppColors.cardBorder),
                       ),
                       child: Text(
-                        'Payment: ${step['paymentStatus']}'.toUpperCase(),
+                        '${'payment_prefix'.tr}: ${step['paymentStatus']}'.toUpperCase(),
                         style: const TextStyle(color: Color(0xFF10B981), fontSize: 9, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -832,7 +878,7 @@ class CampaignLifecycleFlowWidget extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'Action: ${r['action']}',
+                '${'action_prefix'.tr} ${r['action']}',
                 style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 9.5),
               ),
             ],

@@ -80,8 +80,8 @@ class AdvertiserNotificationSettingsController extends GetxController {
         // Rollback
         stateVar.value = prevVal;
         Get.snackbar(
-          'Update Failed',
-          res.message ?? 'Failed to update channel preference',
+          'update_failed'.tr,
+          res.message ?? 'channel_pref_update_failed'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFFEF4444),
           colorText: Colors.white,
@@ -92,8 +92,8 @@ class AdvertiserNotificationSettingsController extends GetxController {
     } catch (e) {
       stateVar.value = prevVal;
       Get.snackbar(
-        'Error',
-        'Could not sync notification preference: $e',
+        'error_title'.tr,
+        '${'channel_pref_update_failed'.tr}: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),
         colorText: Colors.white,

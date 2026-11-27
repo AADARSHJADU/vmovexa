@@ -335,7 +335,7 @@ class RecordOfflinePaymentView extends GetView<RecordOfflinePaymentController> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                m.label,
+                                m.label.tr,
                                 style: TextStyle(
                                   color: isSelected ? Colors.white : Colors.white70,
                                   fontSize: 11,
@@ -345,7 +345,7 @@ class RecordOfflinePaymentView extends GetView<RecordOfflinePaymentController> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
-                                m.desc,
+                                m.desc.tr,
                                 style: const TextStyle(color: AppColors.textMuted, fontSize: 8.5),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,

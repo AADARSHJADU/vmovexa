@@ -948,7 +948,7 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
           ),
           const SizedBox(height: 6),
           Text(
-            tx.description ?? 'Settlement (wire)',
+            tx.description ?? 'settlement_wire_desc'.tr,
             style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 6),
@@ -956,7 +956,7 @@ class AdvertiserBillingView extends GetView<AdvertiserBillingController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${tx.createdAt?.split('T').first ?? '—'} · ${tx.gatewayRef ?? tx.invoiceCode ?? 'Gateway'}',
+                '${tx.createdAt?.split('T').first ?? '—'} · ${tx.gatewayRef ?? tx.invoiceCode ?? 'gateway_fallback'.tr}',
                 style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
               ),
               Text(

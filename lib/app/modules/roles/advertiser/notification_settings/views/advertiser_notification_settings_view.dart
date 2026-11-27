@@ -121,7 +121,7 @@ class AdvertiserNotificationSettingsView extends GetView<AdvertiserNotificationS
                             // 1. Master Channel: All Notifications
                             _buildChannelTile(
                               title: 'all_notifications'.tr,
-                              description: 'Master switch for every notification delivery channel',
+                              description: 'all_notifications_desc'.tr,
                               icon: Icons.notifications_active_rounded,
                               iconColor: const Color(0xFF3B82F6),
                               stateVar: controller.masterPush,
@@ -134,7 +134,7 @@ class AdvertiserNotificationSettingsView extends GetView<AdvertiserNotificationS
                             // 2. Web Notifications (channel_in_app)
                             _buildChannelTile(
                               title: 'web_notifications_title'.tr,
-                              description: 'Real-time browser popups and in-app dashboard notifications',
+                              description: 'web_notifications_desc'.tr,
                               icon: Icons.language_rounded,
                               iconColor: const Color(0xFF06B6D4),
                               stateVar: controller.channelInApp,
@@ -146,7 +146,7 @@ class AdvertiserNotificationSettingsView extends GetView<AdvertiserNotificationS
                             // 3. Push Notifications (channel_push)
                             _buildChannelTile(
                               title: 'push_notifications'.tr,
-                              description: 'Mobile device push notifications and alerts',
+                              description: 'push_notifications_desc'.tr,
                               icon: Icons.smartphone_rounded,
                               iconColor: const Color(0xFF8B5CF6),
                               stateVar: controller.channelPush,
@@ -158,7 +158,7 @@ class AdvertiserNotificationSettingsView extends GetView<AdvertiserNotificationS
                             // 4. SMS Notifications (channel_sms)
                             _buildChannelTile(
                               title: 'sms_notifications'.tr,
-                              description: 'Direct SMS text alerts on your registered mobile number',
+                              description: 'sms_notifications_desc'.tr,
                               icon: Icons.chat_bubble_outline_rounded,
                               iconColor: const Color(0xFFF59E0B),
                               stateVar: controller.channelSms,
@@ -170,7 +170,7 @@ class AdvertiserNotificationSettingsView extends GetView<AdvertiserNotificationS
                             // 5. Mail Notifications (channel_email)
                             _buildChannelTile(
                               title: 'mail_notifications_title'.tr,
-                              description: 'Email summaries, reports, and critical system notices',
+                              description: 'mail_notifications_desc'.tr,
                               icon: Icons.email_outlined,
                               iconColor: const Color(0xFFEF4444),
                               stateVar: controller.channelEmail,
@@ -182,7 +182,7 @@ class AdvertiserNotificationSettingsView extends GetView<AdvertiserNotificationS
                             // 6. WhatsApp Notifications (channel_whatsapp)
                             _buildChannelTile(
                               title: 'whatsapp_notifications'.tr,
-                              description: 'Instant WhatsApp message alerts and dispatch updates',
+                              description: 'whatsapp_notifications_desc'.tr,
                               icon: Icons.phone_android_rounded,
                               iconColor: const Color(0xFF10B981),
                               stateVar: controller.channelWhatsapp,

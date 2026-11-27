@@ -200,7 +200,7 @@ class AdvertiserBillingController extends GetxController {
         numericId: inv.id,
         date: _formatDate(inv.issuedAt),
         dueDate: inv.dueAt != null ? _formatDate(inv.dueAt) : null,
-        campaign: matchedCamp?.title ?? inv.customerName ?? resolvedCode ?? 'Campaign Ad',
+        campaign: matchedCamp?.title ?? inv.customerName ?? resolvedCode ?? 'campaign_ad_fallback'.tr,
         campaignCode: resolvedCode ?? '—',
         clientBrand: matchedCamp?.brandName ?? matchedCamp?.clientCompany ?? inv.customerName ?? '—',
         poReference: inv.poReference,
@@ -232,7 +232,7 @@ class AdvertiserBillingController extends GetxController {
           numericId: camp.id,
           date: _formatDate(camp.createdAt),
           dueDate: camp.startDate,
-          campaign: camp.title ?? 'Untitled Campaign',
+          campaign: camp.title ?? 'untitled_campaign'.tr,
           campaignCode: resolvedCode,
           clientBrand: camp.brandName ?? camp.clientCompany ?? '—',
           poReference: camp.code,
@@ -444,8 +444,8 @@ class AdvertiserBillingController extends GetxController {
       await file.writeAsString(pdfContent, flush: true);
 
       Get.snackbar(
-        'Invoice Downloaded',
-        'Saved to: ${file.path}',
+        'invoice_downloaded_title'.tr,
+        'saved_to_prefix'.trParams({'path': file.path}),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF10B981),
         colorText: Colors.white,
@@ -459,8 +459,8 @@ class AdvertiserBillingController extends GetxController {
       _showDownloadSuccessSheet(inv, file.path);
     } catch (e) {
       Get.snackbar(
-        'Download Failed',
-        'Could not save invoice file: $e',
+        'download_failed_title'.tr,
+        'could_not_save_invoice_err'.trParams({'error': e.toString()}),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
@@ -618,15 +618,15 @@ Certified digital tax document issued by VMOVEXA Advertising Platform.
         await launchUrl(uri);
       } else {
         Get.snackbar(
-          'File Saved',
-          'File saved in your Download directory: $filePath',
+          'file_saved'.tr,
+          'file_saved_downloads_dir'.trParams({'path': filePath}),
           snackPosition: SnackPosition.BOTTOM,
         );
       }
     } catch (_) {
       Get.snackbar(
-        'File Saved',
-        'File saved in Download directory: $filePath',
+        'file_saved'.tr,
+        'file_saved_downloads_dir'.trParams({'path': filePath}),
         snackPosition: SnackPosition.BOTTOM,
       );
     }

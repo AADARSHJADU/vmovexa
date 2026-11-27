@@ -334,7 +334,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    '${controller.onlineDevicesCount} Online',
+                    '${controller.onlineDevicesCount} ${'online_devices_label'.tr}',
                     style: TextStyle(
                       color: controller.isMqttConnected
                           ? const Color(0xFF34D399)
@@ -519,6 +519,64 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'campaign_performance'.tr,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 2),
+
+                    Text(
+                      'last_7_days_telemetry'.tr,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(width: 8),
+
+              TextButton(
+                onPressed: () => controller.changeTab(3),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text(
+                  '${'analytics'.tr} ›',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Color(0xFF818CF8),
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          /*Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -542,7 +600,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                 child: Text('${'analytics'.tr} ›', style: const TextStyle(color: Color(0xFF818CF8), fontSize: 11, fontWeight: FontWeight.bold)),
               ),
             ],
-          ),
+          ),*/
           const SizedBox(height: 16),
           if (controller.perfSeries.isEmpty)
             Padding(
@@ -712,7 +770,49 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
       ),
     );
   }
+  Widget _buildRecentCampaignsHeader() {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            'recent_campaigns'.tr,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
 
+        const SizedBox(width: 8),
+
+        TextButton(
+          onPressed: () => controller.changeTab(1),
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8,
+              vertical: 4,
+            ),
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          child: Text(
+            '${'view_all'.tr} ›',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Color(0xFF818CF8),
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+/*
   Widget _buildRecentCampaignsHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -732,7 +832,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
         ),
       ],
     );
-  }
+  }*/
 
   Widget _buildRecentCampaigns() {
     final list = controller.recentCampaigns;
@@ -883,7 +983,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
     return Column(
       children: [
         // Top Bar
-        Padding(
+        /*Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -901,8 +1001,63 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
               ),
             ],
           ),
-        ),
+        ),*/
+        Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 10,
+          ),
+          child: Row(
+            children: [
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(
+                  minWidth: 40,
+                  minHeight: 40,
+                ),
+                icon: const Icon(
+                  Icons.menu_rounded,
+                  color: Colors.white,
+                  size: 28,
+                ),
+                onPressed: controller.openDrawer,
+              ),
 
+              const SizedBox(width: 8),
+
+              Expanded(
+                child: Text(
+                  'lifecycle_and_flow'.tr,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 8),
+
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(
+                  minWidth: 40,
+                  minHeight: 40,
+                ),
+                icon: const Icon(
+                  Icons.refresh_rounded,
+                  color: Colors.white,
+                  size: 22,
+                ),
+                onPressed: () => controller.loadDashboardData(
+                  isRefresh: true,
+                ),
+              ),
+            ],
+          ),
+        ),
         // Scrollable Content
         Expanded(
           child: RefreshIndicator(
@@ -918,7 +1073,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                 const SizedBox(height: 12),
 
                 // 2. Stage Filter Header
-                Padding(
+               /* Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     children: [
@@ -934,10 +1089,55 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                           border: Border.all(color: AppColors.cardBorder),
                         ),
                         child: Text(
-                          '${controller.lifecycleCampaigns.length} campaigns',
+                          '${controller.lifecycleCampaigns.length} ${'campaigns_suffix'.tr}',
                           style: const TextStyle(color: Color(0xFF818CF8), fontSize: 10, fontWeight: FontWeight.bold),
                         ),
                       )),
+                    ],
+                  ),
+                ),*/
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'campaigns_by_stage_hdr'.tr,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Obx(
+                            () => Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1E293B),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: AppColors.cardBorder,
+                            ),
+                          ),
+                          child: Text(
+                            '${controller.lifecycleCampaigns.length} ${'campaigns_suffix'.tr}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Color(0xFF818CF8),
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -1093,7 +1293,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                           const Icon(Icons.rocket_launch_outlined, color: AppColors.textMuted, size: 44),
                           const SizedBox(height: 10),
                           Text(
-                            'No campaigns in ${controller.activeLifecycleStage.value.replaceAll('_', ' ')} stage',
+                            'no_campaigns_in_stage_msg'.trParams({'stage': controller.activeLifecycleStage.value.replaceAll('_', ' ')}),
                             style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 4),
@@ -1178,7 +1378,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                       ),
                     ),
                     child: Text(
-                      isPaid ? 'PAID' : 'UNPAID',
+                      isPaid ? 'paid'.tr.toUpperCase() : 'unpaid'.tr.toUpperCase(),
                       style: TextStyle(
                         color: isPaid ? const Color(0xFF10B981) : const Color(0xFFEF4444),
                         fontSize: 8.5,
@@ -1215,7 +1415,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                   const Icon(Icons.currency_rupee_rounded, size: 12, color: Color(0xFFF59E0B)),
                   const SizedBox(width: 2),
                   Text(
-                    'Budget: ${c.formattedBudget}',
+                    '${'budget_label'.tr}: ${c.formattedBudget}',
                     style: const TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -1226,7 +1426,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                   const Icon(Icons.remove_red_eye_outlined, size: 12, color: Color(0xFF0EA5E9)),
                   const SizedBox(width: 4),
                   Text(
-                    '${c.impressionsCount} imp',
+                    '${c.impressionsCount} ${'impressions_abbr'.tr}',
                     style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 10),
                   ),
                 ],
@@ -1237,7 +1437,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                   const Icon(Icons.tv_rounded, size: 12, color: Color(0xFF818CF8)),
                   const SizedBox(width: 4),
                   Text(
-                    '${c.screensCount} screens',
+                    '${c.screensCount} ${'screens_suffix'.tr}',
                     style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 10),
                   ),
                 ],
@@ -2020,7 +2220,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                         ),
                         const SizedBox(width: 3),
                         Text(
-                          (c.mediaType ?? 'Video').toUpperCase(),
+                          (c.mediaType ?? 'video_media_type'.tr).toUpperCase(),
                           style: const TextStyle(color: Colors.white70, fontSize: 8.5, fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -2058,7 +2258,7 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
                       border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.3)),
                     ),
                     child: Text(
-                      '${'payment_prefix'.tr} ${c.isPaid ? 'paid'.tr : 'Unpaid'}',
+                      '${'payment_prefix'.tr} ${c.isPaid ? 'paid'.tr : 'unpaid'.tr}',
                       style: const TextStyle(color: Color(0xFFA5B4FC), fontSize: 8.5, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -2629,8 +2829,8 @@ class AdvertiserDashboardView extends GetView<AdvertiserDashboardController> {
         child: Column(
           children: tickets.take(5).map((t) {
             final id = (t['code'] ?? t['id'] ?? 'TICKET').toString();
-            final title = (t['subject'] ?? t['title'] ?? 'Support Inquiry').toString();
-            final date = (t['created_at'] ?? t['date'] ?? 'Recent').toString();
+            final title = (t['subject'] ?? t['title'] ?? 'support_inquiry_fallback'.tr).toString();
+            final date = (t['created_at'] ?? t['date'] ?? 'recent_fallback'.tr).toString();
             final status = (t['status'] ?? 'open').toString().toLowerCase();
             final col = status == 'resolved'
                 ? const Color(0xFF10B981)

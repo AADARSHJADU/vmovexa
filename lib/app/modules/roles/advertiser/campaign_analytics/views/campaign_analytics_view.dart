@@ -161,6 +161,7 @@ class CampaignAnalyticsContent extends StatelessWidget {
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       controller.isExporting.value
                           ? const SizedBox(
@@ -170,12 +171,14 @@ class CampaignAnalyticsContent extends StatelessWidget {
                             )
                           : const Icon(Icons.description_outlined, color: Colors.white, size: 16),
                       const SizedBox(width: 8),
-                      Text(
-                        controller.isExporting.value ? 'exporting_text'.tr : 'export_csv_report'.tr,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.bold,
+                      Flexible(
+                        child: Text(
+                          controller.isExporting.value ? 'exporting_text'.tr : 'export_csv_report'.tr,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ],
@@ -236,7 +239,7 @@ class CampaignAnalyticsContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          /*Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
@@ -289,6 +292,95 @@ class CampaignAnalyticsContent extends StatelessWidget {
                     color: Colors.white70,
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),*/
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E293B),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: const Color(0xFF38BDF8)
+                              .withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.track_changes_rounded,
+                        color: Color(0xFF38BDF8),
+                        size: 16,
+                      ),
+                    ),
+
+                    const SizedBox(width: 10),
+
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'active_filter_hdr'.tr,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white54,
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+
+                          Text(
+                            'select_campaign'.tr,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(width: 8),
+
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E293B),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColors.cardBorder,
+                    ),
+                  ),
+                  child: Text(
+                    '${controller.campaigns.length} ${'campaigns_available_count'.tr}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -427,7 +519,7 @@ class CampaignAnalyticsContent extends StatelessWidget {
                       final cCode = (c.code != null && c.code!.isNotEmpty) ? c.code! : '#${c.id}';
                       return _buildPickerItem(
                         title: cTitle,
-                        subtitle: 'Status: ${c.status.toUpperCase()} • Budget: ${c.budget}',
+                        subtitle: '${'status_label'.tr}: ${c.status.toUpperCase()} • ${'budget_label'.tr}: ${c.budget}',
                         code: cCode,
                         isSelected: isSelected,
                         onTap: () {
@@ -1126,9 +1218,9 @@ class CampaignAnalyticsContent extends StatelessWidget {
             )
           else ...[
             ...paginated.map((route) {
-              final name = route['name']?.toString() ?? 'Transit Corridor';
+              final name = route['name']?.toString() ?? 'transit_corridor_fallback'.tr;
               final code = route['code']?.toString() ?? 'RT-NODE';
-              final city = route['city']?.toString() ?? 'Metro City';
+              final city = route['city']?.toString() ?? 'metro_city_fallback'.tr;
               final screens = route['screens'] ?? 1;
               final vehicles = route['vehicles'] ?? 1;
               final start = route['startPoint']?.toString();

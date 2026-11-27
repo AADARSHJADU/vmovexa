@@ -380,7 +380,7 @@ class _ClientAddressMapPickerState extends State<ClientAddressMapPicker> {
                                 Text(
                                   _hasCustomPin
                                       ? 'Lat: ${_currentLat.toStringAsFixed(4)}, Lng: ${_currentLng.toStringAsFixed(4)}'
-                                      : 'Tap anywhere on map to drop pin',
+                                      : 'tap_map_to_set_location'.tr,
                                   style: const TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold),
                                 ),
                               ],
@@ -604,7 +604,7 @@ class _ClientAddressMapPickerState extends State<ClientAddressMapPicker> {
                         Text(
                           _hasCustomPin
                               ? 'Lat: ${_currentLat.toStringAsFixed(4)}, Lng: ${_currentLng.toStringAsFixed(4)}'
-                              : 'Tap anywhere on map to drop pin',
+                              : 'tap_map_to_set_location'.tr,
                           style: const TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold),
                         ),
                       ],

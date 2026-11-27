@@ -765,7 +765,7 @@ class CampaignDetailsController extends GetxController {
             backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
         await refreshCampaignDetails();
       } else {
-        Get.snackbar('Error', res.message ?? 'Failed to start campaign',
+        Get.snackbar('error_title'.tr, res.message ?? 'campaign_start_failed'.tr,
             backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       }
     } catch (e) {
@@ -786,7 +786,7 @@ class CampaignDetailsController extends GetxController {
             backgroundColor: const Color(0xFFF97316), colorText: Colors.white);
         await refreshCampaignDetails();
       } else {
-        Get.snackbar('Error', res.message ?? 'Failed to pause campaign',
+        Get.snackbar('error_title'.tr, res.message ?? 'campaign_pause_failed'.tr,
             backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       }
     } catch (e) {
@@ -807,7 +807,7 @@ class CampaignDetailsController extends GetxController {
             backgroundColor: const Color(0xFF3B82F6), colorText: Colors.white);
         await refreshCampaignDetails();
       } else {
-        Get.snackbar('Error', res.message ?? 'Failed to complete campaign',
+        Get.snackbar('error_title'.tr, res.message ?? 'campaign_complete_failed'.tr,
             backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       }
     } catch (e) {
@@ -870,7 +870,7 @@ class CampaignDetailsController extends GetxController {
         Get.snackbar('success'.tr, 'campaign_deleted_msg'.tr,
             backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
       } else {
-        Get.snackbar('Error', res.message ?? 'Failed to delete',
+        Get.snackbar('error_title'.tr, res.message ?? 'campaign_delete_failed'.tr,
             backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       }
     }
@@ -897,7 +897,7 @@ class CampaignDetailsController extends GetxController {
   /// POST /api/v1/campaigns/:id/share-payment-link
   Future<void> sharePaymentLink({required String channel, required String recipient}) async {
     if (recipient.trim().isEmpty) {
-      Get.snackbar('required_label'.tr, 'Please enter recipient $channel address',
+      Get.snackbar('required_label'.tr, 'payment_link_channel_prompt'.tr,
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return;
     }
@@ -912,14 +912,14 @@ class CampaignDetailsController extends GetxController {
       final res = await _service.sharePaymentLink(campaign.value.id, payload);
       if (res.success) {
         Get.back(); // close modal if open
-        Get.snackbar('Link Sent', res.message ?? 'Payment checkout link queued successfully',
+        Get.snackbar('payment_link_sent_title'.tr, res.message ?? 'payment_link_queued_msg'.tr,
             backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
       } else {
-        Get.snackbar('Error', res.message ?? 'Failed to send payment link',
+        Get.snackbar('error_title'.tr, res.message ?? 'payment_link_send_failed'.tr,
             backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Unexpected error: $e',
+      Get.snackbar('error_title'.tr, '${'error_unexpected'.tr}: $e',
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
     } finally {
       isSharingPayment.value = false;

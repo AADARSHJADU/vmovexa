@@ -178,10 +178,10 @@ class AdvertiserNotificationsView extends GetView<AdvertiserNotificationsControl
           Obx(() {
             final active = controller.activeTab.value;
             final tabs = [
-              {'label': 'All', 'count': controller.allCount},
-              {'label': 'Campaigns', 'count': controller.campaignsCount},
-              {'label': 'Payments', 'count': controller.paymentsCount},
-              {'label': 'System', 'count': controller.systemCount},
+              {'id': 'All', 'label': 'tab_all'.tr, 'count': controller.allCount},
+              {'id': 'Campaigns', 'label': 'campaigns_tab'.tr, 'count': controller.campaignsCount},
+              {'id': 'Payments', 'label': 'payments_tab'.tr, 'count': controller.paymentsCount},
+              {'id': 'System', 'label': 'system_tab'.tr, 'count': controller.systemCount},
             ];
 
             return SingleChildScrollView(
@@ -189,14 +189,15 @@ class AdvertiserNotificationsView extends GetView<AdvertiserNotificationsControl
               physics: const BouncingScrollPhysics(),
               child: Row(
                 children: tabs.map((tab) {
+                  final id = tab['id'] as String;
                   final label = tab['label'] as String;
                   final count = tab['count'] as int;
-                  final isSelected = active == label;
+                  final isSelected = active == id;
 
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: InkWell(
-                      onTap: () => controller.setTab(label),
+                      onTap: () => controller.setTab(id),
                       borderRadius: BorderRadius.circular(10),
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
@@ -460,7 +461,10 @@ class AdvertiserNotificationsView extends GetView<AdvertiserNotificationsControl
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Showing ${controller.paginatedNotifications.length} of $totalFiltered alerts',
+              'showing_alerts_pagination'.trParams({
+                'count': '${controller.paginatedNotifications.length}',
+                'total': '$totalFiltered',
+              }),
               style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
             ),
             Row(
@@ -526,8 +530,8 @@ class AdvertiserNotificationsView extends GetView<AdvertiserNotificationsControl
             final q = controller.searchQuery.value;
             return Text(
               q.isNotEmpty
-                  ? 'No alerts match your search query "$q".'
-                  : "You're all caught up. Campaign, payment, and system alerts will show up here.",
+                  ? 'no_matching_alerts_query'.trParams({'query': q})
+                  : 'all_caught_up_alerts_desc'.tr,
               textAlign: TextAlign.center,
               style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11.5, height: 1.4),
             );

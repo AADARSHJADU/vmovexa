@@ -263,8 +263,8 @@ class AdvertiserSupportHistoryView extends GetView<AdvertiserSupportHistoryContr
     final statusLabel = c.getStatusLabel(rawStatus);
 
     final code = ticket['code'] ?? ticket['id'] ?? 'TICKET';
-    final subject = ticket['subject'] ?? 'No Subject';
-    final category = ticket['category'] ?? 'General';
+    final subject = ticket['subject'] ?? 'no_subject_fallback'.tr;
+    final category = ticket['category'] ?? 'general_category_fallback'.tr;
     final desc = ticket['description'] ?? '';
     final createdAt = ticket['createdAt'] ?? ticket['created_at'] ?? '';
 
@@ -545,10 +545,10 @@ class AdvertiserSupportHistoryView extends GetView<AdvertiserSupportHistoryContr
     final statusLabel = c.getStatusLabel(rawStatus);
 
     final code = ticket['code'] ?? ticket['id'] ?? 'TICKET';
-    final subject = ticket['subject'] ?? 'No Subject';
-    final category = ticket['category'] ?? 'General';
+    final subject = ticket['subject'] ?? 'no_subject_fallback'.tr;
+    final category = ticket['category'] ?? 'general_category_fallback'.tr;
     final priority = (ticket['priority'] ?? 'medium').toString().toUpperCase();
-    final desc = ticket['description'] ?? 'No description provided.';
+    final desc = ticket['description'] ?? 'no_description_provided'.tr;
     final attachments = ticket['attachments'];
 
     showModalBottomSheet(
@@ -654,7 +654,7 @@ class AdvertiserSupportHistoryView extends GetView<AdvertiserSupportHistoryContr
                     spacing: 8,
                     runSpacing: 8,
                     children: attachments.map((att) {
-                      final fn = att is Map ? (att['fileName'] ?? 'Document') : att.toString();
+                      final fn = att is Map ? (att['fileName'] ?? 'document_fallback'.tr) : att.toString();
                       return Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(

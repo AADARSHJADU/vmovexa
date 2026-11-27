@@ -1057,7 +1057,7 @@
 //                           Row(
 //                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
 //                             children: [
-//                               Text(r.customerName ?? 'Verified Customer',
+//                               Text(r.customerName ?? 'verified_customer'.tr,
 //                                   style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
 //                               Row(
 //                                 children: List.generate(
@@ -1550,7 +1550,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
           CustomButton(
             width: 150,
             height: 38,
-            text: 'Start Broadcast',
+            text: 'start_broadcast'.tr,
             isGradient: true,
             onTap: controller.startCampaign,
             prefixIcon: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 16),
@@ -1708,10 +1708,10 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
   // }
   Widget _buildSectionTabs() {
     final tabs = [
-      {'key': 'overview', 'label': 'Overview & Client'},
-      {'key': 'media_fleet', 'label': 'Media & Fleet'},
-      {'key': 'schedule_budget', 'label': 'Schedule & Budget'},
-      {'key': 'payment_qr', 'label': 'Payment & QR'},
+      {'key': 'overview', 'label': 'tab_overview_client'.tr},
+      {'key': 'media_fleet', 'label': 'tab_media_fleet'.tr},
+      {'key': 'schedule_budget', 'label': 'tab_schedule_budget'.tr},
+      {'key': 'payment_qr', 'label': 'tab_payment_qr'.tr},
     ];
 
     return SizedBox(
@@ -1784,11 +1784,11 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                 ],
               ),
               const SizedBox(height: 14),
-              _buildTwoColInfo('campaign_name_text'.tr, c.displayTitle, 'brand_company_label'.tr, c.brandName ?? 'Commercial'),
+              _buildTwoColInfo('campaign_name_text'.tr, c.displayTitle, 'brand_company_label'.tr, c.brandName ?? 'commercial_brand_fallback'.tr),
               const SizedBox(height: 10),
-              _buildTwoColInfo('campaign_type_label'.tr, c.type ?? 'Commercial DOOH', 'filter_category'.tr, c.category ?? 'Retail'),
+              _buildTwoColInfo('campaign_type_label'.tr, c.type ?? 'commercial_dooh_fallback'.tr, 'filter_category'.tr, c.category ?? 'retail_category_fallback'.tr),
               const SizedBox(height: 10),
-              _buildTwoColInfo('objective_text'.tr, c.targetAudience ?? 'Brand Awareness', 'created_at_label'.tr, c.createdAt?.split('T').first ?? '—'),
+              _buildTwoColInfo('objective_text'.tr, c.targetAudience ?? 'brand_awareness_obj'.tr, 'created_at_label'.tr, c.createdAt?.split('T').first ?? '—'),
               if (c.description != null && c.description!.trim().isNotEmpty) ...[
                 const SizedBox(height: 14),
                 Text('brief_description_label'.tr, style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
@@ -2009,7 +2009,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          target.fleetName ?? 'City Transit Route #${idx + 1}',
+                          target.fleetName ?? '${'city_transit_route_prefix'.tr} #${idx + 1}',
                           style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                         ),
                         if (target.city != null && target.city!.isNotEmpty)
@@ -2457,7 +2457,7 @@ class CampaignDetailsView extends GetView<CampaignDetailsController> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(r.customerName ?? 'Verified Customer',
+                              Text(r.customerName ?? 'verified_customer'.tr,
                                   style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                               Row(
                                 children: List.generate(

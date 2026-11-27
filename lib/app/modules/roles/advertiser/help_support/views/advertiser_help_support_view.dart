@@ -1002,8 +1002,8 @@ class _AdvertiserHelpSupportViewState extends State<AdvertiserHelpSupportView> {
                 child: Obx(() {
                   final videos = controller.videoTutorials;
                   if (videos.isEmpty) {
-                    return const Center(
-                      child: Text('No video tutorials available.', style: TextStyle(color: Color(0xFF64748B), fontSize: 12)),
+                    return Center(
+                      child: Text('no_video_tutorials_available'.tr, style: const TextStyle(color: Color(0xFF64748B), fontSize: 12)),
                     );
                   }
 

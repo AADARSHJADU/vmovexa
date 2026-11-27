@@ -450,10 +450,14 @@ class AdvertiserEditProfileView extends GetView<AdvertiserProfileController> {
     final languageOptions = [
       {'code': 'en', 'name': 'English (EN)'},
       {'code': 'hi', 'name': 'Hindi (हिन्दी)'},
-      {'code': 'kn', 'name': 'Kannada (ಕನ್ನಡ)'},
-      {'code': 'mr', 'name': 'Marathi (मराठी)'},
+      {'code': 'bn', 'name': 'Bengali (বাংলা)'},
       {'code': 'te', 'name': 'Telugu (తెలుగు)'},
+      {'code': 'mr', 'name': 'Marathi (मराठी)'},
       {'code': 'ta', 'name': 'Tamil (தமிழ்)'},
+      {'code': 'gu', 'name': 'Gujarati (ગુજરાતી)'},
+      {'code': 'kn', 'name': 'Kannada (ಕನ್ನಡ)'},
+      {'code': 'ml', 'name': 'Malayalam (മലയാളം)'},
+      {'code': 'pa', 'name': 'Punjabi (ਪੰਜਾਬੀ)'},
     ];
 
     final timezones = [

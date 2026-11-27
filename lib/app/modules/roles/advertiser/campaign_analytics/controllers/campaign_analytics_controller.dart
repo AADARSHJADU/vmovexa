@@ -414,8 +414,8 @@ class CampaignAnalyticsController extends GetxController {
       _showExportSuccessSheet(csvContent, savedPath);
     } catch (e) {
       Get.snackbar(
-        'Export Failed',
-        'Failed to generate CSV: $e',
+        'export_failed_title'.tr,
+        'failed_to_generate_csv_err'.trParams({'error': e.toString()}),
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
       );

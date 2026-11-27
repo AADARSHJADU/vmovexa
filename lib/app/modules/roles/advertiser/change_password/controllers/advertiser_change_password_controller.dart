@@ -44,13 +44,13 @@ class AdvertiserChangePasswordController extends GetxController {
     passedCount.value = count;
 
     if (count <= 1) {
-      strengthText.value = 'Weak';
+      strengthText.value = 'password_strength_weak'.tr;
       strengthColor.value = const Color(0xFFEF4444);
     } else if (count <= 3) {
-      strengthText.value = 'Medium';
+      strengthText.value = 'password_strength_medium'.tr;
       strengthColor.value = const Color(0xFFF59E0B);
     } else {
-      strengthText.value = 'Strong';
+      strengthText.value = 'password_strength_strong'.tr;
       strengthColor.value = const Color(0xFF10B981);
     }
   }
@@ -117,8 +117,8 @@ class AdvertiserChangePasswordController extends GetxController {
 
       if (res.success) {
         Get.snackbar(
-          'Password Updated',
-          res.message ?? 'Your advertiser account password was successfully updated!',
+          'password_updated'.tr,
+          res.message ?? 'advertiser_password_updated_success'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
@@ -130,8 +130,8 @@ class AdvertiserChangePasswordController extends GetxController {
         Get.back();
       } else {
         Get.snackbar(
-          'Update Failed',
-          res.message ?? 'Could not update password. Please check your current password.',
+          'update_failed'.tr,
+          res.message ?? 'advertiser_password_update_failed'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFFEF4444),
           colorText: Colors.white,
@@ -142,8 +142,8 @@ class AdvertiserChangePasswordController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'Failed to connect to authentication server: $e',
+        'error_title'.tr,
+        '${'server_connection_error_msg'.tr}: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFEF4444),
         colorText: Colors.white,

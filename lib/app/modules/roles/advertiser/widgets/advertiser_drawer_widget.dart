@@ -52,7 +52,7 @@ class AdvertiserDrawerWidget extends StatelessWidget {
                           ? u!.companyName!
                           : (u?.organizationName?.isNotEmpty == true
                               ? u!.organizationName!
-                              : (u?.name?.isNotEmpty == true ? u!.name! : 'Commercial Advertiser')));
+                              : (u?.name?.isNotEmpty == true ? u!.name! : 'commercial_advertiser_title'.tr)));
 
                   final email = profileCtrl.email.value.isNotEmpty
                       ? profileCtrl.email.value
@@ -60,7 +60,7 @@ class AdvertiserDrawerWidget extends StatelessWidget {
 
                   final role = profileCtrl.displayRole.value.isNotEmpty
                       ? profileCtrl.displayRole.value
-                      : (u?.role ?? 'COMMERCIAL ADVERTISER');
+                      : (u?.role ?? 'role_commercial_advertiser'.tr);
 
                   final rawAvatar = profileCtrl.avatarUrl.value.isNotEmpty
                       ? profileCtrl.avatarUrl.value

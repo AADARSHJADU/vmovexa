@@ -470,7 +470,7 @@ class CreateCampaignController extends GetxController {
         }
       }
     } catch (e) {
-      Get.snackbar('Picker Error', 'Could not access gallery: $e',
+      Get.snackbar('picker_error_title'.tr, '${'gallery_access_error'.tr}: $e',
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
     }
   }
@@ -870,6 +870,114 @@ class CreateCampaignController extends GetxController {
     }
   }
 
+  String getCampaignTypeLabel(String type) {
+    switch (type) {
+      case 'Brand Awareness':
+        return 'type_brand_awareness'.tr;
+      case 'Product Promotion':
+        return 'type_product_promotion'.tr;
+      case 'Event':
+        return 'type_event'.tr;
+      case 'Offer / Promotion':
+        return 'type_offer_promotion'.tr;
+      default:
+        return type;
+    }
+  }
+
+  String getObjectiveLabel(String obj) {
+    switch (obj) {
+      case 'Increase Brand Awareness':
+        return 'obj_increase_awareness'.tr;
+      case 'Drive Sales':
+        return 'obj_drive_sales'.tr;
+      case 'Store Footfall':
+        return 'obj_store_footfall'.tr;
+      case 'Product Launch':
+        return 'obj_product_launch'.tr;
+      case 'Lead Generation':
+        return 'obj_lead_gen'.tr;
+      default:
+        return obj;
+    }
+  }
+
+  String getCategoryLabel(String cat) {
+    switch (cat) {
+      case 'Retail':
+        return 'cat_retail'.tr;
+      case 'Technology':
+        return 'cat_technology'.tr;
+      case 'Fashion':
+        return 'cat_fashion'.tr;
+      case 'Automotive':
+        return 'cat_automotive'.tr;
+      case 'FMCG / Grocery':
+        return 'cat_fmcg_grocery'.tr;
+      case 'Real Estate':
+        return 'cat_real_estate'.tr;
+      case 'Entertainment':
+        return 'cat_entertainment'.tr;
+      case 'Healthcare':
+        return 'cat_healthcare'.tr;
+      case 'Education':
+        return 'cat_education'.tr;
+      default:
+        return cat;
+    }
+  }
+
+  String getSchedulePresetLabel(String preset) {
+    switch (preset) {
+      case 'Daily':
+        return 'preset_daily'.tr;
+      case 'Weekdays':
+        return 'preset_weekdays'.tr;
+      case 'Weekends':
+        return 'preset_weekends'.tr;
+      case 'Custom':
+        return 'preset_custom'.tr;
+      default:
+        return preset;
+    }
+  }
+
+  String getDayLabel(String day) {
+    switch (day) {
+      case 'Mon':
+        return 'day_mon'.tr;
+      case 'Tue':
+        return 'day_tue'.tr;
+      case 'Wed':
+        return 'day_wed'.tr;
+      case 'Thu':
+        return 'day_thu'.tr;
+      case 'Fri':
+        return 'day_fri'.tr;
+      case 'Sat':
+        return 'day_sat'.tr;
+      case 'Sun':
+        return 'day_sun'.tr;
+      default:
+        return day;
+    }
+  }
+
+  String getTimeSlotPresetTitle(String title) {
+    switch (title) {
+      case 'Prime Transit':
+        return 'slot_prime_transit'.tr;
+      case 'Full Day':
+        return 'slot_full_day'.tr;
+      case 'Morning Rush':
+        return 'slot_morning_rush'.tr;
+      case 'Evening Rush':
+        return 'slot_evening_rush'.tr;
+      default:
+        return title;
+    }
+  }
+
   Future<void> checkSlotAvailability() async {
     isCheckingSlot.value = true;
     await Future.delayed(const Duration(milliseconds: 600));
@@ -1160,12 +1268,12 @@ class CreateCampaignController extends GetxController {
       return false;
     }
     if (selectedDays.isEmpty) {
-      Get.snackbar('required_label'.tr, 'Please select at least one active broadcast day of the week',
+      Get.snackbar('required_label'.tr, 'select_broadcast_day_msg'.tr,
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return false;
     }
     if (dailySlotStart.value.compareTo(dailySlotEnd.value) >= 0) {
-      Get.snackbar('required_label'.tr, 'Daily Broadcast End Time must be later than Start Time',
+      Get.snackbar('required_label'.tr, 'end_time_must_be_later_msg'.tr,
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return false;
     }
@@ -1174,7 +1282,7 @@ class CreateCampaignController extends GetxController {
 
   bool validateStep5() {
     if (finalTotalAmount <= 0) {
-      Get.snackbar('required_label'.tr, 'Please enter a valid Campaign Budget (greater than ₹0)',
+      Get.snackbar('required_label'.tr, 'total_budget_positive_err'.tr,
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
       return false;
     }
@@ -1329,10 +1437,10 @@ class CreateCampaignController extends GetxController {
           hasSavedDraft.value = false;
           draftSavedAt.value = '';
           draftInfo.value = null;
-          Get.snackbar('success'.tr, 'Campaign updated successfully',
+          Get.snackbar('success'.tr, 'campaign_updated_success'.tr,
               backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
         } else {
-          Get.snackbar('Update Failed', res.message ?? 'Failed to update campaign',
+          Get.snackbar('update_failed'.tr, res.message ?? 'campaign_update_failed'.tr,
               backgroundColor: const Color(0xFFEF4444), colorText: Colors.white, duration: const Duration(seconds: 4));
         }
 
@@ -1346,12 +1454,12 @@ class CreateCampaignController extends GetxController {
           draftSavedAt.value = '';
           draftInfo.value = null;
         } else {
-          Get.snackbar('Submission Failed', res.message ?? 'Failed to create campaign',
+          Get.snackbar('ticket_failed_title'.tr, res.message ?? 'campaign_create_failed'.tr,
               backgroundColor: const Color(0xFFEF4444), colorText: Colors.white, duration: const Duration(seconds: 4));
         }
       }
     } catch (e) {
-      Get.snackbar('Error', 'Unexpected error: $e',
+      Get.snackbar('error_title'.tr, '${'error_unexpected'.tr}: $e',
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
     } finally {
       isSubmitting.value = false;

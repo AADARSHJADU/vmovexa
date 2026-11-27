@@ -746,6 +746,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vmovexa/app/data/models/campaign_model.dart';
 import 'package:vmovexa/app/data/services/advertiser_service.dart';
+import 'package:vmovexa/app/data/services/auth_service.dart';
 import 'package:vmovexa/app/data/services/storage_service.dart';
 import '../../../../../routes/app_routes.dart';
 
@@ -1183,8 +1184,8 @@ class AdvertiserDashboardController extends GetxController {
         fetchCampaigns();
       } else {
         Get.snackbar(
-          'Error',
-          res.message ?? 'Could not send payment link',
+          'error_title'.tr,
+          res.message ?? 'payment_link_send_failed'.tr,
           backgroundColor: const Color(0xFFEF4444),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
@@ -1193,8 +1194,8 @@ class AdvertiserDashboardController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'Failed to share payment link: $e',
+        'error_title'.tr,
+        '${'payment_link_send_failed'.tr}: $e',
         backgroundColor: const Color(0xFFEF4444),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
@@ -1232,7 +1233,7 @@ class AdvertiserDashboardController extends GetxController {
             ),
             const SizedBox(height: 6),
             Text(
-              'Campaign: ${c.displayTitle} (${c.displayCode})',
+              '${'campaign_prefix'.tr}: ${c.displayTitle} (${c.displayCode})',
               style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
             ),
             const SizedBox(height: 16),
@@ -1254,7 +1255,7 @@ class AdvertiserDashboardController extends GetxController {
             _buildShareOptionTile(
               icon: Icons.sms_outlined,
               title: 'sms_message'.tr,
-              subtitle: 'Sends direct checkout SMS to ${c.clientPhone ?? 'client phone'}',
+              subtitle: '${'send_sms_checkout_link'.tr} (${c.clientPhone ?? '-'})',
               color: const Color(0xFF0EA5E9),
               onTap: () {
                 Get.back();
@@ -1264,7 +1265,7 @@ class AdvertiserDashboardController extends GetxController {
             _buildShareOptionTile(
               icon: Icons.email_outlined,
               title: 'email_invoice'.tr,
-              subtitle: 'Delivers full tax invoice link to ${c.clientEmail ?? 'client email'}',
+              subtitle: '${'send_email_invoice_checkout'.tr} (${c.clientEmail ?? '-'})',
               color: const Color(0xFFF59E0B),
               onTap: () {
                 Get.back();
@@ -1454,11 +1455,11 @@ class AdvertiserDashboardController extends GetxController {
   Future<void> startCampaign(String id) async {
     final res = await _service.startCampaign(id);
     if (res.success) {
-      Get.snackbar('success'.tr, 'Campaign started successfully',
+      Get.snackbar('success'.tr, 'campaign_started_success'.tr,
           backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
       fetchCampaigns();
     } else {
-      Get.snackbar('Error', res.message ?? 'Failed to start campaign',
+      Get.snackbar('error_title'.tr, res.message ?? 'campaign_start_failed'.tr,
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
     }
   }
@@ -1470,7 +1471,7 @@ class AdvertiserDashboardController extends GetxController {
           backgroundColor: const Color(0xFFF97316), colorText: Colors.white);
       fetchCampaigns();
     } else {
-      Get.snackbar('Error', res.message ?? 'Failed to pause campaign',
+      Get.snackbar('error_title'.tr, res.message ?? 'campaign_pause_failed'.tr,
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
     }
   }
@@ -1478,11 +1479,11 @@ class AdvertiserDashboardController extends GetxController {
   Future<void> endCampaign(String id) async {
     final res = await _service.endCampaign(id);
     if (res.success) {
-      Get.snackbar('success'.tr, 'Campaign completed successfully',
+      Get.snackbar('success'.tr, 'campaign_completed_success'.tr,
           backgroundColor: const Color(0xFF3B82F6), colorText: Colors.white);
       fetchCampaigns();
     } else {
-      Get.snackbar('Error', res.message ?? 'Failed to end campaign',
+      Get.snackbar('error_title'.tr, res.message ?? 'campaign_complete_failed'.tr,
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
     }
   }
@@ -1515,7 +1516,7 @@ class AdvertiserDashboardController extends GetxController {
           backgroundColor: const Color(0xFF10B981), colorText: Colors.white);
       fetchCampaigns();
     } else {
-      Get.snackbar('Error', res.message ?? 'Failed to delete campaign',
+      Get.snackbar('error_title'.tr, res.message ?? 'campaign_delete_failed'.tr,
           backgroundColor: const Color(0xFFEF4444), colorText: Colors.white);
     }
   }
@@ -1561,6 +1562,14 @@ class AdvertiserDashboardController extends GetxController {
   }
 
   void logout() {
+    try {
+      if (Get.isRegistered<AuthService>()) {
+        AuthService.to.logout();
+      }
+      if (Get.isRegistered<StorageService>()) {
+        StorageService.to.clearAuth();
+      }
+    } catch (_) {}
     Get.offAllNamed(Routes.LOGIN);
   }
 }

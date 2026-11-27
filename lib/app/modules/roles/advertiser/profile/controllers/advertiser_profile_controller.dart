@@ -8,6 +8,7 @@ import '../../../../../data/services/auth_service.dart';
 import '../../../../../data/services/advertiser_service.dart';
 import '../../../../../data/services/http_client_service.dart';
 import '../../../../../data/services/storage_service.dart';
+import '../../../../../routes/app_routes.dart';
 
 class AdvertiserProfileController extends GetxController {
   final AuthService _authService = AuthService.to;
@@ -336,9 +337,17 @@ class AdvertiserProfileController extends GetxController {
             child: Text('cancel'.tr, style: const TextStyle(color: Colors.white54)),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Get.back();
-              _authService.logout();
+              try {
+                if (Get.isRegistered<AuthService>()) {
+                  _authService.logout();
+                }
+                if (Get.isRegistered<StorageService>()) {
+                  await StorageService.to.clearAuth();
+                }
+              } catch (_) {}
+              Get.offAllNamed(Routes.LOGIN);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.redAccent,

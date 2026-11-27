@@ -234,8 +234,8 @@ class AdvertiserReportsController extends GetxController {
       );
     } catch (e) {
       Get.snackbar(
-        'Export Failed',
-        'Could not generate CSV report: $e',
+        'export_failed_title'.tr,
+        'could_not_generate_csv_err'.trParams({'error': e.toString()}),
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
       );
@@ -263,8 +263,8 @@ class AdvertiserReportsController extends GetxController {
       );
     } catch (e) {
       Get.snackbar(
-        'Download Failed',
-        'Unable to save HTML report: $e',
+        'download_failed_title'.tr,
+        'unable_to_save_html_err'.trParams({'error': e.toString()}),
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
       );
@@ -558,15 +558,18 @@ class AdvertiserReportsController extends GetxController {
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             const Icon(Icons.open_in_new_rounded, color: Colors.white, size: 16),
                             const SizedBox(width: 8),
-                            Text(
-                              'open_view_file_btn'.tr,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
+                            Flexible(
+                              child: Text(
+                                'open_view_file_btn'.tr,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
                               ),
                             ),
                           ],
